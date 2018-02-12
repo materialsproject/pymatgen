@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -85,18 +85,8 @@ coordination of the sites in a structure</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_OPTIONS">
-<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = OrderedDict()</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = {}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.apply_strategy">
-<code class="descname">apply_strategy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AbstractChemenvStrategy.apply_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.apply_strategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies the strategy to the structure_environments object in order to define the coordination environments of
-the sites in the structure_environments object
-:param structure_environments: StructureEnvironments object containing all the information needed to define the
-coordination environment of the sites in the structure
-:return: The coordination environment(s) of the sites</p>
-</dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.as_dict">
@@ -104,11 +94,6 @@ coordination environment of the sites in the structure
 <dd><p>Bson-serializable dict representation of the SimplestChemenvStrategy object.
 :return: Bson-serializable dict representation of the SimplestChemenvStrategy object.</p>
 </dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.equivalent_site_index">
-<code class="descname">equivalent_site_index</code><span class="sig-paren">(</span><em>psite</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AbstractChemenvStrategy.equivalent_site_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.equivalent_site_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.equivalent_site_index_and_transform">
@@ -265,6 +250,11 @@ can return a list of list of neighbors</p>
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight">
 <em class="property">class </em><code class="descname">AngleNbSetWeight</code><span class="sig-paren">(</span><em>aa=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AngleNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'AngleWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.angle_sum">
 <code class="descname">angle_sum</code><span class="sig-paren">(</span><em>nb_set</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AngleNbSetWeight.angle_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.angle_sum" title="Permalink to this definition">¶</a></dt>
@@ -293,9 +283,40 @@ can return a list of list of neighbors</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight">
+<em class="property">class </em><code class="descname">AnglePlateauNbSetWeight</code><span class="sig-paren">(</span><em>angle_function=None</em>, <em>weight_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AnglePlateauNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'AnglePlateauWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AnglePlateauNbSetWeight.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>dd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AnglePlateauNbSetWeight.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.weight">
+<code class="descname">weight</code><span class="sig-paren">(</span><em>nb_set</em>, <em>structure_environments</em>, <em>cn_map=None</em>, <em>additional_info=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AnglePlateauNbSetWeight.weight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.weight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight">
 <em class="property">class </em><code class="descname">CNBiasNbSetWeight</code><span class="sig-paren">(</span><em>cn_weights</em>, <em>initialization_options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#CNBiasNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'CNBiasWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#CNBiasNbSetWeight.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -373,6 +394,11 @@ can return a list of list of neighbors</p>
 <code class="descname">DEFAULT_WEIGHT_ESTIMATOR</code><em class="property"> = {'function': 'smootherstep', 'options': {'delta_csm_min': 0.5, 'delta_csm_max': 3.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'DeltaCSMWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DeltaCSMNbSetWeight.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -397,7 +423,7 @@ can return a list of list of neighbors</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight">
-<em class="property">class </em><code class="descname">DistanceAngleAreaNbSetWeight</code><span class="sig-paren">(</span><em>weight_type='has_intersection'</em>, <em>surface_definition={'type': 'standard_elliptic'</em>, <em>'distance_bounds': {'lower': 1.2</em>, <em>'upper': 1.8}</em>, <em>'angle_bounds': {'lower': 0.1</em>, <em>'upper': 0.8}}</em>, <em>nb_sets_from_hints='fallback_to_source'</em>, <em>other_nb_sets='0_weight'</em>, <em>additional_condition=1</em>, <em>smoothstep_distance=None</em>, <em>smoothstep_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistanceAngleAreaNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DistanceAngleAreaNbSetWeight</code><span class="sig-paren">(</span><em>weight_type='has_intersection'</em>, <em>surface_definition={'angle_bounds': {'lower': 0.1</em>, <em>'upper': 0.8}</em>, <em>'distance_bounds': {'lower': 1.2</em>, <em>'upper': 1.8}</em>, <em>'type': 'standard_elliptic'}</em>, <em>nb_sets_from_hints='fallback_to_source'</em>, <em>other_nb_sets='0_weight'</em>, <em>additional_condition=1</em>, <em>smoothstep_distance=None</em>, <em>smoothstep_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistanceAngleAreaNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.AC">
@@ -406,7 +432,12 @@ can return a list of list of neighbors</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION">
-<code class="descname">DEFAULT_SURFACE_DEFINITION</code><em class="property"> = {'type': 'standard_elliptic', 'distance_bounds': {'lower': 1.2, 'upper': 1.8}, 'angle_bounds': {'lower': 0.1, 'upper': 0.8}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_SURFACE_DEFINITION</code><em class="property"> = {'angle_bounds': {'lower': 0.1, 'upper': 0.8}, 'distance_bounds': {'lower': 1.2, 'upper': 1.8}, 'type': 'standard_elliptic'}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'DistAngleAreaWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -463,6 +494,92 @@ can return a list of list of neighbors</p>
 <dl class="classmethod">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistanceCutoffFloat.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight">
+<em class="property">class </em><code class="descname">DistancePlateauNbSetWeight</code><span class="sig-paren">(</span><em>distance_function=None</em>, <em>weight_function=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistancePlateauNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'DistancePlateauWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistancePlateauNbSetWeight.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>dd</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistancePlateauNbSetWeight.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.weight">
+<code class="descname">weight</code><span class="sig-paren">(</span><em>nb_set</em>, <em>structure_environments</em>, <em>cn_map=None</em>, <em>additional_info=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistancePlateauNbSetWeight.weight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.weight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy">
+<em class="property">class </em><code class="descname">MultiUnlimitedWeightsChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type='csm_wcs_ctwcc'</em>, <em>nb_set_weights=None</em>, <em>ce_estimator={'function': 'power2_inverse_power2_decreasing'</em>, <em>'options': {'max_csm': 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy</span></code></a></p>
+<p>Constructor for the MultiUnlimitedWeightsChemenvStrategy.
+:param structure_environments: StructureEnvironments object containing all the information on the
+coordination of the sites in a structure</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR">
+<code class="descname">DEFAULT_CE_ESTIMATOR</code><em class="property"> = {'function': 'power2_inverse_power2_decreasing', 'options': {'max_csm': 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.STRATEGY_DESCRIPTION">
+<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = '    Multi Unlimited Weights ChemenvStrategy'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.
+:return: Bson-serializable dict representation of the MultiWeightsChemenvStrategy object.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstructs the MultiWeightsChemenvStrategy object from a dict representation of the
+MultipleAbundanceChemenvStrategy object created using the as_dict method.
+:param d: dict representation of the MultiWeightsChemenvStrategy object
+:return: MultiWeightsChemenvStrategy object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environment">
+<code class="descname">get_site_coordination_environment</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environments">
+<code class="descname">get_site_coordination_environments</code><span class="sig-paren">(</span><em>site</em>, <em>isite=None</em>, <em>dequivsite=None</em>, <em>dthissite=None</em>, <em>mysym=None</em>, <em>return_maps=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environments_fractions">
+<code class="descname">get_site_coordination_environments_fractions</code><span class="sig-paren">(</span><em>site</em>, <em>isite=None</em>, <em>dequivsite=None</em>, <em>dthissite=None</em>, <em>mysym=None</em>, <em>ordered=True</em>, <em>min_fraction=0.0</em>, <em>return_maps=True</em>, <em>return_strategy_dict_info=False</em>, <em>return_all=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environments_fractions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_coordination_environments_fractions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_neighbors">
+<code class="descname">get_site_neighbors</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy.get_site_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.get_site_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.uniquely_determines_coordination_environments">
+<code class="descname">uniquely_determines_coordination_environments</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.uniquely_determines_coordination_environments" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -558,6 +675,11 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight">
 <em class="property">class </em><code class="descname">NormalizedAngleDistanceNbSetWeight</code><span class="sig-paren">(</span><em>average_type</em>, <em>aa</em>, <em>bb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#NormalizedAngleDistanceNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'NormAngleDistWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.ang">
 <code class="descname">ang</code><span class="sig-paren">(</span><em>nb_set</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#NormalizedAngleDistanceNbSetWeight.ang"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.ang" title="Permalink to this definition">¶</a></dt>
@@ -644,6 +766,11 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 <code class="descname">DEFAULT_WEIGHT_ESTIMATOR</code><em class="property"> = {'function': 'power2_decreasing_exp', 'options': {'max_csm': 8.0, 'alpha': 1.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.SHORT_NAME">
+<code class="descname">SHORT_NAME</code><em class="property"> = 'SelfCSMWeight'</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SelfCSMNbSetWeight.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.as_dict" title="Permalink to this definition">¶</a></dt>
@@ -688,7 +815,7 @@ coordination of the sites in a structure</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS">
-<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = OrderedDict([('additional_condition', {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt'&gt;, 'internal': '_additional_condition', 'default': 1}), ('surface_calculation_type', {})])</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = {'additional_condition': {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt'&gt;, 'internal': '_additional_condition', 'default': 1}, 'surface_calculation_type': {}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -765,7 +892,7 @@ Voronoi approach. The coordination environment is then given as the one with the
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS">
-<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = OrderedDict([('distance_cutoff', {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat'&gt;, 'internal': '_distance_cutoff', 'default': 1.4}), ('angle_cutoff', {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat'&gt;, 'internal': '_angle_cutoff', 'default': 0.3}), ('additional_condition', {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt'&gt;, 'internal': '_additional_condition', 'default': 1}), ('continuous_symmetry_measure_cutoff', {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat'&gt;, 'internal': '_continuous_symmetry_measure_cutoff', 'default': 10.0})])</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = {'additional_condition': {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt'&gt;, 'internal': '_additional_condition', 'default': 1}, 'angle_cutoff': {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat'&gt;, 'internal': '_angle_cutoff', 'default': 0.3}, 'continuous_symmetry_measure_cutoff': {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat'&gt;, 'internal': '_continuous_symmetry_measure_cutoff', 'default': 10.0}, 'distance_cutoff': {'type': &lt;class 'pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat'&gt;, 'internal': '_distance_cutoff', 'default': 1.4}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -781,11 +908,6 @@ Voronoi approach. The coordination environment is then given as the one with the
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.angle_cutoff">
 <code class="descname">angle_cutoff</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.angle_cutoff" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.apply_strategy">
-<code class="descname">apply_strategy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimplestChemenvStrategy.apply_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.apply_strategy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -947,13 +1069,13 @@ TargettedPenaltiedAbundanceChemenvStrategy object created using the as_dict meth
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

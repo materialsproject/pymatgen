@@ -6,6 +6,7 @@ from __future__ import division, unicode_literals
 
 import unittest
 from monty.os.path import which
+import warnings
 
 from pymatgen.ext.cod import COD
 
@@ -24,6 +25,11 @@ __date__ = "Jun 9, 2012"
 
 
 class CODTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     @unittest.skipIf(not which("mysql"), "No mysql.")
     def test_get_cod_ids(self):

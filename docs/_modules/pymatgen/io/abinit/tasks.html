@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -75,7 +75,7 @@
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">product</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="n">StringIO</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+<span class="c1">#from monty.dev import deprecated</span>
 <span class="kn">from</span> <span class="nn">monty.string</span> <span class="k">import</span> <span class="n">is_string</span><span class="p">,</span> <span class="n">list_strings</span>
 <span class="kn">from</span> <span class="nn">monty.termcolor</span> <span class="k">import</span> <span class="n">colored</span><span class="p">,</span> <span class="n">cprint</span>
 <span class="kn">from</span> <span class="nn">monty.collections</span> <span class="k">import</span> <span class="n">AttrDict</span>
@@ -112,6 +112,7 @@
     <span class="s2">&quot;SigmaTask&quot;</span><span class="p">,</span>
     <span class="s2">&quot;OpticTask&quot;</span><span class="p">,</span>
     <span class="s2">&quot;AnaddbTask&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;set_user_config_taskmanager&quot;</span>
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -580,6 +581,11 @@
 <span class="n">_USER_CONFIG_TASKMANAGER</span> <span class="o">=</span> <span class="kc">None</span>
 
 
+<div class="viewcode-block" id="set_user_config_taskmanager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.set_user_config_taskmanager">[docs]</a><span class="k">def</span> <span class="nf">set_user_config_taskmanager</span><span class="p">(</span><span class="n">manager</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">USER_CONFIG_TASKMANAGER</span>
+    <span class="n">USER_CONFIG_TASKMANAGER</span>  <span class="o">=</span> <span class="n">manager</span></div>
+
+
 <div class="viewcode-block" id="TaskManager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager">[docs]</a><span class="k">class</span> <span class="nc">TaskManager</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A `TaskManager` is responsible for the generation of the job script and the submission</span>
@@ -695,7 +701,7 @@
 
 <div class="viewcode-block" id="TaskManager.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span></div>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1024,7 +1030,7 @@
             <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[:]</span>
             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--timelimit </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">qu</span><span class="o">.</span><span class="n">time2slurm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">timelimit</span><span class="p">))</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;exec_args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will pass timelimit option to abinit </span><span class="si">%s</span><span class="s2">:&quot;</span> <span class="o">%</span> <span class="n">args</span><span class="p">)</span>
+            <span class="c1">#logger.info(&quot;Will pass timelimit option to abinit %s:&quot; % args)</span>
 
         <span class="c1"># Write the submission script</span>
         <span class="n">script_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_jobfile</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1149,11 +1155,14 @@
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
         <span class="n">qjob</span><span class="p">,</span> <span class="n">process</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">submit_to_queue</span><span class="p">(</span><span class="n">script_file</span><span class="p">)</span>
         <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-        <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
-        <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while executing </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">script_file</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;stderr:&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="c1">#print(&quot;stdout:&quot;, process.stdout.read())</span>
+
+        <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
+        <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1205,13 +1214,14 @@
 <span class="sd">         Revision  : 1226</span>
 <span class="sd">         Committed : 0</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;0.0.0&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_netcdf</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_omp</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_mpi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_mpiio</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
 
         <span class="k">def</span> <span class="nf">yesno2bool</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
-            <span class="n">ans</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">yes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="n">ans</span><span class="p">]</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">yes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">ans</span><span class="p">]</span>
 
         <span class="c1"># Parse info.</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
@@ -1241,7 +1251,6 @@
         <span class="kn">from</span> <span class="nn">monty.operator</span> <span class="k">import</span> <span class="n">operator_from_str</span>
         <span class="n">op</span> <span class="o">=</span> <span class="n">operator_from_str</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">op</span><span class="p">(</span><span class="n">parse_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">),</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">version_string</span><span class="p">))</span></div></div>
-
 
 
 <span class="k">class</span> <span class="nc">FakeProcess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1444,6 +1453,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mpiabort_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;__ABI_MPIABORTFILE__&quot;</span><span class="p">))</span>
 
         <span class="c1"># Directories with input|output|temporary data.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;indata&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;outdata&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;tmpdata&quot;</span><span class="p">))</span>
@@ -1504,10 +1514,6 @@
         <span class="sd">&quot;&quot;&quot;Return the value of the ABINIT variable varname, None if not present.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
 
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;_set_inpvars is deprecated. Use set_vars&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_set_inpvars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">set_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the values of the ABINIT variables in the input file. Return dict with old values.</span>
@@ -1566,6 +1572,21 @@
             <span class="k">return</span> <span class="n">FakeProcess</span><span class="p">()</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_abinit_task</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this task is a subclass of AbinitTask.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AbinitTask</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_anaddb_task</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this task is a subclass of OpticTask.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AnaddbTask</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_optic_task</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if this task is a subclass of OpticTask.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OpticTask</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_completed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;True if the task has been executed.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S_DONE</span>
@@ -1599,6 +1620,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">manager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;manager&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">manager</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">new_with_fixed_mpi_omp</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">)</span>
+
+    <span class="c1">#def set_max_ncores(self, max_ncores):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    manager = self.manager if hasattr(self, &quot;manager&quot;) else self.flow.manager</span>
+    <span class="c1">#    self.manager = manager.new_with_max_ncores(mpi_procs, omp_threads)</span>
 
     <span class="c1">#@check_spectator</span>
     <span class="k">def</span> <span class="nf">_on_done</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1764,6 +1791,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_INIT</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Reset on </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_qjob</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Reset finalized flags.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">finalized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">finalized</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="mi">0</span>
 
@@ -2601,6 +2632,31 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">ispaw</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_gs_task</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if task is GsTask subclass.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">GsTask</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_dfpt_task</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if task is a DftpTask subclass.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DfptTask</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AbinitTask.cycle_class"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.cycle_class">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">cycle_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the subclass of ScfCycle associated to the task or</span>
+<span class="sd">        None if no SCF algorithm if associated to the task.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">RelaxTask</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">abiinspect</span><span class="o">.</span><span class="n">Relaxation</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">GsTask</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">abiinspect</span><span class="o">.</span><span class="n">GroundStateScfCycle</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dfpt_task</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">abiinspect</span><span class="o">.</span><span class="n">D2DEScfCycle</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">filesfile_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;String with the list of files and prefixes needed to execute ABINIT.&quot;&quot;&quot;</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3225,7 +3281,33 @@
         <span class="n">events</span><span class="o">.</span><span class="n">NscfConvergenceWarning</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">122</span><span class="p">,</span> <span class="mi">122</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
+    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">160</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mi">45</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
+
+<div class="viewcode-block" id="NscfTask.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.NscfTask.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        NSCF calculations should use the same FFT mesh as the one employed in the GS task</span>
+<span class="sd">        (in principle, it&#39;s possible to interpolate inside Abinit but tests revealed some numerical noise</span>
+<span class="sd">        Here we change the input file of the NSCF task to have the same FFT mesh.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: This won&#39;t work if parent_node is a file</span>
+        <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;DEN&quot;</span> <span class="ow">in</span> <span class="n">dep</span><span class="o">.</span><span class="n">exts</span><span class="p">:</span>
+                <span class="n">parent_task</span> <span class="o">=</span> <span class="n">dep</span><span class="o">.</span><span class="n">node</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find parent node producing DEN file&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">parent_task</span><span class="o">.</span><span class="n">open_gsr</span><span class="p">()</span> <span class="k">as</span> <span class="n">gsr</span><span class="p">:</span>
+            <span class="n">den_mesh</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+            <span class="n">den_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsr</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read_dimvalue</span><span class="p">(</span><span class="s2">&quot;number_of_grid_points_vector1&quot;</span><span class="p">)</span>
+            <span class="n">den_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsr</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read_dimvalue</span><span class="p">(</span><span class="s2">&quot;number_of_grid_points_vector2&quot;</span><span class="p">)</span>
+            <span class="n">den_mesh</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsr</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read_dimvalue</span><span class="p">(</span><span class="s2">&quot;number_of_grid_points_vector3&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ispaw</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ngfftdg</span><span class="o">=</span><span class="n">den_mesh</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ngfft</span><span class="o">=</span><span class="n">den_mesh</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">NscfTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="NscfTask.restart"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.NscfTask.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;NSCF calculations can be restarted only if we have the WFK file.&quot;&quot;&quot;</span>
@@ -3303,7 +3385,7 @@
         <span class="c1"># Fallback to DEN file. Note that here we look for out_DEN instead of out_TIM?_DEN</span>
         <span class="c1"># This happens when the previous run completed and task.on_done has been performed.</span>
         <span class="c1"># ********************************************************************************</span>
-        <span class="c1"># Note that it&#39;s possible to have an undected error if we have multiple restarts</span>
+        <span class="c1"># Note that it&#39;s possible to have an undetected error if we have multiple restarts</span>
         <span class="c1"># and the last relax died badly. In this case indeed out_DEN is the file produced</span>
         <span class="c1"># by the last run that has executed on_done.</span>
         <span class="c1"># ********************************************************************************</span>
@@ -3425,6 +3507,22 @@
 
 <span class="sd">        This class should not be instantiated directly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Get info about DFT perturbation from input file.</span>
+        <span class="n">qpt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qpt&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">rfphon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfphon&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">rfdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfdir&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">rfatpol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfatpol&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">dfpt_info</span> <span class="o">=</span> <span class="s2">&quot;rfphon: </span><span class="si">{}</span><span class="s2">, qpt: </span><span class="si">{}</span><span class="s2">, rfatpol: </span><span class="si">{}</span><span class="s2">, rfdir: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">rfphon</span><span class="p">,</span> <span class="n">qpt</span><span class="p">,</span> <span class="n">rfatpol</span><span class="p">,</span> <span class="n">rfdir</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2">, node_id=</span><span class="si">%s</span><span class="s2">, workdir=</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relworkdir</span><span class="p">,</span> <span class="n">dfpt_info</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="c1"># this usually happens when workdir has not been initialized</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">%s</span><span class="s2">, node_id=</span><span class="si">%s</span><span class="s2">, workdir=None, </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_id</span><span class="p">,</span> <span class="n">dfpt_info</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ddb_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Absolute path of the DDB file. Empty string if file is not present.&quot;&quot;&quot;</span>
@@ -3562,9 +3660,8 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
                         <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">out_wfk</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
 
-
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to handle extension: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dep</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to handle extension: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">exts</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">DdeTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -4003,14 +4100,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="mi">102</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optic_input</span><span class="p">,</span> <span class="n">nscf_node</span><span class="p">,</span> <span class="n">ddk_nodes</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optic_input</span><span class="p">,</span> <span class="n">nscf_node</span><span class="p">,</span> <span class="n">ddk_nodes</span><span class="p">,</span> <span class="n">use_ddknc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an instance of :class:`OpticTask` from an string containing the input.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            optic_input: string with the optic variables (filepaths will be added at run time).</span>
-<span class="sd">            nscf_node: The NSCF task that will produce thw WFK file or string with the path of the WFK file.</span>
-<span class="sd">            ddk_nodes: List of :class:`DdkTask` nodes that will produce the DDK files or list of DDF paths.</span>
+<span class="sd">            optic_input: :class:`OpticInput` object with optic variables.</span>
+<span class="sd">            nscf_node: The task that will produce the WFK file with the KS energies or path to the WFK file.</span>
+<span class="sd">            ddk_nodes: List of :class:`DdkTask` nodes that will produce the DDK files or list of DDK filepaths.</span>
+<span class="sd">                Order (x, y, z)</span>
 <span class="sd">            workdir: Path to the working directory.</span>
 <span class="sd">            manager: :class:`TaskManager` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -4021,8 +4119,11 @@
         <span class="c1">#print(self.nscf_node, self.ddk_nodes)</span>
 
         <span class="c1"># Use DDK extension instead of 1WF</span>
-        <span class="n">deps</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="s2">&quot;1WF&quot;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ddk_nodes</span><span class="p">}</span>
-        <span class="c1">#deps = {n: &quot;DDK&quot; for n in self.ddk_nodes}</span>
+        <span class="k">if</span> <span class="n">use_ddknc</span><span class="p">:</span>
+            <span class="n">deps</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="s2">&quot;DDK.nc&quot;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ddk_nodes</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deps</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="s2">&quot;1WF&quot;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ddk_nodes</span><span class="p">}</span>
+
         <span class="n">deps</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">nscf_node</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">})</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">OpticTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">optic_input</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">deps</span><span class="p">)</span>
@@ -4032,10 +4133,6 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">OpticTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">workdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="n">chroot</span><span class="p">)</span>
         <span class="c1"># Small hack: the log file of optics is actually the main output file.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span></div>
-
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;_set_inpvars is deprecated. Use set_vars&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">_set_inpvars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpticTask.set_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.set_vars">[docs]</a>    <span class="k">def</span> <span class="nf">set_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4079,14 +4176,20 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ddk_filepaths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns (at runtime) the absolute path of the DDK files produced by the DDK runs.&quot;&quot;&quot;</span>
+        <span class="c1"># This to support new version of optic that used DDK.nc</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">ddk_task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDK.nc&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">ddk_task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ddk_nodes</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">paths</span>
+
+        <span class="c1"># This is deprecated and can be removed when new version of Abinit is released.</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">ddk_task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;1WF&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">ddk_task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ddk_nodes</span><span class="p">]</span>
 
 <div class="viewcode-block" id="OpticTask.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Construct and write the input file of the calculation.&quot;&quot;&quot;</span>
         <span class="c1"># Set the file paths.</span>
-        <span class="n">all_files</span> <span class="o">=</span><span class="p">{</span><span class="s2">&quot;ddkfile_&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span> <span class="n">ddk</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">ddk</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ddk_filepaths</span><span class="p">)}</span>
-        <span class="n">all_files</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;wfkfile&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">wfk_filepath</span><span class="p">})</span>
-        <span class="n">files_nml</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;FILES&quot;</span> <span class="p">:</span> <span class="n">all_files</span><span class="p">}</span>
+        <span class="n">all_files</span> <span class="o">=</span><span class="p">{</span><span class="s2">&quot;ddkfile_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span> <span class="n">ddk</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">ddk</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ddk_filepaths</span><span class="p">)}</span>
+        <span class="n">all_files</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;wfkfile&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">wfk_filepath</span><span class="p">})</span>
+        <span class="n">files_nml</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;FILES&quot;</span><span class="p">:</span> <span class="n">all_files</span><span class="p">}</span>
         <span class="n">files</span><span class="o">=</span> <span class="n">nmltostring</span><span class="p">(</span><span class="n">files_nml</span><span class="p">)</span>
 
         <span class="c1"># Get the input specified by the user</span>
@@ -4105,11 +4208,7 @@
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="OpticTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">OpticTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="c1">#results.update(</span>
-        <span class="c1">#&quot;epsilon_infinity&quot;:</span>
-        <span class="c1">#))</span>
-        <span class="k">return</span> <span class="n">results</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">OpticTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpticTask.fix_abicritical"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.fix_abicritical">[docs]</a>    <span class="k">def</span> <span class="nf">fix_abicritical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4311,6 +4410,7 @@
         <span class="n">retcode</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
         <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1">#process.stdout.close()</span>
 
         <span class="c1"># Remove the variables added for the automatic parallelization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">autoparal_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
@@ -4322,8 +4422,15 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
-            <span class="k">return</span> <span class="mi">2</span>
+            <span class="c1"># In principle Abinit should have written a complete log file</span>
+            <span class="c1"># because we called .wait() but sometimes the Yaml doc is incomplete and</span>
+            <span class="c1"># the parser raises. Let&#39;s wait 5 secs and then try again.</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
+                <span class="k">return</span> <span class="mi">2</span>
 
         <span class="c1">######################################################</span>
         <span class="c1"># Select the optimal configuration according to policy</span>
@@ -4550,7 +4657,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4558,7 +4665,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

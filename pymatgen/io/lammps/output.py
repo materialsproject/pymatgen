@@ -31,7 +31,7 @@ from pymatgen.core.periodic_table import _pt_data
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen.io.lammps.data import LammpsData, LammpsForceFieldData
+from pymatgen.io.lammps.data import LammpsData
 
 __author__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"
@@ -200,17 +200,12 @@ class LammpsRun(MSONable):
         log_file (str): path to the log file
     """
 
-    def __init__(self, data_file, trajectory_file, log_file="log.lammps",
-                 is_forcefield=False):
+    def __init__(self, data_file, trajectory_file, log_file="log.lammps"):
         self.data_file = os.path.abspath(data_file)
         self.trajectory_file = os.path.abspath(trajectory_file)
         self.log_file = os.path.abspath(log_file)
         self.log = LammpsLog(log_file)
-        self.is_forcefield = is_forcefield
-        if self.is_forcefield:
-            self.lammps_data = LammpsForceFieldData.from_file(self.data_file)
-        else:
-            self.lammps_data = LammpsData.from_file(self.data_file)
+        self.lammps_data = LammpsData.from_file(self.data_file)
         self._set_mol_masses_and_charges()
         self._parse_trajectory()
 
@@ -281,16 +276,15 @@ class LammpsRun(MSONable):
         mol_config = []  # [ [atom id1, atom id2, ...], ... ]
         mol_masses = []  # [ [atom mass1, atom mass2, ...], ... ]
         # mol_charges = []
-        unique_atomic_masses = np.array(self.lammps_data.atomic_masses)[:, 1]
-        atoms_data = np.array(self.lammps_data.atoms_data)
-        mol_ids = atoms_data[:, 1].astype(np.int64)
-        atom_ids = atoms_data[:, 0].astype(np.int64)
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
+        mol_ids = self.lammps_data.atoms["molecule-ID"]
+        atom_ids = self.lammps_data.atoms.index
+        atomic_types = self.lammps_data.atoms["type"]
         unique_mol_ids = np.unique(mol_ids)
-        atomic_types = atoms_data[:, 2].astype(np.int64)
-        atomic_masses = unique_atomic_masses[atomic_types - 1]
+        atomic_masses = unique_atomic_masses[np.array(atomic_types) - 1]
         self.nmols = unique_mol_ids.size
         for umid in range(self.nmols):
-            mol_config.append(atom_ids[np.where(mol_ids == umid + 1)] - 1)
+            mol_config.append(np.array(atom_ids)[np.where(mol_ids == umid + 1)] - 1)
             mol_masses.append(atomic_masses[np.where(mol_ids == umid + 1)])
         self.mol_config = np.array(mol_config)
         self.mol_masses = np.array(mol_masses)
@@ -331,8 +325,7 @@ class LammpsRun(MSONable):
         end = (step + 1) * self.natoms
         mol_vector_structured = \
             self.trajectory[begin:end][self.mol_config[mol_id]][param]
-        new_shape = mol_vector_structured.shape + (-1,)
-        mol_vector = mol_vector_structured.view(np.float64).reshape(new_shape)
+        mol_vector = np.array(mol_vector_structured.tolist())
         return mol_vector.copy()
 
     # TODO: remove this and use only get_displacements(an order of magnitude faster)
@@ -350,15 +343,13 @@ class LammpsRun(MSONable):
         structures = []
         mass_to_symbol = dict(
             (round(y["Atomic mass"], 1), x) for x, y in _pt_data.items())
-        unique_atomic_masses = np.array(self.lammps_data.atomic_masses)[:, 1]
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
         for step in range(self.timesteps.size):
             begin = step * self.natoms
             end = (step + 1) * self.natoms
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
-            new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
-                new_shape)
+            mol_vector = np.array(mol_vector_structured.tolist())
             coords = mol_vector.copy()
             species = [mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
                        for atype in self.trajectory[begin:end][:]["atom_type"]]
@@ -385,16 +376,14 @@ class LammpsRun(MSONable):
                            [0, 0, self.box_lengths[2]]])
         mass_to_symbol = dict(
             (round(y["Atomic mass"], 1), x) for x, y in _pt_data.items())
-        unique_atomic_masses = np.array(self.lammps_data.atomic_masses)[:, 1]
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
         frac_coords = []
         for step in range(self.timesteps.size):
             begin = step * self.natoms
             end = (step + 1) * self.natoms
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
-            new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
-                new_shape)
+            mol_vector = np.array(mol_vector_structured.tolist())
             coords = mol_vector.copy()
             if step == 0:
                 species = [
@@ -438,11 +427,11 @@ class LammpsRun(MSONable):
 
     @property
     def natoms(self):
-        return self.lammps_data.natoms
+        return len(self.lammps_data.atoms)
 
     @property
     def box_lengths(self):
-        return [l[1] - l[0] for l in self.lammps_data.box_size]
+        return [l[1] - l[0] for l in self.lammps_data.box_bounds]
 
     @property
     def traj_timesteps(self):
@@ -513,7 +502,7 @@ class LammpsRun(MSONable):
     @classmethod
     def from_dict(cls, d):
         return cls(data_file=d["data_file"], trajectory_file=d["trajectory_file"],
-                   log_file=d["log_file"], is_forcefield=d["is_forcefield"])
+                   log_file=d["log_file"])
 
 
 def pbc_wrap(array, box_lengths):

@@ -10,7 +10,7 @@ import sys
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinit.tasks import ParalConf
 from pymatgen.io.abinit.qadapters import *
-from pymatgen.io.abinit.qadapters import QueueAdapter, SlurmAdapter 
+from pymatgen.io.abinit.qadapters import QueueAdapter, SlurmAdapter
 from pymatgen.io.abinit import qutils as qu
 
 
@@ -19,13 +19,13 @@ class ParseTimestr(PymatgenTest):
         days, hours, minutes, secs = 24*60*60, 60*60, 60, 1
         aequal = self.assertEqual
 
-        slurm_parse_timestr = qu.slurm_parse_timestr 
+        slurm_parse_timestr = qu.slurm_parse_timestr
 
         # "days-hours",
         aequal(slurm_parse_timestr("2-1"), 2*days + hours)
-        # "days-hours:minutes",                                        
+        # "days-hours:minutes",
         aequal(slurm_parse_timestr("2-1:1"), 2*days + hours + minutes)
-        # "days-hours:minutes:seconds".                                
+        # "days-hours:minutes:seconds".
         aequal(slurm_parse_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
         # "minutes",
         aequal(slurm_parse_timestr("10"), 10*minutes)
@@ -104,14 +104,14 @@ hardware:
             afalse(qad.hw.can_use_omp_threads(hw.sockets_per_node * hw.cores_per_socket + 1))
 
             # Test the creation of the script
-            script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+            script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path",
                                         stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
             # Test whether qad can be serialized with Pickle.
             deserialized_qads = self.serialize_with_pickle(qad, test_eq=False)
 
             for new_qad in deserialized_qads:
-                new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+                new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path",
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
                 aequal(new_script, script)
 
@@ -140,16 +140,16 @@ hardware:
             #d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=giga)
             #assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
 
-            with self.assertRaises(qad.Error): 
+            with self.assertRaises(qad.Error):
                 qad.set_mpi_procs(25)
                 qad.validate()
-            with self.assertRaises(qad.Error): 
+            with self.assertRaises(qad.Error):
                 qad.set_mpi_procs(100)
                 qad.validate()
-            with self.assertRaises(qad.Error): 
+            with self.assertRaises(qad.Error):
                 qad.set_omp_threads(10)
                 qad.validate()
-            with self.assertRaises(qad.Error): 
+            with self.assertRaises(qad.Error):
                 qad.set_mem_per_proc(9 * giga)
                 qad.validate()
 
@@ -210,7 +210,7 @@ export OMP_NUM_THREADS=1
 # Commands before execution
 source ~/env1.sh
 
-/home/local/bin/mpirun -n 1 executable < stdin > stdout 2> stderr
+/home/local/bin/mpirun  -n 1 executable < stdin > stdout 2> stderr
 """)
 
 
@@ -231,6 +231,7 @@ limits:
   max_cores: 16
 job:
   mpi_runner: mpirun
+  mpi_runner_options: --bind-to None
   # pre_run is a string in verbatim mode (note |)
   setup:
       - echo ${SLURM_JOB_NODELIST}
@@ -255,7 +256,7 @@ hardware:
         print(qad)
         print(qad.mpi_runner)
 
-        assert qad.QTYPE == "slurm" 
+        assert qad.QTYPE == "slurm"
         assert qad.has_mpi and not qad.has_omp
         assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
         assert qad.priority == 5 and qad.num_launches == 0 and qad.last_launch is None
@@ -292,7 +293,7 @@ export OMP_NUM_THREADS=1
 # Shell Environment
 export PATH=/home/user/bin:$PATH
 
-mpirun -n 4 executable < stdin > stdout 2> stderr
+mpirun --bind-to None -n 4 executable < stdin > stdout 2> stderr
 """)
         #assert 0
         #qad.set_omp_threads(1)
@@ -393,7 +394,7 @@ hardware:
 cd /launch_dir
 # OpenMp Environment
 export OMP_NUM_THREADS=1
-mpirun -n 3 executable < stdin > stdout 2> stderr
+mpirun  -n 3 executable < stdin > stdout 2> stderr
 """)
         mem = 1024
         qad.set_mem_per_proc(mem)
@@ -402,26 +403,26 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         qad.set_mpi_procs(4)
         s, params = qad.get_select(ret_dict=True)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
-        aequal(params, 
+        aequal(params,
           {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "mem": mem})
 
         qad.set_omp_threads(2)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
-        aequal(params, 
+        aequal(params,
             {'mem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_mpi_procs(12)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
-        aequal(params, 
+        aequal(params,
             {'mem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
-        aequal(params, 
+        aequal(params,
             {'mem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
 
         # Testing the handling of master memory overhead

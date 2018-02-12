@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -220,8 +220,8 @@ The array element is set to np.inf if an exception is raised while reading the G
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>obj</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> instance.</li>
-<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
+<li><strong>obj</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> instance or <cite>Task</cite> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node or list of dependencies
 None means that this obj has no dependency.</li>
 <li><strong>required_files</strong> – List of strings with the path of the files used by the task.
 Note that the files must exist when the task is registered.
@@ -249,8 +249,8 @@ the <cite>TaskManager</cite> specified during the creation of the <a class="refe
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>obj</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> instance.</li>
-<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
+<li><strong>obj</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> instance or <cite>Task</cite> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node or list of dependencies
 None means that this obj has no dependency.</li>
 <li><strong>required_files</strong> – List of strings with the path of the files used by the task.
 Note that the files must exist when the task is registered.
@@ -648,7 +648,7 @@ It provides the callback method (on_all_ok) that calls mrgddb to merge the parti
 </table>
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.PhononWork.from_scf_input">
-<em class="property">classmethod </em><code class="descname">from_scf_input</code><span class="sig-paren">(</span><em>scf_input</em>, <em>qpoints</em>, <em>tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_input" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_scf_input</code><span class="sig-paren">(</span><em>scf_input</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to <cite>from_scf_task</cite>, the difference is that this method requires
 an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)
 are packed in a single Work whereas in the previous case we usually have multiple works.</p>
@@ -656,7 +656,7 @@ are packed in a single Work whereas in the previous case we usually have multipl
 
 <dl class="classmethod">
 <dt id="pymatgen.io.abinit.works.PhononWork.from_scf_task">
-<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>qpoints</em>, <em>tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a <cite>PhononWork</cite> from a <code class="xref py py-class docutils literal"><span class="pre">ScfTask</span></code> object.
 The input file for phonons is automatically generated from the input of the ScfTask.
 Each phonon task depends on the WFK file produced by scf_task.</p>
@@ -666,7 +666,9 @@ Each phonon task depends on the WFK file produced by scf_task.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>scf_task</strong> – ScfTask object.</li>
-<li><strong>qpoints</strong> – q-points in reduced coordinates. Accepts single q-point or list of q-points</li>
+<li><strong>qpoints</strong> – q-points in reduced coordinates. Accepts single q-point, list of q-points
+or three integers defining the q-mesh if <cite>is_ngqpt</cite>.</li>
+<li><strong>is_ngqpt</strong> – True if <cite>qpoints</cite> should be interpreted as divisions instead of q-points.</li>
 <li><strong>tolerance</strong> – dict {varname: value} with the tolerance to be used in the DFPT run.
 Defaults to {“tolvrs”: 1.0e-10}.</li>
 <li><strong>manager</strong> – <code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code> object.</li>
@@ -741,13 +743,13 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

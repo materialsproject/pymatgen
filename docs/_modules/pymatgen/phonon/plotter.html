@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.phonon.plotter &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.phonon.plotter &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -61,13 +61,14 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">namedtuple</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">jsanitize</span>
 <span class="kn">from</span> <span class="nn">pymatgen.phonon.bandstructure</span> <span class="k">import</span> <span class="n">PhononBandStructureSymmLine</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span><span class="p">,</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_ax_fig_plt</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="k">import</span> <span class="n">plot_brillouin_zone</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -75,6 +76,27 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">FreqUnits</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;FreqUnits&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;factor&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="freq_units"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.freq_units">[docs]</a><span class="k">def</span> <span class="nf">freq_units</span><span class="p">(</span><span class="n">units</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns conversion factor from THz to the requred units and the label in the form of a namedtuple</span>
+<span class="sd">    Accepted values: thz, ev, mev, ha, cm-1, cm^-1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;thz&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;THz&quot;</span><span class="p">),</span>
+         <span class="s2">&quot;ev&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-electron volt relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span><span class="p">,</span> <span class="s2">&quot;eV&quot;</span><span class="p">),</span>
+         <span class="s2">&quot;mev&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-electron volt relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">milli</span><span class="p">,</span> <span class="s2">&quot;meV&quot;</span><span class="p">),</span>
+         <span class="s2">&quot;ha&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-hartree relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">),</span>
+         <span class="s2">&quot;cm-1&quot;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-inverse meter relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">centi</span><span class="p">,</span> <span class="s2">&quot;cm$^{-1}$&quot;</span><span class="p">),</span>
+         <span class="s1">&#39;cm^-1&#39;</span><span class="p">:</span> <span class="n">FreqUnits</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-inverse meter relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">centi</span><span class="p">,</span> <span class="s2">&quot;cm$^{-1}$&quot;</span><span class="p">)</span>
+         <span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="n">units</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Value for units `</span><span class="si">{}</span><span class="s1">` unknown</span><span class="se">\n</span><span class="s1">Possible values are:</span><span class="se">\n</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span></div>
 
 
 <div class="viewcode-block" id="PhononDosPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter">[docs]</a><span class="k">class</span> <span class="nc">PhononDosPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -149,7 +171,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhononDosPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononDosPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a matplotlib plot showing the DOS.</span>
 
@@ -157,13 +179,17 @@
 <span class="sd">            xlim: Specifies the x-axis limits. Set to None for automatic</span>
 <span class="sd">                determination.</span>
 <span class="sd">            ylim: Specifies the y-axis limits.</span>
+<span class="sd">            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">prettyplotlib</span> <span class="k">as</span> <span class="nn">ppl</span>
-        <span class="kn">from</span> <span class="nn">prettyplotlib</span> <span class="k">import</span> <span class="n">brewer2mpl</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">freq_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
 
         <span class="n">ncolors</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="p">))</span>
         <span class="n">ncolors</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">ncolors</span><span class="p">)</span>
-        <span class="n">colors</span> <span class="o">=</span> <span class="n">brewer2mpl</span><span class="o">.</span><span class="n">get_map</span><span class="p">(</span><span class="s1">&#39;Set1&#39;</span><span class="p">,</span> <span class="s1">&#39;qualitative&#39;</span><span class="p">,</span> <span class="n">ncolors</span><span class="p">)</span><span class="o">.</span><span class="n">mpl_colors</span>
+
+        <span class="kn">import</span> <span class="nn">palettable</span>
+
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">palettable</span><span class="o">.</span><span class="n">colorbrewer</span><span class="o">.</span><span class="n">qualitative</span><span class="o">.</span><span class="n">Set1_9</span><span class="o">.</span><span class="n">mpl_colors</span>
 
         <span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">alldensities</span> <span class="o">=</span> <span class="p">[]</span>
@@ -173,7 +199,7 @@
         <span class="c1"># Note that this complicated processing of frequencies is to allow for</span>
         <span class="c1"># stacked plots in matplotlib.</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">dos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">frequencies</span> <span class="o">=</span> <span class="n">dos</span><span class="p">[</span><span class="s1">&#39;frequencies&#39;</span><span class="p">]</span>
+            <span class="n">frequencies</span> <span class="o">=</span> <span class="n">dos</span><span class="p">[</span><span class="s1">&#39;frequencies&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">factor</span>
             <span class="n">densities</span> <span class="o">=</span> <span class="n">dos</span><span class="p">[</span><span class="s1">&#39;densities&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">frequencies</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -212,7 +238,7 @@
         <span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">,</span> <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequencies (THz)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Frequencies (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Density of states&#39;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
@@ -222,7 +248,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">plt</span></div>
 
-<div class="viewcode-block" id="PhononDosPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononDosPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save matplotlib plot to a file.</span>
 
@@ -232,11 +258,12 @@
 <span class="sd">            xlim: Specifies the x-axis limits. Set to None for automatic</span>
 <span class="sd">                determination.</span>
 <span class="sd">            ylim: Specifies the y-axis limits.</span>
+<span class="sd">            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhononDosPlotter.show"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononDosPlotter.show"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononDosPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Show the plot using matplotlib.</span>
 
@@ -244,8 +271,9 @@
 <span class="sd">            xlim: Specifies the x-axis limits. Set to None for automatic</span>
 <span class="sd">                determination.</span>
 <span class="sd">            ylim: Specifies the y-axis limits.</span>
+<span class="sd">            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
@@ -348,22 +376,19 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;ticks&#39;</span><span class="p">:</span> <span class="n">ticks</span><span class="p">,</span> <span class="s1">&#39;distances&#39;</span><span class="p">:</span> <span class="n">distance</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">:</span> <span class="n">frequency</span><span class="p">,</span>
                 <span class="s1">&#39;lattice&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">lattice_rec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()}</span></div>
 
-<div class="viewcode-block" id="PhononBSPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononBSPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a matplotlib object for the bandstructure plot.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ylim: Specify the y-axis (frequency) limits; by default None let</span>
 <span class="sd">                the code choose.</span>
+<span class="sd">            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">freq_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">rc</span>
-        <span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">scint</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">rc</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">usetex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="c1"># Fall back on non Tex if errored.</span>
-            <span class="n">rc</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">usetex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="n">band_linewidth</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -371,10 +396,9 @@
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">])):</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">],</span>
-                         <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                         <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">factor</span>
                           <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;distances&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]))],</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span>
                          <span class="n">linewidth</span><span class="o">=</span><span class="n">band_linewidth</span><span class="p">)</span>
-
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_maketicks</span><span class="p">(</span><span class="n">plt</span><span class="p">)</span>
 
@@ -383,7 +407,7 @@
 
         <span class="c1"># Main X and Y Labels</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\mathrm{Wave\ Vector}$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-        <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm{Frequency\ (THz)}$&#39;</span>
+        <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Frequency (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 
         <span class="c1"># X range (K)</span>
@@ -398,18 +422,19 @@
 
         <span class="k">return</span> <span class="n">plt</span></div>
 
-<div class="viewcode-block" id="PhononBSPlotter.show"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononBSPlotter.show"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Show the plot using matplotlib.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ylim: Specify the y-axis (frequency) limits; by default None let</span>
 <span class="sd">                the code choose.</span>
+<span class="sd">            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">ylim</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PhononBSPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononBSPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.PhononBSPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;thz&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save matplotlib plot to a file.</span>
 
@@ -417,8 +442,9 @@
 <span class="sd">            filename: Filename to write to.</span>
 <span class="sd">            img_format: Image format to use. Defaults to EPS.</span>
 <span class="sd">            ylim: Specifies the y-axis limits.</span>
+<span class="sd">            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -511,6 +537,196 @@
 
         <span class="n">plot_brillouin_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">lattice_rec</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="n">lines</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span></div></div>
 
+
+<div class="viewcode-block" id="ThermoPlotter"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter">[docs]</a><span class="k">class</span> <span class="nc">ThermoPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plotter for thermodynamic properties obtained from phonon DOS.</span>
+<span class="sd">    If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide</span>
+<span class="sd">    the plots in units of mol instead of mole-cell</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            dos: A PhononDos object.</span>
+<span class="sd">            structure: A Structure object corresponding to the structure used for the calculation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dos</span> <span class="o">=</span> <span class="n">dos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+
+    <span class="k">def</span> <span class="nf">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots a thermodynamic property for a generic function from a PhononDos instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            func: the thermodynamic function to be used to calculate the property</span>
+<span class="sd">            temperatures: a list of temperatures</span>
+<span class="sd">            factor: a multiplicative factor applied to the thermodynamic property calculated. Used to change</span>
+<span class="sd">                the units.</span>
+<span class="sd">            ax: matplotlib :class:`Axes` or None if a new figure should be created.</span>
+<span class="sd">            ylabel: label for the y axis</span>
+<span class="sd">            label: label of the plot</span>
+<span class="sd">            ylim: tuple specifying the y-axis limits.</span>
+<span class="sd">            kwargs: kwargs passed to the matplotlib function &#39;plot&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="n">get_ax_fig_plt</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperatures</span><span class="p">:</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ylim</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">temperatures</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">temperatures</span><span class="p">)))</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$T$ (K)&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ylabel</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span>
+
+<div class="viewcode-block" id="ThermoPlotter.plot_cv"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_cv">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot_cv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the constant volume specific heat C_v in a temperature range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tmin: minimum temperature</span>
+<span class="sd">            tmax: maximum temperature</span>
+<span class="sd">            ntemp: number of steps</span>
+<span class="sd">            ylim: tuple specifying the y-axis limits.</span>
+<span class="sd">            kwargs: kwargs passed to the matplotlib function &#39;plot&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$C_v$ (J/K/mol)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$C_v$ (J/K/mol-c)&quot;</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">cv</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="ThermoPlotter.plot_entropy"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot_entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the vibrational entrpy in a temperature range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tmin: minimum temperature</span>
+<span class="sd">            tmax: maximum temperature</span>
+<span class="sd">            ntemp: number of steps</span>
+<span class="sd">            ylim: tuple specifying the y-axis limits.</span>
+<span class="sd">            kwargs: kwargs passed to the matplotlib function &#39;plot&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$S$ (J/K/mol)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$S$ (J/K/mol-c)&quot;</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">entropy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="ThermoPlotter.plot_internal_energy"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot_internal_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the vibrational internal energy in a temperature range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tmin: minimum temperature</span>
+<span class="sd">            tmax: maximum temperature</span>
+<span class="sd">            ntemp: number of steps</span>
+<span class="sd">            ylim: tuple specifying the y-axis limits.</span>
+<span class="sd">            kwargs: kwargs passed to the matplotlib function &#39;plot&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/K/mol)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/K/mol-c)&quot;</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">internal_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span>
+                                <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="ThermoPlotter.plot_helmholtz_free_energy"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot_helmholtz_free_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the vibrational contribution to the Helmoltz free energy in a temperature range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tmin: minimum temperature</span>
+<span class="sd">            tmax: maximum temperature</span>
+<span class="sd">            ntemp: number of steps</span>
+<span class="sd">            ylim: tuple specifying the y-axis limits.</span>
+<span class="sd">            kwargs: kwargs passed to the matplotlib function &#39;plot&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/K/mol)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/K/mol-c)&quot;</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">helmholtz_free_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span>
+                                <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="ThermoPlotter.plot_thermodynamic_properties"><a class="viewcode-back" href="../../../pymatgen.phonon.plotter.html#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot_thermodynamic_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots all the thermodynamic properties in a temperature range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tmin: minimum temperature</span>
+<span class="sd">            tmax: maximum temperature</span>
+<span class="sd">            ntemp: number of steps</span>
+<span class="sd">            ylim: tuple specifying the y-axis limits.</span>
+<span class="sd">            kwargs: kwargs passed to the matplotlib function &#39;plot&#39;.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            matplotlib figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">ntemp</span><span class="p">)</span>
+
+        <span class="n">mol</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="k">else</span> <span class="s2">&quot;-c&quot;</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">cv</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Thermodynamic properties&quot;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span>
+                                <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$C_v$ (J/K/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">entropy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$S$ (J/K/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">internal_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Delta E$ (kJ/K/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_thermo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">helmholtz_free_energy</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                          <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\Delta F$ (kJ/K/mol</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div></div>
 </pre></div>
 
           </div>
@@ -541,7 +757,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -549,7 +765,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

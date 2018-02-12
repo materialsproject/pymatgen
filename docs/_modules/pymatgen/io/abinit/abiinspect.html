@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abiinspect &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.abinit.abiinspect &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -70,10 +70,11 @@
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="n">cStringIO</span><span class="p">,</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
+<span class="c1">#from six.moves import map, zip</span>
 <span class="kn">from</span> <span class="nn">tabulate</span> <span class="k">import</span> <span class="n">tabulate</span>
+<span class="kn">from</span> <span class="nn">monty.functools</span> <span class="k">import</span> <span class="n">lazy_property</span>
 <span class="kn">from</span> <span class="nn">monty.collections</span> <span class="k">import</span> <span class="n">AttrDict</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">add_fig_kwargs</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">add_fig_kwargs</span><span class="p">,</span> <span class="n">get_axarray_fig_plt</span>
 
 
 <div class="viewcode-block" id="straceback"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.straceback">[docs]</a><span class="k">def</span> <span class="nf">straceback</span><span class="p">():</span>
@@ -156,6 +157,14 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
+<span class="c1"># Use log scale for these variables.</span>
+<span class="n">_VARS_SUPPORTING_LOGSCALE</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;residm&quot;</span><span class="p">,</span> <span class="s2">&quot;vres2&quot;</span><span class="p">,</span> <span class="s2">&quot;nres2&quot;</span><span class="p">])</span>
+
+<span class="c1"># Hard-coded y-range for selected variables.</span>
+<span class="n">_VARS_WITH_YRANGE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;deltaE(h)&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">+</span><span class="mf">1e-3</span><span class="p">),</span>
+    <span class="s2">&quot;deltaE(Ha)&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">+</span><span class="mf">1e-3</span><span class="p">),</span>
+<span class="p">}</span>
 
 <div class="viewcode-block" id="ScfCycle"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.ScfCycle">[docs]</a><span class="k">class</span> <span class="nc">ScfCycle</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -168,8 +177,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
-        <span class="c1">#print(fields)</span>
-
         <span class="n">all_lens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span> <span class="o">=</span> <span class="n">all_lens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">all_lens</span><span class="p">)</span>
@@ -184,14 +191,14 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">it</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
-                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span><span class="p">)]</span>
-        <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="n">file</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
-        <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<div class="viewcode-block" id="ScfCycle.to_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.ScfCycle.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[[</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">it</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+                <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Iter&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">last_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -221,12 +228,14 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="ScfCycle.plot"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.ScfCycle.plot">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
-    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axlist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure</span>
+<span class="sd">        Uses matplotlib to plot the evolution of the SCF cycle.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            axlist: List of axes. If None a new figure is produced.</span>
+<span class="sd">            ax_list: List of axes. If None a new figure is produced.</span>
+<span class="sd">            fontsize: legend fontsize.</span>
+<span class="sd">            kwargs: keyword arguments are passed to ax.plot</span>
 
 <span class="sd">        Returns: matplotlib figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -236,51 +245,46 @@
             <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span>
             <span class="n">nrows</span> <span class="o">=</span> <span class="n">num_plots</span> <span class="o">//</span> <span class="n">ncols</span> <span class="o">+</span> <span class="n">num_plots</span> <span class="o">%</span> <span class="n">ncols</span>
 
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-        <span class="k">if</span> <span class="n">axlist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">axlist</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">axlist</span> <span class="o">=</span> <span class="n">axlist</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">ax_list</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plot</span> <span class="o">=</span> <span class="n">get_axarray_fig_plt</span><span class="p">(</span><span class="n">ax_list</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span>
+                                                 <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ax_list</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
 
-        <span class="c1"># Use log scale for these variables.</span>
-        <span class="n">use_logscale</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;residm&quot;</span><span class="p">,</span> <span class="s2">&quot;vres2&quot;</span><span class="p">])</span>
+        <span class="n">iter_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span><span class="p">)))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="c1"># Hard-coded y-range for selected variables.</span>
-        <span class="n">has_yrange</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;deltaE(h)&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">+</span><span class="mf">1e-3</span><span class="p">),</span>
-            <span class="s2">&quot;deltaE(Ha)&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">+</span><span class="mf">1e-3</span><span class="p">),</span>
-            <span class="p">}</span>
-
-        <span class="n">iter_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span><span class="p">)))</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">),</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">axlist</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">),</span> <span class="n">ax</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">ax_list</span><span class="p">)):</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration Step&#39;</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">iter_num</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
             <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">iter_num</span><span class="p">,</span> <span class="n">values</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="c1"># Don&#39;t show the first iteration since it&#39;s not very useful.</span>
-                <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">use_logscale</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">yy</span> <span class="o">&gt;</span> <span class="mf">1e-22</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_VARS_SUPPORTING_LOGSCALE</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">yy</span> <span class="o">&gt;</span> <span class="mf">1e-22</span><span class="p">):</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">has_yrange</span><span class="p">:</span>
-                <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">has_yrange</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_VARS_WITH_YRANGE</span><span class="p">:</span>
+                <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">_VARS_WITH_YRANGE</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
                 <span class="n">val_min</span><span class="p">,</span> <span class="n">val_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">yy</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">val_max</span> <span class="o">-</span> <span class="n">val_min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span><span class="p">):</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
 
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
         <span class="c1"># Get around a bug in matplotlib.</span>
         <span class="k">if</span> <span class="n">num_plots</span> <span class="o">%</span> <span class="n">ncols</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">axlist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-            <span class="n">axlist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+            <span class="n">ax_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">ax_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 
-        <span class="c1">#plt.legend(loc=&quot;best&quot;)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">fig</span></div></div>
 
 
@@ -308,9 +312,54 @@
     <span class="sd">&quot;&quot;&quot;Iterations of the DFPT SCF cycle for phonons.&quot;&quot;&quot;</span></div>
 
 
+<div class="viewcode-block" id="CyclesPlotter"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter">[docs]</a><span class="k">class</span> <span class="nc">CyclesPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Relies on the plot method of cycle objects to build multiple subfigures.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="CyclesPlotter.items"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;To iterate over (label, cycle).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CyclesPlotter.add_label_cycle"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">add_label_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add new cycle to the plotter with label `label`.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CyclesPlotter.combiplot"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">combiplot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compare multiple cycels on a grid: one subplot per quantity,</span>
+<span class="sd">        all cycles on the same subplot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fontsize: Legend fontsize.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ax_list</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">cycle</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">cycle</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax_list</span><span class="o">=</span><span class="n">ax_list</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+                             <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax_list</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">axes</span>
+
+        <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="CyclesPlotter.slideshow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.CyclesPlotter.slideshow">[docs]</a>    <span class="k">def</span> <span class="nf">slideshow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produce slides show of the different cycles. One plot per cycle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">cycle</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="Relaxation"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.Relaxation">[docs]</a><span class="k">class</span> <span class="nc">Relaxation</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A list of :class:`GroundStateScfCycle` objects.</span>
+
+<span class="sd">    .. attributes::</span>
+
+<span class="sd">        num_iterations: Number of iterations performed.</span>
 
 <span class="sd">    .. note::</span>
 
@@ -321,6 +370,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycles</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span> <span class="o">=</span> <span class="n">cycles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
@@ -332,17 +382,18 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">[</span><span class="nb">slice</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Relaxation.to_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.Relaxation.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">app</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">append</span>
-
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">app</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">app</span><span class="p">(</span><span class="s2">&quot;RELAXATION STEP: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
-            <span class="n">app</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
-            <span class="n">app</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">app</span><span class="p">(</span><span class="s2">&quot;RELAXATION STEP: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">app</span><span class="p">(</span><span class="n">cycle</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Relaxation.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.Relaxation.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
@@ -363,62 +414,99 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">cycles</span><span class="p">)</span> <span class="k">if</span> <span class="n">cycles</span> <span class="k">else</span> <span class="kc">None</span></div>
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="Relaxation.history"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.Relaxation.history">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Dictionary of lists with the evolution of the data as function of the relaxation step.</span>
+<span class="sd">        Ordered Dictionary of lists with the evolution of</span>
+<span class="sd">        the data as function of the relaxation step.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_history</span> <span class="o">=</span> <span class="n">history</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="n">d</span> <span class="o">=</span> <span class="n">cycle</span><span class="o">.</span><span class="n">last_iteration</span>
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">cycle</span><span class="o">.</span><span class="n">last_iteration</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
                     <span class="n">history</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">history</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_history</span>
+        <span class="c1"># Convert to numpy arrays.</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">history</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">history</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Relaxation.plot"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.Relaxation.plot">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
-    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axlist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">history</span></div>
+
+<div class="viewcode-block" id="Relaxation.slideshow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.Relaxation.slideshow">[docs]</a>    <span class="k">def</span> <span class="nf">slideshow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uses matplotlib to plot the evolution of the structural relaxation.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            axlist: List of axes. If None a new figure is produced.</span>
+<span class="sd">            ax_list: List of axes. If None a new figure is produced.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            `matplotlib` figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cycles</span><span class="p">):</span>
+            <span class="n">cycle</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Relaxation step </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                       <span class="n">tight_layout</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tight_layout&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+                       <span class="n">show</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;show&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span></div>
 
+<div class="viewcode-block" id="Relaxation.plot"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.abiinspect.html#pymatgen.io.abinit.abiinspect.Relaxation.plot">[docs]</a>    <span class="nd">@add_fig_kwargs</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot relaxation history i.e. the results of the last iteration of each SCF cycle.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ax_list: List of axes. If None a new figure is produced.</span>
+<span class="sd">            fontsize: legend fontsize.</span>
+<span class="sd">            kwargs: keyword arguments are passed to ax.plot</span>
+
+<span class="sd">        Returns: matplotlib figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span>
-        <span class="c1">#print(history)</span>
-
-        <span class="n">relax_step</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
 
         <span class="c1"># Build grid of plots.</span>
-        <span class="n">num_plots</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="n">num_plots</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">nrows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">history</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">num_plots</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="n">nrows</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_plots</span><span class="o">//</span><span class="n">ncols</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">num_plots</span> <span class="o">%</span> <span class="n">ncols</span><span class="p">)</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="n">num_plots</span> <span class="o">//</span> <span class="n">ncols</span> <span class="o">+</span> <span class="n">num_plots</span> <span class="o">%</span> <span class="n">ncols</span>
 
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax_list</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">ax_list</span> <span class="o">=</span> <span class="n">ax_list</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">ax_list</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="n">plot</span> <span class="o">=</span> <span class="n">get_axarray_fig_plt</span><span class="p">(</span><span class="n">ax_list</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span>
+                                                 <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ax_list</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">num_plots</span> <span class="o">%</span> <span class="n">ncols</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ax_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+        <span class="n">iter_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span><span class="p">)))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">),</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">ax_list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">),</span> <span class="n">ax</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">history</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">ax_list</span><span class="p">)):</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Relaxation Step&#39;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">relax_step</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">iter_num</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">relax_step</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+            <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">iter_num</span><span class="p">,</span> <span class="n">values</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_VARS_SUPPORTING_LOGSCALE</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">yy</span> <span class="o">&gt;</span> <span class="mf">1e-22</span><span class="p">):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_VARS_WITH_YRANGE</span><span class="p">:</span>
+                <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">_VARS_WITH_YRANGE</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">val_min</span><span class="p">,</span> <span class="n">val_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">yy</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">val_max</span> <span class="o">-</span> <span class="n">val_min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span><span class="p">):</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Get around a bug in matplotlib.</span>
+        <span class="k">if</span> <span class="n">num_plots</span> <span class="o">%</span> <span class="n">ncols</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ax_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">ax_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">fig</span></div></div>
-
 
 <span class="c1"># TODO</span>
 <span class="c1">#class HaydockIterations(collections.Iterable):</span>
@@ -729,7 +817,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -737,7 +825,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

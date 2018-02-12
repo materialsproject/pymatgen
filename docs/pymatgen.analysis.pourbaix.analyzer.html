@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.pourbaix.analyzer module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.pourbaix.analyzer module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -97,18 +97,24 @@ only solid</td>
 <dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_chempot_range_map">
 <code class="descname">get_chempot_range_map</code><span class="sig-paren">(</span><em>limits=[[-2, 16], [-4, 4]]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/analyzer.html#PourbaixAnalyzer.get_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a chemical potential range map for each stable entry.</p>
+<p>This function works by using scipy’s HalfspaceIntersection
+function to construct all of the 2-D polygons that form the
+boundaries of the planes corresponding to individual entry
+gibbs free energies as a function of pH and V. Hyperplanes
+of the form a*pH + b*V + 1 - g(0, 0) are constructed and
+supplied to HalfspaceIntersection, which then finds the
+boundaries of each pourbaix region using the intersection
+points.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>elements</strong> – Sequence of elements to be considered as independent
-variables. E.g., if you want to show the stability ranges of
-all Li-Co-O phases wrt to uLi and uO, you will supply
-[Element(“Li”), Element(“O”)]</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>limits</strong> (<em>[</em><em>[</em><em>float</em><em>]</em><em>]</em>) – limits in which to do the pourbaix
+analysis</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">[simplices]}. The list of
-simplices are the sides of the N-1 dim polytope bounding the
-allowable chemical potential range of each entry.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">[boundary_points]}.
+The list of boundary points are the sides of the N-1
+dim polytope bounding the allowable ph-V range of each entry.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Returns a dict of the form {entry</td>
 </tr>
@@ -163,6 +169,28 @@ energy above hull of 0.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Energy above convex hull of entry. Stable entries should have
 energy above hull of 0.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_entry_stability">
+<code class="descname">get_entry_stability</code><span class="sig-paren">(</span><em>entry</em>, <em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix/analyzer.html#PourbaixAnalyzer.get_entry_stability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix.analyzer.PourbaixAnalyzer.get_entry_stability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the energy difference between an entry and the
+most stable decomposition product (i.e. the pourbaix-stable
+entry) at a given pH and voltage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>entry</strong> (<a class="reference internal" href="pymatgen.analysis.pourbaix.entry.html#pymatgen.analysis.pourbaix.entry.PourbaixEntry" title="pymatgen.analysis.pourbaix.entry.PourbaixEntry"><em>PourbaixEntry</em></a>) – Pourbaix entry or MultiEntry
+corresponding to the stability to be calculated</li>
+<li><strong>pH</strong> (<em>float</em>) – pH at which to calculate stability of entry</li>
+<li><strong>V</strong> (<em>float</em>) – voltage at which to calculate stability of entry</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -249,13 +277,13 @@ V: potential vs SHE</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

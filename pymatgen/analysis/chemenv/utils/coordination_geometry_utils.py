@@ -167,19 +167,24 @@ def spline_functions(lower_points, upper_points, degree=3):
 
     return {'lower': lower, 'upper': upper}
 
+
 def diamond_functions(xx, yy, y_x0, x_y0):
     """
-    Method that creates two upper and lower functions based on points xx and yy as well as intercepts defined by
-     y_x0 and x_y0. The resulting functions form kind of a distorted diamond-like structure aligned from
-     point xx to point yy.
+    Method that creates two upper and lower functions based on points xx and yy
+    as well as intercepts defined by y_x0 and x_y0. The resulting functions
+    form kind of a distorted diamond-like structure aligned from
+    point xx to point yy.
 
     Schematically :
 
-    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance from x to a, x_y0 is equal to the
-     distance from x to b, the lines a-p and b-q are parallel to the line x-y such that points p and q are
-     obtained automatically.
-    In case of an increasing diamond the lower function is x-b-q and the upper function is a-p-y while in case of a
-     decreasing diamond, the lower function is a-p-y and the upper function is x-b-q.
+    xx is symbolized by x, yy is symbolized by y, y_x0 is equal to the distance
+    from x to a, x_y0 is equal to the distance from x to b, the lines a-p and
+    b-q are parallel to the line x-y such that points p and q are
+    obtained automatically.
+    In case of an increasing diamond the lower function is x-b-q and the upper
+    function is a-p-y while in case of a
+    decreasing diamond, the lower function is a-p-y and the upper function is
+    x-b-q.
 
            Increasing diamond      |     Decreasing diamond
                      p--y                    x----b
@@ -408,18 +413,14 @@ def rotateCoords(coords, R):
     return newlist
 
 
-def matrixMultiplication(AA, BB):
+def rotateCoordsOpt(coords, R):
     """
-    Performs the multiplication of two matrix of size 3x3
-    :param AA: One matrix of size 3x3
-    :param BB: Another matrix of size 3x3
-    :return: A matrix of size 3x3
+    Rotate the list of points using rotation matrix R
+    :param coords: List of points to be rotated
+    :param R: Rotation matrix
+    :return: List of rotated points
     """
-    MM = np.zeros([3, 3], np.float)
-    for ii in range(3):
-        for jj in range(3):
-            MM[ii, jj] = np.sum(AA[ii, :] * BB[:, jj])
-    return MM
+    return [np.dot(R, pp) for pp in coords]
 
 
 def changebasis(uu, vv, nn, pps):
@@ -501,6 +502,12 @@ def sort_separation(separation):
     return [sorted(separation[0]), sorted(separation[1]), sorted(separation[2])]
 
 
+def sort_separation_tuple(separation):
+    if len(separation[0]) > len(separation[2]):
+        return (tuple(sorted(separation[2])), tuple(sorted(separation[1])), tuple(sorted(separation[0])))
+    return (tuple(sorted(separation[0])), tuple(sorted(separation[1])), tuple(sorted(separation[2])))
+
+
 def separation_in_list(separation_indices, separation_indices_list):
     """
     Checks if the separation indices of a plane are already in the list
@@ -576,9 +583,9 @@ class Plane(object):
         else:
             dd = np.float(coefficients[3]) / normv
         self._coefficients = np.array([self.normal_vector[0],
-                                      self.normal_vector[1],
-                                      self.normal_vector[2],
-                                      dd], np.float)
+                                       self.normal_vector[1],
+                                       self.normal_vector[2],
+                                       dd], np.float)
         self._crosses_origin = np.isclose(dd, 0.0, atol=1e-7, rtol=0.0)
         self.p1 = p1
         self.p2 = p2
@@ -587,6 +594,9 @@ class Plane(object):
         if self.p1 is None:
             self.init_3points(nonzeros, zeros)
         self.vector_to_origin = dd * self.normal_vector
+        self.e1 = None
+        self.e2 = None
+        self.e3 = self.normal_vector
 
     def init_3points(self, nonzeros, zeros):
         if len(nonzeros) == 3:
@@ -677,10 +687,67 @@ class Plane(object):
     def distance_to_point(self, point):
         """
         Computes the absolute distance from the plane to the point
-        :param point:
-        :return:
+        :param point: Point for which distance is computed
+        :return: Distance between the plane and the point
         """
         return np.abs(np.dot(self.normal_vector, point) + self.d)
+
+    def distances(self, points):
+        """
+        Computes the distances from the plane to each of the points. Positive distances are on the side of the
+        normal of the plane while negative distances are on the other side
+        :param points: Points for which distances are computed
+        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
+                 negative values on the other side)
+        """
+        return [np.dot(self.normal_vector, pp) + self.d for pp in points]
+
+    def distances_indices_sorted(self, points, sign=False):
+        """
+        Computes the distances from the plane to each of the points. Positive distances are on the side of the
+        normal of the plane while negative distances are on the other side. Indices sorting the points from closest
+        to furthest is also computed.
+        :param points: Points for which distances are computed
+        :param sign: Whether to add sign information in the indices sorting the points distances
+        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
+                 negative values on the other side), as well as indices of the points from closest to furthest. For
+                 the latter, when the sign parameter is True, items of the sorting list are given as tuples of
+                 (index, sign).
+        """
+        distances = [np.dot(self.normal_vector, pp) + self.d for pp in points]
+        indices = sorted(range(len(distances)), key=lambda k: np.abs(distances[k]))
+        if sign:
+            indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
+        return distances, indices
+
+    def distances_indices_groups(self, points, delta=None, delta_factor=0.05, sign=False):
+        """
+        Computes the distances from the plane to each of the points. Positive distances are on the side of the
+        normal of the plane while negative distances are on the other side. Indices sorting the points from closest
+        to furthest is also computed. Grouped indices are also given, for which indices of the distances that are
+        separated by less than delta are grouped together. The delta parameter is either set explictly or taken as
+        a fraction (using the delta_factor parameter) of the maximal point distance.
+        :param points: Points for which distances are computed
+        :param delta: Distance interval for which two points are considered in the same group.
+        :param delta_factor: If delta is None, the distance interval is taken as delta_factor times the maximal
+                             point distance.
+                             :param sign: Whether to add sign information in the indices sorting the points distances
+        :return: Distances from the plane to the points (positive values on the side of the normal to the plane,
+                 negative values on the other side), as well as indices of the points from closest to furthest and
+                 grouped indices of distances separated by less than delta. For the sorting list and the grouped
+                 indices, when the sign parameter is True, items are given as tuples of (index, sign).
+        """
+        distances, indices = self.distances_indices_sorted(points=points)
+        if delta is None:
+            delta = delta_factor*np.abs(distances[indices[-1]])
+        iends = [ii for ii, idist in enumerate(indices, start=1)
+                 if ii == len(distances) or (np.abs(distances[indices[ii]])-np.abs(distances[idist])>delta)]
+        if sign:
+            indices = [(ii, int(np.sign(distances[ii]))) for ii in indices]
+        grouped_indices = [indices[iends[ii - 1]:iend]
+                           if ii > 0 else indices[:iend]
+                           for ii, iend in enumerate(iends)]
+        return distances, indices, grouped_indices
 
     def projectionpoints(self, pps):
         """
@@ -697,9 +764,32 @@ class Plane(object):
         :return: List of orthogonal vectors
         :raise: ValueError if all the coefficients are zero or if there is some other strange error
         """
-        e1 = np.array((self.p2 - self.p1) / norm(self.p2 - self.p1))
-        e2 = np.cross(self.normal_vector, e1)
-        return [e1, e2, np.array(self.normal_vector)]
+        if self.e1 is None:
+            diff = self.p2 - self.p1
+            self.e1 = diff / norm(diff)
+            self.e2 = np.cross(self.e3, self.e1)
+        return [self.e1, self.e2, self.e3]
+
+    def orthonormal_vectors_old(self):
+        """
+        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
+        third one is the normal vector of the plane
+        :return: List of orthogonal vectors
+        :raise: ValueError if all the coefficients are zero or if there is some other strange error
+        """
+        if self.e1 is None:
+            imax = np.argmax(np.abs(self.normal_vector))
+            if imax == 0:
+                self.e1 = np.array([self.e3[1], -self.e3[0], 0.0]) / np.sqrt(self.e3[0] ** 2 + self.e3[1] ** 2)
+            elif imax == 1:
+                self.e1 = np.array([0.0, self.e3[2], -self.e3[1]]) / np.sqrt(self.e3[1] ** 2 + self.e3[2] ** 2)
+            elif imax == 2:
+                self.e1 = np.array([-self.e3[2], 0.0, self.e3[0]]) / np.sqrt(self.e3[0] ** 2 + self.e3[2] ** 2)
+            else:
+                raise ValueError('Only three values in the normal vector, should not be here ...')
+            self.e2 = np.cross(self.e3, self.e1)
+        return [self.e1, self.e2, self.e3]
+
 
     def project_and_to2dim_ordered_indices(self, pps, plane_center='mean'):
         """

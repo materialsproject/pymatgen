@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Introduction &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>Introduction &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -47,7 +47,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -92,7 +92,7 @@ become a member of <a class="reference external" href="https://groups.google.com
 <h2>Py3k-only with effect from 2019.1.1<a class="headerlink" href="#py3k-only-with-effect-from-2019-1-1" title="Permalink to this headline">¶</a></h2>
 <p>Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
 With increasing support by most standard libraries for Py3k, it no longer makes
-sense to maintain this dual support going foward. Dual support imposes costs in
+sense to maintain this dual support going forward. Dual support imposes costs in
 terms of developmental effort, and also forces compromises in code quality and
 efficiency. Though some legacy clusters may only come with Py2k installed by
 default, the recommended approach in any case is to create an isolated Py3k
@@ -114,7 +114,7 @@ Jupyter notebooks for common and advanced use cases.</p>
 <p>Another good way to explore the functionality of pymatgen is to look at the
 examples in a <a class="reference internal" href="examples.html"><span class="doc">series of ipython notebooks</span></a>.
 Below are a quick look at some of the graphical output possible.</p>
-<div class="figure align-center" id="id1">
+<div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/examples.png"><img alt="Examples" src="_images/examples.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
 Bottom left: Calculated bandstructure plot using pymatgen’s parsing and
@@ -135,7 +135,8 @@ found and corrected quickly. Pymatgen also uses
 <a class="reference external" href="https://circleci.com">CircleCI</a> and <a class="reference external" href="https://www.appveyor.com/">Appveyor</a>
 for continuous integration on the Linux and Windows platforms,
 respectively, which ensures that every commit passes a comprehensive suite
-of unittests. The coverage of the unittests can be seen at <a class="reference external" href="coverage/index.html">here</a>.</li>
+of unittests. The coverage of the unittests can be seen on
+<a class="reference external" href="https://coveralls.io/github/materialsproject/pymatgen">coveralls.io</a>.</li>
 <li><strong>It is well documented.</strong> A fairly comprehensive documentation has been
 written to help you get to grips with it quickly.</li>
 <li><strong>It is open.</strong> You are free to use and contribute to pymatgen. It also means
@@ -157,13 +158,16 @@ other research groups.</li>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>critic2 command line caller for topological analysis (M. Horton)</li>
-<li>Refactor coord_util -&gt; coord.</li>
+<li>Improvements to local_env (Nils)</li>
+<li>Term symbols for Element (Weike Ye).</li>
+<li>Timeout for enumlib (Horton).</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
 <div class="section" id="getting-pymatgen">
 <h1>Getting pymatgen<a class="headerlink" href="#getting-pymatgen" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="via-conda-recommended">
+<h2>Via conda (recommended)<a class="headerlink" href="#via-conda-recommended" title="Permalink to this headline">¶</a></h2>
 <p>If you are absolutely new to Python and/or are using Windows, the easiest
 installation process is using <a class="reference external" href="http://conda.pydata.org">conda</a>. The
 <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> has started <a class="reference external" href="http://materials.sh">materials.sh</a>,
@@ -173,8 +177,16 @@ pymatgen can be installed from the <a class="reference external" href="https://a
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
+<p>Pymatgen is under active development, and new features are added regularly. To
+upgrade pymatgen to the latest version, use the following command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">upgrade</span> <span class="n">pymatgen</span>
+</pre></div>
+</div>
 <p>Step-by-step instructions for all platforms are available at the
 <a class="reference internal" href="installation.html"><span class="doc">installation page</span></a>.</p>
+</div>
+<div class="section" id="via-pip">
+<h2>Via pip<a class="headerlink" href="#via-pip" title="Permalink to this headline">¶</a></h2>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>Preparation</p>
@@ -189,7 +201,7 @@ where possible and do “export CC=gcc” prior to installation.</li>
 <li>Numpy’s distutils is needed to compile the spglib and pyhull
 dependencies. Numpy should be the first thing you install.</li>
 <li>One of the best things you can do is to use conda to manage all this.
-The instructions for <a href="#id3"><span class="problematic" id="id4">`Shared cluster installation`_</span></a> pretty much
+The instructions for <a class="reference internal" href="#shared-cluster-installation">Shared cluster installation</a> pretty much
 applies to any machine as well.</li>
 </ol>
 </div>
@@ -199,7 +211,11 @@ any system is to use pip:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
-<p>Wheels for Mac and Windows have been built for convenience.</p>
+<p>Wheels for Mac and Windows have been built for convenience. To upgrade pymatgen
+via pip:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">pymatgen</span>
+</pre></div>
+</div>
 <p>The bleeding edge developmental version is at the pymatgen <a class="reference external" href="https://github.com/materialsproject/pymatgen">Github repo</a>. The developmental
 version is likely to be more buggy, but may contain new features. The
 Github version include complete test files. After
@@ -248,6 +264,9 @@ interface usage, setup for developers, etc.are given on this
 </li>
 </ul>
 </div>
+</div>
+<div class="section" id="shared-cluster-installation">
+<h2>Shared cluster installation<a class="headerlink" href="#shared-cluster-installation" title="Permalink to this headline">¶</a></h2>
 <p>If you are installing pymatgen on shared computing clusters, e.g., the XSEDE
 or NERSC resources in the US, the best way is to use conda to perform a local
 install. This guarantees the right version of python and all dependencies:</p>
@@ -261,13 +280,15 @@ source $HOME/.bashrc
 source $HOME/.bash_profile
 
 # Install numpy and other pydata stack packages via conda.
-conda install --yes pymatgen
+conda install --yes numpy scipy pandas
+conda install --yes --channel matsci pymatgen
 </pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<div class="figure align-center" id="id2">
+<div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/overview.jpg"><img alt="pymatgen overview" src="_images/overview.jpg" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-text">Overview of a typical workflow for pymatgen.</span></p>
 </div>
@@ -277,6 +298,8 @@ etc.) from various sources (first principles calculations, crystallographic and
 molecule input files, Materials Project, etc.) into Python objects using
 pymatgen’s io packages, which are then used to perform further structure
 manipulation or analyses.</p>
+<div class="section" id="quick-start">
+<span id="id1"></span><h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
 <p>Useful aliases for commonly used objects are now provided. Supported objects
 include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
 some quick examples of the core capabilities and objects:</p>
@@ -437,13 +460,22 @@ strongly encouraged to explore the <a class="reference internal" href="usage.htm
 </li>
 </ul>
 </div>
+</div>
+<div class="section" id="api-documentation">
+<h2>API documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
 <p>For detailed documentation of all modules and classes, please refer to the
 <a class="reference internal" href="modules.html"><span class="doc">API docs</span></a>.</p>
+</div>
+<div class="section" id="more-resources">
+<h2>More resources<a class="headerlink" href="#more-resources" title="Permalink to this headline">¶</a></h2>
 <p>The founder and maintainer of pymatgen, Shyue Ping Ong, has conducted several
 workshops (together with Anubhav Jain) on how to effectively use pymatgen (as
 well as the extremely useful <a class="reference external" href="https://pypi.python.org/pypi/custodian">custodian</a> error management and <a class="reference external" href="https://materialsproject.github.io/fireworks">FireWorks</a>
 workflow software. The slides for these workshops are available on the
 <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a>.</p>
+</div>
+<div class="section" id="pmg-command-line-tool">
+<h2>pmg - Command line tool<a class="headerlink" href="#pmg-command-line-tool" title="Permalink to this headline">¶</a></h2>
 <p>To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
 that utilize the library to perform all kinds of analyses. These are
@@ -499,6 +531,9 @@ line to your <code class="docutils literal"><span class="pre">.bash_profile</spa
 <span class="n">pmg</span> <span class="n">generate</span> <span class="o">--</span><span class="n">potcar</span> <span class="n">Li_sv</span> <span class="n">O</span> <span class="o">--</span><span class="n">functional</span> <span class="n">PBE</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="add-ons">
+<h2>Add-ons<a class="headerlink" href="#add-ons" title="Permalink to this headline">¶</a></h2>
 <p>Some add-ons are available for pymatgen today:</p>
 <ol class="arabic simple">
 <li>The <a class="reference external" href="https://pypi.python.org/pypi/pymatgen-db">pymatgen-db</a> add-on
@@ -509,6 +544,7 @@ correction for calculations.</li>
 by the <a class="reference external" href="http://www.materialsvirtuallab.org">Materials Virtual Lab</a> provides additional useful analyses for
 diffusion in materials.</li>
 </ol>
+</div>
 </div>
 <div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
@@ -524,7 +560,7 @@ contributing is that your code will now be used by other researchers who use
 pymatgen, and we will include an acknowledgement to you (and any related
 publications) in pymatgen.</p>
 <p>A simple way that anyone can contribute is simply to report bugs and issues
-to the developing team. You can either send an email to the <a href="#id5"><span class="problematic" id="id6">`pymatgen's
+to the developing team. You can either send an email to the <a href="#id4"><span class="problematic" id="id5">`pymatgen's
 Google Groups page`_</span></a> or even better, submit an Issue in our <a class="reference external" href="https://github.com/materialsproject/pymatgen/issues">Github page</a>.</p>
 <p>Another way to contribute is to submit new code/bugfixes to pymatgen. The
 best way for anyone to develop pymatgen is by adopting the collaborative
@@ -622,8 +658,20 @@ to indicate the copyright and license terms:</p>
 <li><a class="reference internal" href="#matgenie-examples">Matgenie &amp; Examples</a></li>
 <li><a class="reference internal" href="#why-use-pymatgen">Why use pymatgen?</a></li>
 <li><a class="reference internal" href="#change-log">Change log</a></li>
-<li><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a></li>
-<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#getting-pymatgen">Getting pymatgen</a><ul>
+<li><a class="reference internal" href="#via-conda-recommended">Via conda (recommended)</a></li>
+<li><a class="reference internal" href="#via-pip">Via pip</a></li>
+<li><a class="reference internal" href="#shared-cluster-installation">Shared cluster installation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li><a class="reference internal" href="#api-documentation">API documentation</a></li>
+<li><a class="reference internal" href="#more-resources">More resources</a></li>
+<li><a class="reference internal" href="#pmg-command-line-tool">pmg - Command line tool</a></li>
+<li><a class="reference internal" href="#add-ons">Add-ons</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#contributing">Contributing</a></li>
 <li><a class="reference internal" href="#how-to-cite-pymatgen">How to cite pymatgen</a></li>
 <li><a class="reference internal" href="#license">License</a></li>
@@ -668,13 +716,13 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

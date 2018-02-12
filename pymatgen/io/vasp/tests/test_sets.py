@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import unittest
 import tempfile
 from monty.json import MontyDecoder
+from monty.serialization import loadfn
 
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
@@ -37,6 +38,12 @@ class MITMPRelaxSetTest(unittest.TestCase):
         cls.mitset = MITRelaxSet(cls.structure)
         cls.mitset_unsorted = MITRelaxSet(cls.structure, sort_structure=False)
         cls.mpset = MPRelaxSet(cls.structure)
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
@@ -188,6 +195,20 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(incar['LUSE_VDW'], True)
         self.assertEqual(incar['PARAM1'], 0.1234)
 
+        # Test that NELECT is updated when a charge is present
+        si = 14
+        coords = list()
+        coords.append(np.array([0, 0, 0]))
+        coords.append(np.array([0.75, 0.5, 0.75]))
+
+        # Silicon structure for testing.
+        latt = Lattice(np.array([[3.8401979337, 0.00, 0.00],
+                                 [1.9200989668, 3.3257101909, 0.00],
+                                 [0.00, -2.2171384943, 3.1355090603]]))
+        struct = Structure(latt, [si, si], coords,charge=1)
+        mpr = MPRelaxSet(struct)
+        self.assertEqual(mpr.incar["NELECT"],mpr.nelect+1,"NELECT not properly set for nonzero charge")
+
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
         self.assertEqual(kpoints.kpts, [[2, 4, 5]])
@@ -270,6 +291,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
 class MPStaticSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
+        warnings.simplefilter("ignore")
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
@@ -319,11 +341,12 @@ class MPStaticSetTest(PymatgenTest):
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
-
+        warnings.resetwarnings()
 
 class MPNonSCFSetTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
+        warnings.simplefilter("ignore")
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "relaxation")
@@ -366,9 +389,16 @@ class MPNonSCFSetTest(PymatgenTest):
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
+        warnings.resetwarnings()
 
 
 class MagmomLdauTest(PymatgenTest):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_structure_from_prev_run(self):
         vrun = Vasprun(os.path.join(test_dir, "vasprun.xml.magmom_ldau"))
         structure = vrun.final_structure
@@ -387,6 +417,23 @@ class MagmomLdauTest(PymatgenTest):
         self.assertEqual(ldau_dict, ldau_ans)
         self.assertEqual(magmom, magmom_ans)
 
+    def test_ln_magmom(self):
+        YAML_PATH = os.path.join(os.path.dirname(__file__), "../VASPIncarBase.yaml")
+        MAGMOM_SETTING = loadfn(YAML_PATH)["MAGMOM"]
+        structure = Structure.from_file(os.path.join(test_dir, "La4Fe4O12.cif"))
+        structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
+        for ion in MAGMOM_SETTING:
+            s = structure.copy()
+            s.replace_species({"La3+": ion})
+            vis = MPRelaxSet(s)
+            fe_pos = vis.poscar.comment.index("Fe")
+            if fe_pos == 0:
+                magmom_ans = [5] * 4 + [MAGMOM_SETTING[ion]] * 4 + [0.6] * 12
+            else:
+                magmom_ans = [MAGMOM_SETTING[ion]] * 4 + [5] * 4 + [0.6] * 12
+
+            self.assertEqual(vis.incar["MAGMOM"], magmom_ans)
+
 
 class MITMDSetTest(unittest.TestCase):
     def setUp(self):
@@ -394,6 +441,10 @@ class MITMDSetTest(unittest.TestCase):
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
         self.mitmdparam = MITMDSet(self.struct, 300, 1200, 10000)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_params(self):
         param = self.mitmdparam
@@ -420,6 +471,10 @@ class MVLNPTMDSetTest(unittest.TestCase):
         self.struct = poscar.structure
         self.mvl_npt_set = MVLNPTMDSet(self.struct, start_temp=0,
                                        end_temp=300, nsteps=1000)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_incar(self):
         npt_set = self.mvl_npt_set
@@ -430,15 +485,15 @@ class MVLNPTMDSetTest(unittest.TestCase):
         incar = npt_set.incar
         self.assertNotIn("LDAUU", incar)
         self.assertAlmostEqual(incar['EDIFF'], 1e-5)
-        self.assertEquals(incar["LANGEVIN_GAMMA_L"], 1)
-        self.assertEquals(incar["LANGEVIN_GAMMA"], [10, 10, 10])
+        self.assertEqual(incar["LANGEVIN_GAMMA_L"], 1)
+        self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
         enmax = max([npt_set.potcar[i].keywords["ENMAX"] for i in
                      range(self.struct.ntypesp)])
         self.assertAlmostEqual(incar["ENCUT"], 1.5 * enmax)
-        self.assertEquals(incar["IALGO"], 48)
-        self.assertEquals(incar["ISIF"], 3)
-        self.assertEquals(incar["MDALGO"], 3)
-        self.assertEquals(incar["SMASS"], 0)
+        self.assertEqual(incar["IALGO"], 48)
+        self.assertEqual(incar["ISIF"], 3)
+        self.assertEqual(incar["MDALGO"], 3)
+        self.assertEqual(incar["SMASS"], 0)
 
         kpoints = npt_set.kpoints
         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
@@ -462,6 +517,10 @@ class MITNEBSetTest(unittest.TestCase):
             structs.append(Structure.from_sites(s.sites, to_unit_cell=True))
         self.structures = structs
         self.vis = MITNEBSet(self.structures)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_potcar_symbols(self):
         syms = self.vis.potcar_symbols
@@ -503,6 +562,13 @@ class MITNEBSetTest(unittest.TestCase):
 
 
 class MPSOCSetTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_from_prev_calc(self):
         prev_run = os.path.join(test_dir, "fe_monomer")
         vis = MPSOCSet.from_prev_calc(prev_calc_dir=prev_run, magmom=[3],
@@ -533,6 +599,10 @@ class MVLSlabSetTest(PymatgenTest):
         self.d_slab = vis.all_input
         self.d_dipole = vis_dipole.all_input
         self.vis = vis
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_user_incar_settings(self):
         # Make sure user incar settings properly override AMIX.
@@ -589,6 +659,13 @@ class MVLSlabSetTest(PymatgenTest):
 
 
 class MVLElasticSetTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_incar(self):
         mvlparam = MVLElasticSet(self.get_structure("Graphite"))
         incar = mvlparam.incar
@@ -604,6 +681,10 @@ class MVLGWSetTest(PymatgenTest):
         if "PMG_VASP_PSP_DIR" not in os.environ:
             os.environ["PMG_VASP_PSP_DIR"] = test_dir
         self.s = PymatgenTest.get_structure("Li2O")
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_static(self):
         mvlgwsc = MVLGWSet(self.s)
@@ -651,6 +732,10 @@ class MVLGWSetTest(PymatgenTest):
 class MPHSEBSTest(PymatgenTest):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
         prev_run = os.path.join(test_dir, "static_silicon")
@@ -668,6 +753,48 @@ class MPHSEBSTest(PymatgenTest):
         self.assertEqual(vis.incar['NSW'], 0)
         self.assertEqual(vis.incar['ISYM'], 3)
         self.assertEqual(len(vis.kpoints.kpts), 180)
+
+
+class MVLScanRelaxSetTest(PymatgenTest):
+    def setUp(self):
+        file_path = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(file_path)
+        self.struct = poscar.structure
+        self.mvl_scan_set = MVLScanRelaxSet(self.struct,
+                                            potcar_functional="PBE_52",
+                                            user_incar_settings={"NSW": 500})
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_incar(self):
+        incar = self.mvl_scan_set.incar
+        self.assertIn("METAGGA", incar)
+        self.assertIn("LASPH", incar)
+        self.assertIn("ADDGRID", incar)
+        self.assertEqual(incar["NSW"], 500)
+
+        # Test SCAN+rVV10
+        scan_rvv10_set = MVLScanRelaxSet(self.struct, vdw="rVV10")
+        self.assertEqual(scan_rvv10_set.incar["BPARAM"], 15.7)
+
+    def test_potcar(self):
+        self.assertEqual(self.mvl_scan_set.potcar.functional, "PBE_52")
+
+        test_potcar_set_1 = MVLScanRelaxSet(
+            self.struct, potcar_functional="PBE_54")
+        self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_54")
+
+        self.assertRaises(ValueError, MVLScanRelaxSet,
+            self.struct, potcar_functional="PBE")
+
+    def test_as_from_dict(self):
+        d = self.mvl_scan_set.as_dict()
+        v = dec.process_decoded(d)
+        self.assertEqual(type(v), MVLScanRelaxSet)
+        self.assertEqual(v._config_dict["INCAR"]["METAGGA"], "SCAN")
+        self.assertEqual(v.user_incar_settings["NSW"], 500)
 
 
 class FuncTest(PymatgenTest):
@@ -692,6 +819,10 @@ class MVLGBSetTest(unittest.TestCase):
 
         self.d_bulk = self.bulk.all_input
         self.d_slab = self.slab.all_input
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_bulk(self):
         incar_bulk = self.d_bulk["INCAR"]

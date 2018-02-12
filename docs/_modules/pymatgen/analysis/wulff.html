@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.wulff &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.wulff &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -350,7 +350,7 @@
                                  <span class="k">if</span> <span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">on_wulff</span><span class="p">,</span> <span class="n">surface_area</span>
 
-    <span class="k">def</span> <span class="nf">_get_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">,</span> <span class="n">custom_colors</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        assign colors according to the surface energies of on_wulff facets.</span>
 
@@ -380,10 +380,11 @@
         <span class="n">scalar_map</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">cnorm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">c_map</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e_surf</span> <span class="ow">in</span> <span class="n">e_surf_on_wulff</span><span class="p">:</span>
-            <span class="n">plane_color</span> <span class="o">=</span> <span class="n">scalar_map</span><span class="o">.</span><span class="n">to_rgba</span><span class="p">(</span><span class="n">e_surf</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
-            <span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">plane_color</span>
+            <span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">scalar_map</span><span class="o">.</span><span class="n">to_rgba</span><span class="p">(</span><span class="n">e_surf</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">in</span> <span class="n">custom_colors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">custom_colors</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">miller_list</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
             <span class="n">color_proxy_on_wulff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">plane_color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">))</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">color_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">))</span>
             <span class="n">miller_on_wulff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_miller_fig</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="n">scalar_map</span><span class="o">.</span><span class="n">set_array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e_surf_on_wulff</span><span class="p">])</span>
         <span class="n">color_proxy</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
@@ -405,7 +406,7 @@
 <div class="viewcode-block" id="WulffShape.get_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="o">=</span><span class="s1">&#39;PuBu&#39;</span><span class="p">,</span> <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">show_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">off_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">bar_pos</span><span class="o">=</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">),</span> <span class="n">bar_on</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">legend_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aspect_ratio</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">)):</span>
+                 <span class="n">legend_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aspect_ratio</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">custom_colors</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the Wulff shape plot.</span>
 
@@ -415,12 +416,17 @@
 <span class="sd">            axis_off (bool): default is Ture</span>
 <span class="sd">            show_area (bool): default is False</span>
 <span class="sd">            alpha (float): chosen from 0 to 1 (float), default is 1</span>
-<span class="sd">            off_color: color_legend for off_wulff facets on show_area legend</span>
+<span class="sd">            off_color: Default color for facets not present on the Wulff shape.</span>
 <span class="sd">            direction: default is (1, 1, 1)</span>
 <span class="sd">            bar_pos: default is [0.75, 0.15, 0.05, 0.65]</span>
 <span class="sd">            bar_on (bool): default is False</span>
 <span class="sd">            legend_on (bool): default is True</span>
 <span class="sd">            aspect_ratio: default is (8, 8)</span>
+<span class="sd">            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each</span>
+<span class="sd">                facet with a dictionary. The key is the corresponding Miller</span>
+<span class="sd">                index and value is the color. Undefined facets will use default</span>
+<span class="sd">                color site. Note: If you decide to set your own colors, it</span>
+<span class="sd">                probably won&#39;t make any sense to have the color bar on.</span>
 
 <span class="sd">        Return:</span>
 <span class="sd">            (matplotlib.pyplot)</span>
@@ -430,7 +436,7 @@
         <span class="kn">import</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">as</span> <span class="nn">mpl3</span>
         <span class="n">color_list</span><span class="p">,</span> <span class="n">color_proxy</span><span class="p">,</span> <span class="n">color_proxy_on_wulff</span><span class="p">,</span> \
             <span class="n">miller_on_wulff</span><span class="p">,</span> <span class="n">e_surf_on_wulff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_colors</span><span class="p">(</span>
-                <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">)</span>
+                <span class="n">color_set</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">off_color</span><span class="p">,</span> <span class="n">custom_colors</span><span class="o">=</span><span class="n">custom_colors</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">direction</span><span class="p">:</span>
             <span class="c1"># If direction is not specified, use the miller indices of</span>
@@ -574,11 +580,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tot_area_energy</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">tot_area_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">*</span> \
-                               <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">tot_area_energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_surface_energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">area_fraction_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -617,7 +619,33 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            (float) Shape factor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">))</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">effective_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Radius of the Wulffshape when the</span>
+<span class="sd">        Wulffshape is approximated as a sphere.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) radius.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">((</span><span class="mi">3</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Total surface energy of the Wulff shape.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) sum(surface_energy_hkl * area_hkl)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tot_surface_energy</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">tot_surface_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">*</span> \
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">tot_surface_energy</span></div>
 </pre></div>
 
           </div>
@@ -648,7 +676,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -656,7 +684,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

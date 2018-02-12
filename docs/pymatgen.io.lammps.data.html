@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.lammps.data module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,55 +55,213 @@
   <div class="section" id="module-pymatgen.io.lammps.data">
 <span id="pymatgen-io-lammps-data-module"></span><h1>pymatgen.io.lammps.data module<a class="headerlink" href="#module-pymatgen.io.lammps.data" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pymatgen.io.lammps.data.LammpsData">
-<em class="property">class </em><code class="descname">LammpsData</code><span class="sig-paren">(</span><em>box_size</em>, <em>atomic_masses</em>, <em>atoms_data</em>, <em>box_tilt=None</em>, <em>atom_style='full'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.io.lammps.data.ForceField">
+<em class="property">class </em><code class="descname">ForceField</code><span class="sig-paren">(</span><em>mass_info</em>, <em>nonbond_coeffs=None</em>, <em>topo_coeffs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Basic Lammps data: just the atoms section</p>
+<p>Class carrying most data in Masses and force field sections.</p>
+<dl class="attribute">
+<dt id="pymatgen.io.lammps.data.ForceField.masses">
+<code class="descname">masses</code><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.masses" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>pandas.DataFrame</em> – DataFrame for Masses section.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.lammps.data.ForceField.force_field">
+<code class="descname">force_field</code><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.force_field" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – Force field section keywords (keys) and
+data (values) as DataFrames.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.lammps.data.ForceField.maps">
+<code class="descname">maps</code><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.maps" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>dict</em> – Dict for labeling atoms and topologies.</p>
+</dd></dl>
+
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>box_size</strong> (<em>list</em>) – [[x_min, x_max], [y_min,y_max], [z_min,z_max]]</li>
-<li><strong>atomic_masses</strong> (<em>list</em>) – [[atom type, mass],…]</li>
-<li><strong>atoms_data</strong> (<em>list</em>) – [[atom id, mol id, atom type, charge, x, y, z …], … ]</li>
-<li><strong>box_tilt</strong> (<em>list</em>) – [xy, xz, yz] for non-orthogonal systems</li>
+<li><strong>mass_into</strong> (<em>list</em>) – List of atomic mass info. Elements,
+strings (symbols) and floats are all acceptable for the
+values, with the first two converted to the atomic mass
+of an element. It is recommended to use
+OrderedDict.items() to prevent key duplications.
+[(“C”, 12.01), (“H”, Element(“H”)), (“O”, “O”), …]</li>
+<li><strong>[</strong><strong>coeffs</strong><strong>]</strong> (<em>nonbond_coeffs</em>) – List of pair or pairij
+coefficients, of which the sequence must be sorted
+according to the species in mass_dict. Pair or PairIJ
+determined by the length of list. Optional with default
+to None.</li>
+<li><strong>topo_coeffs</strong> (<em>dict</em>) – <p>Dict with force field coefficients for
+molecular topologies. Optional with default
+to None. All four valid keys listed below are optional.
+Each value is a list of dicts with non optional keys
+“coeffs” and “types”, and related class2 force field
+keywords as optional keys.
+{</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>”Bond Coeffs”:</dt>
+<dd><dl class="first last docutils">
+<dt>[{“coeffs”: [coeff],</dt>
+<dd>”types”: [(“C”, “C”), …]}, …],</dd>
+</dl>
+</dd>
+<dt>”Angle Coeffs”:</dt>
+<dd><dl class="first last docutils">
+<dt>[{“coeffs”: [coeff],</dt>
+<dd>”BondBond Coeffs”: [coeff],
+“types”: [(“H”, “C”, “H”), …]}, …],</dd>
+</dl>
+</dd>
+<dt>”Dihedral Coeffs”:</dt>
+<dd><dl class="first last docutils">
+<dt>[{“coeffs”: [coeff],</dt>
+<dd>”BondBond13 Coeffs”: [coeff],
+“types”: [(“H”, “C”, “C”, “H”), …]}, …],</dd>
+</dl>
+</dd>
+<dt>”Improper Coeffs”:</dt>
+<dd><dl class="first last docutils">
+<dt>[{“coeffs”: [coeff],</dt>
+<dd>”AngleAngle Coeffs”: [coeff],
+“types”: [(“H”, “C”, “C”, “H”), …]}, …],</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p>}
+Topology of same type or equivalent types (e.g.,
+(“C”, “H”) and (“H”, “C”) bonds) are NOT ALLOWED to
+be defined MORE THAN ONCE with DIFFERENT coefficients.</p>
+</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
-<dt id="pymatgen.io.lammps.data.LammpsData.TEMPLATE">
-<code class="descname">TEMPLATE</code><em class="property"> = 'Generated by pymatgen.io.lammps.data.LammpsData\n\n{natoms} atoms\n\n{natom_types} atom types\n\n{xlo:.6f} {xhi:.6f} xlo xhi\n{ylo:.6f} {yhi:.6f} ylo yhi\n{zlo:.6f} {zhi:.6f} zlo zhi\n{tilt}\n\nMasses \n\n{masses}\n\nAtoms \n\n{atoms}\n'</em><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.data.ForceField.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.data.ForceField.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor that reads in a file in YAML format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lammps.data.ForceField.to_file">
+<code class="descname">to_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#ForceField.to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.ForceField.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves object to a file in YAML format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.lammps.data.LammpsData">
+<em class="property">class </em><code class="descname">LammpsData</code><span class="sig-paren">(</span><em>masses</em>, <em>atoms</em>, <em>box_bounds</em>, <em>box_tilt=None</em>, <em>velocities=None</em>, <em>force_field=None</em>, <em>topology=None</em>, <em>atom_style='full'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Object for representing the data in a LAMMPS data file.</p>
+<p>This is a low level constructor designed to work with parsed
+data or other bridging objects (ForceField and Topology). Not
+recommended to use directly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>masses</strong> (<em>pandas.DataFrame</em>) – DataFrame with one column
+[“mass”] for Masses section.</li>
+<li><strong>atoms</strong> (<em>pandas.DataFrame</em>) – DataFrame with multiple columns
+for Atoms section. Column names vary with atom_style.</li>
+<li><strong>box_bounds</strong> – A (3, 2) array/list of floats setting the
+boundaries of simulation box.</li>
+<li><strong>box_tilt</strong> – A (3,) array/list of floats setting the tilt of
+simulation box. Default to None, i.e., use an
+orthogonal box.</li>
+<li><strong>velocities</strong> (<em>pandas.DataFrame</em>) – DataFrame with three columns
+[“vx”, “vy”, “vz”] for Velocities section. Optional
+with default to None. If not None, its index should be
+consistent with atoms.</li>
+<li><strong>force_field</strong> (<em>dict</em>) – Data for force field sections. Optional
+with default to None. Only keywords in force field and
+class 2 force field are valid keys, and each value is a
+DataFrame.</li>
+<li><strong>topology</strong> (<em>dict</em>) – Data for topology sections. Optional with
+default to None. Only keywords in topology are valid
+keys, and each value is a DataFrame.</li>
+<li><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
-<dt id="pymatgen.io.lammps.data.LammpsData.check_box_size">
-<em class="property">static </em><code class="descname">check_box_size</code><span class="sig-paren">(</span><em>structure</em>, <em>box_size</em>, <em>translate=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.check_box_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.check_box_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>For Molecule objects: check the box size and if necessary translate
-the molecule so that all the sites are contained within the bounding box.
-Structure objects: compute the tilt. See</p>
-<blockquote>
-<div><a class="reference external" href="http://lammps.sandia.gov/doc/Section_howto.html#howto-12">http://lammps.sandia.gov/doc/Section_howto.html#howto-12</a></div></blockquote>
+<dl class="method">
+<dt id="pymatgen.io.lammps.data.LammpsData.disassemble">
+<code class="descname">disassemble</code><span class="sig-paren">(</span><em>atom_labels=None</em>, <em>guess_element=True</em>, <em>ff_label='ff_map'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.disassemble"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.disassemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Breaks down LammpsData to ForceField and a series of Topology.
+RESTRICTIONS APPLIED:</p>
+<ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>No complex force field defined not just on atom</dt>
+<dd>types, where the same type or equivalent types of topology
+may have more than one set of coefficients.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>No intermolecular topologies (with atoms from different</dt>
+<dd>molecule-ID) since a Topology object includes data for ONE
+molecule or structure only.</dd>
+</dl>
+</li>
+</ol>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<em>Structure/Molecule</em>) – </li>
-<li><strong>box_size</strong> (<em>list</em>) – [[x_min, x_max], [y_min, y_max], [z_min, z_max]]</li>
-<li><strong>translate</strong> (<em>bool</em>) – if true move the molecule to the center of the
-new box.</li>
+<li><strong>atom_labels</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings (must be different
+from one another) for labelling each atom type found in
+Masses section. Default to None, where the labels are
+automaticaly added based on either element guess or
+dummy specie assignment.</li>
+<li><strong>guess_element</strong> (<em>bool</em>) – Whether to guess the element based on
+its atomic mass. Default to True, otherwise dummy
+species “Qa”, “Qb”, … will be assigned to various
+atom types. The guessed or assigned elements will be
+reflected on atom labels if atom_labels is None, as
+well as on the species of molecule in each Topology.</li>
+<li><strong>ff_label</strong> (<em>str</em>) – Site property key for labeling atoms of
+different types. Default to “ff_map”.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">box_size, box_tilt</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ForceField, [Topology]</p>
 </td>
 </tr>
 </tbody>
@@ -116,119 +274,76 @@ new box.</li>
 <dd></dd></dl>
 
 <dl class="classmethod">
+<dt id="pymatgen.io.lammps.data.LammpsData.from_ff_and_topologies">
+<em class="property">classmethod </em><code class="descname">from_ff_and_topologies</code><span class="sig-paren">(</span><em>ff</em>, <em>topologies</em>, <em>box_bounds</em>, <em>box_tilt=None</em>, <em>atom_style='full'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_ff_and_topologies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_ff_and_topologies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor building LammpsData from a ForceField object and a
+list of Topology objects. Do not support intermolecular
+topologies since a Topology object includes data for ONE
+molecule or structure only.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ff</strong> (<a class="reference internal" href="#pymatgen.io.lammps.data.ForceField" title="pymatgen.io.lammps.data.ForceField"><em>ForceField</em></a>) – ForceField object with data for Masses and
+force field sections.</li>
+<li><strong>topologies</strong> (<em>[</em><a class="reference internal" href="#pymatgen.io.lammps.data.Topology" title="pymatgen.io.lammps.data.Topology"><em>Topology</em></a><em>]</em>) – List of Topology objects with data
+for Atoms, Velocities and topology sections.</li>
+<li><strong>box_bounds</strong> – A (3, 2) array/list of floats setting the
+boundaries of simulation box.</li>
+<li><strong>box_tilt</strong> – A (3,) array/list of floats setting the tilt of
+simulation box. Default to None, i.e., use an
+orthogonal box.</li>
+<li><strong>atom_style</strong> (<em>str</em>) – Output atom_style. Default to “full”.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
 <dt id="pymatgen.io.lammps.data.LammpsData.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>data_file</em>, <em>atom_style='full'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return LammpsData object from the data file.
-Note: use this to read in data files that conform with
-atom_style = charge or atomic or full</p>
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>atom_style='full'</em>, <em>sort_id=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor that parses a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_file</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – data file name</li>
-<li><strong>atom_style</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – “full” or “charge” or “atomic”</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) – Filename to read.</li>
+<li><strong>atom_style</strong> (<em>str</em>) – Associated atom_style. Default to “full”.</li>
+<li><strong>sort_id</strong> (<em>bool</em>) – Whether sort each section by id. Default to
+True.</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">LammpsData</p>
 </td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
-<dl class="classmethod">
-<dt id="pymatgen.io.lammps.data.LammpsData.from_structure">
-<em class="property">classmethod </em><code class="descname">from_structure</code><span class="sig-paren">(</span><em>input_structure</em>, <em>box_size=None</em>, <em>set_charge=True</em>, <em>translate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.from_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.from_structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set LammpsData from the given structure or molecule object. If the input
-structure is a Molecule and if it doesnt fit in the input box then the
-box size is updated based on the max and min site coordinates of the
-molecules.</p>
+<dl class="method">
+<dt id="pymatgen.io.lammps.data.LammpsData.get_string">
+<code class="descname">get_string</code><span class="sig-paren">(</span><em>distance=6</em>, <em>velocity=8</em>, <em>charge=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the string representation of LammpsData, essentially
+the string to be written to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>input_structure</strong> (<em>Molecule/Structure</em>) – </li>
-<li><strong>box_size</strong> (<em>list</em>) – [[x_min, x_max], [y_min, y_max], [z_min, z_max]]</li>
-<li><strong>set_charge</strong> (<em>bool</em>) – whether or not to set the charge field in
-Atoms. If true, the charge will be non-zero only if the
-input_structure has the “charge” site property set.</li>
-<li><strong>translate</strong> (<em>bool</em>) – if true move the molecule to the center of the
-new box(it that is required).</li>
+<li><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
+box settings (bounds and tilt) and atomic coordinates.
+Default to 6.</li>
+<li><strong>velocity</strong> (<em>int</em>) – No. of significant figures to output for
+velocities. Default to 8.</li>
+<li><strong>charge</strong> (<em>int</em>) – No. of significant figures to output for
+charges. Default to 3.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">LammpsData</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">String representation</p>
 </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="pymatgen.io.lammps.data.LammpsData.get_atoms_data">
-<em class="property">classmethod </em><code class="descname">get_atoms_data</code><span class="sig-paren">(</span><em>structure</em>, <em>atomic_masses_dict</em>, <em>set_charge=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_atoms_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_atoms_data" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>return the atoms data:</dt>
-<dd><dl class="first last docutils">
-<dt>Molecule:</dt>
-<dd><p class="first">atom_id, molecule tag, atom_type, charge(if present else 0),
-x, y, z.
-The molecule_tag is set to 1(i.e the whole structure corresponds to
-just one molecule).
-This corresponds to lammps command: “atom_style charge” or</p>
-<blockquote class="last">
-<div>“atom_style full”</div></blockquote>
-</dd>
-<dt>Structure:</dt>
-<dd>atom_id, atom_type, species oxidation state, x, y, z
-atom_style = atomic/charge</dd>
-</dl>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure</strong> (<em>Structure/Molecule</em>) – </li>
-<li><strong>atomic_masses_dict</strong> (<em>dict</em>) – { atom symbol : [atom_id, atomic mass], … }</li>
-<li><strong>set_charge</strong> (<em>bool</em>) – whether or not to set the charge field in Atoms</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>[[atom_id, molecule tag, atom_type, charge(if present),</dt>
-<dd><p class="first last">x, y, z], … ]</p>
-</dd>
-<dt>For Structure:</dt>
-<dd><p class="first last">[[atom_id, atom_type, charge(if present), x, y, z], … ]</p>
-</dd>
-</dl>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">For Molecule</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.io.lammps.data.LammpsData.get_basic_system_info">
-<em class="property">static </em><code class="descname">get_basic_system_info</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.get_basic_system_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.get_basic_system_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return basic system info from the given structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<em>Structure/Molecule</em>) – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">number of atoms, number of atom types, box size, mapping
-between the atom id and corresponding atomic masses</td>
 </tr>
 </tbody>
 </table>
@@ -237,7 +352,7 @@ between the atom id and corresponding atomic masses</td>
 <dl class="attribute">
 <dt id="pymatgen.io.lammps.data.LammpsData.structure">
 <code class="descname">structure</code><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.structure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transform from LammpsData file to a pymatgen structure object</p>
+<dd><p>Export a periodic structure object representing the simulation box.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -250,17 +365,21 @@ between the atom id and corresponding atomic masses</td>
 
 <dl class="method">
 <dt id="pymatgen.io.lammps.data.LammpsData.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em>, <em>significant_figures=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>write lammps data input file from the string representation
-of the data.</p>
+<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em>, <em>distance=6</em>, <em>velocity=8</em>, <em>charge=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsData.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes LammpsData to file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – data file name</li>
-<li><strong>significant_figures</strong> (<em>int</em>) – No. of significant figures to
-output. Default to 6.</li>
+<li><strong>filename</strong> (<em>str</em>) – Filename.</li>
+<li><strong>distance</strong> (<em>int</em>) – No. of significant figures to output for
+box settings (bounds and tilt) and atomic coordinates.
+Default to 6.</li>
+<li><strong>velocity</strong> (<em>int</em>) – No. of significant figures to output for
+velocities. Default to 8.</li>
+<li><strong>charge</strong> (<em>int</em>) – No. of significant figures to output for
+charges. Default to 3.</li>
 </ul>
 </td>
 </tr>
@@ -271,187 +390,76 @@ output. Default to 6.</li>
 </dd></dl>
 
 <dl class="class">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData">
-<em class="property">class </em><code class="descname">LammpsForceFieldData</code><span class="sig-paren">(</span><em>box_size</em>, <em>atomic_masses</em>, <em>pair_coeffs</em>, <em>bond_coeffs</em>, <em>angle_coeffs</em>, <em>dihedral_coeffs</em>, <em>improper_coeffs</em>, <em>atoms_data</em>, <em>bonds_data</em>, <em>angles_data</em>, <em>dihedrals_data</em>, <em>imdihedrals_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.lammps.data.LammpsData</span></code></a></p>
-<p>Sets Lammps data input file from force field parameters. It is recommended
-that the the convenience method from_forcefield_and_topology be used to
-create the object.</p>
+<dt id="pymatgen.io.lammps.data.Topology">
+<em class="property">class </em><code class="descname">Topology</code><span class="sig-paren">(</span><em>sites</em>, <em>ff_label=None</em>, <em>charges=None</em>, <em>velocities=None</em>, <em>topologies=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#Topology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Class carrying most data in Atoms, Velocities and molecular
+topology sections for ONE SINGLE Molecule or Structure
+object, or a plain list of Sites.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>box_size</strong> (<em>list</em>) – [[x_min,x_max], [y_min,y_max], [z_min,z_max]]</li>
-<li><strong>atomic_masses</strong> (<em>list</em>) – [ [atom type, atomic mass], … ]</li>
-<li><strong>pair_coeffs</strong> (<em>list</em>) – pair coefficients,
-[[unique id, sigma, epsilon ], … ]</li>
-<li><strong>bond_coeffs</strong> (<em>list</em>) – bond coefficients,
-[[unique id, value1, value2 ], … ]</li>
-<li><strong>angle_coeffs</strong> (<em>list</em>) – angle coefficients,
-[[unique id, value1, value2, value3 ], … ]</li>
-<li><strong>dihedral_coeffs</strong> (<em>list</em>) – dihedral coefficients,
-[[unique id, value1, value2, value3, value4], … ]</li>
-<li><strong>improper_coeffs</strong> (<em>list</em>) – improper dihedral coefficients,
-[[unique id, value1, value2, value3, value4], … ]</li>
-<li><strong>atoms_data</strong> (<em>list</em>) – [[atom id, mol id, atom type, charge, x,y,z, …], … ]</li>
-<li><strong>bonds_data</strong> (<em>list</em>) – [[bond id, bond type, value1, value2], … ]</li>
-<li><strong>angles_data</strong> (<em>list</em>) – [[angle id, angle type, value1, value2, value3], … ]</li>
-<li><strong>dihedrals_data</strong> (<em>list</em>) – [[dihedral id, dihedral type, value1, value2, value3, value4], … ]</li>
-<li><strong>imdihedrals_data</strong> (<em>list</em>) – [[improper dihedral id, improper dihedral type, value1, value2,
-value3, value4], … ]</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.TEMPLATE">
-<code class="descname">TEMPLATE</code><em class="property"> = '\n    Generated by pymatgen.io.lammps.data.LammpsForceFieldData\n\n{natoms} atoms\n{nbonds} bonds\n{nangles} angles\n{ndihedrals} dihedrals\n{nimdihedrals} impropers\n\n{natom_types} atom types\n{nbond_types} bond types\n{nangle_types} angle types\n{ndihedral_types} dihedral types\n{nimdihedral_types} improper types\n\n{xlo:.6f} {xhi:.6f} xlo xhi\n{ylo:.6f} {yhi:.6f} ylo yhi\n{zlo:.6f} {zhi:.6f} zlo zhi\n{tilt}\n\nMasses\n\n{masses}\n\nPair Coeffs\n\n{pair_coeffs}\n\nBond Coeffs\n\n{bond_coeffs}\n\nAngle Coeffs\n\n{angle_coeffs}\n\nDihedral Coeffs \n\n{dihedral_coeffs}\n\nImproper Coeffs \n\n{improper_coeffs}\n\nAtoms\n\n{atoms}\n\nBonds\n\n{bonds}\n\nAngles\n\n{angles}\n\nDihedrals\n\n{dihedrals}\n\nImpropers\n\n{dihedrals}\n'</em><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.TEMPLATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="classmethod">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>data_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return LammpsForceFieldData object from the data file. It is assumed
-that the forcefield paramter sections for pairs, bonds, angles,
-dihedrals and improper dihedrals are named as follows(not case sensitive):
-“Pair Coeffs”, “Bond Coeffs”, “Angle Coeffs”, “Dihedral Coeffs” and
-“Improper Coeffs”. For “Pair Coeffs”, values for factorial(n_atom_types)
-pairs must be specified.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_file</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – the data file name</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">LammpsForceFieldData</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.from_forcefield_and_topology">
-<em class="property">static </em><code class="descname">from_forcefield_and_topology</code><span class="sig-paren">(</span><em>mols</em>, <em>mols_number</em>, <em>box_size</em>, <em>molecule</em>, <em>forcefield</em>, <em>topologies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.from_forcefield_and_topology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.from_forcefield_and_topology" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return LammpsForceFieldData object from force field and topology info
-for the ‘molecule’ assembled from the constituent molecules specified
-in the ‘mols’ list with their count specified in the ‘mols_number’ list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mols</strong> (<em>list</em>) – List of Molecule objects</li>
-<li><strong>mols_number</strong> (<em>list</em>) – List of number of molecules of each
-molecule type in mols</li>
-<li><strong>box_size</strong> (<em>list</em>) – [[x_min,x_max], [y_min,y_max], [z_min,z_max]]</li>
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The molecule that is assembled from mols
-and mols_number</li>
-<li><strong>forcefield</strong> (<em>ForceFiled</em>) – Force filed information</li>
-<li><strong>topologies</strong> (<em>list</em>) – List of Topology objects, one for each
-molecule type in mols.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">LammpsForceFieldData</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.get_atoms_data">
-<em class="property">static </em><code class="descname">get_atoms_data</code><span class="sig-paren">(</span><em>mols</em>, <em>mols_number</em>, <em>molecule</em>, <em>atomic_masses_dict</em>, <em>topologies</em>, <em>atom_to_mol=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.get_atoms_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.get_atoms_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the atoms data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>mols</strong> (<em>list</em>) – list of Molecule objects.</li>
-<li><strong>mols_number</strong> (<em>list</em>) – number of each type of molecule in mols list.</li>
-<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – the molecule assembled from the molecules
-in the mols list.</li>
-<li><strong>topologies</strong> (<em>list</em>) – list of Topology objects, one for each molecule
-type in mols list</li>
-<li><strong>atom_to_mol</strong> (<em>dict</em>) – maps atom_id –&gt; [mol_type, mol_id,
-local atom id in the mol with id mol_id]</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>[[atom id, mol type, atom type, charge, x, y, z], … ]
-molid_to_atomid: [ [global atom id 1, id 2, ..], …], the</p>
+<li><strong>sites</strong> (<em>[</em><a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a><em>] or </em><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.SiteCollection" title="pymatgen.core.structure.SiteCollection"><em>SiteCollection</em></a>) – A group of sites in a
+list or as a Molecule/Structure.</li>
+<li><strong>ff_label</strong> (<em>str</em>) – Site property key for labeling atoms of
+different types. Default to None, i.e., use
+site.species_string.</li>
+<li><strong>charges</strong> (<em>[</em><em>q</em><em>, </em><em>..</em><em>]</em>) – Charge of each site in a (n,)
+array/list, where n is the No. of sites. Default to
+None, i.e., search site property for charges.</li>
+<li><strong>velocities</strong> (<em>[</em><em>[</em><em>vx</em><em>, </em><em>vy</em><em>, </em><em>vz</em><em>]</em><em>, </em><em>..</em><em>]</em>) – Velocity of each site in
+a (n, 3) array/list, where n is the No. of sites.
+Default to None, i.e., search site property for
+velocities.</li>
+<li><strong>topologies</strong> (<em>dict</em>) – <p>Bonds, angles, dihedrals and improper
+dihedrals defined by site indices. Default to None,
+i.e., no additional topology. All four valid keys
+listed below are optional.
+{</p>
 <blockquote>
-<div><p>index will be the global mol id</p>
-</div></blockquote>
-</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">atoms_data</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.get_basic_system_info">
-<em class="property">static </em><code class="descname">get_basic_system_info</code><span class="sig-paren">(</span><em>molecule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.get_basic_system_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.get_basic_system_info" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff">
-<em class="property">static </em><code class="descname">get_param_coeff</code><span class="sig-paren">(</span><em>forcefield</em>, <em>param_name</em>, <em>atom_types_map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.get_param_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_coeff" title="Permalink to this definition">¶</a></dt>
-<dd><p>get the parameter coefficients and mapping from the force field.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>forcefield</strong> (<a class="reference internal" href="pymatgen.io.lammps.force_field.html#pymatgen.io.lammps.force_field.ForceField" title="pymatgen.io.lammps.force_field.ForceField"><em>ForceField</em></a>) – ForceField object</li>
-<li><strong>param_name</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – name of the parameter for which</li>
-<li><strong>coefficients are to be set.</strong> (<em>the</em>) – </li>
-<li><strong>atom_types_map</strong> (<em>dict</em>) – maps atom type to the atom type id.
-Used to set hthe pair coeffs.
-e.g. {“C2”: [3], “H2”: [1], “H1”: [2]}</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[[parameter id, value1, value2, … ], … ] and
-{parameter key: parameter id, …}</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.io.lammps.data.LammpsForceFieldData.get_param_data">
-<em class="property">static </em><code class="descname">get_param_data</code><span class="sig-paren">(</span><em>param_name</em>, <em>param_map</em>, <em>mols</em>, <em>mols_number</em>, <em>topologies</em>, <em>molid_to_atomid</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#LammpsForceFieldData.get_param_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.LammpsForceFieldData.get_param_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>set the data for the parameter named param_name from the topology.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>param_name</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – parameter name, example: “bonds”</li>
-<li><strong>param_map</strong> (<em>dict</em>) – <p>{ mol_type: {parameter_key : unique parameter id, … }, … }
-example: {0: {(“c1”,”c2”): 1}} ==&gt; c1-c2 bond in mol_type=0</p>
-<blockquote>
-<div>has the global id of 1</div></blockquote>
+<div>”Bonds”: [[i, j], …],
+“Angles”: [[i, j, k], …],
+“Dihedrals”: [[i, j, k, l], …],
+“Impropers”: [[i, j, k, l], …]</div></blockquote>
+<p>}</p>
 </li>
-<li><strong>mols</strong> (<em>list</em>) – list of molecules.</li>
-<li><strong>mols_number</strong> (<em>list</em>) – number of each type of molecule in mols list.</li>
-<li><strong>topologies</strong> (<em>list</em>) – list of Topology objects, one for each molecule
-type in mols list</li>
-<li><strong>molid_to_atomid</strong> (<em>list</em>) – [ [gloabal atom id 1, id 2, ..], …],
-the index is the global mol id</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[ [parameter id, parameter type, global atom id1, global atom id2, …], … ]</p>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.data.Topology.from_bonding">
+<em class="property">classmethod </em><code class="descname">from_bonding</code><span class="sig-paren">(</span><em>molecule</em>, <em>bond=True</em>, <em>angle=True</em>, <em>dihedral=True</em>, <em>ff_label=None</em>, <em>charges=None</em>, <em>velocities=None</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#Topology.from_bonding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.Topology.from_bonding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Another constructor that creates an instance from a molecule.
+Covalent bonds and other bond-based topologies (angles and
+dihedrals) can be automatically determined. Cannot be used for
+non bond-based topologies, e.g., improper dihedrals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>molecule</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Input molecule.</li>
+<li><strong>bond</strong> (<em>bool</em>) – Whether find bonds. If set to False, angle and
+dihedral searching will be skipped. Default to True.</li>
+<li><strong>angle</strong> (<em>bool</em>) – Whether find angles. Default to True.</li>
+<li><strong>dihedral</strong> (<em>bool</em>) – Whether find dihedrals. Default to True.</li>
+<li><strong>ff_label</strong> (<em>str</em>) – Site property key for labeling atoms of
+different types. Default to None, i.e., use
+site.species_string.</li>
+<li><strong>charges</strong> (<em>[</em><em>q</em><em>, </em><em>..</em><em>]</em>) – Charge of each site in a (n,)
+array/list, where n is the No. of sites. Default to
+None, i.e., search site property for charges.</li>
+<li><strong>velocities</strong> (<em>[</em><em>[</em><em>vx</em><em>, </em><em>vy</em><em>, </em><em>vz</em><em>]</em><em>, </em><em>..</em><em>]</em>) – Velocity of each site in
+a (n, 3) array/list, where n is the No. of sites.
+Default to None, i.e., search site property for
+velocities.</li>
+<li><strong>tol</strong> (<em>float</em>) – Bond distance tolerance. Default to 0.1.
+Not recommended to alter.</li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -461,16 +469,26 @@ the index is the global mol id</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.io.lammps.data.parse_data_file">
-<code class="descname">parse_data_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#parse_data_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.parse_data_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>A very general parser for arbitrary lammps data files.</p>
+<dt id="pymatgen.io.lammps.data.structure_2_lmpdata">
+<code class="descname">structure_2_lmpdata</code><span class="sig-paren">(</span><em>structure</em>, <em>ff_elements=None</em>, <em>atom_style='charge'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/data.html#structure_2_lmpdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.data.structure_2_lmpdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a structure to a LammpsData object with no force field
+parameters and topologies.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – path to the data file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Input structure.</li>
+<li><strong>ff_elements</strong> (<em>[</em><em>str</em><em>]</em>) – List of strings of elements that must be
+present due to force field settings but not necessarily in
+the structure. Default to None.</li>
+<li><strong>atom_style</strong> (<em>str</em>) – Choose between “atomic” (neutral) and
+“charge” (charged). Default to “charge”.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dict</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">LammpsData</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -514,13 +532,13 @@ the index is the global mol id</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

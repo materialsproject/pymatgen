@@ -21,7 +21,7 @@ __date__ = "Nov 10, 2012"
 
 import unittest
 
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition, CompositionError, \
     ChemicalPotential
 import random
@@ -114,6 +114,12 @@ class CompositionTest(PymatgenTest):
         for i, c in enumerate(self.comp):
             self.assertAlmostEqual(c.average_electroneg,
                                    val[i])
+
+    def test_total_electrons(self):
+        test_cases = {'C': 6, 'SrTiO3': 84}
+        for item in test_cases.keys():
+            c = Composition(item)
+            self.assertAlmostEqual(c.total_electrons, test_cases[item])
 
     def test_formula(self):
         correct_formulas = ['Li3 Fe2 P3 O12', 'Li3 Fe1 P1 O5', 'Li1 Mn2 O4',
@@ -382,13 +388,13 @@ class CompositionTest(PymatgenTest):
 
     def test_oxi_state_guesses(self):
         self.assertEqual(Composition("LiFeO2").oxi_state_guesses(),
-                         [{"Li": 1, "Fe": 3, "O": -2}])
+                         ({"Li": 1, "Fe": 3, "O": -2},))
 
         self.assertEqual(Composition("Fe4O5").oxi_state_guesses(),
-                         [{"Fe": 2.5, "O": -2}])
+                         ({"Fe": 2.5, "O": -2},))
 
         self.assertEqual(Composition("V2O3").oxi_state_guesses(),
-                         [{"V": 3, "O": -2}])
+                         ({"V": 3, "O": -2},))
 
         # all_oxidation_states produces *many* possible responses
         self.assertEqual(len(Composition("MnO").oxi_state_guesses(
@@ -400,7 +406,7 @@ class CompositionTest(PymatgenTest):
 
         # missing V4+, but can balance due to additional sites
         self.assertEqual(Composition("V2O4").oxi_state_guesses(
-            oxi_states_override={"V": [2, 3, 5]}), [{"V": 4, "O": -2}])
+            oxi_states_override={"V": [2, 3, 5]}), ({"V": 4, "O": -2},))
 
         # multiple solutions - Mn/Fe = 2+/4+ or 3+/3+ or 4+/2+
         self.assertEqual(len(Composition("MnFeO3").oxi_state_guesses(
@@ -414,7 +420,7 @@ class CompositionTest(PymatgenTest):
         # target charge of 1
         self.assertEqual(Composition("V2O6").oxi_state_guesses(
             oxi_states_override={"V": [2, 3, 4, 5]}, target_charge=-2),
-            [{"V": 5, "O": -2}])
+            ({"V": 5, "O": -2},))
 
         # max_sites for very large composition - should timeout if incorrect
         self.assertEqual(Composition("Li10000Fe10000P10000O40000").
@@ -428,6 +434,25 @@ class CompositionTest(PymatgenTest):
 
         self.assertRaises(ValueError, Composition("V2O3").
                           oxi_state_guesses, max_sites=1)
+
+    def test_oxi_state_decoration(self):
+        # Basic test: Get compositions where each element is in a single charge state
+        decorated = Composition("H2O").add_charges_from_oxi_state_guesses()
+        self.assertIn(Specie("H", 1), decorated)
+        self.assertEqual(2, decorated.get(Specie("H", 1)))
+
+        # Test: More than one charge state per element
+        decorated = Composition("Fe3O4").add_charges_from_oxi_state_guesses()
+        self.assertEqual(1, decorated.get(Specie("Fe", 2)))
+        self.assertEqual(2, decorated.get(Specie("Fe", 3)))
+        self.assertEqual(4, decorated.get(Specie("O", -2)))
+
+        # Test: No possible charge states
+        #   It should return an uncharged composition
+        decorated = Composition("NiAl").add_charges_from_oxi_state_guesses()
+        self.assertEqual(1, decorated.get(Specie("Ni", 0)))
+        self.assertEqual(1, decorated.get(Specie("Al", 0)))
+
 
 class ChemicalPotentialTest(unittest.TestCase):
 

@@ -331,7 +331,7 @@ class Cut3D(ExecWrapper):
         retcode = self._execute(workdir, with_mpirun=False)
 
         if retcode != 0:
-            raise RuntimeError("Error while running cut3d.")
+            raise RuntimeError("Error while running cut3d in %s." % workdir)
 
         output_filepath = cut3d_input.output_filepath
 
@@ -340,7 +340,7 @@ class Cut3D(ExecWrapper):
                 output_filepath = os.path.abspath(os.path.join(workdir, output_filepath))
 
             if not os.path.isfile(output_filepath):
-                raise RuntimeError("The file was not converted correctly.")
+                raise RuntimeError("The file was not converted correctly in %s." % workdir)
 
         return self.stdout_fname, output_filepath
 
@@ -363,7 +363,7 @@ class Fold2Bloch(ExecWrapper):
         fold_arg = ":".join((str(f) for f in folds))
         wfkpath = os.path.abspath(wfkpath)
         if not os.path.isfile(wfkpath):
-            raise RuntimeError("WFK file `%s` does not exist" % wfkpath)
+            raise RuntimeError("WFK file `%s` does not exist in %s" % (wfkpath, workdir))
 
         # Usage: $ fold2Bloch file_WFK x:y:z (folds)
         retcode = self.execute(workdir, exec_args=[wfkpath, fold_arg])
@@ -372,7 +372,7 @@ class Fold2Bloch(ExecWrapper):
             print(self.stdout_data)
             print("stderr:")
             print(self.stderr_data)
-            raise RuntimeError("fold2bloch returned %s" % retcode)
+            raise RuntimeError("fold2bloch returned %s in %s" % (retcode, workdir))
 
         filepaths = [f for f in os.listdir(workdir) if f.endswith("_FOLD2BLOCH.nc")]
         if len(filepaths) != 1:

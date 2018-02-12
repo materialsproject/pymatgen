@@ -70,7 +70,12 @@ class StructureEnvironments(MSONable):
             return [self.voronoi[inb]['site'].coords for inb in self.site_voronoi_indices]
 
         @property
+        def neighb_coordsOpt(self):
+            return self.detailed_voronoi.voronoi_list_coords[self.isite].take(self.site_voronoi_indices, axis=0)
+
+        @property
         def neighb_sites(self):
+
             return [self.voronoi[inb]['site'] for inb in self.site_voronoi_indices]
 
         @property
@@ -437,6 +442,11 @@ class StructureEnvironments(MSONable):
         else:
             raise ValueError('Neighbors set not yet in ce_list !')
 
+    def update_site_info(self, isite, info_dict):
+        if 'sites_info' not in self.info:
+            self.info['sites_info'] = [{} for _ in range(len(self.structure))]
+        self.info['sites_info'][isite].update(info_dict)
+
     def get_coordination_environments(self, isite, cn, nb_set):
         if self.ce_list[isite] is None:
             return None
@@ -675,7 +685,7 @@ class StructureEnvironments(MSONable):
         mymax = 10.0
         norm = Normalize(vmin=mymin, vmax=mymax)
         scalarmap = cm.ScalarMappable(norm=norm, cmap=mycm)
-        dist_limits = [1.0, self.voronoi.maximum_distance_factor]
+        dist_limits = [1.0, max_dist]
         ang_limits = [0.0, 1.0]
         if plot_type['distance_parameter'][0] == 'one_minus_inverse_alpha_power_n':
             if plot_type['distance_parameter'][1] is None:
@@ -736,10 +746,18 @@ class StructureEnvironments(MSONable):
                 ipt = int(myipt)
                 if myipt != ipt:
                     raise RuntimeError('Number of surface points not even')
-                if (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
-                            np.abs(nb_set_surface_pts[ipt][0] - nb_set_surface_pts[0][0]) > 0.125):
-                    xytext = ((nb_set_surface_pts[0][0]+nb_set_surface_pts[ipt][0])/2,
-                              (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2)
+                patch_center = ((nb_set_surface_pts[0][0] + min(nb_set_surface_pts[ipt][0], dist_limits[1])) / 2,
+                                (nb_set_surface_pts[0][1] + nb_set_surface_pts[ipt][1]) / 2)
+
+                if (np.abs(nb_set_surface_pts[-1][1] - nb_set_surface_pts[-2][1]) > 0.06 and
+                      np.abs(min(nb_set_surface_pts[-1][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
+                    xytext = ((min(nb_set_surface_pts[-1][0], dist_limits[1]) + nb_set_surface_pts[0][0]) / 2,
+                              (nb_set_surface_pts[-1][1] + nb_set_surface_pts[-2][1]) / 2)
+                    subplot.annotate(mytext, xy=xytext,
+                                     ha='center', va='center', color=myinvcolor, fontsize='x-small')
+                elif (np.abs(nb_set_surface_pts[ipt][1] - nb_set_surface_pts[0][1]) > 0.1 and
+                    np.abs(min(nb_set_surface_pts[ipt][0], dist_limits[1]) - nb_set_surface_pts[0][0]) > 0.125):
+                    xytext = patch_center
                     subplot.annotate(mytext, xy=xytext,
                                      ha='center', va='center', color=myinvcolor, fontsize='x-small')
 
@@ -927,6 +945,13 @@ class StructureEnvironments(MSONable):
                           for cn, nb_sets in site_nbs_sets.items()}
                          if site_nbs_sets is not None else None
                          for site_nbs_sets in self.neighbors_sets]
+        info_dict = {key: val for key, val in self.info.items() if key not in ['sites_info']}
+        info_dict['sites_info'] = [{'nb_sets_info': {str(cn): {str(inb_set): nb_set_info
+                                                               for inb_set, nb_set_info in cn_sets.items()}
+                                                     for cn, cn_sets in site_info['nb_sets_info'].items()},
+                                    'time': site_info['time']} if 'nb_sets_info' in site_info else {}
+                                   for site_info in self.info['sites_info']]
+
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "voronoi": self.voronoi.as_dict(),
@@ -936,7 +961,7 @@ class StructureEnvironments(MSONable):
                 "ce_list": ce_list_dict,
                 "structure": self.structure.as_dict(),
                 "neighbors_sets": nbs_sets_dict,
-                "info": self.info}
+                "info": info_dict}
 
     @classmethod
     def from_dict(cls, d):
@@ -959,12 +984,19 @@ class StructureEnvironments(MSONable):
                            for cn, nb_sets in site_nbs_sets_dict.items()}
                           if site_nbs_sets_dict is not None else None
                           for site_nbs_sets_dict in d['neighbors_sets']]
+        info = {key: val for key, val in d['info'].items() if key not in ['sites_info']}
+        if 'sites_info' in d['info']:
+            info['sites_info'] = [{'nb_sets_info': {int(cn): {int(inb_set): nb_set_info
+                                                              for inb_set, nb_set_info in cn_sets.items()}
+                                                    for cn, cn_sets in site_info['nb_sets_info'].items()},
+                                   'time': site_info['time']} if 'nb_sets_info' in site_info else {}
+                                  for site_info in d['info']['sites_info']]
         return cls(voronoi=voronoi, valences=d['valences'],
                    sites_map=d['sites_map'],
                    equivalent_sites=[[PeriodicSite.from_dict(psd) for psd in psl] for psl in d['equivalent_sites']],
                    ce_list=ce_list, structure=structure,
                    neighbors_sets=neighbors_sets,
-                   info=d['info'])
+                   info=info)
 
 
 class LightStructureEnvironments(MSONable):

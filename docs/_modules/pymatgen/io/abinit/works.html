@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -77,7 +77,7 @@
 <span class="kn">from</span> <span class="nn">monty.itertools</span> <span class="k">import</span> <span class="n">chunks</span>
 <span class="kn">from</span> <span class="nn">monty.functools</span> <span class="k">import</span> <span class="n">lazy_property</span>
 <span class="kn">from</span> <span class="nn">monty.fnmatch</span> <span class="k">import</span> <span class="n">WildCard</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+<span class="c1">#from monty.dev import deprecated</span>
 <span class="kn">from</span> <span class="nn">pydispatch</span> <span class="k">import</span> <span class="n">dispatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">EnergyArray</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">wrappers</span>
@@ -491,7 +491,8 @@
         <span class="c1"># that will be used by its children.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;indata&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;outdata&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;tmpdata&quot;</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;tmpdata&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.chroot"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.chroot">[docs]</a>    <span class="k">def</span> <span class="nf">chroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_workdir</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">new_workdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -596,8 +597,8 @@
 <span class="sd">        Registers a new :class:`Task` and add it to the internal list, taking into account possible dependencies.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obj: :class:`AbinitInput` instance.</span>
-<span class="sd">            deps: Dictionary specifying the dependency of this node.</span>
+<span class="sd">            obj: :class:`AbinitInput` instance or `Task` object.</span>
+<span class="sd">            deps: Dictionary specifying the dependency of this node or list of dependencies</span>
 <span class="sd">                  None means that this obj has no dependency.</span>
 <span class="sd">            required_files: List of strings with the path of the files used by the task.</span>
 <span class="sd">                Note that the files must exist when the task is registered.</span>
@@ -627,9 +628,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
-        <span class="c1"># Handle possible dependencies.</span>
+        <span class="c1"># Handle possible dependencies given either as dict or list.</span>
         <span class="k">if</span> <span class="n">deps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dependency</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">exts</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">exts</span> <span class="ow">in</span> <span class="n">deps</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">deps</span><span class="p">,</span> <span class="s2">&quot;items&quot;</span><span class="p">):</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dependency</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">exts</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">exts</span> <span class="ow">in</span> <span class="n">deps</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
             <span class="n">task</span><span class="o">.</span><span class="n">add_deps</span><span class="p">(</span><span class="n">deps</span><span class="p">)</span>
 
         <span class="c1"># Handle possible dependencies.</span>
@@ -1226,104 +1228,6 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;mrgscr done&quot;</span><span class="p">,</span> <span class="n">final_scr</span><span class="o">=</span><span class="n">final_scr</span><span class="p">)</span></div></div>
 
 
-<span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">build_oneshot_phononwork</span><span class="p">(</span><span class="n">scf_input</span><span class="p">,</span> <span class="n">ph_inputs</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">work_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a work for the computation of phonon frequencies</span>
-<span class="sd">    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations</span>
-<span class="sd">    are explicitly computed i.e.</span>
-
-<span class="sd">        * rfdir 1 1 1</span>
-<span class="sd">        * rfatpol 1 natom</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This work is mainly used for simple calculations, e.g. convergence studies.</span>
-<span class="sd">        Use :class:`PhononWork` for better efficiency.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">work_class</span> <span class="o">=</span> <span class="n">OneShotPhononWork</span> <span class="k">if</span> <span class="n">work_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">work_class</span>
-    <span class="n">work</span> <span class="o">=</span> <span class="n">work_class</span><span class="p">(</span><span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
-    <span class="n">scf_task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">register_scf_task</span><span class="p">(</span><span class="n">scf_input</span><span class="p">)</span>
-    <span class="n">ph_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ph_inputs</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ph_inputs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">ph_inputs</span>
-
-    <span class="k">for</span> <span class="n">phinp</span> <span class="ow">in</span> <span class="n">ph_inputs</span><span class="p">:</span>
-        <span class="c1"># Check rfdir and rfatpol.</span>
-        <span class="n">rfdir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfdir&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rfdir</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">rfdir</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting rfdir == (1, 1, 1), got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rfdir</span><span class="p">)</span>
-
-        <span class="n">rfatpol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfatpol&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rfatpol</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">rfatpol</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">structure</span><span class="p">))):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting rfatpol == (1, natom), got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rfatpol</span><span class="p">)</span>
-
-        <span class="c1"># cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations</span>
-        <span class="n">ph_task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">phinp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">scf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">})</span>
-
-    <span class="k">return</span> <span class="n">work</span>
-
-
-<span class="k">class</span> <span class="nc">OneShotPhononWork</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Simple and very inefficient work for the computation of the phonon frequencies</span>
-<span class="sd">    It consists of a GS task and a DFPT calculations for all the independent perturbations.</span>
-<span class="sd">    The main advantage is that one has direct access to the phonon frequencies that</span>
-<span class="sd">    can be computed at the end of the second task without having to call anaddb.</span>
-
-<span class="sd">    Use ``build_oneshot_phononwork`` to construct this work from the input files.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">read_phonons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read phonon frequencies from the output file.</span>
-
-<span class="sd">        Return:</span>
-<span class="sd">            List of namedtuples. Each `namedtuple` has the following attributes:</span>
-
-<span class="sd">                - qpt: ndarray with the q-point in reduced coordinates.</span>
-<span class="sd">                - freqs: ndarray with 3 x Natom phonon frequencies in meV</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#</span>
-        <span class="c1">#   Phonon wavevector (reduced coordinates) :  0.00000  0.00000  0.00000</span>
-        <span class="c1">#  Phonon energies in Hartree :</span>
-        <span class="c1">#    1.089934E-04  4.990512E-04  1.239177E-03  1.572715E-03  1.576801E-03</span>
-        <span class="c1">#    1.579326E-03</span>
-        <span class="c1">#  Phonon frequencies in cm-1    :</span>
-        <span class="c1"># -  2.392128E+01  1.095291E+02  2.719679E+02  3.451711E+02  3.460677E+02</span>
-        <span class="c1"># -  3.466221E+02</span>
-        <span class="n">BEGIN</span> <span class="o">=</span> <span class="s2">&quot;  Phonon wavevector (reduced coordinates) :&quot;</span>
-        <span class="n">END</span> <span class="o">=</span> <span class="s2">&quot; Phonon frequencies in cm-1    :&quot;</span>
-
-        <span class="n">ph_tasks</span><span class="p">,</span> <span class="n">qpts</span><span class="p">,</span> <span class="n">phfreqs</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">ph_tasks</span><span class="p">:</span>
-
-            <span class="c1"># Parse output file.</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-                <span class="n">qpt</span><span class="p">,</span> <span class="n">inside</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">BEGIN</span><span class="p">):</span>
-                        <span class="n">qpts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">BEGIN</span><span class="p">):]</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
-                        <span class="n">inside</span><span class="p">,</span> <span class="n">omegas</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]</span>
-                    <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">END</span><span class="p">):</span>
-                        <span class="k">break</span>
-                    <span class="k">elif</span> <span class="n">inside</span><span class="p">:</span>
-                        <span class="n">inside</span> <span class="o">+=</span> <span class="mi">1</span>
-                        <span class="k">if</span> <span class="n">inside</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-                            <span class="n">omegas</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find </span><span class="si">%s</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">END</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
-
-                <span class="n">phfreqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">omegas</span><span class="p">)</span>
-
-        <span class="c1"># Use namedtuple to store q-point and frequencies in meV</span>
-        <span class="n">phonon</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;phonon&quot;</span><span class="p">,</span> <span class="s2">&quot;qpt freqs&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">phonon</span><span class="p">(</span><span class="n">qpt</span><span class="o">=</span><span class="n">qpt</span><span class="p">,</span> <span class="n">freqs</span><span class="o">=</span><span class="n">freqs_meV</span><span class="p">)</span> <span class="k">for</span> <span class="n">qpt</span><span class="p">,</span> <span class="n">freqs_meV</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">qpts</span><span class="p">,</span> <span class="n">EnergyArray</span><span class="p">(</span><span class="n">phfreqs</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;meV&quot;</span><span class="p">)</span> <span class="p">)]</span>
-
-    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">OneShotPhononWork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
-        <span class="n">phonons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_phonons</span><span class="p">()</span>
-        <span class="n">results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">phonons</span><span class="o">=</span><span class="n">phonons</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">results</span>
-
-
 <span class="k">class</span> <span class="nc">MergeDdb</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mixin class for Works that have to merge the DDB files produced by the tasks.&quot;&quot;&quot;</span>
 
@@ -1367,7 +1271,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PhononWork.from_scf_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.from_scf_task">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">is_ngqpt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct a `PhononWork` from a :class:`ScfTask` object.</span>
 <span class="sd">        The input file for phonons is automatically generated from the input of the ScfTask.</span>
@@ -1375,7 +1279,9 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            scf_task: ScfTask object.</span>
-<span class="sd">            qpoints: q-points in reduced coordinates. Accepts single q-point or list of q-points</span>
+<span class="sd">            qpoints: q-points in reduced coordinates. Accepts single q-point, list of q-points</span>
+<span class="sd">                or three integers defining the q-mesh if `is_ngqpt`.</span>
+<span class="sd">            is_ngqpt: True if `qpoints` should be interpreted as divisions instead of q-points.</span>
 <span class="sd">            tolerance: dict {varname: value} with the tolerance to be used in the DFPT run.</span>
 <span class="sd">                Defaults to {&quot;tolvrs&quot;: 1.0e-10}.</span>
 <span class="sd">            manager: :class:`TaskManager` object.</span>
@@ -1383,7 +1289,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scf_task</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;task </span><span class="si">%s</span><span class="s2"> does not inherit from ScfTask&quot;</span> <span class="o">%</span> <span class="n">scf_task</span><span class="p">)</span>
 
-        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">is_ngqpt</span><span class="p">:</span>
+            <span class="n">qpoints</span> <span class="o">=</span> <span class="n">scf_task</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">abiget_ibz</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="n">qpoints</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kptopt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">points</span>
+
+        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">qpt</span> <span class="ow">in</span> <span class="n">qpoints</span><span class="p">:</span>
@@ -1394,13 +1303,16 @@
         <span class="k">return</span> <span class="n">new</span></div>
 
 <div class="viewcode-block" id="PhononWork.from_scf_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.from_scf_input">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">is_ngqpt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to `from_scf_task`, the difference is that this method requires</span>
 <span class="sd">        an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)</span>
 <span class="sd">        are packed in a single Work whereas in the previous case we usually have multiple works.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">is_ngqpt</span><span class="p">:</span>
+            <span class="n">qpoints</span> <span class="o">=</span> <span class="n">scf_input</span><span class="o">.</span><span class="n">abiget_ibz</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="n">qpoints</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kptopt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">points</span>
+
+        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
         <span class="n">scf_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_scf_task</span><span class="p">(</span><span class="n">scf_input</span><span class="p">)</span>
@@ -1602,7 +1514,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1610,7 +1522,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

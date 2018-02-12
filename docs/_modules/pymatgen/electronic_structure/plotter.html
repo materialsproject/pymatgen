@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -65,6 +65,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">six</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -1590,7 +1591,7 @@
                            <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;dxy&#39;</span><span class="p">,</span> <span class="s1">&#39;dyz&#39;</span><span class="p">,</span> <span class="s1">&#39;dxz&#39;</span><span class="p">,</span> <span class="s1">&#39;dx2&#39;</span><span class="p">,</span> <span class="s1">&#39;dz2&#39;</span><span class="p">],</span>
                            <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;f_3&#39;</span><span class="p">,</span> <span class="s1">&#39;f_2&#39;</span><span class="p">,</span> <span class="s1">&#39;f_1&#39;</span><span class="p">,</span> <span class="s1">&#39;f0&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;f2&#39;</span><span class="p">,</span> <span class="s1">&#39;f3&#39;</span><span class="p">]}</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictio</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dictio</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;The invalid type of &#39;dictio&#39; was bound. It should be dict type.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dictio</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1603,7 +1604,7 @@
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                 <span class="s2">&quot;The dictio[</span><span class="si">%s</span><span class="s2">] is empty. We cannot do anything&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;dictio[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -1616,10 +1617,6 @@
                                             <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                             <span class="s2">&quot;The &#39;dictio[</span><span class="si">%s</span><span class="s2">]&#39; contains orbitals repeated.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
-                                    <span class="k">else</span><span class="p">:</span>
-                                        <span class="k">pass</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="k">pass</span>
                         <span class="n">nelems</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                         <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nelems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nelems</span><span class="p">):</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1634,7 +1631,7 @@
 
         <span class="k">if</span> <span class="n">sum_morbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You do not want to sum projection over orbitals.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;The invalid type of &#39;sum_orbs&#39; was bound. It should be dict or &#39;None&#39; type.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sum_morbs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1644,7 +1641,7 @@
                 <span class="k">if</span> <span class="n">Element</span><span class="o">.</span><span class="n">is_valid_symbol</span><span class="p">(</span><span class="n">elt</span><span class="p">):</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
-                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
                                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid format of orbitals is in &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39;: </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;They should be string.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">elt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orb</span><span class="p">)))</span>
@@ -1657,10 +1654,6 @@
                                             <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                             <span class="s2">&quot;The &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39; contains orbitals repeated.&quot;</span> <span class="o">%</span> <span class="n">elt</span><span class="p">)</span>
-                                    <span class="k">else</span><span class="p">:</span>
-                                        <span class="k">pass</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="k">pass</span>
                         <span class="n">nelems</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                         <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">nelems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nelems</span><span class="p">):</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1684,8 +1677,6 @@
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                             <span class="s2">&quot;You cannot sum projection over one individual orbital &#39;</span><span class="si">%s</span><span class="s2">&#39; of &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">elt</span><span class="p">))</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">sum_morbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">pass</span>
@@ -1702,10 +1693,8 @@
                                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                         <span class="s2">&quot;The invalid orbital &#39;</span><span class="si">%s</span><span class="s2">&#39; was put into &#39;sum_morbs[</span><span class="si">%s</span><span class="s2">]&#39;.&quot;</span> <span class="o">%</span>
                                         <span class="p">(</span><span class="n">orb</span><span class="p">,</span> <span class="n">elt</span><span class="p">))</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="k">pass</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="p">(</span><span class="n">orb</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">orb</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                                     <span class="s2">&quot;The invalid orbital &#39;</span><span class="si">%s</span><span class="s2">&#39; was put into sum_orbs[&#39;</span><span class="si">%s</span><span class="s2">&#39;].&quot;</span> <span class="o">%</span> <span class="p">(</span>
                                     <span class="n">orb</span><span class="p">,</span> <span class="n">elt</span><span class="p">))</span>
@@ -1719,8 +1708,6 @@
                         <span class="n">duplicate</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]:</span>
                             <span class="n">duplicate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">pass</span>
                 <span class="n">dictio</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">duplicate</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">sum_morbs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1752,8 +1739,6 @@
                                 <span class="n">duplicate</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">orb</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">individual_orbs</span><span class="p">[</span><span class="n">orb</span><span class="p">]:</span>
                                     <span class="n">duplicate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="k">pass</span>
                         <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">duplicate</span><span class="p">)</span>
 
                     <span class="k">for</span> <span class="n">orb</span> <span class="ow">in</span> <span class="n">sum_morbs</span><span class="p">[</span><span class="n">elt</span><span class="p">]:</span>
@@ -2611,7 +2596,7 @@
 
 
 <div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="c1">#TODO: We need a unittest for this. Come one folks.</span>
+    <span class="c1"># TODO: We need a unittest for this. Come on folks.</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    class containing methods to plot the data from Boltztrap.</span>
 
@@ -3019,7 +3004,7 @@
                                  <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dop</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; $cm^{-3}$&#39;</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">dt</span> <span class="o">+</span> <span class="s1">&#39;-type&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;conductivity $\sigma$ (1/($</span><span class="se">\\</span><span class="s2">Omega$ m))&quot;</span><span class="p">,</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;conductivity $</span><span class="se">\\</span><span class="s2">sigma$ (1/($</span><span class="se">\\</span><span class="s2">Omega$ m))&quot;</span><span class="p">,</span>
                            <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Temperature (K)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
 
@@ -3285,7 +3270,7 @@
                                  <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; K&#39;</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">dt</span> <span class="o">+</span> <span class="s1">&#39;-type&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;conductivity $\sigma$ (1/($</span><span class="se">\\</span><span class="s2">Omega$ m))&quot;</span><span class="p">,</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;conductivity $</span><span class="se">\\</span><span class="s2">sigma$ (1/($</span><span class="se">\\</span><span class="s2">Omega$ m))&quot;</span><span class="p">,</span>
                            <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Doping concentration ($cm^{-3}$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;sci&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
@@ -3515,6 +3500,221 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">plt</span></div></div>
+
+
+<div class="viewcode-block" id="CohpPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter">[docs]</a><span class="k">class</span> <span class="nc">CohpPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for plotting crystal orbital Hamilton populations (COHPs) or</span>
+<span class="sd">    crystal orbital overlap populations (COOPs). It is modeled after the</span>
+<span class="sd">    DosPlotter object.</span>
+
+<span class="sd">    Args/attributes:</span>
+<span class="sd">        zero_at_efermi: Whether to shift all populations to have zero</span>
+<span class="sd">            energy at the Fermi level. Defaults to True.</span>
+
+<span class="sd">        are_coops: Switch to indicate that these are COOPs, not COHPs.</span>
+<span class="sd">            Defaults to False for COHPs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_at_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">are_coops</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span> <span class="o">=</span> <span class="n">zero_at_efermi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span> <span class="o">=</span> <span class="n">are_coops</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CohpPlotter.add_cohp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.add_cohp">[docs]</a>    <span class="k">def</span> <span class="nf">add_cohp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">cohp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a COHP for plotting.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label: Label for the COHP. Must be unique.</span>
+
+<span class="sd">            cohp: COHP object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="n">cohp</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">cohp</span><span class="o">.</span><span class="n">efermi</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span> \
+            <span class="k">else</span> <span class="n">cohp</span><span class="o">.</span><span class="n">energies</span>
+        <span class="n">populations</span> <span class="o">=</span> <span class="n">cohp</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">()</span>
+        <span class="n">int_populations</span> <span class="o">=</span> <span class="n">cohp</span><span class="o">.</span><span class="n">get_icohp</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">populations</span><span class="p">,</span>
+                              <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">int_populations</span><span class="p">,</span> <span class="s2">&quot;efermi&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="o">.</span><span class="n">efermi</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="CohpPlotter.add_cohp_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.add_cohp_dict">[docs]</a>    <span class="k">def</span> <span class="nf">add_cohp_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">,</span> <span class="n">key_sort_func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a dictionary of COHPs with an optional sorting function</span>
+<span class="sd">        for the keys.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cohp_dict: dict of the form {label: Cohp}</span>
+
+<span class="sd">            key_sort_func: function used to sort the cohp_dict keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key_sort_func</span><span class="p">:</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">key_sort_func</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">cohp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_cohp</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="CohpPlotter.get_cohp_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.get_cohp_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cohp_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the added COHPs as a json-serializable dict. Note that if you</span>
+<span class="sd">        have specified smearing for the COHP plot, the populations returned</span>
+<span class="sd">        will be the smeared and not the original populations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict of COHP data of the form {label: {&quot;efermi&quot;: efermi,</span>
+<span class="sd">            &quot;energies&quot;: ..., &quot;COHP&quot;: {Spin.up: ...}, &quot;ICOHP&quot;: ...}}.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CohpPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_negative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">integrated</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">invert_axes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a matplotlib plot showing the COHP.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xlim: Specifies the x-axis limits. Defaults to None for</span>
+<span class="sd">                automatic determination.</span>
+
+<span class="sd">            ylim: Specifies the y-axis limits. Defaults to None for</span>
+<span class="sd">                automatic determination.</span>
+
+<span class="sd">            plot_negative: It is common to plot -COHP(E) so that the</span>
+<span class="sd">                sign means the same for COOPs and COHPs. Defaults to None</span>
+<span class="sd">                for automatic determination: If are_coops is True, this</span>
+<span class="sd">                will be set to False, else it will be set to True.</span>
+
+<span class="sd">            integrated: Switch to plot ICOHPs. Defaults to False.</span>
+
+<span class="sd">            invert_axes: Put the energies onto the y-axis, which is</span>
+<span class="sd">                common in chemistry.</span>
+
+<span class="sd">        Returns: a matplotlib object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span><span class="p">:</span>
+            <span class="n">cohp_label</span> <span class="o">=</span> <span class="s2">&quot;COOP&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cohp_label</span> <span class="o">=</span> <span class="s2">&quot;COHP&quot;</span>
+
+        <span class="k">if</span> <span class="n">plot_negative</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plot_negative</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">are_coops</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">integrated</span><span class="p">:</span>
+            <span class="n">cohp_label</span> <span class="o">=</span> <span class="s2">&quot;I&quot;</span> <span class="o">+</span> <span class="n">cohp_label</span> <span class="o">+</span> <span class="s2">&quot; (eV)&quot;</span>
+
+        <span class="k">if</span> <span class="n">plot_negative</span><span class="p">:</span>
+            <span class="n">cohp_label</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">cohp_label</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span><span class="p">:</span>
+            <span class="n">energy_label</span> <span class="o">=</span> <span class="s2">&quot;$E - E_f$ (eV)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">energy_label</span> <span class="o">=</span> <span class="s2">&quot;$E$ (eV)&quot;</span>
+
+        <span class="n">ncolors</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">))</span>
+        <span class="n">ncolors</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">ncolors</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">palettable</span>
+
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">palettable</span><span class="o">.</span><span class="n">colorbrewer</span><span class="o">.</span><span class="n">qualitative</span><span class="o">.</span><span class="n">Set1_9</span><span class="o">.</span><span class="n">mpl_colors</span>
+
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+
+        <span class="n">allpts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
+            <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;energies&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">integrated</span><span class="p">:</span>
+                <span class="n">populations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;COHP&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">populations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;ICOHP&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">,</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">populations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">invert_axes</span><span class="p">:</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">populations</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="k">if</span> <span class="n">plot_negative</span> \
+                            <span class="k">else</span> <span class="n">populations</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span>
+                        <span class="n">y</span> <span class="o">=</span> <span class="n">energies</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">energies</span>
+                        <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">populations</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="k">if</span> <span class="n">plot_negative</span> \
+                            <span class="k">else</span> <span class="n">populations</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span>
+                    <span class="n">allpts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)))</span>
+                    <span class="k">if</span> <span class="n">spin</span> <span class="o">==</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
+                                 <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
+                                 <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">xlim</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ylim</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xlim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">()</span>
+            <span class="n">relevanty</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">allpts</span> <span class="k">if</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">((</span><span class="nb">min</span><span class="p">(</span><span class="n">relevanty</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">relevanty</span><span class="p">)))</span>
+
+        <span class="n">xlim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">()</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">invert_axes</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;k-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">,</span> <span class="s2">&quot;k--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">]],</span> <span class="n">ylim</span><span class="p">,</span>
+                         <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
+                         <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">,</span> <span class="s2">&quot;k-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_at_efermi</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;k--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">],</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;efermi&#39;</span><span class="p">]],</span>
+                         <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ncolors</span><span class="p">],</span>
+                         <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">invert_axes</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">cohp_label</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">energy_label</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">energy_label</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">cohp_label</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span>
+        <span class="n">ltext</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ltext</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">plt</span></div>
+
+<div class="viewcode-block" id="CohpPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save matplotlib plot to a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: File name to write to.</span>
+<span class="sd">            img_format: Image format to use. Defaults to EPS.</span>
+<span class="sd">            xlim: Specifies the x-axis limits. Defaults to None for</span>
+<span class="sd">                automatic determination.</span>
+<span class="sd">            ylim: Specifies the y-axis limits. Defaults to None for</span>
+<span class="sd">                automatic determination.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CohpPlotter.show"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show the plot using matplotlib.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xlim: Specifies the x-axis limits. Defaults to None for</span>
+<span class="sd">                automatic determination.</span>
+<span class="sd">            ylim: Specifies the y-axis limits. Defaults to None for</span>
+<span class="sd">                automatic determination.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="plot_fermi_surface"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_fermi_surface">[docs]</a><span class="k">def</span> <span class="nf">plot_fermi_surface</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">cbm</span><span class="p">,</span> <span class="n">energy_levels</span><span class="o">=</span><span class="p">[],</span>
@@ -4059,7 +4259,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4067,7 +4267,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.phonon.dos &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.phonon.dos &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -61,14 +61,20 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">get_linear_interpolated_value</span>
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.functools</span> <span class="k">import</span> <span class="n">lazy_property</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines classes to represent the phonon density of states, etc.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">BOLTZ_THZ_PER_K</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;Boltzmann constant in Hz/K&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span> <span class="c1"># Boltzmann constant in THz/K</span>
+<span class="n">THZ_TO_J</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;hertz-joule relationship&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">tera</span>
 
 
 <div class="viewcode-block" id="PhononDos"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos">[docs]</a><span class="k">class</span> <span class="nc">PhononDos</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -168,7 +174,200 @@
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;frequencies&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">),</span>
-                <span class="s2">&quot;densities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="p">)}</span></div></div>
+                <span class="s2">&quot;densities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="p">)}</span></div>
+
+<div class="viewcode-block" id="PhononDos.ind_zero_freq"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.ind_zero_freq">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">ind_zero_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Index of the first point for which the freqencies are equal or greater than zero.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ind</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No positive frequencies found&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ind</span></div>
+
+    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">_positive_frequencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Numpy array containing the list of positive frequencies</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ind_zero_freq</span><span class="p">:]</span>
+
+    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">_positive_densities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Numpy array containing the list of densities corresponding to positive frequencies</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ind_zero_freq</span><span class="p">:]</span>
+
+<div class="viewcode-block" id="PhononDos.cv"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.cv">[docs]</a>    <span class="k">def</span> <span class="nf">cv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.</span>
+<span class="sd">        Only positive frequencies will be used.</span>
+<span class="sd">        Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number</span>
+<span class="sd">        of Avogadro times the atoms in a unit cell. To compare with experimental data the result</span>
+<span class="sd">        should be divided by the number of unit formulas in the cell. If the structure is provided</span>
+<span class="sd">        the division is performed internally and the result is in J/(K*mol)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t: a temperature in K</span>
+<span class="sd">            structure: the structure of the system. If not None it will be used to determine the numer of</span>
+<span class="sd">                formula units</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Constant volume specific heat C_v</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">freqs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_frequencies</span>
+        <span class="n">dens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_densities</span>
+
+        <span class="n">csch2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">wd2kt</span> <span class="o">=</span> <span class="n">freqs</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">BOLTZ_THZ_PER_K</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">cv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">wd2kt</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">csch2</span><span class="p">(</span><span class="n">wd2kt</span><span class="p">)</span> <span class="o">*</span> <span class="n">dens</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+        <span class="n">cv</span> <span class="o">*=</span> <span class="n">const</span><span class="o">.</span><span class="n">Boltzmann</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">Avogadro</span>
+
+        <span class="k">if</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="n">formula_units</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">num_atoms</span>
+            <span class="n">cv</span> <span class="o">/=</span> <span class="n">formula_units</span>
+
+        <span class="k">return</span> <span class="n">cv</span></div>
+
+<div class="viewcode-block" id="PhononDos.entropy"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.entropy">[docs]</a>    <span class="k">def</span> <span class="nf">entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Vibrational entropy at temperature T obtained from the integration of the DOS.</span>
+<span class="sd">        Only positive frequencies will be used.</span>
+<span class="sd">        Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number</span>
+<span class="sd">        of Avogadro times the atoms in a unit cell. To compare with experimental data the result</span>
+<span class="sd">        should be divided by the number of unit formulas in the cell. If the structure is provided</span>
+<span class="sd">        the division is performed internally and the result is in J/(K*mol)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t: a temperature in K</span>
+<span class="sd">            structure: the structure of the system. If not None it will be used to determine the numer of</span>
+<span class="sd">                formula units</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Vibrational entropy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">freqs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_frequencies</span>
+        <span class="n">dens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_densities</span>
+
+        <span class="n">coth</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">wd2kt</span> <span class="o">=</span> <span class="n">freqs</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">BOLTZ_THZ_PER_K</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">((</span><span class="n">wd2kt</span> <span class="o">*</span> <span class="n">coth</span><span class="p">(</span><span class="n">wd2kt</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">wd2kt</span><span class="p">)))</span> <span class="o">*</span> <span class="n">dens</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">*=</span> <span class="n">const</span><span class="o">.</span><span class="n">Boltzmann</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">Avogadro</span>
+
+        <span class="k">if</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="n">formula_units</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">num_atoms</span>
+            <span class="n">s</span> <span class="o">/=</span> <span class="n">formula_units</span>
+
+        <span class="k">return</span> <span class="n">s</span></div>
+
+<div class="viewcode-block" id="PhononDos.internal_energy"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.internal_energy">[docs]</a>    <span class="k">def</span> <span class="nf">internal_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.</span>
+<span class="sd">        Only positive frequencies will be used.</span>
+<span class="sd">        Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number</span>
+<span class="sd">        of Avogadro times the atoms in a unit cell. To compare with experimental data the result</span>
+<span class="sd">        should be divided by the number of unit formulas in the cell. If the structure is provided</span>
+<span class="sd">        the division is performed internally and the result is in J/mol</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t: a temperature in K</span>
+<span class="sd">            structure: the structure of the system. If not None it will be used to determine the numer of</span>
+<span class="sd">                formula units</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Phonon contribution to the internal energy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">t</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_point_energy</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="n">freqs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_frequencies</span>
+        <span class="n">dens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_densities</span>
+
+        <span class="n">coth</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">wd2kt</span> <span class="o">=</span> <span class="n">freqs</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">BOLTZ_THZ_PER_K</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">freqs</span> <span class="o">*</span> <span class="n">coth</span><span class="p">(</span><span class="n">wd2kt</span><span class="p">)</span> <span class="o">*</span> <span class="n">dens</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="n">e</span> <span class="o">*=</span> <span class="n">THZ_TO_J</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">Avogadro</span>
+
+        <span class="k">if</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="n">formula_units</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">num_atoms</span>
+            <span class="n">e</span> <span class="o">/=</span> <span class="n">formula_units</span>
+
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="PhononDos.helmholtz_free_energy"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.helmholtz_free_energy">[docs]</a>    <span class="k">def</span> <span class="nf">helmholtz_free_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.</span>
+<span class="sd">        Only positive frequencies will be used.</span>
+<span class="sd">        Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number</span>
+<span class="sd">        of Avogadro times the atoms in a unit cell. To compare with experimental data the result</span>
+<span class="sd">        should be divided by the number of unit formulas in the cell. If the structure is provided</span>
+<span class="sd">        the division is performed internally and the result is in J/mol</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t: a temperature in K</span>
+<span class="sd">            structure: the structure of the system. If not None it will be used to determine the numer of</span>
+<span class="sd">                formula units</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Phonon contribution to the Helmholtz free energy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">t</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_point_energy</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="n">freqs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_frequencies</span>
+        <span class="n">dens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_densities</span>
+
+        <span class="n">wd2kt</span> <span class="o">=</span> <span class="n">freqs</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">BOLTZ_THZ_PER_K</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">wd2kt</span><span class="p">))</span> <span class="o">*</span> <span class="n">dens</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+
+        <span class="n">f</span> <span class="o">*=</span> <span class="n">const</span><span class="o">.</span><span class="n">Boltzmann</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">Avogadro</span> <span class="o">*</span> <span class="n">t</span>
+
+        <span class="k">if</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="n">formula_units</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">num_atoms</span>
+            <span class="n">f</span> <span class="o">/=</span> <span class="n">formula_units</span>
+
+        <span class="k">return</span> <span class="n">f</span></div>
+
+<div class="viewcode-block" id="PhononDos.zero_point_energy"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.PhononDos.zero_point_energy">[docs]</a>    <span class="k">def</span> <span class="nf">zero_point_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zero point energy energy of the system. Only positive frequencies will be used.</span>
+<span class="sd">        Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number</span>
+<span class="sd">        of Avogadro times the atoms in a unit cell. To compare with experimental data the result</span>
+<span class="sd">        should be divided by the number of unit formulas in the cell. If the structure is provided</span>
+<span class="sd">        the division is performed internally and the result is in J/mol</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t: a temperature in K</span>
+<span class="sd">            structure: the structure of the system. If not None it will be used to determine the numer of</span>
+<span class="sd">                formula units</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Phonon contribution to the internal energy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">freqs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_frequencies</span>
+        <span class="n">dens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_positive_densities</span>
+
+        <span class="n">zpe</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">freqs</span> <span class="o">*</span> <span class="n">dens</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">freqs</span><span class="p">)</span>
+        <span class="n">zpe</span> <span class="o">*=</span> <span class="n">THZ_TO_J</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">Avogadro</span>
+
+        <span class="k">if</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="n">formula_units</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_composition</span><span class="o">.</span><span class="n">num_atoms</span>
+            <span class="n">zpe</span> <span class="o">/=</span> <span class="n">formula_units</span>
+
+        <span class="k">return</span> <span class="n">zpe</span></div></div>
 
 
 <div class="viewcode-block" id="CompletePhononDos"><a class="viewcode-back" href="../../../pymatgen.phonon.dos.html#pymatgen.phonon.dos.CompletePhononDos">[docs]</a><span class="k">class</span> <span class="nc">CompletePhononDos</span><span class="p">(</span><span class="n">PhononDos</span><span class="p">):</span>
@@ -280,7 +479,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -288,7 +487,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

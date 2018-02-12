@@ -13,10 +13,11 @@ import numpy as np
 import ruamel.yaml as yaml
 import six
 
-from six.moves import cStringIO, map, zip
+#from six.moves import map, zip
 from tabulate import tabulate
+from monty.functools import lazy_property
 from monty.collections import AttrDict
-from pymatgen.util.plotting import add_fig_kwargs
+from pymatgen.util.plotting import add_fig_kwargs, get_axarray_fig_plt
 
 
 def straceback():
@@ -99,6 +100,14 @@ def plottable_from_outfile(filepath):
     else:
         return None
 
+# Use log scale for these variables.
+_VARS_SUPPORTING_LOGSCALE = set(["residm", "vres2", "nres2"])
+
+# Hard-coded y-range for selected variables.
+_VARS_WITH_YRANGE = {
+    "deltaE(h)": (-1e-3, +1e-3),
+    "deltaE(Ha)": (-1e-3, +1e-3),
+}
 
 class ScfCycle(collections.Mapping):
     """
@@ -111,8 +120,6 @@ class ScfCycle(collections.Mapping):
     """
     def __init__(self, fields):
         self.fields = fields
-        #print(fields)
-
         all_lens = [len(lst) for lst in self.values()]
         self.num_iterations = all_lens[0]
         assert all(n == self.num_iterations for n in all_lens)
@@ -127,14 +134,14 @@ class ScfCycle(collections.Mapping):
         return len(self.fields)
 
     def __str__(self):
-        """String representation."""
-        rows = [list(map(str, (self[k][it] for k in self.keys())))
-                for it in range(self.num_iterations)]
-        stream = cStringIO()
-        print(tabulate(rows, headers=list(self.keys())), file=stream)
-        stream.seek(0)
+        return self.to_string()
 
-        return "".join(stream)
+    def to_string(self, verbose=0):
+        """String representation."""
+        rows = [[it + 1] + list(map(str, (self[k][it] for k in self.keys())))
+                for it in range(self.num_iterations)]
+
+        return tabulate(rows, headers=["Iter"] + list(self.keys()))
 
     @property
     def last_iteration(self):
@@ -164,12 +171,14 @@ class ScfCycle(collections.Mapping):
             return None
 
     @add_fig_kwargs
-    def plot(self, axlist=None, **kwargs):
+    def plot(self, ax_list=None, fontsize=12, **kwargs):
         """
-        Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure
+        Uses matplotlib to plot the evolution of the SCF cycle.
 
         Args:
-            axlist: List of axes. If None a new figure is produced.
+            ax_list: List of axes. If None a new figure is produced.
+            fontsize: legend fontsize.
+            kwargs: keyword arguments are passed to ax.plot
 
         Returns: matplotlib figure
         """
@@ -179,51 +188,46 @@ class ScfCycle(collections.Mapping):
             ncols = 2
             nrows = num_plots // ncols + num_plots % ncols
 
-        import matplotlib.pyplot as plt
-        if axlist is None:
-            fig, axlist = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
-            axlist = axlist.ravel()
-        else:
-            fig = plt.gcf()
+        ax_list, fig, plot = get_axarray_fig_plt(ax_list, nrows=nrows, ncols=ncols,
+                                                 sharex=True, sharey=False, squeeze=False)
+        ax_list = np.array(ax_list).ravel()
 
-        # Use log scale for these variables.
-        use_logscale = set(["residm", "vres2"])
+        iter_num = np.array(list(range(self.num_iterations))) + 1
+        label = kwargs.pop("label", None)
 
-        # Hard-coded y-range for selected variables.
-        has_yrange = {
-            "deltaE(h)": (-1e-3, +1e-3),
-            "deltaE(Ha)": (-1e-3, +1e-3),
-            }
-
-        iter_num = np.array(list(range(self.num_iterations)))
-        for (key, values), ax in zip(self.items(), axlist):
+        for i, ((key, values), ax) in enumerate(zip(self.items(), ax_list)):
             ax.grid(True)
-            ax.set_xlabel('Iteration')
+            ax.set_xlabel('Iteration Step')
             ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
             xx, yy = iter_num, values
             if self.num_iterations > 1:
                 # Don't show the first iteration since it's not very useful.
-                xx, yy = xx[1:] + 1, values[1:]
+                xx, yy = xx[1:], values[1:]
 
-            ax.plot(xx, yy, "-o", lw=2.0)
-            if key in use_logscale and np.all(yy > 1e-22):
+            if not kwargs and label is None:
+                ax.plot(xx, yy, "-o", lw=2.0)
+            else:
+                ax.plot(xx, yy, label=label if i == 0 else None, **kwargs)
+
+            if key in _VARS_SUPPORTING_LOGSCALE and np.all(yy > 1e-22):
                 ax.set_yscale("log")
 
-            if key in has_yrange:
-                ymin, ymax = has_yrange[key]
+            if key in _VARS_WITH_YRANGE:
+                ymin, ymax = _VARS_WITH_YRANGE[key]
                 val_min, val_max = np.min(yy), np.max(yy)
                 if abs(val_max - val_min) > abs(ymax - ymin):
                     ax.set_ylim(ymin, ymax)
 
+            if label is not None:
+                ax.legend(loc="best", fontsize=fontsize, shadow=True)
+
         # Get around a bug in matplotlib.
         if num_plots % ncols != 0:
-            axlist[-1].plot(xx, yy, lw=0.0)
-            axlist[-1].axis('off')
+            ax_list[-1].plot(xx, yy, lw=0.0)
+            ax_list[-1].axis('off')
 
-        #plt.legend(loc="best")
-        fig.tight_layout()
         return fig
 
 
@@ -251,9 +255,54 @@ class PhononScfCycle(D2DEScfCycle):
     """Iterations of the DFPT SCF cycle for phonons."""
 
 
+class CyclesPlotter(object):
+    """Relies on the plot method of cycle objects to build multiple subfigures."""
+
+    def __init__(self):
+        self.labels = []
+        self.cycles = []
+
+    def items(self):
+        """To iterate over (label, cycle)."""
+        return zip(self.labels, self.cycles)
+
+    def add_label_cycle(self, label, cycle):
+        """Add new cycle to the plotter with label `label`."""
+        self.labels.append(label)
+        self.cycles.append(cycle)
+
+    @add_fig_kwargs
+    def combiplot(self, fontsize=8, **kwargs):
+        """
+        Compare multiple cycels on a grid: one subplot per quantity,
+        all cycles on the same subplot.
+
+        Args:
+            fontsize: Legend fontsize.
+        """
+        ax_list = None
+        for i, (label, cycle) in enumerate(self.items()):
+            fig = cycle.plot(ax_list=ax_list, label=label, fontsize=fontsize,
+                             lw=2.0, marker="o", linestyle="-", show=False)
+            ax_list = fig.axes
+
+        return fig
+
+    def slideshow(self, **kwargs):
+        """
+        Produce slides show of the different cycles. One plot per cycle.
+        """
+        for label, cycle in self.items():
+            cycle.plot(title=label, tight_layout=True)
+
+
 class Relaxation(collections.Iterable):
     """
     A list of :class:`GroundStateScfCycle` objects.
+
+    .. attributes::
+
+        num_iterations: Number of iterations performed.
 
     .. note::
 
@@ -264,6 +313,7 @@ class Relaxation(collections.Iterable):
     """
     def __init__(self, cycles):
         self.cycles = cycles
+        self.num_iterations = len(self.cycles)
 
     def __iter__(self):
         return self.cycles.__iter__()
@@ -275,15 +325,16 @@ class Relaxation(collections.Iterable):
         return self.cycles[slice]
 
     def __str__(self):
+        return self.to_string()
+
+    def to_string(self, verbose=0):
         """String representation."""
         lines = []
         app = lines.append
-
         for i, cycle in enumerate(self):
             app("")
-            app("RELAXATION STEP: %d" % i)
-            app(str(cycle))
-            app("")
+            app("RELAXATION STEP: %d" % (i + 1))
+            app(cycle.to_string(verbose=verbose))
 
         return "\n".join(lines)
 
@@ -306,62 +357,99 @@ class Relaxation(collections.Iterable):
 
         return cls(cycles) if cycles else None
 
-    @property
+    @lazy_property
     def history(self):
         """
-        Dictionary of lists with the evolution of the data as function of the relaxation step.
+        Ordered Dictionary of lists with the evolution of
+        the data as function of the relaxation step.
         """
-        try:
-            return self._history
-        except AttributeError:
-            self._history = history = collections.defaultdict(list)
-            for cycle in self:
-                d = cycle.last_iteration
-                for k, v in d.items():
+        history = collections.OrderedDict()
+        for cycle in self:
+            d = cycle.last_iteration
+            for k, v in d.items():
+                if k in history:
                     history[k].append(v)
+                else:
+                    history[k] = [v]
 
-            return self._history
+        # Convert to numpy arrays.
+        for k, v in history.items():
+            history[k] = np.array(v)
 
-    @add_fig_kwargs
-    def plot(self, axlist=None, **kwargs):
+        return history
+
+    def slideshow(self, **kwargs):
         """
         Uses matplotlib to plot the evolution of the structural relaxation.
 
         Args:
-            axlist: List of axes. If None a new figure is produced.
+            ax_list: List of axes. If None a new figure is produced.
 
         Returns:
             `matplotlib` figure
         """
-        import matplotlib.pyplot as plt
+        for i, cycle in enumerate(self.cycles):
+            cycle.plot(title="Relaxation step %s" % (i + 1),
+                       tight_layout=kwargs.pop("tight_layout", True),
+                       show=kwargs.pop("show", True))
 
+    @add_fig_kwargs
+    def plot(self, ax_list=None, fontsize=12, **kwargs):
+        """
+        Plot relaxation history i.e. the results of the last iteration of each SCF cycle.
+
+        Args:
+            ax_list: List of axes. If None a new figure is produced.
+            fontsize: legend fontsize.
+            kwargs: keyword arguments are passed to ax.plot
+
+        Returns: matplotlib figure
+        """
         history = self.history
-        #print(history)
-
-        relax_step = list(range(len(self)))
 
         # Build grid of plots.
-        num_plots, ncols, nrows = len(list(history.keys())), 1, 1
+        num_plots, ncols, nrows = len(history), 1, 1
         if num_plots > 1:
             ncols = 2
-            nrows = (num_plots//ncols) + (num_plots % ncols)
+            nrows = num_plots // ncols + num_plots % ncols
 
-        fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
-        ax_list = ax_list.ravel()
+        ax_list, fig, plot = get_axarray_fig_plt(ax_list, nrows=nrows, ncols=ncols,
+                                                 sharex=True, sharey=False, squeeze=False)
+        ax_list = np.array(ax_list).ravel()
 
-        if num_plots % ncols != 0:
-            ax_list[-1].axis('off')
+        iter_num = np.array(list(range(self.num_iterations))) + 1
+        label = kwargs.pop("label", None)
 
-        for (key, values), ax in zip(history.items(), ax_list):
+        for i, ((key, values), ax) in enumerate(zip(history.items(), ax_list)):
             ax.grid(True)
             ax.set_xlabel('Relaxation Step')
-            ax.set_xticks(relax_step, minor=False)
+            ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
-            ax.plot(relax_step, values, "-o", lw=2.0)
+            xx, yy = iter_num, values
+            if not kwargs and label is None:
+                ax.plot(xx, yy, "-o", lw=2.0)
+            else:
+                ax.plot(xx, yy, label=label if i == 0 else None, **kwargs)
+
+            if key in _VARS_SUPPORTING_LOGSCALE and np.all(yy > 1e-22):
+                ax.set_yscale("log")
+
+            if key in _VARS_WITH_YRANGE:
+                ymin, ymax = _VARS_WITH_YRANGE[key]
+                val_min, val_max = np.min(yy), np.max(yy)
+                if abs(val_max - val_min) > abs(ymax - ymin):
+                    ax.set_ylim(ymin, ymax)
+
+            if label is not None:
+                ax.legend(loc="best", fontsize=fontsize, shadow=True)
+
+        # Get around a bug in matplotlib.
+        if num_plots % ncols != 0:
+            ax_list[-1].plot(xx, yy, lw=0.0)
+            ax_list[-1].axis('off')
 
         return fig
-
 
 # TODO
 #class HaydockIterations(collections.Iterable):

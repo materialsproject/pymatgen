@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.interface_reactions module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.interface_reactions module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,7 +56,7 @@
 <span id="pymatgen-analysis-interface-reactions-module"></span><h1>pymatgen.analysis.interface_reactions module<a class="headerlink" href="#module-pymatgen.analysis.interface_reactions" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity">
-<em class="property">class </em><code class="descname">InterfacialReactivity</code><span class="sig-paren">(</span><em>c1</em>, <em>c2</em>, <em>pd</em>, <em>norm=True</em>, <em>include_no_mixing_energy=False</em>, <em>pd_non_grand=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">InterfacialReactivity</code><span class="sig-paren">(</span><em>c1</em>, <em>c2</em>, <em>pd</em>, <em>norm=True</em>, <em>include_no_mixing_energy=False</em>, <em>pd_non_grand=None</em>, <em>use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>An object encompassing all relevant data for interface reactions.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -78,6 +78,11 @@ in the final reaction energy calculation. By definition, if pd is
 not a GrandPotentialPhaseDiagram object, this param is False.</li>
 <li><strong>pd_non_grand</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object but not
 GrandPotentialPhaseDiagram object built from elements in c1 and c2.</li>
+<li><strong>use_hull_energy</strong> (<em>bool</em>) – Whether or not use the convex hull energy for
+a given composition for reaction energy calculation. If false, the
+energy of ground state structure will be used instead. Note that
+in case when ground state can be found for a composition, convex
+hull energy will be used associated with a warning message.</li>
 </ul>
 </td>
 </tr>
@@ -205,13 +210,13 @@ mixing ratio x.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

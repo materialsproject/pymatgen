@@ -23,6 +23,8 @@ from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.entries.exp_entries import ExpEntry
 
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -281,7 +283,8 @@ class MPRester(object):
             raise MPRestError(str(ex))
 
     def get_entries(self, chemsys_formula_id_criteria, compatible_only=True,
-                    inc_structure=None, property_data=None):
+                    inc_structure=None, property_data=None,
+                    conventional_unit_cell=False):
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
@@ -304,6 +307,8 @@ class MPRester(object):
             property_data (list): Specify additional properties to include in
                 entry.data. If None, no data. Should be a subset of
                 supported_properties.
+            conventional_unit_cell (bool): Whether to get the standard
+                conventional unit cell
 
         Returns:
             List of ComputedEntry or ComputedStructureEntry objects.
@@ -312,67 +317,113 @@ class MPRester(object):
         # on the REST end.
         params = ["run_type", "is_hubbard", "pseudo_potential", "hubbards",
                   "potcar_symbols", "oxide_type"]
-        if compatible_only:
-            props = ["energy", "unit_cell_formula", "task_id"] + params
-            if property_data:
-                props += property_data
-            if inc_structure:
-                if inc_structure == "final":
-                    props.append("structure")
-                else:
-                    props.append("initial_structure")
-
-            if not isinstance(chemsys_formula_id_criteria, dict):
-                criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
+        props = ["energy", "unit_cell_formula", "task_id"] + params
+        if property_data:
+            props += property_data
+        if inc_structure:
+            if inc_structure == "final":
+                props.append("structure")
             else:
-                criteria = chemsys_formula_id_criteria
+                props.append("initial_structure")
 
+        if not isinstance(chemsys_formula_id_criteria, dict):
+            criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
+        else:
+            criteria = chemsys_formula_id_criteria
+        try:
             data = self.query(criteria, props)
+        except MPRestError:
+            return []
 
-            entries = []
-            for d in data:
-                d["potcar_symbols"] = [
-                    "%s %s" % (d["pseudo_potential"]["functional"], l)
-                    for l in d["pseudo_potential"]["labels"]]
-                data = {"oxide_type": d["oxide_type"]}
-                if property_data:
-                    data.update({k: d[k] for k in property_data})
-                if not inc_structure:
-                    e = ComputedEntry(d["unit_cell_formula"], d["energy"],
-                                      parameters={k: d[k] for k in params},
-                                      data=data,
-                                      entry_id=d["task_id"])
+        entries = []
+        for d in data:
+            d["potcar_symbols"] = [
+                "%s %s" % (d["pseudo_potential"]["functional"], l)
+                for l in d["pseudo_potential"]["labels"]]
+            data = {"oxide_type": d["oxide_type"]}
+            if property_data:
+                data.update({k: d[k] for k in property_data})
+            if not inc_structure:
+                e = ComputedEntry(d["unit_cell_formula"], d["energy"],
+                                  parameters={k: d[k] for k in params},
+                                  data=data,
+                                  entry_id=d["task_id"])
 
+            else:
+                prim = d["structure"] if inc_structure == "final" else d[
+                    "initial_structure"]
+                if conventional_unit_cell:
+                    s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
+                    energy = d["energy"]*(len(s)/len(prim))
                 else:
-                    s = d["structure"] if inc_structure == "final" else d[
-                        "initial_structure"]
-                    e = ComputedStructureEntry(
-                        s, d["energy"],
-                        parameters={k: d[k] for k in params},
-                        data=data,
-                        entry_id=d["task_id"])
-                entries.append(e)
+                    s = prim.copy()
+                    energy = d["energy"]
+                e = ComputedStructureEntry(
+                    s, energy,
+                    parameters={k: d[k] for k in params},
+                    data=data,
+                    entry_id=d["task_id"])
+            entries.append(e)
+        if compatible_only:
             from pymatgen.entries.compatibility import \
                 MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
-        else:
-            entries = []
-            for d in self.get_data(chemsys_formula_id_criteria,
-                                   prop="task_ids"):
-                for i in d["task_ids"]:
-                    e = self.get_task_data(i, prop="entry")
-                    e = e[0]["entry"]
-                    if inc_structure:
-                        s = self.get_task_data(i,
-                                               prop="structure")[0]["structure"]
-                        e = ComputedStructureEntry(
-                            s, e.energy, e.correction, e.parameters, e.data,
-                            e.entry_id)
-                    entries.append(e)
-
         return entries
 
-    def get_structure_by_material_id(self, material_id, final=True):
+    def get_pourbaix_entries(self, chemsys):
+        """
+        A helper function to get all entries necessary to generate
+        a pourbaix diagram from the rest interface.
+
+        Args:
+            chemsys ([str]): A list of elements comprising the chemical
+                system, e.g. ['Li', 'Fe']
+        """
+        from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry
+        from pymatgen.analysis.phase_diagram import PhaseDiagram
+        from pymatgen.core.ion import Ion
+        from pymatgen.entries.compatibility import\
+            MaterialsProjectAqueousCompatibility
+
+        chemsys = list(set(chemsys + ['O', 'H']))
+        entries = self.get_entries_in_chemsys(
+            chemsys, property_data=['e_above_hull'], compatible_only=False)
+        compat = MaterialsProjectAqueousCompatibility("Advanced")
+        entries = compat.process_entries(entries)
+        solid_pd = PhaseDiagram(entries) # Need this to get ion formation energy
+        url = '/pourbaix_diagram/reference_data/' + '-'.join(chemsys)
+        ion_data = self._make_request(url)
+
+        pbx_entries = []
+        for entry in entries:
+            if not set(entry.composition.elements)\
+                    <= {Element('H'), Element('O')}:
+                pbx_entry = PourbaixEntry(entry)
+                pbx_entry.g0_replace(solid_pd.get_form_energy(entry))
+                pbx_entry.reduced_entry()
+                pbx_entries.append(pbx_entry)
+
+        # position the ion energies relative to most stable reference state
+        for n, i_d in enumerate(ion_data):
+            ion_entry = IonEntry(Ion.from_formula(i_d['Name']), i_d['Energy'])
+            refs = [e for e in entries
+                    if e.composition.reduced_formula == i_d['Reference Solid']]
+            if not refs:
+                raise ValueError("Reference solid not contained in entry list")
+            stable_ref = sorted(refs, key=lambda x: x.data['e_above_hull'])[0]
+            rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
+            solid_diff = solid_pd.get_form_energy(stable_ref)\
+                         - i_d['Reference solid energy'] * rf
+            elt = i_d['Major_Elements'][0]
+            correction_factor = ion_entry.ion.composition[elt]\
+                                / stable_ref.composition[elt]
+            correction = solid_diff * correction_factor
+            pbx_entries.append(PourbaixEntry(ion_entry, correction,
+                                             'ion-{}'.format(n)))
+        return pbx_entries
+
+    def get_structure_by_material_id(self, material_id, final=True,
+                                     conventional_unit_cell=False):
         """
         Get a Structure corresponding to a material_id.
 
@@ -381,16 +432,22 @@ class MPRester(object):
                 e.g., mp-1234).
             final (bool): Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
+            conventional_unit_cell (bool): Whether to get the standard
+                conventional unit cell
 
         Returns:
             Structure object.
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
+        if conventional_unit_cell:
+            data[0][prop] = SpacegroupAnalyzer(data[0][prop]).\
+                get_conventional_standard_structure()
         return data[0][prop]
 
     def get_entry_by_material_id(self, material_id, compatible_only=True,
-                                 inc_structure=None, property_data=None):
+                                 inc_structure=None, property_data=None,
+                                 conventional_unit_cell=False):
         """
         Get a ComputedEntry corresponding to a material_id.
 
@@ -411,13 +468,16 @@ class MPRester(object):
             property_data (list): Specify additional properties to include in
                 entry.data. If None, no data. Should be a subset of
                 supported_properties.
+            conventional_unit_cell (bool): Whether to get the standard
+                conventional unit cell
 
         Returns:
             ComputedEntry or ComputedStructureEntry object.
         """
         data = self.get_entries(material_id, compatible_only=compatible_only,
                                 inc_structure=inc_structure,
-                                property_data=property_data)
+                                property_data=property_data,
+                                conventional_unit_cell=conventional_unit_cell)
         return data[0]
 
     def get_dos_by_material_id(self, material_id):
@@ -448,7 +508,8 @@ class MPRester(object):
         return data[0]["bandstructure"]
 
     def get_entries_in_chemsys(self, elements, compatible_only=True,
-                               inc_structure=None, property_data=None):
+                               inc_structure=None, property_data=None,
+                               conventional_unit_cell=False):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
         For example, elements = ["Li", "Fe", "O"] will return a list of all
@@ -473,6 +534,8 @@ class MPRester(object):
             property_data (list): Specify additional properties to include in
                 entry.data. If None, no data. Should be a subset of
                 supported_properties.
+            conventional_unit_cell (bool): Whether to get the standard
+                conventional unit cell
 
         Returns:
             List of ComputedEntries.
@@ -484,7 +547,8 @@ class MPRester(object):
                     self.get_entries(
                         "-".join(els), compatible_only=compatible_only,
                         inc_structure=inc_structure,
-                        property_data=property_data))
+                        property_data=property_data,
+                        conventional_unit_cell=conventional_unit_cell))
         return entries
 
     def get_exp_thermo_data(self, formula):
@@ -875,6 +939,83 @@ class MPRester(object):
         """
 
         return self._make_request("/materials/all_substrate_ids")
+
+    def get_surface_data(self, material_id, inc_structures=False):
+        """
+        Gets surface data for a material. Useful for Wulff shapes.
+
+        Reference for surface data:
+
+        Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
+        A., & Ong, S. P. (2016). Data Descripter: Surface energies of elemental
+        crystals. Scientific Data, 3(160080), 1–13.
+        http://dx.doi.org/10.1038/sdata.2016.80
+
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            inc_structures (bool): Include final surface slab structures.
+                These are unnecessary for Wulff shape construction.
+        Returns:
+            Surface data for material. Energies are given in SI units (J/m^2).
+        """
+        req = "/materials/{}/surfaces".format(material_id)
+        if inc_structures:
+            req += "?include_structures=true"
+        return self._make_request(req)
+
+    def get_wulff_shape(self, material_id):
+        """
+        Constructs a Wulff shape for a material.
+
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+        Returns:
+            pymatgen.analysis.wulff.WulffShape
+        """
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+        from pymatgen.analysis.wulff import WulffShape, hkl_tuple_to_str
+
+        structure = self.get_structure_by_material_id(material_id)
+        surfaces = self.get_surface_data(material_id)["surfaces"]
+        lattice = (SpacegroupAnalyzer(structure)
+                   .get_conventional_standard_structure().lattice)
+        miller_energy_map = {}
+        for surf in surfaces:
+            miller = tuple(surf["miller_index"])
+             # Prefer reconstructed surfaces, which have lower surface energies.
+            if (miller not in miller_energy_map) or surf["is_reconstructed"]:
+                miller_energy_map[miller] = surf["surface_energy"]
+        millers, energies = zip(*miller_energy_map.items())
+        return WulffShape(lattice, millers, energies)
+
+    def get_interface_reactions(self, reactant1, reactant2,
+                                open_el=None, relative_mu=None):
+        """
+        Gets critical reactions between two reactants.
+
+        Get critical reactions ("kinks" in the mixing ratio where
+        reaction products change) between two reactants. See the
+        `pymatgen.analysis.interface_reactions` module for more info.
+
+        Args:
+            reactant1 (str): Chemical formula for reactant
+            reactant2 (str): Chemical formula for reactant
+            open_el (str): Element in reservoir available to system
+            relative_mu (float): Relative chemical potential of element in
+                reservoir with respect to pure substance. Must be non-positive.
+
+        Returns:
+            list: list of dicts of form {ratio,energy,rxn} where `ratio` is the
+                reactant mixing ratio, `energy` is the reaction energy
+                in eV/atom, and `rxn` is a
+                `pymatgen.analysis.reaction_calculator.Reaction`.
+
+        """
+        payload = {"reactants": " ".join([reactant1, reactant2]),
+                   "open_el": open_el,
+                   "relative_mu": relative_mu}
+        return self._make_request("/interface_reactions",
+                                  payload=payload, method="POST")
 
     @staticmethod
     def parse_criteria(criteria_string):

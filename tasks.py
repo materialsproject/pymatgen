@@ -1,3 +1,10 @@
+"""
+Pyinvoke tasks.py file for automating releases and admin stuff.
+
+Author: Shyue Ping Ong
+"""
+
+
 from invoke import task
 import glob
 import os
@@ -12,17 +19,6 @@ from monty.os import cd
 from pymatgen import __version__ as CURRENT_VER
 
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
-
-
-"""
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
-"""
-
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
 
 
 @task
@@ -89,14 +85,14 @@ def make_doc(ctx):
 def update_doc(ctx):
     make_doc(ctx)
     ctx.run("git add .")
-    ctx.run("git commit -a -m \"Update dev docs\"")
+    ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")
 
 
 @task
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
-    ctx.run("python setup.py register sdist bdist_wheel")
+    ctx.run("python setup.py sdist bdist_wheel")
     ctx.run("twine upload dist/*")
 
 

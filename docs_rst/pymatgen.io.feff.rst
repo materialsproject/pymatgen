@@ -1,12 +1,6 @@
 pymatgen\.io\.feff package
 ==========================
 
-Subpackages
------------
-
-.. toctree::
-
-
 Submodules
 ----------
 

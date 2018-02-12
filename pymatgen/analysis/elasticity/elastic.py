@@ -10,7 +10,7 @@ from pymatgen.analysis.elasticity.tensors import Tensor, \
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.core.units import Unit
-from scipy.misc import factorial
+from scipy.special import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
 from monty.serialization import loadfn

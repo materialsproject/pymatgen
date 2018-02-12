@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.phonon.dos module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.phonon.dos module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -148,6 +148,60 @@ object.</p>
 <dd><p>Json-serializable dict representation of PhononDos.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.phonon.dos.PhononDos.cv">
+<code class="descname">cv</code><span class="sig-paren">(</span><em>t</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/(K*mol)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>t</strong> – a temperature in K</li>
+<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Constant volume specific heat C_v</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.dos.PhononDos.entropy">
+<code class="descname">entropy</code><span class="sig-paren">(</span><em>t</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vibrational entropy at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/(K*mol)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>t</strong> – a temperature in K</li>
+<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Vibrational entropy</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="classmethod">
 <dt id="pymatgen.phonon.dos.PhononDos.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.from_dict" title="Permalink to this definition">¶</a></dt>
@@ -180,6 +234,92 @@ std dev sigma applied.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> – Std dev of Gaussian smearing function.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Gaussian-smeared densities.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.dos.PhononDos.helmholtz_free_energy">
+<code class="descname">helmholtz_free_energy</code><span class="sig-paren">(</span><em>t</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.helmholtz_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/mol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>t</strong> – a temperature in K</li>
+<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Phonon contribution to the Helmholtz free energy</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.phonon.dos.PhononDos.ind_zero_freq">
+<code class="descname">ind_zero_freq</code><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.ind_zero_freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.ind_zero_freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index of the first point for which the freqencies are equal or greater than zero.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.dos.PhononDos.internal_energy">
+<code class="descname">internal_energy</code><span class="sig-paren">(</span><em>t</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.internal_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.internal_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
+Only positive frequencies will be used.
+Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/mol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>t</strong> – a temperature in K</li>
+<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Phonon contribution to the internal energy</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.dos.PhononDos.zero_point_energy">
+<code class="descname">zero_point_energy</code><span class="sig-paren">(</span><em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/dos.html#PhononDos.zero_point_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.dos.PhononDos.zero_point_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zero point energy energy of the system. Only positive frequencies will be used.
+Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+should be divided by the number of unit formulas in the cell. If the structure is provided
+the division is performed internally and the result is in J/mol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>t</strong> – a temperature in K</li>
+<li><strong>structure</strong> – the structure of the system. If not None it will be used to determine the numer of
+formula units</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Phonon contribution to the internal energy</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -225,13 +365,13 @@ std dev sigma applied.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -219,7 +219,7 @@ e.g., mp-1234).</td>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_entries">
-<code class="descname">get_entries</code><span class="sig-paren">(</span><em>chemsys_formula_id_criteria</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entries</code><span class="sig-paren">(</span><em>chemsys_formula_id_criteria</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of ComputedEntries or ComputedStructureEntries corresponding
 to a chemical system, formula, or materials_id or full criteria.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -244,6 +244,8 @@ are returned.</li>
 <li><strong>property_data</strong> (<em>list</em>) – Specify additional properties to include in
 entry.data. If None, no data. Should be a subset of
 supported_properties.</li>
+<li><strong>conventional_unit_cell</strong> (<em>bool</em>) – Whether to get the standard
+conventional unit cell</li>
 </ul>
 </td>
 </tr>
@@ -256,7 +258,7 @@ supported_properties.</li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_entries_in_chemsys">
-<code class="descname">get_entries_in_chemsys</code><span class="sig-paren">(</span><em>elements</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries_in_chemsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entries_in_chemsys</code><span class="sig-paren">(</span><em>elements</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries_in_chemsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to get a list of ComputedEntries in a chemical system.
 For example, elements = [“Li”, “Fe”, “O”] will return a list of all
 entries in the Li-Fe-O chemical system, i.e., all LixOy,
@@ -283,6 +285,8 @@ are returned.</li>
 <li><strong>property_data</strong> (<em>list</em>) – Specify additional properties to include in
 entry.data. If None, no data. Should be a subset of
 supported_properties.</li>
+<li><strong>conventional_unit_cell</strong> (<em>bool</em>) – Whether to get the standard
+conventional unit cell</li>
 </ul>
 </td>
 </tr>
@@ -295,7 +299,7 @@ supported_properties.</li>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_entry_by_material_id">
-<code class="descname">get_entry_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entry_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entry_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entry_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entry_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entry_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a ComputedEntry corresponding to a material_id.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -318,6 +322,8 @@ are returned.</li>
 <li><strong>property_data</strong> (<em>list</em>) – Specify additional properties to include in
 entry.data. If None, no data. Should be a subset of
 supported_properties.</li>
+<li><strong>conventional_unit_cell</strong> (<em>bool</em>) – Whether to get the standard
+conventional unit cell</li>
 </ul>
 </td>
 </tr>
@@ -363,6 +369,43 @@ Materials Project REST interface.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_interface_reactions">
+<code class="descname">get_interface_reactions</code><span class="sig-paren">(</span><em>reactant1</em>, <em>reactant2</em>, <em>open_el=None</em>, <em>relative_mu=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_interface_reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_interface_reactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets critical reactions between two reactants.</p>
+<p>Get critical reactions (“kinks” in the mixing ratio where
+reaction products change) between two reactants. See the
+<cite>pymatgen.analysis.interface_reactions</cite> module for more info.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>reactant1</strong> (<em>str</em>) – Chemical formula for reactant</li>
+<li><strong>reactant2</strong> (<em>str</em>) – Chemical formula for reactant</li>
+<li><strong>open_el</strong> (<em>str</em>) – Element in reservoir available to system</li>
+<li><strong>relative_mu</strong> (<em>float</em>) – Relative chemical potential of element in
+reservoir with respect to pure substance. Must be non-positive.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>list of dicts of form {ratio,energy,rxn} where <cite>ratio</cite> is the</dt>
+<dd><p class="first last">reactant mixing ratio, <cite>energy</cite> is the reaction energy
+in eV/atom, and <cite>rxn</cite> is a
+<cite>pymatgen.analysis.reaction_calculator.Reaction</cite>.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_materials_id_from_task_id">
 <code class="descname">get_materials_id_from_task_id</code><span class="sig-paren">(</span><em>task_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_id_from_task_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_id_from_task_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a new MP materials id from a task id (which can be
@@ -390,6 +433,22 @@ equivalent to an old materials id)</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – A material id.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BibTeX (str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_pourbaix_entries">
+<code class="descname">get_pourbaix_entries</code><span class="sig-paren">(</span><em>chemsys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_pourbaix_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_pourbaix_entries" title="Permalink to this definition">¶</a></dt>
+<dd><p>A helper function to get all entries necessary to generate
+a pourbaix diagram from the rest interface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chemsys</strong> (<em>[</em><em>str</em><em>]</em>) – A list of elements comprising the chemical
+system, e.g. [‘Li’, ‘Fe’]</td>
 </tr>
 </tbody>
 </table>
@@ -424,7 +483,7 @@ equivalent to an old materials id)</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_structure_by_material_id">
-<code class="descname">get_structure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>final=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_structure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_structure_by_material_id" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_structure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em>, <em>final=True</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_structure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_structure_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a Structure corresponding to a material_id.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -435,6 +494,8 @@ equivalent to an old materials id)</p>
 e.g., mp-1234).</li>
 <li><strong>final</strong> (<em>bool</em>) – Whether to get the final structure, or the initial
 (pre-relaxation) structure. Defaults to True.</li>
+<li><strong>conventional_unit_cell</strong> (<em>bool</em>) – Whether to get the standard
+conventional unit cell</li>
 </ul>
 </td>
 </tr>
@@ -496,6 +557,33 @@ n=0 returns all available matches</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_surface_data">
+<code class="descname">get_surface_data</code><span class="sig-paren">(</span><em>material_id</em>, <em>inc_structures=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_surface_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_surface_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets surface data for a material. Useful for Wulff shapes.</p>
+<p>Reference for surface data:</p>
+<p>Tran, R., Xu, Z., Radhakrishnan, B., Winston, D., Sun, W., Persson, K.
+A., &amp; Ong, S. P. (2016). Data Descripter: Surface energies of elemental
+crystals. Scientific Data, 3(160080), 1–13.
+<a class="reference external" href="http://dx.doi.org/10.1038/sdata.2016.80">http://dx.doi.org/10.1038/sdata.2016.80</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g. ‘mp-123’.</li>
+<li><strong>inc_structures</strong> (<em>bool</em>) – Include final surface slab structures.
+These are unnecessary for Wulff shape construction.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Surface data for material. Energies are given in SI units (J/m^2).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_task_data">
 <code class="descname">get_task_data</code><span class="sig-paren">(</span><em>chemsys_formula_id</em>, <em>prop=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_task_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_task_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flexible method to get any data using the Materials Project REST
@@ -517,6 +605,22 @@ MPRester.supported_properties. Leave as empty string for a
 general list of useful properties.</li>
 </ul>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_wulff_shape">
+<code class="descname">get_wulff_shape</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_wulff_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_wulff_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a Wulff shape for a material.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g. ‘mp-123’.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">pymatgen.analysis.wulff.WulffShape</td>
 </tr>
 </tbody>
 </table>
@@ -808,13 +912,13 @@ assimilate. Defaults to None, which means serial.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.vasp.inputs &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,6 +67,7 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">glob</span>
 
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -284,14 +285,14 @@
         <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="n">names</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">check_for_POTCAR</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;POTCAR&quot;</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
-                        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">sym</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">potcar</span><span class="o">.</span><span class="n">symbols</span><span class="p">]</span>
-                        <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>  <span class="c1"># ensure valid names</span>
-                    <span class="k">except</span><span class="p">:</span>
-                        <span class="n">names</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">potcars</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s2">&quot;*POTCAR*&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">potcars</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">potcars</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">sym</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">potcar</span><span class="o">.</span><span class="n">symbols</span><span class="p">]</span>
+                    <span class="p">[</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>  <span class="c1"># ensure valid names</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">names</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">names</span><span class="p">,</span>
                                       <span class="n">read_velocities</span><span class="o">=</span><span class="n">read_velocities</span><span class="p">)</span></div>
@@ -1670,8 +1671,14 @@
 <span class="sd">        Attempt to return the atomic symbol based on the VRHFIN keyword.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">[</span><span class="s2">&quot;VRHFIN&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="c1">#VASP incorrectly gives the element symbol for Xe as &quot;X&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;Xe&quot;</span> <span class="k">if</span> <span class="n">element</span> <span class="o">==</span> <span class="s2">&quot;X&quot;</span> <span class="k">else</span> <span class="n">element</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Element</span><span class="p">(</span><span class="n">element</span><span class="p">)</span><span class="o">.</span><span class="n">symbol</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># VASP incorrectly gives the element symbol for Xe as &quot;X&quot;</span>
+            <span class="c1"># Some potentials, e.g., Zr_sv, gives the symbol as r.</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="o">==</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;Xe&quot;</span>
+            <span class="k">return</span> <span class="n">Element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">symbol</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">atomic_no</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1986,7 +1993,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1994,7 +2001,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

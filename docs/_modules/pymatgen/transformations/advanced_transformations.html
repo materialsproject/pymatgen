@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,21 +67,21 @@
     <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">gcd</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">gcd</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">groupby</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">ascii_lowercase</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
-<span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">monty.fractions</span> <span class="k">import</span> <span class="n">lcm</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span><span class="p">,</span> <span class="n">DummySpecie</span>
 <span class="kn">from</span> <span class="nn">pymatgen.transformations.transformation_abc</span> <span class="k">import</span> <span class="n">AbstractTransformation</span>
 <span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="k">import</span> \
     <span class="n">SubstitutionTransformation</span><span class="p">,</span> <span class="n">OrderDisorderedStructureTransformation</span>
-<span class="kn">from</span> <span class="nn">pymatgen.command_line.enumlib_caller</span> <span class="k">import</span> <span class="n">EnumlibAdaptor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.command_line.enumlib_caller</span> <span class="k">import</span> <span class="n">EnumlibAdaptor</span><span class="p">,</span> <span class="n">EnumError</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.ewald</span> <span class="k">import</span> <span class="n">EwaldSummation</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
@@ -92,12 +92,13 @@
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.energy_models</span> <span class="k">import</span> <span class="n">SymmetryModel</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">SlabGenerator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module implements more advanced transformations.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Stephen Dacek, Anubhav Jain&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
@@ -303,26 +304,21 @@
 <span class="sd">    transformation, and at a much faster speed.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        min_cell_size (int): The minimum cell size wanted. Must be an int.</span>
-<span class="sd">            Defaults to 1.</span>
-<span class="sd">        max_cell_size (int): The maximum cell size wanted. Must be an int.</span>
-<span class="sd">            Defaults to 1.</span>
-<span class="sd">        symm_prec (float): Tolerance to use for symmetry detection. Defaults to</span>
-<span class="sd">            0.1.</span>
-<span class="sd">        occu_tol (int): If set, the code will first round and scale</span>
-<span class="sd">            occupancies to the nearest rational number, with maximum</span>
-<span class="sd">            denominator = occu_tol. This handles structures that contain</span>
-<span class="sd">            partial occupancies that are close to a rational number. E.g.,</span>
-<span class="sd">            sometimes the reported occupancy is 0.249, and if occu_tol is set</span>
-<span class="sd">            to 4, this will be rounded to 0.25.</span>
-<span class="sd">        refine_structure (bool): This parameter has the same meaning as in</span>
-<span class="sd">            enumlib_caller. If you are starting from a structure that has been</span>
-<span class="sd">            relaxed via some electronic structure code, it is usually much</span>
-<span class="sd">            better to start with symmetry determination and then obtain a</span>
-<span class="sd">            refined structure. The refined structure have cell parameters and</span>
+<span class="sd">        min_cell_size:</span>
+<span class="sd">            The minimum cell size wanted. Must be an int. Defaults to 1.</span>
+<span class="sd">        max_cell_size:</span>
+<span class="sd">            The maximum cell size wanted. Must be an int. Defaults to 1.</span>
+<span class="sd">        symm_prec:</span>
+<span class="sd">            Tolerance to use for symmetry.</span>
+<span class="sd">        refine_structure:</span>
+<span class="sd">            This parameter has the same meaning as in enumlib_caller.</span>
+<span class="sd">            If you are starting from a structure that has been relaxed via</span>
+<span class="sd">            some electronic structure code, it is usually much better to</span>
+<span class="sd">            start with symmetry determination and then obtain a refined</span>
+<span class="sd">            structure. The refined structure have cell parameters and</span>
 <span class="sd">            atomic positions shifted to the expected symmetry positions,</span>
 <span class="sd">            which makes it much less sensitive precision issues in enumlib.</span>
-<span class="sd">            If you are already starting from an experimental cif, refinement</span>
+<span class="sd">            If you are already starting from an experimental cif, refinment</span>
 <span class="sd">            should have already been done and it is not necessary. Defaults</span>
 <span class="sd">            to False.</span>
 <span class="sd">        enum_precision_parameter (float): Finite precision parameter for</span>
@@ -336,18 +332,34 @@
 <span class="sd">            structures. But sometimes including ordered sites</span>
 <span class="sd">            slows down enumeration to the point that it cannot be</span>
 <span class="sd">            completed. Switch to False in those cases. Defaults to True.</span>
+<span class="sd">        max_disordered_sites (int):</span>
+<span class="sd">            An alternate parameter to max_cell size. Will sequentially try</span>
+<span class="sd">            larger and larger cell sizes until (i) getting a result or (ii)</span>
+<span class="sd">            the number of disordered sites in the cell exceeds</span>
+<span class="sd">            max_disordered_sites. Must set max_cell_size to None when using</span>
+<span class="sd">            this parameter.</span>
+<span class="sd">        sort_criteria (str): Sort by Ewald energy (&quot;ewald&quot;, must have oxidation</span>
+<span class="sd">            states and slow) or by number of sites (&quot;nsites&quot;, much faster).</span>
+<span class="sd">        timeout (float): timeout in minutes to pass to EnumlibAdaptor</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_cell_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">symm_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-                 <span class="n">occu_tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">refine_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">enum_precision_parameter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">refine_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enum_precision_parameter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+                 <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_disordered_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sort_criteria</span><span class="o">=</span><span class="s2">&quot;ewald&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span> <span class="o">=</span> <span class="n">symm_prec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_cell_size</span> <span class="o">=</span> <span class="n">min_cell_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_cell_size</span> <span class="o">=</span> <span class="n">max_cell_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span> <span class="o">=</span> <span class="n">occu_tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refine_structure</span> <span class="o">=</span> <span class="n">refine_structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enum_precision_parameter</span> <span class="o">=</span> <span class="n">enum_precision_parameter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_ordered_symmetry</span> <span class="o">=</span> <span class="n">check_ordered_symmetry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_disordered_sites</span> <span class="o">=</span> <span class="n">max_disordered_sites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_criteria</span> <span class="o">=</span> <span class="n">sort_criteria</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+
+        <span class="k">if</span> <span class="n">max_cell_size</span> <span class="ow">and</span> <span class="n">max_disordered_sites</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot set both max_cell_size and &quot;</span>
+                             <span class="s2">&quot;max_disordered_sites!&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="EnumerateStructureTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -375,16 +387,6 @@
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">num_to_return</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span><span class="p">:</span>
-            <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">]</span>
-            <span class="c1"># Here, we rescale all occupancies such that they meet the frac</span>
-            <span class="c1"># limit.</span>
-            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">sp</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">Fraction</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occu_tol</span><span class="p">))</span>
-            <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span>
-                                  <span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refine_structure</span><span class="p">:</span>
             <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span><span class="p">)</span>
             <span class="n">structure</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_refined_structure</span><span class="p">()</span>
@@ -394,19 +396,44 @@
              <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span>
         <span class="p">)</span>
 
+        <span class="n">structures</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Enumeration skipped for structure with composition </span><span class="si">{}</span><span class="s2"> &quot;</span>
                  <span class="s2">&quot;because it is ordered&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">))</span>
             <span class="n">structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_disordered_sites</span><span class="p">:</span>
+            <span class="n">ndisordered</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">ndisordered</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_disordered_sites</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Too many disordered sites! (</span><span class="si">{}</span><span class="s2"> &gt; </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">ndisordered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_disordered_sites</span><span class="p">))</span>
+            <span class="n">max_cell_sizes</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cell_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_disordered_sites</span> <span class="o">/</span> <span class="n">ndisordered</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">max_cell_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">max_cell_size</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">max_cell_size</span> <span class="ow">in</span> <span class="n">max_cell_sizes</span><span class="p">:</span>
             <span class="n">adaptor</span> <span class="o">=</span> <span class="n">EnumlibAdaptor</span><span class="p">(</span>
                 <span class="n">structure</span><span class="p">,</span> <span class="n">min_cell_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_cell_size</span><span class="p">,</span>
-                <span class="n">max_cell_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_cell_size</span><span class="p">,</span>
+                <span class="n">max_cell_size</span><span class="o">=</span><span class="n">max_cell_size</span><span class="p">,</span>
                 <span class="n">symm_prec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span><span class="p">,</span> <span class="n">refine_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">enum_precision_parameter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">enum_precision_parameter</span><span class="p">,</span>
-                <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_ordered_symmetry</span><span class="p">)</span>
-            <span class="n">adaptor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+                <span class="n">check_ordered_symmetry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_ordered_symmetry</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">adaptor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">EnumError</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Unable to enumerate for max_cell_size = </span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">max_cell_size</span><span class="p">))</span>
             <span class="n">structures</span> <span class="o">=</span> <span class="n">adaptor</span><span class="o">.</span><span class="n">structures</span>
+            <span class="k">if</span> <span class="n">structures</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">structures</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to enumerate&quot;</span><span class="p">)</span>
 
         <span class="n">original_latt</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
         <span class="n">inv_latt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">original_latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
@@ -417,7 +444,7 @@
             <span class="n">transformation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">new_latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">inv_latt</span><span class="p">)</span>
             <span class="n">transformation</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span><span class="p">])</span>
                                     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">transformation</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">contains_oxidation_state</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">contains_oxidation_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_criteria</span> <span class="o">==</span> <span class="s2">&quot;ewald&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">transformation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ewald_matrices</span><span class="p">:</span>
                     <span class="n">s_supercell</span> <span class="o">=</span> <span class="n">structure</span> <span class="o">*</span> <span class="n">transformation</span>
                     <span class="n">ewald</span> <span class="o">=</span> <span class="n">EwaldSummation</span><span class="p">(</span><span class="n">s_supercell</span><span class="p">)</span>
@@ -431,7 +458,8 @@
                 <span class="n">all_structures</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;num_sites&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">})</span>
 
         <span class="k">def</span> <span class="nf">sort_func</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;num_sites&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">contains_oxidation_state</span> \
+            <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;num_sites&quot;</span><span class="p">]</span> \
+                <span class="k">if</span> <span class="n">contains_oxidation_state</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_criteria</span> <span class="o">==</span> <span class="s2">&quot;ewald&quot;</span> \
                 <span class="k">else</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;num_sites&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_structures</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">sort_func</span><span class="p">)</span>
@@ -508,38 +536,126 @@
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="MagOrderingTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation">[docs]</a><span class="k">class</span> <span class="nc">MagOrderingTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This transformation takes a structure and returns a list of magnetic</span>
-<span class="sd">    orderings. Currently only works for ordered structures.</span>
+<div class="viewcode-block" id="MagOrderParameterConstraint"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint">[docs]</a><span class="k">class</span> <span class="nc">MagOrderParameterConstraint</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        mag_elements_spin:</span>
-<span class="sd">            A mapping of elements/species to magnetically order to spin</span>
-<span class="sd">            magnitudes. E.g., {&quot;Fe3+&quot;: 5, &quot;Mn3+&quot;: 4}</span>
-<span class="sd">        order_parameter:</span>
-<span class="sd">            degree of magnetization. 0.5 corresponds to</span>
-<span class="sd">            antiferromagnetic order</span>
-<span class="sd">        energy_model:</span>
-<span class="sd">            Energy model used to rank the structures. Some models are</span>
-<span class="sd">            provided in :mod:`pymatgen.analysis.energy_models`.</span>
-<span class="sd">        **kwargs:</span>
-<span class="sd">            Same keyword args as :class:`EnumerateStructureTransformation`,</span>
-<span class="sd">            i.e., min_cell_size, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order_parameter</span><span class="p">,</span>
+                 <span class="n">species_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">site_constraint_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">site_constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class can be used to supply MagOrderingTransformation</span>
+<span class="sd">        to just a specific subset of species or sites that satisfy the</span>
+<span class="sd">        provided constraints. This can be useful for setting an order</span>
+<span class="sd">        parameters for, for example, ferrimagnetic structures which</span>
+<span class="sd">        might order on certain motifs, with the global order parameter</span>
+<span class="sd">        dependent on how many sites satisfy that motif.</span>
+
+<span class="sd">        :param order_parameter (float): any number from 0.0 to 1.0,</span>
+<span class="sd">        typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)</span>
+<span class="sd">        :param species_constraint (list): str or list of strings</span>
+<span class="sd">        of Specie symbols that the constraint should apply to</span>
+<span class="sd">        :param site_constraint_name (str): name of the site property</span>
+<span class="sd">        that the constraint should apply to, e.g. &quot;coordination_no&quot;</span>
+<span class="sd">        :param site_constraints (list): list of values of the site</span>
+<span class="sd">        property that the constraints should apply to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># validation</span>
+        <span class="k">if</span> <span class="n">site_constraints</span> <span class="ow">and</span> <span class="n">site_constraints</span> <span class="o">!=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> \
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">site_constraint_name</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Specify the name of the site constraint.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">site_constraints</span> <span class="ow">and</span> <span class="n">site_constraint_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify some site constraints.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species_constraints</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">species_constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">species_constraints</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site_constraints</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">site_constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">site_constraints</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">order_parameter</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">order_parameter</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Order parameter must lie between 0 and 1&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">order_parameter</span> <span class="o">!=</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Use care when using a non-standard order parameter, &quot;</span>
+                          <span class="s2">&quot;though it can be useful in some cases it can also &quot;</span>
+                          <span class="s2">&quot;lead to unintended behavior. Consult documentation.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">order_parameter</span> <span class="o">=</span> <span class="n">order_parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_constraints</span> <span class="o">=</span> <span class="n">species_constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_constraint_name</span> <span class="o">=</span> <span class="n">site_constraint_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_constraints</span> <span class="o">=</span> <span class="n">site_constraints</span>
+
+<div class="viewcode-block" id="MagOrderParameterConstraint.satisfies_constraint"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint.satisfies_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">satisfies_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if a periodic site satisfies the constraint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_constraints</span> \
+                <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_constraints</span><span class="p">:</span>
+            <span class="n">satisfies_constraints</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">satisfies_constraints</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_constraint_name</span> \
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_constraint_name</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site_constraint_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_constraints</span><span class="p">:</span>
+                <span class="n">satisfies_constraints</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">satisfies_constraints</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">satisfies_constraints</span></div></div>
+
+
+<div class="viewcode-block" id="MagOrderingTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation">[docs]</a><span class="k">class</span> <span class="nc">MagOrderingTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag_species_spin</span><span class="p">,</span> <span class="n">order_parameter</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                  <span class="n">energy_model</span><span class="o">=</span><span class="n">SymmetryModel</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mag_species_spin</span> <span class="o">=</span> <span class="n">mag_species_spin</span>
-        <span class="k">if</span> <span class="n">order_parameter</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">order_parameter</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Order Parameter must lie between 0 and 1&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">order_parameter</span> <span class="o">=</span> <span class="n">order_parameter</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">energy_model</span> <span class="o">=</span> <span class="n">energy_model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This transformation takes a structure and returns a list of collinear</span>
+<span class="sd">        magnetic orderings. For disordered structures, make an ordered</span>
+<span class="sd">        approximation first.</span>
 
-<div class="viewcode-block" id="MagOrderingTransformation.determine_min_cell"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">determine_min_cell</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">mag_species_spin</span><span class="p">,</span> <span class="n">order_parameter</span><span class="p">):</span>
+<span class="sd">        :param mag_species_spin: A mapping of elements/species to their</span>
+<span class="sd">        spin magnitudes, e.g. {&quot;Fe3+&quot;: 5, &quot;Mn3+&quot;: 4}</span>
+<span class="sd">        :param order_parameter (float or list): if float, a specifies a</span>
+<span class="sd">        global order parameter and can take values from 0.0 to 1.0</span>
+<span class="sd">        (e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if</span>
+<span class="sd">        list has to be a list of</span>
+<span class="sd">        :class: `pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint`</span>
+<span class="sd">        to specify more complicated orderings, see documentation for</span>
+<span class="sd">        MagOrderParameterConstraint more details on usage</span>
+<span class="sd">        :param energy_model: Energy model to rank the returned structures,</span>
+<span class="sd">        see :mod: `pymatgen.analysis.energy_models` for more information (note</span>
+<span class="sd">        that this is not necessarily a physical energy). By default, returned</span>
+<span class="sd">        structures use SymmetryModel() which ranks structures from most</span>
+<span class="sd">        symmetric to least.</span>
+<span class="sd">        :param kwargs: Additional kwargs that are passed to</span>
+<span class="sd">        :class:`EnumerateStructureTransformation` such as min_cell_size etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># checking for sensible order_parameter values</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order_parameter</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># convert to constraint format</span>
+            <span class="n">order_parameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">MagOrderParameterConstraint</span><span class="p">(</span><span class="n">order_parameter</span><span class="o">=</span><span class="n">order_parameter</span><span class="p">,</span>
+                                                           <span class="n">species_constraints</span><span class="o">=</span>
+                                                           <span class="nb">list</span><span class="p">(</span><span class="n">mag_species_spin</span><span class="o">.</span><span class="n">keys</span><span class="p">()))]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order_parameter</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">ops</span> <span class="o">=</span> <span class="p">[</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MagOrderParameterConstraint</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">order_parameter</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">ops</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Order parameter not correctly defined.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Order parameter not correctly defined.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_species_spin</span> <span class="o">=</span> <span class="n">mag_species_spin</span>
+        <span class="c1"># store order parameter constraints as dicts to save implementing</span>
+        <span class="c1"># to/from dict methods for MSONable compatibility</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order_parameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">order_parameter</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_model</span> <span class="o">=</span> <span class="n">energy_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enum_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+<div class="viewcode-block" id="MagOrderingTransformation.determine_min_cell"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">determine_min_cell</span><span class="p">(</span><span class="n">disordered_structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the smallest supercell that is able to enumerate</span>
 <span class="sd">        the provided structure with the given order parameter</span>
@@ -551,68 +667,217 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="n">n1</span> <span class="o">*</span> <span class="n">n2</span> <span class="o">/</span> <span class="n">gcd</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
 
-        <span class="n">denom</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">order_parameter</span><span class="p">)</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">denominator</span>
-        <span class="n">atom_per_specie</span> <span class="o">=</span> <span class="p">[</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
-                           <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mag_species_spin</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-        <span class="n">n_gcd</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">gcd</span><span class="p">,</span> <span class="n">atom_per_specie</span><span class="p">)</span>
+        <span class="c1"># assumes all order parameters for a given species are the same</span>
+        <span class="n">mag_species_order_parameter</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mag_species_occurrences</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">disordered_structure</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="c1"># this very hacky bit of code only works because we know</span>
+                <span class="c1"># that on disordered sites in this class, all species are the same</span>
+                <span class="c1"># but have different spins, and this is comma-delimited</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">mag_species_order_parameter</span><span class="p">:</span>
+                    <span class="n">mag_species_occurrences</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mag_species_order_parameter</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span>
+                    <span class="n">mag_species_occurrences</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">n_gcd</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;The specified species do not exist in the structure&#39;</span>
-                <span class="s1">&#39; to be enumerated&#39;</span><span class="p">)</span>
+        <span class="n">smallest_n</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">return</span> <span class="n">lcm</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_gcd</span><span class="p">),</span> <span class="n">denom</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_gcd</span></div>
+        <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">order_parameter</span> <span class="ow">in</span> <span class="n">mag_species_order_parameter</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">denom</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">order_parameter</span><span class="p">)</span><span class="o">.</span><span class="n">limit_denominator</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">denominator</span>
+            <span class="n">num_atom_per_specie</span> <span class="o">=</span> <span class="n">mag_species_occurrences</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+            <span class="n">n_gcd</span> <span class="o">=</span> <span class="n">gcd</span><span class="p">(</span><span class="n">denom</span><span class="p">,</span> <span class="n">num_atom_per_specie</span><span class="p">)</span>
+            <span class="n">smallest_n</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lcm</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_gcd</span><span class="p">),</span> <span class="n">denom</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_gcd</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">smallest_n</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_dummy_species</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param structure: ordered Structure</span>
+<span class="sd">        :param order_parameters: list of MagOrderParameterConstraints</span>
+<span class="sd">        :return: A structure decorated with disordered</span>
+<span class="sd">        DummySpecies on which to perform the enumeration.</span>
+<span class="sd">        Note that the DummySpecies are super-imposed on</span>
+<span class="sd">        to the original sites, to make it easier to</span>
+<span class="sd">        retrieve the original site after enumeration is</span>
+<span class="sd">        performed (this approach is preferred over a simple</span>
+<span class="sd">        mapping since multiple species may have the same</span>
+<span class="sd">        DummySpecie, depending on the constraints specified).</span>
+<span class="sd">        This approach can also preserve site properties even after</span>
+<span class="sd">        enumeration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dummy_struct</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">generate_dummy_specie</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Generator which returns DummySpecie symbols Mma, Mmb, etc.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">subscript_length</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">subscript</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">ascii_lowercase</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="n">subscript_length</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="s2">&quot;Mm&quot;</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subscript</span><span class="p">)</span>
+                <span class="n">subscript_length</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">dummy_species_gen</span> <span class="o">=</span> <span class="n">generate_dummy_specie</span><span class="p">()</span>
+
+        <span class="c1"># one dummy species for each order parameter constraint</span>
+        <span class="n">dummy_species_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="nb">next</span><span class="p">(</span><span class="n">dummy_species_gen</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order_parameters</span><span class="p">))]</span>
+        <span class="n">dummy_species</span> <span class="o">=</span> <span class="p">[{</span>
+            <span class="n">DummySpecie</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spin&#39;</span><span class="p">:</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">}):</span> <span class="n">constraint</span><span class="o">.</span><span class="n">order_parameter</span><span class="p">,</span>
+            <span class="n">DummySpecie</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spin&#39;</span><span class="p">:</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">}):</span> <span class="mi">1</span><span class="o">-</span><span class="n">constraint</span><span class="o">.</span><span class="n">order_parameter</span>
+        <span class="p">}</span> <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dummy_species_symbols</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">)]</span>
+
+        <span class="n">sites_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dummy_struct</span><span class="p">):</span>
+            <span class="n">satisfies_constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">satisfies_constraint</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">order_parameters</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">satisfies_constraints</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># site should either not satisfy any constraints, or satisfy</span>
+                <span class="c1"># one constraint</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Order parameter constraints conflict for site: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">satisfies_constraints</span><span class="p">):</span>
+                <span class="n">dummy_specie_idx</span> <span class="o">=</span> <span class="n">satisfies_constraints</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">dummy_struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">dummy_species</span><span class="p">[</span><span class="n">dummy_specie_idx</span><span class="p">],</span>
+                    <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                    <span class="n">site</span><span class="o">.</span><span class="n">lattice</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dummy_struct</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_remove_dummy_species</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Structure with dummy species removed, but</span>
+<span class="sd">        their corresponding spin properties merged with the</span>
+<span class="sd">        original sites. Used after performing enumeration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Something went wrong with enumeration.&quot;</span><span class="p">)</span>
+
+        <span class="n">sites_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dummy species structure:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">structure</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">DummySpecie</span><span class="p">):</span>
+                <span class="n">sites_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="n">spin</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">_properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spin&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">neighbors</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
+                    <span class="n">site</span><span class="p">,</span>
+                    <span class="mf">0.05</span><span class="p">,</span> <span class="c1"># arbitrary threshold, needs to be &lt;&lt; any bond length</span>
+                    <span class="c1"># but &gt;&gt; floating point precision issues</span>
+                    <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;This shouldn&#39;t happen, found neighbors: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">neighbors</span><span class="p">))</span>
+                <span class="n">orig_site_idx</span> <span class="o">=</span> <span class="n">neighbors</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">orig_specie</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">orig_site_idx</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span>
+                <span class="n">new_specie</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">orig_specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span>
+                                    <span class="nb">getattr</span><span class="p">(</span><span class="n">orig_specie</span><span class="p">,</span> <span class="s1">&#39;oxi_state&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                    <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spin&#39;</span><span class="p">:</span> <span class="n">spin</span><span class="p">})</span>
+                <span class="n">structure</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">orig_site_idx</span><span class="p">,</span>
+                                  <span class="n">new_specie</span><span class="p">,</span>
+                                  <span class="n">properties</span><span class="o">=</span><span class="n">structure</span><span class="p">[</span><span class="n">orig_site_idx</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+        <span class="n">structure</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">sites_to_remove</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Structure with dummy species removed:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">structure</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">structure</span>
+
+    <span class="k">def</span> <span class="nf">_add_spin_magnitudes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replaces Spin.up/Spin.down with spin magnitudes specified</span>
+<span class="sd">        by mag_species_spin.</span>
+<span class="sd">        :param structure:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="s1">&#39;_properties&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">spin</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">_properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spin&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">sign</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span> <span class="k">if</span> <span class="n">spin</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">spin</span><span class="p">:</span>
+                    <span class="n">new_properties</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">_properties</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="c1"># this very hacky bit of code only works because we know</span>
+                    <span class="c1"># that on disordered sites in this class, all species are the same</span>
+                    <span class="c1"># but have different spins, and this is comma-delimited</span>
+                    <span class="n">sp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">new_properties</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                        <span class="s1">&#39;spin&#39;</span><span class="p">:</span> <span class="n">sign</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_species_spin</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">})</span>
+                    <span class="n">new_specie</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span>
+                                        <span class="nb">getattr</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="s1">&#39;oxi_state&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                        <span class="n">new_properties</span><span class="p">)</span>
+                    <span class="n">structure</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">new_specie</span><span class="p">,</span>
+                                      <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Structure with spin magnitudes:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">structure</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">structure</span>
 
 <div class="viewcode-block" id="MagOrderingTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="c1"># Make a mutable structure first</span>
-        <span class="n">mods</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_species_spin</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">sp</span> <span class="o">=</span> <span class="n">get_el_sp</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
-            <span class="n">oxi_state</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="s2">&quot;oxi_state&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">spin</span><span class="p">:</span>
-                <span class="n">up</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">oxi_state</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">spin</span><span class="p">)})</span>
-                <span class="n">down</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">oxi_state</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">spin</span><span class="p">)})</span>
-                <span class="n">mods</span><span class="o">.</span><span class="n">replace_species</span><span class="p">(</span>
-                    <span class="p">{</span><span class="n">sp</span><span class="p">:</span> <span class="n">Composition</span><span class="p">({</span><span class="n">up</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_parameter</span><span class="p">,</span>
-                                      <span class="n">down</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_parameter</span><span class="p">})})</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">mods</span><span class="o">.</span><span class="n">replace_species</span><span class="p">(</span>
-                    <span class="p">{</span><span class="n">sp</span><span class="p">:</span> <span class="n">Specie</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">oxi_state</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">})})</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply MagOrderTransformation to an input structure.</span>
+<span class="sd">        :param structure: Any ordered structure.</span>
+<span class="sd">        :param return_ranked_list: As in other Transformations.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">mods</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">mods</span><span class="p">]</span> <span class="k">if</span> <span class="n">return_ranked_list</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">mods</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Create an ordered approximation of &quot;</span>
+                             <span class="s2">&quot;your  input structure first.&quot;</span><span class="p">)</span>
 
-        <span class="n">enum_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span>
+        <span class="c1"># retrieve order parameters</span>
+        <span class="n">order_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">MagOrderParameterConstraint</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">op_dict</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">op_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_parameter</span><span class="p">]</span>
+        <span class="c1"># add dummy species on which to perform enumeration</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_dummy_species</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">)</span>
 
-        <span class="n">enum_args</span><span class="p">[</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span>
-            <span class="n">MagOrderingTransformation</span><span class="o">.</span><span class="n">determine_min_cell</span><span class="p">(</span>
-                <span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mag_species_spin</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">order_parameter</span><span class="p">)),</span>
-            <span class="n">enum_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># trivial case</span>
+        <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_dummy_species</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">structure</span><span class="p">]</span> <span class="k">if</span> <span class="n">return_ranked_list</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">structure</span>
 
-        <span class="n">max_cell</span> <span class="o">=</span> <span class="n">enum_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_cell_size&#39;</span><span class="p">)</span>
+        <span class="n">enum_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enum_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">enum_kwargs</span><span class="p">[</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">determine_min_cell</span><span class="p">(</span><span class="n">structure</span><span class="p">)),</span>
+            <span class="n">enum_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">max_cell</span> <span class="o">=</span> <span class="n">enum_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_cell_size&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">max_cell</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">enum_args</span><span class="p">[</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_cell</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">enum_kwargs</span><span class="p">[</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_cell</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Specified max cell size is smaller&#39;</span>
                                  <span class="s1">&#39; than the minimum enumerable cell size&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">enum_args</span><span class="p">[</span><span class="s2">&quot;max_cell_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">enum_args</span><span class="p">[</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">]</span>
+            <span class="n">enum_kwargs</span><span class="p">[</span><span class="s2">&quot;max_cell_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">enum_kwargs</span><span class="p">[</span><span class="s2">&quot;min_cell_size&quot;</span><span class="p">]</span>
 
-        <span class="n">t</span> <span class="o">=</span> <span class="n">EnumerateStructureTransformation</span><span class="p">(</span><span class="o">**</span><span class="n">enum_args</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">EnumerateStructureTransformation</span><span class="p">(</span><span class="o">**</span><span class="n">enum_kwargs</span><span class="p">)</span>
 
-        <span class="n">alls</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span>
-            <span class="n">mods</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="n">return_ranked_list</span><span class="p">)</span>
+        <span class="n">alls</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                                      <span class="n">return_ranked_list</span><span class="o">=</span><span class="n">return_ranked_list</span><span class="p">)</span>
+
+        <span class="c1"># handle the fact that EnumerateStructureTransformation can either</span>
+        <span class="c1"># return a single Structure or a list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alls</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
+            <span class="c1"># remove dummy species and replace Spin.up or Spin.down</span>
+            <span class="c1"># with spin magnitudes given in mag_species_spin arg</span>
+            <span class="n">alls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_dummy_species</span><span class="p">(</span><span class="n">alls</span><span class="p">)</span>
+            <span class="n">alls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_spin_magnitudes</span><span class="p">(</span><span class="n">alls</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">alls</span><span class="p">):</span>
+                <span class="n">alls</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_dummy_species</span><span class="p">(</span><span class="n">alls</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">])</span>
+                <span class="n">alls</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_spin_magnitudes</span><span class="p">(</span><span class="n">alls</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">])</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">num_to_return</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">return_ranked_list</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;return_ranked_list cannot be cast to an int. &quot;</span>
-                          <span class="s2">&quot;Only 1 structure will be returned.&quot;</span><span class="p">)</span>
             <span class="n">num_to_return</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="n">num_to_return</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">return_ranked_list</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">alls</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">num_to_return</span> <span class="k">else</span> <span class="n">alls</span>
 
+        <span class="c1"># remove duplicate structures and group according to energy model</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">comparator</span><span class="o">=</span><span class="n">SpinComparator</span><span class="p">())</span>
         <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">()</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
@@ -871,7 +1136,8 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">,</span> <span class="n">min_slab_size</span><span class="p">,</span> <span class="n">min_vacuum_size</span><span class="p">,</span>
-                 <span class="n">lll_reduce</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">center_slab</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">lll_reduce</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">center_slab</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">in_unit_planes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">max_normal_search</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -892,6 +1158,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">min_vacuum_size</span> <span class="o">=</span> <span class="n">min_vacuum_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lll_reduce</span> <span class="o">=</span> <span class="n">lll_reduce</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">center_slab</span> <span class="o">=</span> <span class="n">center_slab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span> <span class="o">=</span> <span class="n">in_unit_planes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_normal_search</span> <span class="o">=</span> <span class="n">max_normal_search</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">=</span> <span class="n">shift</span>
@@ -899,9 +1166,9 @@
 
 <div class="viewcode-block" id="SlabTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.SlabTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">sg</span> <span class="o">=</span> <span class="n">SlabGenerator</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_slab_size</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">min_vacuum_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lll_reduce</span><span class="p">,</span> 
-                           <span class="bp">self</span><span class="o">.</span><span class="n">center_slab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">max_normal_search</span><span class="p">)</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">min_vacuum_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lll_reduce</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">center_slab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_unit_planes</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_normal_search</span><span class="p">)</span>
         <span class="n">slab</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_slab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">slab</span></div>
 
@@ -942,7 +1209,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -950,7 +1217,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

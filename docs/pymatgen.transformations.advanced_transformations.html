@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.transformations.advanced_transformations module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -154,7 +154,7 @@ i.e., min_cell_size, etc.</li>
 
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation">
-<em class="property">class </em><code class="descname">EnumerateStructureTransformation</code><span class="sig-paren">(</span><em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>occu_tol=None</em>, <em>refine_structure=False</em>, <em>enum_precision_parameter=0.001</em>, <em>check_ordered_symmetry=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">EnumerateStructureTransformation</code><span class="sig-paren">(</span><em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>refine_structure=False</em>, <em>enum_precision_parameter=0.001</em>, <em>check_ordered_symmetry=True</em>, <em>max_disordered_sites=None</em>, <em>sort_criteria='ewald'</em>, <em>timeout=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>Order a disordered structure using enumlib. For complete orderings, this
 generally produces fewer structures that the OrderDisorderedStructure
@@ -164,26 +164,17 @@ transformation, and at a much faster speed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>min_cell_size</strong> (<em>int</em>) – The minimum cell size wanted. Must be an int.
-Defaults to 1.</li>
-<li><strong>max_cell_size</strong> (<em>int</em>) – The maximum cell size wanted. Must be an int.
-Defaults to 1.</li>
-<li><strong>symm_prec</strong> (<em>float</em>) – Tolerance to use for symmetry detection. Defaults to
-0.1.</li>
-<li><strong>occu_tol</strong> (<em>int</em>) – If set, the code will first round and scale
-occupancies to the nearest rational number, with maximum
-denominator = occu_tol. This handles structures that contain
-partial occupancies that are close to a rational number. E.g.,
-sometimes the reported occupancy is 0.249, and if occu_tol is set
-to 4, this will be rounded to 0.25.</li>
-<li><strong>refine_structure</strong> (<em>bool</em>) – This parameter has the same meaning as in
-enumlib_caller. If you are starting from a structure that has been
-relaxed via some electronic structure code, it is usually much
-better to start with symmetry determination and then obtain a
-refined structure. The refined structure have cell parameters and
+<li><strong>min_cell_size</strong> – The minimum cell size wanted. Must be an int. Defaults to 1.</li>
+<li><strong>max_cell_size</strong> – The maximum cell size wanted. Must be an int. Defaults to 1.</li>
+<li><strong>symm_prec</strong> – Tolerance to use for symmetry.</li>
+<li><strong>refine_structure</strong> – This parameter has the same meaning as in enumlib_caller.
+If you are starting from a structure that has been relaxed via
+some electronic structure code, it is usually much better to
+start with symmetry determination and then obtain a refined
+structure. The refined structure have cell parameters and
 atomic positions shifted to the expected symmetry positions,
 which makes it much less sensitive precision issues in enumlib.
-If you are already starting from an experimental cif, refinement
+If you are already starting from an experimental cif, refinment
 should have already been done and it is not necessary. Defaults
 to False.</li>
 <li><strong>enum_precision_parameter</strong> (<em>float</em>) – Finite precision parameter for
@@ -197,6 +188,14 @@ symmetry in a way that is important getting possible
 structures. But sometimes including ordered sites
 slows down enumeration to the point that it cannot be
 completed. Switch to False in those cases. Defaults to True.</li>
+<li><strong>max_disordered_sites</strong> (<em>int</em>) – An alternate parameter to max_cell size. Will sequentially try
+larger and larger cell sizes until (i) getting a result or (ii)
+the number of disordered sites in the cell exceeds
+max_disordered_sites. Must set max_cell_size to None when using
+this parameter.</li>
+<li><strong>sort_criteria</strong> (<em>str</em>) – Sort by Ewald energy (“ewald”, must have oxidation
+states and slow) or by number of sites (“nsites”, much faster).</li>
+<li><strong>timeout</strong> (<em>float</em>) – timeout in minutes to pass to EnumlibAdaptor</li>
 </ul>
 </td>
 </tr>
@@ -246,37 +245,80 @@ sites first.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="pymatgen.transformations.advanced_transformations.MagOrderingTransformation">
-<em class="property">class </em><code class="descname">MagOrderingTransformation</code><span class="sig-paren">(</span><em>mag_species_spin</em>, <em>order_parameter=0.5</em>, <em>energy_model=&lt;pymatgen.analysis.energy_models.SymmetryModel object&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderingTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
-<p>This transformation takes a structure and returns a list of magnetic
-orderings. Currently only works for ordered structures.</p>
+<dt id="pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint">
+<em class="property">class </em><code class="descname">MagOrderParameterConstraint</code><span class="sig-paren">(</span><em>order_parameter</em>, <em>species_constraints=None</em>, <em>site_constraint_name=None</em>, <em>site_constraints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderParameterConstraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>This class can be used to supply MagOrderingTransformation
+to just a specific subset of species or sites that satisfy the
+provided constraints. This can be useful for setting an order
+parameters for, for example, ferrimagnetic structures which
+might order on certain motifs, with the global order parameter
+dependent on how many sites satisfy that motif.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mag_elements_spin</strong> – A mapping of elements/species to magnetically order to spin
-magnitudes. E.g., {“Fe3+”: 5, “Mn3+”: 4}</li>
-<li><strong>order_parameter</strong> – degree of magnetization. 0.5 corresponds to
-antiferromagnetic order</li>
-<li><strong>energy_model</strong> – Energy model used to rank the structures. Some models are
-provided in <a class="reference internal" href="pymatgen.analysis.energy_models.html#module-pymatgen.analysis.energy_models" title="pymatgen.analysis.energy_models"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.analysis.energy_models</span></code></a>.</li>
-<li><strong>**kwargs</strong> – Same keyword args as <a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal"><span class="pre">EnumerateStructureTransformation</span></code></a>,
-i.e., min_cell_size, etc.</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>float</strong><strong>)</strong> (<em>order_parameter</em>) – any number from 0.0 to 1.0,</td>
 </tr>
 </tbody>
 </table>
+<p>typically 0.5 (antiferromagnetic) or 1.0 (ferromagnetic)
+:param species_constraint (list): str or list of strings
+of Specie symbols that the constraint should apply to
+:param site_constraint_name (str): name of the site property
+that the constraint should apply to, e.g. “coordination_no”
+:param site_constraints (list): list of values of the site
+property that the constraints should apply to</p>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint.satisfies_constraint">
+<code class="descname">satisfies_constraint</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderParameterConstraint.satisfies_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint.satisfies_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a periodic site satisfies the constraint.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.MagOrderingTransformation">
+<em class="property">class </em><code class="descname">MagOrderingTransformation</code><span class="sig-paren">(</span><em>mag_species_spin</em>, <em>order_parameter=0.5</em>, <em>energy_model=&lt;pymatgen.analysis.energy_models.SymmetryModel object&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderingTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>This transformation takes a structure and returns a list of collinear
+magnetic orderings. For disordered structures, make an ordered
+approximation first.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mag_species_spin</strong> – A mapping of elements/species to their</td>
+</tr>
+</tbody>
+</table>
+<p>spin magnitudes, e.g. {“Fe3+”: 5, “Mn3+”: 4}
+:param order_parameter (float or list): if float, a specifies a
+global order parameter and can take values from 0.0 to 1.0
+(e.g. 0.5 for antiferromagnetic or 1.0 for ferromagnetic), if
+list has to be a list of
+:class: <cite>pymatgen.transformations.advanced_transformations.MagOrderParameterConstraint</cite>
+to specify more complicated orderings, see documentation for
+MagOrderParameterConstraint more details on usage
+:param energy_model: Energy model to rank the returned structures,
+see :mod: <cite>pymatgen.analysis.energy_models</cite> for more information (note
+that this is not necessarily a physical energy). By default, returned
+structures use SymmetryModel() which ranks structures from most
+symmetric to least.
+:param kwargs: Additional kwargs that are passed to
+<a class="reference internal" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal"><span class="pre">EnumerateStructureTransformation</span></code></a> such as min_cell_size etc.</p>
 <dl class="method">
 <dt id="pymatgen.transformations.advanced_transformations.MagOrderingTransformation.apply_transformation">
 <code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em>, <em>return_ranked_list=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderingTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Apply MagOrderTransformation to an input structure.
+:param structure: Any ordered structure.
+:param return_ranked_list: As in other Transformations.
+:return:</p>
+</dd></dl>
 
-<dl class="classmethod">
+<dl class="staticmethod">
 <dt id="pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell">
-<em class="property">classmethod </em><code class="descname">determine_min_cell</code><span class="sig-paren">(</span><em>structure</em>, <em>mag_species_spin</em>, <em>order_parameter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderingTransformation.determine_min_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">determine_min_cell</code><span class="sig-paren">(</span><em>disordered_structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MagOrderingTransformation.determine_min_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MagOrderingTransformation.determine_min_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the smallest supercell that is able to enumerate
 the provided structure with the given order parameter</p>
 </dd></dl>
@@ -350,7 +392,7 @@ the structure using that specie.</li>
 
 <dl class="class">
 <dt id="pymatgen.transformations.advanced_transformations.SlabTransformation">
-<em class="property">class </em><code class="descname">SlabTransformation</code><span class="sig-paren">(</span><em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>shift=0</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SlabTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SlabTransformation</code><span class="sig-paren">(</span><em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>in_unit_planes=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>shift=0</em>, <em>tol=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SlabTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SlabTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
 <p>A transformation that creates a slab from a structure.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -505,13 +547,13 @@ added to the full list. Defaults to 1, i.e., only best structure.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

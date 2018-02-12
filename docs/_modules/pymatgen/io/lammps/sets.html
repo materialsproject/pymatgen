@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.sets &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.lammps.sets &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -81,7 +81,7 @@
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span><span class="p">,</span> <span class="n">MontyDecoder</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsForceFieldData</span><span class="p">,</span> <span class="n">LammpsData</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsData</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.lammps.input</span> <span class="k">import</span> <span class="n">LammpsInput</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew&quot;</span>
@@ -137,8 +137,7 @@
 
 <div class="viewcode-block" id="LammpsInputSet.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.sets.html#pymatgen.io.lammps.sets.LammpsInputSet.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">input_template</span><span class="p">,</span> <span class="n">user_settings</span><span class="p">,</span>
-                  <span class="n">lammps_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;in.data&quot;</span><span class="p">,</span>
-                  <span class="n">is_forcefield</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                  <span class="n">lammps_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;in.data&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns LammpsInputSet from  input file template and input data.</span>
 
@@ -147,12 +146,9 @@
 <span class="sd">            input_template (string): path to the input template file.</span>
 <span class="sd">            user_settings (dict): User lammps settings, the keys must</span>
 <span class="sd">                correspond to the keys in the template.</span>
-<span class="sd">            lammps_data (string/LammpsData/LammpsForceFieldData): path to the</span>
+<span class="sd">            lammps_data (string/LammpsData): path to the</span>
 <span class="sd">                data file or an appropriate object</span>
 <span class="sd">            data_filename (string): name of the the lammps data file.</span>
-<span class="sd">            is_forcefield (bool): whether the data file has forcefield and</span>
-<span class="sd">                topology info in it. This is required only if lammps_data is</span>
-<span class="sd">                a path to the data file instead of a data object.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            LammpsInputSet</span>
@@ -160,33 +156,9 @@
         <span class="n">user_settings</span><span class="p">[</span><span class="s2">&quot;data_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_filename</span>
         <span class="n">lammps_input</span> <span class="o">=</span> <span class="n">LammpsInput</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">input_template</span><span class="p">,</span> <span class="n">user_settings</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lammps_data</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">is_forcefield</span><span class="p">:</span>
-                <span class="n">lammps_data</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">lammps_data</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">lammps_data</span> <span class="o">=</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">lammps_data</span><span class="p">)</span>
+            <span class="n">lammps_data</span> <span class="o">=</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">lammps_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">lammps_input</span><span class="p">,</span> <span class="n">lammps_data</span><span class="o">=</span><span class="n">lammps_data</span><span class="p">,</span>
                    <span class="n">data_filename</span><span class="o">=</span><span class="n">data_filename</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="LammpsInputSet.from_structure"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.sets.html#pymatgen.io.lammps.sets.LammpsInputSet.from_structure">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_structure</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">input_template</span><span class="p">,</span> <span class="n">user_settings</span><span class="p">,</span>
-                       <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;in.data&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns inputset from structure</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            structure (Structure/Molecule):</span>
-<span class="sd">            input_template (string): path to the input template file.</span>
-<span class="sd">            user_settings (dict): User lammps settings, the keys must</span>
-<span class="sd">                correspond to the keys in the template.</span>
-<span class="sd">            data_filename (string): name of the the lammps data file.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            LammpsInputSet</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">lammps_data</span> <span class="o">=</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">from_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">input_template</span><span class="p">,</span> <span class="n">user_settings</span><span class="p">,</span>
-                             <span class="n">lammps_data</span><span class="o">=</span><span class="n">lammps_data</span><span class="p">,</span> <span class="n">data_filename</span><span class="o">=</span><span class="n">data_filename</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LammpsInputSet.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.sets.html#pymatgen.io.lammps.sets.LammpsInputSet.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -231,7 +203,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -239,7 +211,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

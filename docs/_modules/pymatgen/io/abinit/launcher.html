@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -634,16 +634,24 @@
                 <span class="n">work</span><span class="o">.</span><span class="n">set_manager</span><span class="p">(</span><span class="n">new_manager</span><span class="p">)</span>
 
         <span class="n">nqjobs</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">contact_resource_manager</span><span class="p">:</span>
-            <span class="c1"># This call is expensive and therefore it&#39;s optional</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">contact_resource_manager</span><span class="p">:</span> <span class="c1"># and flow.TaskManager.qadapter.QTYPE == &quot;shell&quot;:</span>
+            <span class="c1"># This call is expensive and therefore it&#39;s optional (must be activate in manager.yml)</span>
             <span class="n">nqjobs</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">get_njobs_in_queue</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">nqjobs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">nqjobs</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">if</span> <span class="n">flow</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">has_queue</span><span class="p">:</span> <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Cannot get njobs_inqueue&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">flow</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">has_queue</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Cannot get njobs_inqueue&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Here we just count the number of tasks in the flow who are running.</span>
+            <span class="c1"># This logic breaks down if there are multiple schedulers runnig</span>
+            <span class="c1"># but it&#39;s easy to implement without having to contact the resource manager.</span>
+            <span class="n">nqjobs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">iflat_tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">flow</span><span class="o">.</span><span class="n">S_RUN</span><span class="p">)))</span> <span class="o">+</span>
+                      <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">iflat_tasks</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">flow</span><span class="o">.</span><span class="n">S_SUB</span><span class="p">))))</span>
 
-            <span class="k">if</span> <span class="n">nqjobs</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_njobs_inqueue</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Too many jobs in the queue: </span><span class="si">%s</span><span class="s2">, returning&quot;</span> <span class="o">%</span> <span class="n">nqjobs</span><span class="p">)</span>
-                <span class="k">return</span>
+        <span class="k">if</span> <span class="n">nqjobs</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_njobs_inqueue</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Too many jobs in the queue: </span><span class="si">%s</span><span class="s2">. No job will be submitted.&quot;</span> <span class="o">%</span> <span class="n">nqjobs</span><span class="p">)</span>
+            <span class="n">flow</span><span class="o">.</span><span class="n">check_status</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_nlaunches</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
             <span class="n">max_nlaunch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_njobs_inqueue</span> <span class="o">-</span> <span class="n">nqjobs</span>
@@ -658,7 +666,7 @@
         <span class="c1"># Many sections of this code should be rewritten.</span>
         <span class="c1">#if self.max_ncores_used is not None and flow.ncores_used &gt; self.max_ncores_used:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ncores_used</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">flow</span><span class="o">.</span><span class="n">ncores_allocated</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ncores_used</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot exceed max_ncores_use:d </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ncores_used</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cannot exceed max_ncores_used </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ncores_used</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Try to restart the unconverged tasks</span>
@@ -696,9 +704,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">nlaunch</span> <span class="o">=</span> <span class="n">PyLauncher</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span><span class="o">.</span><span class="n">rapidfire</span><span class="p">(</span><span class="n">max_nlaunch</span><span class="o">=</span><span class="n">max_nlaunch</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nlaunch</span> <span class="o">+=</span> <span class="n">nlaunch</span>
-
             <span class="k">if</span> <span class="n">nlaunch</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Number of launches: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(),</span> <span class="n">nlaunch</span><span class="p">))</span>
+                <span class="n">cprint</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] Number of launches: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(),</span> <span class="n">nlaunch</span><span class="p">),</span> <span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">excs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">straceback</span><span class="p">())</span>
@@ -972,10 +979,15 @@
     <span class="c1"># sendmail works much better than the python interface.</span>
     <span class="c1"># Note that sendmail is available only on Unix-like OS.</span>
     <span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
 
     <span class="n">sendmail</span> <span class="o">=</span> <span class="n">which</span><span class="p">(</span><span class="s2">&quot;sendmail&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sendmail</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="n">sendmail</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="n">sendmail</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># msg is string not bytes so must use universal_newlines</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">([</span><span class="n">sendmail</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">outdata</span><span class="p">,</span> <span class="n">errdata</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">errdata</span><span class="p">)</span>
@@ -1390,7 +1402,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1398,7 +1410,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

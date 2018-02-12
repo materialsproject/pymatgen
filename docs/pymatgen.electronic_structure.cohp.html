@@ -1,0 +1,322 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.electronic_structure.cohp module &#8212; pymatgen 2018.1.29 documentation</title>
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2018.1.29',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.electronic_structure.cohp">
+<span id="pymatgen-electronic-structure-cohp-module"></span><h1>pymatgen.electronic_structure.cohp module<a class="headerlink" href="#module-pymatgen.electronic_structure.cohp" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.cohp.Cohp">
+<em class="property">class </em><code class="descname">Cohp</code><span class="sig-paren">(</span><em>efermi</em>, <em>energies</em>, <em>cohp</em>, <em>are_coops=False</em>, <em>icohp=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#Cohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.Cohp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Basic COHP object.</p>
+<dl class="docutils">
+<dt>Args/attributes:</dt>
+<dd><p class="first">are_coops: Indicates whether this object describes COHPs or COOPs.</p>
+<p>efermi: Fermi energy.</p>
+<p>energies: A sequence of energies.</p>
+<p>cohp ({Spin: np.array}): representing the COHP for each spin.</p>
+<p class="last">icohp ({Spin: np.array}): representing the ICOHP for each spin.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.Cohp.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#Cohp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.Cohp.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of COHP.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.cohp.Cohp.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#Cohp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.Cohp.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a COHP object from a dict representation of the COHP.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.Cohp.get_cohp">
+<code class="descname">get_cohp</code><span class="sig-paren">(</span><em>spin=None</em>, <em>integrated=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#Cohp.get_cohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.Cohp.get_cohp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the COHP or ICOHP for a particular spin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spin</strong> – Spin. Can be parsed as spin object, integer (-1/1)
+or str (“up”/”down”)</li>
+<li><strong>integrated</strong> – Return COHP (False) or ICOHP (True)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Returns the CHOP or ICOHP for the input spin. If Spin is
+None and both spins are present, both spins will be returned
+as a dictionary.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.Cohp.get_icohp">
+<code class="descname">get_icohp</code><span class="sig-paren">(</span><em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#Cohp.get_icohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.Cohp.get_icohp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenient alternative to get the ICOHP for a particular spin.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.Cohp.get_interpolated_value">
+<code class="descname">get_interpolated_value</code><span class="sig-paren">(</span><em>energy</em>, <em>integrated=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#Cohp.get_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.Cohp.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the COHP for a particular energy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>energy</strong> – Energy to return the COHP value for.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.cohp.CompleteCohp">
+<em class="property">class </em><code class="descname">CompleteCohp</code><span class="sig-paren">(</span><em>structure</em>, <em>avg_cohp</em>, <em>cohp_dict</em>, <em>bonds=None</em>, <em>are_coops=False</em>, <em>orb_res_cohp=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#CompleteCohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.CompleteCohp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.cohp.Cohp" title="pymatgen.electronic_structure.cohp.Cohp"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.electronic_structure.cohp.Cohp</span></code></a></p>
+<p>A wrapper class that defines an average COHP, and individual COHPs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> – Structure assosciated with this COHP.</li>
+<li><strong>avg_cohp</strong> – The average cohp as a COHP object.</li>
+<li><strong>cohps</strong> – A dict of COHP objects for individual bonds of the form
+{label: COHP}</li>
+<li><strong>bonds</strong> – A dict containing information on the bonds of the form
+{label: {key: val}}. The key-val pair can be any information
+the user wants to put in, but typically contains the sites,
+the bond length, and the number of bonds. If nothing is
+supplied, it will default to an empty dict.</li>
+<li><strong>are_coops</strong> – indicates whether the Cohp objects are COHPs or COOPs.
+Defauls to False for COHPs.</li>
+<li><strong>orb_res_cohp</strong> – Orbital-resolved COHPs.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.CompleteCohp.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#CompleteCohp.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.CompleteCohp.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of CompleteCohp.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.cohp.CompleteCohp.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#CompleteCohp.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.CompleteCohp.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns CompleteCohp object from dict representation.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.cohp.CompleteCohp.from_file">
+<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>fmt</em>, <em>filename=None</em>, <em>structure_file=None</em>, <em>are_coops=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#CompleteCohp.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.CompleteCohp.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a CompleteCohp object from an output file of a COHP
+calculation. Valid formats are either LMTO (for the Stuttgart
+LMTO-ASA code) or LOBSTER (for the LOBSTER code).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cohp_file</strong> – Name of the COHP output file. Defaults to COPL
+for LMTO and COHPCAR.lobster/COOPCAR.lobster for LOBSTER.</li>
+<li><strong>are_coops</strong> – Indicates whether the populations are COOPs or
+COHPs. Defaults to False for COHPs.</li>
+<li><strong>fmt</strong> – A string for the code that was used to calculate
+the COHPs so that the output file can be handled
+correctly. Can take the values “LMTO” or “LOBSTER”.</li>
+<li><strong>structure_file</strong> – Name of the file containing the structure.
+If no file name is given, use CTRL for LMTO and POSCAR
+for LOBSTER.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A CompleteCohp object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.CompleteCohp.get_cohp">
+<code class="descname">get_cohp</code><span class="sig-paren">(</span><em>label</em>, <em>spin=None</em>, <em>integrated=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#CompleteCohp.get_cohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.CompleteCohp.get_cohp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get specific COHP or ICOHP. If label is not in the COHP labels,
+try reversing the order of the sites.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spin</strong> – Spin. Can be parsed as spin object, integer (-1/1)
+or str (“up”/”down”)</li>
+<li><strong>integrated</strong> – Return COHP (False) or ICOHP (True)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Returns the CHOP or ICOHP for the input spin. If Spin is
+None and both spins are present, both spins will be returned
+as a dictionary.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.CompleteCohp.get_icohp">
+<code class="descname">get_icohp</code><span class="sig-paren">(</span><em>label</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#CompleteCohp.get_icohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.CompleteCohp.get_icohp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenient alternative to get a specific ICOHP.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.cohp.CompleteCohp.get_orbital_resolved_cohp">
+<code class="descname">get_orbital_resolved_cohp</code><span class="sig-paren">(</span><em>label</em>, <em>orbitals</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/cohp.html#CompleteCohp.get_orbital_resolved_cohp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.cohp.CompleteCohp.get_orbital_resolved_cohp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get orbital-resolved COHP.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>label</strong> – bond label.</li>
+<li><strong>orbitals</strong> – The orbitals as a label, or list or tuple of the form
+[(n1, orbital1), (n2, orbital2)]. Orbitals can either be str,
+int, or Orbital.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A Cohp object if CompleteCohp contains orbital-resolved cohp,
+or None if it doesn’t.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Note: It currently assumes that orbitals are str if they aren’t the</dt>
+<dd>other valid types. This is not ideal, but the easiest way to
+avoid unicode issues between python 2 and python 3.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.electronic_structure.cohp.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

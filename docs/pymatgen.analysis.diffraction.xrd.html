@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -197,25 +197,26 @@ information.</li>
 <dl class="method">
 <dt id="pymatgen.analysis.diffraction.xrd.XRDCalculator.plot_structures">
 <code class="descname">plot_structures</code><span class="sig-paren">(</span><em>structures</em>, <em>two_theta_range=(0</em>, <em>90)</em>, <em>annotate_peaks=True</em>, <em>fontsize=6</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffraction/xrd.html#XRDCalculator.plot_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffraction.xrd.XRDCalculator.plot_structures" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Plot XRD for multiple structures on the same figure.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">structures (Structure): List of structures
-two_theta_range ([float of length 2]): Tuple for range of</p>
-<blockquote>
-<div>two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+<dd><p>Plot XRD for multiple structures on the same figure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structures</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – List of structures</li>
+<li><strong>two_theta_range</strong> (<em>[</em><em>float of length 2</em><em>]</em>) – Tuple for range of
+two_thetas to calculate in degrees. Defaults to (0, 90). Set to
 None if you want all diffracted beams within the limiting
-sphere of radius 2 / wavelength.</div></blockquote>
-<dl class="docutils">
-<dt>annotate_peaks (bool): Whether to annotate the peaks with plane</dt>
-<dd>information.</dd>
-</dl>
-<p class="last">fontsize: (int) fontsize for peak labels.</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+sphere of radius 2 / wavelength.</li>
+<li><strong>annotate_peaks</strong> (<em>bool</em>) – Whether to annotate the peaks with plane
+information.</li>
+<li><strong>fontsize</strong> – (int) fontsize for peak labels.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -234,14 +235,14 @@ sphere of radius 2 / wavelength.</div></blockquote>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
-<td>True if to call fig.tight_layout (default: False)</td>
+<td>True to call fig.tight_layout (default: False)</td>
 </tr>
 </tbody>
 </table>
@@ -362,13 +363,13 @@ of each other.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

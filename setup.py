@@ -36,14 +36,6 @@ if sys.platform.startswith('win') and platform.machine().endswith('64'):
     extra_link_args.append('-Wl,--allow-multiple-definition')
 
 long_desc = """
-.. image:: https://circleci.com/gh/materialsproject/pymatgen.svg?style=shield&circle-token=:circle-token
-
-.. image:: https://ci.appveyor.com/api/projects/status/akdyke5jxg6gps45?svg=true
-
-.. image:: https://anaconda.org/matsci/pymatgen/badges/downloads.svg
-
-.. image:: https://coveralls.io/repos/github/materialsproject/pymatgen/badge.svg?branch=master
-
 Official docs: `http://pymatgen.org <http://pymatgen.org/>`_
 
 Pymatgen (Python Materials Genomics) is a robust, open-source Python library
@@ -105,20 +97,18 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2017.9.23",
+    version="2018.1.29",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=0.9.6", "scipy>=0.14", "pydispatcher>=2.0.5",
+                      "monty>=0.9.6", "scipy>=1.0.0", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44",
-                      "matplotlib>=1.5", "palettable>=2.1.1", "sympy"],
+                      "matplotlib>=1.5", "palettable>=2.1.1", "sympy", "pandas"],
     extras_require={
         ':python_version == "2.7"': [
             'enum34',
         ],
         "provenance": ["pybtex"],
-        "pourbaix": ["pyhull>=1.5.3"],
-        "bandstructure": ["pyhull>=1.5.3"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["apscheduler==2.1.0"]},

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.output &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.lammps.output &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -88,7 +88,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.diffusion_analyzer</span> <span class="k">import</span> <span class="n">DiffusionAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsData</span><span class="p">,</span> <span class="n">LammpsForceFieldData</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsData</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;kmathew@lbl.gov&quot;</span>
@@ -257,17 +257,12 @@
 <span class="sd">        log_file (str): path to the log file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">trajectory_file</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s2">&quot;log.lammps&quot;</span><span class="p">,</span>
-                 <span class="n">is_forcefield</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">trajectory_file</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s2">&quot;log.lammps&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trajectory_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">trajectory_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">LammpsLog</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_forcefield</span> <span class="o">=</span> <span class="n">is_forcefield</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_forcefield</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span> <span class="o">=</span> <span class="n">LammpsForceFieldData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span> <span class="o">=</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span> <span class="o">=</span> <span class="n">LammpsData</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_mol_masses_and_charges</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_trajectory</span><span class="p">()</span>
 
@@ -338,16 +333,15 @@
         <span class="n">mol_config</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># [ [atom id1, atom id2, ...], ... ]</span>
         <span class="n">mol_masses</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># [ [atom mass1, atom mass2, ...], ... ]</span>
         <span class="c1"># mol_charges = []</span>
-        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atomic_masses</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="n">atoms_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atoms_data</span><span class="p">)</span>
-        <span class="n">mol_ids</span> <span class="o">=</span> <span class="n">atoms_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-        <span class="n">atom_ids</span> <span class="o">=</span> <span class="n">atoms_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">masses</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">mol_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s2">&quot;molecule-ID&quot;</span><span class="p">]</span>
+        <span class="n">atom_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">atomic_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
         <span class="n">unique_mol_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mol_ids</span><span class="p">)</span>
-        <span class="n">atomic_types</span> <span class="o">=</span> <span class="n">atoms_data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-        <span class="n">atomic_masses</span> <span class="o">=</span> <span class="n">unique_atomic_masses</span><span class="p">[</span><span class="n">atomic_types</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">atomic_masses</span> <span class="o">=</span> <span class="n">unique_atomic_masses</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atomic_types</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nmols</span> <span class="o">=</span> <span class="n">unique_mol_ids</span><span class="o">.</span><span class="n">size</span>
         <span class="k">for</span> <span class="n">umid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nmols</span><span class="p">):</span>
-            <span class="n">mol_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom_ids</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mol_ids</span> <span class="o">==</span> <span class="n">umid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">mol_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_ids</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mol_ids</span> <span class="o">==</span> <span class="n">umid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">mol_masses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atomic_masses</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mol_ids</span> <span class="o">==</span> <span class="n">umid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mol_config</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mol_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_masses</span><span class="p">)</span>
@@ -407,7 +401,7 @@
         <span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">mass_to_symbol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="s2">&quot;Atomic mass&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">_pt_data</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atomic_masses</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">masses</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
             <span class="n">begin</span> <span class="o">=</span> <span class="n">step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
             <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
@@ -442,7 +436,7 @@
                            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span>
         <span class="n">mass_to_symbol</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="s2">&quot;Atomic mass&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">_pt_data</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atomic_masses</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">unique_atomic_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">masses</span><span class="p">])</span>
         <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
             <span class="n">begin</span> <span class="o">=</span> <span class="n">step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span>
@@ -495,11 +489,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">natoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">natoms</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">box_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">box_size</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lammps_data</span><span class="o">.</span><span class="n">box_bounds</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">traj_timesteps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -570,7 +564,7 @@
 <div class="viewcode-block" id="LammpsRun.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.LammpsRun.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;data_file&quot;</span><span class="p">],</span> <span class="n">trajectory_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;trajectory_file&quot;</span><span class="p">],</span>
-                   <span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;log_file&quot;</span><span class="p">],</span> <span class="n">is_forcefield</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_forcefield&quot;</span><span class="p">])</span></div></div>
+                   <span class="n">log_file</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;log_file&quot;</span><span class="p">])</span></div></div>
 
 
 <div class="viewcode-block" id="pbc_wrap"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.output.html#pymatgen.io.lammps.output.pbc_wrap">[docs]</a><span class="k">def</span> <span class="nf">pbc_wrap</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">):</span>
@@ -617,7 +611,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -625,7 +619,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

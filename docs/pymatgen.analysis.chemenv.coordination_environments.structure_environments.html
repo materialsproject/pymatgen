@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -181,6 +181,11 @@ container is not part of the LightStructureEnvironments object).</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.clear_environments">
+<code class="descname">clear_environments</code><span class="sig-paren">(</span><em>conditions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#LightStructureEnvironments.clear_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.clear_environments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion">
 <code class="descname">contains_only_one_anion</code><span class="sig-paren">(</span><em>anion</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#LightStructureEnvironments.contains_only_one_anion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -230,6 +235,11 @@ LightStructureEnvironments created using the as_dict method.
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_has_clear_environment">
+<code class="descname">site_has_clear_environment</code><span class="sig-paren">(</span><em>isite</em>, <em>conditions=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#LightStructureEnvironments.site_has_clear_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_has_clear_environment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_contains_atom_environment">
 <code class="descname">structure_contains_atom_environment</code><span class="sig-paren">(</span><em>atom_symbol</em>, <em>ce_symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#LightStructureEnvironments.structure_contains_atom_environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_contains_atom_environment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks whether the structure contains a given atom in a given environment
@@ -238,9 +248,14 @@ LightStructureEnvironments created using the as_dict method.
 :return: True if the coordination environment is found, False otherwise</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_has_clear_environments">
+<code class="descname">structure_has_clear_environments</code><span class="sig-paren">(</span><em>conditions=None</em>, <em>skip_none=True</em>, <em>skip_empty=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#LightStructureEnvironments.structure_has_clear_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_has_clear_environments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determined_coordination_environments">
-<code class="descname">uniquely_determined_coordination_environments</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determined_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determines_coordination_environments">
+<code class="descname">uniquely_determines_coordination_environments</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.uniquely_determines_coordination_environments" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the coordination environments are uniquely determined.</p>
 </dd></dl>
 
@@ -275,6 +290,11 @@ list of equivalent sites to which the site belongs.
 <code class="descname">add_source</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.NeighborsSet.add_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.add_source" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angle_plateau">
+<code class="descname">angle_plateau</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.NeighborsSet.angle_plateau"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angle_plateau" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angles">
 <code class="descname">angles</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angles" title="Permalink to this definition">¶</a></dt>
@@ -288,6 +308,11 @@ list of equivalent sites to which the site belongs.
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.coords">
 <code class="descname">coords</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.coords" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distance_plateau">
+<code class="descname">distance_plateau</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.NeighborsSet.distance_plateau"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.distance_plateau" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -340,11 +365,16 @@ list of equivalent sites to which the site belongs.
 <code class="descname">source</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.source" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.sphere_fraction_angles">
+<code class="descname">sphere_fraction_angles</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.sphere_fraction_angles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.voronoi_grid_surface_points">
 <code class="descname">voronoi_grid_surface_points</code><span class="sig-paren">(</span><em>additional_condition=1</em>, <em>other_origins='DO_NOTHING'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.NeighborsSet.voronoi_grid_surface_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.voronoi_grid_surface_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the surface points in the Voronoi grid for this neighbor from the sources.
-The general shape of the points looks like this :</p>
+The general shape of the points should look like a staircase such as in the following figure :</p>
 <blockquote>
 <div>^</div></blockquote>
 <dl class="docutils">
@@ -359,16 +389,16 @@ The general shape of the points looks like this :</p>
 </div>
 </dd>
 </dl>
-<p>a  |      k    l
-n  |      |    |
-g  |      |    |
-l  |      |    |
-e  |      j    D——-m—-n———E</p>
+<p>a  |      k    D——-E
+n  |      |            |
+g  |      |            |
+l  |      |            |
+e  |      j            F—-n———G</p>
 <blockquote>
 <div><div class="line-block">
 <div class="line">|                           |</div>
 <div class="line">|                           |</div>
-<div class="line">A—-g——-h—-i———F</div>
+<div class="line">A—-g——-h—-i———H</div>
 <div class="line"><br /></div>
 <div class="line"><br /></div>
 </div>
@@ -551,13 +581,13 @@ normalized distance while in the second case, the real distance is used)</div></
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.to_bv_dict">
-<code class="descname">to_bv_dict</code><span class="sig-paren">(</span><em>isite</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.to_bv_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.to_bv_dict" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments">
+<code class="descname">update_coordination_environments</code><span class="sig-paren">(</span><em>isite</em>, <em>cn</em>, <em>nb_set</em>, <em>ce</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.update_coordination_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments">
-<code class="descname">update_coordination_environments</code><span class="sig-paren">(</span><em>isite</em>, <em>cn</em>, <em>nb_set</em>, <em>ce</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.update_coordination_environments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_site_info">
+<code class="descname">update_site_info</code><span class="sig-paren">(</span><em>isite</em>, <em>info_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/structure_environments.html#StructureEnvironments.update_site_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_site_info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -600,13 +630,13 @@ normalized distance while in the second case, the real distance is used)</div></
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

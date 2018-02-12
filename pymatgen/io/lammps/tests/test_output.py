@@ -64,8 +64,7 @@ class TestLammpsRun(unittest.TestCase):
         traj_file = os.path.join(test_dir, "nvt.dump")
         log_file = os.path.join(test_dir, "nvt.log")
         cls.lmps_log = LammpsLog(log_file=log_file)
-        cls.lammpsrun = LammpsRun(data_file, traj_file, log_file,
-                                  is_forcefield=True)
+        cls.lammpsrun = LammpsRun(data_file, traj_file, log_file)
 
     def test_lammps_log(self):
         fields = "step vol temp press ke pe etotal enthalpy evdwl ecoul epair " \
@@ -97,6 +96,17 @@ class TestLammpsRun(unittest.TestCase):
             np.testing.assert_almost_equal(trajectory[:][fld],
                                            trajectory_ans[:, i + 1],
                                            decimal=10)
+
+    def test_get_structures_from_trajectory(self):
+        structures = self.lammpsrun.get_structures_from_trajectory()
+        self.assertEqual(len(structures), len(self.lammpsrun.timesteps))
+
+    def test_get_displacements(self):
+        structure, disp = self.lammpsrun.get_displacements()
+        self.assertEqual(disp.shape[0], len(structure))
+        self.assertEqual(disp.shape[1], len(self.lammpsrun.timesteps) - 1)
+        self.assertEqual(disp.shape[2], 3)
+        self.assertAlmostEqual(disp[-1, -1, -1], 0.077079999999999788)
 
     def test_serialization(self):
         d = self.lammpsrun.as_dict()

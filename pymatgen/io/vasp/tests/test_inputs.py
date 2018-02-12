@@ -37,7 +37,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class PoscarTest(PymatgenTest):
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
@@ -256,7 +256,7 @@ direct
 
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
@@ -828,7 +828,7 @@ class VaspInputTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'INCAR')
         incar = Incar.from_file(filepath)
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",

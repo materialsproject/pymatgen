@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -269,6 +269,22 @@ structure, with possible different charges.</p>
 site.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.get_site_energy">
+<code class="descname">get_site_energy</code><span class="sig-paren">(</span><em>site_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.get_site_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.get_site_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the energy for a single site in the structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site_index</strong> (<em>int</em>) – Index of site</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(float) - Energy of that site</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldSummation.point_energy">
 <code class="descname">point_energy</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy" title="Permalink to this definition">¶</a></dt>
@@ -320,6 +336,8 @@ reciprocal space.</p>
 <code class="descname">total_energy_matrix</code><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The total energy matrix. Each matrix element (i, j) corresponds to the
 total interaction energy between site i and site j.</p>
+<p>Note that this does not include the charged-cell energy, which is only important
+when the simulation cell is not charge balanced.</p>
 </dd></dl>
 
 </dd></dl>
@@ -378,13 +396,13 @@ total interaction energy between site i and site j.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

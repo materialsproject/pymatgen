@@ -19,7 +19,6 @@ environment:
     secure: XIbk1W27nucVUHTVpIL2B+FodL9w2Efyw5PqTdnfbHg=
   PYPIPWD:
     secure: QPpXonUAeLJ8p3f936jh7g==
-
 install:
   # Add the paths
   - 'set PATH=%PYTHON%;%PYTHON%\Library\bin;%PYTHON%\Scripts;%PATH%'
@@ -28,10 +27,9 @@ install:
   # - 'python -c "import struct; print(struct.calcsize(''P'') * 8)"'
 
   # Install the build dependencies of the project via conda and pip
-  - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel'
-  - 'conda install --yes --quiet --channel matsci spglib netcdf4'
+  - 'conda install --yes --quiet numpy scipy matplotlib setuptools wheel pip'
+  - 'conda install --yes --quiet --channel matsci spglib netcdf4 h5py'
   - 'conda update --yes --all'
-  - 'pip install pip --upgrade'
   - "pip install -r requirements.txt"
   - "pip install pybtex nose coverage ase coveralls fdint ase twine networkx"  # Note that pyhull is excluded because it does not work on Windows.
   # Run develop to install in dev mode and build C extension.

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -164,7 +164,7 @@ each other.
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry">
-<em class="property">class </em><code class="descname">CoordinationGeometry</code><span class="sig-paren">(</span><em>mp_symbol</em>, <em>name</em>, <em>alternative_names=None</em>, <em>IUPAC_symbol=None</em>, <em>IUCr_symbol=None</em>, <em>coordination=None</em>, <em>central_site=array([ 0.</em>, <em>0.</em>, <em>0.])</em>, <em>points=None</em>, <em>solid_angles=None</em>, <em>permutations_safe_override=False</em>, <em>plane_ordering_override=True</em>, <em>deactivate=False</em>, <em>faces=None</em>, <em>edges=None</em>, <em>plane_safe_permutations=False</em>, <em>algorithms=None</em>, <em>equivalent_indices=None</em>, <em>neighbors_sets_hints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">CoordinationGeometry</code><span class="sig-paren">(</span><em>mp_symbol</em>, <em>name</em>, <em>alternative_names=None</em>, <em>IUPAC_symbol=None</em>, <em>IUCr_symbol=None</em>, <em>coordination=None</em>, <em>central_site=array([0.</em>, <em>0.</em>, <em>0.])</em>, <em>points=None</em>, <em>solid_angles=None</em>, <em>permutations_safe_override=False</em>, <em>plane_ordering_override=True</em>, <em>deactivate=False</em>, <em>faces=None</em>, <em>edges=None</em>, <em>plane_safe_permutations=False</em>, <em>algorithms=None</em>, <em>equivalent_indices=None</em>, <em>neighbors_sets_hints=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Class used to store the ideal representation of a chemical environment or “coordination geometry”</p>
 <p>Initializes one “coordination geometry” according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779–1799, 2007]
@@ -323,12 +323,6 @@ list of its vertices coordinates.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes_test">
-<code class="descname">get_pmeshes_test</code><span class="sig-paren">(</span><em>sites</em>, <em>permutation=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.get_pmeshes_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the pmesh strings used for jmol to show this geometry.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented">
 <code class="descname">is_implemented</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#CoordinationGeometry.is_implemented"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns True if this coordination geometry is implemented.</p>
@@ -344,6 +338,12 @@ list of its vertices coordinates.</p>
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations">
 <code class="descname">number_of_permutations</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of permutations of this coordination geometry.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.pauling_stability_ratio">
+<code class="descname">pauling_stability_ratio</code><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.pauling_stability_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the theoretical Pauling stability ratio (rC/rA) for this environment.</p>
 </dd></dl>
 
 <dl class="method">
@@ -452,11 +452,6 @@ going through the centre but is not a mirror plane.</div></blockquote>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.safe_plane_permutations">
-<code class="descname">safe_plane_permutations</code><span class="sig-paren">(</span><em>ordered_plane=False</em>, <em>ordered_point_groups=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#SeparationPlane.safe_plane_permutations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.safe_plane_permutations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.safe_separation_permutations">
 <code class="descname">safe_separation_permutations</code><span class="sig-paren">(</span><em>ordered_plane=False</em>, <em>ordered_point_groups=None</em>, <em>add_opposite=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/coordination_geometries.html#SeparationPlane.safe_separation_permutations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.safe_separation_permutations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -501,13 +496,13 @@ going through the centre but is not a mirror plane.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

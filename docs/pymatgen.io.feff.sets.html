@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.feff.sets module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.feff.sets module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -164,6 +164,13 @@ eg: user_tag_settings={“_del”: [“COREHOLE”, “EXCHANGE”]}</li>
 </table>
 </dd></dl>
 
+<dl class="staticmethod">
+<dt id="pymatgen.io.feff.sets.FEFFDictSet.from_directory">
+<em class="property">static </em><code class="descname">from_directory</code><span class="sig-paren">(</span><em>input_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/sets.html#FEFFDictSet.from_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet.from_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in a set of FEFF input files from a directory, which is
+useful when existing FEFF input needs some adjustment.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.io.feff.sets.FEFFDictSet.header">
 <code class="descname">header</code><span class="sig-paren">(</span><em>source=''</em>, <em>comment=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/feff/sets.html#FEFFDictSet.header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feff.sets.FEFFDictSet.header" title="Permalink to this definition">¶</a></dt>
@@ -280,7 +287,7 @@ only when feff is run in the reciprocal space mode.</li>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.feff.sets.MPELNESSet.CONFIG">
-<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'PRINT': '1 0 0 0 0 0', 'EDGE': 'K', 'COREHOLE': 'FSR', 'S02': 0.0, 'EXCHANGE': '0 0.0 0.0 2', 'SCF': '6.0 0 30 0.2 1', 'FMS': '7.5 0', 'LDOS': '-20.0 20.0 0.1', 'ELNES': {'ENERGY': '4 0.04 0.1', 'BEAM_ENERGY': '100 0 1 1', 'BEAM_DIRECTION': '0 1 0', 'ANGLES': '1 1', 'MESH': '50 1', 'POSITION': '0.0 0.0'}}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPELNESSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'ELNES': {'ENERGY': '4 0.04 0.1', 'BEAM_ENERGY': '100 0 1 1', 'BEAM_DIRECTION': '0 1 0', 'ANGLES': '1 1', 'MESH': '50 1', 'POSITION': '0.0 0.0'}, 'EXCHANGE': '0 0.0 0.0 2', 'FMS': '7.5 0', 'LDOS': '-20.0 20.0 0.1', 'PRINT': '1 0 0 0 0 0', 'S02': 0.0, 'SCF': '6.0 0 30 0.2 1'}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPELNESSet.CONFIG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -309,7 +316,7 @@ only when feff is run in the reciprocal space mode.</li>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.feff.sets.MPEXAFSSet.CONFIG">
-<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'PRINT': '1 0 0 0 0 0', 'EDGE': 'K', 'COREHOLE': 'FSR', 'S02': 0.0, 'SCF': '4.5 0 30 .2 1', 'RPATH': 10, 'EXAFS': 20}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXAFSSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'EXAFS': 20, 'PRINT': '1 0 0 0 0 0', 'RPATH': 10, 'S02': 0.0, 'SCF': '4.5 0 30 .2 1'}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXAFSSet.CONFIG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -345,7 +352,7 @@ only when feff is run in the reciprocal space mode.</li>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.feff.sets.MPEXELFSSet.CONFIG">
-<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'PRINT': '1 0 0 0 0 0', 'EDGE': 'K', 'COREHOLE': 'FSR', 'S02': 0.0, 'EXCHANGE': '0 0.0 0.0 2', 'SCF': '5.0 0 30 0.2 1', 'RPATH': 10, 'EXELFS': {'ENERGY': 20, 'BEAM_ENERGY': '100 0 1 1', 'BEAM_DIRECTION': '0 1 0', 'ANGLES': '1 1', 'MESH': '50 1', 'POSITION': '0.0 0.0'}}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXELFSSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'EXCHANGE': '0 0.0 0.0 2', 'EXELFS': {'ENERGY': 20, 'BEAM_ENERGY': '100 0 1 1', 'BEAM_DIRECTION': '0 1 0', 'ANGLES': '1 1', 'MESH': '50 1', 'POSITION': '0.0 0.0'}, 'PRINT': '1 0 0 0 0 0', 'RPATH': 10, 'S02': 0.0, 'SCF': '5.0 0 30 0.2 1'}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPEXELFSSet.CONFIG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -374,7 +381,7 @@ only when feff is run in the reciprocal space mode.</li>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.feff.sets.MPXANESSet.CONFIG">
-<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'PRINT': '1 0 0 0 0 0', 'EDGE': 'K', 'COREHOLE': 'FSR', 'S02': 0.0, 'EXCHANGE': '0 0.0 0.0 2', 'SCF': '4.5 0 30 .2 1', 'FMS': '7.5 0', 'LDOS': '-30. 15. .1', 'XANES': '3.7 .04 .1'}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPXANESSet.CONFIG" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CONFIG</code><em class="property"> = {'CONTROL': '1 1 1 1 1 1', 'COREHOLE': 'FSR', 'EDGE': 'K', 'EXCHANGE': '0 0.0 0.0 2', 'FMS': '7.5 0', 'LDOS': '-30. 15. .1', 'PRINT': '1 0 0 0 0 0', 'S02': 0.0, 'SCF': '4.5 0 30 .2 1', 'XANES': '3.7 .04 .1'}</em><a class="headerlink" href="#pymatgen.io.feff.sets.MPXANESSet.CONFIG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -417,13 +424,13 @@ only when feff is run in the reciprocal space mode.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

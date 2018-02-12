@@ -1,7 +1,8 @@
 Change log
 ==========
 
-v2017.9.29
+v2018.1.29
 ----------
-* critic2 command line caller for topological analysis (M. Horton)
-* Refactor coord_util -> coord.
+* Improvements to local_env (Nils)
+* Term symbols for Element (Weike Ye).
+* Timeout for enumlib (Horton).

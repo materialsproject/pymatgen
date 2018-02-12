@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -73,7 +73,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span><span class="p">,</span> <span class="nb">map</span><span class="p">,</span> <span class="nb">zip</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
 <span class="kn">import</span> <span class="nn">spglib</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
@@ -157,21 +156,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cell</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="n">angle_tolerance</span><span class="p">)</span>
 
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;get_spacegroup has been renamed &quot;</span>
-                        <span class="s2">&quot;get_space_group_operations. Will be removed in &quot;</span>
-                        <span class="s2">&quot;pymatgen 2018.01.01.&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">get_space_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the SpacegroupOperations for the Structure.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            SpacgroupOperations object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_operations</span><span class="p">()</span>
-
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;get_spacegroup_symbol has been renamed &quot;</span>
-                        <span class="s2">&quot;get_space_group_symbol. Will be removed in &quot;</span>
-                        <span class="s2">&quot;pymatgen 2018.01.01.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_space_group_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the spacegroup symbol (e.g., Pnma) for structure.</span>
@@ -181,9 +165,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;international&quot;</span><span class="p">]</span>
 
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;get_spacegroup_number has been renamed &quot;</span>
-                        <span class="s2">&quot;get_space_group_number. Will be removed in &quot;</span>
-                        <span class="s2">&quot;pymatgen 2018.01.01.&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_space_group_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the international spacegroup number (e.g., 62) for structure.</span>
@@ -231,12 +212,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;hall&quot;</span><span class="p">]</span></div>
 
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;get_point_group has been renamed &quot;</span>
-                        <span class="s2">&quot;get_point_group_symbol. Will be removed in &quot;</span>
-                        <span class="s2">&quot;pymatgen 2018.01.01.&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">get_point_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_point_group_symbol</span><span class="p">()</span>
-
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_point_group_symbol"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">get_point_group_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the point group associated with the structure.</span>
@@ -256,7 +231,7 @@
 <span class="sd">        orthorhombic, cubic, etc.).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Crystal system for structure.</span>
+<span class="sd">            (str): Crystal system for structure or None if system cannot be detected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span>
 
@@ -282,7 +257,7 @@
 <span class="sd">        lattice</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Lattice type for structure.</span>
+<span class="sd">            (str): Lattice type for structure or None if type cannot be detected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span>
         <span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_crystal_system</span><span class="p">()</span>
@@ -576,7 +551,7 @@
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
                     <span class="n">transf</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">sorted_dic</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;orig_index&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">):</span> <span class="c1">#change to C-centering to match Setyawan/Curtarolo convention             </span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">):</span> <span class="c1">#change to C-centering to match Setyawan/Curtarolo convention</span>
                 <span class="n">transf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
                 <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">latt</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
                 <span class="n">sorted_dic</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([{</span><span class="s1">&#39;vec&#39;</span><span class="p">:</span> <span class="n">latt</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
@@ -1254,6 +1229,16 @@
         <span class="k">return</span> <span class="n">PointGroupOperations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sch_symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmops</span><span class="p">,</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">mat_tol</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="PointGroupAnalyzer.get_symmetry_operations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetry_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return symmetry operations as a list of SymmOp objects.</span>
+<span class="sd">        Returns Cartesian coord symmops.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ([SymmOp]): List of symmetry operations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">generate_full_symmops</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmops</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="PointGroupAnalyzer.is_valid_op"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.is_valid_op">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if a particular symmetry operation is a valid symmetry operation</span>
@@ -1711,7 +1696,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1719,7 +1704,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

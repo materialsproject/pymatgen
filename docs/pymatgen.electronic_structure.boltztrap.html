@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.electronic_structure.boltztrap module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -776,7 +776,7 @@ Raised when the boltztrap gives an error</p>
 
 <dl class="class">
 <dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner">
-<em class="property">class </em><code class="descname">BoltztrapRunner</code><span class="sig-paren">(</span><em>bs</em>, <em>nelec</em>, <em>dos_type='HISTO'</em>, <em>energy_grid=0.005</em>, <em>lpfac=10</em>, <em>run_type='BOLTZ'</em>, <em>band_nb=None</em>, <em>tauref=0</em>, <em>tauexp=0</em>, <em>tauen=0</em>, <em>soc=False</em>, <em>doping=None</em>, <em>energy_span_around_fermi=1.5</em>, <em>scissor=0.0</em>, <em>kpt_line=None</em>, <em>spin=None</em>, <em>cond_band=False</em>, <em>tmax=1300</em>, <em>tgrid=50</em>, <em>symprec=0.001</em>, <em>cb_cut=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">BoltztrapRunner</code><span class="sig-paren">(</span><em>bs</em>, <em>nelec</em>, <em>dos_type='HISTO'</em>, <em>energy_grid=0.005</em>, <em>lpfac=10</em>, <em>run_type='BOLTZ'</em>, <em>band_nb=None</em>, <em>tauref=0</em>, <em>tauexp=0</em>, <em>tauen=0</em>, <em>soc=False</em>, <em>doping=None</em>, <em>energy_span_around_fermi=1.5</em>, <em>scissor=0.0</em>, <em>kpt_line=None</em>, <em>spin=None</em>, <em>cond_band=False</em>, <em>tmax=1300</em>, <em>tgrid=50</em>, <em>symprec=0.001</em>, <em>cb_cut=10</em>, <em>timeout=7200</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>This class is used to run Boltztrap on a band structure object.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -846,6 +846,8 @@ or to disable all the symmetries, set symprec to None.</li>
 removed because they are often not accurate.
 Tune cb_cut to change the percentage (0-100) of bands
 that are removed.</li>
+<li><strong>timeout</strong> – overall time limit (in seconds): mainly to avoid infinite
+loop when trying to find Fermi levels.</li>
 </ul>
 </td>
 </tr>
@@ -1009,13 +1011,13 @@ a certain carrier concentration n</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

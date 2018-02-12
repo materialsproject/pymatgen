@@ -293,7 +293,7 @@ class WulffShape(object):
                                  if plane.outer_lines.count(line) != 2]
         return on_wulff, surface_area
 
-    def _get_colors(self, color_set, alpha, off_color):
+    def _get_colors(self, color_set, alpha, off_color, custom_colors={}):
         """
         assign colors according to the surface energies of on_wulff facets.
 
@@ -323,10 +323,11 @@ class WulffShape(object):
         scalar_map = mpl.cm.ScalarMappable(norm=cnorm, cmap=c_map)
 
         for i, e_surf in e_surf_on_wulff:
-            plane_color = scalar_map.to_rgba(e_surf, alpha=alpha)
-            color_list[i] = plane_color
+            color_list[i] = scalar_map.to_rgba(e_surf, alpha=alpha)
+            if tuple(self.miller_list[i]) in custom_colors.keys():
+                color_list[i] = custom_colors[tuple(self.miller_list[i])]
             color_proxy_on_wulff.append(
-                plt.Rectangle((2, 2), 1, 1, fc=plane_color, alpha=alpha))
+                plt.Rectangle((2, 2), 1, 1, fc=color_list[i], alpha=alpha))
             miller_on_wulff.append(self.input_miller_fig[i])
         scalar_map.set_array([x[1] for x in e_surf_on_wulff])
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha)
@@ -348,7 +349,7 @@ class WulffShape(object):
     def get_plot(self, color_set='PuBu', grid_off=True, axis_off=True,
                  show_area=False, alpha=1, off_color='red', direction=None,
                  bar_pos=(0.75, 0.15, 0.05, 0.65), bar_on=False,
-                 legend_on=True, aspect_ratio=(8, 8)):
+                 legend_on=True, aspect_ratio=(8, 8), custom_colors={}):
         """
         Get the Wulff shape plot.
 
@@ -358,12 +359,17 @@ class WulffShape(object):
             axis_off (bool): default is Ture
             show_area (bool): default is False
             alpha (float): chosen from 0 to 1 (float), default is 1
-            off_color: color_legend for off_wulff facets on show_area legend
+            off_color: Default color for facets not present on the Wulff shape.
             direction: default is (1, 1, 1)
             bar_pos: default is [0.75, 0.15, 0.05, 0.65]
             bar_on (bool): default is False
             legend_on (bool): default is True
             aspect_ratio: default is (8, 8)
+            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each
+                facet with a dictionary. The key is the corresponding Miller
+                index and value is the color. Undefined facets will use default
+                color site. Note: If you decide to set your own colors, it
+                probably won't make any sense to have the color bar on.
 
         Return:
             (matplotlib.pyplot)
@@ -373,7 +379,7 @@ class WulffShape(object):
         import mpl_toolkits.mplot3d as mpl3
         color_list, color_proxy, color_proxy_on_wulff, \
             miller_on_wulff, e_surf_on_wulff = self._get_colors(
-                color_set, alpha, off_color)
+                color_set, alpha, off_color, custom_colors=custom_colors)
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -517,11 +523,7 @@ class WulffShape(object):
         Returns:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
         """
-        tot_area_energy = 0
-        for hkl in self.miller_energy_dict.keys():
-            tot_area_energy += self.miller_energy_dict[hkl] * \
-                               self.miller_area_dict[hkl]
-        return tot_area_energy / self.surface_area
+        return self.total_surface_energy / self.surface_area
 
     @property
     def area_fraction_dict(self):
@@ -561,3 +563,29 @@ class WulffShape(object):
             (float) Shape factor.
         """
         return self.surface_area / (self.volume ** (2 / 3))
+
+
+    @property
+    def effective_radius(self):
+        """
+        Radius of the Wulffshape when the
+        Wulffshape is approximated as a sphere.
+
+        Returns:
+            (float) radius.
+        """
+        return ((3/4)*(self.volume/np.pi)) ** (1 / 3)
+
+    @property
+    def total_surface_energy(self):
+        """
+        Total surface energy of the Wulff shape.
+
+        Returns:
+            (float) sum(surface_energy_hkl * area_hkl)
+        """
+        tot_surface_energy = 0
+        for hkl in self.miller_energy_dict.keys():
+            tot_surface_energy += self.miller_energy_dict[hkl] * \
+                                  self.miller_area_dict[hkl]
+        return tot_surface_energy

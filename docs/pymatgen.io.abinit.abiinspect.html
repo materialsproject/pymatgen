@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abiinspect module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.abinit.abiinspect module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,6 +56,76 @@
 <span id="pymatgen-io-abinit-abiinspect-module"></span><h1>pymatgen.io.abinit.abiinspect module<a class="headerlink" href="#module-pymatgen.io.abinit.abiinspect" title="Permalink to this headline">¶</a></h1>
 <p>This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).</p>
+<dl class="class">
+<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter">
+<em class="property">class </em><code class="descname">CyclesPlotter</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#CyclesPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Relies on the plot method of cycle objects to build multiple subfigures.</p>
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle">
+<code class="descname">add_label_cycle</code><span class="sig-paren">(</span><em>label</em>, <em>cycle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#CyclesPlotter.add_label_cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new cycle to the plotter with label <cite>label</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot">
+<code class="descname">combiplot</code><span class="sig-paren">(</span><em>fontsize=8</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#CyclesPlotter.combiplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compare multiple cycels on a grid: one subplot per quantity,
+all cycles on the same subplot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fontsize</strong> – Legend fontsize.</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#CyclesPlotter.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>To iterate over (label, cycle).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.slideshow">
+<code class="descname">slideshow</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#CyclesPlotter.slideshow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.slideshow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce slides show of the different cycles. One plot per cycle.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle">
 <em class="property">class </em><code class="descname">D2DEScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#D2DEScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="Permalink to this definition">¶</a></dt>
@@ -125,23 +195,30 @@ can be obtained by using the HIST.nc file.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiinspect.Relaxation.history">
-<code class="descname">history</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.history" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dictionary of lists with the evolution of the data as function of the relaxation step.</p>
+<code class="descname">history</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ordered Dictionary of lists with the evolution of
+the data as function of the relaxation step.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiinspect.Relaxation.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>axlist=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Uses matplotlib to plot the evolution of the structural relaxation.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>axlist: List of axes. If None a new figure is produced.</dd>
-<dt>Returns:</dt>
-<dd><cite>matplotlib</cite> figure</dd>
-</dl>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>ax_list=None</em>, <em>fontsize=12</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot relaxation history i.e. the results of the last iteration of each SCF cycle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax_list</strong> – List of axes. If None a new figure is produced.</li>
+<li><strong>fontsize</strong> – legend fontsize.</li>
+<li><strong>kwargs</strong> – keyword arguments are passed to ax.plot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: matplotlib figure</p>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -160,17 +237,39 @@ can be obtained by using the HIST.nc file.</p>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
-<td>True if to call fig.tight_layout (default: False)</td>
+<td>True to call fig.tight_layout (default: False)</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.Relaxation.slideshow">
+<code class="descname">slideshow</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.slideshow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.slideshow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses matplotlib to plot the evolution of the structural relaxation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ax_list</strong> – List of axes. If None a new figure is produced.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>matplotlib</cite> figure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.Relaxation.to_string">
+<code class="descname">to_string</code><span class="sig-paren">(</span><em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation.</p>
 </dd></dl>
 
 </dd></dl>
@@ -209,16 +308,23 @@ to list of floats containing the data at the different iterations.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiinspect.ScfCycle.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>axlist=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Uses matplotlib to plot the evolution of the SCF cycle. Return <cite>matplotlib</cite> figure</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>axlist: List of axes. If None a new figure is produced.</dd>
-</dl>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>ax_list=None</em>, <em>fontsize=12</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses matplotlib to plot the evolution of the SCF cycle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax_list</strong> – List of axes. If None a new figure is produced.</li>
+<li><strong>fontsize</strong> – legend fontsize.</li>
+<li><strong>kwargs</strong> – keyword arguments are passed to ax.plot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Returns: matplotlib figure</p>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -237,17 +343,23 @@ to list of floats containing the data at the different iterations.</p>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
-<td>True if to call fig.tight_layout (default: False)</td>
+<td>True to call fig.tight_layout (default: False)</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.abiinspect.ScfCycle.to_string">
+<code class="descname">to_string</code><span class="sig-paren">(</span><em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>String representation.</p>
 </dd></dl>
 
 </dd></dl>
@@ -437,13 +549,13 @@ Returns None if it is not able to detect the class to instantiate.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

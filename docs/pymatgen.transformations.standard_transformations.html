@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.transformations.standard_transformations module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -129,6 +129,60 @@ experimental structure, set this to 1.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation">
+<em class="property">class </em><code class="descname">DiscretizeOccupanciesTransformation</code><span class="sig-paren">(</span><em>max_denominator=5</em>, <em>tol=None</em>, <em>fix_denominator=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#DiscretizeOccupanciesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
+<p>Discretizes the site occupancies in a disordered structure; useful for
+grouping similar structures or as a pre-processing step for order-disorder
+transformations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_denominator</strong> – An integer maximum denominator for discretization. A higher
+denominator allows for finer resolution in the site occupancies.</li>
+<li><strong>tol</strong> – A float that sets the maximum difference between the original and
+discretized occupancies before throwing an error. If None, it is
+set to 1 / (4 * max_denominator).</li>
+<li><strong>fix_denominator</strong> (<em>bool</em>) – If True, will enforce a common denominator for all species.
+This prevents a mix of denominators (for example, 1/3, 1/4)
+that might require large cell sizes to perform an enumeration.
+‘tol’ needs to be &gt; 1.0 in some cases.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation">
+<code class="descname">apply_transformation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#DiscretizeOccupanciesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discretizes the site occupancies in the structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> – disordered Structure to discretize occupancies</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A new disordered Structure with occupancies discretized</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse">
+<code class="descname">inverse</code><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many">
+<code class="descname">is_one_to_many</code><a class="headerlink" href="#pymatgen.transformations.standard_transformations.DiscretizeOccupanciesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation">
 <em class="property">class </em><code class="descname">OrderDisorderedStructureTransformation</code><span class="sig-paren">(</span><em>algo=0</em>, <em>symmetrized_structures=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OrderDisorderedStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.transformations.transformation_abc.html#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></code></a></p>
@@ -148,7 +202,7 @@ This second step will be implemented in the next iteration of the code.</p>
 these will be treated separately if the difference is above a threshold
 tolerance. currently this is .1</p>
 <p>For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites
-4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
+4, 5, 6, 7 then 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
 will be filled, even though a lower energy combination might be found by
 putting all lithium in sites [4,5,6,7].</p>
 <p>USE WITH CARE.</p>
@@ -656,13 +710,13 @@ calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

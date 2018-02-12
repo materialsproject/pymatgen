@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.analyzer module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.symmetry.analyzer module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -137,9 +137,26 @@ that maps atom <code class="docutils literal"><span class="pre">i</span></code> 
 <dd><p>Returns a PointGroup object for the molecule.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations">
+<code class="descname">get_symmetry_operations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/analyzer.html#PointGroupAnalyzer.get_symmetry_operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return symmetry operations as a list of SymmOp objects.
+Returns Cartesian coord symmops.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of symmetry operations.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">([<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp">SymmOp</a>])</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.symmetry.analyzer.PointGroupAnalyzer.inversion_op">
-<code class="descname">inversion_op</code><em class="property"> = Rot: [[-1. -0. -0.]  [-0. -1. -0.]  [-0. -0. -1.]] tau [ 0.  0.  0.]</em><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.inversion_op" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inversion_op</code><em class="property"> = Rot: [[-1. -0. -0.]  [-0. -1. -0.]  [-0. -0. -1.]] tau [0. 0. 0.]</em><a class="headerlink" href="#pymatgen.symmetry.analyzer.PointGroupAnalyzer.inversion_op" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -299,7 +316,7 @@ orthorhombic, cubic, etc.).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Crystal system for structure.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Crystal system for structure or None if system cannot be detected.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(str)</td>
 </tr>
@@ -384,18 +401,13 @@ lattice</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Lattice type for structure.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Lattice type for structure or None if type cannot be detected.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(str)</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group">
-<code class="descname">get_point_group</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_operations">
@@ -467,11 +479,6 @@ expected symmetry positions.</p>
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group">
-<code class="descname">get_space_group</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_number">
@@ -774,13 +781,13 @@ that maps atom <code class="docutils literal"><span class="pre">i</span></code> 
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -80,7 +80,7 @@ Ideally, the TaskManager should be the <strong>main entry point</strong> used by
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.ENTRIES">
-<code class="descname">ENTRIES</code><em class="property"> = {'db_connector', 'batch_adapter', 'policy', 'qadapters'}</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ENTRIES</code><em class="property"> = {'qadapters', 'batch_adapter', 'policy', 'db_connector'}</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -597,6 +597,13 @@ Returns 0 if success</dd>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.io.abinit.tasks.AbinitTask.cycle_class">
+<code class="descname">cycle_class</code><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.cycle_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.cycle_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the subclass of ScfCycle associated to the task or
+None if no SCF algorithm if associated to the task.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.executable">
 <code class="descname">executable</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.executable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to the executable required for running the Task.</p>
@@ -661,6 +668,18 @@ if this is not possible, call a task specific method to attempt to decrease the 
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.tasks.AbinitTask.is_dfpt_task">
+<code class="descname">is_dfpt_task</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.is_dfpt_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if task is a DftpTask subclass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.tasks.AbinitTask.is_gs_task">
+<code class="descname">is_gs_task</code><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.is_gs_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if task is GsTask subclass.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -800,7 +819,7 @@ None means that this Task has no dependency.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ScfTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 1.,  0.,  0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([1., 0., 0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ScfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -853,7 +872,7 @@ None means that this Task has no dependency.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.NscfTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 1.        ,  0.47843137,  0.47843137])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([0.62745098, 0.32156863, 0.17647059])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -865,6 +884,14 @@ None means that this Task has no dependency.</li>
 <dt id="pymatgen.io.abinit.tasks.NscfTask.restart">
 <code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>NSCF calculations can be restarted only if we have the WFK file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.tasks.NscfTask.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#NscfTask.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.NscfTask.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>NSCF calculations should use the same FFT mesh as the one employed in the GS task
+(in principle, it’s possible to interpolate inside Abinit but tests revealed some numerical noise
+Here we change the input file of the NSCF task to have the same FFT mesh.</p>
 </dd></dl>
 
 </dd></dl>
@@ -896,7 +923,7 @@ None means that this Task has no dependency.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.RelaxTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 1.        ,  0.23921569,  1.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([1.        , 0.23921569, 1.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.RelaxTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -983,7 +1010,7 @@ None means that this Task has no dependency.</li>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.DdkTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 0.23921569,  0.61960784,  1.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([0.23921569, 0.61960784, 1.        ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.DdkTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1021,7 +1048,7 @@ None means that this Task has no dependency.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.PhononTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 0.,  0.,  1.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([0., 0., 1.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.PhononTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1085,7 +1112,7 @@ None means that this Task has no dependency.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.SigmaTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 0.,  1.,  0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([0., 1., 0.])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.SigmaTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1125,7 +1152,7 @@ Returns <code class="xref py py-class docutils literal"><span class="pre">Sigres
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.OpticTask">
-<em class="property">class </em><code class="descname">OpticTask</code><span class="sig-paren">(</span><em>optic_input</em>, <em>nscf_node</em>, <em>ddk_nodes</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">OpticTask</code><span class="sig-paren">(</span><em>optic_input</em>, <em>nscf_node</em>, <em>ddk_nodes</em>, <em>use_ddknc=False</em>, <em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#OpticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.tasks.Task</span></code></p>
 <p>Task for the computation of optical spectra with optic i.e.
 RPA without local-field effects and velocity operator computed from DDK files.</p>
@@ -1135,9 +1162,10 @@ RPA without local-field effects and velocity operator computed from DDK files.</
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>optic_input</strong> – string with the optic variables (filepaths will be added at run time).</li>
-<li><strong>nscf_node</strong> – The NSCF task that will produce thw WFK file or string with the path of the WFK file.</li>
-<li><strong>ddk_nodes</strong> – List of <a class="reference internal" href="#pymatgen.io.abinit.tasks.DdkTask" title="pymatgen.io.abinit.tasks.DdkTask"><code class="xref py py-class docutils literal"><span class="pre">DdkTask</span></code></a> nodes that will produce the DDK files or list of DDF paths.</li>
+<li><strong>optic_input</strong> – <code class="xref py py-class docutils literal"><span class="pre">OpticInput</span></code> object with optic variables.</li>
+<li><strong>nscf_node</strong> – The task that will produce the WFK file with the KS energies or path to the WFK file.</li>
+<li><strong>ddk_nodes</strong> – List of <a class="reference internal" href="#pymatgen.io.abinit.tasks.DdkTask" title="pymatgen.io.abinit.tasks.DdkTask"><code class="xref py py-class docutils literal"><span class="pre">DdkTask</span></code></a> nodes that will produce the DDK files or list of DDK filepaths.
+Order (x, y, z)</li>
 <li><strong>workdir</strong> – Path to the working directory.</li>
 <li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
 </ul>
@@ -1155,7 +1183,7 @@ This method can change the submission parameters e.g. the number of CPUs for MPI
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.OpticTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 1. ,  0.8,  0.4])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([1. , 0.8, 0.4])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.OpticTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1274,7 +1302,7 @@ to change the input when we connect this task</p>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.AnaddbTask.color_rgb">
-<code class="descname">color_rgb</code><em class="property"> = array([ 0.8,  0.4,  1. ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<code class="descname">color_rgb</code><em class="property"> = array([0.8, 0.4, 1. ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.AnaddbTask.color_rgb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1366,6 +1394,11 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
 
 </dd></dl>
 
+<dl class="function">
+<dt id="pymatgen.io.abinit.tasks.set_user_config_taskmanager">
+<code class="descname">set_user_config_taskmanager</code><span class="sig-paren">(</span><em>manager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#set_user_config_taskmanager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.set_user_config_taskmanager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -1404,13 +1437,13 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

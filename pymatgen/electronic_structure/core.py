@@ -32,6 +32,9 @@ class Spin(Enum):
     def __int__(self):
         return self.value
 
+    def __float__(self):
+        return float(self.value)
+
     def __str__(self):
         return str(self.value)
 
@@ -405,7 +408,7 @@ class Magmom(MSONable):
         """
         # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
-        moment = np.matmul(moment, unit_m)
+        moment = np.matmul(list(moment), unit_m)
         # round small values to zero
         moment[np.abs(moment) < 1e-8] = 0
         return cls(moment)
@@ -448,6 +451,9 @@ class Magmom(MSONable):
 
     def __lt__(self, other):
         return abs(self) < abs(other)
+
+    def __neg__(self):
+        return Magmom(-self.moment, saxis=self.saxis)
 
     def __hash__(self):
         return (tuple(self.moment)+tuple(self.saxis)).__hash__()

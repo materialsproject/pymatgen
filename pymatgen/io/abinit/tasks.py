@@ -18,7 +18,7 @@ import numpy as np
 from pprint import pprint
 from itertools import product
 from six.moves import map, zip, StringIO
-from monty.dev import deprecated
+#from monty.dev import deprecated
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -55,6 +55,7 @@ __all__ = [
     "SigmaTask",
     "OpticTask",
     "AnaddbTask",
+    "set_user_config_taskmanager"
 ]
 
 import logging
@@ -523,6 +524,11 @@ class FixQueueCriticalError(Exception):
 _USER_CONFIG_TASKMANAGER = None
 
 
+def set_user_config_taskmanager(manager):
+    global USER_CONFIG_TASKMANAGER
+    USER_CONFIG_TASKMANAGER  = manager
+
+
 class TaskManager(MSONable):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission
@@ -638,7 +644,7 @@ batch_adapter:
 
     @pmg_serialize
     def as_dict(self):
-        return self._kwargs
+        return copy.deepcopy(self._kwargs)
 
     def __init__(self, **kwargs):
         """
@@ -967,7 +973,7 @@ batch_adapter:
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
-            logger.info("Will pass timelimit option to abinit %s:" % args)
+            #logger.info("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -1092,11 +1098,14 @@ class AbinitBuild(object):
             fh.write(script)
         qjob, process = manager.qadapter.submit_to_queue(script_file)
         process.wait()
-        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
-        process.stderr.close()
 
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
+            print("stderr:", process.stderr.read())
+            #print("stdout:", process.stdout.read())
+
+        # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
+        process.stderr.close()
 
         with open(stdout, "rt") as fh:
             self.info = fh.read()
@@ -1148,13 +1157,14 @@ class AbinitBuild(object):
          Revision  : 1226
          Committed : 0
         """
+        self.version = "0.0.0"
         self.has_netcdf = False
         self.has_omp = False
         self.has_mpi, self.has_mpiio = False, False
 
         def yesno2bool(line):
-            ans = line.split()[-1]
-            return dict(yes=True, no=False)[ans]
+            ans = line.split()[-1].lower()
+            return dict(yes=True, no=False, auto=True)[ans]
 
         # Parse info.
         for line in self.info.splitlines():
@@ -1184,7 +1194,6 @@ class AbinitBuild(object):
         from monty.operator import operator_from_str
         op = operator_from_str(op)
         return op(parse_version(self.version), parse_version(version_string))
-
 
 
 class FakeProcess(object):
@@ -1387,6 +1396,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.mpiabort_file = File(os.path.join(self.workdir, "__ABI_MPIABORTFILE__"))
 
         # Directories with input|output|temporary data.
+        self.wdir = Directory(self.workdir)
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
@@ -1447,10 +1457,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """Return the value of the ABINIT variable varname, None if not present."""
         return self.input.get(varname, default)
 
-    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
-    def _set_inpvars(self, *args, **kwargs):
-        return self.set_vars(*args, **kwargs)
-
     def set_vars(self, *args, **kwargs):
         """
         Set the values of the ABINIT variables in the input file. Return dict with old values.
@@ -1509,6 +1515,21 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             return FakeProcess()
 
     @property
+    def is_abinit_task(self):
+        """True if this task is a subclass of AbinitTask."""
+        return isinstance(self, AbinitTask)
+
+    @property
+    def is_anaddb_task(self):
+        """True if this task is a subclass of OpticTask."""
+        return isinstance(self, AnaddbTask)
+
+    @property
+    def is_optic_task(self):
+        """True if this task is a subclass of OpticTask."""
+        return isinstance(self, OpticTask)
+
+    @property
     def is_completed(self):
         """True if the task has been executed."""
         return self.status >= self.S_DONE
@@ -1542,6 +1563,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         manager = self.manager if hasattr(self, "manager") else self.flow.manager
         self.manager = manager.new_with_fixed_mpi_omp(mpi_procs, omp_threads)
+
+    #def set_max_ncores(self, max_ncores):
+    #    """
+    #    """
+    #    manager = self.manager if hasattr(self, "manager") else self.flow.manager
+    #    self.manager = manager.new_with_max_ncores(mpi_procs, omp_threads)
 
     #@check_spectator
     def _on_done(self):
@@ -1707,6 +1734,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
         self.set_qjob(None)
+
+        # Reset finalized flags.
+        self.work.finalized = False
+        self.flow.finalized = False
 
         return 0
 
@@ -2544,6 +2575,31 @@ class AbinitTask(Task):
         return self.input.ispaw
 
     @property
+    def is_gs_task(self):
+        """True if task is GsTask subclass."""
+        return isinstance(self, GsTask)
+
+    @property
+    def is_dfpt_task(self):
+        """True if task is a DftpTask subclass."""
+        return isinstance(self, DfptTask)
+
+    @lazy_property
+    def cycle_class(self):
+        """
+        Return the subclass of ScfCycle associated to the task or
+        None if no SCF algorithm if associated to the task.
+        """
+        if isinstance(self, RelaxTask):
+            return abiinspect.Relaxation
+        elif isinstance(self, GsTask):
+            return abiinspect.GroundStateScfCycle
+        elif self.is_dfpt_task:
+            return abiinspect.D2DEScfCycle
+
+        return None
+
+    @property
     def filesfile_string(self):
         """String with the list of files and prefixes needed to execute ABINIT."""
         lines = []
@@ -2671,6 +2727,7 @@ class AbinitTask(Task):
         retcode = process.wait()
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
+        #process.stdout.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
@@ -2682,8 +2739,15 @@ class AbinitTask(Task):
         try:
             pconfs = parser.parse(self.output_file.path)
         except parser.Error:
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return 2
+            # In principle Abinit should have written a complete log file
+            # because we called .wait() but sometimes the Yaml doc is incomplete and
+            # the parser raises. Let's wait 5 secs and then try again.
+            time.sleep(5)
+            try:
+                pconfs = parser.parse(self.output_file.path)
+            except parser.Error:
+                logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+                return 2
 
         ######################################################
         # Select the optimal configuration according to policy
@@ -3168,7 +3232,33 @@ class NscfTask(GsTask):
         events.NscfConvergenceWarning,
     ]
 
-    color_rgb = np.array((255, 122, 122)) / 255
+    color_rgb = np.array((160, 82, 45)) / 255
+
+    def setup(self):
+        """
+        NSCF calculations should use the same FFT mesh as the one employed in the GS task
+        (in principle, it's possible to interpolate inside Abinit but tests revealed some numerical noise
+        Here we change the input file of the NSCF task to have the same FFT mesh.
+        """
+        # TODO: This won't work if parent_node is a file
+        for dep in self.deps:
+            if "DEN" in dep.exts:
+                parent_task = dep.node
+                break
+        else:
+            raise RuntimeError("Cannot find parent node producing DEN file")
+
+        with parent_task.open_gsr() as gsr:
+            den_mesh = 3 * [None]
+            den_mesh[0] = gsr.reader.read_dimvalue("number_of_grid_points_vector1")
+            den_mesh[1] = gsr.reader.read_dimvalue("number_of_grid_points_vector2")
+            den_mesh[2] = gsr.reader.read_dimvalue("number_of_grid_points_vector3")
+            if self.ispaw:
+                self.set_vars(ngfftdg=den_mesh)
+            else:
+                self.set_vars(ngfft=den_mesh)
+
+        super(NscfTask, self).setup()
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -3246,7 +3336,7 @@ class RelaxTask(GsTask, ProduceHist):
         # Fallback to DEN file. Note that here we look for out_DEN instead of out_TIM?_DEN
         # This happens when the previous run completed and task.on_done has been performed.
         # ********************************************************************************
-        # Note that it's possible to have an undected error if we have multiple restarts
+        # Note that it's possible to have an undetected error if we have multiple restarts
         # and the last relax died badly. In this case indeed out_DEN is the file produced
         # by the last run that has executed on_done.
         # ********************************************************************************
@@ -3368,6 +3458,22 @@ class DfptTask(AbinitTask):
 
         This class should not be instantiated directly.
     """
+    def __repr__(self):
+        # Get info about DFT perturbation from input file.
+        qpt = self.input.get("qpt", [0, 0, 0])
+        rfphon = self.input.get("rfphon", 0)
+        rfdir = self.input.get("rfdir", [0, 0, 0])
+        rfatpol = self.input.get("rfatpol", [1, 1])
+        dfpt_info = "rfphon: {}, qpt: {}, rfatpol: {}, rfdir: {}".format(
+                rfphon, qpt, rfatpol, rfdir)
+        try:
+            return "<%s, node_id=%s, workdir=%s, %s>" % (
+                self.__class__.__name__, self.node_id, self.relworkdir, dfpt_info)
+        except AttributeError:
+            # this usually happens when workdir has not been initialized
+            return "<%s, node_id=%s, workdir=None, %s>" % (
+                self.__class__.__name__, self.node_id, dfpt_info)
+
     @property
     def ddb_path(self):
         """Absolute path of the DDB file. Empty string if file is not present."""
@@ -3505,9 +3611,8 @@ class DteTask(DfptTask):
                     if not os.path.exists(dest):
                         os.symlink(out_wfk, dest)
 
-
                 else:
-                    raise ValueError("Don't know how to handle extension: %s" % dep.exts)
+                    raise ValueError("Don't know how to handle extension: %s" % str(dep.exts))
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
@@ -3946,14 +4051,15 @@ class OpticTask(Task):
     """
     color_rgb = np.array((255, 204, 102)) / 255
 
-    def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
+    def __init__(self, optic_input, nscf_node, ddk_nodes, use_ddknc=False, workdir=None, manager=None):
         """
         Create an instance of :class:`OpticTask` from an string containing the input.
 
         Args:
-            optic_input: string with the optic variables (filepaths will be added at run time).
-            nscf_node: The NSCF task that will produce thw WFK file or string with the path of the WFK file.
-            ddk_nodes: List of :class:`DdkTask` nodes that will produce the DDK files or list of DDF paths.
+            optic_input: :class:`OpticInput` object with optic variables.
+            nscf_node: The task that will produce the WFK file with the KS energies or path to the WFK file.
+            ddk_nodes: List of :class:`DdkTask` nodes that will produce the DDK files or list of DDK filepaths.
+                Order (x, y, z)
             workdir: Path to the working directory.
             manager: :class:`TaskManager` object.
         """
@@ -3964,8 +4070,11 @@ class OpticTask(Task):
         #print(self.nscf_node, self.ddk_nodes)
 
         # Use DDK extension instead of 1WF
-        deps = {n: "1WF" for n in self.ddk_nodes}
-        #deps = {n: "DDK" for n in self.ddk_nodes}
+        if use_ddknc:
+            deps = {n: "DDK.nc" for n in self.ddk_nodes}
+        else:
+            deps = {n: "1WF" for n in self.ddk_nodes}
+
         deps.update({self.nscf_node: "WFK"})
 
         super(OpticTask, self).__init__(optic_input, workdir=workdir, manager=manager, deps=deps)
@@ -3975,10 +4084,6 @@ class OpticTask(Task):
         super(OpticTask, self).set_workdir(workdir, chroot=chroot)
         # Small hack: the log file of optics is actually the main output file.
         self.output_file = self.log_file
-
-    @deprecated(message="_set_inpvars is deprecated. Use set_vars")
-    def _set_inpvars(self, *args, **kwargs):
-        return self.set_vars(*args, **kwargs)
 
     def set_vars(self, *args, **kwargs):
         """
@@ -4022,14 +4127,20 @@ class OpticTask(Task):
     @property
     def ddk_filepaths(self):
         """Returns (at runtime) the absolute path of the DDK files produced by the DDK runs."""
+        # This to support new version of optic that used DDK.nc
+        paths = [ddk_task.outdir.has_abiext("DDK.nc") for ddk_task in self.ddk_nodes]
+        if all(p for p in paths):
+            return paths
+
+        # This is deprecated and can be removed when new version of Abinit is released.
         return [ddk_task.outdir.has_abiext("1WF") for ddk_task in self.ddk_nodes]
 
     def make_input(self):
         """Construct and write the input file of the calculation."""
         # Set the file paths.
-        all_files ={"ddkfile_"+str(n+1) : ddk for n,ddk in enumerate(self.ddk_filepaths)}
-        all_files.update({"wfkfile" : self.wfk_filepath})
-        files_nml = {"FILES" : all_files}
+        all_files ={"ddkfile_" + str(n + 1): ddk for n, ddk in enumerate(self.ddk_filepaths)}
+        all_files.update({"wfkfile": self.wfk_filepath})
+        files_nml = {"FILES": all_files}
         files= nmltostring(files_nml)
 
         # Get the input specified by the user
@@ -4048,11 +4159,7 @@ class OpticTask(Task):
         """
 
     def get_results(self, **kwargs):
-        results = super(OpticTask, self).get_results(**kwargs)
-        #results.update(
-        #"epsilon_infinity":
-        #))
-        return results
+        return super(OpticTask, self).get_results(**kwargs)
 
     def fix_abicritical(self):
         """
@@ -4254,6 +4361,7 @@ class OpticTask(Task):
         retcode = process.wait()
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
+        #process.stdout.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
@@ -4265,8 +4373,15 @@ class OpticTask(Task):
         try:
             pconfs = parser.parse(self.output_file.path)
         except parser.Error:
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return 2
+            # In principle Abinit should have written a complete log file
+            # because we called .wait() but sometimes the Yaml doc is incomplete and
+            # the parser raises. Let's wait 5 secs and then try again.
+            time.sleep(5)
+            try:
+                pconfs = parser.parse(self.output_file.path)
+            except parser.Error:
+                logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+                return 2
 
         ######################################################
         # Select the optimal configuration according to policy

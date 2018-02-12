@@ -81,11 +81,13 @@ class DetailedVoronoiContainer(MSONable):
     """
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
+    default_normalized_distance_tolerance = 1e-5
+    default_normalized_angle_tolerance = 1e-3
 
     def __init__(self, structure=None, voronoi_list=None, voronoi_list2=None,
-                 # neighbors_lists=None,
                  voronoi_cutoff=default_voronoi_cutoff, isites=None,
-                 normalized_distance_tolerance=1e-5, normalized_angle_tolerance=1e-3,
+                 normalized_distance_tolerance=default_normalized_distance_tolerance,
+                 normalized_angle_tolerance=default_normalized_angle_tolerance,
                  additional_conditions=None, valences=None,
                  maximum_distance_factor=None, minimum_angle_factor=None):
         """
@@ -93,7 +95,6 @@ class DetailedVoronoiContainer(MSONable):
         computed, or the different components of the VoronoiContainer are given (used in the from_dict method)
         :param structure: Structure for which the Voronoi is computed
         :param voronoi_list: List of voronoi polyhedrons for each site
-        :param neighbors_list: list of neighbors for each site
         :param voronoi_cutoff: cutoff used for the voronoi
         :param isites: indices of sites for which the Voronoi has to be computed
         :raise: RuntimeError if the Voronoi cannot be constructed
@@ -131,6 +132,7 @@ class DetailedVoronoiContainer(MSONable):
         :raise RuntimeError: If an infinite vertex is found in the voronoi construction
         """
         self.voronoi_list2 = [None] * len(self.structure)
+        self.voronoi_list_coords = [None] * len(self.structure)
         logging.info('Getting all neighbors in structure')
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
         t1 = time.clock()
@@ -176,6 +178,7 @@ class DetailedVoronoiContainer(MSONable):
                 dd['normalized_angle'] = dd['angle'] / maxangle
                 dd['normalized_distance'] = dd['distance'] / mindist
             self.voronoi_list2[isite] = results2
+            self.voronoi_list_coords[isite] = np.array([dd['site'].coords for dd in results2])
         t2 = time.clock()
         logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
 

@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -349,6 +349,20 @@ other value than the default.</p>
 <code class="descname">Total elastic moduli (Kbar) is given in a 6x6 array matrix.</code></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Outcar.drift">
+<code class="descname">drift</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.drift" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">Total drift for each step in eV/Atom</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Outcar.ngf">
+<code class="descname">ngf</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.ngf" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">Dimensions for the Augementation grid</code></dt>
+<dd></dd></dl>
+
 <p>One can then call a specific reader depending on the type of run being
 performed. These are currently: read_igpar(), read_lepsilon() and
 read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</p>
@@ -454,6 +468,12 @@ nsymmetrized tensors list in the order of atoms.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Outcar.read_electrostatic_potential">
+<code class="descname">read_electrostatic_potential</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_electrostatic_potential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_electrostatic_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the eletrostatic potential for the last ionic step</p>
 </dd></dl>
 
 <dl class="method">
@@ -679,7 +699,8 @@ row_pattern.</dd>
 <dd><p>The PROCAR data of the form below. It should VASP uses 1-based indexing,
 but all indices are converted to 0-based here.:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="n">spin</span><span class="p">:</span> <span class="n">nd</span><span class="o">.</span><span class="n">array</span> <span class="n">accessed</span> <span class="k">with</span> <span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="n">point</span> <span class="n">index</span><span class="p">,</span> <span class="n">band</span> <span class="n">index</span><span class="p">,</span> <span class="n">ion</span> <span class="n">index</span><span class="p">,</span> <span class="n">orbital</span> <span class="n">index</span><span class="p">)</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="n">nd</span><span class="o">.</span><span class="n">array</span> <span class="n">accessed</span> <span class="k">with</span> <span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="n">point</span> <span class="n">index</span><span class="p">,</span> <span class="n">band</span> <span class="n">index</span><span class="p">,</span>
+                                  <span class="n">ion</span> <span class="n">index</span><span class="p">,</span> <span class="n">orbital</span> <span class="n">index</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -697,7 +718,11 @@ nkpoints.</p>
 <div><p>Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
 {</p>
 <blockquote>
-<div>spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)</div></blockquote>
+<div><dl class="docutils">
+<dt>spin: complex nd.array accessed with (k-point index, band index,</dt>
+<dd>ion index, orbital index)</dd>
+</dl>
+</div></blockquote>
 <p>}</p>
 </div></blockquote>
 <p>..attribute:: nbands</p>
@@ -1052,6 +1077,11 @@ exited before reaching the max ionic steps for a relaxation run</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt>
+<code class="descname">dielectric</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.eigenvalue_band_properties">
 <code class="descname">eigenvalue_band_properties</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.eigenvalue_band_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Band properties from the eigenvalues as a tuple,
@@ -1148,6 +1178,11 @@ supported by the Vasprun object.</li>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Vasprun.get_potcars">
+<code class="descname">get_potcars</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.get_potcars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.get_potcars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.hubbards">
 <code class="descname">hubbards</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.hubbards" title="Permalink to this definition">¶</a></dt>
@@ -1177,6 +1212,16 @@ supported by the Vasprun object.</li>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Vasprun.optical_absorption_coeff">
+<code class="descname">optical_absorption_coeff</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.optical_absorption_coeff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the optical absorption coefficient
+from the dielectric constants. Note that this method is only
+implemented for optical properties calculated with GGA and BSE.
+Returns:
+optical absorption coefficient in list</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Vasprun.run_type">
 <code class="descname">run_type</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.run_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the run type. Currently supports LDA, GGA, vdW-DF and HF calcs.</p>
@@ -1186,6 +1231,11 @@ supported by the Vasprun object.</li>
 <dl class="attribute">
 <dt>
 <code class="descname">structures</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Vasprun.update_charge_from_potcar">
+<code class="descname">update_charge_from_potcar</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Vasprun.update_charge_from_potcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Vasprun.update_charge_from_potcar" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1244,6 +1294,11 @@ shortcircuiting an otherwise expensive operation.</li>
 </tr>
 </tbody>
 </table>
+<dl class="classmethod">
+<dt id="pymatgen.io.vasp.outputs.VolumetricData.from_hdf5">
+<em class="property">classmethod </em><code class="descname">from_hdf5</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.from_hdf5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.from_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.get_average_along_axis">
 <code class="descname">get_average_along_axis</code><span class="sig-paren">(</span><em>ind</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.get_average_along_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.get_average_along_axis" title="Permalink to this definition">¶</a></dt>
@@ -1355,6 +1410,32 @@ non-spin-polarized run would have Spin.up data == Spin.down data.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.io.vasp.outputs.VolumetricData.to_hdf5">
+<code class="descname">to_hdf5</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.to_hdf5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the VolumetricData to a HDF5 format, which is a highly optimized
+format for reading storing large data. The mapping of the VolumetricData
+to this file format is as follows:</p>
+<p>VolumetricData.data -&gt; f[“vdata”]
+VolumetricData.structure -&gt;</p>
+<blockquote>
+<div><p>f[“Z”]: Sequence of atomic numbers
+f[“fcoords”]: Fractional coords
+f[“lattice”]: Lattice in the pymatgen.core.lattice.Lattice matrix</p>
+<blockquote>
+<div>format</div></blockquote>
+<p>f.attrs[“structure_json”]: String of json representation</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Filename to output to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.write_file">
 <code class="descname">write_file</code><span class="sig-paren">(</span><em>file_name</em>, <em>vasp4_compatible=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.write_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the VolumetricData object to a vasp compatible file.</p>
@@ -1366,6 +1447,195 @@ non-spin-polarized run would have Spin.up data == Spin.down data.</p>
 <li><strong>file_name</strong> (<em>str</em>) – Path to a file</li>
 <li><strong>vasp4_compatible</strong> (<em>bool</em>) – True if the format is vasp4 compatible</li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vasp.outputs.Wavecar">
+<em class="property">class </em><code class="descname">Wavecar</code><span class="sig-paren">(</span><em>filename='WAVECAR'</em>, <em>verbose=False</em>, <em>precision='normal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This is a class that contains the (pseudo-) wavefunctions from VASP.</p>
+<p>Coefficients are read from the given WAVECAR file and the corresponding
+G-vectors are generated using the algorithm developed in WaveTrans (see
+acknowledgments below). To understand how the wavefunctions are evaluated,
+please see the evaluate_wavefunc docstring.</p>
+<p>It should be noted that the pseudopotential augmentation is not included in
+the WAVECAR file. As a result, some caution should be exercised when
+deriving value from this information.</p>
+<p>The usefulness of this class is to allow the user to do projections or band
+unfolding style manipulations of the wavefunction. An example of this can
+be seen in the work of Shen et al. 2017
+(<a class="reference external" href="https://doi.org/10.1103/PhysRevMaterials.1.065001">https://doi.org/10.1103/PhysRevMaterials.1.065001</a>).</p>
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.filename">
+<code class="descname">filename</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>String of the input file (usually WAVECAR)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.nk">
+<code class="descname">nk</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.nk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of k-points from the WAVECAR</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.nb">
+<code class="descname">nb</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.nb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of bands per k-point</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.encut">
+<code class="descname">encut</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.encut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Energy cutoff (used to define G_{cut})</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.efermi">
+<code class="descname">efermi</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.efermi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fermi energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.a">
+<code class="descname">a</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.b">
+<code class="descname">b</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.vol">
+<code class="descname">vol</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.vol" title="Permalink to this definition">¶</a></dt>
+<dd><p>The volume of the unit cell in real space</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.kpoints">
+<code class="descname">kpoints</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of k-points read from the WAVECAR file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.band_energy">
+<code class="descname">band_energy</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.band_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of band eigenenergies (and corresponding occupancies) for
+each kpoint, where the first index corresponds to the index of the
+k-point (e.g. self.band_energy[kp])</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.Gpoints">
+<code class="descname">Gpoints</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.Gpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of generated G-points for each k-point (a double list), which
+are used with the coefficients for each k-point and band to recreate
+the wavefunction (e.g. self.Gpoints[kp] is the list of G-points for
+k-point kp). The G-points depend on the k-point and reciprocal lattice
+and therefore are identical for each band at the same k-point. Each
+G-point is represented by integer multipliers (e.g. assuming
+Gpoints[kp][n] == [n_1, n_2, n_3], then
+G_n = n_1*b_1 + n_2*b_2 + n_3*b_3)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.coeffs">
+<code class="descname">coeffs</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.coeffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of coefficients for each k-point and band for reconstructing
+the wavefunction. The first index corresponds to the kpoint and the
+second corresponds to the band (e.g. self.coeffs[kp][b] corresponds
+to k-point kp and band b).</p>
+</dd></dl>
+
+<dl class="docutils">
+<dt>Acknowledgments:</dt>
+<dd>This code is based upon the Fortran program, WaveTrans, written by
+R. M. Feenstra and M. Widom from the Dept. of Physics at Carnegie
+Mellon University. To see the original work, please visit:
+<a class="reference external" href="https://www.andrew.cmu.edu/user/feenstra/wavetrans/">https://www.andrew.cmu.edu/user/feenstra/wavetrans/</a></dd>
+</dl>
+<p>Author: Mark Turiansky</p>
+<p>Information is extracted from the given WAVECAR</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) – input file (default: WAVECAR)</li>
+<li><strong>verbose</strong> (<em>bool</em>) – determines whether processing information is shown</li>
+<li><strong>precision</strong> (<em>str</em>) – determines how fine the fft mesh is (normal or
+accurate), only the first letter matters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc">
+<code class="descname">evaluate_wavefunc</code><span class="sig-paren">(</span><em>kpoint</em>, <em>band</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.evaluate_wavefunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the wavefunction for a given position, r.</p>
+<p>The wavefunction is given by the k-point and band. It is evaluated
+at the given position by summing over the components. Formally,</p>
+<p>psi_n^k (r) = sum_{i=1}^N c_i^{n,k} exp (i (k + G_i^{n,k}) cdot r)</p>
+<p>where psi_n^k is the wavefunction for the nth band at k-point k, N is
+the number of plane waves, c_i^{n,k} is the ith coefficient that
+corresponds to the nth band and k-point k, and G_i^{n,k} is the ith
+G-point corresponding to k-point k.</p>
+<p>NOTE: This function is very slow; a discrete fourier transform is the
+preferred method of evaluation (see Wavecar.fft_mesh).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint where the wavefunction
+will be evaluated</li>
+<li><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
+evaluated</li>
+<li><strong>r</strong> (<em>np.array</em>) – the position where the wavefunction will be evaluated</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a complex value corresponding to the evaluation of the wavefunction</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Wavecar.fft_mesh">
+<code class="descname">fft_mesh</code><span class="sig-paren">(</span><em>kpoint</em>, <em>band</em>, <em>shift=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.fft_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.fft_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Places the coefficients of a wavefunction onto an fft mesh.</p>
+<p>Once the mesh has been obtained, a discrete fourier transform can be
+used to obtain real-space evaluation of the wavefunction. The output
+of this function can be passed directly to numpy’s fft function. For
+.. rubric:: example</p>
+<p>mesh = Wavecar().fft_mesh(kpoint, band)
+evals = np.fft.fft(mesh)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>kpoint</strong> (<em>int</em>) – the index of the kpoint where the wavefunction
+will be evaluated</li>
+<li><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
+evaluated</li>
+<li><strong>shift</strong> (<em>bool</em>) – determines if the zero frequency coefficient is
+placed at index (0, 0, 0) or centered</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a numpy ndarray representing the 3D mesh of coefficients</p>
 </td>
 </tr>
 </tbody>
@@ -1649,13 +1919,13 @@ any. Note that this is sometimes very large</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

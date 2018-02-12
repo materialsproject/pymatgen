@@ -70,7 +70,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 28 2016"
 
-
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -246,7 +245,8 @@ class DictSet(VaspInputSet):
             by VASP to INCAR. Supported functionals are: DFT-D2, undamped
             DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,
             Tkatchenko-Scheffler with iterative Hirshfeld partitioning,
-            MBD@rSC, dDsC, Dion's vdW-DF and DF2, optPBE, optB88, and optB86b.
+            MBD@rSC, dDsC, Dion's vdW-DF, DF2, optPBE, optB88, optB86b and
+            rVV10.
     """
 
     def __init__(self, structure, config_dict,
@@ -278,7 +278,7 @@ class DictSet(VaspInputSet):
             except KeyError:
                 raise KeyError("Invalid or unsupported van-der-Waals "
                                "functional. Supported functionals are "
-                               "%s." % vdw_par.keys()) 
+                               "%s." % vdw_par.keys())
         if self.user_potcar_settings:
             warnings.warn(
                 "Overriding POTCARs is generally not recommended as it "
@@ -325,8 +325,8 @@ class DictSet(VaspInputSet):
                     # lookup specific LDAU if specified for most_electroneg atom
                     elif most_electroneg in v.keys() and \
                             isinstance(v[most_electroneg], dict):
-                           incar[k] = [v[most_electroneg].get(sym, 0)
-                                       for sym in poscar.site_symbols]
+                        incar[k] = [v[most_electroneg].get(sym, 0)
+                                    for sym in poscar.site_symbols]
                     # else, use fallback LDAU value if it exists
                     else:
                         incar[k] = [v.get(sym, 0) for sym in poscar.site_symbols]
@@ -359,6 +359,9 @@ class DictSet(VaspInputSet):
             nupdown = sum([mag if abs(mag) > 0.6 else 0
                            for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
+
+        if self.structure._charge:
+            incar["NELECT"] = self.nelect + self.structure._charge
 
         return incar
 
@@ -430,7 +433,8 @@ class DictSet(VaspInputSet):
             make_dir_if_not_present=make_dir_if_not_present,
             include_cif=include_cif)
         for k, v in self.files_to_transfer.items():
-            with zopen(v, "rb") as fin, zopen(os.path.join(output_dir, k), "wb") as fout:
+            with zopen(v, "rb") as fin, \
+                    zopen(os.path.join(output_dir, k), "wb") as fout:
                 shutil.copyfileobj(fin, fout)
 
 
@@ -485,7 +489,6 @@ class MPHSERelaxSet(DictSet):
 
 
 class MPStaticSet(MPRelaxSet):
-
     def __init__(self, structure, prev_incar=None, prev_kpoints=None,
                  lepsilon=False, lcalcpol=False, reciprocal_density=100,
                  **kwargs):
@@ -638,7 +641,6 @@ class MPStaticSet(MPRelaxSet):
 
 
 class MPHSEBSSet(MPHSERelaxSet):
-
     def __init__(self, structure, user_incar_settings=None, added_kpoints=None,
                  mode="Uniform", reciprocal_density=None,
                  kpoints_line_density=20, **kwargs):
@@ -682,7 +684,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
         self.reciprocal_density = reciprocal_density or \
-            self.kpoints_settings['reciprocal_density']
+                                  self.kpoints_settings['reciprocal_density']
         self.kpoints_line_density = kpoints_line_density
 
     @property
@@ -694,7 +696,7 @@ class MPHSEBSSet(MPHSERelaxSet):
         # for both modes, include the Uniform mesh w/standard weights
         grid = Kpoints.automatic_density_by_vol(self.structure,
                                                 self.reciprocal_density).kpts
-        ir_kpts = SpacegroupAnalyzer(self.structure, symprec=0.1)\
+        ir_kpts = SpacegroupAnalyzer(self.structure, symprec=0.1) \
             .get_ir_reciprocal_mesh(grid[0])
         for k in ir_kpts:
             kpts.append(k[0])
@@ -776,7 +778,6 @@ class MPHSEBSSet(MPHSERelaxSet):
 
 
 class MPNonSCFSet(MPRelaxSet):
-
     def __init__(self, structure, prev_incar=None,
                  mode="line", nedos=601, reciprocal_density=100, sym_prec=0.1,
                  kpoints_line_density=20, optics=False, **kwargs):
@@ -935,7 +936,7 @@ class MPNonSCFSet(MPRelaxSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
                 kpoints_line_density = kpoints_line_density * \
-                    small_gap_multiply[1]
+                                       small_gap_multiply[1]
 
         return MPNonSCFSet(structure=structure, prev_incar=incar,
                            reciprocal_density=reciprocal_density,
@@ -944,7 +945,6 @@ class MPNonSCFSet(MPRelaxSet):
 
 
 class MPSOCSet(MPStaticSet):
-
     def __init__(self, structure, saxis=(0, 0, 1), prev_incar=None,
                  reciprocal_density=100, **kwargs):
         """
@@ -1084,7 +1084,7 @@ class MVLElasticSet(MPRelaxSet):
     def __init__(self, structure, potim=0.015, **kwargs):
         super(MVLElasticSet, self).__init__(structure, **kwargs)
         self._config_dict["INCAR"].update({"IBRION": 6, "NFREE": 2,
-                                          "POTIM": potim})
+                                           "POTIM": potim})
         self._config_dict["INCAR"].pop("NPAR", None)
 
 
@@ -1157,7 +1157,7 @@ class MVLGWSet(DictSet):
             # Default parameters for diagonalization calculation.
             incar.update({
                 "ALGO": "Exact",
-                "NELM":1,
+                "NELM": 1,
                 "LOPTICS": True,
                 "LPEAD": True
             })
@@ -1252,6 +1252,7 @@ class MVLSlabSet(MPRelaxSet):
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
+
     def __init__(self, structure, k_product=50, bulk=False,
                  auto_dipole=False, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
@@ -1261,7 +1262,7 @@ class MVLSlabSet(MPRelaxSet):
         self.auto_dipole = auto_dipole
         self.kwargs = kwargs
 
-        slab_incar = {"EDIFF": 1e-6, "EDIFFG": -0.01, "ENCUT": 400,
+        slab_incar = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400,
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2
@@ -1295,12 +1296,12 @@ class MVLSlabSet(MPRelaxSet):
 
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
         abc = self.structure.lattice.abc
-        kpt_calc = [int(self.k_product/abc[0]+0.5),
-                    int(self.k_product/abc[1]+0.5), 1]
+        kpt_calc = [int(self.k_product / abc[0] + 0.5),
+                    int(self.k_product / abc[1] + 0.5), 1]
         self.kpt_calc = kpt_calc
         # calculate kpts (c direction) for bulk. (for slab, set to 1)
         if self.bulk:
-            kpt_calc[2] = int(self.k_product/abc[2]+0.5)
+            kpt_calc[2] = int(self.k_product / abc[2] + 0.5)
 
         kpt.kpts[0] = kpt_calc
 
@@ -1599,6 +1600,51 @@ class MVLNPTMDSet(MITMDSet):
         self._config_dict["INCAR"]["ENCUT"] = encut
 
 
+class MVLScanRelaxSet(MPRelaxSet):
+    """
+    Class for writing a relax input set using Strongly Constrained and
+    Appropriately Normed (SCAN) semilocal density functional.
+    """
+
+    def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
+        """
+        Notes:
+            1. This functional is only available from VASP.5.4.3 upwards.
+
+            2. Meta-GGA calculations require POTCAR files that include
+            information on the kinetic energy density of the core-electrons,
+            i.e. "PBE_52" or "PBE_54". Make sure the POTCAR including the
+            following lines (see VASP wiki for more details):
+
+                $ grep kinetic POTCAR
+                kinetic energy-density
+                mkinetic energy-density pseudized
+                kinetic energy density (partial)
+
+        Args:
+            structure (Structure): input structure.
+            potcar_functional (str): choose from "PBE_52" and "PBE_54".
+            vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
+                van der Waals density functional by combing the SCAN functional
+                with the rVV10 non-local correlation functional.
+            \\*\\*kwargs: Other kwargs supported by :class:`DictSet`.
+        """
+        if potcar_functional not in ["PBE_52", "PBE_54"]:
+            raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
+
+        super(MVLScanRelaxSet, self).__init__(
+            structure, potcar_functional=potcar_functional,
+            **kwargs)
+
+        self._config_dict["INCAR"].update({"ADDGRID": True,
+                                           "EDIFF": 1e-05,
+                                           "EDIFFG": -0.05,
+                                           "LASPH": True,
+                                           "LDAU": False,
+                                           "METAGGA": "SCAN",
+                                           "NELM": 200})
+
+
 def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     vruns = list(glob.glob(os.path.join(path, "vasprun.xml*")))
     outcars = list(glob.glob(os.path.join(path, "OUTCAR*")))
@@ -1612,7 +1658,7 @@ def get_vasprun_outcar(path, parse_dos=True, parse_eigen=True):
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else sorted(vruns)[-1]
     outcarfile = outcarfile_fullpath if outcarfile_fullpath in outcars else sorted(outcars)[-1]
     return Vasprun(str(vsfile), parse_dos=parse_dos, parse_eigen=parse_eigen), \
-        Outcar(str(outcarfile))
+           Outcar(str(outcarfile))
 
 
 def get_structure_from_prev_run(vasprun, outcar=None, sym_prec=0.1,

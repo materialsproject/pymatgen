@@ -72,11 +72,31 @@ class MpiRunner(object):
     different syntax and options supported by the different mpirunners.
     """
     def __init__(self, name, type=None, options=""):
+        """
+        Args:
+            name (str): Name of the mpirunner e.g. mpirun, mpiexec, srun ...
+            type: Type of the mpirunner (not used at present)
+            options (str): String with options passed to the mpi runner e.g. "--bind-to None"
+        """
         self.name = name if name else ""
         self.type = None
-        self.options = options
+        self.options = str(options)
 
     def string_to_run(self, qad, executable, stdin=None, stdout=None, stderr=None, exec_args=None):
+        """
+        Build and return a string with the command required to launch `executable` with the qadapter `qad`.
+
+        Args
+            qad: Qadapter instance.
+            executable (str): Executable name or path
+            stdin (str): Name of the file to be used as standard input. None means no redirection.
+            stdout (str): Name of the file to be used as standard output. None means no redirection.
+            stderr (str): Name of the file to be used as standard error. None means no redirection.
+            exec_args: Optional list of strings with options passed to `executable`.
+
+        Return:
+            String with command to execute.
+        """
         stdin = "< " + stdin if stdin is not None else ""
         stdout = "> " + stdout if stdout is not None else ""
         stderr = "2> " + stderr if stderr is not None else ""
@@ -87,9 +107,9 @@ class MpiRunner(object):
         basename = os.path.basename(self.name)
         if basename in ["mpirun", "mpiexec", "srun"]:
             if self.type is None:
-                #$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR
+                # $MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR
                 num_opt = "-n " + str(qad.mpi_procs)
-                cmd = " ".join([self.name, num_opt, executable, stdin, stdout, stderr])
+                cmd = " ".join([self.name, self.options, num_opt, executable, stdin, stdout, stderr])
             else:
                 raise NotImplementedError("type %s is not supported!" % self.type)
 
@@ -100,7 +120,7 @@ class MpiRunner(object):
             bg_size, rpn = qad.bgsize_rankspernode()
             #num_opt = "-n " + str(qad.mpi_procs)
             num_opt = "--ranks-per-node " + str(rpn)
-            cmd = " ".join([self.name, num_opt, "--exp-env OMP_NUM_THREADS",
+            cmd = " ".join([self.name, self.options, num_opt, "--exp-env OMP_NUM_THREADS",
                            "--exe `which " + executable + "` ", stdin, stdout, stderr])
         else:
             if qad.mpi_procs != 1:
@@ -112,7 +132,7 @@ class MpiRunner(object):
     #@property
     #def has_mpirun(self):
     #    """True if we are running via mpirun, mpiexec ..."""
-    #    return self.name in ("mpirun", "mpiexec")
+    #    return self.name in ("mpirun", "mpiexec", "srun", "runjob")
 
 
 class OmpEnv(AttrDict):
@@ -369,57 +389,59 @@ hardware:
 
 # Dictionary with the options used to prepare the enviroment before submitting the job
 job:
-    setup:            # List of commands (strings) executed before running (DEFAULT: empty)
-    omp_env:          # Dictionary with OpenMP environment variables (DEFAULT: empty i.e. no OpenMP)
-    modules:          # List of modules to be imported before running the code (DEFAULT: empty).
-                      # NB: Error messages produced by module load are redirected to mods.err
-    shell_env:        # Dictionary with shell environment variables.
-    mpi_runner:       # MPI runner. Possible values in ["mpirun", "mpiexec", "srun", None]
-                      # DEFAULT: None i.e. no mpirunner is used.
-    shell_runner:     # Used for running small sequential jobs on the front-end. Set it to None
-                      # if mpirun or mpiexec are not available on the fron-end. If not
-                      # given, small sequential jobs are executed with `mpi_runner`.
-    pre_run:          # List of commands (strings) executed before the run (DEFAULT: empty)
-    post_run:         # List of commands (strings) executed after the run (DEFAULT: empty)
+    setup:                # List of commands (strings) executed before running (DEFAULT: empty)
+    omp_env:              # Dictionary with OpenMP environment variables (DEFAULT: empty i.e. no OpenMP)
+    modules:              # List of modules to be imported before running the code (DEFAULT: empty).
+                          # NB: Error messages produced by module load are redirected to mods.err
+    shell_env:            # Dictionary with shell environment variables.
+    mpi_runner:           # MPI runner. Possible values in ["mpirun", "mpiexec", "srun", None]
+                          # DEFAULT: None i.e. no mpirunner is used.
+    mpi_runner_options    # String with optional options passed to the `mpi_runner` e.g. "--bind-to None"
+    shell_runner:         # Used for running small sequential jobs on the front-end. Set it to None
+                          # if mpirun or mpiexec are not available on the fron-end. If not
+                          # given, small sequential jobs are executed with `mpi_runner`.
+    shell_runner_options  # Similar to mpi_runner_options but for the runner used on the front-end.
+    pre_run:              # List of commands (strings) executed before the run (DEFAULT: empty)
+    post_run:             # List of commands (strings) executed after the run (DEFAULT: empty)
 
 # dictionary with the name of the queue and optional parameters
 # used to build/customize the header of the submission script.
 queue:
-    qtype:            # String defining the qapapter type e.g. slurm, shell ...
-    qname:            # Name of the submission queue (string, MANDATORY)
-    qparams:          # Dictionary with values used to generate the header of the job script
-                      # We use the *normalized* version of the options i.e dashes in the official name
-                      # are replaced by underscores e.g. ``--mail-type`` becomes ``mail_type``
-                      # See pymatgen.io.abinit.qadapters.py for the list of supported values.
-                      # Use ``qverbatim`` to pass additional options that are not included in the template.
+    qtype:                # String defining the qapapter type e.g. slurm, shell ...
+    qname:                # Name of the submission queue (string, MANDATORY)
+    qparams:              # Dictionary with values used to generate the header of the job script
+                          # We use the *normalized* version of the options i.e dashes in the official name
+                          # are replaced by underscores e.g. ``--mail-type`` becomes ``mail_type``
+                          # See pymatgen.io.abinit.qadapters.py for the list of supported values.
+                          # Use ``qverbatim`` to pass additional options that are not included in the template.
 
 # dictionary with the constraints that must be fulfilled in order to run on this queue.
 limits:
-    min_cores:         # Minimum number of cores (integer, DEFAULT: 1)
-    max_cores:         # Maximum number of cores (integer, MANDATORY). Hard limit to hint_cores:
-                       # it's the limit beyond which the scheduler will not accept the job (MANDATORY).
-    hint_cores:        # The limit used in the initial setup of jobs.
-                       # Fix_Critical method may increase this number until max_cores is reached
-    min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
-                       # (DEFAULT: hardware.mem_per_core)
-    max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
-                       # (DEFAULT: hardware.mem_per_node)
-    timelimit:         # Initial time-limit. Accepts time according to slurm-syntax i.e:
-                       # "days-hours" or "days-hours:minutes" or "days-hours:minutes:seconds" or
-                       # "minutes" or "minutes:seconds" or "hours:minutes:seconds",
-    timelimit_hard:    # The hard time-limit for this queue. Same format as timelimit.
-                       # Error handlers could try to submit jobs with increased timelimit
-                       # up to timelimit_hard. If not specified, timelimit_hard == timelimit
-    condition:         # MongoDB-like condition (DEFAULT: empty, i.e. not used)
-    allocation:        # String defining the policy used to select the optimal number of CPUs.
-                       # possible values are in ["nodes", "force_nodes", "shared"]
-                       # "nodes" means that we should try to allocate entire nodes if possible.
-                       # This is a soft limit, in the sense that the qadapter may use a configuration
-                       # that does not fulfill this requirement. In case of failure, it will try to use the
-                       # smallest number of nodes compatible with the optimal configuration.
-                       # Use `force_nodes` to enfore entire nodes allocation.
-                       # `shared` mode does not enforce any constraint (DEFAULT: shared).
-    max_num_launches:  # Limit to the number of times a specific task can be restarted (integer, DEFAULT: 5)
+    min_cores:             # Minimum number of cores (integer, DEFAULT: 1)
+    max_cores:             # Maximum number of cores (integer, MANDATORY). Hard limit to hint_cores:
+                           # it's the limit beyond which the scheduler will not accept the job (MANDATORY).
+    hint_cores:            # The limit used in the initial setup of jobs.
+                           # Fix_Critical method may increase this number until max_cores is reached
+    min_mem_per_proc:      # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
+                           # (DEFAULT: hardware.mem_per_core)
+    max_mem_per_proc:      # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
+                           # (DEFAULT: hardware.mem_per_node)
+    timelimit:             # Initial time-limit. Accepts time according to slurm-syntax i.e:
+                           # "days-hours" or "days-hours:minutes" or "days-hours:minutes:seconds" or
+                           # "minutes" or "minutes:seconds" or "hours:minutes:seconds",
+    timelimit_hard:        # The hard time-limit for this queue. Same format as timelimit.
+                           # Error handlers could try to submit jobs with increased timelimit
+                           # up to timelimit_hard. If not specified, timelimit_hard == timelimit
+    condition:             # MongoDB-like condition (DEFAULT: empty, i.e. not used)
+    allocation:            # String defining the policy used to select the optimal number of CPUs.
+                           # possible values are in ["nodes", "force_nodes", "shared"]
+                           # "nodes" means that we should try to allocate entire nodes if possible.
+                           # This is a soft limit, in the sense that the qadapter may use a configuration
+                           # that does not fulfill this requirement. In case of failure, it will try to use the
+                           # smallest number of nodes compatible with the optimal configuration.
+                           # Use `force_nodes` to enfore entire nodes allocation.
+                           # `shared` mode does not enforce any constraint (DEFAULT: shared).
+    max_num_launches:      # Limit to the number of times a specific task can be restarted (integer, DEFAULT: 5)
 """
 
     def __init__(self, **kwargs):
@@ -434,10 +456,11 @@ limits:
             pre_run: String or list of commands to execute before launching the calculation.
             post_run: String or list of commands to execute once the calculation is completed.
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
+            mpi_runner_options: Optional string with options passed to the mpi_runner.
             max_num_launches: Maximum number of submissions that can be done for a specific task. Defaults to 5
             qverbatim:
             min_cores, max_cores, hint_cores: Minimum, maximum, and hint limits of number of cores that can be used
-            min_mem_per_proc=Minimun memory per process in megabytes.
+            min_mem_per_proc=Minimum memory per process in megabytes.
             max_mem_per_proc=Maximum memory per process in megabytes.
             timelimit: initial time limit in seconds
             timelimit_hard: hard limelimit for this queue
@@ -598,13 +621,15 @@ limits:
         shell_env = d.pop("shell_env", None)
         self.shell_env = shell_env.copy() if shell_env is not None else {}
 
+        mpi_options = d.pop("mpi_runner_options", "")
         self.mpi_runner = d.pop("mpi_runner", None)
         if not isinstance(self.mpi_runner, MpiRunner):
-            self.mpi_runner = MpiRunner(self.mpi_runner)
+            self.mpi_runner = MpiRunner(self.mpi_runner, options=mpi_options)
 
         self.shell_runner = d.pop("shell_runner", None)
+        shell_runner_options = d.pop("shell_runner_options", "")
         if self.shell_runner is not None:
-            self.shell_runner = MpiRunner(self.shell_runner)
+            self.shell_runner = MpiRunner(self.shell_runner, options=shell_runner_options)
 
         pre_run = d.pop("pre_run", None)
         if is_string(pre_run): pre_run = [pre_run]
@@ -921,7 +946,7 @@ limits:
         This method is called in get_subs_dict. Return a dict with parameters to be added to qparams
         Subclasses may provide a specialized version.
         """
-        logger.debug("optimize_params of baseclass --> no optimization available!!!")
+        #logger.debug("optimize_params of baseclass --> no optimization available!!!")
         return {}
 
     def get_subs_dict(self, qnodes=None):
@@ -1298,7 +1323,12 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE)
+        if sys.version_info[0] < 3:
+            process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
         out, err = process.communicate()
 
         # grab the returncode. SLURM returns 0 if the job was successful
@@ -1329,9 +1359,14 @@ $${qverbatim}
             raise self.Error('qadapter failed to exclude nodes')
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE,
+                            universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result. lines should have this form:
@@ -1651,9 +1686,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         # grab the return code. PBS returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
@@ -1666,9 +1705,13 @@ $${qverbatim}
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result
@@ -1793,9 +1836,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         # grab the returncode. SGE returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
@@ -1813,9 +1860,13 @@ $${qverbatim}
         raise self.Error('qadapter failed to exclude nodes, not implemented yet in sge')
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result
@@ -1880,9 +1931,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         queue_id = None
         if process.returncode == 0:
             # grab the returncode. MOAB returns 0 if the job was successful
@@ -1896,9 +1951,13 @@ $${qverbatim}
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result
@@ -1989,9 +2048,13 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['llsubmit', script_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         # grab the return code. llsubmit returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
@@ -2009,9 +2072,13 @@ $${qverbatim}
         return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
-        process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE)
-        out, err = process.communicate()
+        if sys.version_info[0] < 3:
+            process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE)
+        else:
+            # need string not bytes so must use universal_newlines
+            process = Popen(['llq', '-u', username], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
+        out, err = process.communicate()
         njobs = None
         if process.returncode == 0:
             # parse the result. lines should have this form:

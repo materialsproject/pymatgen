@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.plotting &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.util.plotting &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -62,8 +62,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span>
 
@@ -131,12 +129,6 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylabel</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">plt</span></div>
-
-
-<span class="nd">@deprecated</span><span class="p">(</span><span class="n">pretty_plot</span><span class="p">,</span> <span class="s2">&quot;get_publication_quality_plot has been renamed &quot;</span>
-                         <span class="s2">&quot;pretty_plot. This stub will be removed in pmg 2018.01.01.&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get_publication_quality_plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="pretty_plot_two_axis"><a class="viewcode-back" href="../../../pymatgen.util.plotting.html#pymatgen.util.plotting.pretty_plot_two_axis">[docs]</a><span class="k">def</span> <span class="nf">pretty_plot_two_axis</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y1label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y2label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -277,7 +269,7 @@
 
     <span class="k">if</span> <span class="n">max_row</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input argument &#39;max_row&#39; must be positive!&quot;</span><span class="p">)</span>
-    
+
     <span class="n">value_table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">max_row</span><span class="p">,</span> <span class="mi">18</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="n">blank_value</span> <span class="o">=</span> <span class="n">min_val</span> <span class="o">-</span> <span class="mf">0.01</span>
 
@@ -437,7 +429,12 @@
         <span class="k">if</span> <span class="n">savefig</span><span class="p">:</span>
             <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">savefig</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tight_layout</span><span class="p">:</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="c1"># For some unknown reason, this problem shows up only on travis.</span>
+                <span class="c1"># https://stackoverflow.com/questions/22708888/valueerror-when-using-matplotlib-tight-layout</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ignoring Exception raised by fig.tight_layout</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -445,19 +442,21 @@
         <span class="k">return</span> <span class="n">fig</span>
 
     <span class="c1"># Add docstring to the decorated method.</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
-<span class="s2">    keyword arguments controlling the display of the figure:</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">        Keyword arguments controlling the display of the figure:</span>
 
-<span class="s2">    ================  ====================================================</span>
-<span class="s2">    kwargs            Meaning</span>
-<span class="s2">    ================  ====================================================</span>
-<span class="s2">    title             Title of the plot (Default: None).</span>
-<span class="s2">    show              True to show the figure (default: True).</span>
-<span class="s2">    savefig           &#39;abc.png&#39; or &#39;abc.eps&#39; to save the figure to a file.</span>
-<span class="s2">    size_kwargs       Dictionary with options passed to fig.set_size_inches</span>
-<span class="s2">                      example: size_kwargs=dict(w=3, h=4)</span>
-<span class="s2">    tight_layout      True if to call fig.tight_layout (default: False)</span>
-<span class="s2">    ================  ====================================================&quot;&quot;&quot;</span>
+<span class="s2">        ================  ====================================================</span>
+<span class="s2">        kwargs            Meaning</span>
+<span class="s2">        ================  ====================================================</span>
+<span class="s2">        title             Title of the plot (Default: None).</span>
+<span class="s2">        show              True to show the figure (default: True).</span>
+<span class="s2">        savefig           &quot;abc.png&quot; or &quot;abc.eps&quot; to save the figure to a file.</span>
+<span class="s2">        size_kwargs       Dictionary with options passed to fig.set_size_inches</span>
+<span class="s2">                          e.g. size_kwargs=dict(w=3, h=4)</span>
+<span class="s2">        tight_layout      True to call fig.tight_layout (default: False)</span>
+<span class="s2">        ================  ====================================================</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">wrapper</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Add s at the end of the docstring.</span>
@@ -497,7 +496,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -505,7 +504,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

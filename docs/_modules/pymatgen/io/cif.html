@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.cif &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.cif &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -93,6 +93,12 @@
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Magmom</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">MagSymmOp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.maggroups</span> <span class="k">import</span> <span class="n">MagneticSpaceGroup</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pybtex.database</span> <span class="k">import</span> <span class="n">BibliographyData</span><span class="p">,</span> <span class="n">Entry</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Please install optional dependency pybtex if you&quot;</span>
+                  <span class="s2">&quot;want to extract references from CIF files.&quot;</span><span class="p">)</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Wrapper classes for Cif input and output from Structures.</span>
@@ -328,8 +334,10 @@
                           <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
 
             <span class="c1"># Skip over Cif block that contains powder diffraction data.</span>
-            <span class="c1"># Some elements in this block were missing from CIF files in Springer materials/Pauling file DBs.</span>
-            <span class="c1"># This block anyway does not contain any structure information, and CifParser was also not parsing it.</span>
+            <span class="c1"># Some elements in this block were missing from CIF files in</span>
+            <span class="c1"># Springer materials/Pauling file DBs.</span>
+            <span class="c1"># This block anyway does not contain any structure information, and</span>
+            <span class="c1"># CifParser was also not parsing it.</span>
             <span class="k">if</span> <span class="s1">&#39;powder_pattern&#39;</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
                 <span class="k">continue</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">CifBlock</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;data_&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
@@ -340,6 +348,7 @@
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
+
 
 <div class="viewcode-block" id="CifParser"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser">[docs]</a><span class="k">class</span> <span class="nc">CifParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -372,7 +381,8 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="c1"># Doesn&#39;t seem to be a canonical way to test if file is magCIF or</span>
             <span class="c1"># not, so instead check for magnetic symmetry datanames</span>
-            <span class="n">prefixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_space_group_magn&#39;</span><span class="p">,</span> <span class="s1">&#39;_atom_site_moment&#39;</span><span class="p">,</span> <span class="s1">&#39;_space_group_symop_magn&#39;</span><span class="p">]</span>
+            <span class="n">prefixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_space_group_magn&#39;</span><span class="p">,</span> <span class="s1">&#39;_atom_site_moment&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;_space_group_symop_magn&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">prefixes</span><span class="p">:</span>
@@ -483,8 +493,9 @@
                     <span class="n">symbol_str_lst</span> <span class="o">=</span> <span class="n">symbol_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; + &#39;</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">elocc_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">symbol_str_lst</span><span class="p">)):</span>
                         <span class="c1"># Remove any bracketed items in the string</span>
-                        <span class="n">symbol_str_lst</span><span class="p">[</span><span class="n">elocc_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\([0-9]*\)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-                                                           <span class="n">symbol_str_lst</span><span class="p">[</span><span class="n">elocc_idx</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                        <span class="n">symbol_str_lst</span><span class="p">[</span><span class="n">elocc_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+                            <span class="sa">r</span><span class="s1">&#39;\([0-9]*\)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                            <span class="n">symbol_str_lst</span><span class="p">[</span><span class="n">elocc_idx</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
 
                         <span class="c1"># Extract element name and its occupancy from the</span>
                         <span class="c1"># string, and store it as a</span>
@@ -500,7 +511,8 @@
 
                     <span class="k">for</span> <span class="n">et</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="n">els_occu</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                         <span class="c1"># new atom site labels have &#39;fix&#39; appended</span>
-                        <span class="n">new_atom_site_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">et</span> <span class="o">+</span> <span class="s1">&#39;_fix&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_atom_site_label</span><span class="p">)))</span>
+                        <span class="n">new_atom_site_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">et</span> <span class="o">+</span> <span class="s1">&#39;_fix&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_atom_site_label</span><span class="p">)))</span>
                         <span class="n">new_atom_site_type_symbol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">et</span><span class="p">)</span>
                         <span class="n">new_atom_site_occupancy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">occu</span><span class="p">))</span>
                         <span class="n">new_fract_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -539,10 +551,16 @@
             <span class="c1"># CIF-1 style has all underscores, interim standard</span>
             <span class="c1"># had period before magn instead of before the final</span>
             <span class="c1"># component (e.g. xyz)</span>
+            <span class="c1"># we want to standardize on a specific key, to simplify</span>
+            <span class="c1"># parsing code</span>
             <span class="n">correct_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_space_group_symop_magn_operation.xyz&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;_space_group_symop_magn_centering.xyz&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;_space_group_magn.name_BNS&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;_space_group_magn.number_BNS&quot;</span><span class="p">]</span>
+                            <span class="s2">&quot;_space_group_magn.number_BNS&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;_atom_site_moment_crystalaxis_x&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;_atom_site_moment_crystalaxis_y&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;_atom_site_moment_crystalaxis_z&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;_atom_site_moment_label&quot;</span><span class="p">]</span>
 
             <span class="c1"># cannot mutate OrderedDict during enumeration,</span>
             <span class="c1"># so store changes we want to make</span>
@@ -560,9 +578,10 @@
             <span class="k">for</span> <span class="n">correct_key</span><span class="p">,</span> <span class="n">original_key</span> <span class="ow">in</span> <span class="n">changes_to_make</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">correct_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">original_key</span><span class="p">]</span>
 
-            <span class="c1"># some keys have been renamed, renamed_keys maps interim_keys to final_keys</span>
-            <span class="n">renamed_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_magnetic_space_group.transform_to_standard_Pp_abc&quot;</span><span class="p">:</span>
-                            <span class="s2">&quot;_space_group_magn.transform_BNS_Pp_abc&quot;</span><span class="p">}</span>
+            <span class="c1"># renamed_keys maps interim_keys to final_keys</span>
+            <span class="n">renamed_keys</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;_magnetic_space_group.transform_to_standard_Pp_abc&quot;</span><span class="p">:</span>
+                    <span class="s2">&quot;_space_group_magn.transform_BNS_Pp_abc&quot;</span><span class="p">}</span>
             <span class="n">changes_to_make</span> <span class="o">=</span> <span class="p">{}</span>
 
             <span class="k">for</span> <span class="n">interim_key</span><span class="p">,</span> <span class="n">final_key</span> <span class="ow">in</span> <span class="n">renamed_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -573,7 +592,7 @@
 
         <span class="k">return</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="nf">_unique_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_in</span><span class="p">,</span> <span class="n">magmoms_in</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_unique_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_in</span><span class="p">,</span> <span class="n">magmoms_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate unique coordinates using coord and symmetry positions</span>
 <span class="sd">        and also their corresponding magnetic moments, if supplied.</span>
@@ -581,7 +600,6 @@
         <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">magmoms_in</span><span class="p">:</span>
             <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">magmoms_in</span> <span class="o">=</span> <span class="p">[</span><span class="n">Magmom</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms_in</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">magmoms_in</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_in</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span>
             <span class="k">for</span> <span class="n">tmp_coord</span><span class="p">,</span> <span class="n">tmp_magmom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">coords_in</span><span class="p">,</span> <span class="n">magmoms_in</span><span class="p">):</span>
@@ -589,9 +607,15 @@
                     <span class="n">coord</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">tmp_coord</span><span class="p">)</span>
                     <span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">coord</span><span class="p">])</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">MagSymmOp</span><span class="p">):</span>
-                        <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">operate_magmom</span><span class="p">(</span><span class="n">tmp_magmom</span><span class="o">.</span><span class="n">moment</span><span class="p">))</span>
+                        <span class="c1"># Up to this point, magmoms have been defined relative</span>
+                        <span class="c1"># to crystal axis. Now convert to Cartesian and into</span>
+                        <span class="c1"># a Magmom object.</span>
+                        <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">from_moment_relative_to_crystal_axes</span><span class="p">(</span>
+                            <span class="n">op</span><span class="o">.</span><span class="n">operate_magmom</span><span class="p">(</span><span class="n">tmp_magmom</span><span class="p">),</span>
+                            <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span>
+                        <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">magmom</span> <span class="o">=</span> <span class="n">tmp_magmom</span>
+                        <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">tmp_magmom</span><span class="p">)</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_coord_list_pbc</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span>
                                              <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_site_tolerance</span><span class="p">):</span>
                         <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
@@ -605,7 +629,7 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_coord_list_pbc</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span>
                                              <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_site_tolerance</span><span class="p">):</span>
                         <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="p">[</span><span class="n">Magmom</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>  <span class="c1"># return dummy magmoms</span>
+            <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="p">[</span><span class="n">Magmom</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>  <span class="c1"># return dummy magmoms</span>
 
 <div class="viewcode-block" id="CifParser.get_lattice"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">get_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">length_strings</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">),</span>
                     <span class="n">angle_strings</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;gamma&quot;</span><span class="p">),</span>
@@ -766,15 +790,19 @@
                 <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">magsymmops</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">centering_op</span> <span class="ow">in</span> <span class="n">centering_symops</span><span class="p">:</span>
                         <span class="n">new_translation</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span>
-                                           <span class="ow">in</span> <span class="n">op</span><span class="o">.</span><span class="n">translation_vector</span> <span class="o">+</span> <span class="n">centering_op</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">]</span>
+                                           <span class="ow">in</span>
+                                           <span class="n">op</span><span class="o">.</span><span class="n">translation_vector</span> <span class="o">+</span> <span class="n">centering_op</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">]</span>
                         <span class="n">new_time_reversal</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">time_reversal</span> <span class="o">*</span> <span class="n">centering_op</span><span class="o">.</span><span class="n">time_reversal</span>
-                        <span class="n">all_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span>
-                            <span class="n">rotation_matrix</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">translation_vec</span><span class="o">=</span><span class="n">new_translation</span><span class="p">,</span>
-                            <span class="n">time_reversal</span><span class="o">=</span><span class="n">new_time_reversal</span><span class="p">))</span>
+                        <span class="n">all_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation_and_time_reversal</span><span class="p">(</span>
+                                <span class="n">rotation_matrix</span><span class="o">=</span><span class="n">op</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">,</span>
+                                <span class="n">translation_vec</span><span class="o">=</span><span class="n">new_translation</span><span class="p">,</span>
+                                <span class="n">time_reversal</span><span class="o">=</span><span class="n">new_time_reversal</span><span class="p">))</span>
                 <span class="n">magsymmops</span> <span class="o">=</span> <span class="n">all_ops</span>
 
         <span class="c1"># else check to see if it specifies a magnetic space group</span>
-        <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.name_BNS&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.number_BNS&quot;</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.name_BNS&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;_space_group_magn.number_BNS&quot;</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.name_BNS&quot;</span><span class="p">):</span>
                 <span class="c1"># get BNS label for MagneticSpaceGroup()</span>
@@ -782,20 +810,25 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># get BNS number for MagneticSpaceGroup()</span>
                 <span class="c1"># by converting string to list of ints</span>
-                <span class="nb">id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.number_BNS&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))))</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="p">(</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.number_BNS&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))))</span>
 
             <span class="n">msg</span> <span class="o">=</span> <span class="n">MagneticSpaceGroup</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.transform_BNS_Pp_abc&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.transform_BNS_Pp_abc&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Non-standard settings not currently supported.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="s2">&quot;_space_group_magn.transform_BNS_Pp_abc&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;a,b,c;0,0,0&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                        <span class="s2">&quot;Non-standard settings not currently supported.&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_space_group_magn.transform_BNS_Pp&quot;</span><span class="p">):</span>
-                <span class="k">return</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Incomplete specification to implement.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s2">&quot;Incomplete specification to implement.&quot;</span><span class="p">)</span>
 
             <span class="n">magsymmops</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">symmetry_ops</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">magsymmops</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No magnetic symmetry detected, using primitive symmetry.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;No magnetic symmetry detected, using primitive symmetry.&quot;</span><span class="p">)</span>
             <span class="n">magsymmops</span> <span class="o">=</span> <span class="p">[</span><span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_xyzt_string</span><span class="p">(</span><span class="s2">&quot;x, y, z, 1&quot;</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="n">magsymmops</span></div>
@@ -824,16 +857,18 @@
 <span class="sd">        Parse atomic magnetic moments from data dictionary</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">lattice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Magmoms given in terms of crystal axes in magCIF spec.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s1">&#39;Magmoms given in terms of crystal axes in magCIF spec.&#39;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">magmoms</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_label&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
-                    <span class="n">Magmom</span><span class="o">.</span><span class="n">from_moment_relative_to_crystal_axes</span><span class="p">([</span><span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
-                                                                 <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
-                                                                 <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_z&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])],</span>
-                                                                <span class="n">lattice</span><span class="p">)</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                         <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                         <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_z&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])]</span>
+                    <span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_label&quot;</span><span class="p">]))</span>
-                <span class="p">}</span>
+            <span class="p">}</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">magmoms</span></div>
@@ -867,7 +902,8 @@
         <span class="c1"># if magCIF, get magnetic symmetry moments and magmoms</span>
         <span class="c1"># else standard CIF, and use empty magmom dict</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_flags</span><span class="p">[</span><span class="s2">&quot;magcif_incommensurate&quot;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Incommensurate structures not currently supported.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Incommensurate structures not currently supported.&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_flags</span><span class="p">[</span><span class="s2">&quot;magcif&quot;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_operations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_magsymops</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="n">magmoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_magmoms</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">)</span>
@@ -885,7 +921,8 @@
             <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_operations</span><span class="p">:</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
-                <span class="n">inds</span> <span class="o">=</span> <span class="n">find_in_coord_list_pbc</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_site_tolerance</span><span class="p">)</span>
+                <span class="n">inds</span> <span class="o">=</span> <span class="n">find_in_coord_list_pbc</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span>
+                                              <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_site_tolerance</span><span class="p">)</span>
                 <span class="c1"># cant use if inds, because python is dumb and np.array([0]) evaluates</span>
                 <span class="c1"># to False</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">):</span>
@@ -897,7 +934,8 @@
                 <span class="c1"># If site type symbol exists, use it. Otherwise, we use the</span>
                 <span class="c1"># label.</span>
                 <span class="n">symbol</span> <span class="o">=</span> <span class="n">parse_symbol</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_type_symbol&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-                <span class="n">num_h</span> <span class="o">=</span> <span class="n">get_num_implicit_hydrogens</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_type_symbol&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">num_h</span> <span class="o">=</span> <span class="n">get_num_implicit_hydrogens</span><span class="p">(</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_type_symbol&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="n">symbol</span> <span class="o">=</span> <span class="n">parse_symbol</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_label&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
                 <span class="n">num_h</span> <span class="o">=</span> <span class="n">get_num_implicit_hydrogens</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_label&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
@@ -920,7 +958,8 @@
             <span class="n">x</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_fract_x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_fract_y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
             <span class="n">z</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_fract_z&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">magmom</span> <span class="o">=</span> <span class="n">magmoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_label&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">Magmom</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">magmom</span> <span class="o">=</span> <span class="n">magmoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_label&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                                 <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">occu</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_occupancy&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
@@ -939,13 +978,15 @@
                     <span class="n">coord_to_magmoms</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span> <span class="o">=</span> <span class="n">magmom</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">coord_to_species</span><span class="p">[</span><span class="n">match</span><span class="p">]</span> <span class="o">+=</span> <span class="n">comp</span>
-                    <span class="n">coord_to_magmoms</span><span class="p">[</span><span class="n">match</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># disordered magnetic not currently supported</span>
+                    <span class="c1"># disordered magnetic not currently supported</span>
+                    <span class="n">coord_to_magmoms</span><span class="p">[</span><span class="n">match</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">sum_occu</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coord_to_species</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s2">&quot;H&quot;</span><span class="p">)}]</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">o</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">sum_occu</span><span class="p">]):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Some occupancies (</span><span class="si">%s</span><span class="s2">) sum to &gt; 1! If they are within &quot;</span>
-                          <span class="s2">&quot;the tolerance, they will be rescaled.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">sum_occu</span><span class="p">))</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Some occupancies (</span><span class="si">%s</span><span class="s2">) sum to &gt; 1! If they are within &quot;</span>
+                <span class="s2">&quot;the tolerance, they will be rescaled.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">sum_occu</span><span class="p">))</span>
 
         <span class="n">allspecies</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">allcoords</span> <span class="o">=</span> <span class="p">[]</span>
@@ -956,21 +997,26 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_flags</span><span class="p">[</span><span class="s2">&quot;magcif&quot;</span><span class="p">]:</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coord_to_magmoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="c1"># Proposed solution to this is to instead store magnetic moments</span>
-                    <span class="c1"># as Specie &#39;spin&#39; property, instead of site property, but this</span>
-                    <span class="c1"># introduces ambiguities for end user (such as unintended use of</span>
-                    <span class="c1"># `spin` and Specie will have fictious oxidation state).</span>
-                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Disordered magnetic structures not currently supported.&#39;</span><span class="p">)</span>
+                    <span class="c1"># Proposed solution to this is to instead store magnetic</span>
+                    <span class="c1"># moments as Specie &#39;spin&#39; property, instead of site</span>
+                    <span class="c1"># property, but this introduces ambiguities for end user</span>
+                    <span class="c1"># (such as unintended use of `spin` and Specie will have</span>
+                    <span class="c1"># fictious oxidation state).</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                        <span class="s1">&#39;Disordered magnetic structures not currently supported.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">coord_to_species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groupby</span><span class="p">(</span>
                     <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">coord_to_species</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
                     <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
                 <span class="n">tmp_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span>
-                <span class="n">tmp_magmom</span> <span class="o">=</span> <span class="p">[</span><span class="n">coord_to_magmoms</span><span class="p">[</span><span class="n">tmp_coord</span><span class="p">]</span> <span class="k">for</span> <span class="n">tmp_coord</span> <span class="ow">in</span> <span class="n">tmp_coords</span><span class="p">]</span>
+                <span class="n">tmp_magmom</span> <span class="o">=</span> <span class="p">[</span><span class="n">coord_to_magmoms</span><span class="p">[</span><span class="n">tmp_coord</span><span class="p">]</span> <span class="k">for</span> <span class="n">tmp_coord</span> <span class="ow">in</span>
+                              <span class="n">tmp_coords</span><span class="p">]</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_flags</span><span class="p">[</span><span class="s2">&quot;magcif&quot;</span><span class="p">]:</span>
-                    <span class="n">coords</span><span class="p">,</span> <span class="n">magmoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_coords</span><span class="p">(</span><span class="n">tmp_coords</span><span class="p">,</span> <span class="n">tmp_magmom</span><span class="p">)</span>
+                    <span class="n">coords</span><span class="p">,</span> <span class="n">magmoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_coords</span><span class="p">(</span><span class="n">tmp_coords</span><span class="p">,</span>
+                                                          <span class="n">magmoms_in</span><span class="o">=</span><span class="n">tmp_magmom</span><span class="p">,</span>
+                                                          <span class="n">lattice</span><span class="o">=</span><span class="n">lattice</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">coords</span><span class="p">,</span> <span class="n">magmoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_coords</span><span class="p">(</span><span class="n">tmp_coords</span><span class="p">)</span>
 
@@ -993,7 +1039,8 @@
                 <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">totaloccu</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_occupancy_tolerance</span><span class="p">:</span>
                     <span class="n">allspecies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">species</span> <span class="o">/</span> <span class="n">totaloccu</span>
 
-        <span class="k">if</span> <span class="n">allspecies</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">allspecies</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">allcoords</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">allspecies</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">allmagmoms</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">allspecies</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">allspecies</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">allcoords</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">allspecies</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">allmagmoms</span><span class="p">):</span>
             <span class="n">site_properties</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">allhydrogens</span><span class="p">):</span>
                 <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">allhydrogens</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">allcoords</span><span class="p">)</span>
@@ -1046,56 +1093,57 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid cif file with no structures!&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">structures</span></div>
 
-<div class="viewcode-block" id="CifParser.get_bibtex_strings"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_bibtex_strings">[docs]</a>    <span class="k">def</span> <span class="nf">get_bibtex_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CifParser.get_bibtex_string"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_bibtex_string">[docs]</a>    <span class="k">def</span> <span class="nf">get_bibtex_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        (Beta) Get BibTeX reference from CIF file.</span>
+<span class="sd">        Get BibTeX reference from CIF file.</span>
 <span class="sd">        :param data:</span>
 <span class="sd">        :return: BibTeX string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">bibtex_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_publ_author_name&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_author_name&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_publ_section_title&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_title&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;journal&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_name_full&#39;</span><span class="p">,</span> <span class="s1">&#39;_journal_name_abbrev&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;_citation_journal_full&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_journal_abbrev&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;volume&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_volume&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_journal_volume&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_year&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_year&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_number&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_number&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;page_first&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_page_first&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_page_first&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;page_last&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_page_last&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_page_last&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;doi&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_DOI&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_DOI&#39;</span><span class="p">)}</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># TODO: parse &#39;_publ_section_references&#39; when it exists?</span>
         <span class="c1"># TODO: CIF specification supports multiple citations.</span>
 
-        <span class="n">bibtex_strs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
 
-        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="c1"># convert to lower-case keys, some cif files inconsistent</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
-            <span class="n">bibtex_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;authors&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_author_name&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_title&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;journal&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_journal_abbrev&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;volume&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_journal_volume&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_year&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_number&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;page_first&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_page_first&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;page_last&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_page_last&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;doi&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_DOI&#39;</span><span class="p">}</span>
+            <span class="n">bibtex_entry</span> <span class="o">=</span> <span class="p">{}</span>
 
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;?&quot;</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">bibtex_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
 
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;:&quot;</span><span class="o">+</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span>
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">])</span>
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;pages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">--</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;page_first&#39;</span><span class="p">],</span> <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;page_last&#39;</span><span class="p">])</span>
+            <span class="c1"># convert to bibtex author format (&#39;and&#39; delimited)</span>
+            <span class="k">if</span> <span class="s1">&#39;author&#39;</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="p">:</span>
+                <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">])</span>
 
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;key&#39;</span><span class="p">:</span>
-                    <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;{&quot;</span><span class="o">+</span><span class="n">entry</span><span class="o">+</span><span class="s2">&quot;}&quot;</span>
+            <span class="c1"># convert to bibtex page range format, use empty string if not specified</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;page_first&#39;</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;page_last&#39;</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="p">):</span>
+                <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;pages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">--</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;page_first&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                                          <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;page_last&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+                <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;page_first&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># and remove page_first, page_list if present</span>
+                <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;page_last&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-            <span class="n">bibtex_str</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{key}</span><span class="s2">,</span>
-<span class="s2">    author = </span><span class="si">{authors}</span><span class="s2">,</span>
-<span class="s2">    title = </span><span class="si">{title}</span><span class="s2">,</span>
-<span class="s2">    journal = </span><span class="si">{journal}</span><span class="s2">,</span>
-<span class="s2">    year = </span><span class="si">{year}</span><span class="s2">,</span>
-<span class="s2">    volume = </span><span class="si">{volume}</span><span class="s2">,</span>
-<span class="s2">    number = </span><span class="si">{number}</span><span class="s2">,</span>
-<span class="s2">    pages = </span><span class="si">{pages}</span><span class="s2">,</span>
-<span class="s2">    doi = </span><span class="si">{doi}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">bibtex_entry</span><span class="p">))</span>
-            <span class="n">bibtex_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;@article{&quot;</span><span class="o">+</span><span class="n">bibtex_str</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">}&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">bibtex_strs</span></div>
+            <span class="c1"># cite keys are given as cif-reference-idx in order they are found</span>
+            <span class="n">entries</span><span class="p">[</span><span class="s1">&#39;cif-reference-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="s1">&#39;article&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+
+        <span class="k">return</span> <span class="n">BibliographyData</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">bib_format</span><span class="o">=</span><span class="s1">&#39;bibtex&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CifParser.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
@@ -1107,7 +1155,6 @@
 
 
 <div class="viewcode-block" id="CifWriter"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifWriter">[docs]</a><span class="k">class</span> <span class="nc">CifWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">write_magmoms</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A wrapper around CifFile to write CIF files from pymatgen structures.</span>
@@ -1122,8 +1169,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">write_magmoms</span> <span class="ow">and</span> <span class="n">symprec</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Magnetic symmetry cannot currently be detected by pymatgen,&quot;</span>
-                          <span class="s2">&quot;disabling symmetry detection.&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Magnetic symmetry cannot currently be detected by pymatgen,&quot;</span>
+                <span class="s2">&quot;disabling symmetry detection.&quot;</span><span class="p">)</span>
             <span class="n">symprec</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">format_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.8f}</span><span class="s2">&quot;</span>
@@ -1152,7 +1200,7 @@
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_symmetry_Int_Tables_number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spacegroup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_chemical_formula_structural&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no_oxi_comp</span><span class="o">.</span><span class="n">reduced_formula</span>
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_chemical_formula_sum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no_oxi_comp</span><span class="o">.</span><span class="n">formula</span>
-        <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_cell_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_cell_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">latt</span><span class="o">.</span><span class="n">volume</span>
 
         <span class="n">reduced_comp</span><span class="p">,</span> <span class="n">fu</span> <span class="o">=</span> <span class="n">no_oxi_comp</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()</span>
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_cell_formula_units_Z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fu</span><span class="p">))</span>
@@ -1180,9 +1228,9 @@
         <span class="n">contains_oxidation</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">symbol_to_oxinum</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
-                                               <span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(),</span>
-                                                <span class="nb">float</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">))</span>
-                                               <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">)])</span>
+                <span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(),</span>
+                 <span class="nb">float</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">)])</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">symbol_to_oxinum</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span>
                                             <span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">)])</span>
@@ -1215,13 +1263,16 @@
                     <span class="n">atom_site_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
                     <span class="n">atom_site_occupancy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">occu</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
 
-                    <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;magmom&#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="s1">&#39;spin&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+                    <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span>
+                        <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;magmom&#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="s1">&#39;spin&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
                     <span class="k">if</span> <span class="n">write_magmoms</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">magmom</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">moment</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">get_moment_relative_to_crystal_axes</span><span class="p">(</span><span class="n">magmom</span><span class="p">,</span> <span class="n">latt</span><span class="p">)</span>
-                        <span class="n">atom_site_moment_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
-                        <span class="n">atom_site_moment_crystalaxis_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                        <span class="n">atom_site_moment_crystalaxis_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                        <span class="n">atom_site_moment_crystalaxis_z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                        <span class="n">moment</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">get_moment_relative_to_crystal_axes</span><span class="p">(</span>
+                            <span class="n">magmom</span><span class="p">,</span> <span class="n">latt</span><span class="p">)</span>
+                        <span class="n">atom_site_moment_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
+                        <span class="n">atom_site_moment_crystalaxis_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moment</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">atom_site_moment_crystalaxis_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moment</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">atom_site_moment_crystalaxis_z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moment</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
                     <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1231,7 +1282,7 @@
                                                     <span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">]))[</span><span class="mi">0</span><span class="p">],</span>
                  <span class="nb">len</span><span class="p">(</span><span class="n">sites</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">sf</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span><span class="o">.</span><span class="n">equivalent_sites</span>
-                <span class="p">]</span>
+            <span class="p">]</span>
             <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">mult</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
                     <span class="n">unique_sites</span><span class="p">,</span>
                     <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">average_electroneg</span><span class="p">,</span>
@@ -1263,9 +1314,12 @@
                       <span class="s2">&quot;_atom_site_occupancy&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">write_magmoms</span><span class="p">:</span>
             <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_site_moment_label</span>
-            <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_site_moment_crystalaxis_x</span>
-            <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_site_moment_crystalaxis_y</span>
-            <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_crystalaxis_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_site_moment_crystalaxis_z</span>
+            <span class="n">block</span><span class="p">[</span>
+                <span class="s2">&quot;_atom_site_moment_crystalaxis_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_site_moment_crystalaxis_x</span>
+            <span class="n">block</span><span class="p">[</span>
+                <span class="s2">&quot;_atom_site_moment_crystalaxis_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_site_moment_crystalaxis_y</span>
+            <span class="n">block</span><span class="p">[</span>
+                <span class="s2">&quot;_atom_site_moment_crystalaxis_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom_site_moment_crystalaxis_z</span>
             <span class="n">loops</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;_atom_site_moment_label&quot;</span><span class="p">,</span>
                           <span class="s2">&quot;_atom_site_moment_crystalaxis_x&quot;</span><span class="p">,</span>
                           <span class="s2">&quot;_atom_site_moment_crystalaxis_y&quot;</span><span class="p">,</span>
@@ -1332,7 +1386,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1340,7 +1394,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

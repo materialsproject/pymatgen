@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.bandstructure &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.electronic_structure.bandstructure &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,11 +67,13 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Spin</span><span class="p">,</span> <span class="n">Orbital</span>
-<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_diff</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides classes to define everything related to band structures.</span>
@@ -511,6 +513,33 @@
 
         <span class="k">return</span> <span class="n">result</span></div>
 
+<div class="viewcode-block" id="BandStructure.get_direct_band_gap_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_direct_band_gap_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary of information about the direct</span>
+<span class="sd">        band gap</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionary of the band gaps indexed by spin</span>
+<span class="sd">            along with their band indices and k-point index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_metal</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;get_direct_band_gap_dict should&quot;</span>
+                             <span class="s2">&quot;only be used with non-metals&quot;</span><span class="p">)</span>
+        <span class="n">direct_gap_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">above</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">v</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="n">min_above</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">above</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">below</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">v</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="n">max_below</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">below</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">min_above</span> <span class="o">-</span> <span class="n">max_below</span>
+            <span class="n">kpoint_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+            <span class="n">band_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">below</span><span class="p">[:,</span> <span class="n">kpoint_index</span><span class="p">]),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">above</span><span class="p">[:,</span> <span class="n">kpoint_index</span><span class="p">])</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">below</span><span class="p">)]</span>
+            <span class="n">direct_gap_dict</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">diff</span><span class="p">[</span><span class="n">kpoint_index</span><span class="p">],</span>
+                                     <span class="s2">&quot;kpoint_index&quot;</span><span class="p">:</span> <span class="n">kpoint_index</span><span class="p">,</span>
+                                     <span class="s2">&quot;band_indices&quot;</span><span class="p">:</span> <span class="n">band_indices</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">direct_gap_dict</span></div>
+
 <div class="viewcode-block" id="BandStructure.get_direct_band_gap"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap">[docs]</a>    <span class="k">def</span> <span class="nf">get_direct_band_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the direct band gap.</span>
@@ -520,21 +549,49 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_metal</span><span class="p">():</span>
             <span class="k">return</span> <span class="mf">0.0</span>
-        <span class="n">cb</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-        <span class="n">vb</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">spin</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)):</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">)):</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">:</span>
-                        <span class="n">cb</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
-                        <span class="n">vb</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
-        <span class="n">diff</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints</span><span class="p">)):</span>
-            <span class="n">diff</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">cb</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">cb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">,</span> <span class="n">cb</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">])[</span><span class="n">i</span><span class="p">]])</span>
-                        <span class="o">-</span> <span class="nb">max</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">vb</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">vb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">,</span> <span class="n">vb</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">])[</span><span class="n">i</span><span class="p">]]))</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span></div>
+        <span class="n">dg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_direct_band_gap_dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dg</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="BandStructure.get_sym_eq_kpoints"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.get_sym_eq_kpoints">[docs]</a>    <span class="k">def</span> <span class="nf">get_sym_eq_kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of unique symmetrically equivalent k-points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kpoint (1x3 array): coordinate of the k-point</span>
+<span class="sd">            cartesian (bool): kpoint is in cartesian or fractional coordinates</span>
+<span class="sd">            tol (float): tolerance below which coordinates are considered equal</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ([1x3 array] or None): if structure is not available returns None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">symmops</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_point_group_operations</span><span class="p">(</span><span class="n">cartesian</span><span class="o">=</span><span class="n">cartesian</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">rotation_matrix</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">symmops</span><span class="p">])</span>
+        <span class="n">rm_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># identify and remove duplicates from the list of equivalent k-points:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">pbc_diff</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">tol</span><span class="p">):</span>
+                    <span class="n">rm_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">rm_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BandStructure.get_kpoint_degeneracy"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.get_kpoint_degeneracy">[docs]</a>    <span class="k">def</span> <span class="nf">get_kpoint_degeneracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns degeneracy of a given k-point based on structure symmetry</span>
+<span class="sd">        Args:</span>
+<span class="sd">            kpoint (1x3 array): coordinate of the k-point</span>
+<span class="sd">            cartesian (bool): kpoint is in cartesian or fractional coordinates</span>
+<span class="sd">            tol (float): tolerance below which coordinates are considered equal</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (int or None): degeneracy or None if structure is not available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_kpts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sym_eq_kpoints</span><span class="p">(</span><span class="n">kpoint</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">all_kpts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_kpts</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BandStructure.as_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.BandStructure.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -960,17 +1017,17 @@
 
 <div class="viewcode-block" id="get_reconstructed_band_structure"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.bandstructure.html#pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure">[docs]</a><span class="k">def</span> <span class="nf">get_reconstructed_band_structure</span><span class="p">(</span><span class="n">list_bs</span><span class="p">,</span> <span class="n">efermi</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This method takes a list of band structures</span>
-<span class="sd">    and reconstruct one band structure object from all of them</span>
+<span class="sd">    This method takes a list of band structures and reconstructs</span>
+<span class="sd">    one band structure object from all of them.</span>
 
-<span class="sd">    this is typically very useful when you split non self consistent</span>
+<span class="sd">    This is typically very useful when you split non self consistent</span>
 <span class="sd">    band structure runs in several independent jobs and want to merge back</span>
 <span class="sd">    the results</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        list_bs: A list of BandStructure</span>
-<span class="sd">        efermi: The fermi energy of the reconstructed band structure. If</span>
-<span class="sd">            None is assigned an average of all the fermi energy in each</span>
+<span class="sd">        list_bs: A list of BandStructure or BandStructureSymmLine objects.</span>
+<span class="sd">        efermi: The Fermi energy of the reconstructed band structure. If</span>
+<span class="sd">            None is assigned an average of all the Fermi energy in each</span>
 <span class="sd">            object in the list_bs is used.</span>
 
 <span class="sd">    Returns:</span>
@@ -985,38 +1042,27 @@
     <span class="n">rec_lattice</span> <span class="o">=</span> <span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lattice_rec</span>
     <span class="n">nb_bands</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">list_bs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nb_bands</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_bs</span><span class="p">))])</span>
 
-    <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">:</span>
-            <span class="n">kpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">labels_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">labels_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span>
-    <span class="n">eigenvals</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="p">[</span><span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                           <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">)]}</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">kpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">k</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">]</span>
+                              <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">])</span>
+    <span class="n">dicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">bs</span><span class="o">.</span><span class="n">labels_dict</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">]</span>
+    <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dicts</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="n">eigenvals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">bs</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][:</span><span class="n">nb_bands</span><span class="p">]</span>
+                                         <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
-        <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
-                    <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">eigenvals</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">bs</span><span class="o">.</span><span class="n">bands</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][:</span><span class="n">nb_bands</span><span class="p">]</span>
+                                               <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="n">projections</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">projections</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">projections</span> <span class="o">=</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="p">[</span><span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">)]}</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">projs</span> <span class="o">=</span> <span class="p">[</span><span class="n">bs</span><span class="o">.</span><span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][:</span><span class="n">nb_bands</span><span class="p">]</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">]</span>
+        <span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">projs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
-            <span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                                      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">)]</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_bands</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                    <span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                        <span class="n">bs</span><span class="o">.</span><span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">projs</span> <span class="o">=</span> <span class="p">[</span><span class="n">bs</span><span class="o">.</span><span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][:</span><span class="n">nb_bands</span><span class="p">]</span> <span class="k">for</span> <span class="n">bs</span> <span class="ow">in</span> <span class="n">list_bs</span><span class="p">]</span>
+            <span class="n">projections</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">projs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">list_bs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">BandStructureSymmLine</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">BandStructureSymmLine</span><span class="p">(</span><span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">rec_lattice</span><span class="p">,</span>
@@ -1057,7 +1103,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1065,7 +1111,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

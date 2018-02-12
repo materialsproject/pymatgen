@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,8 +55,227 @@
   <div class="section" id="module-pymatgen.core.surface">
 <span id="pymatgen-core-surface-module"></span><h1>pymatgen.core.surface module<a class="headerlink" href="#module-pymatgen.core.surface" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
+<dt id="pymatgen.core.surface.ReconstructionGenerator">
+<em class="property">class </em><code class="descname">ReconstructionGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>reconstruction_name</em>, <em>termination=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class takes in a pre-defined dictionary specifying the parameters
+need to build a reconstructed slab such as the SlabGenerator parameters,
+transformation matrix, sites to remove/add and slab/vacuum size. It will
+then use the formatted instructions provided by the dictionary to build
+the desired reconstructed slab from the initial structure.</p>
+<dl class="attribute">
+<dt id="pymatgen.core.surface.ReconstructionGenerator.slabgen_params">
+<code class="descname">slabgen_params</code><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.slabgen_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameters for the SlabGenerator</p>
+</dd></dl>
+
+<p>TODO:
+- Right now there is no way to specify what atom is being</p>
+<blockquote>
+<div>added. In the future, use basis sets?</div></blockquote>
+<dl class="docutils">
+<dt>Generates reconstructed slabs from a set of instructions</dt>
+<dd>specified by a dictionary or json file.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>initial_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Initial input structure. Note that
+to ensure that the miller indices correspond to usual
+crystallographic definitions, you should supply a conventional
+unit cell structure.</li>
+<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>termination</strong> (<em>int</em>) – The index of the termination of the slab. Some
+surfaces can have more than one termination when using the
+get_slabs() method from SlabGenerator(). For simplicity, the
+reconstruction template will operate on the more stable
+termination (e.g. for diamond (111), the termination without
+the dangling bond) unless specified.</li>
+<li><strong>reconstruction</strong> (<em>str</em>) – <p>Name of the dict containing the instructions
+for building a reconstructed slab. The dictionary can contain
+any item the creator deems relevant, however any instructions
+archived in pymatgen for public use needs to contain the
+following keys and items to ensure compatibility with the
+ReconstructionGenerator:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>”name” (str): A descriptive name for the type of reconstruction.</dt>
+<dd>Typically the name will have the type of structure the
+reconstruction is for, the Miller index, and Wood’s notation
+along with anything to describe the reconstruction: e.g.:
+“fcc_110_missing_row_1x2”</dd>
+<dt>”description” (str): A longer description of your reconstruction.</dt>
+<dd>This is to help future contributors who want to add other
+types of reconstructions to the archive on pymatgen to check
+if the reconstruction already exists. Please read the
+descriptions carefully before adding a new type of
+reconstruction to ensure it is not in the archive yet.</dd>
+<dt>”reference” (str): Optional reference to where the reconstruction</dt>
+<dd>was taken from or first observed.</dd>
+<dt>”spacegroup” (dict): e.g. {“symbol”: “Fm-3m”, “number”: 225}</dt>
+<dd>Indicates what kind of structure is this reconstruction.</dd>
+</dl>
+<p>”miller_index” ([h,k,l]): Miller index of your reconstruction
+“Woods_notation” (str): For a reconstruction, the a and b lattice</p>
+<blockquote>
+<div>may change to accomodate the symmetry of the reconstruction.
+This notation indicates the change in the vectors relative to
+the primitive (p) or conventional (c) slab cell. E.g. p(2x1):<dl class="docutils">
+<dt>Wood, E. A. (1964). Vocabulary of surface crystallography.</dt>
+<dd>Journal of Applied Physics, 35(4), 1306–1312.</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>”transformation_matrix” (numpy array): A 3x3 matrix to transform</dt>
+<dd>the slab. Only the a and b lattice vectors should change while
+the c vector remains the same.</dd>
+<dt>”SlabGenerator_parameters” (dict): A dictionary containing the</dt>
+<dd>parameters for the SlabGenerator class excluding the
+miller_index, min_slab_size and min_vac_size as the Miller
+index is already specified and the min_slab_size and
+min_vac_size can be changed regardless of what type of
+reconstruction is used. Having a consistent set of
+SlabGenerator parameters allows for the instructions to be
+reused to consistently build a reconstructed slab.</dd>
+<dt>”points_to_remove” (list of coords): A list of sites to remove</dt>
+<dd>where the first two indices are fraction (in a an b) and
+the third index is in units of 1/d (in c).</dd>
+<dt>”points_to_add” (list of frac_coords): A list of sites to add</dt>
+<dd>where the first two indices are fraction (in a an b) and
+the third index is in units of 1/d (in c).</dd>
+<dt>”base_reconstruction” (dict): Option to base a reconstruction on</dt>
+<dd>an existing reconstruction model also exists to easily build
+the instructions without repeating previous work. E.g. the
+alpha reconstruction of halites is based on the octopolar
+reconstruction but with the topmost atom removed. The dictionary
+for the alpha reconstruction would therefore contain the item
+“reconstruction_base”: “halite_111_octopolar_2x2”, and
+additional sites for “points_to_remove” and “points_to_add”
+can be added to modify this reconstruction.</dd>
+<dt>For “points_to_remove” and “points_to_add”, the third index for</dt>
+<dd>the c vector is in units of 1/d where d is the spacing
+between atoms along hkl (the c vector) and is relative to
+the topmost site in the unreconstructed slab. e.g. a point
+of [0.5, 0.25, 1] corresponds to the 0.5 frac_coord of a,
+0.25 frac_coord of b and a distance of 1 atomic layer above
+the topmost site. [0.5, 0.25, -0.5] where the third index
+corresponds to a point half a atomic layer below the topmost
+site. [0.5, 0.25, 0] corresponds to a point in the same
+position along c as the topmost site. This is done because
+while the primitive units of a and b will remain constant,
+the user can vary the length of the c direction by changing
+the slab layer or the vacuum layer.</dd>
+</dl>
+</div></blockquote>
+</li>
+<li><strong>NOTE</strong> – THE DICTIONARY SHOULD ONLY CONTAIN “points_to_remove” AND</li>
+<li><strong>FOR THE TOP SURFACE. THE ReconstructionGenerator</strong> (<em>&quot;points_to_add&quot;</em>) – </li>
+<li><strong>MODIFY THE BOTTOM SURFACE TO RETURN A SLAB WITH EQUIVALENT SURFACES.</strong> (<em>WILL</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.core.surface.ReconstructionGenerator.build_slab">
+<code class="descname">build_slab</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.build_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.build_slab" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Builds the reconstructed slab by:</dt>
+<dd><ol class="first last arabic simple">
+<li>Obtaining the unreconstructed slab using the specified
+parameters for the SlabGenerator.</li>
+<li>Applying the appropriate lattice transformation in the
+a and b lattice vectors.</li>
+<li>Remove any specified sites from both surfaces.</li>
+<li>Add any specified sites to both surfaces.</li>
+</ol>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The reconstructed slab.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.surface.ReconstructionGenerator.get_d">
+<code class="descname">get_d</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.get_d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.get_d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the distance of space between
+each layer of atoms along c</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.surface.ReconstructionGenerator.get_unreconstructed_slab">
+<code class="descname">get_unreconstructed_slab</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.get_unreconstructed_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.get_unreconstructed_slab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the unreconstructed or pristine super slab.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.surface.ReconstructionGenerator.symmetrically_add_atom">
+<code class="descname">symmetrically_add_atom</code><span class="sig-paren">(</span><em>slab</em>, <em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.symmetrically_add_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.symmetrically_add_atom" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Class method for adding a site at a specified point in a slab.</dt>
+<dd>Will add the corresponding site on the other side of the
+slab to maintain equivalent surfaces.</dd>
+<dt>Arg:</dt>
+<dd><p class="first">slab (Slab): The slab to modify
+point (frac coord): The fractional coordinate of the site</p>
+<blockquote class="last">
+<div>in the slab to add.</div></blockquote>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The modified slab</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.surface.ReconstructionGenerator.symmetrically_remove_atom">
+<code class="descname">symmetrically_remove_atom</code><span class="sig-paren">(</span><em>slab</em>, <em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.symmetrically_remove_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.symmetrically_remove_atom" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Class method for removing a site at a specified point in a slab.</dt>
+<dd>Will remove the corresponding site on the other side of the
+slab to maintain equivalent surfaces.</dd>
+<dt>Arg:</dt>
+<dd><p class="first">slab (Slab): The slab to modify
+point (frac coord): The fractional coordinate of the site</p>
+<blockquote class="last">
+<div>in the slab to remove.</div></blockquote>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The modified slab</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.core.surface.Slab">
-<em class="property">class </em><code class="descname">Slab</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>miller_index</em>, <em>oriented_unit_cell</em>, <em>shift</em>, <em>scale_factor</em>, <em>reorient_lattice=True</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em>, <em>energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Slab</code><span class="sig-paren">(</span><em>lattice</em>, <em>species</em>, <em>coords</em>, <em>miller_index</em>, <em>oriented_unit_cell</em>, <em>shift</em>, <em>scale_factor</em>, <em>reorient_lattice=True</em>, <em>validate_proximity=False</em>, <em>to_unit_cell=False</em>, <em>reconstruction=None</em>, <em>coords_are_cartesian=False</em>, <em>site_properties=None</em>, <em>energy=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.structure.Structure</span></code></a></p>
 <p>Subclass of Structure representing a Slab. Implements additional
 attributes pertaining to slabs, but the init method does not
@@ -127,6 +346,8 @@ that brings the parent cell to the surface cell.</li>
 the c direction is the third vector of the lattice matrix</li>
 <li><strong>validate_proximity</strong> (<em>bool</em>) – Whether to check if there are sites
 that are less than 0.01 Ang apart. Defaults to False.</li>
+<li><strong>reconstruction</strong> (<em>str</em>) – Type of reconstruction. Defaultst to None if
+the slab is not reconstructed.</li>
 <li><strong>coords_are_cartesian</strong> (<em>bool</em>) – Set to True if you are providing
 coordinates in cartesian coordinates. Defaults to False.</li>
 <li><strong>site_properties</strong> (<em>dict</em>) – Properties associated with the sites as a
@@ -259,10 +480,10 @@ as if each comparison were reversed.</li>
 <code class="descname">get_surface_sites</code><span class="sig-paren">(</span><em>tag=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_surface_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_surface_sites" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the surface sites and their indices in a dictionary. The
 oriented unit cell of the slab will determine the coordination number
-of a typical site. We use VoronoiCoordFinder to determine the
+of a typical site. We use VoronoiNN to determine the
 coordination number of bulk sites and slab sites. Due to the
 pathological error resulting from some surface sites in the
-VoronoiCoordFinder, we assume any site that has this error is a surface
+VoronoiNN, we assume any site that has this error is a surface
 site as well. This will work for elemental systems only for now. Useful
 for analysis involving broken bonds and for finding adsorption sites.</p>
 <blockquote>
@@ -281,6 +502,34 @@ for analysis involving broken bonds and for finding adsorption sites.</p>
 </dd>
 </dl>
 </div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.surface.Slab.get_symmetric_site">
+<code class="descname">get_symmetric_site</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.get_symmetric_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.get_symmetric_site" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>This method uses symmetry operations to find equivalent sites on</dt>
+<dd>both sides of the slab. Works mainly for slabs with Laue
+symmetry. This is useful for retaining the non-polar and
+symmetric properties of a slab when creating adsorbed
+structures or symmetric reconstructions.</dd>
+<dt>Arg:</dt>
+<dd>point: Fractional coordinate.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>Fractional coordinate. A point equivalent to the</dt>
+<dd>parameter point, but on the other side of the slab</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">point</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -370,7 +619,7 @@ slabs with larger surface areas.</td>
 
 <dl class="class">
 <dt id="pymatgen.core.surface.SlabGenerator">
-<em class="property">class </em><code class="descname">SlabGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>reorient_lattice=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SlabGenerator</code><span class="sig-paren">(</span><em>initial_structure</em>, <em>miller_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>in_unit_planes=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>reorient_lattice=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This class generates different slabs using shift values determined by where
 a unique termination can be found along with other criterias such as where a
@@ -443,12 +692,21 @@ unit cell structure.</li>
 surface. Note that this is referenced to the input structure. If
 you need this to be based on the conventional cell,
 you should supply the conventional structure.</li>
-<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms</li>
-<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms</li>
+<li><strong>min_slab_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</li>
+<li><strong>min_vacuum_size</strong> (<em>float</em>) – In Angstroms or number of hkl planes</li>
 <li><strong>lll_reduce</strong> (<em>bool</em>) – Whether to perform an LLL reduction on the
 eventual structure.</li>
 <li><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
 equal vacuum spacing from the top and bottom.</li>
+<li><strong>in_unit_planes</strong> (<em>bool</em>) – Whether to set min_slab_size and min_vac_size in
+units of hkl planes (True) or Angstrom (False/default). Setting in
+units of planes is useful for ensuring some slabs have a certain
+nlayer of atoms. e.g. for Cs (100), a 10 Ang slab will result in a
+slab with only 2 layer of atoms, whereas Fe (100) will have more layer
+of atoms. By using units of hkl planes instead, we ensure both slabs
+have the same number of atoms. The slab thickness will be in
+min_slab_size/math.ceil(self._proj_height/dhkl)
+multiples of oriented unit cells.</li>
 <li><strong>primitive</strong> (<em>bool</em>) – Whether to reduce any generated slabs to a
 primitive cell (this does <strong>not</strong> mean the slab is generated
 from a primitive cell, it simply means that after slab
@@ -566,7 +824,7 @@ index_of_sites (list of ints): The list of indices representing</p>
 
 <dl class="method">
 <dt id="pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab">
-<code class="descname">nonstoichiometric_symmetrized_slab</code><span class="sig-paren">(</span><em>slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.nonstoichiometric_symmetrized_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition">¶</a></dt>
+<code class="descname">nonstoichiometric_symmetrized_slab</code><span class="sig-paren">(</span><em>init_slab</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#SlabGenerator.nonstoichiometric_symmetrized_slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.SlabGenerator.nonstoichiometric_symmetrized_slab" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method checks whether or not the two surfaces of the slab are
 equivalent. If the point group of the slab has an inversion symmetry (
 ie. belong to one of the Laue groups), then it is assumed that the
@@ -576,7 +834,7 @@ can destroy the stoichiometry of the slab. For non-elemental
 structures, the chemical potential will be needed to calculate surface energy.</p>
 <dl class="docutils">
 <dt>Arg:</dt>
-<dd>slab (Structure): A single slab structure
+<dd>init_slab (Structure): A single slab structure
 tol (float): Tolerance for SpaceGroupanalyzer.</dd>
 </dl>
 <table class="docutils field-list" frame="void" rules="none">
@@ -623,7 +881,7 @@ defined as {(“P”, “O”): 3}.</div></blockquote>
 
 <dl class="function">
 <dt id="pymatgen.core.surface.generate_all_slabs">
-<code class="descname">generate_all_slabs</code><span class="sig-paren">(</span><em>structure</em>, <em>max_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>bonds=None</em>, <em>tol=0.001</em>, <em>max_broken_bonds=0</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>symmetrize=False</em>, <em>repair=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#generate_all_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_all_slabs</code><span class="sig-paren">(</span><em>structure</em>, <em>max_index</em>, <em>min_slab_size</em>, <em>min_vacuum_size</em>, <em>bonds=None</em>, <em>tol=0.001</em>, <em>max_broken_bonds=0</em>, <em>lll_reduce=False</em>, <em>center_slab=False</em>, <em>primitive=True</em>, <em>max_normal_search=None</em>, <em>symmetrize=False</em>, <em>repair=False</em>, <em>include_reconstructions=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#generate_all_slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.generate_all_slabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function that finds all different slabs up to a certain miller index.
 Slabs oriented under certain Miller indices that are equivalent to other
 slabs in other Miller indices are filtered out using symmetry operations
@@ -677,6 +935,8 @@ usually sufficient.</li>
 slabs are equivalent.</li>
 <li><strong>repair</strong> (<em>bool</em>) – Whether to repair terminations with broken bonds
 or just omit them</li>
+<li><strong>include_reconstructions</strong> (<em>bool</em>) – Whether to include reconstructed
+slabs available in the reconstructions_archive.json file.</li>
 </ul>
 </td>
 </tr>
@@ -757,13 +1017,13 @@ structure. All other indices are equivalent to one of these.</div></blockquote>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

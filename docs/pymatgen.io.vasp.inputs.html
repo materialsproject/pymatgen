@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -1034,12 +1034,12 @@ potcar.encut, etc.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.functional_dir">
-<code class="descname">functional_dir</code><em class="property"> = {'PBE': 'POT_GGA_PAW_PBE', 'PBE_52': 'POT_GGA_PAW_PBE_52', 'PBE_54': 'POT_GGA_PAW_PBE_54', 'LDA': 'POT_LDA_PAW', 'LDA_52': 'POT_LDA_PAW_52', 'LDA_54': 'POT_LDA_PAW_54', 'PW91': 'POT_GGA_PAW_PW91', 'LDA_US': 'POT_LDA_US', 'PW91_US': 'POT_GGA_US_PW91'}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_dir" title="Permalink to this definition">¶</a></dt>
+<code class="descname">functional_dir</code><em class="property"> = {'LDA': 'POT_LDA_PAW', 'LDA_52': 'POT_LDA_PAW_52', 'LDA_54': 'POT_LDA_PAW_54', 'LDA_US': 'POT_LDA_US', 'PBE': 'POT_GGA_PAW_PBE', 'PBE_52': 'POT_GGA_PAW_PBE_52', 'PBE_54': 'POT_GGA_PAW_PBE_54', 'PW91': 'POT_GGA_PAW_PW91', 'PW91_US': 'POT_GGA_US_PW91'}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_dir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.functional_tags">
-<code class="descname">functional_tags</code><em class="property"> = {'pe': {'name': 'PBE', 'class': 'GGA'}, '91': {'name': 'PW91', 'class': 'GGA'}, 'rp': {'name': 'revPBE', 'class': 'GGA'}, 'am': {'name': 'AM05', 'class': 'GGA'}, 'ps': {'name': 'PBEsol', 'class': 'GGA'}, 'pw': {'name': 'PW86', 'class': 'GGA'}, 'lm': {'name': 'Langreth-Mehl-Hu', 'class': 'GGA'}, 'pb': {'name': 'Perdew-Becke', 'class': 'GGA'}, 'ca': {'name': 'Perdew-Zunger81', 'class': 'LDA'}, 'hl': {'name': 'Hedin-Lundquist', 'class': 'LDA'}, 'wi': {'name': 'Wigner Interpoloation', 'class': 'LDA'}}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descname">functional_tags</code><em class="property"> = {'91': {'name': 'PW91', 'class': 'GGA'}, 'am': {'name': 'AM05', 'class': 'GGA'}, 'ca': {'name': 'Perdew-Zunger81', 'class': 'LDA'}, 'hl': {'name': 'Hedin-Lundquist', 'class': 'LDA'}, 'lm': {'name': 'Langreth-Mehl-Hu', 'class': 'GGA'}, 'pb': {'name': 'Perdew-Becke', 'class': 'GGA'}, 'pe': {'name': 'PBE', 'class': 'GGA'}, 'ps': {'name': 'PBEsol', 'class': 'GGA'}, 'pw': {'name': 'PW86', 'class': 'GGA'}, 'rp': {'name': 'revPBE', 'class': 'GGA'}, 'wi': {'name': 'Wigner Interpoloation', 'class': 'LDA'}}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1054,7 +1054,7 @@ potcar.encut, etc.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.parse_functions">
-<code class="descname">parse_functions</code><em class="property"> = {'LULTRA': &lt;function parse_bool&gt;, 'LUNSCR': &lt;function parse_bool&gt;, 'LCOR': &lt;function parse_bool&gt;, 'LPAW': &lt;function parse_bool&gt;, 'EATOM': &lt;function parse_float&gt;, 'RPACOR': &lt;function parse_float&gt;, 'POMASS': &lt;function parse_float&gt;, 'ZVAL': &lt;function parse_float&gt;, 'RCORE': &lt;function parse_float&gt;, 'RWIGS': &lt;function parse_float&gt;, 'ENMAX': &lt;function parse_float&gt;, 'ENMIN': &lt;function parse_float&gt;, 'EMMIN': &lt;function parse_float&gt;, 'EAUG': &lt;function parse_float&gt;, 'DEXC': &lt;function parse_float&gt;, 'RMAX': &lt;function parse_float&gt;, 'RAUG': &lt;function parse_float&gt;, 'RDEP': &lt;function parse_float&gt;, 'RDEPT': &lt;function parse_float&gt;, 'QCUT': &lt;function parse_float&gt;, 'QGAM': &lt;function parse_float&gt;, 'RCLOC': &lt;function parse_float&gt;, 'IUNSCR': &lt;function parse_int&gt;, 'ICORE': &lt;function parse_int&gt;, 'NDATA': &lt;function parse_int&gt;, 'VRHFIN': &lt;function parse_string&gt;, 'LEXCH': &lt;function parse_string&gt;, 'TITEL': &lt;function parse_string&gt;, 'STEP': &lt;function parse_list&gt;, 'RRKJ': &lt;function parse_list&gt;, 'GGA': &lt;function parse_list&gt;}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">parse_functions</code><em class="property"> = {'DEXC': &lt;function parse_float at 0x10e26d2f0&gt;, 'EATOM': &lt;function parse_float at 0x10e26d2f0&gt;, 'EAUG': &lt;function parse_float at 0x10e26d2f0&gt;, 'EMMIN': &lt;function parse_float at 0x10e26d2f0&gt;, 'ENMAX': &lt;function parse_float at 0x10e26d2f0&gt;, 'ENMIN': &lt;function parse_float at 0x10e26d2f0&gt;, 'GGA': &lt;function parse_list at 0x10e26d400&gt;, 'ICORE': &lt;function parse_int at 0x10e26d378&gt;, 'IUNSCR': &lt;function parse_int at 0x10e26d378&gt;, 'LCOR': &lt;function parse_bool at 0x10e26d268&gt;, 'LEXCH': &lt;function parse_string at 0x10e26b1e0&gt;, 'LPAW': &lt;function parse_bool at 0x10e26d268&gt;, 'LULTRA': &lt;function parse_bool at 0x10e26d268&gt;, 'LUNSCR': &lt;function parse_bool at 0x10e26d268&gt;, 'NDATA': &lt;function parse_int at 0x10e26d378&gt;, 'POMASS': &lt;function parse_float at 0x10e26d2f0&gt;, 'QCUT': &lt;function parse_float at 0x10e26d2f0&gt;, 'QGAM': &lt;function parse_float at 0x10e26d2f0&gt;, 'RAUG': &lt;function parse_float at 0x10e26d2f0&gt;, 'RCLOC': &lt;function parse_float at 0x10e26d2f0&gt;, 'RCORE': &lt;function parse_float at 0x10e26d2f0&gt;, 'RDEP': &lt;function parse_float at 0x10e26d2f0&gt;, 'RDEPT': &lt;function parse_float at 0x10e26d2f0&gt;, 'RMAX': &lt;function parse_float at 0x10e26d2f0&gt;, 'RPACOR': &lt;function parse_float at 0x10e26d2f0&gt;, 'RRKJ': &lt;function parse_list at 0x10e26d400&gt;, 'RWIGS': &lt;function parse_float at 0x10e26d2f0&gt;, 'STEP': &lt;function parse_list at 0x10e26d400&gt;, 'TITEL': &lt;function parse_string at 0x10e26b1e0&gt;, 'VRHFIN': &lt;function parse_string at 0x10e26b1e0&gt;, 'ZVAL': &lt;function parse_float at 0x10e26d2f0&gt;}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1214,13 +1214,13 @@ present. Defaults to True.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

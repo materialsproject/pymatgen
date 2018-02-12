@@ -18,9 +18,15 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 class EwaldSummationTest(unittest.TestCase):
 
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        p = Poscar.from_file(filepath)
+        p = Poscar.from_file(filepath, check_for_POTCAR=False)
         original_s = p.structure
         s = original_s.copy()
         s.add_oxidation_state_by_element({"Li": 1, "Fe": 2,
@@ -30,9 +36,7 @@ class EwaldSummationTest(unittest.TestCase):
         self.assertAlmostEqual(ham.real_space_energy, -502.23549897772602, 4)
         self.assertAlmostEqual(ham.reciprocal_space_energy,  6.1541071599534654, 4)
         self.assertAlmostEqual(ham.point_energy, -620.22598358035918, 4)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            self.assertAlmostEqual(ham.total_energy, -1116.30737539811, 2)
+        self.assertAlmostEqual(ham.total_energy, -1123.00766, 1)
         self.assertAlmostEqual(ham.forces[0, 0], -1.98818620e-01, 4)
         self.assertAlmostEqual(sum(sum(abs(ham.forces))), 915.925354346, 4,
                                "Forces incorrect")
@@ -42,9 +46,8 @@ class EwaldSummationTest(unittest.TestCase):
                                ham.reciprocal_space_energy, 4)
         self.assertAlmostEqual(sum(ham.point_energy_matrix), ham.point_energy,
                                4)
-        self.assertAlmostEqual(sum(sum(ham.total_energy_matrix)),
+        self.assertAlmostEqual(sum(sum(ham.total_energy_matrix)) + ham._charged_cell_energy,
                                ham.total_energy, 2)
-        # note that forces are not individually tested, but should work fine.
 
         self.assertRaises(ValueError, EwaldSummation, original_s)
         # try sites with charge.
@@ -65,6 +68,11 @@ class EwaldSummationTest(unittest.TestCase):
 
 
 class EwaldMinimizerTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
         matrix = np.array([[-3., 3., 4., -0., 3., 3., 1., 14., 9., -4.],
@@ -89,6 +97,20 @@ class EwaldMinimizerTest(unittest.TestCase):
         self.assertEqual(len(e_min.best_m_list), 6,
                          "Returned wrong number of permutations")
 
+    def test_site(self):
+        """Test that uses an uncharged structure"""
+        filepath = os.path.join(test_dir, 'POSCAR')
+        p = Poscar.from_file(filepath, check_for_POTCAR=False)
+        original_s = p.structure
+        s = original_s.copy()
+        s.add_oxidation_state_by_element({"Li": 1, "Fe": 3,
+                                          "P": 5, "O": -2})
+
+        # Comparison to LAMMPS result
+        ham = EwaldSummation(s, compute_forces=True)
+        self.assertAlmostEquals(-1226.3335, ham.total_energy, 3)
+        self.assertAlmostEquals(-45.8338, ham.get_site_energy(0), 3)
+        self.assertAlmostEquals(-27.2978, ham.get_site_energy(8), 3)
 
 if __name__ == "__main__":
     unittest.main()

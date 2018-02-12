@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.phonon.bandstructure module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.phonon.bandstructure module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -230,6 +230,19 @@ provide projections to the band structure</li>
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite">
+<code class="descname">as_phononwebsite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.as_phononwebsite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.as_phononwebsite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary with the phononwebsite format:
+<a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder">
+<code class="descname">band_reorder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.band_reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.band_reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-order the eigenvalues according to the similarity of the eigenvectors</p>
+</dd></dl>
+
 <dl class="classmethod">
 <dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict">
 <em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
@@ -274,6 +287,32 @@ same frac coords) to the given one.</p>
 (in case there was a mislabel)</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite">
+<code class="descname">write_phononwebsite</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#PhononBandStructureSymmLine.write_phononwebsite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine.write_phononwebsite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a json file for the phononwebsite:
+<a class="reference external" href="http://henriquemiranda.github.io/phononwebsite">http://henriquemiranda.github.io/phononwebsite</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phonon.bandstructure.eigenvectors_from_displacements">
+<code class="descname">eigenvectors_from_displacements</code><span class="sig-paren">(</span><em>disp</em>, <em>masses</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#eigenvectors_from_displacements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.eigenvectors_from_displacements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the eigenvectors from the atomic displacements</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phonon.bandstructure.estimate_band_connection">
+<code class="descname">estimate_band_connection</code><span class="sig-paren">(</span><em>prev_eigvecs</em>, <em>eigvecs</em>, <em>prev_band_order</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#estimate_band_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.estimate_band_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to order the phonon eigenvectors taken from phonopy</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phonon.bandstructure.get_reasonable_repetitions">
+<code class="descname">get_reasonable_repetitions</code><span class="sig-paren">(</span><em>natoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/bandstructure.html#get_reasonable_repetitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.bandstructure.get_reasonable_repetitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose the number of repetitions
+according to the number of atoms in the system</p>
 </dd></dl>
 
 </div>
@@ -314,13 +353,13 @@ same frac coords) to the given one.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

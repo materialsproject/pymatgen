@@ -12,9 +12,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import symmetry_measure
-# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
-# from pymatgen.core.structure import Structure
 
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
@@ -49,9 +46,9 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                          '\nAbstract Geometry with 3 points :\n'
                          '  [-1.    0.   -0.25]\n'
                          '  [ 1.    0.   -0.25]\n'
-                         '  [ 0.    0.    0.75]\n'
+                         '  [0.   0.   0.75]\n'
                          'Points are referenced to the centroid (calculated with the central site) :\n'
-                         '  [ 0.    0.    0.25]\n')
+                         '  [0.   0.   0.25]\n')
 
         symm_dict = symmetry_measure([[0.0, 0.0, 0.0]], [1.1, 2.2, 3.3])
         self.assertAlmostEqual(symm_dict['symmetry_measure'], 0.0)
@@ -64,7 +61,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
         self.assertAlmostEqual(envs[0][0]['csm'], 1.5309987846957258)
         self.assertAlmostEqual(envs[0][0]['ce_fraction'], 1.0)
         self.assertEqual(envs[0][0]['ce_symbol'], 'O:6')
-        self.assertEqual(envs[0][0]['permutation'], [0, 4, 1, 5, 2, 3])
+        self.assertEqual(sorted(envs[0][0]['permutation']), sorted([0, 4, 1, 5, 2, 3]))
 
         self.lgf.setup_random_structure(coordination=5)
         self.assertEqual(len(self.lgf.structure), 6)
@@ -178,6 +175,38 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                                                              )
                 self.assertAlmostEqual(se.get_csm(0, mp_symbol)['symmetry_measure'], 0.0, delta=1e-8,
                                        msg='Failed to get perfect environment with mp_symbol {}'.format(mp_symbol))
+
+    def test_disable_hints(self):
+        allcg = AllCoordinationGeometries()
+        mp_symbol = 'SH:13'
+        mp_symbols = ['SH:13', 'HP:12']
+        cg = allcg.get_geometry_from_mp_symbol(mp_symbol=mp_symbol)
+        mypoints = cg.points
+        mypoints[-1] = [0.9*cc for cc in mypoints[-1]]
+        self.lgf.allcg = AllCoordinationGeometries(only_symbols=[mp_symbol])
+        self.lgf.setup_test_perfect_environment(mp_symbol, randomness=False,
+                                                indices=[4, 11, 5, 12, 1, 2, 8, 3, 0, 6, 9, 7, 10],
+                                                random_translation='NONE', random_rotation='NONE',
+                                                random_scale='NONE', points=mypoints)
+        se_nohints = self.lgf.compute_structure_environments(only_indices=[0],
+                                                             maximum_distance_factor=1.02 * cg.distfactor_max,
+                                                             min_cn=12,
+                                                             max_cn=13,
+                                                             only_symbols=mp_symbols,
+                                                             get_from_hints=False
+                                                             )
+        se_hints = self.lgf.compute_structure_environments(only_indices=[0],
+                                                           maximum_distance_factor=1.02 * cg.distfactor_max,
+                                                           min_cn=12,
+                                                           max_cn=13,
+                                                           only_symbols=mp_symbols,
+                                                           get_from_hints=True
+                                                           )
+        with self.assertRaises(KeyError):
+            abc = se_nohints.ce_list[0][12]
+            abc.minimum_geometries()
+        self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
+        self.assertDictContainsSubset(se_nohints.ce_list[0], se_hints.ce_list[0])
 
 
 if __name__ == "__main__":

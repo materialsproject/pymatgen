@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.electronic_structure.boltztrap &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,11 +59,12 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
@@ -196,8 +197,9 @@
 <span class="sd">            cb_cut: by default 10% of the highest conduction bands are </span>
 <span class="sd">                removed because they are often not accurate. </span>
 <span class="sd">                Tune cb_cut to change the percentage (0-100) of bands </span>
-<span class="sd">                that are removed.                </span>
-
+<span class="sd">                that are removed.</span>
+<span class="sd">            timeout: overall time limit (in seconds): mainly to avoid infinite</span>
+<span class="sd">                loop when trying to find Fermi levels.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s1">&#39;x_trans&#39;</span><span class="p">),</span>
@@ -210,7 +212,7 @@
                  <span class="n">lpfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">run_type</span><span class="o">=</span><span class="s2">&quot;BOLTZ&quot;</span><span class="p">,</span> <span class="n">band_nb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tauref</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tauexp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">tauen</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">soc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_span_around_fermi</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
                  <span class="n">scissor</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">kpt_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cond_band</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">tmax</span><span class="o">=</span><span class="mi">1300</span><span class="p">,</span> <span class="n">tgrid</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">cb_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+                 <span class="n">tmax</span><span class="o">=</span><span class="mi">1300</span><span class="p">,</span> <span class="n">tgrid</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">cb_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">7200</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">=</span> <span class="n">lpfac</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span> <span class="o">=</span> <span class="n">bs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nelec</span> <span class="o">=</span> <span class="n">nelec</span>
@@ -241,6 +243,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span> <span class="o">=</span> <span class="n">symprec</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;DOS&quot;</span><span class="p">,</span> <span class="s2">&quot;BANDS&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_auto_set_energy_range</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_auto_set_energy_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -655,10 +659,16 @@
 
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_grid</span> <span class="o">&gt;=</span> <span class="n">min_egrid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">=</span> <span class="n">lpfac_start</span>
+                <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s2">&quot;no doping convergence after timeout &quot;</span>
+                                         <span class="s2">&quot;of </span><span class="si">{}</span><span class="s2"> s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">))</span>
 
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;lpfac, energy_grid: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_grid</span><span class="p">))</span>
 
                 <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">&lt;=</span> <span class="n">max_lpfac</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s2">&quot;no doping convergence after &quot;</span>
+                                        <span class="s2">&quot;timeout of </span><span class="si">{}</span><span class="s2"> s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">))</span>
 
                     <span class="k">if</span> <span class="n">write_input</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="n">path_dir</span><span class="p">)</span>
@@ -2433,7 +2443,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.9.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2441,7 +2451,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

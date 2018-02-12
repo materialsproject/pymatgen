@@ -6,11 +6,13 @@ from __future__ import unicode_literals, division, print_function
 
 import os.path
 import warnings
+import numpy as np
 
 from collections import OrderedDict
 from monty.dev import requires
 from monty.collections import AttrDict
 from monty.functools import lazy_property
+from monty.string import marquee
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.core.structure import Structure
@@ -261,7 +263,8 @@ class ETSF_Reader(NetcdfReader):
         charr = self.read_value("chemical_symbols")
         symbols = []
         for v in charr:
-            symbols.append("".join(c.decode("utf-8") for c in v))
+            s = "".join(c.decode("utf-8") for c in v)
+            symbols.append(s.strip())
 
         return symbols
 
@@ -298,6 +301,16 @@ class ETSF_Reader(NetcdfReader):
                 d[hvar.name] = self.read_dimvalue(ncname)
             else:
                 raise ValueError("Cannot find `%s` in `%s`" % (ncname, self.path))
+            # Convert scalars to (well) scalars.
+            if hasattr(d[hvar.name], "shape") and not d[hvar.name].shape:
+                d[hvar.name] = np.asscalar(d[hvar.name])
+            if hvar.name in ("title", "md5_pseudos", "codvsn"):
+                # Convert array of numpy bytes to list of strings
+                if hvar.name == "codvsn":
+                    d[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in d[hvar.name])
+                else:
+                    d[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip()
+                            for astr in d[hvar.name]]
 
         return AbinitHeader(d)
 
@@ -439,3 +452,20 @@ class AbinitHeader(AttrDict):
     #    super(AbinitHeader, self).__init__(*args, **kwargs)
     #    for k, v in self.items():
     #        v.__doc__ = _HDR_VARIABLES[k].doc
+
+    def __str__(self):
+        return self.to_string()
+
+    def to_string(self, verbose=0, title=None, **kwargs):
+        """
+        String representation. kwargs are passed to `pprint.pformat`.
+
+        Args:
+            verbose: Verbosity level
+            title: Title string.
+        """
+        from pprint import pformat
+        s = pformat(self, **kwargs)
+        if title is not None:
+            return "\n".join([marquee(title, mark="="), s])
+        return s

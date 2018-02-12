@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.gaussian module &#8212; pymatgen 2017.9.23 documentation</title>
+    <title>pymatgen.io.gaussian module &#8212; pymatgen 2018.1.29 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.9.23',
+        VERSION:     '2018.1.29',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -151,12 +151,6 @@ be set to “Gen”.</li>
 <dd><p>Returns molecule associated with this GaussianInput.</p>
 </dd></dl>
 
-<dl class="staticmethod">
-<dt id="pymatgen.io.gaussian.GaussianInput.parse_coords">
-<em class="property">static </em><code class="descname">parse_coords</code><span class="sig-paren">(</span><em>coord_lines</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.parse_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.parse_coords" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper method to parse coordinates.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianInput.to_string">
 <code class="descname">to_string</code><span class="sig-paren">(</span><em>cart_coords=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.to_string" title="Permalink to this definition">¶</a></dt>
@@ -173,16 +167,6 @@ be set to “Gen”.</li>
 <dd><p>Write the input string into a file</p>
 <p>Option: see __str__ method</p>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.io.gaussian.GaussianInput.xyz_patt">
-<code class="descname">xyz_patt</code><em class="property"> = re.compile('^(\\w+)[\\s,]+([\\d\\.eE\\-]+)[\\s,]+([\\d\\.eE\\-]+)[\\s,]+([\\d\\.eE\\-]+)[\\-\\.\\s,\\w.]*$')</em><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.xyz_patt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.io.gaussian.GaussianInput.zmat_patt">
-<code class="descname">zmat_patt</code><em class="property"> = re.compile('^(\\w+)*([\\s,]+(\\w+)[\\s,]+(\\w+))*[\\-\\.\\s,\\w]*$')</em><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput.zmat_patt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -332,8 +316,8 @@ are “Zero-point”, “Thermal”, “Enthalpy” and “Gibbs Free Energy”<
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pymatgen.io.gaussian.GaussianOutput.spin_mult">
-<code class="descname">spin_mult</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.spin_mult" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.io.gaussian.GaussianOutput.spin_multiplicity">
+<code class="descname">spin_multiplicity</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.spin_multiplicity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Spin multiplicity for structure</p>
 </dd></dl>
 
@@ -387,8 +371,8 @@ for each atom and basis set label.</p>
 <dt id="pymatgen.io.gaussian.GaussianOutput.atom_basis_labels">
 <code class="descname">atom_basis_labels</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.atom_basis_labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Labels of AO for each atoms. These labels are those used in the output
-of molecular orbital coefficients (POP=Full) and in the molecular_orbital
-array dict.</p>
+of molecular orbital coefficients (POP=Full) and in the
+molecular_orbital array dict.</p>
 <p>atom_basis_labels[iatom] = [AO_k, AO_k, …]</p>
 </dd></dl>
 
@@ -397,6 +381,12 @@ array dict.</p>
 <code class="descname">resumes</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.resumes" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of gaussian data resume given at the end of the output file before
 the quotation. The resumes are given as string.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussian.GaussianOutput.title">
+<code class="descname">title</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Title of the gaussian run.</p>
 </dd></dl>
 
 <p>Methods:</p>
@@ -574,10 +564,10 @@ labelled by their name as defined in the calculation.</p>
 
 <dl class="method">
 <dt>
-<code class="descname">to_input</code><span class="sig-paren">(</span><em>filename</em>, <em>mol=None</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>title=None</em>, <em>functional=None</em>, <em>basis_set=None</em>, <em>route_parameters=None</em>, <em>input_parameters=None</em>, <em>link0_parameters=None</em>, <em>dieze_tag=None</em>, <em>cart_coords=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.to_input"><span class="viewcode-link">[source]</span></a></dt>
-<dd><p>Write a new input file using by default the last geometry read in the output
-file and with the same calculation parameters. Arguments are the same as
-GaussianInput class.</p>
+<code class="descname">to_input</code><span class="sig-paren">(</span><em>mol=None</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>title=None</em>, <em>functional=None</em>, <em>basis_set=None</em>, <em>route_parameters=None</em>, <em>input_parameters=None</em>, <em>link0_parameters=None</em>, <em>dieze_tag=None</em>, <em>cart_coords=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.to_input"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Create a new input object using by default the last geometry read in
+the output file and with the same calculation parameters. Arguments
+are the same as GaussianInput class.</p>
 <dl class="docutils">
 <dt>Returns</dt>
 <dd>gaunip (GaussianInput) : the gaussian input object</dd>
@@ -645,13 +635,13 @@ route (dict) : dictionary of parameters</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.9.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import json
 import glob
 import itertools
 import logging
@@ -43,7 +44,7 @@ Classes for reading/manipulating/writing VASP ouput files.
 """
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
+    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek, Mark Turiansky"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
@@ -385,6 +386,7 @@ class Vasprun(MSONable):
 
             if parse_potcar_file:
                 self.update_potcar_spec(parse_potcar_file)
+                self.update_charge_from_potcar(parse_potcar_file)
 
         if self.incar.get("ALGO", "") != "BSE" and (not self.converged):
             msg = "%s is an unconverged VASP run.\n" % filename
@@ -397,6 +399,7 @@ class Vasprun(MSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.dielectric_data = {}
         self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
@@ -443,11 +446,20 @@ class Vasprun(MSONable):
                         elem)
                 elif tag == "dielectricfunction":
                     if ("comment" not in elem.attrib) or \
-                       elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
-                        self.dielectric = self._parse_diel(elem)
+                        elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                        if not 'density' in self.dielectric_data:
+                            self.dielectric_data['density'] = self._parse_diel(elem)
+                            # "velocity-velocity" is also named "current-current"
+                            # in OUTCAR
+                        elif not 'velocity' in self.dielectric_data:    
+                            self.dielectric_data['velocity'] = self._parse_diel(elem)
+                        else:
+                            raise NotImplementedError('This vasprun.xml has >2 unlabelled dielectric functions')
                     else:
                         comment = elem.attrib["comment"]
                         self.other_dielectric[comment] = self._parse_diel(elem)
+                elif tag == "varray" and elem.attrib.get("name") == 'opticaltransitions':
+                    self.optical_transition = np.array(_parse_varray(elem))
                 elif tag == "structure" and elem.attrib.get("name") == \
                         "finalpos":
                     self.final_structure = self._parse_structure(elem)
@@ -498,6 +510,41 @@ class Vasprun(MSONable):
         Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.
         """
         return self.ionic_steps[-1].get("epsilon_ion", [])
+
+    @property
+    def dielectric(self):
+        return self.dielectric_data['density']
+
+    @property
+    def optical_absorption_coeff(self):
+        """
+        Calculate the optical absorption coefficient
+        from the dielectric constants. Note that this method is only
+        implemented for optical properties calculated with GGA and BSE.
+        Returns:
+        optical absorption coefficient in list
+        """
+        if self.dielectric_data["density"]:
+            real_avg = [sum(self.dielectric_data["density"][1][i][0:3]) / 3
+                        for i in range(len(self.dielectric_data["density"][0]))]
+            imag_avg = [sum(self.dielectric_data["density"][2][i][0:3]) / 3
+                        for i in range(len(self.dielectric_data["density"][0]))]
+
+            def f(freq, real, imag):
+                """
+                The optical absorption coefficient calculated in terms of
+                equation
+                """
+                hbar = 6.582119514e-16  # eV/K
+                coeff = np.sqrt(
+                    np.sqrt(real ** 2 + imag ** 2) - real) * \
+                        np.sqrt(2) / hbar * freq
+                return coeff
+
+            absorption_coeff = [f(freq, real, imag) for freq, real, imag in
+                                zip(self.dielectric_data["density"][0],
+                                    real_avg, imag_avg)]
+        return absorption_coeff
 
     @property
     def lattice(self):
@@ -818,7 +865,7 @@ class Vasprun(MSONable):
                         cbm_kpoint = k
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def update_potcar_spec(self, path):
+    def get_potcars(self, path):
         def get_potcar_in_path(p):
             for fn in os.listdir(os.path.abspath(p)):
                 if fn.startswith('POTCAR'):
@@ -842,11 +889,28 @@ class Vasprun(MSONable):
         else:
             potcar = None
 
+        return potcar
+
+    def update_potcar_spec(self, path):
+        potcar = self.get_potcars(path)
         if potcar:
             self.potcar_spec = [{"titel": sym, "hash": ps.get_potcar_hash()}
                                 for sym in self.potcar_symbols
                                 for ps in potcar if
                                 ps.symbol == sym.split()[1]]
+
+    def update_charge_from_potcar(self, path):
+        potcar = self.get_potcars(path)
+
+        if potcar and self.incar.get("ALGO", "") not in ["GW0", "G0W0", "GW", "BSE"]:
+            nelect = self.parameters["NELECT"]
+            potcar_nelect = int(round(sum([self.structures[0].composition.element_composition[
+                                ps.element] * ps.ZVAL for ps in potcar])))
+            charge = nelect - potcar_nelect
+
+            if charge:
+                for s in self.structures:
+                    s._charge = charge
 
     def as_dict(self):
         """
@@ -1006,15 +1070,24 @@ class Vasprun(MSONable):
         return struct
 
     def _parse_diel(self, elem):
-        imag = [[float(l) for l in r.text.split()]
+        imag = [[_vasprun_float(l) for l in r.text.split()]
                 for r in elem.find("imag").find("array")
                 .find("set").findall("r")]
-        real = [[float(l) for l in r.text.split()]
+        real = [[_vasprun_float(l) for l in r.text.split()]
                 for r in elem.find("real")
                 .find("array").find("set").findall("r")]
         elem.clear()
         return [e[0] for e in imag], \
                [e[1:] for e in real], [e[1:] for e in imag]
+
+    def _parse_optical_transition(self, elem):
+        for va in elem.findall("varray"):
+            if va.attrib.get("name") == "opticaltransitions":
+                # opticaltransitions array contains oscillator strength and probability of transition
+                oscillator_strength = np.array(_parse_varray(va))[0:,]
+                probability_transition = np.array(_parse_varray(va))[0:,1]
+        return oscillator_strength, probability_transition
+
 
     def _parse_chemical_shift_calculation(self, elem):
         calculation = []
@@ -1345,6 +1418,21 @@ class Outcar(MSONable):
     .. attribute:: elastic_tensor
         Total elastic moduli (Kbar) is given in a 6x6 array matrix.
 
+    .. attribute:: drift
+        Total drift for each step in eV/Atom
+
+    .. attribute:: ngf
+        Dimensions for the Augementation grid
+
+    .. attribute: sampling_radii
+        Size of the sampling radii in VASP for the test charges for 
+        the electrostatic potential at each atom. Total array size is the number
+        of elements present in the calculation
+
+    .. attribute: electrostatic_potential
+        Average electrostatic potential at each atomic position in order
+        of the atoms in POSCAR.
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
@@ -1492,9 +1580,12 @@ class Outcar(MSONable):
         self.data = {}
 
         # Read the drift:
-        self.read_pattern({"drift":"total drift:\s+(\S+)\s+(\S+)\s+(\S+)"},
-                          terminate_on_match=False,
-                          postprocess=float)
+        self.read_pattern({
+            "drift": r"total drift:\s+([\.\-\d]+)\s+([\.\-\d]+)\s+([\.\-\d]+)"},
+            terminate_on_match=False,
+            postprocess=float)
+        self.drift = self.data.get('drift',[])
+           
 
         # Check if calculation is spin polarized
         self.spin = False
@@ -1523,6 +1614,12 @@ class Outcar(MSONable):
             self.lcalcpol = True
             self.read_lcalcpol()
             self.read_pseudo_zval()
+
+        # Read electrostatic potential
+        self.read_pattern({
+            'electrostatic': r"average \(electrostatic\) potential at core"})
+        if self.data.get('electrostatic', []):
+            self.read_electrostatic_potential()
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -1616,6 +1713,30 @@ class Outcar(MSONable):
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
+
+    def read_electrostatic_potential(self):
+        """
+        Parses the eletrostatic potential for the last ionic step
+        """
+        pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
+        self.read_pattern(pattern, postprocess=int)
+        self.ngf = self.data.get("ngf",[[]])[0]
+
+        pattern = {"radii": r"the test charge radii are((?:\s+[\.\-\d]+)+)"}
+        self.read_pattern(pattern, reverse=True,terminate_on_match=True, postprocess=str)
+        self.sampling_radii = [float(f) for f in self.data["radii"][0][0].split()]
+
+        header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
+        table_pattern = r"((?:\s+\d+\s?[\.\-\d]+)+)"
+        footer_pattern = r"\s+E-fermi :"
+
+        pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
+        pots = "".join(itertools.chain.from_iterable(pots))
+
+        pots = re.findall(r"\s+\d+\s?([\.\-\d]+)+", pots)
+        pots = [float(f) for f in pots]
+
+        self.electrostatic_potential = pots
 
     def read_freq_dielectric(self):
         """
@@ -1747,21 +1868,24 @@ class Outcar(MSONable):
                          r"\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"
         row_pattern = r"\s+".join([r"([-]?\d+\.\d+)"]*3)
-        unsym_footer_pattern = "^\s+SYMMETRIZED TENSORS\s+$"
+        unsym_footer_pattern = r"^\s+SYMMETRIZED TENSORS\s+$"
 
         with zopen(self.filename, 'rt') as f:
             text = f.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + \
                                    r"(?P<table_body>.+)" + unsym_footer_pattern
-        table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
+        table_pattern = re.compile(unsym_table_pattern_text,
+                                   re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
         m = table_pattern.search(text)
         if m:
             table_text = m.group("table_body")
             micro_header_pattern = r"ion\s+\d+"
-            micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + \
+            micro_table_pattern_text = micro_header_pattern + \
+                                       r"\s*^(?P<table_body>(?:\s*" + \
                                        row_pattern + r")+)\s+"
-            micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
+            micro_table_pattern = re.compile(micro_table_pattern_text,
+                                             re.MULTILINE | re.DOTALL)
             unsym_tensors = []
             for mt in micro_table_pattern.finditer(table_text):
                 table_body_text = mt.group("table_body")
@@ -2372,7 +2496,10 @@ class Outcar(MSONable):
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
-             "nelect": self.nelect, "is_stopped": self.is_stopped}
+             "nelect": self.nelect, "is_stopped": self.is_stopped,
+             "drift": self.drift, "ngf": self.ngf, 
+             "sampling_radii": self.sampling_radii,
+             "electrostatic_potential": self.electrostatic_potential}
 
         if self.lepsilon:
             d.update({'piezo_tensor': self.piezo_tensor,
@@ -2621,8 +2748,10 @@ class VolumetricData(object):
                     read_dataset = True
                     dataset = np.zeros(dim)
                 else:
-                    # store any extra lines that were not part of the volumetric data
-                    key = len(all_dataset)-1  # so we know which set of data the extra lines are associated with
+                    # store any extra lines that were not part of the
+                    # volumetric data so we know which set of data the extra
+                    # lines are associated with
+                    key = len(all_dataset) - 1
                     if key not in all_dataset_aug:
                         all_dataset_aug[key] = []
                     all_dataset_aug[key].append(original_line)
@@ -2630,16 +2759,20 @@ class VolumetricData(object):
 
                 data = {"total": all_dataset[0], "diff_x": all_dataset[1],
                         "diff_y": all_dataset[2], "diff_z": all_dataset[3]}
-                data_aug = {"total": all_dataset_aug.get(0, None), "diff_x": all_dataset_aug.get(1, None),
-                            "diff_y": all_dataset_aug.get(2, None), "diff_z": all_dataset_aug.get(3, None)}
+                data_aug = {"total": all_dataset_aug.get(0, None),
+                            "diff_x": all_dataset_aug.get(1, None),
+                            "diff_y": all_dataset_aug.get(2, None),
+                            "diff_z": all_dataset_aug.get(3, None)}
 
                 # construct a "diff" dict for scalar-like magnetization density,
                 # referenced to an arbitrary direction (using same method as
                 # pymatgen.electronic_structure.core.Magmom, see
                 # Magmom documentation for justification for this)
-                # TODO: re-examine this, and also similar behavior in Magmom - @mkhorton
+                # TODO: re-examine this, and also similar behavior in
+                # Magmom - @mkhorton
                 # TODO: does CHGCAR change with different SAXIS?
-                diff_xyz = np.array([data["diff_x"], data["diff_y"], data["diff_z"]])
+                diff_xyz = np.array([data["diff_x"], data["diff_y"],
+                                     data["diff_z"]])
                 diff_xyz = diff_xyz.reshape((3, dim[0]*dim[1]*dim[2]))
                 ref_direction = np.array([1.01, 1.02, 1.03])
                 ref_sign = np.sign(np.dot(ref_direction, diff_xyz))
@@ -2648,7 +2781,8 @@ class VolumetricData(object):
 
             elif len(all_dataset) == 2:
                 data = {"total": all_dataset[0], "diff": all_dataset[1]}
-                data_aug = {"total": all_dataset_aug.get(0, None), "diff": all_dataset_aug.get(1, None)}
+                data_aug = {"total": all_dataset_aug.get(0, None),
+                            "diff": all_dataset_aug.get(1, None)}
             else:
                 data = {"total": all_dataset[0]}
                 data_aug = {"total": all_dataset_aug.get(0, None)}
@@ -2664,20 +2798,19 @@ class VolumetricData(object):
         """
 
         def _print_fortran_float(f):
-            '''
+            """
             Fortran codes print floats with a leading zero in scientific
             notation. When writing CHGCAR files, we adopt this convention
             to ensure written CHGCAR files are byte-to-byte identical to
             their input files as far as possible.
             :param f: float
             :return: str
-            '''
+            """
             s = "{:.10E}".format(f)
             if f > 0:
                 return "0."+s[0]+s[2:12]+'E'+"{:+03}".format(int(s[13:])+1)
             else:
                 return "-."+s[1]+s[3:13]+'E'+"{:+03}".format(int(s[14:])+1)
-
 
         with zopen(file_name, "wt") as f:
             p = Poscar(self.structure)
@@ -2705,7 +2838,8 @@ class VolumetricData(object):
                 lines = []
                 count = 0
                 f.write("   {}   {}   {}\n".format(a[0], a[1], a[2]))
-                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
+                for (k, j, i) in itertools.product(list(range(a[2])),
+                                                   list(range(a[1])),
                                                    list(range(a[0]))):
                     lines.append(_print_fortran_float(self.data[data_type][i, j, k]))
                     count += 1
@@ -2803,6 +2937,52 @@ class VolumetricData(object):
             total = np.sum(np.sum(m, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
+    def to_hdf5(self, filename):
+        """
+        Writes the VolumetricData to a HDF5 format, which is a highly optimized
+        format for reading storing large data. The mapping of the VolumetricData
+        to this file format is as follows:
+
+        VolumetricData.data -> f["vdata"]
+        VolumetricData.structure ->
+            f["Z"]: Sequence of atomic numbers
+            f["fcoords"]: Fractional coords
+            f["lattice"]: Lattice in the pymatgen.core.lattice.Lattice matrix
+                format
+            f.attrs["structure_json"]: String of json representation
+
+        Args:
+            filename (str): Filename to output to.
+        """
+        import h5py
+        with h5py.File(filename, "w") as f:
+            ds = f.create_dataset("lattice", (3, 3), dtype='float')
+            ds[...] = self.structure.lattice.matrix
+            ds = f.create_dataset("Z", (len(self.structure.species), ),
+                                  dtype="i")
+            ds[...] = np.array([sp.Z for sp in self.structure.species])
+            ds = f.create_dataset("fcoords", self.structure.frac_coords.shape,
+                                  dtype='float')
+            ds[...] = self.structure.frac_coords
+            dt = h5py.special_dtype(vlen=str)
+            ds = f.create_dataset("species", (len(self.structure.species), ),
+                                  dtype=dt)
+            ds[...] = [str(sp) for sp in self.structure.species]
+            grp = f.create_group("vdata")
+            for k, v in self.data.items():
+                ds = grp.create_dataset(k, self.data[k].shape, dtype='float')
+                ds[...] = self.data[k]
+            f.attrs["name"] = self.name
+            f.attrs["structure_json"] = json.dumps(self.structure.as_dict())
+
+    @classmethod
+    def from_hdf5(cls, filename):
+        import h5py
+        with h5py.File(filename, "r") as f:
+            data = {k: np.array(v) for k, v in f["vdata"].items()}
+            structure = Structure.from_dict(json.loads(f.attrs["structure_json"]))
+            return VolumetricData(structure, data)
+
 
 class Locpot(VolumetricData):
     """
@@ -2863,7 +3043,8 @@ class Procar(object):
         but all indices are converted to 0-based here.::
 
             {
-                spin: nd.array accessed with (k-point index, band index, ion index, orbital index)
+                spin: nd.array accessed with (k-point index, band index,
+                                              ion index, orbital index)
             }
 
     .. attribute:: weights
@@ -2875,7 +3056,8 @@ class Procar(object):
 
         Phase factors, where present (e.g. LORBIT = 12). A dict of the form:
         {
-            spin: complex nd.array accessed with (k-point index, band index, ion index, orbital index)
+            spin: complex nd.array accessed with (k-point index, band index,
+                                                  ion index, orbital index)
         }
 
     ..attribute:: nbands
@@ -3524,6 +3706,353 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
             if not bs_working.is_metal():
                 return e
     return efermi
+
+
+class Wavecar:
+    """
+    This is a class that contains the (pseudo-) wavefunctions from VASP.
+
+    Coefficients are read from the given WAVECAR file and the corresponding
+    G-vectors are generated using the algorithm developed in WaveTrans (see
+    acknowledgments below). To understand how the wavefunctions are evaluated,
+    please see the evaluate_wavefunc docstring.
+
+    It should be noted that the pseudopotential augmentation is not included in
+    the WAVECAR file. As a result, some caution should be exercised when
+    deriving value from this information.
+
+    The usefulness of this class is to allow the user to do projections or band
+    unfolding style manipulations of the wavefunction. An example of this can
+    be seen in the work of Shen et al. 2017
+    (https://doi.org/10.1103/PhysRevMaterials.1.065001).
+
+    .. attribute:: filename
+
+        String of the input file (usually WAVECAR)
+
+    .. attribute:: nk
+
+        Number of k-points from the WAVECAR
+
+    .. attribute:: nb
+
+        Number of bands per k-point
+
+    .. attribute:: encut
+
+        Energy cutoff (used to define G_{cut})
+
+    .. attribute:: efermi
+
+        Fermi energy
+
+    .. attribute:: a
+
+        Primitive lattice vectors of the cell (e.g. a_1 = self.a[0, :])
+
+    .. attribute:: b
+
+        Reciprocal lattice vectors of the cell (e.g. b_1 = self.b[0, :])
+
+    .. attribute:: vol
+
+        The volume of the unit cell in real space
+
+    .. attribute:: kpoints
+
+        The list of k-points read from the WAVECAR file
+
+    .. attribute:: band_energy
+
+        The list of band eigenenergies (and corresponding occupancies) for
+        each kpoint, where the first index corresponds to the index of the
+        k-point (e.g. self.band_energy[kp])
+
+    .. attribute:: Gpoints
+
+        The list of generated G-points for each k-point (a double list), which
+        are used with the coefficients for each k-point and band to recreate
+        the wavefunction (e.g. self.Gpoints[kp] is the list of G-points for
+        k-point kp). The G-points depend on the k-point and reciprocal lattice
+        and therefore are identical for each band at the same k-point. Each
+        G-point is represented by integer multipliers (e.g. assuming
+        Gpoints[kp][n] == [n_1, n_2, n_3], then
+        G_n = n_1*b_1 + n_2*b_2 + n_3*b_3)
+
+    .. attribute:: coeffs
+
+        The list of coefficients for each k-point and band for reconstructing
+        the wavefunction. The first index corresponds to the kpoint and the
+        second corresponds to the band (e.g. self.coeffs[kp][b] corresponds
+        to k-point kp and band b).
+
+    Acknowledgments:
+        This code is based upon the Fortran program, WaveTrans, written by
+        R. M. Feenstra and M. Widom from the Dept. of Physics at Carnegie
+        Mellon University. To see the original work, please visit:
+        https://www.andrew.cmu.edu/user/feenstra/wavetrans/
+
+    Author: Mark Turiansky
+    """
+
+    def __init__(self, filename='WAVECAR', verbose=False, precision='normal'):
+        """
+        Information is extracted from the given WAVECAR
+
+        Args:
+            filename (str): input file (default: WAVECAR)
+            verbose (bool): determines whether processing information is shown
+            precision (str): determines how fine the fft mesh is (normal or
+                             accurate), only the first letter matters
+        """
+        self.filename = filename
+
+        # c = 0.26246582250210965422
+        # 2m/hbar^2 in agreement with VASP
+        self._C = 0.262465831
+        with open(self.filename, 'rb') as f:
+            # read the header information
+            recl, spin, rtag = np.fromfile(f, dtype=np.float64, count=3) \
+                                 .astype(np.int)
+            if verbose:
+                print('recl={}, spin={}, rtag={}'.format(recl, spin, rtag))
+            recl8 = int(recl/8)
+
+            # check that ISPIN wasn't set to 2
+            if spin == 2:
+                raise ValueError('spin polarization not currently supported')
+
+            # check to make sure we have precision correct
+            if rtag != 45200 and rtag != 45210:
+                raise ValueError('invalid rtag of {}'.format(rtag))
+
+            # padding
+            np.fromfile(f, dtype=np.float64, count=(recl8-3))
+
+            # extract kpoint, bands, energy, and lattice information
+            self.nk, self.nb, self.encut = np.fromfile(f, dtype=np.float64,
+                                                       count=3).astype(np.int)
+            self.a = np.fromfile(f, dtype=np.float64, count=9).reshape((3, 3))
+            self.efermi = np.fromfile(f, dtype=np.float64, count=1)[0]
+            if verbose:
+                print('kpoints = {}, bands = {}, energy cutoff = {}, fermi '
+                      'energy= {:.04f}\n'.format(self.nk, self.nb, self.encut,
+                                                 self.efermi))
+                print('primitive lattice vectors = \n{}'.format(self.a))
+
+            self.vol = np.dot(self.a[0, :],
+                              np.cross(self.a[1, :], self.a[2, :]))
+            if verbose:
+                print('volume = {}\n'.format(self.vol))
+
+            # calculate reciprocal lattice
+            b = np.array([np.cross(self.a[1, :], self.a[2, :]),
+                          np.cross(self.a[2, :], self.a[0, :]),
+                          np.cross(self.a[0, :], self.a[1, :])])
+            b = 2*np.pi*b/self.vol
+            self.b = b
+            if verbose:
+                print('reciprocal lattice vectors = \n{}'.format(b))
+                print('reciprocal lattice vector magnitudes = \n{}\n'
+                      .format(np.linalg.norm(b, axis=1)))
+
+            # calculate maximum number of b vectors in each direction
+            self._generate_nbmax()
+            if verbose:
+                print('max number of G values = {}\n\n'.format(self._nbmax))
+            self.ng = self._nbmax * 3 if precision.lower()[0] == 'n' else \
+                self._nbmax * 4
+
+            # padding
+            np.fromfile(f, dtype=np.float64, count=recl8-13)
+
+            # reading records
+            # np.set_printoptions(precision=7, suppress=True)
+            self.Gpoints = [None for _ in range(self.nk)]
+            self.coeffs = [[None for i in range(self.nb)]
+                           for j in range(self.nk)]
+            self.kpoints = []
+            self.band_energy = []
+            for ispin in range(spin):
+                if verbose:
+                    print('reading spin {}'.format(ispin))
+                for ink in range(self.nk):
+                    # information for this kpoint
+                    nplane = int(np.fromfile(f, dtype=np.float64, count=1)[0])
+                    kpoint = np.fromfile(f, dtype=np.float64, count=3)
+                    self.kpoints.append(kpoint)
+                    if verbose:
+                        print('kpoint {: 4} with {: 5} plane waves at {}'
+                              .format(ink, nplane, kpoint))
+
+                    # energy and occupation information
+                    enocc = np.fromfile(f, dtype=np.float64,
+                                        count=3*self.nb).reshape((self.nb, 3))
+                    self.band_energy.append(enocc)
+                    if verbose:
+                        print(enocc[:, [0, 2]])
+
+                    # padding
+                    np.fromfile(f, dtype=np.float64, count=(recl8-4-3*self.nb))
+
+                    # generate G integers
+                    self.Gpoints[ink] = self._generate_G_points(kpoint)
+                    if len(self.Gpoints[ink]) != nplane:
+                        raise ValueError('failed to generate the correct '
+                                         'number of G points')
+
+                    # extract coefficients
+                    for inb in range(self.nb):
+                        if rtag == 45200:
+                            self.coeffs[ink][inb] = \
+                                    np.fromfile(f, dtype=np.complex64,
+                                                count=nplane)
+                            np.fromfile(f, dtype=np.float64,
+                                        count=recl8-nplane)
+                        elif rtag == 45210:
+                            # this should handle double precision coefficients
+                            # but I don't have a WAVECAR to test it with
+                            self.coeffs[ink][inb] = \
+                                    np.fromfile(f, dtype=np.complex128,
+                                                count=nplane)
+                            np.fromfile(f, dtype=np.float64,
+                                        count=recl8-2*nplane)
+
+    def _generate_nbmax(self):
+        """
+        Helper function that determines maximum number of b vectors for
+        each direction.
+
+        This algorithm is adapted from WaveTrans (see Class docstring). There
+        should be no reason for this function to be called outside of
+        initialization.
+        """
+        bmag = np.linalg.norm(self.b, axis=1)
+        b = self.b
+
+        # calculate maximum integers in each direction for G
+        phi12 = np.arccos(np.dot(b[0, :], b[1, :])/(bmag[0]*bmag[1]))
+        sphi123 = np.dot(b[2, :], np.cross(b[0, :], b[1, :])) / \
+            (bmag[2]*np.linalg.norm(np.cross(b[0, :], b[1, :])))
+        nbmaxA = np.sqrt(self.encut*self._C) / bmag
+        nbmaxA[0] /= np.abs(np.sin(phi12))
+        nbmaxA[1] /= np.abs(np.sin(phi12))
+        nbmaxA[2] /= np.abs(sphi123)
+        nbmaxA += 1
+
+        phi13 = np.arccos(np.dot(b[0, :], b[2, :])/(bmag[0]*bmag[2]))
+        sphi123 = np.dot(b[1, :], np.cross(b[0, :], b[2, :])) / \
+            (bmag[1]*np.linalg.norm(np.cross(b[0, :], b[2, :])))
+        nbmaxB = np.sqrt(self.encut*self._C) / bmag
+        nbmaxB[0] /= np.abs(np.sin(phi13))
+        nbmaxB[1] /= np.abs(sphi123)
+        nbmaxB[2] /= np.abs(np.sin(phi13))
+        nbmaxB += 1
+
+        phi23 = np.arccos(np.dot(b[1, :], b[2, :])/(bmag[1]*bmag[2]))
+        sphi123 = np.dot(b[0, :], np.cross(b[1, :], b[2, :])) / \
+            (bmag[0]*np.linalg.norm(np.cross(b[1, :], b[2, :])))
+        nbmaxC = np.sqrt(self.encut*self._C) / bmag
+        nbmaxC[0] /= np.abs(sphi123)
+        nbmaxC[1] /= np.abs(np.sin(phi23))
+        nbmaxC[2] /= np.abs(np.sin(phi23))
+        nbmaxC += 1
+
+        self._nbmax = np.max([nbmaxA, nbmaxB, nbmaxC], axis=0) \
+                        .astype(np.int)
+
+    def _generate_G_points(self, kpoint):
+        """
+        Helper function to generate G-points based on nbmax.
+
+        This function iterates over possible G-point values and determines
+        if the energy is less than G_{cut}. Valid values are appended to
+        the output array. This function should not be called outside of
+        initialization.
+
+        Args:
+            kpoint (np.array): the array containing the current k-point value
+
+        Returns:
+            a list containing valid G-points
+        """
+        gpoints = []
+        for i in range(2*self._nbmax[2]+1):
+            i3 = i-2*self._nbmax[2]-1 if i > self._nbmax[2] else i
+            for j in range(2*self._nbmax[1]+1):
+                j2 = j-2*self._nbmax[1]-1 if j > self._nbmax[1] else j
+                for k in range(2*self._nbmax[0]+1):
+                    k1 = k-2*self._nbmax[0]-1 if k > self._nbmax[0] else k
+                    G = np.array([k1, j2, i3])
+                    v = kpoint + G
+                    g = np.linalg.norm(np.dot(v, self.b))
+                    E = g**2 / self._C
+                    if E < self.encut:
+                        gpoints.append(G)
+        return np.array(gpoints, dtype=np.float64)
+
+    def evaluate_wavefunc(self, kpoint, band, r):
+        r"""
+        Evaluates the wavefunction for a given position, r.
+
+        The wavefunction is given by the k-point and band. It is evaluated
+        at the given position by summing over the components. Formally,
+
+        \psi_n^k (r) = \sum_{i=1}^N c_i^{n,k} \exp (i (k + G_i^{n,k}) \cdot r)
+
+        where \psi_n^k is the wavefunction for the nth band at k-point k, N is
+        the number of plane waves, c_i^{n,k} is the ith coefficient that
+        corresponds to the nth band and k-point k, and G_i^{n,k} is the ith
+        G-point corresponding to k-point k.
+
+        NOTE: This function is very slow; a discrete fourier transform is the
+        preferred method of evaluation (see Wavecar.fft_mesh).
+
+        Args:
+            kpoint (int): the index of the kpoint where the wavefunction
+                            will be evaluated
+            band (int): the index of the band where the wavefunction will be
+                            evaluated
+            r (np.array): the position where the wavefunction will be evaluated
+        Returns:
+            a complex value corresponding to the evaluation of the wavefunction
+        """
+        v = self.Gpoints[kpoint] + self.kpoints[kpoint]
+        u = np.dot(np.dot(v, self.b), r)
+        c = self.coeffs[kpoint][band]
+        return np.sum(np.dot(c, np.exp(1j*u, dtype=np.complex64))) / \
+            np.sqrt(self.vol)
+
+    def fft_mesh(self, kpoint, band, shift=True):
+        """
+        Places the coefficients of a wavefunction onto an fft mesh.
+
+        Once the mesh has been obtained, a discrete fourier transform can be
+        used to obtain real-space evaluation of the wavefunction. The output
+        of this function can be passed directly to numpy's fft function. For
+        example:
+
+            mesh = Wavecar().fft_mesh(kpoint, band)
+            evals = np.fft.fft(mesh)
+
+        Args:
+            kpoint (int): the index of the kpoint where the wavefunction
+                            will be evaluated
+            band (int): the index of the band where the wavefunction will be
+                            evaluated
+            shift (bool): determines if the zero frequency coefficient is
+                            placed at index (0, 0, 0) or centered
+        Returns:
+            a numpy ndarray representing the 3D mesh of coefficients
+        """
+        mesh = np.zeros(tuple(self.ng), dtype=np.complex)
+        for gp, coeff in zip(self.Gpoints[kpoint], self.coeffs[kpoint][band]):
+            t = tuple(gp.astype(np.int) + (self.ng/2).astype(np.int))
+            mesh[t] = coeff
+        if shift:
+            return np.fft.ifftshift(mesh)
+        else:
+            return mesh
 
 
 class Wavederf(object):
