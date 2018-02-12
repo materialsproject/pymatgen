@@ -99,7 +99,7 @@ class TestQCOutput(PymatgenTest):
         for file in multi_job_out_names:
             outputs = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
             data = []
-            for i, sub_output in enumerate(outputs):
+            for sub_output in outputs:
                 data.append(sub_output.data)
             multi_job_dict[file] = data
         dumpfn(multi_job_dict, "multi_job.json")
