@@ -3341,8 +3341,6 @@ class NscfTask(GsTask):
                 break
         else:
             raise RuntimeError("Cannot find parent node producing DEN file")
-        # TODO: This won't work if parent_node is a file
-        #print("parent", parent_task)
 
         with parent_task.open_gsr() as gsr:
             den_mesh = 3 * [None]

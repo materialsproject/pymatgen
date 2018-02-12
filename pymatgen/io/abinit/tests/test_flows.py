@@ -120,8 +120,9 @@ class FlowTest(FlowUnitTest):
 
         # Build a work with a task
         work = flow.register_task(self.fake_input)
-        assert work.is_work
-        assert len(work.color_hex) == 7 and work.color_hex.startswith("#")
+        atrue(work.is_work)
+        atrue(len(work.color_hex) == 7)
+        atrue(work.color_hex.startswith("#"))
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
         print(task0_w0.status.colored)
