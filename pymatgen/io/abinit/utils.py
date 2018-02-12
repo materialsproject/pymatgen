@@ -904,7 +904,12 @@ class Dirviz(object):
 
     def get_cluster_graph(self, engine="fdp", graph_attr=None, node_attr=None, edge_attr=None):
         """
-        Generate directory graph in the DOT language.
+        Generate directory graph in the DOT language. Directories are shown as clusters
+
+        .. warning::
+
+            This function scans the entire directory tree starting from top so the resulting
+            graph can be really big.
 
         Args:
             engine: Layout command used. ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']

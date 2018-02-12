@@ -2481,13 +2481,17 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         retcode = self.wait()
         return retcode
 
-    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None):
+    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None, edge_attr=None):
         """
+        Generate task graph in the DOT language (only parents and children of this task).
 
         Args:
             engine: ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']
+            graph_attr: Mapping of (attribute, value) pairs for the graph.
+            node_attr: Mapping of (attribute, value) pairs set for all nodes.
+            edge_attr: Mapping of (attribute, value) pairs set for all edges.
 
-        Returns:
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
         """
         # https://www.graphviz.org/doc/info/
         from graphviz import Digraph
@@ -2507,6 +2511,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             fg.graph_attr.update(**graph_attr)
         if node_attr is not None:
             fg.node_attr.update(**node_attr)
+        if edge_attr is not None:
+            fg.edge_attr.update(**edge_attr)
 
         def node_kwargs(node):
             return dict(

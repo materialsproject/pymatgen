@@ -258,7 +258,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
 
     def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None, edge_attr=None):
         """
-        Generate work graph in the DOT language.
+        Generate task graph in the DOT language (only parents and children of this work).
 
         Args:
             engine: Layout command used. ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']

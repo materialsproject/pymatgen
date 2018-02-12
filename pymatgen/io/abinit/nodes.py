@@ -798,6 +798,12 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         return "\n".join(lines)
 
     def get_graphviz_dirtree(self, engine="automatic", **kwargs):
+        """
+        Generate directory graph in the DOT language. The graph show the files and directories
+        in the node workdir.
+
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
+        """
         if engine == "automatic":
             engine = "fdp"
 
