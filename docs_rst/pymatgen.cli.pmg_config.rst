@@ -1,5 +1,5 @@
-pymatgen\.cli\.pmg\_config module
-=================================
+pymatgen.cli.pmg\_config module
+===============================
 
 .. automodule:: pymatgen.cli.pmg_config
     :members:
