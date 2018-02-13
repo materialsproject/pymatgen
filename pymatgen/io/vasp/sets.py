@@ -1239,7 +1239,7 @@ class MVLGWSet(DictSet):
                         files_to_transfer=files_to_transfer, **kwargs)
 
 
-class MVLSlabSet(VaspInputSet):
+class MVLSlabSet(MPRelaxSet):
     """
     Class for writing a set of slab vasp runs,
     including both slabs (along the c direction) and orient unit cells (bulk),
@@ -1311,6 +1311,13 @@ class MVLSlabSet(VaspInputSet):
         kpt.kpts[0] = kpt_calc
 
         return kpt
+
+    def as_dict(self, verbosity=2):
+        d = MSONable.as_dict(self)
+        if verbosity == 1:
+            d.pop("structure", None)
+        return d
+
 
 
 class MVLGBSet(MPRelaxSet):
