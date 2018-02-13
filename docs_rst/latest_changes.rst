@@ -1,8 +1,11 @@
 Change log
 ==========
 
-v2018.1.29
+v2018.2.13
 ----------
-* Improvements to local_env (Nils)
-* Term symbols for Element (Weike Ye).
-* Timeout for enumlib (Horton).
+* Improved chemenv parameters and bug fixes (David Waroquiers).
+* Improved Qchem IO (Shyam).
+* Improved interfacial reactions.
+* local_env update (Nils).
+* Improved ABINIT support (@gmatteo).
+* Misc bug fixes.

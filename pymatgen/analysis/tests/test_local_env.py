@@ -486,10 +486,11 @@ class LocalStructOrderParasTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
-            "pent_plan_max", "cuboct_max"]
+            "pent_plan_max", "cuboct_max", "tet_max"]
         op_paras = [None for i in range(len(op_types))]
         op_paras[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
         op_paras[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
+        op_paras[33] = {'TA': 0.6081734479693927, 'IGW_TA': 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
         ops_044 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.44)
         ops_071 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.71)
         ops_087 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.87)
@@ -583,6 +584,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         op_vals = ops_044.get_order_parameters(self.trigonal_off_plane, 0)
         self.assertAlmostEqual(op_vals[0], 3.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
+        self.assertAlmostEqual(int(op_vals[33] * 1000), 1000)
 
         # Trigonal-planar motif.
         op_vals = ops_101.get_order_parameters(self.trigonal_planar, 0)

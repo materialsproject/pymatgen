@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.utils &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.io.abinit.utils &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -94,8 +85,8 @@
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">elif</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> into a boolean&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">s</span><span class="p">))</span></div>
+    <span class="k">else</span><span class="p">:</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> into a boolean&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">s</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="File"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -153,18 +144,18 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">basename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.chmod"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.chmod">[docs]</a>    <span class="k">def</span> <span class="nf">chmod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Change the access permissions of a file.&quot;&quot;&quot;</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Change the access permissions of a file.&quot;&quot;&quot;</span></div>
+        <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.read"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read data from file.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
 <div class="viewcode-block" id="File.readlines"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.readlines">[docs]</a>    <span class="k">def</span> <span class="nf">readlines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read lines from files.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
 <div class="viewcode-block" id="File.write"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write string to file.&quot;&quot;&quot;</span>
@@ -172,45 +163,45 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">string</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">string</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">string</span><span class="p">)</span></div>
+            <span class="k">else</span><span class="p">:</span></div>
+                <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.writelines"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.writelines">[docs]</a>    <span class="k">def</span> <span class="nf">writelines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write a list of strings to file.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">make_dir</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.make_dir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.make_dir">[docs]</a>    <span class="k">def</span> <span class="nf">make_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make the directory where the file is located.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">):</span></div>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.remove"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove the file.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span></div>
+        <span class="k">except</span><span class="p">:</span></div>
+            <span class="k">pass</span>
 
 <div class="viewcode-block" id="File.move"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Recursively move a file or directory to another location. This is</span>
 <span class="sd">        similar to the Unix &quot;mv&quot; command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.get_stat"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.get_stat">[docs]</a>    <span class="k">def</span> <span class="nf">get_stat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Results from os.stat&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Results from os.stat&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.getsize"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.File.getsize">[docs]</a>    <span class="k">def</span> <span class="nf">getsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the size, in bytes, of path.</span>
 <span class="sd">        Return 0 if the file is empty or it does not exist.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span> <span class="k">return</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span> <span class="k">return</span> <span class="mi">0</span></div></div>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Directory"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory">[docs]</a><span class="k">class</span> <span class="nc">Directory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -252,8 +243,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Join two or more pathname components, inserting &#39;/&#39; as needed.</span>
 <span class="sd">        If any component is an absolute path, all previous path components will be discarded.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -266,30 +257,30 @@
 <span class="sd">        Works like mkdir, except that any intermediate path segment (not</span>
 <span class="sd">        just the rightmost) will be created if it does not exist.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span></div>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Directory.rmtree"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.rmtree">[docs]</a>    <span class="k">def</span> <span class="nf">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Recursively delete the directory tree&quot;&quot;&quot;</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Recursively delete the directory tree&quot;&quot;&quot;</span></div>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Directory.copy_r"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.copy_r">[docs]</a>    <span class="k">def</span> <span class="nf">copy_r</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements a recursive copy function similar to Unix&#39;s &quot;cp -r&quot; command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">copy_r</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">copy_r</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Directory.clean"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all files in the directory tree while preserving the directory&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_filepaths</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">pass</span></div>
+            <span class="k">except</span><span class="p">:</span></div>
+                <span class="k">pass</span>
 
 <div class="viewcode-block" id="Directory.path_in"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.path_in">[docs]</a>    <span class="k">def</span> <span class="nf">path_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the absolute path of filename in the directory.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Return the absolute path of filename in the directory.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">file_basename</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Directory.list_filepaths"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.list_filepaths">[docs]</a>    <span class="k">def</span> <span class="nf">list_filepaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wildcard</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -308,8 +299,8 @@
         <span class="c1"># Filter using the shell patterns.</span>
         <span class="k">if</span> <span class="n">wildcard</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">filepaths</span> <span class="o">=</span> <span class="n">WildCard</span><span class="p">(</span><span class="n">wildcard</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filepaths</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">filepaths</span></div>
+</div>
+        <span class="k">return</span> <span class="n">filepaths</span>
 
 <div class="viewcode-block" id="Directory.has_abiext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.has_abiext">[docs]</a>    <span class="k">def</span> <span class="nf">has_abiext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -345,8 +336,8 @@
             <span class="c1"># ABINIT users must learn that multiple datasets are bad!</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Found multiple files with the same extensions:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">files</span> <span class="o">+</span>
                              <span class="s2">&quot;Please avoid using mutiple datasets!&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+</div>
+        <span class="k">return</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Directory.symlink_abiext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.symlink_abiext">[docs]</a>    <span class="k">def</span> <span class="nf">symlink_abiext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inext</span><span class="p">,</span> <span class="n">outext</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -385,8 +376,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Expecting link at </span><span class="si">%s</span><span class="s1"> but found file.&#39;</span> <span class="o">%</span> <span class="n">outfile</span><span class="p">)</span>
 
-        <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span></div>
+        <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="Directory.rename_abiext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.rename_abiext">[docs]</a>    <span class="k">def</span> <span class="nf">rename_abiext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inext</span><span class="p">,</span> <span class="n">outext</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Rename the Abinit file with extension inext with the new extension outext&quot;&quot;&quot;</span>
@@ -401,8 +392,8 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Extension </span><span class="si">%s</span><span class="s1"> could not be detected in file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inext</span><span class="p">,</span> <span class="n">infile</span><span class="p">))</span>
 
         <span class="n">outfile</span> <span class="o">=</span> <span class="n">infile</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">outext</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span></div>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="Directory.copy_abiext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.copy_abiext">[docs]</a>    <span class="k">def</span> <span class="nf">copy_abiext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inext</span><span class="p">,</span> <span class="n">outext</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Copy the Abinit file with extension inext to a new file withw extension outext&quot;&quot;&quot;</span>
@@ -417,8 +408,8 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Extension </span><span class="si">%s</span><span class="s1"> could not be detected in file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inext</span><span class="p">,</span> <span class="n">infile</span><span class="p">))</span>
 
         <span class="n">outfile</span> <span class="o">=</span> <span class="n">infile</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">outext</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span></div>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="Directory.remove_exts"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.remove_exts">[docs]</a>    <span class="k">def</span> <span class="nf">remove_exts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exts</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -435,8 +426,8 @@
                 <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Exception while trying to remove file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">paths</span></div>
+</div>
+        <span class="k">return</span> <span class="n">paths</span>
 
 <div class="viewcode-block" id="Directory.find_last_timden_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.find_last_timden_file">[docs]</a>    <span class="k">def</span> <span class="nf">find_last_timden_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -461,8 +452,8 @@
             <span class="n">stepfile_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">step</span><span class="p">),</span> <span class="n">path</span><span class="p">))</span>
 
         <span class="c1"># DSU sort.</span>
-        <span class="n">last</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">stepfile_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">dict2namedtuple</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="n">last</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">last</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+        <span class="n">last</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">stepfile_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">dict2namedtuple</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="n">last</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">last</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 <div class="viewcode-block" id="Directory.find_1wf_files"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.find_1wf_files">[docs]</a>    <span class="k">def</span> <span class="nf">find_1wf_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -484,8 +475,8 @@
             <span class="n">pertfile_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">pertcase</span><span class="p">),</span> <span class="n">path</span><span class="p">))</span>
 
         <span class="c1"># DSU sort.</span>
-        <span class="n">pertfile_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pertfile_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">dict2namedtuple</span><span class="p">(</span><span class="n">pertcase</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pertfile_list</span><span class="p">]</span></div>
+        <span class="n">pertfile_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pertfile_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">dict2namedtuple</span><span class="p">(</span><span class="n">pertcase</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pertfile_list</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Directory.find_1den_files"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Directory.find_1den_files">[docs]</a>    <span class="k">def</span> <span class="nf">find_1den_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -506,8 +497,8 @@
             <span class="n">pertfile_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">pertcase</span><span class="p">),</span> <span class="n">path</span><span class="p">))</span>
 
         <span class="c1"># DSU sort.</span>
-        <span class="n">pertfile_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pertfile_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">dict2namedtuple</span><span class="p">(</span><span class="n">pertcase</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pertfile_list</span><span class="p">]</span></div></div>
+        <span class="n">pertfile_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pertfile_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">dict2namedtuple</span><span class="p">(</span><span class="n">pertcase</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pertfile_list</span><span class="p">]</span>
 
 <span class="c1"># This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.</span>
 <span class="c1">#</span>
@@ -538,13 +529,13 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a dictionary with the ABINIT variables</span>
 <span class="sd">    that must be used to read the file with extension ext.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_EXT2VARS</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">_EXT2VARS</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="abi_extensions"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.abi_extensions">[docs]</a><span class="k">def</span> <span class="nf">abi_extensions</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;List with all the ABINIT extensions that are registered.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_EXT2VARS</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:]</span></div>
+    <span class="sd">&quot;&quot;&quot;List with all the ABINIT extensions that are registered.&quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_EXT2VARS</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:]</span>
 
 
 <div class="viewcode-block" id="abi_splitext"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.abi_splitext">[docs]</a><span class="k">def</span> <span class="nf">abi_splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -579,8 +570,8 @@
     <span class="n">root</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">is_ncfile</span><span class="p">:</span>
         <span class="n">ext</span> <span class="o">+=</span> <span class="s2">&quot;.nc&quot;</span>
-
-    <span class="k">return</span> <span class="n">root</span><span class="p">,</span> <span class="n">ext</span></div>
+</div>
+    <span class="k">return</span> <span class="n">root</span><span class="p">,</span> <span class="n">ext</span>
 
 
 <div class="viewcode-block" id="FilepathFixer"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.FilepathFixer">[docs]</a><span class="k">class</span> <span class="nc">FilepathFixer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -664,8 +655,8 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown extension </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ext</span><span class="p">)</span>
                 <span class="n">fixed_exts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
                 <span class="n">old2new</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">newpath</span>
-
-        <span class="k">return</span> <span class="n">old2new</span></div></div>
+</div></div>
+        <span class="k">return</span> <span class="n">old2new</span>
 
 
 <span class="k">def</span> <span class="nf">_bop_not</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
@@ -768,8 +759,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1">#&quot;one&quot;: 1.0</span>
                 <span class="n">rpn</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="s2">&quot;$eq&quot;</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="n">rpn</span></div>
+</div>
+    <span class="k">return</span> <span class="n">rpn</span>
 
 
 <div class="viewcode-block" id="evaluate_rpn"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.evaluate_rpn">[docs]</a><span class="k">def</span> <span class="nf">evaluate_rpn</span><span class="p">(</span><span class="n">rpn</span><span class="p">):</span>
@@ -806,8 +797,8 @@
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals_stack</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bool</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">vals_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+</div>
+    <span class="k">return</span> <span class="n">vals_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Condition"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Condition">[docs]</a><span class="k">class</span> <span class="nc">Condition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -840,8 +831,8 @@
         <span class="sd">&quot;&quot;&quot;Convert obj into :class:`Condition`&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">obj</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span></div>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">cmap</span>
@@ -859,8 +850,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">evaluate_rpn</span><span class="p">(</span><span class="n">map2rpn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">,</span> <span class="n">obj</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Condition(</span><span class="si">%s</span><span class="s2">) raised Exception:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
-            <span class="k">return</span> <span class="kc">False</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Condition(</span><span class="si">%s</span><span class="s2">) raised Exception:</span><span class="se">\n</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span></div>
+            <span class="k">return</span> <span class="kc">False</span>
 
 
 <div class="viewcode-block" id="Editor"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Editor">[docs]</a><span class="k">class</span> <span class="nc">Editor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -877,8 +868,8 @@
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fnames</span><span class="p">):</span>
             <span class="n">exit_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_file</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ask_for_exit</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_wants_to_exit</span><span class="p">():</span>
-                <span class="k">break</span>
-        <span class="k">return</span> <span class="n">exit_status</span></div>
+                <span class="k">break</span></div>
+        <span class="k">return</span> <span class="n">exit_status</span>
 
 <div class="viewcode-block" id="Editor.edit_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Editor.edit_file">[docs]</a>    <span class="k">def</span> <span class="nf">edit_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">subprocess</span> <span class="k">import</span> <span class="n">call</span>
@@ -887,8 +878,8 @@
         <span class="k">if</span> <span class="n">retcode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">warnings</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Error while trying to edit file: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">retcode</span></div>
+</div>
+        <span class="k">return</span> <span class="n">retcode</span>
 
 <div class="viewcode-block" id="Editor.user_wants_to_exit"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.Editor.user_wants_to_exit">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">user_wants_to_exit</span><span class="p">():</span>
@@ -903,8 +894,8 @@
             <span class="n">answer</span> <span class="o">=</span> <span class="n">my_input</span><span class="p">(</span><span class="s2">&quot;Do you want to continue [Y/n]&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">]</span></div></div>
+</div></div>
+        <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="SparseHistogram"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.utils.html#pymatgen.io.abinit.utils.SparseHistogram">[docs]</a><span class="k">class</span> <span class="nc">SparseHistogram</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -945,8 +936,8 @@
 
         <span class="n">yy</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binvals</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">fig</span></div></div>
+</div></div>
+        <span class="k">return</span> <span class="n">fig</span>
 </pre></div>
 
           </div>
@@ -956,12 +947,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -977,7 +970,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -985,7 +978,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

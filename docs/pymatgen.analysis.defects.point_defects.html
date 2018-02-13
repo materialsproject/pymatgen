@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.defects.point_defects module &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.analysis.defects.point_defects module &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.2.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,7 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.Defect">
 <em class="property">class </em><code class="descname">Defect</code><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#Defect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.Defect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Abstract class for point defects</p>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.point_defects.Defect.defectsite_count">
@@ -157,7 +148,7 @@ Useful for Mott-Littleton calculations.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.Interstitial">
 <em class="property">class </em><code class="descname">Interstitial</code><span class="sig-paren">(</span><em>structure</em>, <em>valences</em>, <em>radii</em>, <em>site_type='voronoi_vertex'</em>, <em>accuracy='Normal'</em>, <em>symmetry_flag=True</em>, <em>oxi_state=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#Interstitial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.Interstitial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.point_defects.Defect" title="pymatgen.analysis.defects.point_defects.Defect"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.defects.point_defects.Defect</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.point_defects.Defect" title="pymatgen.analysis.defects.point_defects.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.point_defects.Defect</span></code></a></p>
 <p>Subclass of Defect to generate interstitial sites</p>
 <p>Given a structure, generate symmetrically distinct interstitial sites.
 For a non-ionic structure, use oxi_state=True and give atomic radii.</p>
@@ -315,7 +306,7 @@ coordinates.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.InterstitialAnalyzer">
 <em class="property">class </em><code class="descname">InterstitialAnalyzer</code><span class="sig-paren">(</span><em>inter</em>, <em>el</em>, <em>oxi_state</em>, <em>scd=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#InterstitialAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Use GULP to compute the interstitial formation energy, relaxed structures.
 Works only for metal oxides due to the use of Buckingham Potentials.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -427,7 +418,7 @@ Works only for metal oxides due to the use of Buckingham Potentials.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer">
 <em class="property">class </em><code class="descname">InterstitialStructureRelaxer</code><span class="sig-paren">(</span><em>interstitial</em>, <em>el</em>, <em>oxi_state</em>, <em>supercell_dim=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#InterstitialStructureRelaxer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Performs structural relaxation for each interstitial supercell.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -548,7 +539,7 @@ Works only for metal oxides due to the use of Buckingham Potentials.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.RelaxedInterstitial">
 <em class="property">class </em><code class="descname">RelaxedInterstitial</code><span class="sig-paren">(</span><em>struct_list</em>, <em>energy_list</em>, <em>valence_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#RelaxedInterstitial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.RelaxedInterstitial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Stores the relaxed supercell structures for each interstitial
 Used to compute formation energies, displacement of atoms near the
 the interstitial.</p>
@@ -739,7 +730,7 @@ interstitial sites during the relaxation</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.StructureMotifInterstitial">
 <em class="property">class </em><code class="descname">StructureMotifInterstitial</code><span class="sig-paren">(</span><em>struct</em>, <em>inter_elem</em>, <em>motif_types=('tet'</em>, <em>'oct')</em>, <em>op_threshs=(0.3</em>, <em>0.5)</em>, <em>dl=0.2</em>, <em>doverlap=1.0</em>, <em>facmaxdl=1.01</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#StructureMotifInterstitial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.StructureMotifInterstitial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.point_defects.Defect" title="pymatgen.analysis.defects.point_defects.Defect"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.defects.point_defects.Defect</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.point_defects.Defect" title="pymatgen.analysis.defects.point_defects.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.point_defects.Defect</span></code></a></p>
 <p>Subclass of Defect to generate interstitial sites at positions
 where the interstitialcy is coordinated by nearest neighbors
 in a way that resembles basic structure motifs
@@ -759,8 +750,8 @@ in a pattern that resembles a supported structure motif
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure for which symmetrically
 distinct interstitial sites are to be found.</li>
-<li><strong>inter_elem</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – element symbol of desired interstitial.</li>
-<li><strong>motif_types</strong> (<em>[</em><a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a><em>]</em>) – list of structure motif types that are
+<li><strong>inter_elem</strong> (<em>string</em>) – element symbol of desired interstitial.</li>
+<li><strong>motif_types</strong> (<em>[</em><em>string</em><em>]</em>) – list of structure motif types that are
 to be considered.  Permissible types are:
 tet (tetrahedron), oct (octahedron).</li>
 <li><strong>op_threshs</strong> (<em>[</em><em>float</em><em>]</em>) – threshold values for the underlying order
@@ -837,7 +828,7 @@ default) to print additional information to screen.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">motif type.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">motif (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string">string</a>)</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">motif (string)</td>
 </tr>
 </tbody>
 </table>
@@ -886,7 +877,7 @@ to transform the lattice vectors.</td>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.StructureRelaxer">
 <em class="property">class </em><code class="descname">StructureRelaxer</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#StructureRelaxer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.StructureRelaxer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="pymatgen.analysis.defects.point_defects.StructureRelaxer.get_relaxed_structure">
 <code class="descname">get_relaxed_structure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#StructureRelaxer.get_relaxed_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.StructureRelaxer.get_relaxed_structure" title="Permalink to this definition">¶</a></dt>
@@ -902,7 +893,7 @@ to transform the lattice vectors.</td>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.TopographyAnalyzer">
 <em class="property">class </em><code class="descname">TopographyAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>framework_ions</em>, <em>cations</em>, <em>tol=0.0001</em>, <em>max_cell_range=1</em>, <em>check_volume=True</em>, <em>constrained_c_frac=0.5</em>, <em>thickness=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#TopographyAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.TopographyAnalyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This is a generalized module to perform topological analyses of a crystal
 structure using Voronoi tessellations. It can be used for finding potential
 interstitial sites. Applications including using these sites for
@@ -912,7 +903,7 @@ the initial construction. The initial construction will create a lot of
 points, especially for determining potential insertion sites. Some helper
 methods are available to perform aggregation and elimination of nodes. A
 typical use is something like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">TopographyAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">TopographyAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">])</span>
 <span class="n">a</span><span class="o">.</span><span class="n">cluster_nodes</span><span class="p">()</span>
 <span class="n">a</span><span class="o">.</span><span class="n">remove_collisions</span><span class="p">()</span>
 </pre></div>
@@ -1023,7 +1014,7 @@ from existing atoms.</td>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.Vacancy">
 <em class="property">class </em><code class="descname">Vacancy</code><span class="sig-paren">(</span><em>structure</em>, <em>valences</em>, <em>radii</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#Vacancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.Vacancy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.point_defects.Defect" title="pymatgen.analysis.defects.point_defects.Defect"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.defects.point_defects.Defect</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.defects.point_defects.Defect" title="pymatgen.analysis.defects.point_defects.Defect"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.defects.point_defects.Defect</span></code></a></p>
 <p>Subclass of Defect to generate vacancies and their analysis.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1157,7 +1148,7 @@ If number, only that many structures are returned.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.VacancyFormationEnergy">
 <em class="property">class </em><code class="descname">VacancyFormationEnergy</code><span class="sig-paren">(</span><em>vacancy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#VacancyFormationEnergy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.VacancyFormationEnergy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Using GULP compute the vacancy formation energy.
 Works only for binary metal oxides due to the use of Buckingham Potentials</p>
 <dl class="method">
@@ -1171,7 +1162,7 @@ Works only for binary metal oxides due to the use of Buckingham Potentials</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.ValenceIonicRadiusEvaluator">
 <em class="property">class </em><code class="descname">ValenceIonicRadiusEvaluator</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#ValenceIonicRadiusEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.ValenceIonicRadiusEvaluator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Computes site valences and ionic radii for a structure using bond valence
 analyzer</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1205,7 +1196,7 @@ analyzer</p>
 <dl class="class">
 <dt id="pymatgen.analysis.defects.point_defects.VoronoiPolyhedron">
 <em class="property">class </em><code class="descname">VoronoiPolyhedron</code><span class="sig-paren">(</span><em>lattice</em>, <em>frac_coords</em>, <em>polyhedron_indices</em>, <em>all_coords</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/defects/point_defects.html#VoronoiPolyhedron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.defects.point_defects.VoronoiPolyhedron" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Convenience container for a voronoi point in PBC and its associated polyhedron.</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.defects.point_defects.VoronoiPolyhedron.coordination">
@@ -1270,12 +1261,14 @@ pymatgen.symmetry.finder.SpacegroupAnalyzer</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1291,13 +1284,13 @@ pymatgen.symmetry.finder.SpacegroupAnalyzer</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.1.29 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.2.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

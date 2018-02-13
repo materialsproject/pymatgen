@@ -1,5 +1,5 @@
-pymatgen\.analysis\.pourbaix\.analyzer module
-=============================================
+pymatgen.analysis.pourbaix.analyzer module
+==========================================
 
 .. automodule:: pymatgen.analysis.pourbaix.analyzer
     :members:
