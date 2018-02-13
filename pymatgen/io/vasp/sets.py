@@ -1239,7 +1239,7 @@ class MVLGWSet(DictSet):
                         files_to_transfer=files_to_transfer, **kwargs)
 
 
-class MVLSlabSet(MPRelaxSet):
+class MVLSlabSet(VaspInputSet):
     """
     Class for writing a set of slab vasp runs,
     including both slabs (along the c direction) and orient unit cells (bulk),
@@ -1258,7 +1258,7 @@ class MVLSlabSet(MPRelaxSet):
 
     def __init__(self, structure, k_product=50, bulk=False,
                  auto_dipole=False, get_wf=False, **kwargs):
-        super(MVLSlabSet, self).__init__(structure, MVLSlabSet.CONFIG, **kwargs)
+        super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
