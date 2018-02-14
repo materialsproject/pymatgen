@@ -2811,7 +2811,7 @@ class AbinitTask(Task):
         max_ncpus = self.manager.max_cores
         if max_ncpus == 1: return 0
 
-        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
+        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus, mem_test=0)
         self.set_vars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
@@ -4444,7 +4444,7 @@ class OpticTask(Task):
         max_ncpus = self.manager.max_cores
         if max_ncpus == 1: return 0
 
-        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus, mem_test=0)
+        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
         self.set_vars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
