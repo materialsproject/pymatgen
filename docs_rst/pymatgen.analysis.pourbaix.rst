@@ -1,5 +1,5 @@
-pymatgen\.analysis\.pourbaix package
-====================================
+pymatgen.analysis.pourbaix package
+==================================
 
 Subpackages
 -----------

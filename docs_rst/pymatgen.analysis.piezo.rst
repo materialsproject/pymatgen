@@ -1,5 +1,5 @@
-pymatgen\.analysis\.piezo module
-================================
+pymatgen.analysis.piezo module
+==============================
 
 .. automodule:: pymatgen.analysis.piezo
     :members:

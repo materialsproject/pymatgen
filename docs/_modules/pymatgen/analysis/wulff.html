@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.wulff &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.analysis.wulff &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -108,8 +99,8 @@
             <span class="n">str_format</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">overline{&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">str_format</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">str_format</span> <span class="o">+=</span> <span class="s1">&#39;$)&#39;</span>
-    <span class="k">return</span> <span class="n">str_format</span></div>
+    <span class="n">str_format</span> <span class="o">+=</span> <span class="s1">&#39;$)&#39;</span></div>
+    <span class="k">return</span> <span class="n">str_format</span>
 
 
 <div class="viewcode-block" id="get_tri_area"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.get_tri_area">[docs]</a><span class="k">def</span> <span class="nf">get_tri_area</span><span class="p">(</span><span class="n">pts</span><span class="p">):</span>
@@ -123,8 +114,8 @@
     <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">v1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
     <span class="n">v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-    <span class="n">area_tri</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">area_tri</span></div>
+    <span class="n">area_tri</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">area_tri</span>
 
 
 <div class="viewcode-block" id="WulffFacet"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffFacet">[docs]</a><span class="k">class</span> <span class="nc">WulffFacet</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -141,8 +132,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m_ind_orig</span> <span class="o">=</span> <span class="n">m_ind_orig</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">miller</span> <span class="o">=</span> <span class="n">miller</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">outer_lines</span> <span class="o">=</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outer_lines</span> <span class="o">=</span> <span class="p">[]</span>
 
 
 <div class="viewcode-block" id="WulffShape"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape">[docs]</a><span class="k">class</span> <span class="nc">WulffShape</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -400,8 +391,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            \\*args: Passed to get_plot.</span>
 <span class="sd">            \\*\\*kwargs: Passed to get_plot.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <div class="viewcode-block" id="WulffShape.get_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="o">=</span><span class="s1">&#39;PuBu&#39;</span><span class="p">,</span> <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">show_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">off_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -526,8 +517,8 @@
         <span class="k">if</span> <span class="n">grid_off</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">axis_off</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
     <span class="k">def</span> <span class="nf">_get_azimuth_elev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">miller_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -644,8 +635,8 @@
         <span class="n">tot_surface_energy</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">tot_surface_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">*</span> \
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">tot_surface_energy</span></div>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">tot_surface_energy</span>
 </pre></div>
 
           </div>
@@ -655,12 +646,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -676,7 +669,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -684,7 +677,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

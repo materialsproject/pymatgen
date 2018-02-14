@@ -1,5 +1,5 @@
-pymatgen\.alchemy\.materials module
-===================================
+pymatgen.alchemy.materials module
+=================================
 
 .. automodule:: pymatgen.alchemy.materials
     :members:

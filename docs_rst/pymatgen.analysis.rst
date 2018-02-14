@@ -1,5 +1,5 @@
-pymatgen\.analysis package
-==========================
+pymatgen.analysis package
+=========================
 
 Subpackages
 -----------
