@@ -445,6 +445,7 @@ class Slab(Structure):
         d["miller_index"] = self.miller_index
         d["shift"] = self.shift
         d["scale_factor"] = self.scale_factor
+        d["reconstruction"] = self.reconstruction
         d["energy"] = self.energy
         return d
 
