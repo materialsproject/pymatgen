@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.cif &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.io.cif &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2017.12.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -93,6 +84,12 @@
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="k">import</span> <span class="n">Magmom</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">MagSymmOp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.maggroups</span> <span class="k">import</span> <span class="n">MagneticSpaceGroup</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pybtex.database</span> <span class="k">import</span> <span class="n">BibliographyData</span><span class="p">,</span> <span class="n">Entry</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Please install optional dependency pybtex if you&quot;</span>
+                  <span class="s2">&quot;want to extract references from CIF files.&quot;</span><span class="p">)</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Wrapper classes for Cif input and output from Structures.</span>
@@ -297,8 +294,8 @@
                     <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
             <span class="k">elif</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Possible error in cif format&quot;</span>
-                              <span class="s2">&quot; error at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">loops</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span></div></div>
+                              <span class="s2">&quot; error at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">loops</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="CifFile"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifFile">[docs]</a><span class="k">class</span> <span class="nc">CifFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -335,13 +332,13 @@
             <span class="k">if</span> <span class="s1">&#39;powder_pattern&#39;</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
                 <span class="k">continue</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">CifBlock</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;data_&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
-            <span class="n">d</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">header</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span></div>
+            <span class="n">d</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">header</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CifFile.from_file"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifFile.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
 
 <div class="viewcode-block" id="CifParser"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser">[docs]</a><span class="k">class</span> <span class="nc">CifParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -424,8 +421,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            CifParser</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="p">(</span><span class="n">cif_string</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">CifParser</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">occupancy_tolerance</span><span class="p">)</span></div>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="p">(</span><span class="n">cif_string</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">CifParser</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">occupancy_tolerance</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_sanitize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -665,8 +662,8 @@
                     <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
 
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">None</span></div>
+                <span class="k">else</span><span class="p">:</span></div>
+                    <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="CifParser.get_symops"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_symops">[docs]</a>    <span class="k">def</span> <span class="nf">get_symops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -754,8 +751,8 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No _symmetry_equiv_pos_as_xyz type key found. &quot;</span>
                           <span class="s2">&quot;Defaulting to P1.&quot;</span><span class="p">)</span>
             <span class="n">symops</span> <span class="o">=</span> <span class="p">[</span><span class="n">SymmOp</span><span class="o">.</span><span class="n">from_xyz_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]]</span>
-
-        <span class="k">return</span> <span class="n">symops</span></div>
+</div>
+        <span class="k">return</span> <span class="n">symops</span>
 
 <div class="viewcode-block" id="CifParser.get_magsymops"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_magsymops">[docs]</a>    <span class="k">def</span> <span class="nf">get_magsymops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -824,8 +821,8 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;No magnetic symmetry detected, using primitive symmetry.&quot;</span><span class="p">)</span>
             <span class="n">magsymmops</span> <span class="o">=</span> <span class="p">[</span><span class="n">MagSymmOp</span><span class="o">.</span><span class="n">from_xyzt_string</span><span class="p">(</span><span class="s2">&quot;x, y, z, 1&quot;</span><span class="p">)]</span>
-
-        <span class="k">return</span> <span class="n">magsymmops</span></div>
+</div>
+        <span class="k">return</span> <span class="n">magsymmops</span>
 
 <div class="viewcode-block" id="CifParser.parse_oxi_states"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.parse_oxi_states">[docs]</a>    <span class="k">def</span> <span class="nf">parse_oxi_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -843,8 +840,8 @@
                     <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_type_oxidation_number&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
 
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
-            <span class="n">oxi_states</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">oxi_states</span></div>
+            <span class="n">oxi_states</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="n">oxi_states</span>
 
 <div class="viewcode-block" id="CifParser.parse_magmoms"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.parse_magmoms">[docs]</a>    <span class="k">def</span> <span class="nf">parse_magmoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -864,8 +861,8 @@
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;_atom_site_moment_label&quot;</span><span class="p">]))</span>
             <span class="p">}</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">magmoms</span></div>
+            <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="n">magmoms</span>
 
     <span class="k">def</span> <span class="nf">_get_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1084,69 +1081,68 @@
                 <span class="c1"># in which the atomic coordinates are in Cartesian coords.</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid cif file with no structures!&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">structures</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid cif file with no structures!&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">structures</span>
 
-<div class="viewcode-block" id="CifParser.get_bibtex_strings"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_bibtex_strings">[docs]</a>    <span class="k">def</span> <span class="nf">get_bibtex_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CifParser.get_bibtex_string"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.get_bibtex_string">[docs]</a>    <span class="k">def</span> <span class="nf">get_bibtex_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        (Beta) Get BibTeX reference from CIF file.</span>
+<span class="sd">        Get BibTeX reference from CIF file.</span>
 <span class="sd">        :param data:</span>
 <span class="sd">        :return: BibTeX string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">bibtex_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_publ_author_name&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_author_name&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_publ_section_title&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_title&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;journal&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_name_full&#39;</span><span class="p">,</span> <span class="s1">&#39;_journal_name_abbrev&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;_citation_journal_full&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_journal_abbrev&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;volume&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_volume&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_journal_volume&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_year&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_year&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_number&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_number&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;page_first&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_page_first&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_page_first&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;page_last&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_page_last&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_page_last&#39;</span><span class="p">),</span>
+                       <span class="s1">&#39;doi&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;_journal_DOI&#39;</span><span class="p">,</span> <span class="s1">&#39;_citation_DOI&#39;</span><span class="p">)}</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># TODO: parse &#39;_publ_section_references&#39; when it exists?</span>
         <span class="c1"># TODO: CIF specification supports multiple citations.</span>
 
-        <span class="n">bibtex_strs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
 
-        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="c1"># convert to lower-case keys, some cif files inconsistent</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
-            <span class="n">bibtex_entry</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;authors&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_author_name&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_title&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;journal&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_journal_abbrev&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;volume&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_journal_volume&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_year&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_number&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;page_first&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_page_first&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;page_last&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_page_last&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;doi&#39;</span><span class="p">:</span> <span class="s1">&#39;_citation_DOI&#39;</span><span class="p">}</span>
+            <span class="n">bibtex_entry</span> <span class="o">=</span> <span class="p">{}</span>
 
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;?&quot;</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">bibtex_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
 
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span>
-                                      <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span>
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">])</span>
-            <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;pages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">--</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;page_first&#39;</span><span class="p">],</span> <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;page_last&#39;</span><span class="p">])</span>
+            <span class="c1"># convert to bibtex author format (&#39;and&#39; delimited)</span>
+            <span class="k">if</span> <span class="s1">&#39;author&#39;</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="p">:</span>
+                <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">])</span>
 
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;key&#39;</span><span class="p">:</span>
-                    <span class="n">bibtex_entry</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">entry</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
+            <span class="c1"># convert to bibtex page range format, use empty string if not specified</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;page_first&#39;</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;page_last&#39;</span> <span class="ow">in</span> <span class="n">bibtex_entry</span><span class="p">):</span>
+                <span class="n">bibtex_entry</span><span class="p">[</span><span class="s1">&#39;pages&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">--</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;page_first&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                                                          <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;page_last&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+                <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;page_first&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># and remove page_first, page_list if present</span>
+                <span class="n">bibtex_entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;page_last&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-            <span class="n">bibtex_str</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{key}</span><span class="s2">,</span>
-<span class="s2">    author = </span><span class="si">{authors}</span><span class="s2">,</span>
-<span class="s2">    title = </span><span class="si">{title}</span><span class="s2">,</span>
-<span class="s2">    journal = </span><span class="si">{journal}</span><span class="s2">,</span>
-<span class="s2">    year = </span><span class="si">{year}</span><span class="s2">,</span>
-<span class="s2">    volume = </span><span class="si">{volume}</span><span class="s2">,</span>
-<span class="s2">    number = </span><span class="si">{number}</span><span class="s2">,</span>
-<span class="s2">    pages = </span><span class="si">{pages}</span><span class="s2">,</span>
-<span class="s2">    doi = </span><span class="si">{doi}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">bibtex_entry</span><span class="p">))</span>
-            <span class="n">bibtex_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;@article{&quot;</span> <span class="o">+</span> <span class="n">bibtex_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">}&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">bibtex_strs</span></div>
+            <span class="c1"># cite keys are given as cif-reference-idx in order they are found</span>
+            <span class="n">entries</span><span class="p">[</span><span class="s1">&#39;cif-reference-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Entry</span><span class="p">(</span><span class="s1">&#39;article&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">bibtex_entry</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+</div>
+        <span class="k">return</span> <span class="n">BibliographyData</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">bib_format</span><span class="o">=</span><span class="s1">&#39;bibtex&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CifParser.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifParser.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">k2</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2</span>
-        <span class="k">return</span> <span class="n">d</span></div></div>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">k2</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2</span></div></div>
+        <span class="k">return</span> <span class="n">d</span>
 
 
 <div class="viewcode-block" id="CifWriter"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.CifWriter">[docs]</a><span class="k">class</span> <span class="nc">CifWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1195,7 +1191,7 @@
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_symmetry_Int_Tables_number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spacegroup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_chemical_formula_structural&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no_oxi_comp</span><span class="o">.</span><span class="n">reduced_formula</span>
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_chemical_formula_sum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no_oxi_comp</span><span class="o">.</span><span class="n">formula</span>
-        <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_cell_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_cell_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">latt</span><span class="o">.</span><span class="n">volume</span>
 
         <span class="n">reduced_comp</span><span class="p">,</span> <span class="n">fu</span> <span class="o">=</span> <span class="n">no_oxi_comp</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()</span>
         <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_cell_formula_units_Z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fu</span><span class="p">))</span>
@@ -1265,9 +1261,9 @@
                             <span class="n">magmom</span><span class="p">,</span> <span class="n">latt</span><span class="p">)</span>
                         <span class="n">atom_site_moment_label</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                             <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
-                        <span class="n">atom_site_moment_crystalaxis_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                        <span class="n">atom_site_moment_crystalaxis_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                        <span class="n">atom_site_moment_crystalaxis_z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moment</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                        <span class="n">atom_site_moment_crystalaxis_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moment</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">atom_site_moment_crystalaxis_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moment</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">atom_site_moment_crystalaxis_z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">moment</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
                     <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1333,8 +1329,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the cif file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div></div>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
 
 
 <div class="viewcode-block" id="str2float"><a class="viewcode-back" href="../../../pymatgen.io.cif.html#pymatgen.io.cif.str2float">[docs]</a><span class="k">def</span> <span class="nf">str2float</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
@@ -1349,8 +1345,8 @@
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(.+\)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">0</span>
-        <span class="k">raise</span> <span class="n">ex</span></div>
+            <span class="k">return</span> <span class="mi">0</span></div>
+        <span class="k">raise</span> <span class="n">ex</span>
 </pre></div>
 
           </div>
@@ -1360,12 +1356,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1381,7 +1379,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1389,7 +1387,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

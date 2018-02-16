@@ -37,9 +37,9 @@ from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
-from pymatgen.analysis.local_env import LocalStructOrderParas, MinimumDistanceNN
-from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
-    RelaxationAnalyzer
+from pymatgen.analysis.local_env import LocalStructOrderParas, \
+    MinimumDistanceNN, VoronoiNN
+from pymatgen.analysis.structure_analyzer import RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.analysis.bond_valence import BVAnalyzer
@@ -108,7 +108,7 @@ class ValenceIonicRadiusEvaluator(object):
         If valence is zero, atomic radius is used.
         """
         radii = []
-        coord_finder = VoronoiCoordFinder(self._structure)
+        vnn = VoronoiNN()
 
         def nearest_key(sorted_vals, key):
             i = bisect_left(sorted_vals, key)
@@ -140,13 +140,13 @@ class ValenceIonicRadiusEvaluator(object):
 
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(coord_finder.get_coordination_number(i)))
+            coord_no = int(round(vnn.get_cn(self._structure, i, use_weights=True)))
             try:
                 tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                if coord_finder.get_coordination_number(i) - coord_no > 0:
+                if vnn.get_cn(self._structure, i, use_weights=True) - coord_no > 0:
                     new_coord_no = coord_no + 1
                 else:
                     new_coord_no = coord_no - 1
@@ -341,16 +341,14 @@ class Vacancy(Defect):
                 if site == self._structure[i]:
                     self._vac_site_indices.append(i)
 
-        coord_finder = VoronoiCoordFinder(self._structure)
+        vnn = VoronoiNN()
         self._defectsite_coord_no = []
         self._defect_coord_sites = []
         for i in self._vac_site_indices:
             self._defectsite_coord_no.append(
-                coord_finder.get_coordination_number(i)
-            )
+                vnn.get_cn(self._structure, i, use_weights=True))
             self._defect_coord_sites.append(
-                coord_finder.get_coordinated_sites(i)
-            )
+                vnn.get_nn(self._structure, i))
 
         # Store the ionic radii for the elements in the structure
         # (Used to  computing the surface are and volume)
@@ -689,9 +687,9 @@ class Interstitial(Defect):
         """
         struct = self._structure.copy()
         struct.append(site.specie.symbol, site.frac_coords)
-        coord_finder = VoronoiCoordFinder(struct)
-        coord_no = coord_finder.get_coordination_number(-1)
-        coord_sites = coord_finder.get_coordinated_sites(-1)
+        vnn = VoronoiNN()
+        coord_no = vnn.get_cn(struct, -1, use_weights=True)
+        coord_sites = vnn.get_nn(struct, -1)
 
         # In some cases coordination sites to interstitials include
         # interstitials also. Filtering them.
@@ -702,7 +700,7 @@ class Interstitial(Defect):
 
         coord_chrg = 0
         if self._valence_dict:
-            for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
+            for site, weight in vnn.get_voronoi_polyhedra(struct, -1).items():
                 if not site.specie.symbol == 'X':
                     coord_chrg += weight * self._valence_dict[
                         site.species_string]
@@ -1361,16 +1359,16 @@ class RelaxedInterstitial(object):
 
     def _coord_find(self):
         """
-        calls VoronoiCoordFinder to compute the coordination number,
+        calls VoronoiNN to compute the coordination number,
         coordination charge
         """
         for i in range(self.defect_count()):
             struct = self._structs[i].copy()
-            coord_finder = VoronoiCoordFinder(struct)
-            self._coord_no.append(coord_finder.get_coordination_number(-1))
-            self._coord_sites.append(coord_finder.get_coordinated_sites(-1))
+            vnn = VoronoiNN()
+            self._coord_no.append(vnn.get_cn(struct, -1, use_weights=True))
+            self._coord_sites.append(vnn.get_nn(struct, -1))
             coord_chrg = 0
-            for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
+            for site, weight in vnn.get_voronoi_polyhedra(struct, -1).items():
                 coord_chrg += weight * self._valence_dict[site.species_string]
             self._coord_charge_no.append(coord_chrg)
 

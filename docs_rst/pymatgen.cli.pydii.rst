@@ -1,5 +1,5 @@
-pymatgen\.cli\.pydii module
-===========================
+pymatgen.cli.pydii module
+=========================
 
 .. automodule:: pymatgen.cli.pydii
     :members:

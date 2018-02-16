@@ -414,6 +414,15 @@ class LocalStructOrderParasTest(PymatgenTest):
             [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.hexagonal_planar = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]),
+            ["H", "C", "C", "C", "C", "C", "C"],
+            [[0, 0, 0], [0.71, 1.2298, 0],
+            [-0.71, 1.2298, 0], [0.71, -1.2298, 0], [-0.71, -1.2298, 0],
+            [1.4199, 0, 0], [-1.4199, 0, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
         self.hexagonal_pyramid = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), \
@@ -457,14 +466,14 @@ class LocalStructOrderParasTest(PymatgenTest):
             [14.5, 14.5, 15], [14.5, 15.5, 15], [15.5, 14.5, 15], [15.5, 15.5, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-        self.see_saw = Structure(
+        self.see_saw_rect = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]),
             ["H", "H", "H", "H", "H"],
-            [[15, 15, 15], [15, 15, 14], [15, 15, 16], [15, 14, 15], [14, 15, 15]],
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, -1.0 , 0.0],
+            [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-
 
     def test_init(self):
         self.assertIsNotNone(
@@ -476,12 +485,12 @@ class LocalStructOrderParasTest(PymatgenTest):
             "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
-            "see_saw"]
-        op_paras = [None, {'TA': 1, 'IGW_TA': 1./0.0667}, \
-                    {'TA': 45./180, 'IGW_TA': 1./0.0667}, None, \
-                    None, None, None, None, None, None, None, None, None, \
-                    None, None, None, None, None, None, None, None, None, \
-                    None, None, None, None]
+            "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
+            "pent_plan_max", "cuboct_max", "tet_max"]
+        op_paras = [None for i in range(len(op_types))]
+        op_paras[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
+        op_paras[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
+        op_paras[33] = {'TA': 0.6081734479693927, 'IGW_TA': 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
         ops_044 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.44)
         ops_071 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.71)
         ops_087 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.87)
@@ -528,6 +537,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 763)
         self.assertAlmostEqual(int(op_vals[8] * 1000), 353)
+        self.assertAlmostEqual(int(op_vals[28] * 1000), 1000)
 
         # Bcc structure.
         op_vals = ops_087.get_order_parameters(self.bcc, 0)
@@ -554,7 +564,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         self.assertAlmostEqual(op_vals[0], 12.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 33)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 82)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), -41)
+        self.assertAlmostEqual(int(op_vals[5] * 1000), -26)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 97)
         self.assertAlmostEqual(int(op_vals[8] * 1000), 484)
@@ -564,20 +574,23 @@ class LocalStructOrderParasTest(PymatgenTest):
         self.assertAlmostEqual(op_vals[0], 4.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 37)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), 749)
+        self.assertAlmostEqual(op_vals[5], 0.75)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
         self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
+        self.assertAlmostEqual(int(op_vals[27] * 1000), 1000)
 
         # Trigonal off-plane molecule.
         op_vals = ops_044.get_order_parameters(self.trigonal_off_plane, 0)
         self.assertAlmostEqual(op_vals[0], 3.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
+        self.assertAlmostEqual(int(op_vals[33] * 1000), 1000)
 
         # Trigonal-planar motif.
         op_vals = ops_101.get_order_parameters(self.trigonal_planar, 0)
         self.assertEqual(int(op_vals[0] + 0.5), 3)
         self.assertAlmostEqual(int(op_vals[14] * 1000 + 0.5), 1000)
+        self.assertAlmostEqual(int(op_vals[29] * 1000 + 0.5), 1000)
 
         # Regular triangle motif.
         op_vals = ops_101.get_order_parameters(self.regular_triangle, 0)
@@ -586,6 +599,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         # Square-planar motif.
         op_vals = ops_101.get_order_parameters(self.square_planar, 0)
         self.assertAlmostEqual(int(op_vals[15] * 1000 + 0.5), 1000)
+        self.assertAlmostEqual(int(op_vals[30] * 1000 + 0.5), 1000)
 
         # Square motif.
         op_vals = ops_101.get_order_parameters(self.square, 0)
@@ -594,8 +608,9 @@ class LocalStructOrderParasTest(PymatgenTest):
         # Pentagonal planar.
         op_vals = ops_101.get_order_parameters(
                 self.pentagonal_planar.sites, 0, indices_neighs=[1,2,3,4,5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 33)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 126)
         self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
+        self.assertAlmostEqual(int(op_vals[31] * 1000 + 0.5), 1000)
 
         # Trigonal pyramid motif.
         op_vals = ops_101.get_order_parameters(
@@ -605,7 +620,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
         self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 375)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 667)
         self.assertAlmostEqual(int(op_vals[17] * 1000 + 0.5), 1000)
 
         # Pentagonal pyramid motif.
@@ -638,11 +653,17 @@ class LocalStructOrderParasTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(
             self.cuboctahedron, 0, indices_neighs=[i for i in range(1, 13)])
         self.assertAlmostEqual(int(op_vals[24] * 1000 + 0.5), 1000)
+        self.assertAlmostEqual(int(op_vals[32] * 1000 + 0.5), 1000)
 
         # See-saw motif.
         op_vals = ops_101.get_order_parameters(
-            self.see_saw, 0, indices_neighs=[i for i in range(1, 5)])
+            self.see_saw_rect, 0, indices_neighs=[i for i in range(1, 5)])
         self.assertAlmostEqual(int(op_vals[25] * 1000 + 0.5), 1000)
+
+        # Hexagonal planar motif.
+        op_vals = ops_101.get_order_parameters(
+            self.hexagonal_planar, 0, indices_neighs=[1,2,3,4,5,6])
+        self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])
@@ -673,7 +694,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         del self.pentagonal_bipyramid
         del self.T_shape
         del self.cuboctahedron
-        del self.see_saw
+        del self.see_saw_rect
 
 
 if __name__ == '__main__':

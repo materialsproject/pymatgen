@@ -154,6 +154,22 @@ class Lattice(MSONable):
         """
         return dot(cart_coords, self.inv_matrix)
 
+    def d_hkl(self, miller_index):
+        """
+        Returns the distance between the hkl plane and the origin
+
+        Args:
+            miller_index ([h,k,l]): Miller index of plane
+
+        Returns:
+            d_hkl (float)
+        """
+
+        g = 0
+        for i, gi in enumerate(self.reciprocal_lattice.matrix):
+            g += (gi / (2 * np.pi)) * miller_index[i]
+        return 1 / (np.dot(g, g) ** (1 / 2))
+
     @staticmethod
     def cubic(a):
         """

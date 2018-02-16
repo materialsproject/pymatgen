@@ -283,12 +283,13 @@ class EnumerateStructureTransformation(AbstractTransformation):
             this parameter.
         sort_criteria (str): Sort by Ewald energy ("ewald", must have oxidation
             states and slow) or by number of sites ("nsites", much faster).
+        timeout (float): timeout in minutes to pass to EnumlibAdaptor
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
                  refine_structure=False, enum_precision_parameter=0.001,
                  check_ordered_symmetry=True, max_disordered_sites=None,
-                 sort_criteria="ewald"):
+                 sort_criteria="ewald", timeout=None):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
@@ -297,6 +298,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self.check_ordered_symmetry = check_ordered_symmetry
         self.max_disordered_sites = max_disordered_sites
         self.sort_criteria = sort_criteria
+        self.timeout = timeout
 
         if max_cell_size and max_disordered_sites:
             raise ValueError("Cannot set both max_cell_size and "
@@ -362,7 +364,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 max_cell_size=max_cell_size,
                 symm_prec=self.symm_prec, refine_structure=False,
                 enum_precision_parameter=self.enum_precision_parameter,
-                check_ordered_symmetry=self.check_ordered_symmetry)
+                check_ordered_symmetry=self.check_ordered_symmetry,
+                timeout=self.timeout)
             try:
                 adaptor.run()
             except EnumError:
@@ -1076,7 +1079,8 @@ class SlabTransformation(AbstractTransformation):
 
     """
     def __init__(self, miller_index, min_slab_size, min_vacuum_size,
-                 lll_reduce=False, center_slab=False, primitive=True,
+                 lll_reduce=False, center_slab=False,
+                 in_unit_planes=False, primitive=True,
                  max_normal_search=None, shift=0, tol=0.1):
         """
         Args:
@@ -1097,6 +1101,7 @@ class SlabTransformation(AbstractTransformation):
         self.min_vacuum_size = min_vacuum_size
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab
+        self.in_unit_planes = in_unit_planes
         self.primitive = primitive
         self.max_normal_search = max_normal_search
         self.shift = shift
@@ -1105,8 +1110,8 @@ class SlabTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         sg = SlabGenerator(structure, self.miller_index, self.min_slab_size,
                            self.min_vacuum_size, self.lll_reduce,
-                           self.center_slab, self.primitive,
-                           self.max_normal_search)
+                           self.center_slab, self.in_unit_planes,
+                           self.primitive, self.max_normal_search)
         slab = sg.get_slab(self.shift, self.tol)
         return slab
 

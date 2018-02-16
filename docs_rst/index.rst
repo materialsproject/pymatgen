@@ -46,7 +46,7 @@ Py3k-only with effect from 2019.1.1
 
 Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
 With increasing support by most standard libraries for Py3k, it no longer makes
-sense to maintain this dual support going foward. Dual support imposes costs in
+sense to maintain this dual support going forward. Dual support imposes costs in
 terms of developmental effort, and also forces compromises in code quality and
 efficiency. Though some legacy clusters may only come with Py2k installed by
 default, the recommended approach in any case is to create an isolated Py3k
@@ -95,7 +95,8 @@ several advantages over other codes out there:
    `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
    for continuous integration on the Linux and Windows platforms,
    respectively, which ensures that every commit passes a comprehensive suite
-   of unittests. The coverage of the unittests can be seen at `here <coverage/index.html>`_.
+   of unittests. The coverage of the unittests can be seen on
+   `coveralls.io <https://coveralls.io/github/materialsproject/pymatgen>`_.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means

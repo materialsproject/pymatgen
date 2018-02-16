@@ -1,5 +1,5 @@
-pymatgen\.io\.vasp\.sets module
-===============================
+pymatgen.io.vasp.sets module
+============================
 
 .. automodule:: pymatgen.io.vasp.sets
     :members:

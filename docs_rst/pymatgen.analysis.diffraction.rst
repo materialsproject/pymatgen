@@ -1,5 +1,5 @@
-pymatgen\.analysis\.diffraction package
-=======================================
+pymatgen.analysis.diffraction package
+=====================================
 
 Subpackages
 -----------

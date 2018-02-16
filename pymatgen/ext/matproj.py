@@ -350,12 +350,16 @@ class MPRester(object):
                                   entry_id=d["task_id"])
 
             else:
-                s = d["structure"] if inc_structure == "final" else d[
+                prim = d["structure"] if inc_structure == "final" else d[
                     "initial_structure"]
                 if conventional_unit_cell:
-                    s = SpacegroupAnalyzer(s).get_conventional_standard_structure()
+                    s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
+                    energy = d["energy"]*(len(s)/len(prim))
+                else:
+                    s = prim.copy()
+                    energy = d["energy"]
                 e = ComputedStructureEntry(
-                    s, d["energy"],
+                    s, energy,
                     parameters={k: d[k] for k in params},
                     data=data,
                     entry_id=d["task_id"])

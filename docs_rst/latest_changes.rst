@@ -1,10 +1,11 @@
 Change log
 ==========
 
-v2017.12.30
------------
-* Added detailed Shannon radii information and method.
-* Magoms for lanthanides (Weike Ye)
-* Chemenv improvements (David Waroquiers)
-* Ewald summation improvements (Logan Ward)
-* Update to ABINIT support (G Matteo)
+v2018.2.13
+----------
+* Improved chemenv parameters and bug fixes (David Waroquiers).
+* Improved Qchem IO (Shyam).
+* Improved interfacial reactions.
+* local_env update (Nils).
+* Improved ABINIT support (@gmatteo).
+* Misc bug fixes.

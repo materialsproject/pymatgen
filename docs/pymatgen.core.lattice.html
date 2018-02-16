@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.lattice module &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.core.lattice module &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2017.12.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.2.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -57,7 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.core.lattice.Lattice">
 <em class="property">class </em><code class="descname">Lattice</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A lattice object.  Essentially a matrix with conversion matrices. In
 general, it is assumed that length units are in Angstroms and angles are in
 degrees unless otherwise stated.</p>
@@ -146,7 +137,7 @@ matrix representation. Set to 1 for more details.</td>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.cubic">
-<em class="property">static </em><code class="descname">cubic</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.cubic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">cubic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.cubic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.cubic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a cubic lattice.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -155,6 +146,22 @@ matrix representation. Set to 1 for more details.</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>a</strong> (<em>float</em>) – The <em>a</em> lattice parameter of the cubic cell.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Cubic lattice of dimensions a x a x a.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.lattice.Lattice.d_hkl">
+<code class="descname">d_hkl</code><span class="sig-paren">(</span><em>miller_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.d_hkl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.d_hkl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the distance between the hkl plane and the origin</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>miller_index</strong> (<em>[</em><em>h</em><em>,</em><em>k</em><em>,</em><em>l</em><em>]</em>) – Miller index of plane</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">d_hkl (float)</td>
 </tr>
 </tbody>
 </table>
@@ -272,7 +279,7 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.from_lengths_and_angles">
-<em class="property">static </em><code class="descname">from_lengths_and_angles</code><span class="sig-paren">(</span><em>abc</em>, <em>ang</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_lengths_and_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_lengths_and_angles" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_lengths_and_angles</code><span class="sig-paren">(</span><em>ang</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_lengths_and_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_lengths_and_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -293,7 +300,7 @@ If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.from_parameters">
-<em class="property">static </em><code class="descname">from_parameters</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em>, <em>alpha</em>, <em>beta</em>, <em>gamma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_parameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_parameters</code><span class="sig-paren">(</span><em>b</em>, <em>c</em>, <em>alpha</em>, <em>beta</em>, <em>gamma</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.from_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.from_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Lattice using unit cell lengths and angles (in degrees).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -414,7 +421,7 @@ the distance between frac_coords1 and (jimage + frac_coords2) is
 equal to distance.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.PeriodicSite.distance" title="pymatgen.core.sites.PeriodicSite.distance">distance</a>, jimage)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(distance, jimage)</p>
 </td>
 </tr>
 </tbody>
@@ -544,7 +551,7 @@ represent a square facet.</td>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.hexagonal">
-<em class="property">static </em><code class="descname">hexagonal</code><span class="sig-paren">(</span><em>a</em>, <em>c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.hexagonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.hexagonal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">hexagonal</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.hexagonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.hexagonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a hexagonal lattice.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -609,7 +616,7 @@ represent a square facet.</td>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.monoclinic">
-<em class="property">static </em><code class="descname">monoclinic</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em>, <em>beta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.monoclinic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.monoclinic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">monoclinic</code><span class="sig-paren">(</span><em>b</em>, <em>c</em>, <em>beta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.monoclinic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.monoclinic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a monoclinic lattice.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -656,7 +663,7 @@ cartesian coordinates.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.orthorhombic">
-<em class="property">static </em><code class="descname">orthorhombic</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.orthorhombic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.orthorhombic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">orthorhombic</code><span class="sig-paren">(</span><em>b</em>, <em>c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.orthorhombic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.orthorhombic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for an orthorhombic lattice.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -695,7 +702,7 @@ The property is lazily generated for efficiency.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.rhombohedral">
-<em class="property">static </em><code class="descname">rhombohedral</code><span class="sig-paren">(</span><em>a</em>, <em>alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.rhombohedral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.rhombohedral" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">rhombohedral</code><span class="sig-paren">(</span><em>alpha</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.rhombohedral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.rhombohedral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a rhombohedral lattice.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -734,7 +741,7 @@ are preserved.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.core.lattice.Lattice.tetragonal">
-<em class="property">static </em><code class="descname">tetragonal</code><span class="sig-paren">(</span><em>a</em>, <em>c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.tetragonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.tetragonal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">tetragonal</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.tetragonal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.tetragonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience constructor for a tetragonal lattice.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -778,12 +785,14 @@ are preserved.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -799,13 +808,13 @@ are preserved.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.2.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
