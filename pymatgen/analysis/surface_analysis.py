@@ -208,10 +208,8 @@ class SlabEntry(ComputedStructureEntry):
         # as a function of the other elements
         for ref_el in ucell_comp.as_dict().keys():
             if str(ref_el) not in ref_entries_dict.keys():
-                delu = Symbol("delu_" + str(ref_el))
                 break
         refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el]
-        print("refprA", refEperA, "bulk_energy", bulk_energy)
         bulk_energy += self.composition.as_dict()[ref_el] * refEperA
 
         return gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
