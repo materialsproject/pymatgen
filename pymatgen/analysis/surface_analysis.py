@@ -210,8 +210,9 @@ class SlabEntry(ComputedStructureEntry):
             if str(ref_el) not in ref_entries_dict.keys():
                 delu = Symbol("delu_" + str(ref_el))
                 break
-        refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el] - delu
-        bulk_energy += self.composition.as_dict()[ref_el] * (delu + refEperA)
+        refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el]
+        print("refprA", refEperA, "bulk_energy", bulk_energy)
+        bulk_energy += self.composition.as_dict()[ref_el] * refEperA
 
         return gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
                            Symbol("A"): self.surface_area})
@@ -1341,3 +1342,6 @@ class NanoscaleStability(object):
         # class SlabEntryGenerator(object):
         #     def __init__(self, entry):
         #         self.entry = entry
+
+def electrostatic_potential_plot():
+    pass
