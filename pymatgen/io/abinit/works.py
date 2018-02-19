@@ -1308,7 +1308,9 @@ class PhononWork(Work, MergeDdb):
     """
     This work usually consists of one GS + nirred Phonon tasks where nirred is
     the number of irreducible perturbations for a given q-point.
-    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced
+    It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
+    all the partial DDB (POT) files produced. The two files are available in the
+    output directory of the Work.
     """
 
     @classmethod
