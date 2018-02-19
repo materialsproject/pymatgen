@@ -47,8 +47,8 @@ class NMRChemicalShiftNotation(MSONable):
     MarylandNotation = namedtuple(typename="MarylandNotation",
                                   field_names="sigma_iso, omega, kappa")
 
-    def __init__(self, sigma_1, sigma_2, sigma_3):
-        sigmas = sorted([sigma_1, sigma_2, sigma_3])
+    def __init__(self, sigma_11, sigma_22, sigma_33):
+        sigmas = sorted([sigma_11, sigma_22, sigma_33])
         self.sigma_11, self.sigma_22, self.sigma_33 = sigmas
 
     @property
@@ -94,13 +94,3 @@ class NMRChemicalShiftNotation(MSONable):
         sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
         sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
         return cls(sigma_11, sigma_22, sigma_33)
-
-    def as_dict(self):
-        d = {"sigma_11": self.sigma_11,
-             "sigma_22": self.sigma_22,
-             "sigma_33": self.sigma_33}
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(d["sigma_11"], d["sigma_22"], d["sigma_33"])

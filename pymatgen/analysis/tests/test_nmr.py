@@ -80,3 +80,6 @@ class TestChemicalShiftNotation(unittest.TestCase):
         cs8 = json.loads(j1, cls=MontyDecoder)
         hae8 = cs8.haeberlen_values
         self.assertAlmostEqual(hae1, hae8, places=5)
+
+if __name__ == '__main__':
+    unittest.main()
