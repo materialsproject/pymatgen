@@ -1105,6 +1105,25 @@ class Specie(MSONable):
             output += ",%s=%s" % (p, v)
         return output
 
+    def get_nmr_quadrupole_moment(self,isotope=None):
+        """
+        Gets the nuclear electric quadrupole moment in units of
+        e*millibarns
+
+        Args:
+            isotope (str): the isotope to get the quadrupole moment for
+                default is None, which gets the lowest mass isotope
+        """
+        quad_mom = self._el.data.get("NMR Quadrupole Moment",{})
+
+        if isotope is None:
+            isotopes = list(quad_mom.keys())
+            isotopes.sort(key=lambda x: int(x.split("-")[1]), reverse=False)
+            return quad_mom.get(isotopes[0],0.0)
+        else:
+            return quad_mom.get(isotope,0.0)
+
+
     def get_shannon_radius(self, cn, spin="", radius_type="ionic"):
         """
         Get the local environment specific ionic radius for species.

@@ -289,6 +289,11 @@ class SpecieTestCase(PymatgenTest):
         s = Specie("Co", 3).get_crystal_field_spin("tet", spin_config="low")
         self.assertEqual(s, 2)
 
+    def test_get_nmr_mom(self):
+        self.assertEqual(Specie("H").get_nmr_quadrupole_moment(),2.860)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment(),-0.808)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment("Li-7"),-40.1)
+
     def test_get_shannon_radius(self):
         self.assertEqual(Specie("Li", 1).get_shannon_radius("IV"), 0.59)
         mn2 = Specie("Mn", 2)
