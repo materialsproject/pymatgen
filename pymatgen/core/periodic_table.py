@@ -891,6 +891,14 @@ class Element(Enum):
         """
         return 88 < self.Z < 104
 
+    @property
+    def nmr_quadrupole_moment(self):
+        """
+        Get a dictionary the nuclear electric quadrupole moment in units of
+        e*millibarns for various isotopes
+        """
+        return self.data.get("NMR Quadrupole Moment",{})
+
     def __deepcopy__(self, memo):
         return Element(self.symbol)
 
@@ -1115,7 +1123,7 @@ class Specie(MSONable):
                 default is None, which gets the lowest mass isotope
         """
 
-        quad_mom = self._el.data.get("NMR Quadrupole Moment",{})
+        quad_mom = self._el.nmr_quadrupole_moment
 
         if len(quad_mom) == 0:
             return 0.0
