@@ -678,7 +678,6 @@ class OutcarTest(unittest.TestCase):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "hydromagnesite", "OUTCAR")
         outcar = Outcar(filename)
-        outcar.read_chemical_shifts()
         expected_chemical_shifts = [[191.9974, 69.5232, 0.6342],
                                     [195.0808, 68.183, 0.833],
                                     [192.0389, 69.5762, 0.6329],
@@ -701,7 +700,6 @@ class OutcarTest(unittest.TestCase):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
-        outcar.read_chemical_shifts()
         c_vo = outcar.data["chemical_shifts"]["valence_only"][7].maryland_values
         for x1, x2 in zip(list(c_vo),
                           [198.7009, 73.7484, 1.0000]):
@@ -716,7 +714,7 @@ class OutcarTest(unittest.TestCase):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
-        unsym_tensors = outcar.read_cs_raw_symmetrized_tensors()
+        unsym_tensors = outcar.data["unsym_cs_tensor"]
         self.assertEqual(unsym_tensors[0],
                          [[-145.814605, -4.263425, 0.000301],
                           [4.263434, -145.812238, -8.7e-05],
@@ -730,7 +728,7 @@ class OutcarTest(unittest.TestCase):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
-        g0_contrib = outcar.read_cs_g0_contribution()
+        g0_contrib = outcar.data["cs_g0_contribution"]
         self.assertEqual(g0_contrib,
                          [[-8.773535, 9e-06, 1e-06],
                           [1.7e-05, -8.773536, -0.0792],
@@ -740,7 +738,7 @@ class OutcarTest(unittest.TestCase):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
-        core_contrib = outcar.read_cs_core_contribution()
+        core_contrib = outcar.data["cs_core_contribution"]
         self.assertEqual(core_contrib,
                          {'Mg': -412.8248405,
                           'C': -200.5098812,
@@ -749,7 +747,6 @@ class OutcarTest(unittest.TestCase):
     def test_nmr_efg(self):
         filename = os.path.join(test_dir, "nmr", "efg", "AlPO4", "OUTCAR")
         outcar = Outcar(filename)
-        outcar.read_nmr_efg()
         expected_efg = [
             {'eta': 0.465, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.573},
             {'eta': 0.465, 'nuclear_quadrupole_moment': 146.6, 'cq': -5.573},
