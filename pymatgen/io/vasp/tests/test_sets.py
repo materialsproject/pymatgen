@@ -581,6 +581,31 @@ class MPSOCSetTest(PymatgenTest):
         self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
         self.assertEqual(vis.incar['SIGMA'], 0.025)
 
+class MPNMRSetTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_incar(self):
+        filepath = os.path.join(test_dir, 'Li.cif')
+        structure = Structure.from_file(filepath)
+
+        vis = MPNMRSet(structure)
+        self.assertTrue(vis.incar.get("LCHIMAG",None))
+        self.assertEqual(vis.incar.get("QUAD_EFG",None),None)
+
+        vis = MPNMRSet(structure,mode="efg")
+        self.assertFalse(vis.incar.get("LCHIMAG",None))
+        self.assertEqual(vis.incar.get("QUAD_EFG",None),[-0.808])        
+
+        vis = MPNMRSet(structure,mode="efg",isotopes=["Li-7"])
+        self.assertFalse(vis.incar.get("LCHIMAG",None))
+        self.assertEqual(vis.incar.get("QUAD_EFG",None),[-40.1]) 
+
+
 
 class MVLSlabSetTest(PymatgenTest):
     def setUp(self):
