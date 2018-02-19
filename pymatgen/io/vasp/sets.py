@@ -1061,7 +1061,7 @@ class MPSOCSet(MPStaticSet):
 class MPNMRSet(MPStaticSet):
 
     def __init__(self, structure, mode="cs", isotopes=None,
-        prev_incar=None,reciprocal_density=100, **kwargs):
+                 prev_incar=None, reciprocal_density=100, **kwargs):
         """
         Init a MPNMRSet.
 
@@ -1099,18 +1099,18 @@ class MPNMRSet(MPStaticSet):
         elif self.mode.lower() == "efg":
 
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
-            
-            quad_efg = [Specie(p).get_nmr_quadrupole_moment(isotopes.get(p,None)) for p in self.poscar.site_symbols]
+
+            quad_efg = [Specie(p).get_nmr_quadrupole_moment(isotopes.get(p, None)) for p in self.poscar.site_symbols]
 
             incar.update({"ALGO": "FAST",
-                           "EDIFF": -1.0e-10,
-                           "ISYM": 0,
-                           "LCHARG": False,
-                           "LEFG": True,
-                           "QUAD_EFG": quad_efg,
-                           "NELMIN": 10,
-                           "PREC": "ACCURATE",
-                           "SIGMA": 0.01})
+                          "EDIFF": -1.0e-10,
+                          "ISYM": 0,
+                          "LCHARG": False,
+                          "LEFG": True,
+                          "QUAD_EFG": quad_efg,
+                          "NELMIN": 10,
+                          "PREC": "ACCURATE",
+                          "SIGMA": 0.01})
         incar.update(self.kwargs.get("user_incar_settings", {}))
 
         return incar
