@@ -1114,13 +1114,19 @@ class Specie(MSONable):
             isotope (str): the isotope to get the quadrupole moment for
                 default is None, which gets the lowest mass isotope
         """
+
         quad_mom = self._el.data.get("NMR Quadrupole Moment",{})
+
+        if len(quad_mom) == 0:
+            return 0.0
 
         if isotope is None:
             isotopes = list(quad_mom.keys())
             isotopes.sort(key=lambda x: int(x.split("-")[1]), reverse=False)
             return quad_mom.get(isotopes[0],0.0)
         else:
+            if isotope not in quad_mom:
+                raise ValueError("No quadrupole moment for isotope {}".format(isotope))
             return quad_mom.get(isotope,0.0)
 
 
