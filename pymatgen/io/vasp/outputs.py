@@ -1621,6 +1621,21 @@ class Outcar(MSONable):
         if self.data.get('electrostatic', []):
             self.read_electrostatic_potential()
 
+        self.nmr_cs = False
+        self.read_pattern({"nmr_cs": r"LCHIMAG   =     (T)"})
+        if self.data.get("nmr_cs",None):
+            self.nmr_cs = True
+            self.read_chemical_shifts()
+            self.read_cs_g0_contribution()
+            self.read_cs_core_contribution()
+            self.read_cs_raw_symmetrized_tensors()
+
+        self.nmr_efg = False
+        self.read_pattern({"nmr_efg": r"NMR quadrupolar parameters"})
+        if self.data.get("nmr_efg",None):
+            self.nmr_efg = True
+            self.read_nmr_efg()
+
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
         """
@@ -1832,7 +1847,6 @@ class Outcar(MSONable):
         footer_pattern = r'\s+-{50,}\s*$'
         self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float,
                                 last_one_only=True, attribute_name="cs_g0_contribution")
-        return self.data["cs_g0_contribution"]
 
 
     def read_cs_core_contribution(self):
@@ -1853,7 +1867,6 @@ class Outcar(MSONable):
         core_contrib = {d['element']: float(d['shift'])
                         for d in self.data["cs_core_contribution"]}
         self.data["cs_core_contribution"] = core_contrib
-        return self.data["cs_core_contribution"]
 
 
     def read_cs_raw_symmetrized_tensors(self):
@@ -1896,7 +1909,6 @@ class Outcar(MSONable):
                     tensor_matrix.append(processed_line)
                 unsym_tensors.append(tensor_matrix)
             self.data["unsym_cs_tensor"] = unsym_tensors
-            return unsym_tensors
         else:
             raise ValueError("NMR UNSYMMETRIZED TENSORS is not found")
 
@@ -2516,6 +2528,17 @@ class Outcar(MSONable):
                 d.update({'p_sp1': self.p_sp1,
                           'p_sp2': self.p_sp2})
             d.update({'zval_dict': self.zval_dict})
+
+
+        if self.nmr_cs:
+            d.update({"nmr_cs": {"valence and core": self.data["chemical_shifts"]["valence_and_core"],
+                "valence_only": self.data["chemical_shifts"]["valence_only"],
+                "g0": self.data["cs_g0_contribution"],
+                "core": self.data["cs_core_contribution"],
+                "raw": self.data["unsym_cs_tensor"]}})
+
+        if self.nmr_efg:
+            d.update({"nmr_efg": self.data["efg"]})
 
         return d
 
