@@ -892,6 +892,13 @@ class Element(Enum):
         return 88 < self.Z < 104
 
     @property
+    def is_quadrupolar(self):
+        """
+        Checks if this element can be quadrupolar
+        """
+        return len(self.data.get("NMR Quadrupole Moment",{})) > 0
+
+    @property
     def nmr_quadrupole_moment(self):
         """
         Get a dictionary the nuclear electric quadrupole moment in units of
