@@ -1410,6 +1410,11 @@ class ReconstructionGenerator(object):
 
         slab.reconstruction = self.name
 
+        # Get the oriented_unit_cell with the same axb area.
+        ouc = slab.oriented_unit_cell.copy()
+        ouc.make_supercell(self.trans_matrix)
+        slab.oriented_unit_cell = ouc
+
         return slab
 
     def symmetrically_remove_atom(self, slab, point):
@@ -1645,7 +1650,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 # equal or less than the given max index
                 if max(instructions["miller_index"]) > max_index:
                     continue
-                print("reconstruction to do", name)
                 recon = ReconstructionGenerator(structure, min_slab_size,
                                                 min_vacuum_size, name)
                 slab = recon.build_slab()
