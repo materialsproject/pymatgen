@@ -1340,10 +1340,11 @@ class ReconstructionGenerator(object):
         """
 
         if reconstruction_name not in reconstructions_archive.keys():
-            raise KeyError("The reconstruction_name entered does not exist in the "
+            raise KeyError("The reconstruction_name entered (%s) does not exist in the "
             "archive. Please select from one of the following reconstructions: %s "
             "or add the appropriate dictionary to the archive file "
-            "reconstructions_archive.json." %(list(reconstructions_archive.keys())))
+            "reconstructions_archive.json." %(reconstruction_name,
+                                              list(reconstructions_archive.keys())))
 
         # Get the instructions to build the reconstruction
         # from the reconstruction_archive
