@@ -635,7 +635,7 @@ class MPStaticSet(MPRelaxSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
-        return MPStaticSet(
+        return cls(
             structure=prev_structure, prev_incar=prev_incar,
             prev_kpoints=prev_kpoints,
             reciprocal_density=reciprocal_density, **kwargs)
@@ -772,7 +772,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
-        return MPHSEBSSet(
+        return cls(
             structure=prev_structure,
             added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
             mode=mode, files_to_transfer=files_to_transfer, **kwargs)
@@ -939,7 +939,7 @@ class MPNonSCFSet(MPRelaxSet):
                 kpoints_line_density = kpoints_line_density * \
                                        small_gap_multiply[1]
 
-        return MPNonSCFSet(structure=structure, prev_incar=incar,
+        return cls(structure=structure, prev_incar=incar,
                            reciprocal_density=reciprocal_density,
                            kpoints_line_density=kpoints_line_density,
                            files_to_transfer=files_to_transfer, **kwargs)
@@ -1054,7 +1054,7 @@ class MPSOCSet(MPStaticSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
-        return MPSOCSet(structure, prev_incar=incar,
+        return cls(structure, prev_incar=incar,
                         files_to_transfer=files_to_transfer,
                         reciprocal_density=reciprocal_density, **kwargs)
 
@@ -1292,7 +1292,7 @@ class MVLGWSet(DictSet):
                     else:
                         files_to_transfer[fname] = str(w[-1])
 
-        return MVLGWSet(structure=structure, prev_incar=prev_incar,
+        return cls(structure=structure, prev_incar=prev_incar,
                         nbands=nbands, mode=mode,
                         files_to_transfer=files_to_transfer, **kwargs)
 
