@@ -1108,71 +1108,64 @@ class WorkFunctionAnalyzer(object):
         self.locpot_along_c = locpot.get_average_along_axis(2)
         self.bulk_like_locpot = max(self.locpot_along_c)
         self.slab = poscar.structure
+        # Get the plot points between 0 and c
+        # increments of the number of locpot points
+        c = self.slab.lattice.c
+        self.along_c = np.linspace(0, c, num=len(self.locpot_along_c))
+        # for setting ylim and annotating
+        self.ave_locpot = (max(self.locpot_along_c)-min(self.locpot_along_c))/2
+        self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
+
+        # get the average of the signal in the bulk-like region of the
+        # slab, i.e. the average of the oscillating region. This gives
+        # a rough appr. of the potential in the interior of the slab
+        bulk_p = [p for i, p in enumerate(self.locpot_along_c) if \
+                  self.sorted_sites[-1].coords[2] >= self.along_c[i] \
+                  >= self.sorted_sites[0].coords[2]]
+        self.ave_bulk_p = np.mean(bulk_p)
 
     @property
-    def get_work_function(self):
+    def work_function(self):
         """
         Calculates the work function from the outputs of the task_doc. The work
             function is going to be the energy barrier between the electrostatic
-            potential in the bulk-like region of the slab adn the Fermi energy.
+            potential in the vacuum region of the slab and the Fermi energy.
         Returns:
             work_function in eV (float)
         """
         return self.bulk_like_locpot - self.efermi
 
-    def get_locpot_along_slab_plot(self, plt=None):
+    def get_locpot_along_slab_plot(self, plt=None, shift=0, label_energies=True, label_fontsize=10):
 
         plt = pretty_plot() if not plt else plt
         fig, ax = plt.subplots()
+        ax.spines['top'].set_visible(False)
+
+        # plot the raw locpot signal along c
+        plt.plot(self.along_c, self.locpot_along_c, 'b--')
+
+        # Get the local averaged signal of the locpot along c
+
+        xg, yg = [], []
+        for i, p in enumerate(self.locpot_along_c):
+            # average signal is just the bulk-like potential when in the slab region
+            if p < self.ave_bulk_p \
+                    or self.sorted_sites[-1].coords[2] >= self.along_c[i] \
+                            >= self.sorted_sites[0].coords[2]:
+                yg.append(self.ave_bulk_p)
+                xg.append(self.along_c[i])
+            else:
+                yg.append(p)
+                xg.append(self.along_c[i])
+        xg, yg = zip(*sorted(zip(xg, yg)))
+        plt.plot(xg, yg, 'r', linewidth=2.5, zorder=-1)
+
+        if label_energies:
+            plt = self.get_labels(plt, label_fontsize=label_fontsize)
 
         c = self.slab.lattice.c
-        along_c = np.linspace(0, c, num=len(self.locpot_along_c))
-
-        ax.spines['top'].set_visible(False)
-        plt.plot(along_c, self.locpot_along_c, 'b--')
-        plt.plot([0, c], [self.efermi, self.efermi], 'g--', zorder=-5, linewidth=3)
-
-        sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
-
-        xg1, yg1 = [], []
-        xg2, yg2 = [], []
-        xg3, yg3 = [], []
-
-        bulk_p = [p for i, p in enumerate(self.locpot_along_c) if \
-                  sites[-1].coords[2] >= along_c[i] >= sites[0].coords[2]]
-        for i, p in enumerate(self.locpot_along_c):
-            if p < 0.5:
-                yg1.append(p)
-                xg1.append(along_c[i])
-
-            elif sites[-1].coords[2] >= along_c[i] >= sites[0].coords[2]:
-                yg2.append(np.mean(bulk_p))
-                xg2.append(along_c[i])
-            elif p > 0.5:
-                yg3.append(p)
-                xg3.append(along_c[i])
-        xg1.extend(xg2)
-        yg1.extend(yg2)
-        plt.plot(xg1, yg1, 'r-', linewidth=2.5, zorder=-1)
-
-        x = [p for p in along_c]
-        y = [p for p in self.locpot_along_c]
-        plt.plot(x, y, 'r-', linewidth=2.5, zorder=-1)
-
-        plt.annotate(r"$E_f=%.2f$" %(self.efermi), xy=[10, self.efermi+0.2],
-                     xytext=[10, self.efermi+0.2], fontsize=13, color='g')
-
-        plt.plot([50, 50], [self.efermi, max(self.locpot_along_c)],
-                 'k--', zorder=-5, linewidth=2)
-        # plt.annotate(r"$\Phi$", [46, -0.1], [46, -0.1], fontsize=13)
-        # plt.annotate(r"$V_{vac}$", [max(along_c)-7, max(loc)+0.5], [max(along_c)-7, max(loc)+0.5], fontsize=13)
-
-        plt.plot([0, c], [np.mean(bulk_p), np.mean(bulk_p)],
-                 'r--', linewidth=1., zorder=-1)
-        # plt.annotate(r"$V^{interior}_{slab}$", [45, np.mean(bulk_p)+0.5], [45, np.mean(bulk_p)+0.5], fontsize=13)
-
         plt.xlim([0, c])
-        plt.ylim([-15, 5])
+        plt.ylim([min(self.locpot_along_c), max(self.locpot_along_c)+self.ave_locpot*0.2])
         plt.xlabel(r"$\hat{c}$ ($\AA$)", fontsize=30)
         plt.xticks(fontsize=15, rotation=45)
         plt.ylabel(r"Energy (eV)", fontsize=30)
@@ -1180,8 +1173,57 @@ class WorkFunctionAnalyzer(object):
 
         return plt
 
+    def get_labels(self, plt, label_fontsize=10):
+
+        c = self.slab.lattice.c
+
+        # determine whether most of the vacuum is to
+        # the left or right for labelling purposes
+        vleft = [i for i in self.along_c if i <= self.sorted_sites[0].coords[2]]
+        vright = [i for i in self.along_c if i >= self.sorted_sites[-1].coords[2]]
+        if max(vleft) - min(vleft) > max(vright) - min(vright):
+            label_in_vac = (max(vleft) - min(vleft))/2
+        else:
+            label_in_vac = (max(vright) - min(vright))/2
+        label_in_vac *=0.1
+
+        # label the fermi energy
+        plt.plot([0, c], [self.efermi]*2, 'g--',
+                 zorder=-5, linewidth=3)
+        plt.annotate(r"$E_f=%.2f$" %(self.efermi),
+                     xy=[10, self.efermi+self.ave_locpot*0.05],
+                     xytext=[10, self.efermi+self.ave_locpot*0.05],
+                     fontsize=label_fontsize, color='g')
+
+        # label the vacuum locpot
+        plt.plot([0, c], [max(self.locpot_along_c)]*2, 'b--',
+                 zorder=-5, linewidth=1)
+        plt.annotate(r"$V_{vac}=%.2f$" %(max(self.locpot_along_c)),
+                     xy=[10, max(self.locpot_along_c)+self.ave_locpot*0.05], color='b',
+                     xytext=[10, max(self.locpot_along_c)+self.ave_locpot*0.05],
+                     fontsize=label_fontsize)
+
+        # label the bulk-like locpot
+        plt.plot([0, c], [self.ave_bulk_p]*2,
+                 'r--', linewidth=1., zorder=-1)
+        plt.annotate(r"$V^{interior}_{slab}=%.2f$" % (self.ave_bulk_p),
+                     xy=[label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05], color='r',
+                     xytext=[label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05],
+                     fontsize=label_fontsize)
+
+        # label the work function as a barrier
+        plt.plot([np.mean(label_in_vac), np.mean(label_in_vac)],
+             [self.efermi, max(self.locpot_along_c)],
+             'k--', zorder=-5, linewidth=2)
+        plt.annotate(r"$\Phi=%.2f$" %(self.work_function),
+                     [label_in_vac, self.efermi+self.work_function/2.8],
+                     [label_in_vac, self.efermi+self.work_function/2.8],
+                     fontsize=label_fontsize)
+
+        return plt
+
     @staticmethod
-    def from_files(self, poscar_filename, locpot_filename, outcar_filename):
+    def from_files(poscar_filename, locpot_filename, outcar_filename):
         poscar = Poscar.from_file(poscar_filename)
         locpot = Locpot.from_file(locpot_filename)
         outcar = Outcar(outcar_filename)
