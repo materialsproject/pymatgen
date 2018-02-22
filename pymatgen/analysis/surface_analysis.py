@@ -30,6 +30,7 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.util.plotting import pretty_plot
+from pymatgen.io.vasp.outputs import Outcar, Locpot, Poscar
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -1077,6 +1078,116 @@ class SurfaceEnergyPlotter(object):
         #     return
 
 
+class WorkFunctionAnalyzer(object):
+    """
+    A class that post processes a task document of a vasp calculation (from
+        using drone.assimilate). Can calculate work function from the vasp
+        calculations and plot the potential along the c axis. This class
+        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a
+        slab calculation and it was insert into the task document along with
+        the other outputs.
+
+    .. attribute:: task_doc
+
+        Dictionary of a task file generated from a pymatgen-db drone
+            containing the raw outputs of a vasp slab calculation.
+
+    .. attribute:: efermi
+
+        The Fermi energy
+    """
+
+    def __init__(self, poscar, locpot, outcar):
+        """
+        Initializes the WorkFunctionAnalyzer class.
+
+        Args:
+        """
+
+        self.efermi = outcar.efermi
+        self.locpot_along_c = locpot.get_average_along_axis(2)
+        self.bulk_like_locpot = max(self.locpot_along_c)
+        self.slab = poscar.structure
+
+    @property
+    def get_work_function(self):
+        """
+        Calculates the work function from the outputs of the task_doc. The work
+            function is going to be the energy barrier between the electrostatic
+            potential in the bulk-like region of the slab adn the Fermi energy.
+        Returns:
+            work_function in eV (float)
+        """
+        return self.bulk_like_locpot - self.efermi
+
+    def get_locpot_along_slab_plot(self, plt=None):
+
+        plt = pretty_plot() if not plt else plt
+        fig, ax = plt.subplots()
+
+        c = self.slab.lattice.c
+        along_c = np.linspace(0, c, num=len(self.locpot_along_c))
+
+        ax.spines['top'].set_visible(False)
+        plt.plot(along_c, self.locpot_along_c, 'b--')
+        plt.plot([0, c], [self.efermi, self.efermi], 'g--', zorder=-5, linewidth=3)
+
+        sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
+
+        xg1, yg1 = [], []
+        xg2, yg2 = [], []
+        xg3, yg3 = [], []
+
+        bulk_p = [p for i, p in enumerate(self.locpot_along_c) if \
+                  sites[-1].coords[2] >= along_c[i] >= sites[0].coords[2]]
+        for i, p in enumerate(self.locpot_along_c):
+            if p < 0.5:
+                yg1.append(p)
+                xg1.append(along_c[i])
+
+            elif sites[-1].coords[2] >= along_c[i] >= sites[0].coords[2]:
+                yg2.append(np.mean(bulk_p))
+                xg2.append(along_c[i])
+            elif p > 0.5:
+                yg3.append(p)
+                xg3.append(along_c[i])
+        xg1.extend(xg2)
+        yg1.extend(yg2)
+        plt.plot(xg1, yg1, 'r-', linewidth=2.5, zorder=-1)
+
+        x = [p for p in along_c]
+        y = [p for p in self.locpot_along_c]
+        plt.plot(x, y, 'r-', linewidth=2.5, zorder=-1)
+
+        plt.annotate(r"$E_f=%.2f$" %(self.efermi), xy=[10, self.efermi+0.2],
+                     xytext=[10, self.efermi+0.2], fontsize=13, color='g')
+
+        plt.plot([50, 50], [self.efermi, max(self.locpot_along_c)],
+                 'k--', zorder=-5, linewidth=2)
+        # plt.annotate(r"$\Phi$", [46, -0.1], [46, -0.1], fontsize=13)
+        # plt.annotate(r"$V_{vac}$", [max(along_c)-7, max(loc)+0.5], [max(along_c)-7, max(loc)+0.5], fontsize=13)
+
+        plt.plot([0, c], [np.mean(bulk_p), np.mean(bulk_p)],
+                 'r--', linewidth=1., zorder=-1)
+        # plt.annotate(r"$V^{interior}_{slab}$", [45, np.mean(bulk_p)+0.5], [45, np.mean(bulk_p)+0.5], fontsize=13)
+
+        plt.xlim([0, c])
+        plt.ylim([-15, 5])
+        plt.xlabel(r"$\hat{c}$ ($\AA$)", fontsize=30)
+        plt.xticks(fontsize=15, rotation=45)
+        plt.ylabel(r"Energy (eV)", fontsize=30)
+        plt.yticks(fontsize=15)
+
+        return plt
+
+    @staticmethod
+    def from_files(self, poscar_filename, locpot_filename, outcar_filename):
+        poscar = Poscar.from_file(poscar_filename)
+        locpot = Locpot.from_file(locpot_filename)
+        outcar = Outcar(outcar_filename)
+        return WorkFunctionAnalyzer(poscar, locpot, outcar)
+
+
 class NanoscaleStability(object):
     """
     A class for analyzing the stability of nanoparticles of different
@@ -1341,5 +1452,3 @@ class NanoscaleStability(object):
         #     def __init__(self, entry):
         #         self.entry = entry
 
-def electrostatic_potential_plot():
-    pass
