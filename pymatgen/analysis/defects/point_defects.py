@@ -38,7 +38,7 @@ from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.local_env import LocalStructOrderParas, \
-    MinimumDistanceNN, VoronoiNN
+    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator
 from pymatgen.analysis.structure_analyzer import RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.phase_diagram import get_facets

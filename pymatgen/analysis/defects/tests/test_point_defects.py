@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import unittest
 
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator
 from pymatgen.analysis.defects.point_defects import *
 from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
