@@ -6,7 +6,9 @@ import warnings
 import json
 from sympy import Number, Symbol
 
-from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter, NanoscaleStability
+from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter, \
+    NanoscaleStability, WorkFunctionAnalyzer
+from pymatgen.io.vasp.outputs import Poscar, Outcar, Locpot
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.analysis.wulff import WulffShape
@@ -309,6 +311,25 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     #             # Test WulffShape for adsorbed surfaces
     #             analyzer = self.Oads_analyzer_dict[el]
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
+
+
+class WorkfunctionAnalyzerTest(PymatgenTest):
+
+    def setUp(self):
+
+        self.kwargs = {"poscar_filename": get_path("CONTCAR.relax1.gz"),
+                       "locpot_filename": get_path("LOCPOT.gz"),
+                       "outcar_filename": get_path("OUTCAR.relax1.gz")}
+
+    def test_attributes(self):
+        wf_analyzer = WorkFunctionAnalyzer.from_file(**self.kwargs)
+        wf_analyzer_shift = WorkFunctionAnalyzer.from_file(shift=0.25, **self.kwargs)
+        self.assertEqual("%.1f" %(wf_analyzer.ave_bulk_p),
+                         "%.1f" %(wf_analyzer_shift.ave_bulk_p))
+
+    def test_plt(self):
+        wf_analyzer = WorkFunctionAnalyzer.from_file(**self.kwargs)
+        plt = wf_analyzer.get_locpot_along_slab_plot()
 
 
 class NanoscaleStabilityTest(PymatgenTest):
