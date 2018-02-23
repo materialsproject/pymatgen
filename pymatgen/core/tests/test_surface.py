@@ -486,7 +486,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         recon_ouc = recon_slab.oriented_unit_cell
         ouc = slab.oriented_unit_cell
         self.assertEqual(ouc.lattice.b*2, recon_ouc.lattice.b)
-        self.assertEqual(len(ouc)*2, recon_ouc.lattice.b)
+        self.assertEqual(len(ouc)*2, len(recon_ouc))
 
         # Test a reconstruction where we simply add atoms
         recon = ReconstructionGenerator(self.Ni, 10, 10,
