@@ -403,7 +403,7 @@ class SurfaceEnergyPlotter(object):
         self.ref_entries = ref_entries
         self.all_slab_entries = all_slab_entries if \
             type(all_slab_entries).__name__ == "dict" else \
-                self.entry_dict_from_list(all_slab_entries)
+                entry_dict_from_list(all_slab_entries)
         self.color_dict = self.color_palette_dict()
 
     def set_all_variables(self, entry, u_dict, u_default):
@@ -550,7 +550,7 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
 
-        for i, hkl in enumerate(self.all_slab_entries.keys()):
+        for hkl in self.all_slab_entries.keys():
             clean_entry = list(self.all_slab_entries[hkl].keys())[0]
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
@@ -1023,38 +1023,6 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
-    def entry_dict_from_list(self, all_slab_entries):
-        """
-        Converts a list of SlabEntry to an appropriate dictionary. It is
-        assumed that if there is no adsorbate, then it is a clean SlabEntry
-        and that adsorbed SlabEntry has the clean_entry parameter set.
-
-        Args:
-            all_slab_entries (list): List of SlabEntry objects
-
-        Returns:
-            (dict): Dictionary of SlabEntry with the Miller index as the main
-                key to a dictionary with a clean SlabEntry as the key to a
-                list of adsorbed SlabEntry.
-        """
-
-        entry_dict = {}
-
-        for entry in all_slab_entries:
-            hkl = tuple(entry.miller_index)
-            if hkl not in entry_dict.keys():
-                entry_dict[hkl] = {}
-            if entry.clean_entry:
-                clean = entry.clean_entry
-            else:
-                clean = entry
-            if clean not in entry_dict[hkl].keys():
-                entry_dict[hkl][clean] = []
-            if entry.adsorbates:
-                entry_dict[hkl][clean].append(entry)
-
-        return entry_dict
-
         # def surface_phase_diagram(self, y_param, x_param, miller_index):
         #     return
         #
@@ -1076,6 +1044,39 @@ class SurfaceEnergyPlotter(object):
         # def broken_bond_vs_gamma(self):
         #
         #     return
+
+
+def entry_dict_from_list(all_slab_entries):
+    """
+    Converts a list of SlabEntry to an appropriate dictionary. It is
+    assumed that if there is no adsorbate, then it is a clean SlabEntry
+    and that adsorbed SlabEntry has the clean_entry parameter set.
+
+    Args:
+        all_slab_entries (list): List of SlabEntry objects
+
+    Returns:
+        (dict): Dictionary of SlabEntry with the Miller index as the main
+            key to a dictionary with a clean SlabEntry as the key to a
+            list of adsorbed SlabEntry.
+    """
+
+    entry_dict = {}
+
+    for entry in all_slab_entries:
+        hkl = tuple(entry.miller_index)
+        if hkl not in entry_dict.keys():
+            entry_dict[hkl] = {}
+        if entry.clean_entry:
+            clean = entry.clean_entry
+        else:
+            clean = entry
+        if clean not in entry_dict[hkl].keys():
+            entry_dict[hkl][clean] = []
+        if entry.adsorbates:
+            entry_dict[hkl][clean].append(entry)
+
+    return entry_dict
 
 
 class WorkFunctionAnalyzer(object):
