@@ -1257,7 +1257,7 @@ class MVLSlabSet(MPRelaxSet):
     """
 
     def __init__(self, structure, k_product=50, bulk=False,
-                 auto_dipole=False, get_locpot=False, **kwargs):
+                 auto_dipole=False, get_locpot=False, set_mix=True, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.k_product = k_product
@@ -1270,9 +1270,10 @@ class MVLSlabSet(MPRelaxSet):
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2
-            slab_incar["AMIN"] = 0.01
-            slab_incar["AMIX"] = 0.2
-            slab_incar["BMIX"] = 0.001
+            if set_mix:
+                slab_incar["AMIN"] = 0.01
+                slab_incar["AMIX"] = 0.2
+                slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
                 slab_incar["IDIPOL"] = 3
