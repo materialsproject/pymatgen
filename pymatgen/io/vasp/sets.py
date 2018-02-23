@@ -1265,12 +1265,13 @@ class MVLSlabSet(MPRelaxSet):
         self.auto_dipole = auto_dipole
         self.get_locpot = get_locpot
         self.kwargs = kwargs
+        self.set_mix = set_mix
 
         slab_incar = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400,
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2
-            if set_mix:
+            if self.set_mix:
                 slab_incar["AMIN"] = 0.01
                 slab_incar["AMIX"] = 0.2
                 slab_incar["BMIX"] = 0.001
