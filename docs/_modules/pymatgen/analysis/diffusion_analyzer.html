@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffusion_analyzer &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.analysis.diffusion_analyzer &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -422,8 +413,8 @@
             <span class="n">latt</span> <span class="o">=</span> <span class="n">lattices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lattices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">lattices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="k">yield</span> <span class="n">Structure</span><span class="p">(</span>
                 <span class="n">latt</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span>
-                <span class="n">coords</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrected_displacements</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:],</span>
-                <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+                <span class="n">coords</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrected_displacements</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:],</span></div>
+                <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.get_summary_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_msd_t</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_mscd_t</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -462,8 +453,8 @@
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;msd_components&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msd_components</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="n">d</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">include_mscd_t</span><span class="p">:</span>
-            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;mscd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mscd</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">d</span></div>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;mscd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mscd</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">d</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.get_framework_rms_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_framework_rms_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_framework_rms_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">granularity</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
                                <span class="n">matching_s</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -516,8 +507,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Timestep (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit</span><span class="p">))</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;normalized distance&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.get_msd_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_msd_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_msd_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;specie&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -569,8 +560,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;MSCD ($</span><span class="se">\\</span><span class="s2">AA^2$)&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;MSD ($</span><span class="se">\\</span><span class="s2">AA^2$)&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.plot_msd"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_msd">[docs]</a>    <span class="k">def</span> <span class="nf">plot_msd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -582,8 +573,8 @@
 <span class="sd">                square displacements of all ions), &quot;species&quot; (mean square</span>
 <span class="sd">                displacement by specie), or &quot;mscd&quot; (overall mean square charge</span>
 <span class="sd">                displacement for diffusing specie).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_msd_plot</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_msd_plot</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.export_msdt"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.export_msdt">[docs]</a>    <span class="k">def</span> <span class="nf">export_msdt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -606,8 +597,8 @@
             <span class="k">for</span> <span class="n">dt</span><span class="p">,</span> <span class="n">msd</span><span class="p">,</span> <span class="n">msdc</span><span class="p">,</span> <span class="n">mscd</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">msd</span><span class="p">,</span>
                                            <span class="bp">self</span><span class="o">.</span><span class="n">msd_components</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mscd</span><span class="p">):</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">dt</span><span class="p">,</span> <span class="n">msd</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
-                    <span class="n">msdc</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">mscd</span><span class="p">]]))</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+                    <span class="n">msdc</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">mscd</span><span class="p">]]))</span></div>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.from_structures"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_structures">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span>
@@ -671,8 +662,8 @@
         <span class="k">if</span> <span class="n">initial_disp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">disp</span> <span class="o">+=</span> <span class="n">initial_disp</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">disp</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span>
-                   <span class="n">step_skip</span><span class="o">=</span><span class="n">step_skip</span><span class="p">,</span> <span class="n">lattices</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">disp</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span></div>
+                   <span class="n">step_skip</span><span class="o">=</span><span class="n">step_skip</span><span class="p">,</span> <span class="n">lattices</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.from_vaspruns"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_vaspruns">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_vaspruns</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vaspruns</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">initial_disp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -727,8 +718,8 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_structures</span><span class="p">(</span>
             <span class="n">structures</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">specie</span><span class="o">=</span><span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
             <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">step_skip</span><span class="o">=</span><span class="n">step_skip</span><span class="p">,</span>
-            <span class="n">initial_disp</span><span class="o">=</span><span class="n">initial_disp</span><span class="p">,</span> <span class="n">initial_structure</span><span class="o">=</span><span class="n">initial_structure</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+            <span class="n">initial_disp</span><span class="o">=</span><span class="n">initial_disp</span><span class="p">,</span> <span class="n">initial_structure</span><span class="o">=</span><span class="n">initial_structure</span><span class="p">,</span></div>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_files">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">step_skip</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ncores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -790,8 +781,8 @@
                     <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">nionic_steps</span> <span class="o">-</span> <span class="n">offset</span><span class="p">))</span> <span class="o">%</span> <span class="n">step_skip</span>
 
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_vaspruns</span><span class="p">(</span>
-                <span class="n">vr</span><span class="p">(</span><span class="n">filepaths</span><span class="p">),</span> <span class="n">specie</span><span class="o">=</span><span class="n">specie</span><span class="p">,</span> <span class="n">initial_disp</span><span class="o">=</span><span class="n">initial_disp</span><span class="p">,</span>
-                <span class="n">initial_structure</span><span class="o">=</span><span class="n">initial_structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+                <span class="n">vr</span><span class="p">(</span><span class="n">filepaths</span><span class="p">),</span> <span class="n">specie</span><span class="o">=</span><span class="n">specie</span><span class="p">,</span> <span class="n">initial_disp</span><span class="o">=</span><span class="n">initial_disp</span><span class="p">,</span></div>
+                <span class="n">initial_structure</span><span class="o">=</span><span class="n">initial_structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -806,8 +797,8 @@
             <span class="s2">&quot;min_obs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_obs</span><span class="p">,</span>
             <span class="s2">&quot;smoothed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothed</span><span class="p">,</span>
             <span class="s2">&quot;avg_nsteps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_nsteps</span><span class="p">,</span>
-            <span class="s2">&quot;lattices&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattices</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="p">}</span></div>
+            <span class="s2">&quot;lattices&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattices</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+        <span class="p">}</span>
 
 <div class="viewcode-block" id="DiffusionAnalyzer.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -818,8 +809,8 @@
                    <span class="n">smoothed</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;smoothed&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">),</span>
                    <span class="n">avg_nsteps</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;avg_nsteps&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
                    <span class="n">lattices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lattices&quot;</span><span class="p">,</span>
-                                           <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">][</span><span class="s2">&quot;lattice&quot;</span><span class="p">][</span>
-                                                <span class="s2">&quot;matrix&quot;</span><span class="p">]])))</span></div></div>
+                                           <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">][</span><span class="s2">&quot;lattice&quot;</span><span class="p">][</span></div></div>
+                                                <span class="s2">&quot;matrix&quot;</span><span class="p">]])))</span>
 
 
 <div class="viewcode-block" id="get_conversion_factor"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.get_conversion_factor">[docs]</a><span class="k">def</span> <span class="nf">get_conversion_factor</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
@@ -848,8 +839,8 @@
     <span class="n">n</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">species</span><span class="p">]</span>
 
     <span class="n">vol</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-24</span>  <span class="c1"># units cm^3</span>
-    <span class="k">return</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">N_A</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">N_A</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> \
-        <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">R</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">N_A</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">N_A</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> \</div>
+        <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">R</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_vasprun</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
@@ -881,8 +872,8 @@
         <span class="n">std_Ea</span> <span class="o">=</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
         <span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">t_1</span><span class="p">)))</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">std_Ea</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="o">-</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">std_Ea</span></div>
+        <span class="n">std_Ea</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="k">return</span> <span class="o">-</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">std_Ea</span>
 
 
 <div class="viewcode-block" id="get_extrapolated_diffusivity"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.get_extrapolated_diffusivity">[docs]</a><span class="k">def</span> <span class="nf">get_extrapolated_diffusivity</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">):</span>
@@ -898,8 +889,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        (float) Diffusivity at extrapolated temp in mS/cm.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Ea</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="n">new_temp</span><span class="p">))</span></div>
+    <span class="n">Ea</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fit_arrhenius</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">Ea</span> <span class="o">/</span> <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">k</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="n">new_temp</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="get_extrapolated_conductivity"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.get_extrapolated_conductivity">[docs]</a><span class="k">def</span> <span class="nf">get_extrapolated_conductivity</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span>
@@ -918,8 +909,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        (float) Conductivity at extrapolated temp in mS/cm.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">get_extrapolated_diffusivity</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">)</span> \
-        <span class="o">*</span> <span class="n">get_conversion_factor</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">get_extrapolated_diffusivity</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">)</span> \</div>
+        <span class="o">*</span> <span class="n">get_conversion_factor</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">new_temp</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_arrhenius_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.diffusion_analyzer.html#pymatgen.analysis.diffusion_analyzer.get_arrhenius_plot">[docs]</a><span class="k">def</span> <span class="nf">get_arrhenius_plot</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivities</span><span class="p">,</span> <span class="n">diffusivity_errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -961,8 +952,8 @@
              <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">axes</span><span class="p">()</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;D (cm$^2$/s)&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;1000/T (K$^{-1}$)&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">plt</span></div>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">plt</span>
 </pre></div>
 
           </div>
@@ -972,12 +963,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -993,7 +986,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1001,7 +994,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

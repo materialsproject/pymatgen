@@ -11,12 +11,10 @@ import itertools
 from io import open
 import math
 from six.moves import zip
-import warnings
 
 from monty.json import MSONable, MontyDecoder
 from monty.string import unicode2str
 from monty.functools import lru_cache
-from monty.dev import deprecated
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -46,17 +44,29 @@ class PDEntry(MSONable):
     """
     An object encompassing all relevant data for phase diagrams.
 
+    .. attribute:: composition
+
+        The composition associated with the PDEntry.
+
+    .. attribute:: energy
+
+        The energy associated with the entry.
+
     .. attribute:: name
 
         A name for the entry. This is the string shown in the phase diagrams.
         By default, this is the reduced formula for the composition, but can be
         set to some other string for display purposes.
 
+    .. attribute:: attribute
+
+        A arbitrary attribute.
+
     Args:
-        comp: Composition as a pymatgen.core.structure.Composition
-        energy: Energy for composition.
-        name: Optional parameter to name the entry. Defaults to the reduced
-            chemical formula.
+        composition (Composition): Composition
+        energy (float): Energy for composition.
+        name (str): Optional parameter to name the entry. Defaults to the
+            reduced chemical formula.
         attribute: Optional attribute of the entry. This can be used to
             specify that the entry is a newly found compound, or to specify a
             particular label for the entry, or else ... Used for further
@@ -158,6 +168,7 @@ class PDEntry(MSONable):
                                 quoting=csv.QUOTE_MINIMAL)
             entries = list()
             header_read = False
+            elements = None
             for row in reader:
                 if not header_read:
                     elements = row[1:(len(row) - 1)]
@@ -248,9 +259,8 @@ class TransformedPDEntry(PDEntry):
     compositions.
 
     Args:
-        comp: Transformed composition as a Composition.
-        energy: Energy for composition.
-        original_entry: Original entry that this entry arose from.
+        comp (Composition): Transformed composition as a Composition.
+        original_entry (PDEntry): Original entry that this entry arose from.
     """
 
     def __init__(self, comp, original_entry):
@@ -933,12 +943,12 @@ class PhaseDiagram(MSONable):
                     for v in s._coords:
                         all_coords.append(v)
                         if (np.dot(v + muref, coeff) + ef) / target_comp[
-                            open_elt] > max_open:
+                                open_elt] > max_open:
                             max_open = (np.dot(v + muref, coeff) + ef) / \
                                        target_comp[open_elt]
                             max_mus = v
                         if (np.dot(v + muref, coeff) + ef) / target_comp[
-                            open_elt] < min_open:
+                                open_elt] < min_open:
                             min_open = (np.dot(v + muref, coeff) + ef) / \
                                        target_comp[open_elt]
                             min_mus = v
@@ -1261,29 +1271,34 @@ class PDPlotter(object):
 
         return plt
 
-    def plot_element_profile(self, element, comp, show_label_index=None, xlim=5):
+    def plot_element_profile(self, element, comp, show_label_index=None,
+                             xlim=5):
         """
-        Draw the element profile plot for a composition varying different chemical
-        potential of an element.
-        X value is the negative value of the chemical potential reference to elemental
-        chemical potential. For example, if choose Element("Li"), X= -(µLi-µLi0),
-        which corresponds to the voltage versus metal anode.
+        Draw the element profile plot for a composition varying different
+        chemical potential of an element.
+        X value is the negative value of the chemical potential reference to
+        elemental chemical potential. For example, if choose Element("Li"),
+        X= -(µLi-µLi0), which corresponds to the voltage versus metal anode.
         Y values represent for the number of element uptake in this composition
-        (unit: per atom). All reactions are printed to help choosing the profile steps
-        you want to show label in the plot.
+        (unit: per atom). All reactions are printed to help choosing the
+        profile steps you want to show label in the plot.
 
         Args:
-         element (Element): An element of which the chemical potential is considered.
-         It also must be in the phase diagram.
+         element (Element): An element of which the chemical potential is
+            considered. It also must be in the phase diagram.
          comp (Composition): A composition.
-         show_label_index (list of integers): The labels for reaction products you
-         want to show in the plot. Default to None (not showing any annotation for
-         reaction products). For the profile steps you want to show the labels,
-         just add it to the show_label_index. The profile step counts from zero.
-         For example, you can set show_label_index=[0, 2, 5] to label profile step 0,2,5.
-         xlim (float): The max x value. x value is from 0 to xlim. Default to 5 eV.
+         show_label_index (list of integers): The labels for reaction products
+            you want to show in the plot. Default to None (not showing any
+            annotation for reaction products). For the profile steps you want
+            to show the labels, just add it to the show_label_index. The
+            profile step counts from zero. For example, you can set
+            show_label_index=[0, 2, 5] to label profile step 0,2,5.
+         xlim (float): The max x value. x value is from 0 to xlim. Default to
+            5 eV.
+
         Returns:
-            Plot of element profile evolution by varying the chemical potential of an element.
+            Plot of element profile evolution by varying the chemical potential
+            of an element.
         """
         plt = pretty_plot(12, 8)
         pd = self._pd

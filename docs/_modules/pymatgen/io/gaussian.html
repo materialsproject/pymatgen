@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.gaussian &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.io.gaussian &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -137,8 +128,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">d</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
                     <span class="n">route_params</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">functional</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">route_params</span><span class="p">,</span> <span class="n">dieze_tag</span></div>
+</div>
+    <span class="k">return</span> <span class="n">functional</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">route_params</span><span class="p">,</span> <span class="n">dieze_tag</span>
 
 
 <div class="viewcode-block" id="GaussianInput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput">[docs]</a><span class="k">class</span> <span class="nc">GaussianInput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -382,8 +373,8 @@
                              <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
                              <span class="n">route_parameters</span><span class="o">=</span><span class="n">route_paras</span><span class="p">,</span>
                              <span class="n">input_parameters</span><span class="o">=</span><span class="n">input_paras</span><span class="p">,</span>
-                             <span class="n">link0_parameters</span><span class="o">=</span><span class="n">link0_dict</span><span class="p">,</span>
-                             <span class="n">dieze_tag</span><span class="o">=</span><span class="n">dieze_tag</span><span class="p">)</span></div>
+                             <span class="n">link0_parameters</span><span class="o">=</span><span class="n">link0_dict</span><span class="p">,</span></div>
+                             <span class="n">dieze_tag</span><span class="o">=</span><span class="n">dieze_tag</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GaussianInput.from_file"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -396,8 +387,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            GaussianInput object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">GaussianInput</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="n">GaussianInput</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">_find_nn_pos_before_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">siteindex</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -442,8 +433,8 @@
                                       <span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
                 <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;B</span><span class="si">{}</span><span class="s2">=</span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">bondlength</span><span class="p">))</span>
                 <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;A</span><span class="si">{}</span><span class="s2">=</span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">angle</span><span class="p">))</span>
-                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;D</span><span class="si">{}</span><span class="s2">=</span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">dih</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputvar</span><span class="p">)</span></div>
+                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;D</span><span class="si">{}</span><span class="s2">=</span><span class="si">{:.6f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">dih</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputvar</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GaussianInput.get_cart_coords"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.get_cart_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_cart_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -455,8 +446,8 @@
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">):</span>
             <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span>
-                                  <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">])]))</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span></div>
+                                  <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">to_s</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">])]))</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
@@ -505,8 +496,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_basis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:s}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_basis</span><span class="p">))</span>
         <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">para_dict_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_parameters</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GaussianInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">cart_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -514,8 +505,8 @@
 
 <span class="sd">        Option: see __str__ method</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">cart_coords</span><span class="p">))</span></div>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">cart_coords</span><span class="p">))</span>
 
 <div class="viewcode-block" id="GaussianInput.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
@@ -528,8 +519,8 @@
                 <span class="s2">&quot;charge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
                 <span class="s2">&quot;spin_multiplicity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">,</span>
                 <span class="s2">&quot;input_parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_parameters</span><span class="p">,</span>
-                <span class="s2">&quot;link0_parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">link0_parameters</span><span class="p">,</span>
-                <span class="s2">&quot;dieze_tag&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dieze_tag</span><span class="p">}</span></div>
+                <span class="s2">&quot;link0_parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">link0_parameters</span><span class="p">,</span></div>
+                <span class="s2">&quot;dieze_tag&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dieze_tag</span><span class="p">}</span>
 
 <div class="viewcode-block" id="GaussianInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -540,8 +531,8 @@
                              <span class="n">title</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
                              <span class="n">charge</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;charge&quot;</span><span class="p">],</span>
                              <span class="n">spin_multiplicity</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;spin_multiplicity&quot;</span><span class="p">],</span>
-                             <span class="n">input_parameters</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;input_parameters&quot;</span><span class="p">],</span>
-                             <span class="n">link0_parameters</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;link0_parameters&quot;</span><span class="p">])</span></div></div>
+                             <span class="n">input_parameters</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;input_parameters&quot;</span><span class="p">],</span></div></div>
+                             <span class="n">link0_parameters</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;link0_parameters&quot;</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="GaussianOutput"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput">[docs]</a><span class="k">class</span> <span class="nc">GaussianOutput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1191,8 +1182,8 @@
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vout</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
         <span class="n">d</span><span class="p">[</span><span class="s2">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-
-        <span class="k">return</span> <span class="n">d</span></div>
+</div>
+        <span class="k">return</span> <span class="n">d</span>
 
 <div class="viewcode-block" id="GaussianOutput.read_scan"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.read_scan">[docs]</a>    <span class="k">def</span> <span class="nf">read_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1257,8 +1248,8 @@
                         <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">data</span></div>
+</div>
+        <span class="k">return</span> <span class="n">data</span>
 
 <div class="viewcode-block" id="GaussianOutput.get_scan_plot"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.get_scan_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_scan_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1285,8 +1276,8 @@
         <span class="n">e_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">])</span>
         <span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span> <span class="o">-</span> <span class="n">e_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">Ha_to_eV</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;energies&quot;</span><span class="p">]]</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;ro--&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;ro--&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="GaussianOutput.save_scan_plot"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.save_scan_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_scan_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;scan.pdf&quot;</span><span class="p">,</span>
                        <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1298,8 +1289,8 @@
 <span class="sd">            img_format: Image format to use. Defaults to EPS.</span>
 <span class="sd">            coords: internal coordinate name to use as abcissa.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_scan_plot</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_scan_plot</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GaussianOutput.read_excitation_energies"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.read_excitation_energies">[docs]</a>    <span class="k">def</span> <span class="nf">read_excitation_energies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1325,8 +1316,8 @@
                     <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\sExcited State\s*\d&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
                         <span class="n">val</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">float_patt</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">)]</span>
                         <span class="n">transitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]))</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">transitions</span></div>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">transitions</span>
 
 <div class="viewcode-block" id="GaussianOutput.get_spectre_plot"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.get_spectre_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_spectre_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1379,8 +1370,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">lambda$ (nm)&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Arbitrary unit&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="GaussianOutput.save_spectre_plot"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.save_spectre_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_spectre_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;spectre.pdf&quot;</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">,</span>
                           <span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
@@ -1393,8 +1384,8 @@
 <span class="sd">            sigma: Full width at half maximum in eV for normal functions.</span>
 <span class="sd">            step: bin interval in eV</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">d</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spectre_plot</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
+        <span class="n">d</span><span class="p">,</span> <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spectre_plot</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GaussianOutput.to_input"><a class="viewcode-back" href="../../../pymatgen.io.gaussian.html#pymatgen.io.gaussian.GaussianOutput.to_input">[docs]</a>    <span class="k">def</span> <span class="nf">to_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="n">charge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">spin_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1443,8 +1434,8 @@
                              <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
                              <span class="n">route_parameters</span><span class="o">=</span><span class="n">route_parameters</span><span class="p">,</span>
                              <span class="n">input_parameters</span><span class="o">=</span><span class="n">input_parameters</span><span class="p">,</span>
-                             <span class="n">link0_parameters</span><span class="o">=</span><span class="n">link0_parameters</span><span class="p">,</span>
-                             <span class="n">dieze_tag</span><span class="o">=</span><span class="n">dieze_tag</span><span class="p">)</span></div></div>
+                             <span class="n">link0_parameters</span><span class="o">=</span><span class="n">link0_parameters</span><span class="p">,</span></div></div>
+                             <span class="n">dieze_tag</span><span class="o">=</span><span class="n">dieze_tag</span><span class="p">)</span>
 </pre></div>
 
           </div>
@@ -1454,12 +1445,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1475,7 +1468,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1483,7 +1476,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

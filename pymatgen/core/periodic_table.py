@@ -1024,7 +1024,7 @@ class Specie(MSONable):
             return self.oxi_state < other_oxi
         elif getattr(self, "spin", False):
             other_spin = getattr(other, "spin", 0)
-            return self.spin < other.spin
+            return self.spin < other_spin
         else:
             return False
 

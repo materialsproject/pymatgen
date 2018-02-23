@@ -1,5 +1,5 @@
-pymatgen\.io\.lammps\.output module
-===================================
+pymatgen.io.lammps.output module
+================================
 
 .. automodule:: pymatgen.io.lammps.output
     :members:

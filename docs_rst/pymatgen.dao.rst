@@ -1,5 +1,5 @@
-pymatgen\.dao module
-====================
+pymatgen.dao module
+===================
 
 .. automodule:: pymatgen.dao
     :members:

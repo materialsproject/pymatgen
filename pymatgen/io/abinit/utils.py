@@ -890,3 +890,102 @@ class SparseHistogram(object):
         ax.plot(self.binvals, yy, **kwargs)
 
         return fig
+
+
+class Dirviz(object):
+
+    #file_color = np.array((255, 0, 0)) / 255
+    #dir_color = np.array((0, 0, 255)) / 255
+
+    def __init__(self, top):
+        #if not os.path.isdir(top):
+        #    raise TypeError("%s should be a directory!" % str(top))
+        self.top = os.path.abspath(top)
+
+    def get_cluster_graph(self, engine="fdp", graph_attr=None, node_attr=None, edge_attr=None):
+        """
+        Generate directory graph in the DOT language. Directories are shown as clusters
+
+        .. warning::
+
+            This function scans the entire directory tree starting from top so the resulting
+            graph can be really big.
+
+        Args:
+            engine: Layout command used. ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']
+            graph_attr: Mapping of (attribute, value) pairs for the graph.
+            node_attr: Mapping of (attribute, value) pairs set for all nodes.
+            edge_attr: Mapping of (attribute, value) pairs set for all edges.
+
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
+        """
+        # https://www.graphviz.org/doc/info/
+        from graphviz import Digraph
+        g = Digraph("directory", #filename="flow_%s.gv" % os.path.basename(self.relworkdir),
+            engine=engine) # if engine == "automatic" else engine)
+
+        # Set graph attributes.
+        #g.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
+        g.attr(label=self.top)
+        #g.attr(fontcolor="white", bgcolor='purple:pink')
+        #g.attr(rankdir="LR", pagedir="BL")
+        #g.attr(constraint="false", pack="true", packMode="clust")
+        g.node_attr.update(color='lightblue2', style='filled')
+        #g.node_attr.update(ranksep='equally')
+
+        # Add input attributes.
+        if graph_attr is not None:
+            fg.graph_attr.update(**graph_attr)
+        if node_attr is not None:
+            fg.node_attr.update(**node_attr)
+        if edge_attr is not None:
+            fg.edge_attr.update(**edge_attr)
+
+        def node_kwargs(path):
+            return dict(
+                #shape="circle",
+                #shape="none",
+                #shape="plaintext",
+                #shape="point",
+                shape="record",
+                #color=node.color_hex,
+                fontsize="8.0",
+                label=os.path.basename(path),
+            )
+
+        edge_kwargs = dict(arrowType="vee", style="solid", minlen="1")
+        cluster_kwargs = dict(rankdir="LR", pagedir="BL", style="rounded", bgcolor="azure2")
+
+        # TODO: Write other method without clusters if not walk.
+        exclude_top_node = False
+        for root, dirs, files in os.walk(self.top):
+            if exclude_top_node and root == self.top: continue
+            cluster_name = "cluster_%s" % root
+            #print("root", root, cluster_name, "dirs", dirs, "files", files, sep="\n")
+
+            with g.subgraph(name=cluster_name) as d:
+                d.attr(**cluster_kwargs)
+                d.attr(rank="source" if (files or dirs) else "sink")
+                d.attr(label=os.path.basename(root))
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    d.node(filepath, **node_kwargs(filepath))
+                    if os.path.islink(filepath):
+                        # Follow the link and use the relpath wrt link as label.
+                        realp = os.path.realpath(filepath)
+                        realp = os.path.relpath(realp, filepath)
+                        #realp = os.path.relpath(realp, self.top)
+                        #print(filepath, realp)
+                        #g.node(realp, **node_kwargs(realp))
+                        g.edge(filepath, realp, **edge_kwargs)
+
+                for dirname in dirs:
+                    dirpath = os.path.join(root, dirname)
+                    #head, basename = os.path.split(dirpath)
+                    new_cluster_name = "cluster_%s" % dirpath
+                    #rank = "source" if os.listdir(dirpath) else "sink"
+                    #g.node(dirpath, rank=rank, **node_kwargs(dirpath))
+                    #g.edge(dirpath, new_cluster_name, **edge_kwargs)
+                    #d.edge(cluster_name, new_cluster_name, minlen="2", **edge_kwargs)
+                    d.edge(cluster_name, new_cluster_name, **edge_kwargs)
+        return g
