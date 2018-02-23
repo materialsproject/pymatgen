@@ -8,7 +8,6 @@ from sympy import Number, Symbol
 
 from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter, \
     NanoscaleStability, WorkFunctionAnalyzer
-from pymatgen.io.vasp.outputs import Outcar, Locpot
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.analysis.wulff import WulffShape
