@@ -63,7 +63,7 @@ consider citing the following works::
         for determining adsorption energies on solid surfaces. Npj
         Computational Materials, 3(1), 14.
         https://doi.org/10.1038/s41524-017-0017-z
-
+ 
 """
 
 
