@@ -322,13 +322,13 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
                        "outcar_filename": get_path("OUTCAR.relax1.gz")}
 
     def test_attributes(self):
-        wf_analyzer = WorkFunctionAnalyzer.from_file(**self.kwargs)
-        wf_analyzer_shift = WorkFunctionAnalyzer.from_file(shift=0.25, **self.kwargs)
+        wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
+        wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=0.25, **self.kwargs)
         self.assertEqual("%.1f" %(wf_analyzer.ave_bulk_p),
                          "%.1f" %(wf_analyzer_shift.ave_bulk_p))
 
     def test_plt(self):
-        wf_analyzer = WorkFunctionAnalyzer.from_file(**self.kwargs)
+        wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
         plt = wf_analyzer.get_locpot_along_slab_plot()
 
 
