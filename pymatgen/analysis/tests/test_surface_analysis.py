@@ -281,6 +281,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
                 all_Pt_slab_entries.extend(Pt_entries[hkl][clean])
         a = SurfaceEnergyPlotter(all_Pt_slab_entries,
                                  self.Pt_analyzer.ucell_entry)
+        self.assertEqual(type(a).__name__, "SurfaceEnergyPlotter")
 
     # def test_monolayer_vs_BE(self):
     #     for el in self.Oads_analyzer_dict.keys():
@@ -329,6 +330,7 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
     def test_plt(self):
         wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
         plt = wf_analyzer.get_locpot_along_slab_plot()
+        self.assertEqual(type(plt).__name__, "module")
 
 
 class NanoscaleStabilityTest(PymatgenTest):

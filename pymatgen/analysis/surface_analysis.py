@@ -168,7 +168,7 @@ class SlabEntry(ComputedStructureEntry):
              sum([ads.energy_per_atom for ads in self.adsorbates])
         return BE * Nads if eads else BE
 
-    def surface_energy(self, ucell_entry, ref_entries=[]):
+    def surface_energy(self, ucell_entry, ref_entries=None):
         """
         Calculates the surface energy of this SlabEntry.
         Args:
@@ -184,6 +184,7 @@ class SlabEntry(ComputedStructureEntry):
         """
 
         # Set up
+        ref_entries = [] if not ref_entries else ref_entries
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
@@ -380,7 +381,7 @@ class SurfaceEnergyPlotter(object):
         Randomly generated dictionary of colors associated with each facet.
     """
 
-    def __init__(self, all_slab_entries, ucell_entry, ref_entries=[]):
+    def __init__(self, all_slab_entries, ucell_entry, ref_entries=None):
         """
         Object for plotting surface energy in different ways for clean and
             adsorbed surfaces.
@@ -1196,7 +1197,7 @@ class WorkFunctionAnalyzer(object):
         """
 
         plt = pretty_plot() if not plt else plt
-        fig, ax = plt.subplots()
+        ax = list(plt.subplots())[1]
         ax.spines['top'].set_visible(False)
 
         # plot the raw locpot signal along c
