@@ -110,11 +110,11 @@ class StructureGraphTest(unittest.TestCase):
         sg = StructureGraph.with_empty_graph(self.structure)
         sg.add_edge(0, 0)
 
-        ref_edges = [(0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (-1, -1, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (-1, 0, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (0, -1, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (0, 0, 0)}),
-                     (0, 0, {'from_jimage': (0, 0, 0), 'to_jimage': (1, 0, 0)})]
+        ref_edges = [(0, 0, {'to_jimage': (-1, -1, 0)}),
+                     (0, 0, {'to_jimage': (-1, 0, 0)}),
+                     (0, 0, {'to_jimage': (0, -1, 0)}),
+                     (0, 0, {'to_jimage': (0, 0, 0)}),
+                     (0, 0, {'to_jimage': (1, 0, 0)})]
 
         self.assertEqual(list(sg.graph.edges(data=True)), ref_edges)
 
@@ -302,6 +302,8 @@ from    to  to_image
         # TODO: find better test case where graphs are different
         diff = sg.diff(sg2)
         self.assertEqual(diff['dist'], 0)
+
+        self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
 
     def test_extract_molecules(self):
 

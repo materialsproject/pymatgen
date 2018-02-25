@@ -86,11 +86,11 @@ def htmlify(formula):
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
 
-
 def unicodeify(formula):
     """
     Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
-    to
+    to Fe₂O₃. Does not support formulae with decimal points.
+
     :param formula:
     :return:
     """
@@ -105,6 +105,7 @@ def unicodeify(formula):
         formula = formula.replace(str(original_subscript), subscript_unicode)
 
     return formula
+
 
 def latexify_spacegroup(spacegroup_symbol):
     """

@@ -256,6 +256,104 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         results = self.Results.from_node(self)
         return results
 
+    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None, edge_attr=None):
+        """
+        Generate task graph in the DOT language (only parents and children of this work).
+
+        Args:
+            engine: Layout command used. ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']
+            graph_attr: Mapping of (attribute, value) pairs for the graph.
+            node_attr: Mapping of (attribute, value) pairs set for all nodes.
+            edge_attr: Mapping of (attribute, value) pairs set for all edges.
+
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
+        """
+        from graphviz import Digraph
+        fg = Digraph("work", #filename="work_%s.gv" % os.path.basename(self.workdir),
+            engine="fdp" if engine == "automatic" else engine)
+
+        # Set graph attributes.
+        # https://www.graphviz.org/doc/info/
+        #fg.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
+        fg.attr(label=repr(self))
+        #fg.attr(fontcolor="white", bgcolor='purple:pink')
+        fg.attr(rankdir="LR", pagedir="BL")
+        #fg.attr(constraint="false", pack="true", packMode="clust")
+        fg.node_attr.update(color='lightblue2', style='filled')
+        #fg.node_attr.update(ranksep='equally')
+
+        # Add input attributes.
+        if graph_attr is not None:
+            fg.graph_attr.update(**graph_attr)
+        if node_attr is not None:
+            fg.node_attr.update(**node_attr)
+        if edge_attr is not None:
+            fg.edge_attr.update(**edge_attr)
+
+        def node_kwargs(node):
+            return dict(
+                #shape="circle",
+                color=node.color_hex,
+                label=(str(node) if not hasattr(node, "pos_str") else
+                    node.pos_str + "\n" + node.__class__.__name__),
+            )
+
+        edge_kwargs = dict(arrowType="vee", style="solid")
+        cluster_kwargs = dict(rankdir="LR", pagedir="BL", style="rounded", bgcolor="azure2")
+
+        # Build cluster with tasks in *this* work
+        cluster_name = "cluster%s" % self.name
+        with fg.subgraph(name=cluster_name) as wg:
+            wg.attr(**cluster_kwargs)
+            wg.attr(label="%s (%s)" % (self.__class__.__name__, self.name))
+            for task in self:
+                wg.node(task.name, **node_kwargs(task))
+                # Connect task to children
+                for child in task.get_children():
+                    # Test if child is in this cluster (self).
+                    myg = wg if child in self else fg
+                    myg.node(child.name, **node_kwargs(child))
+                    # Find file extensions required by this task
+                    i = [dep.node for dep in child.deps].index(task)
+                    edge_label = "+".join(child.deps[i].exts)
+                    myg.edge(task.name, child.name, label=edge_label, color=task.color_hex,
+                             **edge_kwargs)
+
+                # Connect task to parents
+                for parent in task.get_parents():
+                    # Test if parent is in this cluster (self).
+                    myg = wg if parent in self else fg
+                    myg.node(parent.name, **node_kwargs(parent))
+                    # Find file extensions required by this task
+                    i = [dep.node for dep in task.deps].index(parent)
+                    edge_label = "+".join(task.deps[i].exts)
+                    myg.edge(parent.name, task.name, label=edge_label, color=parent.color_hex,
+                             **edge_kwargs)
+
+        # Treat the case in which we have a work producing output for tasks in *this* work.
+        #for work in self.flow:
+        #    children = work.get_children()
+        #    if not children or all(child not in self for child in children):
+        #        continue
+        #    cluster_name = "cluster%s" % work.name
+        #    seen = set()
+        #    for child in children:
+        #        if child not in self: continue
+        #        # This is not needed, too much confusing
+        #        #fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)
+        #        # Find file extensions required by work
+        #        i = [dep.node for dep in child.deps].index(work)
+        #        for ext in child.deps[i].exts:
+        #            out = "%s (%s)" % (ext, work.name)
+        #            fg.node(out)
+        #            fg.edge(out, child.name, **edge_kwargs)
+        #            key = (cluster_name, out)
+        #            if key not in seen:
+        #                fg.edge(cluster_name, out, color=work.color_hex, **edge_kwargs)
+        #                seen.add(key)
+
+        return fg
+
 
 class NodeContainer(six.with_metaclass(abc.ABCMeta)):
     """
@@ -1210,7 +1308,9 @@ class PhononWork(Work, MergeDdb):
     """
     This work usually consists of one GS + nirred Phonon tasks where nirred is
     the number of irreducible perturbations for a given q-point.
-    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced
+    It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
+    all the partial DDB (POT) files produced. The two files are available in the
+    output directory of the Work.
     """
 
     @classmethod

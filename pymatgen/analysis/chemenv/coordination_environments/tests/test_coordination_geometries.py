@@ -4,6 +4,7 @@
 __author__ = 'waroquiers'
 
 import unittest
+import numpy as np
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import ExplicitPermutationsAlgorithm
@@ -38,8 +39,8 @@ class CoordinationGeometriesTest(PymatgenTest):
         self.assertEqual(sepplane_algos_oct[0].ordered_plane, sepplane_algos_oct_0.ordered_plane)
         self.assertEqual(sepplane_algos_oct[0].point_groups, sepplane_algos_oct_0.point_groups)
         self.assertEqual(sepplane_algos_oct[0].ordered_point_groups, sepplane_algos_oct_0.ordered_point_groups)
-        self.assertEqual(sepplane_algos_oct[0].explicit_optimized_permutations,
-                         sepplane_algos_oct_0.explicit_optimized_permutations)
+        self.assertTrue(all([np.array_equal(perm, sepplane_algos_oct_0.explicit_optimized_permutations[iperm])
+                             for iperm, perm in enumerate(sepplane_algos_oct[0].explicit_optimized_permutations)]))
 
         self.assertEqual(sepplane_algos_oct[0].__str__(),
                          'Separation plane algorithm with the following reference separation :\n'
@@ -240,6 +241,55 @@ class CoordinationGeometriesTest(PymatgenTest):
                          'IUCr : [2l]\n\n\\begin{center}\n\\includegraphics[scale=0.15]{images/L_2.png}\n'
                          '\\end{center}\n\n\\subsubsection*{A:2 : Angular}\n\nIUPAC : A-2\n\nIUCr : [2n]\n\n'
                          '\\begin{center}\n\\includegraphics[scale=0.15]{images/A_2.png}\n\\end{center}\n\n')
+        self.assertDictEqual(allcg.minpoints, {6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 3})
+        self.assertDictEqual(allcg.maxpoints, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6})
+        self.assertDictEqual(allcg.maxpoints_inplane, {6: 5, 7: 5, 8: 6, 9: 7, 10: 6, 11: 5, 12: 8, 13: 6})
+        self.assertDictEqual(allcg.separations_cg, {6: {(0, 3, 3): [u'O:6', u'T:6'],
+                                                        (1, 4, 1): [u'O:6'],
+                                                        (0, 5, 1): [u'PP:6'],
+                                                        (2, 2, 2): [u'PP:6'],
+                                                        (0, 4, 2): [u'T:6']},
+                                                    7: {(1, 3, 3): [u'ET:7', u'FO:7'],
+                                                        (2, 3, 2): [u'PB:7', u'ST:7', u'ET:7'],
+                                                        (1, 4, 2): [u'ST:7', u'FO:7'],
+                                                        (1, 5, 1): [u'PB:7']},
+                                                    8: {(1, 6, 1): [u'HB:8'],
+                                                        (0, 4, 4):
+                                                            [u'C:8', u'SA:8', u'SBT:8'],
+                                                        (1, 4, 3): [u'SA:8', u'SBT:8', u'BO_2:8', u'BO_3:8'],
+                                                        (2, 4, 2): [u'C:8', u'TBT:8', u'DD:8', u'DDPN:8', u'HB:8',
+                                                                    u'BO_1:8', u'BO_1:8', u'BO_2:8', u'BO_2:8',
+                                                                    u'BO_3:8', u'BO_3:8']},
+                                                    9: {(3, 3, 3): [u'TT_1:9', u'TT_1:9', u'TT_2:9', u'SMA:9',
+                                                                    u'SMA:9', u'TO_1:9', u'TO_3:9'],
+                                                        (0, 6, 3): [u'TC:9'],
+                                                        (2, 4, 3): [u'TC:9', u'TT_2:9', u'TT_3:9', u'TI:9',
+                                                                    u'SS:9', u'TO_1:9', u'TO_1:9', u'TO_2:9',
+                                                                    u'TO_3:9'],
+                                                        (1, 3, 5): [u'TI:9'],
+                                                        (1, 4, 4): [u'TT_1:9', u'SMA:9', u'SS:9'],
+                                                        (2, 3, 4): [u'TC:9'],
+                                                        (2, 5, 2): [u'TT_3:9', u'SS:9', u'TO_2:9'],
+                                                        (1, 7, 1): [u'HD:9']},
+                                                    10: {(0, 5, 5): [u'PP:10', u'PA:10'],
+                                                         (3, 4, 3): [u'PA:10', u'SBSA:10', u'MI:10',
+                                                                     u'BS_2:10', u'TBSA:10'],
+                                                         (2, 6, 2): [u'BS_1:10'],
+                                                         (2, 4, 4): [u'PP:10', u'MI:10', u'BS_2:10'],
+                                                         (3, 3, 4): [u'SBSA:10'],
+                                                         (1, 4, 5): [u'BS_2:10'],
+                                                         (0, 4, 6): [u'BS_1:10', u'TBSA:10']},
+                                                    11: {(4, 3, 4): [u'PCPA:11'],
+                                                         (3, 4, 4): [u'DI:11'],
+                                                         (1, 5, 5): [u'PCPA:11', u'DI:11'],
+                                                         (3, 5, 3): [u'H:11']},
+                                                    12: {(3, 3, 6): [u'TT:12'],
+                                                         (2, 4, 6): [u'TT:12'],
+                                                         (0, 6, 6): [u'HP:12', u'HA:12'],
+                                                         (3, 6, 3): [u'C:12', u'AC:12'],
+                                                         (4, 4, 4): [u'I:12', u'PBP:12', u'C:12', u'HP:12'],
+                                                         (0, 8, 4): [u'SC:12']},
+                                                    13: {(0, 6, 7): [u'SH:13']}})
 
 if __name__ == "__main__":
     unittest.main()

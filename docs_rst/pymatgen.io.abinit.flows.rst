@@ -1,5 +1,5 @@
-pymatgen\.io\.abinit\.flows module
-==================================
+pymatgen.io.abinit.flows module
+===============================
 
 .. automodule:: pymatgen.io.abinit.flows
     :members:

@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.structure_environments &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -119,15 +110,20 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">sources</span><span class="p">]</span>
 
-<div class="viewcode-block" id="StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices">[docs]</a>        <span class="k">def</span> <span class="nf">get_neighb_voronoi_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span></div>
+<div class="viewcode-block" id="StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.get_neighb_voronoi_indices">[docs]</a>        <span class="k">def</span> <span class="nf">get_neighb_voronoi_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span></div>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span>
 
         <span class="nd">@property</span>
         <span class="k">def</span> <span class="nf">neighb_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span><span class="p">[</span><span class="n">inb</span><span class="p">][</span><span class="s1">&#39;site&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">inb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">]</span>
 
         <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">neighb_coordsOpt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailed_voronoi</span><span class="o">.</span><span class="n">voronoi_list_coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="nd">@property</span>
         <span class="k">def</span> <span class="nf">neighb_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span><span class="p">[</span><span class="n">inb</span><span class="p">][</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">inb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">]</span>
 
         <span class="nd">@property</span>
@@ -205,8 +201,8 @@
                         <span class="n">plateau</span> <span class="o">=</span> <span class="n">all_nbs_normalized_distances_sorted</span><span class="p">[</span><span class="n">idist</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">maxdist</span>
                     <span class="k">break</span>
             <span class="k">if</span> <span class="n">plateau</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Plateau not found ...&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plateau</span></div>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Plateau not found ...&#39;</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">plateau</span>
 
 <div class="viewcode-block" id="StructureEnvironments.NeighborsSet.angle_plateau"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.angle_plateau">[docs]</a>        <span class="k">def</span> <span class="nf">angle_plateau</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">all_nbs_normalized_angles_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">nb</span><span class="p">[</span><span class="s1">&#39;normalized_angle&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">nb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span><span class="p">])</span>
@@ -225,8 +221,8 @@
                         <span class="n">plateau</span> <span class="o">=</span> <span class="n">minang</span> <span class="o">-</span> <span class="n">all_nbs_normalized_angles_sorted</span><span class="p">[</span><span class="n">iang</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                     <span class="k">break</span>
             <span class="k">if</span> <span class="n">plateau</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Plateau not found ...&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plateau</span></div>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Plateau not found ...&#39;</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">plateau</span>
 
 <div class="viewcode-block" id="StructureEnvironments.NeighborsSet.voronoi_grid_surface_points"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.voronoi_grid_surface_points">[docs]</a>        <span class="k">def</span> <span class="nf">voronoi_grid_surface_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">other_origins</span><span class="o">=</span><span class="s1">&#39;DO_NOTHING&#39;</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;</span>
@@ -339,8 +335,8 @@
                 <span class="n">sorted_points</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">idp</span><span class="p">,</span> <span class="n">iap</span><span class="p">))</span>
                 <span class="n">move_ap_index</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">move_ap_index</span>
 
-            <span class="n">points</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pdists</span><span class="p">[</span><span class="n">idp</span><span class="p">],</span> <span class="n">pangs</span><span class="p">[</span><span class="n">iap</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">idp</span><span class="p">,</span> <span class="n">iap</span><span class="p">)</span> <span class="ow">in</span> <span class="n">sorted_points</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">points</span></div>
+            <span class="n">points</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pdists</span><span class="p">[</span><span class="n">idp</span><span class="p">],</span> <span class="n">pangs</span><span class="p">[</span><span class="n">iap</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">idp</span><span class="p">,</span> <span class="n">iap</span><span class="p">)</span> <span class="ow">in</span> <span class="n">sorted_points</span><span class="p">]</span></div>
+            <span class="k">return</span> <span class="n">points</span>
 
         <span class="nd">@property</span>
         <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -349,8 +345,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="StructureEnvironments.NeighborsSet.add_source"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.add_source">[docs]</a>        <span class="k">def</span> <span class="nf">add_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">source</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="n">source</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">)</span>
@@ -373,16 +369,16 @@
 
 <div class="viewcode-block" id="StructureEnvironments.NeighborsSet.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.as_dict">[docs]</a>        <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;isite&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span>
-                    <span class="s1">&#39;site_voronoi_indices&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">,</span>
-                    <span class="s1">&#39;sources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">}</span></div>
+                    <span class="s1">&#39;site_voronoi_indices&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">,</span></div>
+                    <span class="s1">&#39;sources&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">}</span>
 
 <div class="viewcode-block" id="StructureEnvironments.NeighborsSet.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.NeighborsSet.from_dict">[docs]</a>        <span class="nd">@classmethod</span>
         <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">detailed_voronoi</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
                        <span class="n">isite</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;isite&#39;</span><span class="p">],</span>
                        <span class="n">detailed_voronoi</span><span class="o">=</span><span class="n">detailed_voronoi</span><span class="p">,</span>
-                       <span class="n">site_voronoi_indices</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;site_voronoi_indices&#39;</span><span class="p">],</span>
-                       <span class="n">sources</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;sources&#39;</span><span class="p">])</span></div></div>
+                       <span class="n">site_voronoi_indices</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;site_voronoi_indices&#39;</span><span class="p">],</span></div></div>
+                       <span class="n">sources</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;sources&#39;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voronoi</span><span class="p">,</span> <span class="n">valences</span><span class="p">,</span> <span class="n">sites_map</span><span class="p">,</span> <span class="n">equivalent_sites</span><span class="p">,</span>
                  <span class="n">ce_list</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">neighbors_sets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -460,8 +456,8 @@
                                                <span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span>
                                                <span class="n">detailed_voronoi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">voronoi</span><span class="p">,</span>
                                                <span class="n">site_voronoi_indices</span><span class="o">=</span><span class="n">site_voronoi_indices</span><span class="p">,</span>
-                                               <span class="n">sources</span><span class="o">=</span><span class="n">src</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">add_neighbors_set</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">)</span></div>
+                                               <span class="n">sources</span><span class="o">=</span><span class="n">src</span><span class="p">)</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_neighbors_set</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">nb_set</span><span class="o">=</span><span class="n">nb_set</span><span class="p">)</span>
 
 <div class="viewcode-block" id="StructureEnvironments.add_neighbors_set"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.add_neighbors_set">[docs]</a>    <span class="k">def</span> <span class="nf">add_neighbors_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -475,8 +471,8 @@
             <span class="n">nb_set_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">nb_set</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">][</span><span class="n">nb_set_index</span><span class="p">]</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nb_set</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nb_set</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
 <div class="viewcode-block" id="StructureEnvironments.update_coordination_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_coordination_environments">[docs]</a>    <span class="k">def</span> <span class="nf">update_coordination_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">,</span> <span class="n">ce</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -491,13 +487,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ce</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">nb_set_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">][</span><span class="n">nb_set_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">ce</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Neighbors set not yet in ce_list !&#39;</span><span class="p">)</span></div>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Neighbors set not yet in ce_list !&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="StructureEnvironments.update_site_info"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.update_site_info">[docs]</a>    <span class="k">def</span> <span class="nf">update_site_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">info_dict</span><span class="p">):</span>
         <span class="k">if</span> <span class="s1">&#39;sites_info&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sites_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">))]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sites_info&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">info_dict</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sites_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">))]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sites_info&#39;</span><span class="p">][</span><span class="n">isite</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">info_dict</span><span class="p">)</span>
 
 <div class="viewcode-block" id="StructureEnvironments.get_coordination_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_coordination_environments">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">nb_set</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -507,8 +503,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">nb_set_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">nb_set</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">][</span><span class="n">nb_set_index</span><span class="p">]</span></div>
+            <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">][</span><span class="n">nb_set_index</span><span class="p">]</span>
 
 <div class="viewcode-block" id="StructureEnvironments.get_csm"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm">[docs]</a>    <span class="k">def</span> <span class="nf">get_csm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">):</span>
         <span class="n">csms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_csms</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">)</span>
@@ -518,8 +514,8 @@
                                <span class="s1">&#39;Number of csms for site #</span><span class="si">{}</span><span class="s1"> with &#39;</span>
                                <span class="s1">&#39;mp_symbol &quot;</span><span class="si">{}</span><span class="s1">&quot; = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">isite</span><span class="p">),</span>
                                                             <span class="n">mp_symbol</span><span class="p">,</span>
-                                                            <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">csms</span><span class="p">))))</span>
-        <span class="k">return</span> <span class="n">csms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+                                                            <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">csms</span><span class="p">))))</span></div>
+        <span class="k">return</span> <span class="n">csms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="StructureEnvironments.get_csms"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csms">[docs]</a>    <span class="k">def</span> <span class="nf">get_csms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -536,8 +532,8 @@
         <span class="n">cn</span> <span class="o">=</span> <span class="n">symbol_cn_mapping</span><span class="p">[</span><span class="n">mp_symbol</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">]:</span>
             <span class="k">return</span> <span class="p">[]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">envs</span><span class="p">[</span><span class="n">mp_symbol</span><span class="p">]</span> <span class="k">for</span> <span class="n">envs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]]</span></div>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="p">[</span><span class="n">envs</span><span class="p">[</span><span class="n">mp_symbol</span><span class="p">]</span> <span class="k">for</span> <span class="n">envs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="n">cn</span><span class="p">]]</span>
 
 <div class="viewcode-block" id="StructureEnvironments.plot_csm_and_maps"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_csm_and_maps">[docs]</a>    <span class="k">def</span> <span class="nf">plot_csm_and_maps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">max_csm</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -561,8 +557,8 @@
             <span class="k">return</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_csm_and_maps</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">max_csm</span><span class="o">=</span><span class="n">max_csm</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+            <span class="k">return</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <div class="viewcode-block" id="StructureEnvironments.get_csm_and_maps"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_csm_and_maps">[docs]</a>    <span class="k">def</span> <span class="nf">get_csm_and_maps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">max_csm</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -689,8 +685,8 @@
         <span class="n">subplot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span><span class="p">])</span>
         <span class="n">subplot_distang</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_maps</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span><span class="p">])</span>
         <span class="n">subplot</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">cn_map</span><span class="p">)</span> <span class="k">for</span> <span class="n">cn_map</span> <span class="ow">in</span> <span class="n">cn_maps</span><span class="p">])</span>
-
-        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span></div>
+</div>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span>
 
 <div class="viewcode-block" id="StructureEnvironments.get_environments_figure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.get_environments_figure">[docs]</a>    <span class="k">def</span> <span class="nf">get_environments_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coordination numbers&#39;</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
                                 <span class="n">additional_condition</span><span class="o">=</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -831,8 +827,8 @@
 
         <span class="n">scalarmap</span><span class="o">.</span><span class="n">set_array</span><span class="p">([</span><span class="n">mymin</span><span class="p">,</span> <span class="n">mymax</span><span class="p">])</span>
         <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">scalarmap</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">subplot</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;max&#39;</span><span class="p">)</span>
-        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Continuous symmetry measure&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span></div>
+        <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Continuous symmetry measure&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span>
 
 <div class="viewcode-block" id="StructureEnvironments.plot_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.plot_environments">[docs]</a>    <span class="k">def</span> <span class="nf">plot_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">isite</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coordination numbers&#39;</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
                           <span class="n">additional_condition</span><span class="o">=</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -854,16 +850,16 @@
                                                     <span class="n">additional_condition</span><span class="o">=</span><span class="n">additional_condition</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
                                                     <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+            <span class="k">return</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <div class="viewcode-block" id="StructureEnvironments.save_environments_figure"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.save_environments_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_environments_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">isite</span><span class="p">,</span> <span class="n">imagename</span><span class="o">=</span><span class="s1">&#39;image.png&#39;</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Coordination numbers&#39;</span><span class="p">,</span>
                                  <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">additional_condition</span><span class="o">=</span><span class="n">AC</span><span class="o">.</span><span class="n">ONLY_ACB</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">subplot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_environments_figure</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="n">plot_type</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">max_dist</span><span class="o">=</span><span class="n">max_dist</span><span class="p">,</span>
                                            <span class="n">additional_condition</span><span class="o">=</span><span class="n">additional_condition</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">imagename</span><span class="p">)</span></div>
+            <span class="k">return</span></div>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">imagename</span><span class="p">)</span>
 
 <div class="viewcode-block" id="StructureEnvironments.differences_wrt"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.differences_wrt">[docs]</a>    <span class="k">def</span> <span class="nf">differences_wrt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="n">differences</span> <span class="o">=</span> <span class="p">[]</span>
@@ -956,8 +952,8 @@
                                                               <span class="s1">&#39;[inb_set=</span><span class="si">{:d}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">cn</span><span class="p">,</span> <span class="n">inb_set_self</span><span class="p">),</span>
                                                 <span class="s1">&#39;comparison&#39;</span><span class="p">:</span> <span class="s1">&#39;is_close_to&#39;</span><span class="p">,</span>
                                                 <span class="s1">&#39;self&#39;</span><span class="p">:</span> <span class="n">self_ce</span><span class="p">,</span>
-                                                <span class="s1">&#39;other&#39;</span><span class="p">:</span> <span class="n">other_ce</span><span class="p">})</span>
-        <span class="k">return</span> <span class="n">differences</span></div>
+                                                <span class="s1">&#39;other&#39;</span><span class="p">:</span> <span class="n">other_ce</span><span class="p">})</span></div>
+        <span class="k">return</span> <span class="n">differences</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ce_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">ce_list</span><span class="p">):</span>
@@ -1012,8 +1008,8 @@
                 <span class="s2">&quot;equivalent_sites&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="n">ps</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">ps</span> <span class="ow">in</span> <span class="n">psl</span><span class="p">]</span> <span class="k">for</span> <span class="n">psl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">],</span>
                 <span class="s2">&quot;ce_list&quot;</span><span class="p">:</span> <span class="n">ce_list_dict</span><span class="p">,</span>
                 <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
-                <span class="s2">&quot;neighbors_sets&quot;</span><span class="p">:</span> <span class="n">nbs_sets_dict</span><span class="p">,</span>
-                <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="n">info_dict</span><span class="p">}</span></div>
+                <span class="s2">&quot;neighbors_sets&quot;</span><span class="p">:</span> <span class="n">nbs_sets_dict</span><span class="p">,</span></div>
+                <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="n">info_dict</span><span class="p">}</span>
 
 <div class="viewcode-block" id="StructureEnvironments.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.StructureEnvironments.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -1047,8 +1043,8 @@
                    <span class="n">sites_map</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;sites_map&#39;</span><span class="p">],</span>
                    <span class="n">equivalent_sites</span><span class="o">=</span><span class="p">[[</span><span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">psd</span><span class="p">)</span> <span class="k">for</span> <span class="n">psd</span> <span class="ow">in</span> <span class="n">psl</span><span class="p">]</span> <span class="k">for</span> <span class="n">psl</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;equivalent_sites&#39;</span><span class="p">]],</span>
                    <span class="n">ce_list</span><span class="o">=</span><span class="n">ce_list</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
-                   <span class="n">neighbors_sets</span><span class="o">=</span><span class="n">neighbors_sets</span><span class="p">,</span>
-                   <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">)</span></div></div>
+                   <span class="n">neighbors_sets</span><span class="o">=</span><span class="n">neighbors_sets</span><span class="p">,</span></div></div>
+                   <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="LightStructureEnvironments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments">[docs]</a><span class="k">class</span> <span class="nc">LightStructureEnvironments</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -1124,16 +1120,16 @@
             <span class="k">return</span> <span class="n">out</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.NeighborsSet.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.as_dict">[docs]</a>        <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;isite&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span>
-                    <span class="s1">&#39;all_nbs_sites_indices&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites_indices_unsorted</span><span class="p">}</span></div>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;isite&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">isite</span><span class="p">,</span></div>
+                    <span class="s1">&#39;all_nbs_sites_indices&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_nbs_sites_indices_unsorted</span><span class="p">}</span>
                     <span class="c1"># &#39;all_nbs_sites_indices_unsorted&#39;: self.all_nbs_sites_indices_unsorted}</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.NeighborsSet.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.NeighborsSet.from_dict">[docs]</a>        <span class="nd">@classmethod</span>
         <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">all_nbs_sites</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
                        <span class="n">isite</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;isite&#39;</span><span class="p">],</span>
-                       <span class="n">all_nbs_sites</span><span class="o">=</span><span class="n">all_nbs_sites</span><span class="p">,</span>
-                       <span class="n">all_nbs_sites_indices</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;all_nbs_sites_indices&#39;</span><span class="p">])</span></div></div>
+                       <span class="n">all_nbs_sites</span><span class="o">=</span><span class="n">all_nbs_sites</span><span class="p">,</span></div></div>
+                       <span class="n">all_nbs_sites_indices</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;all_nbs_sites_indices&#39;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span>
                  <span class="n">coordination_environments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">all_nbs_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neighbors_sets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1217,8 +1213,8 @@
                    <span class="n">coordination_environments</span><span class="o">=</span><span class="n">coordination_environments</span><span class="p">,</span>
                    <span class="n">all_nbs_sites</span><span class="o">=</span><span class="n">_all_nbs_sites</span><span class="p">,</span>
                    <span class="n">neighbors_sets</span><span class="o">=</span><span class="n">neighbors_sets</span><span class="p">,</span>
-                   <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">valences</span><span class="o">=</span><span class="n">valences</span><span class="p">,</span>
-                   <span class="n">valences_origin</span><span class="o">=</span><span class="n">valences_origin</span><span class="p">)</span></div>
+                   <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">valences</span><span class="o">=</span><span class="n">valences</span><span class="p">,</span></div>
+                   <span class="n">valences_origin</span><span class="o">=</span><span class="n">valences_origin</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.setup_statistic_lists"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.setup_statistic_lists">[docs]</a>    <span class="k">def</span> <span class="nf">setup_statistic_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;valences_origin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">valences_origin</span><span class="p">,</span>
@@ -1358,8 +1354,8 @@
             <span class="n">fraction_ce_ion_stat</span><span class="p">[</span><span class="n">ce_symbol</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">sum_ce</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">oxistates</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">for</span> <span class="n">elmt</span><span class="p">,</span> <span class="n">oxistates</span> <span class="ow">in</span> <span class="n">ions</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
             <span class="k">for</span> <span class="n">elmt</span><span class="p">,</span> <span class="n">oxistates</span> <span class="ow">in</span> <span class="n">ions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">fraction_ce_ion_stat</span><span class="p">[</span><span class="n">ce_symbol</span><span class="p">][</span><span class="n">elmt</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">oxistate</span><span class="p">:</span> <span class="n">fraction</span> <span class="o">/</span> <span class="n">sum_ce</span>
-                                                         <span class="k">for</span> <span class="n">oxistate</span><span class="p">,</span> <span class="n">fraction</span> <span class="ow">in</span> <span class="n">oxistates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+                <span class="n">fraction_ce_ion_stat</span><span class="p">[</span><span class="n">ce_symbol</span><span class="p">][</span><span class="n">elmt</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">oxistate</span><span class="p">:</span> <span class="n">fraction</span> <span class="o">/</span> <span class="n">sum_ce</span></div>
+                                                         <span class="k">for</span> <span class="n">oxistate</span><span class="p">,</span> <span class="n">fraction</span> <span class="ow">in</span> <span class="n">oxistates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.get_site_info_for_specie_ce"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_ce">[docs]</a>    <span class="k">def</span> <span class="nf">get_site_info_for_specie_ce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">ce_symbol</span><span class="p">,</span> <span class="n">min_fraction</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="n">element</span> <span class="o">=</span> <span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
@@ -1374,8 +1370,8 @@
                         <span class="k">if</span> <span class="n">ce_symbol</span> <span class="o">==</span> <span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]:</span>
                             <span class="n">isites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">isite</span><span class="p">)</span>
                             <span class="n">csms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;csm&#39;</span><span class="p">])</span>
-                            <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_fraction&#39;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;isites&#39;</span><span class="p">:</span> <span class="n">isites</span><span class="p">,</span> <span class="s1">&#39;fractions&#39;</span><span class="p">:</span> <span class="n">fractions</span><span class="p">,</span> <span class="s1">&#39;csms&#39;</span><span class="p">:</span> <span class="n">csms</span><span class="p">}</span></div>
+                            <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_fraction&#39;</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;isites&#39;</span><span class="p">:</span> <span class="n">isites</span><span class="p">,</span> <span class="s1">&#39;fractions&#39;</span><span class="p">:</span> <span class="n">fractions</span><span class="p">,</span> <span class="s1">&#39;csms&#39;</span><span class="p">:</span> <span class="n">csms</span><span class="p">}</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.get_site_info_for_specie_allces"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_site_info_for_specie_allces">[docs]</a>    <span class="k">def</span> <span class="nf">get_site_info_for_specie_allces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">min_fraction</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="n">allces</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1393,8 +1389,8 @@
                             <span class="n">allces</span><span class="p">[</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;isites&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;fractions&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;csms&#39;</span><span class="p">:</span> <span class="p">[]}</span>
                         <span class="n">allces</span><span class="p">[</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]][</span><span class="s1">&#39;isites&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">isite</span><span class="p">)</span>
                         <span class="n">allces</span><span class="p">[</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]][</span><span class="s1">&#39;fractions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_fraction&#39;</span><span class="p">])</span>
-                        <span class="n">allces</span><span class="p">[</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]][</span><span class="s1">&#39;csms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;csm&#39;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">allces</span></div>
+                        <span class="n">allces</span><span class="p">[</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]][</span><span class="s1">&#39;csms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;csm&#39;</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">allces</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.get_statistics"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.get_statistics">[docs]</a>    <span class="k">def</span> <span class="nf">get_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">statistics_fields</span><span class="o">=</span><span class="n">DEFAULT_STATISTICS_FIELDS</span><span class="p">,</span> <span class="n">bson_compatible</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1404,20 +1400,20 @@
         <span class="k">if</span> <span class="n">bson_compatible</span><span class="p">:</span>
             <span class="n">dd</span> <span class="o">=</span> <span class="n">jsanitize</span><span class="p">({</span><span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">statistics_fields</span><span class="p">})</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">dd</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">statistics_fields</span><span class="p">}</span>
-        <span class="k">return</span> <span class="n">dd</span></div>
+            <span class="n">dd</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">statistics_fields</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="n">dd</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.contains_only_one_anion_atom"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion_atom">[docs]</a>    <span class="k">def</span> <span class="nf">contains_only_one_anion_atom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anion_atom</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_atom_list&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span>
-                <span class="n">anion_atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_atom_list&#39;</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_atom_list&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span></div>
+                <span class="n">anion_atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_atom_list&#39;</span><span class="p">])</span>
 
-<div class="viewcode-block" id="LightStructureEnvironments.contains_only_one_anion"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion">[docs]</a>    <span class="k">def</span> <span class="nf">contains_only_one_anion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anion</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_list&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">anion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_list&#39;</span><span class="p">]</span></div>
+<div class="viewcode-block" id="LightStructureEnvironments.contains_only_one_anion"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.contains_only_one_anion">[docs]</a>    <span class="k">def</span> <span class="nf">contains_only_one_anion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anion</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_list&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">anion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics_dict</span><span class="p">[</span><span class="s1">&#39;anion_list&#39;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.site_contains_environment"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_contains_environment">[docs]</a>    <span class="k">def</span> <span class="nf">site_contains_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">ce_symbol</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environments</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="n">ce_symbol</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ce_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environments</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span></div>
+            <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="n">ce_symbol</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ce_dict</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ce_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environments</span><span class="p">[</span><span class="n">isite</span><span class="p">]]</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.site_has_clear_environment"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.site_has_clear_environment">[docs]</a>    <span class="k">def</span> <span class="nf">site_has_clear_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isite</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination_environments</span><span class="p">[</span><span class="n">isite</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1438,8 +1434,8 @@
                     <span class="k">return</span> <span class="kc">False</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Target &quot;</span><span class="si">{}</span><span class="s1">&quot; for condition of clear environment is not allowed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
-            <span class="k">pass</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
+            <span class="k">pass</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.structure_has_clear_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_has_clear_environments">[docs]</a>    <span class="k">def</span> <span class="nf">structure_has_clear_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">skip_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)):</span>
@@ -1454,8 +1450,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_has_clear_environment</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">):</span>
-                <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
+                <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.clear_environments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.clear_environments">[docs]</a>    <span class="k">def</span> <span class="nf">clear_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">clear_envs_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -1466,8 +1462,8 @@
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_has_clear_environment</span><span class="p">(</span><span class="n">isite</span><span class="o">=</span><span class="n">isite</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">):</span>
                 <span class="n">ce</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordination_environments</span><span class="p">[</span><span class="n">isite</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;ce_fraction&#39;</span><span class="p">])</span>
-                <span class="n">clear_envs_list</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ce</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">clear_envs_list</span><span class="p">)</span></div>
+                <span class="n">clear_envs_list</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ce</span><span class="p">[</span><span class="s1">&#39;ce_symbol&#39;</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">clear_envs_list</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.structure_contains_atom_environment"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.structure_contains_atom_environment">[docs]</a>    <span class="k">def</span> <span class="nf">structure_contains_atom_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_symbol</span><span class="p">,</span> <span class="n">ce_symbol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1479,8 +1475,8 @@
         <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">):</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">atom_symbol</span><span class="p">)</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span>
                     <span class="n">element_composition</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_contains_environment</span><span class="p">(</span><span class="n">isite</span><span class="p">,</span> <span class="n">ce_symbol</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+                <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">uniquely_determines_coordination_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1527,8 +1523,8 @@
                                    <span class="s1">&#39;image_cell&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">nb_site</span><span class="p">[</span><span class="s1">&#39;image_cell&#39;</span><span class="p">]]}</span>
                                   <span class="k">for</span> <span class="n">nb_site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_nbs_sites</span><span class="p">],</span>
                 <span class="s2">&quot;neighbors_sets&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="n">nb_set</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">nb_set</span> <span class="ow">in</span> <span class="n">site_nb_sets</span><span class="p">]</span> <span class="k">if</span> <span class="n">site_nb_sets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-                                   <span class="k">for</span> <span class="n">site_nb_sets</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">],</span>
-                <span class="s2">&quot;valences&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">valences</span><span class="p">}</span></div>
+                                   <span class="k">for</span> <span class="n">site_nb_sets</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">],</span></div>
+                <span class="s2">&quot;valences&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">valences</span><span class="p">}</span>
 
 <div class="viewcode-block" id="LightStructureEnvironments.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.LightStructureEnvironments.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -1563,8 +1559,8 @@
                    <span class="n">coordination_environments</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;coordination_environments&#39;</span><span class="p">],</span>
                    <span class="n">all_nbs_sites</span><span class="o">=</span><span class="n">all_nbs_sites</span><span class="p">,</span>
                    <span class="n">neighbors_sets</span><span class="o">=</span><span class="n">neighbors_sets</span><span class="p">,</span>
-                   <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
-                   <span class="n">valences</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;valences&#39;</span><span class="p">])</span></div></div>
+                   <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span></div></div>
+                   <span class="n">valences</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;valences&#39;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ChemicalEnvironments"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments">[docs]</a><span class="k">class</span> <span class="nc">ChemicalEnvironments</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1618,8 +1614,8 @@
         <span class="n">imin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">csms</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">max_csm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">csmlist</span><span class="p">[</span><span class="n">imin</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_csm</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">cglist</span><span class="p">[</span><span class="n">imin</span><span class="p">],</span> <span class="n">csmlist</span><span class="p">[</span><span class="n">imin</span><span class="p">]</span></div>
+                <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="n">cglist</span><span class="p">[</span><span class="n">imin</span><span class="p">],</span> <span class="n">csmlist</span><span class="p">[</span><span class="n">imin</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ChemicalEnvironments.minimum_geometries"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.minimum_geometries">[docs]</a>    <span class="k">def</span> <span class="nf">minimum_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetry_measure_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_csm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1643,8 +1639,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[(</span><span class="n">cglist</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">csmlist</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">isorted</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[(</span><span class="n">cglist</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">csmlist</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">isorted</span><span class="p">[:</span><span class="n">n</span><span class="p">]]</span></div>
+            <span class="k">else</span><span class="p">:</span></div>
+                <span class="k">return</span> <span class="p">[(</span><span class="n">cglist</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">csmlist</span><span class="p">[</span><span class="n">ii</span><span class="p">])</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">isorted</span><span class="p">[:</span><span class="n">n</span><span class="p">]]</span>
 
 <div class="viewcode-block" id="ChemicalEnvironments.add_coord_geom"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.add_coord_geom">[docs]</a>    <span class="k">def</span> <span class="nf">add_coord_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">,</span> <span class="n">symmetry_measure</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;UNKNOWN&#39;</span><span class="p">,</span> <span class="n">permutation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">local2perfect_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perfect2local_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">detailed_voronoi_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1674,8 +1670,8 @@
                                            <span class="s1">&#39;perfect2local_map&#39;</span><span class="p">:</span> <span class="n">perfect2local_map</span><span class="p">,</span>
                                            <span class="s1">&#39;detailed_voronoi_index&#39;</span><span class="p">:</span> <span class="n">detailed_voronoi_index</span><span class="p">,</span>
                                            <span class="s1">&#39;other_symmetry_measures&#39;</span><span class="p">:</span> <span class="n">other_symmetry_measures</span><span class="p">,</span>
-                                           <span class="s1">&#39;rotation_matrix&#39;</span><span class="p">:</span> <span class="n">rotation_matrix</span><span class="p">,</span>
-                                           <span class="s1">&#39;scaling_factor&#39;</span><span class="p">:</span> <span class="n">scaling_factor</span><span class="p">}</span></div>
+                                           <span class="s1">&#39;rotation_matrix&#39;</span><span class="p">:</span> <span class="n">rotation_matrix</span><span class="p">,</span></div>
+                                           <span class="s1">&#39;scaling_factor&#39;</span><span class="p">:</span> <span class="n">scaling_factor</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1717,8 +1713,8 @@
             <span class="k">for</span> <span class="n">csmtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;csm_wcs_ctwcc&#39;</span><span class="p">,</span> <span class="s1">&#39;csm_wcs_ctwocc&#39;</span><span class="p">,</span> <span class="s1">&#39;csm_wcs_csc&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;csm_wocs_ctwcc&#39;</span><span class="p">,</span> <span class="s1">&#39;csm_wocs_ctwocc&#39;</span><span class="p">,</span> <span class="s1">&#39;csm_wocs_csc&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">other_csms_self</span><span class="p">[</span><span class="n">csmtype</span><span class="p">],</span> <span class="n">other_csms_other</span><span class="p">[</span><span class="n">csmtype</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
+                    <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1756,8 +1752,8 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
-                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                <span class="s2">&quot;coord_geoms&quot;</span><span class="p">:</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_geoms</span><span class="p">)}</span></div>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span></div>
+                <span class="s2">&quot;coord_geoms&quot;</span><span class="p">:</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_geoms</span><span class="p">)}</span>
 
 <div class="viewcode-block" id="ChemicalEnvironments.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.structure_environments.html#pymatgen.analysis.chemenv.coordination_environments.structure_environments.ChemicalEnvironments.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -1791,8 +1787,8 @@
                               <span class="n">detailed_voronoi_index</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;detailed_voronoi_index&#39;</span><span class="p">],</span>
                               <span class="n">other_symmetry_measures</span><span class="o">=</span><span class="n">other_csms</span><span class="p">,</span>
                               <span class="n">rotation_matrix</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;rotation_matrix&#39;</span><span class="p">],</span>
-                              <span class="n">scaling_factor</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">ce</span></div></div>
+                              <span class="n">scaling_factor</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;coord_geoms&#39;</span><span class="p">][</span><span class="n">cg</span><span class="p">][</span><span class="s1">&#39;scaling_factor&#39;</span><span class="p">])</span></div></div>
+        <span class="k">return</span> <span class="n">ce</span>
 </pre></div>
 
           </div>
@@ -1802,12 +1798,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1823,7 +1821,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1831,7 +1829,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,5 +1,5 @@
-pymatgen\.vis package
-=====================
+pymatgen.vis package
+====================
 
 Subpackages
 -----------

@@ -70,7 +70,12 @@ class StructureEnvironments(MSONable):
             return [self.voronoi[inb]['site'].coords for inb in self.site_voronoi_indices]
 
         @property
+        def neighb_coordsOpt(self):
+            return self.detailed_voronoi.voronoi_list_coords[self.isite].take(self.site_voronoi_indices, axis=0)
+
+        @property
         def neighb_sites(self):
+
             return [self.voronoi[inb]['site'] for inb in self.site_voronoi_indices]
 
         @property

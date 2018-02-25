@@ -2481,6 +2481,101 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         retcode = self.wait()
         return retcode
 
+    def get_graphviz(self, engine="automatic", graph_attr=None, node_attr=None, edge_attr=None):
+        """
+        Generate task graph in the DOT language (only parents and children of this task).
+
+        Args:
+            engine: ['dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage']
+            graph_attr: Mapping of (attribute, value) pairs for the graph.
+            node_attr: Mapping of (attribute, value) pairs set for all nodes.
+            edge_attr: Mapping of (attribute, value) pairs set for all edges.
+
+        Returns: graphviz.Digraph <https://graphviz.readthedocs.io/en/stable/api.html#digraph>
+        """
+        # https://www.graphviz.org/doc/info/
+        from graphviz import Digraph
+        fg = Digraph("task", filename="task_%s.gv" % os.path.basename(self.workdir),
+            engine="dot" if engine == "automatic" else engine)
+
+        # Set graph attributes.
+        #fg.attr(label="%s@%s" % (self.__class__.__name__, self.relworkdir))
+        fg.attr(label=repr(self))
+        #fg.attr(fontcolor="white", bgcolor='purple:pink')
+        #fg.attr(rankdir="LR", pagedir="BL")
+        #fg.attr(constraint="false", pack="true", packMode="clust")
+        fg.node_attr.update(color='lightblue2', style='filled')
+
+        # Add input attributes.
+        if graph_attr is not None:
+            fg.graph_attr.update(**graph_attr)
+        if node_attr is not None:
+            fg.node_attr.update(**node_attr)
+        if edge_attr is not None:
+            fg.edge_attr.update(**edge_attr)
+
+        def node_kwargs(node):
+            return dict(
+                #shape="circle",
+                color=node.color_hex,
+                label=(str(node) if not hasattr(node, "pos_str") else
+                    node.pos_str + "\n" + node.__class__.__name__),
+            )
+
+        edge_kwargs = dict(arrowType="vee", style="solid")
+        cluster_kwargs = dict(rankdir="LR", pagedir="BL", style="rounded", bgcolor="azure2")
+
+        # Build cluster with tasks.
+        cluster_name = "cluster%s" % self.work.name
+        with fg.subgraph(name=cluster_name) as wg:
+            wg.attr(**cluster_kwargs)
+            wg.attr(label="%s (%s)" % (self.__class__.__name__, self.name))
+            wg.node(self.name, **node_kwargs(self))
+
+            # Connect task to children.
+            for child in self.get_children():
+                # Test if child is in the same work.
+                myg = wg if child in self.work else fg
+                myg.node(child.name, **node_kwargs(child))
+                # Find file extensions required by this task
+                i = [dep.node for dep in child.deps].index(self)
+                edge_label = "+".join(child.deps[i].exts)
+                myg.edge(self.name, child.name, label=edge_label, color=self.color_hex,
+                         **edge_kwargs)
+
+            # Connect task to parents
+            for parent in self.get_parents():
+                # Test if parent is in the same work.
+                myg = wg if parent in self.work else fg
+                myg.node(parent.name, **node_kwargs(parent))
+                # Find file extensions required by self (task)
+                i = [dep.node for dep in self.deps].index(parent)
+                edge_label = "+".join(self.deps[i].exts)
+                myg.edge(parent.name, self.name, label=edge_label, color=parent.color_hex,
+                         **edge_kwargs)
+
+        # Treat the case in which we have a work producing output for other tasks.
+        #for work in self:
+        #    children = work.get_children()
+        #    if not children: continue
+        #    cluster_name = "cluster%s" % work.name
+        #    seen = set()
+        #    for child in children:
+        #        # This is not needed, too much confusing
+        #        #fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)
+        #        # Find file extensions required by work
+        #        i = [dep.node for dep in child.deps].index(work)
+        #        for ext in child.deps[i].exts:
+        #            out = "%s (%s)" % (ext, work.name)
+        #            fg.node(out)
+        #            fg.edge(out, child.name, **edge_kwargs)
+        #            key = (cluster_name, out)
+        #            if key not in seen:
+        #                fg.edge(cluster_name, out, color=work.color_hex, **edge_kwargs)
+        #                seen.add(key)
+
+        return fg
+
 
 class DecreaseDemandsError(Exception):
     """
@@ -2716,7 +2811,7 @@ class AbinitTask(Task):
         max_ncpus = self.manager.max_cores
         if max_ncpus == 1: return 0
 
-        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
+        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus, mem_test=0)
         self.set_vars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
@@ -2727,6 +2822,7 @@ class AbinitTask(Task):
         retcode = process.wait()
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
         process.stderr.close()
+        #process.stdout.close()
 
         # Remove the variables added for the automatic parallelization
         self.input.remove_vars(list(autoparal_vars.keys()))
@@ -2738,8 +2834,15 @@ class AbinitTask(Task):
         try:
             pconfs = parser.parse(self.output_file.path)
         except parser.Error:
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return 2
+            # In principle Abinit should have written a complete log file
+            # because we called .wait() but sometimes the Yaml doc is incomplete and
+            # the parser raises. Let's wait 5 secs and then try again.
+            time.sleep(5)
+            try:
+                pconfs = parser.parse(self.output_file.path)
+            except parser.Error:
+                logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+                return 2
 
         ######################################################
         # Select the optimal configuration according to policy
@@ -3224,7 +3327,7 @@ class NscfTask(GsTask):
         events.NscfConvergenceWarning,
     ]
 
-    color_rgb = np.array((160, 82, 45)) / 255
+    color_rgb = np.array((200, 80, 100)) / 255
 
     def setup(self):
         """
@@ -3232,7 +3335,6 @@ class NscfTask(GsTask):
         (in principle, it's possible to interpolate inside Abinit but tests revealed some numerical noise
         Here we change the input file of the NSCF task to have the same FFT mesh.
         """
-        # TODO: This won't work if parent_node is a file
         for dep in self.deps:
             if "DEN" in dep.exts:
                 parent_task = dep.node
@@ -3685,7 +3787,7 @@ class PhononTask(DfptTask):
         events.ScfConvergenceWarning,
     ]
 
-    color_rgb = np.array((0, 0, 255)) / 255
+    color_rgb = np.array((0, 150, 250)) / 255
 
     def restart(self):
         """

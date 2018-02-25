@@ -277,7 +277,7 @@ hex_plan_max:
   min_SPP:
     2.6179938779914944
   IGW_SPP:
-    15
+    7.5
   w_SPP:
     1
   fac_AA:
@@ -285,5 +285,5 @@ hex_plan_max:
   exp_cos_AA:
     2
   IGW_TA:
-    20
+    25
   TA: 0.16666667
