@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2018.1.29 documentation</title>
+    <title>pymatgen.electronic_structure.plotter &#8212; pymatgen 2018.2.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.1.29',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -145,8 +136,8 @@
         <span class="n">densities</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_smeared_densities</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> \
             <span class="k">else</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span>
         <span class="n">efermi</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;energies&#39;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s1">&#39;densities&#39;</span><span class="p">:</span> <span class="n">densities</span><span class="p">,</span>
-                              <span class="s1">&#39;efermi&#39;</span><span class="p">:</span> <span class="n">efermi</span><span class="p">}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;energies&#39;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s1">&#39;densities&#39;</span><span class="p">:</span> <span class="n">densities</span><span class="p">,</span></div>
+                              <span class="s1">&#39;efermi&#39;</span><span class="p">:</span> <span class="n">efermi</span><span class="p">}</span>
 
 <div class="viewcode-block" id="DosPlotter.add_dos_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter.add_dos_dict">[docs]</a>    <span class="k">def</span> <span class="nf">add_dos_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos_dict</span><span class="p">,</span> <span class="n">key_sort_func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -161,8 +152,8 @@
             <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dos_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">key_sort_func</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">keys</span> <span class="o">=</span> <span class="n">dos_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_dos</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">dos_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span></div>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_dos</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">dos_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
 
 <div class="viewcode-block" id="DosPlotter.get_dos_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter.get_dos_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_dos_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -173,8 +164,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict of dos data. Generally of the form, {label: {&#39;energies&#39;:..,</span>
 <span class="sd">            &#39;densities&#39;: {&#39;up&#39;:...}, &#39;efermi&#39;:efermi}}</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doses</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DosPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -269,8 +260,8 @@
         <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span>
         <span class="n">ltext</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">()</span>  <span class="c1"># all the text.Text instance in the legend</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ltext</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="DosPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -283,8 +274,8 @@
 <span class="sd">                determination.</span>
 <span class="sd">            ylim: Specifies the y-axis limits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DosPlotter.show"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.DosPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -295,8 +286,8 @@
 <span class="sd">                determination.</span>
 <span class="sd">            ylim: Specifies the y-axis limits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span></div></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="BSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -454,8 +445,8 @@
                 <span class="s1">&#39;zero_energy&#39;</span><span class="p">:</span> <span class="n">zero_energy</span><span class="p">,</span> <span class="s1">&#39;is_metal&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">(),</span>
                 <span class="s1">&#39;band_gap&#39;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> bandgap = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">direct</span><span class="p">,</span>
                                                         <span class="n">bg</span><span class="p">[</span><span class="s1">&#39;transition&#39;</span><span class="p">],</span>
-                                                        <span class="n">bg</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">}</span></div>
+                                                        <span class="n">bg</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">])</span></div>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_metal</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
 
 <div class="viewcode-block" id="BSPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_to_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">vbm_cbm_marker</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">smooth_tol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -604,8 +595,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BSPlotter.show"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_to_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
              <span class="n">smooth_tol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -622,8 +613,8 @@
 <span class="sd">            smooth_tol (float) : tolerance for fitting spline to band data.</span>
 <span class="sd">                Default is None such that no tolerance will be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">zero_to_efermi</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">smooth</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">zero_to_efermi</span><span class="p">,</span> <span class="n">ylim</span><span class="p">,</span> <span class="n">smooth</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <div class="viewcode-block" id="BSPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">zero_to_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">smooth</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -637,8 +628,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="n">ylim</span><span class="p">,</span> <span class="n">zero_to_efermi</span><span class="o">=</span><span class="n">zero_to_efermi</span><span class="p">,</span>
                             <span class="n">smooth</span><span class="o">=</span><span class="n">smooth</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <div class="viewcode-block" id="BSPlotter.get_ticks"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter.get_ticks">[docs]</a>    <span class="k">def</span> <span class="nf">get_ticks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -677,8 +668,8 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">tick_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
                 <span class="n">previous_label</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">label</span>
-                <span class="n">previous_branch</span> <span class="o">=</span> <span class="n">this_branch</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;distance&#39;</span><span class="p">:</span> <span class="n">tick_distance</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">tick_labels</span><span class="p">}</span></div>
+                <span class="n">previous_branch</span> <span class="o">=</span> <span class="n">this_branch</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;distance&#39;</span><span class="p">:</span> <span class="n">tick_distance</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">tick_labels</span><span class="p">}</span>
 
 <div class="viewcode-block" id="BSPlotter.plot_compare"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter.plot_compare">[docs]</a>    <span class="k">def</span> <span class="nf">plot_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_plotter</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -721,8 +712,8 @@
                                      <span class="n">color</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
                                      <span class="n">label</span><span class="o">=</span><span class="s1">&#39;bs 2 down&#39;</span><span class="p">)]</span>
 
-            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BSPlotter.plot_brillouin"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotter.plot_brillouin">[docs]</a>    <span class="k">def</span> <span class="nf">plot_brillouin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -739,8 +730,8 @@
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">branches</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;start_index&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
                           <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;end_index&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">])</span>
-
-        <span class="n">plot_brillouin_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">lattice_rec</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="n">lines</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span></div></div>
+</div></div>
+        <span class="n">plot_brillouin_zone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">lattice_rec</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="n">lines</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BSPlotterProjected"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotterProjected">[docs]</a><span class="k">class</span> <span class="nc">BSPlotterProjected</span><span class="p">(</span><span class="n">BSPlotter</span><span class="p">):</span>
@@ -872,8 +863,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">))</span>
-                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BSPlotterProjected.get_elt_projected_plots"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots">[docs]</a>    <span class="k">def</span> <span class="nf">get_elt_projected_plots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_to_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">vbm_cbm_marker</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -959,8 +950,8 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">))</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BSPlotterProjected.get_elt_projected_plots_color"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots_color">[docs]</a>    <span class="k">def</span> <span class="nf">get_elt_projected_plots_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_to_efermi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                       <span class="n">elt_ordered</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1034,8 +1025,8 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">e_min</span><span class="p">,</span> <span class="n">e_max</span><span class="p">)</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">efermi</span> <span class="o">+</span> <span class="n">e_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">efermi</span> <span class="o">+</span> <span class="n">e_max</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">4.0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;vbm&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">4.0</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cbm&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.0</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
     <span class="k">def</span> <span class="nf">_get_projections_by_branches_patom_pmorb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictio</span><span class="p">,</span> <span class="n">dictpa</span><span class="p">,</span>
                                                  <span class="n">sum_atoms</span><span class="p">,</span> <span class="n">sum_morbs</span><span class="p">,</span>
@@ -1580,8 +1571,8 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">elt</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">numa</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
     <span class="k">def</span> <span class="nf">_Orbitals_SumOrbitals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictio</span><span class="p">,</span> <span class="n">sum_morbs</span><span class="p">):</span>
         <span class="n">all_orbitals</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;px&#39;</span><span class="p">,</span> <span class="s1">&#39;py&#39;</span><span class="p">,</span> <span class="s1">&#39;pz&#39;</span><span class="p">,</span> <span class="s1">&#39;dxy&#39;</span><span class="p">,</span> <span class="s1">&#39;dyz&#39;</span><span class="p">,</span>
@@ -2139,8 +2130,8 @@
         <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">branches</span><span class="p">:</span>
             <span class="n">br</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">shift</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">distance</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span> <span class="o">-</span> <span class="n">rf_distance</span><span class="p">[</span><span class="n">br</span><span class="p">])</span>
-
-        <span class="k">return</span> <span class="n">plt</span><span class="p">,</span> <span class="n">shift</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span><span class="p">,</span> <span class="n">shift</span>
 
 
 <div class="viewcode-block" id="BSDOSPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BSDOSPlotter">[docs]</a><span class="k">class</span> <span class="nc">BSDOSPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -2431,8 +2422,8 @@
                                                <span class="s1">&#39;family&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">},</span>
                           <span class="n">loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dos_legend</span><span class="p">)</span>
 
-        <span class="n">mplt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">mplt</span></div>
+        <span class="n">mplt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">mplt</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_rgbline</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">):</span>
@@ -2591,8 +2582,8 @@
                       <span class="n">family</span><span class="o">=</span><span class="s1">&#39;Times New Roman&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                       <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
 
-        <span class="n">inset_ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">inset_ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">inset_ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">inset_ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -2702,8 +2693,8 @@
                         <span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">)],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="s1">&#39;average&#39;</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_complexity_factor_mu"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_complexity_factor_mu">[docs]</a>    <span class="k">def</span> <span class="nf">plot_complexity_factor_mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="p">[</span><span class="mi">300</span><span class="p">],</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span>
                                   <span class="n">Lambda</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
@@ -2763,8 +2754,8 @@
                         <span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">)],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="s1">&#39;average&#39;</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_seebeck_mu"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_mu">[docs]</a>    <span class="k">def</span> <span class="nf">plot_seebeck_mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eig&#39;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2797,8 +2788,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_conductivity_mu"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_conductivity_mu">[docs]</a>    <span class="k">def</span> <span class="nf">plot_conductivity_mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eig&#39;</span><span class="p">,</span>
                              <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -2834,8 +2825,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_power_factor_mu"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_power_factor_mu">[docs]</a>    <span class="k">def</span> <span class="nf">plot_power_factor_mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eig&#39;</span><span class="p">,</span>
                              <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -2870,8 +2861,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_zt_mu"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_zt_mu">[docs]</a>    <span class="k">def</span> <span class="nf">plot_zt_mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;eig&#39;</span><span class="p">,</span> <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span>
                    <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -2905,8 +2896,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_seebeck_temp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_temp">[docs]</a>    <span class="k">def</span> <span class="nf">plot_seebeck_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2957,8 +2948,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_conductivity_temp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_conductivity_temp">[docs]</a>    <span class="k">def</span> <span class="nf">plot_conductivity_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span>
                                <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">):</span>
@@ -3016,8 +3007,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;sci&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_power_factor_temp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_power_factor_temp">[docs]</a>    <span class="k">def</span> <span class="nf">plot_power_factor_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span>
                                <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">):</span>
@@ -3072,8 +3063,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;sci&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_zt_temp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_zt_temp">[docs]</a>    <span class="k">def</span> <span class="nf">plot_zt_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span>
                      <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">):</span>
@@ -3126,8 +3117,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_eff_mass_temp"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_eff_mass_temp">[docs]</a>    <span class="k">def</span> <span class="nf">plot_eff_mass_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3178,8 +3169,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_seebeck_dop"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_seebeck_dop">[docs]</a>    <span class="k">def</span> <span class="nf">plot_seebeck_dop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3227,8 +3218,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_conductivity_dop"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_conductivity_dop">[docs]</a>    <span class="k">def</span> <span class="nf">plot_conductivity_dop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span>
                               <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">):</span>
@@ -3280,8 +3271,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_power_factor_dop"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_power_factor_dop">[docs]</a>    <span class="k">def</span> <span class="nf">plot_power_factor_dop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span>
                               <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">):</span>
@@ -3332,8 +3323,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_zt_dop"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_zt_dop">[docs]</a>    <span class="k">def</span> <span class="nf">plot_zt_dop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="n">relaxation_time</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3383,8 +3374,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_eff_mass_dop"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_eff_mass_dop">[docs]</a>    <span class="k">def</span> <span class="nf">plot_eff_mass_dop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temps</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3434,8 +3425,8 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">plt</span></div>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_dos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_dos">[docs]</a>    <span class="k">def</span> <span class="nf">plot_dos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3448,8 +3439,8 @@
 <span class="sd">            a matplotlib object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plotter</span> <span class="o">=</span> <span class="n">DosPlotter</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
-        <span class="n">plotter</span><span class="o">.</span><span class="n">add_dos</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">dos</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plotter</span><span class="o">.</span><span class="n">get_plot</span><span class="p">()</span></div>
+        <span class="n">plotter</span><span class="o">.</span><span class="n">add_dos</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">dos</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">plotter</span><span class="o">.</span><span class="n">get_plot</span><span class="p">()</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_carriers"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_carriers">[docs]</a>    <span class="k">def</span> <span class="nf">plot_carriers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3472,8 +3463,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;carrier concentration (cm-3)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="BoltztrapPlotter.plot_hall_carriers"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.BoltztrapPlotter.plot_hall_carriers">[docs]</a>    <span class="k">def</span> <span class="nf">plot_hall_carriers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3498,8 +3489,8 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Hall carrier concentration (cm-3)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">plt</span></div></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 
 <div class="viewcode-block" id="CohpPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter">[docs]</a><span class="k">class</span> <span class="nc">CohpPlotter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -3534,8 +3525,8 @@
             <span class="k">else</span> <span class="n">cohp</span><span class="o">.</span><span class="n">energies</span>
         <span class="n">populations</span> <span class="o">=</span> <span class="n">cohp</span><span class="o">.</span><span class="n">get_cohp</span><span class="p">()</span>
         <span class="n">int_populations</span> <span class="o">=</span> <span class="n">cohp</span><span class="o">.</span><span class="n">get_icohp</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">populations</span><span class="p">,</span>
-                              <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">int_populations</span><span class="p">,</span> <span class="s2">&quot;efermi&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="o">.</span><span class="n">efermi</span><span class="p">}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;energies&quot;</span><span class="p">:</span> <span class="n">energies</span><span class="p">,</span> <span class="s2">&quot;COHP&quot;</span><span class="p">:</span> <span class="n">populations</span><span class="p">,</span></div>
+                              <span class="s2">&quot;ICOHP&quot;</span><span class="p">:</span> <span class="n">int_populations</span><span class="p">,</span> <span class="s2">&quot;efermi&quot;</span><span class="p">:</span> <span class="n">cohp</span><span class="o">.</span><span class="n">efermi</span><span class="p">}</span>
 
 <div class="viewcode-block" id="CohpPlotter.add_cohp_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.add_cohp_dict">[docs]</a>    <span class="k">def</span> <span class="nf">add_cohp_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">,</span> <span class="n">key_sort_func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3551,8 +3542,8 @@
             <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">key_sort_func</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">keys</span> <span class="o">=</span> <span class="n">cohp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_cohp</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span></div>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_cohp</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">cohp_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
 
 <div class="viewcode-block" id="CohpPlotter.get_cohp_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.get_cohp_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cohp_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3563,8 +3554,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict of COHP data of the form {label: {&quot;efermi&quot;: efermi,</span>
 <span class="sd">            &quot;energies&quot;: ..., &quot;COHP&quot;: {Spin.up: ...}, &quot;ICOHP&quot;: ...}}.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cohps</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CohpPlotter.get_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_negative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">integrated</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">invert_axes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -3685,8 +3676,8 @@
         <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span>
         <span class="n">ltext</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">()</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ltext</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">plt</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">plt</span>
 
 <div class="viewcode-block" id="CohpPlotter.save_plot"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.save_plot">[docs]</a>    <span class="k">def</span> <span class="nf">save_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">img_format</span><span class="o">=</span><span class="s2">&quot;eps&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3700,8 +3691,8 @@
 <span class="sd">            ylim: Specifies the y-axis limits. Defaults to None for</span>
 <span class="sd">                automatic determination.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span></div>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">img_format</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CohpPlotter.show"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.CohpPlotter.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3713,8 +3704,8 @@
 <span class="sd">            ylim: Specifies the y-axis limits. Defaults to None for</span>
 <span class="sd">                automatic determination.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+        <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span></div></div>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="plot_fermi_surface"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_fermi_surface">[docs]</a><span class="k">def</span> <span class="nf">plot_fermi_surface</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">cbm</span><span class="p">,</span> <span class="n">energy_levels</span><span class="o">=</span><span class="p">[],</span>
@@ -3851,8 +3842,8 @@
         <span class="n">mlab</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">interative</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">mlab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">mlab</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">mlab</span>
 
 
 <div class="viewcode-block" id="plot_wigner_seitz"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_wigner_seitz">[docs]</a><span class="k">def</span> <span class="nf">plot_wigner_seitz</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -3884,8 +3875,8 @@
                         <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bz</span><span class="p">[</span><span class="n">jface</span><span class="p">])</span> \
                         <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bz</span><span class="p">[</span><span class="n">jface</span><span class="p">]):</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 
 
 <div class="viewcode-block" id="plot_lattice_vectors"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_lattice_vectors">[docs]</a><span class="k">def</span> <span class="nf">plot_lattice_vectors</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -3915,8 +3906,8 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">vertex1</span><span class="p">,</span> <span class="n">vertex2</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">vertex2</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">vertex1</span><span class="p">,</span> <span class="n">vertex2</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 
 
 <div class="viewcode-block" id="plot_path"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_path">[docs]</a><span class="k">def</span> <span class="nf">plot_path</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3955,8 +3946,8 @@
             <span class="n">vertex1</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">vertex1</span><span class="p">)</span>
             <span class="n">vertex2</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">vertex2</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">vertex1</span><span class="p">,</span> <span class="n">vertex2</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 
 
 <div class="viewcode-block" id="plot_labels"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_labels">[docs]</a><span class="k">def</span> <span class="nf">plot_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3997,8 +3988,8 @@
                     <span class="s2">&quot;coords_are_cartesian False requires the lattice&quot;</span><span class="p">)</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">coords</span> <span class="o">+</span> <span class="n">off</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 
 
 <div class="viewcode-block" id="fold_point"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.fold_point">[docs]</a><span class="k">def</span> <span class="nf">fold_point</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -4036,8 +4027,8 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">closest_lattice_point</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">closest_lattice_point</span>
-
-    <span class="k">return</span> <span class="n">p</span></div>
+</div>
+    <span class="k">return</span> <span class="n">p</span>
 
 
 <div class="viewcode-block" id="plot_points"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_points">[docs]</a><span class="k">def</span> <span class="nf">plot_points</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -4078,8 +4069,8 @@
             <span class="n">p</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 
 
 <div class="viewcode-block" id="plot_brillouin_zone_from_kpath"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_brillouin_zone_from_kpath">[docs]</a><span class="nd">@add_fig_kwargs</span>
@@ -4099,8 +4090,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[[</span><span class="n">kpath</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s1">&#39;kpoints&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span>
              <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">kpath</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">plot_brillouin_zone</span><span class="p">(</span><span class="n">bz_lattice</span><span class="o">=</span><span class="n">kpath</span><span class="o">.</span><span class="n">prim_rec</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="n">lines</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-                               <span class="n">labels</span><span class="o">=</span><span class="n">kpath</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s1">&#39;kpoints&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">plot_brillouin_zone</span><span class="p">(</span><span class="n">bz_lattice</span><span class="o">=</span><span class="n">kpath</span><span class="o">.</span><span class="n">prim_rec</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="n">lines</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span></div>
+                               <span class="n">labels</span><span class="o">=</span><span class="n">kpath</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s1">&#39;kpoints&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="plot_brillouin_zone"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_brillouin_zone">[docs]</a><span class="nd">@add_fig_kwargs</span>
@@ -4152,8 +4143,8 @@
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span>
 
 
 <div class="viewcode-block" id="plot_ellipsoid"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.plotter.html#pymatgen.electronic_structure.plotter.plot_ellipsoid">[docs]</a><span class="k">def</span> <span class="nf">plot_ellipsoid</span><span class="p">(</span><span class="n">hessian</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">lattice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rescale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -4227,8 +4218,8 @@
                         <span class="n">em</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">pivot</span><span class="o">=</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span>
                         <span class="n">arrow_length_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">radii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">rescale</span><span class="p">,</span>
                         <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+</div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 </pre></div>
 
           </div>
@@ -4238,12 +4229,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -4259,7 +4252,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.1.29 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4267,7 +4260,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

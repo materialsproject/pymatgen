@@ -1,5 +1,5 @@
-pymatgen\.electronic\_structure\.cohp module
-============================================
+pymatgen.electronic\_structure.cohp module
+==========================================
 
 .. automodule:: pymatgen.electronic_structure.cohp
     :members:

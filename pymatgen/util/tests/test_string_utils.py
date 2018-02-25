@@ -14,7 +14,7 @@ __date__ = "Aug 26, 2012"
 import unittest
 
 from pymatgen.util.string import formula_double_format, latexify, \
-    latexify_spacegroup, transformation_to_string
+    latexify_spacegroup, transformation_to_string, htmlify, unicodeify
 
 
 class FuncTest(unittest.TestCase):
@@ -28,6 +28,18 @@ class FuncTest(unittest.TestCase):
     def test_latexify_spacegroup(self):
         self.assertEqual(latexify_spacegroup("Fd-3m"), "Fd$\\overline{3}$m")
         self.assertEqual(latexify_spacegroup("P2_1/c"), "P2$_{1}$/c")
+
+    def test_htmlify(self):
+        self.assertEqual(htmlify("Li3Fe2(PO4)3"),
+                         "Li<sub>3</sub>Fe<sub>2</sub>(PO<sub>4</sub>)<sub>3</sub>")
+        self.assertEqual(htmlify("Li0.2Na0.8Cl"),
+                         "Li<sub>0.2</sub>Na<sub>0.8</sub>Cl")
+
+    def test_unicodeify(self):
+        self.assertEqual(unicodeify("Li3Fe2(PO4)3"),
+                         "Li₃Fe₂(PO₄)₃")
+        self.assertRaises(ValueError, unicodeify,
+                          "Li0.2Na0.8Cl")
 
     def test_formula_double_format(self):
         self.assertEqual(formula_double_format(1.00), "")

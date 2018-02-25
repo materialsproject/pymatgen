@@ -1,5 +1,5 @@
-pymatgen\.analysis\.pourbaix\.maker module
-==========================================
+pymatgen.analysis.pourbaix.maker module
+=======================================
 
 .. automodule:: pymatgen.analysis.pourbaix.maker
     :members:

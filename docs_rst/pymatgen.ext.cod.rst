@@ -1,5 +1,5 @@
-pymatgen\.ext\.cod module
-=========================
+pymatgen.ext.cod module
+=======================
 
 .. automodule:: pymatgen.ext.cod
     :members:
