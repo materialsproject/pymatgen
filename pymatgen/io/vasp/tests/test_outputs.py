@@ -462,6 +462,16 @@ class VasprunTest(unittest.TestCase):
             self.assertEqual(nestep, 10)
             self.assertTrue(vasprun.converged)
 
+    def test_parsing_efg_calcs(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            filepath = os.path.join(test_dir,  "nmr", "efg", "AlPO4", 
+                                    'vasprun.xml')
+            vasprun = Vasprun(filepath)
+            nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
+            self.assertEqual(nestep, 18)
+            self.assertTrue(vasprun.converged)
+
     def test_charged_structure(self):
         vpath = os.path.join(test_dir, 'vasprun.charged.xml')
         potcar_path = os.path.join(test_dir, 'POT_GGA_PAW_PBE', 'POTCAR.Si.gz')
