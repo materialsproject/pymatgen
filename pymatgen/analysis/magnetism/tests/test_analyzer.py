@@ -227,8 +227,21 @@ Magmoms Sites
         PeriodicSite: O (0.0000, 2.0850, 0.0000) [0.5000, 0.0000, 0.5000]
 -5.00   PeriodicSite: Ni (0.0000, 2.0850, -2.0850) [0.5000, 0.5000, 0.5000]"""
 
-        self.assertEqual(str(msa), ref_msa_str)
+        # just compare lines form 'Magmoms Sites',
+        # since lattice param string can vary based on machine precision
+        self.assertEqual("\n".join(str(msa).split("\n")[-5:-1]),
+                         "\n".join(ref_msa_str.split("\n")[-5:-1]))
 
+
+class MagneticDeformationTest(unittest.TestCase):
+
+    def test_magnetic_deformation(self):
+
+        test_structs = loadfn(os.path.join(test_dir, 'magnetic_deformation.json'))
+        mag_def = magnetic_deformation(test_structs[0], test_structs[1])
+
+        self.assertEqual(mag_def.type, "NM-FM")
+        self.assertAlmostEqual(mag_def.deformation, 5.0130859485170971)
 
 if __name__ == '__main__':
     unittest.main()
