@@ -38,7 +38,7 @@ from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.local_env import LocalStructOrderParas, \
-    MinimumDistanceNN, VoronoiNN
+    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator
 from pymatgen.analysis.structure_analyzer import RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.phase_diagram import get_facets
@@ -52,169 +52,6 @@ from six.moves import map
 from six.moves import zip
 
 logger = logging.getLogger(__name__)
-
-file_dir = os.path.dirname(__file__)
-rad_file = os.path.join(file_dir, 'ionic_radii.json')
-
-with open(rad_file, 'r') as fp:
-    _ion_radii = json.load(fp)
-
-
-class ValenceIonicRadiusEvaluator(object):
-    """
-    Computes site valences and ionic radii for a structure using bond valence
-    analyzer
-
-    Args:
-        structure: pymatgen.core.structure.Structure
-    """
-
-    def __init__(self, structure):
-        warnings.warn("ValenceIonicRadiusEvaluator will be moved to"
-                      " local_env.py with pymatgen >= 2018")
-        self._structure = structure.copy()
-        self._valences = self._get_valences()
-        self._ionic_radii = self._get_ionic_radii()
-
-    @property
-    def radii(self):
-        """
-        List of ionic radii of elements in the order of sites.
-        """
-        el = [site.species_string for site in self._structure.sites]
-        radii_dict = dict(zip(el, self._ionic_radii))
-        # print radii_dict
-        return radii_dict
-
-    @property
-    def valences(self):
-        """
-        List of oxidation states of elements in the order of sites.
-        """
-        el = [site.species_string for site in self._structure.sites]
-        valence_dict = dict(zip(el, self._valences))
-        return valence_dict
-
-    @property
-    def structure(self):
-        """
-        Returns oxidation state decorated structure.
-        """
-        return self._structure.copy()
-
-    def _get_ionic_radii(self):
-        """
-        Computes ionic radii of elements for all sites in the structure.
-        If valence is zero, atomic radius is used.
-        """
-        radii = []
-        vnn = VoronoiNN()
-
-        def nearest_key(sorted_vals, key):
-            i = bisect_left(sorted_vals, key)
-            if i == len(sorted_vals):
-                return sorted_vals[-1]
-            if i == 0:
-                return sorted_vals[0]
-            before = sorted_vals[i - 1]
-            after = sorted_vals[i]
-            if after - key < key - before:
-                return after
-            else:
-                return before
-
-        for i in range(len(self._structure.sites)):
-            site = self._structure.sites[i]
-            if isinstance(site.specie, Element):
-                radius = site.specie.atomic_radius
-                # Handle elements with no atomic_radius
-                # by using calculated values instead.
-                if radius is None:
-                    radius = site.specie.atomic_radius_calculated
-                if radius is None:
-                    raise ValueError(
-                        "cannot assign radius to element {}".format(
-                            site.specie))
-                radii.append(radius)
-                continue
-
-            el = site.specie.symbol
-            oxi_state = int(round(site.specie.oxi_state))
-            coord_no = int(round(vnn.get_cn(self._structure, i, use_weights=True)))
-            try:
-                tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
-                oxi_state = nearest_key(tab_oxi_states, oxi_state)
-                radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
-            except KeyError:
-                if vnn.get_cn(self._structure, i, use_weights=True) - coord_no > 0:
-                    new_coord_no = coord_no + 1
-                else:
-                    new_coord_no = coord_no - 1
-                try:
-                    radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
-                    coord_no = new_coord_no
-                except:
-                    tab_coords = sorted(
-                        map(int, _ion_radii[el][str(oxi_state)].keys()))
-                    new_coord_no = nearest_key(tab_coords, coord_no)
-                    i = 0
-                    for val in tab_coords:
-                        if val > coord_no:
-                            break
-                        i = i + 1
-                    if i == len(tab_coords):
-                        key = str(tab_coords[-1])
-                        radius = _ion_radii[el][str(oxi_state)][key]
-                    elif i == 0:
-                        key = str(tab_coords[0])
-                        radius = _ion_radii[el][str(oxi_state)][key]
-                    else:
-                        key = str(tab_coords[i - 1])
-                        radius1 = _ion_radii[el][str(oxi_state)][key]
-                        key = str(tab_coords[i])
-                        radius2 = _ion_radii[el][str(oxi_state)][key]
-                        radius = (radius1 + radius2) / 2
-
-            # implement complex checks later
-            radii.append(radius)
-        return radii
-
-    def _get_valences(self):
-        """
-        Computes ionic valences of elements for all sites in the structure.
-        """
-        try:
-            bv = BVAnalyzer()
-            self._structure = bv.get_oxi_state_decorated_structure(
-                self._structure)
-            valences = bv.get_valences(self._structure)
-        except:
-            try:
-                bv = BVAnalyzer(symm_tol=0.0)
-                self._structure = bv.get_oxi_state_decorated_structure(
-                    self._structure)
-                valences = bv.get_valences(self._structure)
-            except:
-                valences = []
-                for site in self._structure.sites:
-                    if len(site.specie.common_oxidation_states) > 0:
-                        valences.append(site.specie.common_oxidation_states[0])
-                    # Handle noble gas species
-                    # which have no entries in common_oxidation_states.
-                    else:
-                        valences.append(0)
-                if sum(valences):
-                    valences = [0] * self._structure.num_sites
-                else:
-                    self._structure.add_oxidation_state_by_site(valences)
-                # raise
-
-        # el = [site.specie.symbol for site in self._structure.sites]
-        # el = [site.species_string for site in self._structure.sites]
-        # el = [site.specie for site in self._structure.sites]
-        # valence_dict = dict(zip(el, valences))
-        # print valence_dict
-        return valences
 
 
 class Defect(six.with_metaclass(abc.ABCMeta, object)):
@@ -1528,14 +1365,15 @@ def symmetry_reduced_voronoi_nodes(
 
 class StructureMotifInterstitial(Defect):
     """
-    Subclass of Defect to generate interstitial sites at positions
+    Generate interstitial sites at positions
     where the interstitialcy is coordinated by nearest neighbors
     in a way that resembles basic structure motifs
-    (e.g., tetrahedra, octahedra).  The algorithm will be formally
-    introducted in an upcoming publication
-    by Nils E. R. Zimmermann, Anubhav Jain, and Maciej Haranczyk,
-    and it is already used by the Python Charged Defect Toolkit
-    (PyCDT, https://arxiv.org/abs/1611.07481).
+    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+    (Interstitialcy Finding Tool), it was introducted by
+    Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
+    and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
+    and it is used by the Python Charged Defect Toolkit
+    (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
     """
 
     __supported_types = ("tet", "oct", "bcc")

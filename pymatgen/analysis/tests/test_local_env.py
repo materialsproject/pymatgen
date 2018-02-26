@@ -508,17 +508,17 @@ class LocalStructOrderParasTest(PymatgenTest):
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
             "pent_plan_max", "cuboct_max", "tet_max"]
-        op_paras = [None for i in range(len(op_types))]
-        op_paras[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
-        op_paras[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
-        op_paras[33] = {'TA': 0.6081734479693927, 'IGW_TA': 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
-        ops_044 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.44)
-        ops_071 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.71)
-        ops_087 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.87)
-        ops_099 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=0.99)
-        ops_101 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=1.01)
-        ops_501 = LocalStructOrderParas(op_types, parameters=op_paras, cutoff=5.01)
-        ops_voro = LocalStructOrderParas(op_types, parameters=op_paras)
+        op_params = [None for i in range(len(op_types))]
+        op_params[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
+        op_params[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
+        op_params[33] = {'TA': 0.6081734479693927, 'IGW_TA': 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
+        ops_044 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.44)
+        ops_071 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.71)
+        ops_087 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.87)
+        ops_099 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.99)
+        ops_101 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=1.01)
+        ops_501 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=5.01)
+        ops_voro = LocalStructOrderParas(op_types, parameters=op_params)
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)
