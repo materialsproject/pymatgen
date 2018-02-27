@@ -1410,6 +1410,7 @@ class ReconstructionGenerator(object):
                 slab = self.symmetrically_remove_atom(slab, p)
 
         slab.reconstruction = self.name
+        setattr(slab, "recon_trans_matrix", self.trans_matrix)
 
         # Get the oriented_unit_cell with the same axb area.
         ouc = slab.oriented_unit_cell.copy()
