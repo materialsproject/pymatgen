@@ -3,17 +3,20 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+
 import warnings
 import numpy as np
+import os
+
+from enum import Enum, unique
+from collections import namedtuple
+
 from pymatgen.core.structure import Specie, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from monty.serialization import loadfn
-from enum import Enum, unique
-import itertools
-import os
 
 """
 This module provides some useful functions for dealing with magnetic Structures
@@ -384,8 +387,14 @@ class CollinearMagneticStructureAnalyzer:
         :return: Ordering Enum ('FiM' is used as the abbreviation for
         ferrimagnetic)
         """
+
         if not self.is_collinear:
             warnings.warn('Detecting ordering in non-collinear structures not yet implemented.')
+            return Ordering.Unknown
+
+        if 'magmom' not in self.structure.site_properties:
+            # maybe this was a non-spin-polarized calculation, or we've
+            # lost the magnetic moment information
             return Ordering.Unknown
 
         magmoms = self.magmoms
@@ -491,3 +500,41 @@ class CollinearMagneticStructureAnalyzer:
                 prefix = "        "
             outs.append(prefix+repr(site))
         return "\n".join(outs)
+
+
+def magnetic_deformation(structure_A, structure_B):
+    """
+    Calculates 'magnetic deformation proxy',
+    a measure of deformation (norm of finite strain)
+    between 'non-magnetic' (non-spin-polarized) and
+    ferromagnetic structures.
+
+    Adapted from Bocarsly et al. 2017,
+    doi: 10.1021/acs.chemmater.6b04729
+
+    :param structure_A:
+    :param structure_B:
+    :return:
+    """
+
+    # retrieve orderings of both input structures
+    ordering_a = CollinearMagneticStructureAnalyzer(structure_A,
+                                                    overwrite_magmom_mode='none').ordering
+    ordering_b = CollinearMagneticStructureAnalyzer(structure_B,
+                                                    overwrite_magmom_mode='none').ordering
+
+    # get a type string, this is either 'NM-FM' for between non-magnetic
+    # and ferromagnetic, as in Bocarsly paper, or e.g. 'FM-AFM'
+    type_str = "{}-{}".format(ordering_a.value, ordering_b.value)
+
+    lattice_a = structure_A.lattice.matrix.T
+    lattice_b = structure_B.lattice.matrix.T
+    lattice_a_inv = np.linalg.inv(lattice_a)
+    p = np.dot(lattice_a_inv, lattice_b)
+    eta = 0.5 * (np.dot(p.T, p) - np.identity(3))
+    w, v = np.linalg.eig(eta)
+    deformation = 100 * (1. / 3.) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
+
+    MagneticDeformation = namedtuple('MagneticDeformation', 'type deformation')
+
+    return MagneticDeformation(deformation=deformation, type=type_str)

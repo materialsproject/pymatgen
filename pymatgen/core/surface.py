@@ -445,6 +445,7 @@ class Slab(Structure):
         d["miller_index"] = self.miller_index
         d["shift"] = self.shift
         d["scale_factor"] = self.scale_factor
+        d["reconstruction"] = self.reconstruction
         d["energy"] = self.energy
         return d
 
@@ -1339,10 +1340,11 @@ class ReconstructionGenerator(object):
         """
 
         if reconstruction_name not in reconstructions_archive.keys():
-            raise KeyError("The reconstruction_name entered does not exist in the "
+            raise KeyError("The reconstruction_name entered (%s) does not exist in the "
             "archive. Please select from one of the following reconstructions: %s "
             "or add the appropriate dictionary to the archive file "
-            "reconstructions_archive.json." %(list(reconstructions_archive.keys())))
+            "reconstructions_archive.json." %(reconstruction_name,
+                                              list(reconstructions_archive.keys())))
 
         # Get the instructions to build the reconstruction
         # from the reconstruction_archive
@@ -1408,6 +1410,11 @@ class ReconstructionGenerator(object):
                 slab = self.symmetrically_remove_atom(slab, p)
 
         slab.reconstruction = self.name
+
+        # Get the oriented_unit_cell with the same axb area.
+        ouc = slab.oriented_unit_cell.copy()
+        ouc.make_supercell(self.trans_matrix)
+        slab.oriented_unit_cell = ouc
 
         return slab
 
@@ -1644,7 +1651,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 # equal or less than the given max index
                 if max(instructions["miller_index"]) > max_index:
                     continue
-                print("reconstruction to do", name)
                 recon = ReconstructionGenerator(structure, min_slab_size,
                                                 min_vacuum_size, name)
                 slab = recon.build_slab()
