@@ -1130,13 +1130,13 @@ class WorkFunctionAnalyzer(object):
         The average locpot of the slab region along the c direction
     """
 
-    def __init__(self, poscar, locpot, outcar, shift=0):
+    def __init__(self, structure, locpot_along_c, efermi, shift=0):
         """
         Initializes the WorkFunctionAnalyzer class.
 
         Args:
-            poscar (MSONable): Poscar vasp output object
-            locpot (VolumetricData): Locpot vasp output object
+            structure (Structure): Structure object modelling the surface
+            locpot_along_c (list): Local potential along the c direction
             outcar (MSONable): Outcar vasp output object
             shift (float): Parameter to translate the slab (and
                 therefore the vacuum) of the slab structure, thereby
@@ -1144,14 +1144,14 @@ class WorkFunctionAnalyzer(object):
         """
 
         # properties that can be shifted
-        slab = poscar.structure.copy()
+        slab = structure.copy()
         slab.translate_sites([i for i, site in enumerate(slab)], [0,0,shift])
         self.slab = slab
         self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
 
         # Get the plot points between 0 and c
         # increments of the number of locpot points
-        locpot_along_c = copy.copy(locpot.get_average_along_axis(2))
+        locpot_along_c = locpot_along_c
         self.along_c = np.linspace(0, 1, num=len(locpot_along_c))
         locpot_along_c_mid, locpot_end, locpot_start = [], [], []
         for i, s in enumerate(self.along_c):
@@ -1173,7 +1173,7 @@ class WorkFunctionAnalyzer(object):
         self.ave_bulk_p = np.mean(bulk_p)
 
         # shift independent quantities
-        self.efermi = outcar.efermi
+        self.efermi = efermi
         self.vacuum_locpot = max(self.locpot_along_c)
         # get the work function
         self.work_function = self.vacuum_locpot - self.efermi
@@ -1283,10 +1283,11 @@ class WorkFunctionAnalyzer(object):
 
     @staticmethod
     def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0):
-        poscar = Poscar.from_file(poscar_filename)
-        locpot = Locpot.from_file(locpot_filename)
-        outcar = Outcar(outcar_filename)
-        return WorkFunctionAnalyzer(poscar, locpot, outcar, shift=shift)
+        p = Poscar.from_file(poscar_filename)
+        l = Locpot.from_file(locpot_filename)
+        o = Outcar(outcar_filename)
+        return WorkFunctionAnalyzer(p.structure, l.get_average_along_axis(2),
+                                    o.efermi, shift=shift)
 
 
 class NanoscaleStability(object):
@@ -1552,4 +1553,3 @@ class NanoscaleStability(object):
         # class SlabEntryGenerator(object):
         #     def __init__(self, entry):
         #         self.entry = entry
-
