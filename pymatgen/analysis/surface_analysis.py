@@ -330,6 +330,15 @@ class SlabEntry(ComputedStructureEntry):
             label += r", %.3f ML" % (self.get_monolayer)
         return label
 
+    @staticmethod
+    def from_computed_structure_entry(entry, miller_index, label=None,
+                                      adsorbates=[], clean_entry=None, **kwargs):
+        """
+        Returns SlabEntry from a ComputedStructureEntry
+        """
+        return SlabEntry(entry.structure, entry.energy, miller_index, label=label,
+                         adsorbates=adsorbates, clean_entry=clean_entry, **kwargs)
+
 
 class SurfaceEnergyPlotter(object):
     """
