@@ -114,8 +114,8 @@ class DosPlotter(object):
         be the smeared densities, not the original densities.
 
         Returns:
-            Dict of dos data. Generally of the form, {label: {'energies':..,
-            'densities': {'up':...}, 'efermi':efermi}}
+            dict: Dict of dos data. Generally of the form
+            {label: {'energies':..., 'densities': {'up':...}, 'efermi':efermi}}
         """
         return jsanitize(self._doses)
 
@@ -319,13 +319,13 @@ class BSPlotter(object):
                 eigenvalues and plot.
 
         Returns:
-            A dict of the following format:
+            dict: A dictionary of the following format:
             ticks: A dict with the 'distances' at which there is a kpoint (the
-            x axis) and the labels (None if no label)
+            x axis) and the labels (None if no label).
             energy: A dict storing bands for spin up and spin down data
             [{Spin:[band_index][k_point_index]}] as a list (one element
             for each branch) of energy for each kpoint. The data is
-            stored by branch to facilitate the plotting
+            stored by branch to facilitate the plotting.
             vbm: A list of tuples (distance,energy) marking the vbms. The
             energies are shifted with respect to the fermi level is the
             option has been selected.
@@ -588,8 +588,9 @@ class BSPlotter(object):
         Get all ticks and labels for a band structure plot.
 
         Returns:
-            A dict with 'distance': a list of distance at which ticks should
-            be set and 'label': a list of label for each of those ticks.
+            dict: A dictionary with 'distance': a list of distance at which
+            ticks should be set and 'label': a list of label for each of those
+            ticks.
         """
         tick_distance = []
         tick_labels = []
@@ -3504,7 +3505,7 @@ class CohpPlotter(object):
         will be the smeared and not the original populations.
 
         Returns:
-            Dict of COHP data of the form {label: {"efermi": efermi,
+            dict: Dict of COHP data of the form {label: {"efermi": efermi,
             "energies": ..., "COHP": {Spin.up: ...}, "ICOHP": ...}}.
         """
         return jsanitize(self._cohps)
@@ -3531,7 +3532,8 @@ class CohpPlotter(object):
             invert_axes: Put the energies onto the y-axis, which is
                 common in chemistry.
 
-        Returns: a matplotlib object.
+        Returns:
+            A matplotlib object.
         """
         if self.are_coops:
             cohp_label = "COOP"
