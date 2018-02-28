@@ -12,7 +12,7 @@ from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
         VoronoiNN, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
         get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors, LocalStructOrderParas, BrunnerNN
+        NearNeighbors, LocalStructOrderParas, BrunnerNN, EconNN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -177,6 +177,13 @@ class MiniDistNNTest(PymatgenTest):
             self.nacl, 0), 18)
         self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
             self.cscl, 0), 8)
+
+        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
+            self.diamond, 0), 4)
+        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
+            self.nacl, 0), 6)
+        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
+            self.cscl, 0), 14)
 
     def tearDown(self):
         del self.diamond

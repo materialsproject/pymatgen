@@ -337,6 +337,7 @@ class VoronoiNN(NearNeighbors):
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
+        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -446,6 +447,7 @@ class JMolNN(NearNeighbors):
     def __init__(self, tol=1E-3, el_radius_updates=None):
 
         self.tol = tol
+        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -530,6 +532,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -582,6 +585,7 @@ class MinimumOKeeffeNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -648,6 +652,7 @@ class MinimumVIRENN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -2035,6 +2040,7 @@ class BrunnerNN(NearNeighbors):
         self.mode = mode
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2062,3 +2068,65 @@ class BrunnerNN(NearNeighbors):
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
+
+class EconNN(NearNeighbors):
+
+    """
+    Determines the average effective coordination number for each cation in a given structure
+    using Hoppe's algorithm.
+
+    This method finds all cation-centered polyhedrals in the structure, calculates the bond
+    weight for each peripheral ion in the polyhedral, and sums up the bond weights
+    to obtain the effective coordination number for each polyhedral. It then
+    averages the effective coordination of all polyhedrals with the same cation at the
+    central site.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1e-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 10.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=10.0):
+
+        self.tol = tol
+        self.cutoff = cutoff
+        self._cns = {}
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        all_bond_lengths = [i[-1] for i in neighs_dists]
+        weighted_avg = calculate_weighted_avg(all_bond_lengths)
+
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < self.cutoff:
+                w = exp(1 - (dist / weighted_avg)**6)
+                if w > self.tol:
+                    siw.append({'site': s,
+                                'image': self._get_image(s.frac_coords),
+                                'weight': w,
+                                'site_index': self._get_original_site(structure, s)})
+        return siw
+
+
+def calculate_weighted_avg(bonds):
+    """
+    Returns the weighted average bond length given by
+    Hoppe's effective coordination number formula.
+
+    Args:
+        bonds (list): list of floats that are the
+        bond distances between a cation and its
+        peripheral ions
+    """
+    minimum_bond = min(bonds)
+    weighted_sum = 0.0
+    total_sum = 0.0
+    for entry in bonds:
+        weighted_sum += entry*exp(1 - (entry/minimum_bond)**6)
+        total_sum += exp(1-(entry/minimum_bond)**6)
+    return weighted_sum/total_sum
