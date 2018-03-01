@@ -1241,7 +1241,7 @@ class ReconstructionGenerator(object):
     """
 
     def __init__(self, initial_structure, min_slab_size,
-                 min_vacuum_size, reconstruction_name, termination=0):
+                 min_vacuum_size, reconstruction_name):
 
         """
         Generates reconstructed slabs from a set of instructions
@@ -1373,10 +1373,9 @@ class ReconstructionGenerator(object):
         self.slabgen_params = slabgen_params
         self.trans_matrix = recon_json["transformation_matrix"]
         self.reconstruction_json = recon_json
-        self.termination = termination
         self.name = reconstruction_name
 
-    def build_slab(self):
+    def build_slabs(self):
 
         """
         Builds the reconstructed slab by:
@@ -1391,33 +1390,36 @@ class ReconstructionGenerator(object):
             (Slab): The reconstructed slab.
         """
 
-        slab = self.get_unreconstructed_slab()
-        d= self.get_d()
-        top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
+        slabs = self.get_unreconstructed_slabs()
+        recon_slabs = []
+        for slab in slabs:
+            d= self.get_d()
+            top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
-        # Add any specified sites
-        if "points_to_add" in self.reconstruction_json.keys():
-            for p in self.reconstruction_json["points_to_add"]:
-                p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                           top_site[2]+p[2]*d])[2]
-                slab = self.symmetrically_add_atom(slab, p)
+            # Add any specified sites
+            if "points_to_add" in self.reconstruction_json.keys():
+                for p in self.reconstruction_json["points_to_add"]:
+                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
+                                                               top_site[2]+p[2]*d])[2]
+                    slab = self.symmetrically_add_atom(slab, p)
 
-        # Remove any specified sites
-        if "points_to_remove" in self.reconstruction_json.keys():
-            for p in self.reconstruction_json["points_to_remove"]:
-                p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                           top_site[2]+p[2]*d])[2]
-                slab = self.symmetrically_remove_atom(slab, p)
+            # Remove any specified sites
+            if "points_to_remove" in self.reconstruction_json.keys():
+                for p in self.reconstruction_json["points_to_remove"]:
+                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
+                                                               top_site[2]+p[2]*d])[2]
+                    slab = self.symmetrically_remove_atom(slab, p)
 
-        slab.reconstruction = self.name
-        setattr(slab, "recon_trans_matrix", self.trans_matrix)
+            slab.reconstruction = self.name
+            setattr(slab, "recon_trans_matrix", self.trans_matrix)
 
-        # Get the oriented_unit_cell with the same axb area.
-        ouc = slab.oriented_unit_cell.copy()
-        ouc.make_supercell(self.trans_matrix)
-        slab.oriented_unit_cell = ouc
+            # Get the oriented_unit_cell with the same axb area.
+            ouc = slab.oriented_unit_cell.copy()
+            ouc.make_supercell(self.trans_matrix)
+            slab.oriented_unit_cell = ouc
+            recon_slabs.append(slab)
 
-        return slab
+        return recon_slabs
 
     def symmetrically_remove_atom(self, slab, point):
 
@@ -1479,15 +1481,17 @@ class ReconstructionGenerator(object):
 
         return slab
 
-    def get_unreconstructed_slab(self):
+    def get_unreconstructed_slabs(self):
 
         """
         Generates the unreconstructed or pristine super slab.
         """
 
-        slab = SlabGenerator(**self.slabgen_params).get_slabs()[self.termination]
-        slab.make_supercell(self.trans_matrix)
-        return slab
+        slabs = []
+        for slab in SlabGenerator(**self.slabgen_params).get_slabs():
+            slab.make_supercell(self.trans_matrix)
+            slabs.append(slab)
+        return slabs
 
     def get_d(self):
 
@@ -1654,8 +1658,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                     continue
                 recon = ReconstructionGenerator(structure, min_slab_size,
                                                 min_vacuum_size, name)
-                slab = recon.build_slab()
-                all_slabs.append(slab)
+                all_slabs.extend(recon.build_slabs())
 
     return all_slabs
 

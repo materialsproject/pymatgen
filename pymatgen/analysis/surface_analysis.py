@@ -214,8 +214,11 @@ class SlabEntry(ComputedStructureEntry):
         refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el]
         bulk_energy += self.composition.as_dict()[ref_el] * refEperA
 
-        return gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
-                           Symbol("A"): self.surface_area})
+        se = gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
+                         Symbol("A"): self.surface_area})
+
+
+        return float(se) if type(se).__name__ == "Float" else se
 
     @property
     def get_unit_primitive_area(self):
