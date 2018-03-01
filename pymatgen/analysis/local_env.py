@@ -337,6 +337,7 @@ class VoronoiNN(NearNeighbors):
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
+        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -436,7 +437,7 @@ class VoronoiNN_modified(NearNeighbors):
     """
 
     def __init__(self):
-        pass
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -471,6 +472,7 @@ class JMolNN(NearNeighbors):
     def __init__(self, tol=1E-3, el_radius_updates=None):
 
         self.tol = tol
+        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -555,6 +557,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -607,6 +610,7 @@ class MinimumOKeeffeNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -673,6 +677,7 @@ class MinimumVIRENN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -2060,6 +2065,7 @@ class BrunnerNN(NearNeighbors):
         self.mode = mode
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2111,6 +2117,7 @@ class EconNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
