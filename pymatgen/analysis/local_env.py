@@ -430,6 +430,31 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
+class VoronoiNN_modified(NearNeighbors):
+    """
+    Modified VoronoiNN that only considers neighbors
+    with at least 50% weight of max(weight).
+    """
+
+    def __init__(self):
+        self._cns = {}
+
+    def get_nn_info(self, structure, n):
+
+        vor = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).items()
+        weights = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).values()
+        max_weight = max(weights)
+
+        siw = []
+        for site, weight in vor:
+            if weight > 0.5 * max_weight:
+                siw.append({'site': site,
+                            'image': self._get_image(site.frac_coords),
+                            'weight': weight,
+                            'site_index': self._get_original_site(structure, site)})
+        return siw
+
+
 class JMolNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using an emulation
@@ -2130,3 +2155,4 @@ def calculate_weighted_avg(bonds):
         weighted_sum += entry*exp(1 - (entry/minimum_bond)**6)
         total_sum += exp(1-(entry/minimum_bond)**6)
     return weighted_sum/total_sum
+
