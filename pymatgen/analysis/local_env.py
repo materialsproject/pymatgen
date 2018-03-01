@@ -337,7 +337,6 @@ class VoronoiNN(NearNeighbors):
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
-        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -430,6 +429,31 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
+class VoronoiNN_modified(NearNeighbors):
+    """
+    Modified VoronoiNN that only considers neighbors
+    with at least 50% weight of max(weight).
+    """
+
+    def __init__(self):
+        pass
+
+    def get_nn_info(self, structure, n):
+
+        vor = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).items()
+        weights = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).values()
+        max_weight = max(weights)
+
+        siw = []
+        for site, weight in vor:
+            if weight > 0.5 * max_weight:
+                siw.append({'site': site,
+                            'image': self._get_image(site.frac_coords),
+                            'weight': weight,
+                            'site_index': self._get_original_site(structure, site)})
+        return siw
+
+
 class JMolNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using an emulation
@@ -447,7 +471,6 @@ class JMolNN(NearNeighbors):
     def __init__(self, tol=1E-3, el_radius_updates=None):
 
         self.tol = tol
-        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -532,7 +555,6 @@ class MinimumDistanceNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -585,7 +607,6 @@ class MinimumOKeeffeNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -652,7 +673,6 @@ class MinimumVIRENN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -2040,7 +2060,6 @@ class BrunnerNN(NearNeighbors):
         self.mode = mode
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2092,7 +2111,6 @@ class EconNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2130,3 +2148,4 @@ def calculate_weighted_avg(bonds):
         weighted_sum += entry*exp(1 - (entry/minimum_bond)**6)
         total_sum += exp(1-(entry/minimum_bond)**6)
     return weighted_sum/total_sum
+
