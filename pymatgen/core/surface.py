@@ -1396,14 +1396,6 @@ class ReconstructionGenerator(object):
             d = self.get_d(slab)
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
-            # Add any specified sites
-            if "points_to_add" in self.reconstruction_json.keys():
-                pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
-                for p in pts_to_add:
-                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                               top_site[2]+p[2]*d])[2]
-                    slab = self.symmetrically_add_atom(slab, p)
-
             # Remove any specified sites
             if "points_to_remove" in self.reconstruction_json.keys():
                 pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
@@ -1411,6 +1403,14 @@ class ReconstructionGenerator(object):
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
                                                                top_site[2]+p[2]*d])[2]
                     slab = self.symmetrically_remove_atom(slab, p)
+
+            # Add any specified sites
+            if "points_to_add" in self.reconstruction_json.keys():
+                pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
+                for p in pts_to_add:
+                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
+                                                               top_site[2]+p[2]*d])[2]
+                    slab = self.symmetrically_add_atom(slab, p)
 
             slab.reconstruction = self.name
             setattr(slab, "recon_trans_matrix", self.trans_matrix)
