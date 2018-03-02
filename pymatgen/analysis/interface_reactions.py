@@ -47,8 +47,8 @@ class InterfacialReactivity:
         use_hull_energy (bool): Whether or not use the convex hull energy for
             a given composition for reaction energy calculation. If false, the
             energy of ground state structure will be used instead. Note that
-            in case when ground state can be found for a composition, convex
-            hull energy will be used associated with a warning message.
+            in case when ground state can not be found for a composition, 
+	    convex hull energy will be used associated with a warning message.
     """
 
     def __init__(self, c1, c2, pd, norm=True, include_no_mixing_energy=False,
