@@ -9,7 +9,7 @@ import unittest
 import os
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-        VoronoiNN, JMolNN, \
+        VoronoiNN, VoronoiNN_modified, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
         get_neighbors_of_site_with_index, site_is_of_motif_type, \
         NearNeighbors, LocalStructOrderParas, BrunnerNN, EconNN
@@ -184,6 +184,13 @@ class MiniDistNNTest(PymatgenTest):
             self.nacl, 0), 6)
         self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
             self.cscl, 0), 14)
+
+        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+            self.diamond, 0), 4)
+        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+            self.nacl, 0), 6)
+        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+            self.cscl, 0), 8)
 
     def tearDown(self):
         del self.diamond
