@@ -1349,20 +1349,23 @@ class ReconstructionGenerator(object):
         # Get the instructions to build the reconstruction
         # from the reconstruction_archive
         recon_json = copy.deepcopy(reconstructions_archive[reconstruction_name])
+        new_points_to_add, new_points_to_remove = [], []
         if "base_reconstruction" in recon_json.keys():
             if "points_to_add" in recon_json.keys():
                 new_points_to_add = recon_json["points_to_add"]
             if "points_to_remove" in recon_json.keys():
                 new_points_to_remove = recon_json["points_to_remove"]
+
+            # Build new instructions from a base reconstruction
             recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
-            if new_points_to_add and "points_to_add" not in recon_json.keys():
+            if "points_to_add" in recon_json.keys():
+                del recon_json["points_to_add"]
+            if "points_to_remove" in recon_json.keys():
+                del recon_json["points_to_remove"]
+            if new_points_to_add:
                 recon_json["points_to_add"] = new_points_to_add
-            else:
-                recon_json["points_to_add"].extend(new_points_to_add)
-            if new_points_to_remove and "points_to_remove" not in recon_json.keys():
+            if new_points_to_remove:
                 recon_json["points_to_remove"] = new_points_to_remove
-            else:
-                recon_json["points_to_remove"].extend(new_points_to_remove)
 
         slabgen_params = copy.deepcopy(recon_json["SlabGenerator_parameters"])
         slabgen_params["initial_structure"] = initial_structure.copy()
@@ -1376,7 +1379,6 @@ class ReconstructionGenerator(object):
         self.name = reconstruction_name
 
     def build_slabs(self):
-
         """
         Builds the reconstructed slab by:
             (1) Obtaining the unreconstructed slab using the specified
