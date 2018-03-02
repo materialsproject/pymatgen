@@ -1393,19 +1393,21 @@ class ReconstructionGenerator(object):
         slabs = self.get_unreconstructed_slabs()
         recon_slabs = []
         for slab in slabs:
-            d= self.get_d()
+            d = self.get_d(slab)
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
             # Add any specified sites
             if "points_to_add" in self.reconstruction_json.keys():
-                for p in self.reconstruction_json["points_to_add"]:
+                pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
+                for p in pts_to_add:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
                                                                top_site[2]+p[2]*d])[2]
                     slab = self.symmetrically_add_atom(slab, p)
 
             # Remove any specified sites
             if "points_to_remove" in self.reconstruction_json.keys():
-                for p in self.reconstruction_json["points_to_remove"]:
+                pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
+                for p in pts_to_rm:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
                                                                top_site[2]+p[2]*d])[2]
                     slab = self.symmetrically_remove_atom(slab, p)
@@ -1493,14 +1495,13 @@ class ReconstructionGenerator(object):
             slabs.append(slab)
         return slabs
 
-    def get_d(self):
+    def get_d(self, slab):
 
         """
         Determine the distance of space between
         each layer of atoms along c
         """
 
-        slab = self.get_unreconstructed_slab()
         sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
         for i, site in enumerate(sorted_sites):
             if "%.6f" % (site.frac_coords[2]) == \
