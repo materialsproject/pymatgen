@@ -1248,18 +1248,12 @@ class ReconstructionGenerator(object):
             specified by a dictionary or json file.
 
         Args:
-            initial_structure (Structure): Initial input structure. Note that
-                to ensure that the miller indices correspond to usual
+            initial_structure (Structure): Initial input structure. Note
+                that to ensure that the miller indices correspond to usual
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
             min_slab_size (float): In Angstroms
             min_vacuum_size (float): In Angstroms
-            termination (int): The index of the termination of the slab. Some
-                surfaces can have more than one termination when using the
-                get_slabs() method from SlabGenerator(). For simplicity, the
-                reconstruction template will operate on the more stable
-                termination (e.g. for diamond (111), the termination without
-                the dangling bond) unless specified.
 
             reconstruction (str): Name of the dict containing the instructions
                 for building a reconstructed slab. The dictionary can contain
@@ -1336,7 +1330,8 @@ class ReconstructionGenerator(object):
 
             NOTE: THE DICTIONARY SHOULD ONLY CONTAIN "points_to_remove" AND
             "points_to_add" FOR THE TOP SURFACE. THE ReconstructionGenerator
-            WILL MODIFY THE BOTTOM SURFACE TO RETURN A SLAB WITH EQUIVALENT SURFACES.
+            WILL MODIFY THE BOTTOM SURFACE ACCORDINGLY TO RETURN A SLAB WITH
+            EQUIVALENT SURFACES.
         """
 
         if reconstruction_name not in reconstructions_archive.keys():
