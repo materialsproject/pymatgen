@@ -478,6 +478,31 @@
         <span class="k">return</span> <span class="n">siw</span>
 
 
+<div class="viewcode-block" id="VoronoiNN_modified"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN_modified">[docs]</a><span class="k">class</span> <span class="nc">VoronoiNN_modified</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modified VoronoiNN that only considers neighbors</span>
+<span class="sd">    with at least 50% weight of max(weight).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cns</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="VoronoiNN_modified.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN_modified.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+
+        <span class="n">vor</span> <span class="o">=</span> <span class="n">VoronoiNN</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">VoronoiNN</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">max_weight</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+
+        <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">vor</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">weight</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">max_weight</span><span class="p">:</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">)})</span></div></div>
+        <span class="k">return</span> <span class="n">siw</span>
+
+
 <div class="viewcode-block" id="JMolNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JMolNN">[docs]</a><span class="k">class</span> <span class="nc">JMolNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and coordination number using an emulation</span>
@@ -2178,6 +2203,7 @@
         <span class="n">weighted_sum</span> <span class="o">+=</span> <span class="n">entry</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">entry</span><span class="o">/</span><span class="n">minimum_bond</span><span class="p">)</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
         <span class="n">total_sum</span> <span class="o">+=</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">entry</span><span class="o">/</span><span class="n">minimum_bond</span><span class="p">)</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span></div>
     <span class="k">return</span> <span class="n">weighted_sum</span><span class="o">/</span><span class="n">total_sum</span>
+
 </pre></div>
 
           </div>
