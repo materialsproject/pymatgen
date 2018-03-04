@@ -1264,9 +1264,10 @@ class MVLSlabSet(MPRelaxSet):
         self.set_mix = set_mix
 
         slab_incar = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400,
-                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3, "LVTOT": True}
+                      "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2
+            slab_incar["LVTOT"] = True
             if self.set_mix:
                 slab_incar["AMIN"] = 0.01
                 slab_incar["AMIX"] = 0.2
