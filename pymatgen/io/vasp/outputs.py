@@ -24,7 +24,6 @@ from monty.re import regrep
 from six import string_types
 from six.moves import map, zip
 
-from pymatgen.analysis.nmr import NMRChemicalShiftNotation
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
@@ -1824,11 +1823,7 @@ class Outcar(MSONable):
         all_cs = {}
         for name, cs_table in [["valence_only", cs_valence_only],
                                ["valence_and_core", cs_valence_and_core]]:
-            cs = []
-            for sigma_iso, omega, kappa in cs_table:
-                tensor = NMRChemicalShiftNotation.from_maryland_notation(sigma_iso, omega, kappa)
-                cs.append(tensor)
-            all_cs[name] = tuple(cs)
+            all_cs[name] = cs_table
         self.data["chemical_shifts"] = all_cs
 
 
@@ -2531,7 +2526,7 @@ class Outcar(MSONable):
 
 
         if self.nmr_cs:
-            d.update({"nmr_cs": {"valence and core": self.data["chemical_shifts"]["valence_and_core"],
+            d.update({"nmr": {"valence and core": self.data["chemical_shifts"]["valence_and_core"],
                 "valence_only": self.data["chemical_shifts"]["valence_only"],
                 "g0": self.data["cs_g0_contribution"],
                 "core": self.data["cs_core_contribution"],
