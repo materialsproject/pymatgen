@@ -65,10 +65,11 @@ The `Materials Virtual Lab`_ has developed a
 `matgenie web app <http://matgenie.materialsvirtuallab.org>`_ which
 demonstrates some of the basic functionality of pymatgen, as well as a
 `matgenb repository <http://matgenb.materialsvirtuallab.org>`_ of
-Jupyter notebooks for common and advanced use cases.
+Jupyter notebooks for common and advanced use cases. We have deprecated the
+pymatgen examples page in favor of this more sustainable approach going forward.
+One of the ways you can contribute is to fork the matgenb repo and add your own
+examples.
 
-Another good way to explore the functionality of pymatgen is to look at the
-examples in a :doc:`series of ipython notebooks </examples>`.
 Below are a quick look at some of the graphical output possible.
 
 .. figure:: _static/examples.png
