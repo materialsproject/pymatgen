@@ -481,7 +481,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vasprun.structures[0].charge, 1)
 
 
-class OutcarTest(unittest.TestCase):
+class OutcarTest(PymatgenTest):
 
     def test_init(self):
         for f in ['OUTCAR', 'OUTCAR.gz']:
@@ -695,27 +695,24 @@ class OutcarTest(unittest.TestCase):
                                     [192.005, 69.5289, 0.6339],
                                     [195.0913, 68.1859, 0.833],
                                     [192.0237, 69.565, 0.6333],
-                                    [195.0788, 68.1733, 0.8337]]
+                                    [195.0788, 68.1733, 0.8337]] 
 
         self.assertAlmostEqual(
             len(outcar.data["chemical_shifts"]["valence_only"][20: 28]),
             len(expected_chemical_shifts))
-        for c1, c2 in zip(
-                outcar.data["chemical_shifts"]["valence_only"][20: 28],
-                expected_chemical_shifts):
-            for x1, x2 in zip(list(c1.maryland_values), c2):
-                self.assertAlmostEqual(x1, x2, places=5)
 
+        self.assertArrayAlmostEqual(outcar.data["chemical_shifts"]["valence_and_core"][20:28],
+          expected_chemical_shifts,decimal=5)
+        
     def test_chemical_shifts_with_different_core_contribution(self):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
-        c_vo = outcar.data["chemical_shifts"]["valence_only"][7].maryland_values
+        c_vo = outcar.data["chemical_shifts"]["valence_only"][7]
         for x1, x2 in zip(list(c_vo),
                           [198.7009, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)
-        c_vc = outcar.data["chemical_shifts"]["valence_and_core"][
-            7].maryland_values
+        c_vc = outcar.data["chemical_shifts"]["valence_and_core"][7]
         for x1, x2 in zip(list(c_vc),
                           [-1.9406, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)
