@@ -654,6 +654,14 @@ class GaussianOutput(object):
         If True, the geometries stored in the structures are in the standard
         orientation. Else, the geometries are in the input orientation.
 
+    .. attribute:: bond_orders
+
+        Dict of bond order values read in the output file such as:
+        {(0, 1): 0.8709, (1, 6): 1.234, ...}
+
+        The keys are the atom indexes and the values are the Wiberg bond indexes
+        that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.
+
     Methods:
 
     .. method:: to_input()
@@ -735,6 +743,8 @@ class GaussianOutput(object):
         resume_patt = re.compile(r"^\s1\\1\\GINC-\S*")
         resume_end_patt = re.compile(r"^\s.*\\\\@")
 
+        bond_order_patt = re.compile(r"Wiberg bond index matrix in the NAO basis:")
+
         self.properly_terminated = False
         self.is_pcm = False
         self.stationary_type = "Minimum"
@@ -751,6 +761,7 @@ class GaussianOutput(object):
         self.hessian = None
         self.resumes = []
         self.title = None
+        self.bond_orders = {}
 
         coord_txt = []
         read_coord = 0
@@ -768,6 +779,7 @@ class GaussianOutput(object):
         parse_hessian = False
         routeline = ""
         standard_orientation = False
+        parse_bond_order = False
         input_structures = list()
         std_structures = list()
 
@@ -1008,6 +1020,22 @@ class GaussianOutput(object):
                             line = f.readline()
                             j_indices = [j + 5 for j in j_indices]
 
+                    elif parse_bond_order:
+                        # parse Wiberg bond order
+                        line = f.readline()
+                        line = f.readline()
+                        nat = len(input_structures[0])
+                        matrix = list()
+                        for iat in range(nat):
+                            line = f.readline()
+                            matrix.append([float(v) for v in line.split()[2:]])
+
+                        self.bond_orders = dict()
+                        for iat in range(nat):
+                            for jat in range(iat + 1, nat):
+                                self.bond_orders[(iat, jat)] = matrix[iat][jat]
+                        parse_bond_order = False
+
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
                         if m.group(1) == "Normal":
@@ -1077,6 +1105,8 @@ class GaussianOutput(object):
                         resume.append(line)
                         resume = "".join([r.strip() for r in resume])
                         self.resumes.append(resume)
+                    elif bond_order_patt.search(line):
+                        parse_bond_order = True
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):
