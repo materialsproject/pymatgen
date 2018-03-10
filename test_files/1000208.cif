@@ -1,0 +1,100 @@
+#------------------------------------------------------------------------------
+#$Date: 2015-01-27 21:58:39 +0200 (Tue, 27 Jan 2015) $
+#$Revision: 130149 $
+#$URL: svn://www.crystallography.net/cod/cif/1/00/02/1000208.cif $
+#------------------------------------------------------------------------------
+#
+# This file is available in the Crystallography Open Database (COD),
+# http://www.crystallography.net/
+#
+# All data on this site have been placed in the public domain by the
+# contributors.
+#
+data_1000208
+loop_
+_publ_author_name
+'Launay, J M'
+'Bulou, A'
+'Hewat, A W'
+'Gibaud, A'
+'Laval, J Y'
+'Nouet, J'
+_publ_section_title
+;
+Shear transformation in the layered compound K Al F~4~: low temperature
+phase structure and transformation mechanism
+;
+_journal_coden_ASTM              JOPQAG
+_journal_name_full               'Journal de Physique (Paris)'
+_journal_page_first              771
+_journal_page_last               782
+_journal_paper_doi               10.1051/jphys:01985004605077100
+_journal_volume                  46
+_journal_year                    1985
+_chemical_formula_structural     'K Al F4'
+_chemical_formula_sum            'Al F4 K'
+_chemical_name_systematic
+;
+Potassium tetrafluoroaluminate - low temperature
+;
+_space_group_IT_number           11
+_symmetry_cell_setting           monoclinic
+_symmetry_Int_Tables_number      11
+_symmetry_space_group_name_Hall  '-P 2yb'
+_symmetry_space_group_name_H-M   'P 1 21/m 1'
+_cell_angle_alpha                90
+_cell_angle_beta                 106.801(4)
+_cell_angle_gamma                90
+_cell_formula_units_Z            4
+_cell_length_a                   7.3403(2)
+_cell_length_b                   7.2370(2)
+_cell_length_c                   6.4070(2)
+_cell_volume                     325.8
+_cod_database_code               1000208
+loop_
+_symmetry_equiv_pos_as_xyz
+x,y,z
+-x,1/2+y,-z
+-x,-y,-z
+x,1/2-y,z
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_B_11
+_atom_site_aniso_B_12
+_atom_site_aniso_B_13
+_atom_site_aniso_B_22
+_atom_site_aniso_B_23
+_atom_site_aniso_B_33
+K1 0.9(1) 0. 0.32(4) .0(1) 0. 1.1(2)
+K2 0.9(1) 0. 0.32(4) .0(1) 0. 1.1(2)
+F1 0.38(6) 0. 0.42(3) 1.0(1) 0. 1.5(1)
+F2 1.04(5) 0. 0.42(3) 0.28(6) 0. 1.5(1)
+F3 1.04(5) 0. 0.42(3) 0.28(6) 0. 1.5(1)
+F4 0.98(4) 0. 0.24 0.27(5) 0. 0.87(8)
+F5 0.98(4) 0. 0.24 0.27(5) 0. 0.87(8)
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+_atom_site_calc_flag
+Al1 Al3+ 2 a 0. 0. 0. 1. 0 d
+Al2 Al3+ 2 b 0.5 0. 0. 1. 0 d
+K1 K1+ 2 e 0.131(2) 0.25 0.541(2) 1. 0 d
+K2 K1+ 2 e 0.633(2) 0.25 0.544(2) 1. 0 d
+F1 F1- 4 f 0.2581(8) -0.0205(3) 0.0077(9) 1. 0 d
+F2 F1- 2 e 0.029(1) 0.25 0.051(1) 1. 0 d
+F3 F1- 2 e 0.4874(8) 0.25 0.044(1) 1. 0 d
+F4 F1- 4 f 0.0712(7) -0.0370(5) 0.2836(8) 1. 0 d
+F5 F1- 4 f 0.5738(6) -0.0361(5) 0.2840(7) 1. 0 d
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Al3+ 3.000
+K1+ 1.000
+F1- -1.000
