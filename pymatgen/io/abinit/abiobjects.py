@@ -20,7 +20,7 @@ from monty.json import MSONable
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.util.serialization import pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from monty.json import MontyEncoder, MontyDecoder
 
@@ -91,7 +91,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
         rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
         return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
 
-    raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+    raise ValueError("Don't know how to construct a Lattice from dict:\n%s" % pformat(d))
 
 
 def structure_from_abivars(cls=None, *args, **kwargs):
@@ -151,8 +151,8 @@ def structure_from_abivars(cls=None, *args, **kwargs):
     if len(typat) != len(coords):
         raise ValueError("len(typat) != len(coords):\ntypat: %s\ncoords: %s" % (typat, coords))
 
-    # Note Fortran --> C indexing
-    #znucl_type = np.rint(znucl_type)
+    # Note conversion to int and Fortran --> C indexing
+    typat = np.array(typat, dtype=np.int)
     species = [znucl_type[typ-1] for typ in typat]
 
     return cls(lattice, species, coords, validate_proximity=False,
@@ -163,11 +163,16 @@ def structure_to_abivars(structure, **kwargs):
     """
     Receives a structure and returns a dictionary with the ABINIT variables.
     """
+    if not structure.is_ordered:
+        raise ValueError("""\
+Received disordered structure with partial occupancies that cannot be converted into an Abinit input
+Please use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
+to build an appropriate supercell from partial occupancies or alternatively use the Virtual Crystal Approximation.""")
+
     types_of_specie = structure.types_of_specie
     natom = structure.num_sites
 
     znucl_type = [specie.number for specie in types_of_specie]
-
     znucl_atoms = structure.atomic_numbers
 
     typat = np.zeros(natom, np.int)
@@ -175,7 +180,8 @@ def structure_to_abivars(structure, **kwargs):
         typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
     rprim = ArrayWithUnit(structure.lattice.matrix, "ang").to("bohr")
-    xred = np.reshape([site.frac_coords for site in structure], (-1,3))
+    angdeg = structure.lattice.angles
+    xred = np.reshape([site.frac_coords for site in structure], (-1, 3))
 
     # Set small values to zero. This usually happens when the CIF file
     # does not give structure parameters with enough digits.
@@ -194,17 +200,26 @@ def structure_to_abivars(structure, **kwargs):
     # Add info on the lattice.
     # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
     geomode = kwargs.pop("geomode", "rprim")
-    #latt_dict = structure.lattice.to_abivars(geomode=geomode)
+    if geomode == "automatic":
+        geomode = "rprim"
+        if structure.lattice.is_hexagonal: # or structure.lattice.is_rhombohedral
+            geomode = "angdeg"
+            angdeg = structure.lattice.angles
+            # Here one could polish a bit the numerical values if they are not exact.
+            # Note that in pmg the angles are 12, 20, 01 while in Abinit 12, 02, 01
+            # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
     if geomode == "rprim":
-        d.update(dict(
+        d.update(
             acell=3 * [1.0],
-            rprim=rprim))
+            rprim=rprim,
+        )
 
     elif geomode == "angdeg":
-        d.update(dict(
-            acell=3 * [1.0],
-            angdeg=angdeg))
+        d.update(
+            acell=ArrayWithUnit(structure.lattice.abc, "ang").to("bohr"),
+            angdeg=angdeg,
+        )
     else:
         raise ValueError("Wrong value for geomode: %s" % geomode)
 
@@ -626,13 +641,11 @@ class KSampling(AbivarAble, MSONable):
             if len(kpts) != num_kpts:
                 raise ValueError("For Automatic mode, num_kpts must be specified.")
 
-            kptnrm = np.ones(num_kpts)
-
             abivars.update({
                 "kptopt"     : 0,
                 "kpt"        : kpts,
                 "nkpt"       : num_kpts,
-                "kptnrm"     : kptnrm,
+                "kptnrm"     : np.ones(num_kpts),
                 "wtk"        : kpts_weights,  # for iscf/=-2, wtk.
                 "chksymbreak": chksymbreak,
             })

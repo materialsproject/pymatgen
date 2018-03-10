@@ -46,7 +46,8 @@ class ReadWriteChemenvTest(unittest.TestCase):
         struct = Structure.from_dict(dd['structure'])
         self.lgf.setup_structure(struct)
         se = self.lgf.compute_structure_environments(only_indices=atom_indices,
-                                                     maximum_distance_factor=2.25)
+                                                     maximum_distance_factor=2.25,
+                                                     get_from_hints=True)
 
         f = open('tmp_dir/se.json', 'w')
         json.dump(se.as_dict(), f)
@@ -89,11 +90,54 @@ class ReadWriteChemenvTest(unittest.TestCase):
         nb_set_surface_points = np.array([[1.0017922780870239, 0.99301365328679292],
                                           [1.0017922780870239, 0.0],
                                           [2.2237615554448569, 0.0],
-                                          [2.2237615554448569, 0.016430233861405744],
-                                          [2.25, 0.016430233861405744],
+                                          [2.2237615554448569, 0.0060837],
+                                          [2.25, 0.0060837],
                                           [2.25, 0.99301365328679292]])
 
         self.assertTrue(np.allclose(np.array(nb_set.voronoi_grid_surface_points()), nb_set_surface_points))
+
+        neighb_sites = nb_set.neighb_sites
+        coords = [np.array([0.2443798, 1.80409653, -1.13218359]), np.array([1.44020353, 1.11368738, 1.13218359]),
+                  np.array([2.75513098, 2.54465207, -0.70467298]), np.array([0.82616785, 3.65833945, 0.70467298])]
+
+        np.testing.assert_array_almost_equal(coords[0], neighb_sites[0].coords)
+        np.testing.assert_array_almost_equal(coords[1], neighb_sites[1].coords)
+        np.testing.assert_array_almost_equal(coords[2], neighb_sites[2].coords)
+        np.testing.assert_array_almost_equal(coords[3], neighb_sites[3].coords)
+
+        neighb_coords = nb_set.coords
+
+        np.testing.assert_array_almost_equal(coords, neighb_coords[1:])
+        np.testing.assert_array_almost_equal(nb_set.structure[nb_set.isite].coords, neighb_coords[0])
+
+        normdist = nb_set.normalized_distances
+        self.assertAlmostEqual(sorted(normdist),
+                               sorted([1.0017922783963027, 1.0017922780870239, 1.000000000503177, 1.0]))
+        normang = nb_set.normalized_angles
+        self.assertAlmostEqual(sorted(normang),
+                               sorted([0.9999999998419052, 1.0, 0.9930136530585189, 0.9930136532867929]))
+        dist = nb_set.distances
+        self.assertAlmostEqual(sorted(dist),
+                               sorted([1.6284399814843944, 1.6284399809816534, 1.6255265861208676, 1.6255265853029401]))
+        ang = nb_set.angles
+        self.assertAlmostEqual(sorted(ang),
+                               sorted([3.117389876236432, 3.117389876729275, 3.095610709498583, 3.0956107102102024]))
+
+        nb_set_info = nb_set.info
+
+        self.assertAlmostEqual(nb_set_info['normalized_angles_mean'], 0.996506826547)
+        self.assertAlmostEqual(nb_set_info['normalized_distances_std'], 0.000896138995037)
+        self.assertAlmostEqual(nb_set_info['angles_std'], 0.0108895833142)
+        self.assertAlmostEqual(nb_set_info['distances_std'], 0.00145669776056)
+        self.assertAlmostEqual(nb_set_info['distances_mean'], 1.62698328347)
+
+        self.assertEqual(nb_set.__str__(), 'Neighbors Set for site #6 :\n'
+                                           ' - Coordination number : 4\n'
+                                           ' - Voronoi indices : 1, 4, 5, 6\n')
+
+        self.assertFalse(nb_set.__ne__(nb_set))
+
+        self.assertEqual(nb_set.__hash__(), 4)
 
     def test_strategies(self):
         simplest_strategy_1 = SimplestChemenvStrategy()

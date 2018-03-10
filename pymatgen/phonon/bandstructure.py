@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import collections
 import numpy as np
 
 from pymatgen.core.structure import Structure
@@ -15,6 +16,44 @@ from monty.json import MSONable
 This module provides classes to define a phonon band structure.
 """
 
+def get_reasonable_repetitions(natoms):
+    """
+    Choose the number of repetitions
+    according to the number of atoms in the system
+    """
+    if (natoms < 4):        return [3,3,3]
+    if (4 < natoms < 15):   return [2,2,2]
+    if (15 < natoms < 50):  return [2,2,1]
+    if (50 < natoms):       return [1,1,1]
+
+def eigenvectors_from_displacements(disp,masses):
+    """
+    Calculate the eigenvectors from the atomic displacements
+    """
+    nphonons,natoms,ndirections = disp.shape
+    sqrt_masses = np.sqrt(masses)
+    return np.einsum("nax,a->nax",disp,sqrt_masses) 
+
+def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order):
+    """
+    A function to order the phonon eigenvectors taken from phonopy
+    """
+    metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
+    connection_order = []
+    for overlaps in metric:
+        maxval = 0
+        for i in reversed(range(len(metric))):
+            val = overlaps[i]
+            if i in connection_order:
+                continue
+            if val > maxval:
+                maxval = val
+                maxindex = i
+        connection_order.append(maxindex)
+
+    band_order = [connection_order[x] for x in prev_band_order]
+
+    return band_order
 
 class PhononBandStructure(MSONable):
     """
@@ -103,7 +142,7 @@ class PhononBandStructure(MSONable):
         """
         i = np.unravel_index(np.argmin(self.bands), self.bands.shape)
 
-        return self.qpoints[i[0]], self.bands[i]
+        return self.qpoints[i[1]], self.bands[i]
 
     def has_imaginary_freq(self, tol=1e-5):
         """
@@ -377,6 +416,125 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                                           "index": i})
         return to_return
 
+    def write_phononwebsite(self,filename):
+        """
+        Write a json file for the phononwebsite:
+        http://henriquemiranda.github.io/phononwebsite
+        """
+        import json
+        with open(filename,'w') as f:
+            phononwebsite_json = json.dump(self.as_phononwebsite(),f)
+
+    def as_phononwebsite(self):
+        """
+        Return a dictionary with the phononwebsite format:
+        http://henriquemiranda.github.io/phononwebsite
+        """
+        d = {}
+
+        #define the lattice
+        d["lattice"] = self.structure.lattice._matrix.tolist()
+      
+        #define atoms
+        atom_pos_car = []
+        atom_pos_red = []
+        atom_types = []
+        for site in self.structure.sites:
+            atom_pos_car.append(site.coords.tolist())
+            atom_pos_red.append(site.frac_coords.tolist())
+            atom_types.append(site.species_string)
+
+        #default for now
+        d["repetitions"] = get_reasonable_repetitions(len(atom_pos_car))
+    
+        d["natoms"] = len(atom_pos_car)
+        d["atom_pos_car"] = atom_pos_car
+        d["atom_pos_red"] = atom_pos_red
+        d["atom_types"] = atom_types
+        d["atom_numbers"] = self.structure.atomic_numbers
+        d["formula"] = self.structure.formula
+        d["name"] = self.structure.formula
+
+        #get qpoints
+        qpoints = []
+        for q in self.qpoints:
+            qpoints.append(q.as_dict()["ccoords"])
+        d["qpoints"] = qpoints
+
+        # get labels
+        hsq_dict = collections.OrderedDict()
+        for nq,q in enumerate(self.qpoints):
+            if q.label is not None:
+                hsq_dict[nq] = q.label
+
+        #get distances
+        dist = 0
+        nqstart = 0
+        distances = [dist]
+        line_breaks = []
+        for nq in range(1,len(qpoints)):
+            q1 = np.array(qpoints[nq])
+            q2 = np.array(qpoints[nq-1])
+            #detect jumps
+            if ((nq in hsq_dict) and (nq-1 in hsq_dict)):
+                if (hsq_dict[nq] != hsq_dict[nq-1]):
+                    hsq_dict[nq-1] += "|"+hsq_dict[nq]
+                del hsq_dict[nq]
+                line_breaks.append((nqstart,nq))
+                nqstart = nq
+            else:
+                dist += np.linalg.norm(q1-q2)
+            distances.append(dist)
+        line_breaks.append((nqstart,len(qpoints)))
+        d["distances"] = distances
+        d["line_breaks"] = line_breaks
+        d["highsym_qpts"] = list(hsq_dict.items())
+
+        #eigenvalues
+        thz2cm1 = 33.35641
+        bands = self.bands.copy()*thz2cm1
+        d["eigenvalues"] = bands.T.tolist()
+
+        #eigenvectors
+        eigenvectors = self.eigendisplacements.copy()
+        eigenvectors /= np.linalg.norm(eigenvectors[0,0])
+        eigenvectors = eigenvectors.swapaxes(0,1)
+        eigenvectors = np.array([eigenvectors.real, eigenvectors.imag])
+        eigenvectors = np.rollaxis(eigenvectors,0,5)
+        d["vectors"] = eigenvectors.tolist()
+ 
+        return d
+
+    def band_reorder(self):
+        """
+        Re-order the eigenvalues according to the similarity of the eigenvectors
+        """
+        eiv = self.eigendisplacements
+        eig = self.bands
+    
+        nphonons,nqpoints = self.bands.shape
+        order = np.zeros([nqpoints,nphonons],dtype=int)
+        order[0] = np.array(range(nphonons))
+        
+        #get the atomic masses
+        atomic_masses = [ site.specie.atomic_mass for site in self.structure.sites ]
+ 
+        #get order
+        for nq in range(1,nqpoints):
+            old_eiv = eigenvectors_from_displacements(eiv[:,nq-1],atomic_masses)
+            new_eiv = eigenvectors_from_displacements(eiv[:,nq],  atomic_masses)
+            order[nq] = estimate_band_connection(old_eiv.reshape([nphonons,nphonons]).T,
+                                                 new_eiv.reshape([nphonons,nphonons]).T,
+                                                 order[nq-1])
+
+        #reorder
+        for nq in range(1,nqpoints):
+            eivq=eiv[:,nq]
+            eigq=eig[:,nq]
+            eiv[:,nq] = eivq[order[nq]]
+            eig[:,nq] = eigq[order[nq]]
+    
+ 
     def as_dict(self):
         d = super(PhononBandStructureSymmLine, self).as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed

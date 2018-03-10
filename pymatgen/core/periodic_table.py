@@ -8,6 +8,7 @@ import os
 import re
 import json
 import warnings
+import numpy as np
 from io import open
 from enum import Enum
 
@@ -15,12 +16,13 @@ from pymatgen.core.units import Mass, Length, unitized, FloatWithUnit, Unit, \
     SUPPORTED_UNIT_NAMES
 from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
+from itertools import product, combinations
+from collections import Counter
 
 """
 Module contains classes presenting Element and Specie (Element + oxidation
 state) and PeriodicTable.
 """
-
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -29,7 +31,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
-
 
 # Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__),
@@ -138,7 +139,7 @@ class Element(Enum):
 
         True if element is a actinoid.
 
-    .. attribute:: name
+    .. attribute:: long_name
 
        Long name for element. E.g., "Hydrogen".
 
@@ -197,6 +198,15 @@ class Element(Enum):
         Electronic structure. Simplified form with HTML formatting.
         E.g., The electronic structure for Fe is represented as
         [Ar].3d<sup>6</sup>.4s<sup>2</sup>
+
+    .. attribute:: atomic_orbitals
+
+        Atomic Orbitals. Energy of the atomic orbitals as a dict.
+        E.g., The orbitals energies in eV are represented as
+        {'1s': -1.0, '2s': -0.1}
+        Data is obtained from
+        https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations
+        The LDA values for neutral atoms are used
 
     .. attribute:: thermal_conductivity
 
@@ -385,6 +395,7 @@ class Element(Enum):
         else:
             self.atomic_radius = Length(at_r, "ang")
         self.atomic_mass = Mass(d["Atomic mass"], "amu")
+        self.long_name = d["Name"]
         self._data = d
 
     @property
@@ -409,30 +420,35 @@ class Element(Enum):
                     "brinell_hardness", "rigidity_modulus",
                     "mineral_hardness", "vickers_hardness",
                     "density_of_solid", "atomic_radius_calculated",
-                    "van_der_waals_radius",
-                    "coefficient_of_linear_thermal_expansion"]:
+                    "van_der_waals_radius", "atomic_orbitals",
+                    "coefficient_of_linear_thermal_expansion",
+                    "ground_state_term_symbol", "valence"]:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
                 val = None
+            elif type(val) == dict:
+                pass
             else:
                 try:
                     val = float(val)
                 except ValueError:
-                    toks_nobracket = re.sub(r'\(.*\)', "", val)
-                    toks = toks_nobracket.replace("about", "").strip().split(
-                        " ", 1)
+                    nobracket = re.sub(r'\(.*\)', "", val)
+                    toks = nobracket.replace("about", "").strip().split(" ", 1)
                     if len(toks) == 2:
                         try:
                             if "10<sup>" in toks[1]:
                                 base_power = re.findall(r'([+-]?\d+)', toks[1])
                                 factor = "e" + base_power[1]
+                                if toks[0] in ["&gt;", "high"]:
+                                    toks[0] = "1"  # return the border value
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
-                                elif item == \
-                                        "coefficient_of_linear_thermal_" \
-                                        "expansion":
+                                elif (
+                                        item ==
+                                        "coefficient_of_linear_thermal_expansion"
+                                ):
                                     unit = "K^-1"
                                 else:
                                     unit = toks[1]
@@ -513,6 +529,12 @@ class Element(Enum):
         return tuple(self._data.get("Common oxidation states", list()))
 
     @property
+    def icsd_oxidation_states(self):
+        """Tuple of all oxidation states with at least 10 instances in
+        ICSD database AND at least 1% of entries for that element"""
+        return tuple(self._data.get("ICSD oxidation states", list()))
+
+    @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.
@@ -533,6 +555,115 @@ class Element(Enum):
             sym = data[0].replace("[", "").replace("]", "")
             data = Element(sym).full_electronic_structure + data[1:]
         return data
+
+    @property
+    def valence(self):
+        """
+        # From full electron config obtain valence subshell
+        # angular moment (L) and number of valence e- (v_e)
+
+        """
+        L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
+        valence = []
+        full_electron_config = self.full_electronic_structure
+        for _, l_symbol, ne in full_electron_config[::-1]:
+            l = L_symbols.lower().index(l_symbol)
+            if ne < (2 * l + 1) * 2:
+                valence.append((l, ne))
+        if len(valence) > 1:
+            raise ValueError("Ambiguous valence")
+
+        return valence[0]
+
+    @property
+    def term_symbols(self):
+        """
+        All possible  Russell-Saunders term symbol of the Element
+        eg. L = 1, n_e = 2 (s2)
+        returns
+           [['1D2'], ['3P0', '3P1', '3P2'], ['1S0']]
+
+        """
+        L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
+
+        L, v_e = self.valence
+
+        # for one electron in subshell L
+        ml = list(range(-L, L + 1))
+        ms = [1 / 2, -1 / 2]
+        # all possible configurations of ml,ms for one e in subshell L
+        ml_ms = list(product(ml, ms))
+
+        # Number of possible configurations for r electrons in subshell L.
+        n = (2 * L + 1) * 2
+        # the combination of n_e electrons configurations
+        # C^{n}_{n_e}
+        e_config_combs = list(combinations(range(n), v_e))
+
+        # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
+        TL = [sum([ml_ms[comb[e]][0] for e in range(v_e)])
+              for comb in e_config_combs]
+        TS = [sum([ml_ms[comb[e]][1] for e in range(v_e)])
+              for comb in e_config_combs]
+        comb_counter = Counter([r for r in zip(TL, TS)])
+
+        term_symbols = []
+        while sum(comb_counter.values()) > 0:
+            # Start from the lowest freq combination,
+            # which corresponds to largest abs(L) and smallest abs(S)
+            L, S = min(comb_counter)
+
+            J = list(np.arange(abs(L - S), abs(L) + abs(S) + 1))
+            term_symbols.append([str(int(2 * (abs(S)) + 1))
+                                 + L_symbols[abs(L)]
+                                 + str(j) for j in J])
+            # Without J
+            # term_symbols.append(str(int(2 * (abs(S)) + 1)) \
+            #                     + L_symbols[abs(L)])
+
+            # Delete all configurations included in this term
+            for ML in range(-L, L - 1, -1):
+                for MS in np.arange(S, -S + 1, 1):
+                    if (ML, MS) in comb_counter:
+
+                        comb_counter[(ML, MS)] -= 1
+                        if comb_counter[(ML, MS)] == 0:
+                            del comb_counter[(ML, MS)]
+        return term_symbols
+
+    @property
+    def ground_state_term_symbol(self):
+        """
+        Ground state term symbol
+        Selected based on Hund's Rule
+
+        """
+        L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
+
+        term_symbols = self.term_symbols
+        term_symbol_flat = {term: {"multiplicity": int(term[0]),
+                                   "L": L_symbols.index(term[1]),
+                                   "J": float(term[2:])}
+                            for term in sum(term_symbols, [])}
+
+        multi = [int(item['multiplicity'])
+                 for terms, item in term_symbol_flat.items()]
+        max_multi_terms = {symbol: item
+                           for symbol, item in term_symbol_flat.items()
+                           if item['multiplicity'] == max(multi)}
+
+        Ls = [item['L'] for terms, item in max_multi_terms.items()]
+        max_L_terms = {symbol: item
+                       for symbol, item in term_symbol_flat.items()
+                       if item['L'] == max(Ls)}
+
+        J_sorted_terms = sorted(max_L_terms.items(),
+                                key=lambda k: k[1]['J'])
+        L, v_e = self.valence
+        if v_e <= (2 * L + 1):
+            return J_sorted_terms[0][0]
+        else:
+            return J_sorted_terms[-1][0]
 
     def __eq__(self, other):
         return isinstance(other, Element) and self.Z == other.Z
@@ -807,7 +938,6 @@ class Element(Enum):
 
 
 class Specie(MSONable):
-
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -836,24 +966,9 @@ class Specie(MSONable):
         Properties are now checked when comparing two Species for equality.
     """
 
-    cache = {}
-
-    def __new__(cls, *args, **kwargs):
-        key = (cls,) + args + tuple(kwargs.items())
-        try:
-            inst = Specie.cache.get(key, None)
-        except TypeError:
-            # Can't cache this set of arguments
-            inst = key = None
-        if inst is None:
-            inst = object.__new__(cls)
-            if key is not None:
-                Specie.cache[key] = inst
-        return inst
-
     supported_properties = ("spin",)
 
-    def __init__(self, symbol, oxidation_state, properties=None):
+    def __init__(self, symbol, oxidation_state=None, properties=None):
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
@@ -862,7 +977,7 @@ class Specie(MSONable):
                 raise ValueError("{} is not a supported property".format(k))
 
     def __getattr__(self, a):
-        # overriding getattr doens't play nice with pickle, so we
+        # overriding getattr doesn't play nice with pickle, so we
         # can't use self._properties
         p = object.__getattribute__(self, '_properties')
         if a in p:
@@ -878,24 +993,24 @@ class Specie(MSONable):
         exactly the same.
         """
         return isinstance(other, Specie) and self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state \
-            and self._properties == other._properties
+               and self.oxi_state == other.oxi_state \
+               and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
         """
-        Given that all oxidation states are below 100 in absolute value, this
-        should effectively ensure that no two unequal Specie have the same
-        hash.
+        Equal Specie should have the same str representation, hence
+        should hash equally. Unequal Specie will have differnt str
+        representations.
         """
-        return self._el.Z * 1000 + int(self._oxi_state)
+        return self.__str__().__hash__()
 
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity,
-        followed by oxidation state.
+        followed by oxidation state, followed by spin.
         """
         if self.X != other.X:
             return self.X < other.X
@@ -903,9 +1018,15 @@ class Specie(MSONable):
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
             return self.symbol < other.symbol
-        else:
-            other_oxi = 0 if isinstance(other, Element) else other.oxi_state
+        elif self.oxi_state:
+            other_oxi = 0 if (isinstance(other, Element)
+                              or other.oxi_state is None) else other.oxi_state
             return self.oxi_state < other_oxi
+        elif getattr(self, "spin", False):
+            other_spin = getattr(other, "spin", 0)
+            return self.spin < other_spin
+        else:
+            return False
 
     @property
     def element(self):
@@ -957,14 +1078,14 @@ class Specie(MSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9\.]*)([\+\-])(.*)", species_string)
+        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-])(.*)", species_string)
         if m:
             sym = m.group(1)
             oxi = 1 if m.group(2) == "" else float(m.group(2))
             oxi = -oxi if m.group(3) == "-" else oxi
             properties = None
             if m.group(4):
-                toks = m.group(4).split("=")
+                toks = m.group(4).replace(",", "").split("=")
                 properties = {toks[0]: float(toks[1])}
             return Specie(sym, oxi, properties)
         else:
@@ -975,13 +1096,65 @@ class Specie(MSONable):
 
     def __str__(self):
         output = self.symbol
-        if self._oxi_state >= 0:
-            output += formula_double_format(self._oxi_state) + "+"
-        else:
-            output += formula_double_format(-self._oxi_state) + "-"
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
         for p, v in self._properties.items():
-            output += "%s=%s" % (p, v)
+            output += ",%s=%s" % (p, v)
         return output
+
+    def get_shannon_radius(self, cn, spin="", radius_type="ionic"):
+        """
+        Get the local environment specific ionic radius for species.
+
+        Args:
+            cn (str): Coordination using roman letters. Supported values are
+                I-IX, as well as IIIPY, IVPY and IVSQ.
+            spin (str): Some species have different radii for different
+                spins. You can get specific values using "High Spin" or
+                "Low Spin". Leave it as "" if not available. If only one spin
+                data is available, it is returned and this spin parameter is
+                ignored.
+            radius_type (str): Either "crystal" or "ionic" (default).
+
+        Returns:
+            Shannon radius for specie in the specified environment.
+        """
+        radii = self._el.data["Shannon radii"]
+        # if cn == 1:
+        #     cn_str = "I"
+        # elif cn == 2:
+        #     cn_str = "II"
+        # elif cn == 3:
+        #     cn_str = "III"
+        # elif cn == 4:
+        #     cn_str = "IV"
+        # elif cn == 5:
+        #     cn_str = "V"
+        # elif cn == 6:
+        #     cn_str = "VI"
+        # elif cn == 7:
+        #     cn_str = "VII"
+        # elif cn == 8:
+        #     cn_str = "VIII"
+        # elif cn == 9:
+        #     cn_str = "IX"
+        # else:
+        #     raise ValueError("Invalid coordination number")
+
+        if len(radii[str(int(self._oxi_state))][cn]) == 1:
+            k, data = list(radii[str(int(self._oxi_state))][cn].items())[0]
+            if k != spin:
+                warnings.warn(
+                    "Specified spin state of %s not consistent with database "
+                    "spin of %s. Because there is only one spin data available, "
+                    "that value is returned." % (spin, k)
+                )
+        else: 
+            data = radii[str(int(self._oxi_state))][cn][spin]
+        return data["%s_radius" % radius_type]
 
     def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
         """
@@ -1009,10 +1182,10 @@ class Specie(MSONable):
                 "Invalid element {} for crystal field calculation.".format(
                     self.symbol))
         nelectrons = elec[-1][2] + elec[-2][2] - self.oxi_state
-        if nelectrons < 0:
+        if nelectrons < 0 or nelectrons > 10:
             raise AttributeError(
                 "Invalid oxidation state {} for element {}"
-                .format(self.oxi_state, self.symbol))
+                    .format(self.oxi_state, self.symbol))
         if spin_config == "high":
             return nelectrons if nelectrons <= 5 else 10 - nelectrons
         elif spin_config == "low":
@@ -1079,7 +1252,11 @@ class DummySpecie(Specie):
 
     .. attribute:: Z
 
-        DummySpecie is always assigned an atomic number of 0.
+        DummySpecie is always assigned an atomic number equal to the hash
+        number of the symbol. Obviously, it makes no sense whatsoever to use
+        the atomic number of a Dummy specie for anything scientific. The purpose
+        of this is to ensure that for most use cases, a DummySpecie behaves no
+        differently from an Element or Specie.
 
     .. attribute:: X
 
@@ -1107,13 +1284,10 @@ class DummySpecie(Specie):
         p = object.__getattribute__(self, '_properties')
         if a in p:
             return p[a]
-        try:
-            return getattr(self._el, a)
-        except:
-            raise AttributeError(a)
+        raise AttributeError(a)
 
     def __hash__(self):
-        return 1
+        return self.symbol.__hash__()
 
     def __eq__(self, other):
         """
@@ -1122,8 +1296,9 @@ class DummySpecie(Specie):
         """
         if not isinstance(other, DummySpecie):
             return False
-        return self.symbol == other.symbol \
-            and self._oxi_state == other._oxi_state
+        return isinstance(other, Specie) and self.symbol == other.symbol \
+               and self.oxi_state == other.oxi_state \
+               and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1146,9 +1321,11 @@ class DummySpecie(Specie):
     @property
     def Z(self):
         """
-        DummySpecie is always assigned an atomic number of 0.
+        DummySpecie is always assigned an atomic number equal to the hash of
+        the symbol. The expectation is that someone would be an actual dummy
+        to use atomic numbers for a Dummy specie.
         """
-        return 0
+        return self.symbol.__hash__()
 
     @property
     def oxi_state(self):
@@ -1160,7 +1337,8 @@ class DummySpecie(Specie):
     @property
     def X(self):
         """
-        DummySpecie is always assigned an electronegativity of 0.
+        DummySpecie is always assigned an electronegativity of 0. The effect of
+        this is that DummySpecie are always sorted in front of actual Specie.
         """
         return 0
 
@@ -1186,7 +1364,7 @@ class DummySpecie(Specie):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search(r"([A-Z][a-z]*)([0-9\.]*)([\+\-]*)(.*)", species_string)
+        m = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
         if m:
             sym = m.group(1)
             if m.group(2) == "" and m.group(3) == "":
@@ -1236,10 +1414,13 @@ class DummySpecie(Specie):
 
     def __str__(self):
         output = self.symbol
-        if self._oxi_state >= 0:
-            output += formula_double_format(self._oxi_state) + "+"
-        else:
-            output += formula_double_format(-self._oxi_state) + "-"
+        if self.oxi_state is not None:
+            if self.oxi_state >= 0:
+                output += formula_double_format(self.oxi_state) + "+"
+            else:
+                output += formula_double_format(-self.oxi_state) + "-"
+        for p, v in self._properties.items():
+            output += ",%s=%s" % (p, v)
         return output
 
 
@@ -1267,6 +1448,9 @@ def get_el_sp(obj):
     """
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
+
+    if isinstance(obj, (list, tuple)):
+        return [get_el_sp(o) for o in obj]
 
     try:
         c = float(obj)

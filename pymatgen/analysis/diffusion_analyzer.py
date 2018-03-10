@@ -14,7 +14,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.coord_utils import pbc_diff
+from pymatgen.util.coord import pbc_diff
 
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
@@ -48,9 +48,18 @@ class DiffusionAnalyzer(MSONable):
 
         Diffusivity in cm^2 / s
 
+    .. attribute: chg_diffusivity
+
+        Charge diffusivity in cm^2 / s
+
     .. attribute: conductivity
 
         Conductivity in mS / cm
+
+    .. attribute: chg_conductivity
+
+        Conductivity derived from Nernst-Einstein equation using charge
+        diffusivity, in mS / cm
 
     .. attribute: diffusivity_components
 
@@ -60,22 +69,27 @@ class DiffusionAnalyzer(MSONable):
 
         A vector with conductivity in the a, b and c directions in mS / cm
 
-    .. attribute: diffusivity_sigma
+    .. attribute: diffusivity_std_dev
 
         Std dev in diffusivity in cm^2 / s. Note that this makes sense only
         for non-smoothed analyses.
 
-    .. attribute: conductivity_sigma
+    .. attribute: chg_diffusivity_std_dev
+
+        Std dev in charge diffusivity in cm^2 / s. Note that this makes sense only
+        for non-smoothed analyses.
+
+    .. attribute: conductivity_std_dev
 
         Std dev in conductivity in mS / cm. Note that this makes sense only
         for non-smoothed analyses.
 
-    .. attribute: diffusivity_components_sigma
+    .. attribute: diffusivity_components_std_dev
 
         A vector with std dev. in diffusivity in the a, b and c directions in
         cm^2 / cm. Note that this makes sense only for non-smoothed analyses.
 
-    .. attribute: conductivity_components_sigma
+    .. attribute: conductivity_components_std_dev
 
         A vector with std dev. in conductivity in the a, b and c directions
         in mS / cm. Note that this makes sense only for non-smoothed analyses.
@@ -93,6 +107,10 @@ class DiffusionAnalyzer(MSONable):
 
         nsteps x 1 array of the mean square displacement of specie.
 
+    .. attribute: mscd
+
+        nsteps x 1 array of the mean square charge displacement of specie.
+
     .. attribute: msd_components
 
         nsteps x 3 array of the MSD in each lattice direction of specie.
@@ -105,6 +123,9 @@ class DiffusionAnalyzer(MSONable):
     .. attribute: dt
 
         Time coordinate array.
+
+    .. attribute: haven_ratio
+        Haven ratio defined as diffusivity / chg_diffusivity.
     """
 
     def __init__(self, structure, displacements, specie, temperature,
@@ -222,6 +243,9 @@ class DiffusionAnalyzer(MSONable):
             sq_disp_ions = np.zeros((len(dc), len(dt)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
 
+            # calculate mean square charge displacement
+            mscd = np.zeros_like(msd, dtype=np.double)
+
             for i, n in enumerate(timesteps):
                 if not smoothed:
                     dx = dc[:, i:i + 1, :]
@@ -233,12 +257,18 @@ class DiffusionAnalyzer(MSONable):
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
                     dcomponents = dc[:, n:, :] - dc[:, :-n, :]
+
+                # Get msd
                 sq_disp = dx ** 2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
                 msd[i] = np.average(sq_disp_ions[:, i][indices])
 
                 msd_components[i] = np.average(dcomponents[indices] ** 2,
                                                axis=(0, 1))
+
+                # Get mscd
+                sq_chg_disp = np.sum(dx[indices, :, :], axis=0) ** 2
+                mscd[i] = np.average(np.sum(sq_chg_disp, axis=1), axis=0) / len(indices)
 
             def weighted_lstsq(a, b):
                 if smoothed == "max":
@@ -248,6 +278,7 @@ class DiffusionAnalyzer(MSONable):
                 else:
                     return np.linalg.lstsq(a, b)
 
+            # Get self diffusivity
             m_components = np.zeros(3)
             m_components_res = np.zeros(3)
             a = np.ones((len(dt), 2))
@@ -261,11 +292,17 @@ class DiffusionAnalyzer(MSONable):
             # m shouldn't be negative
             m = max(m, 1e-15)
 
+            # Get also the charge diffusivity
+            (m_chg, c_chg), res_chg, _, _ = weighted_lstsq(a, mscd)
+            # m shouldn't be negative
+            m_chg = max(m_chg, 1e-15)
+
             # factor of 10 is to convert from A^2/fs to cm^2/s
             # factor of 6 is for dimensionality
             conv_factor = get_conversion_factor(self.structure, self.specie,
                                                 self.temperature)
             self.diffusivity = m / 60
+            self.chg_diffusivity = m_chg / 60
 
             # Calculate the error in the diffusivity using the error in the
             # slope from the lst sq.
@@ -279,7 +316,9 @@ class DiffusionAnalyzer(MSONable):
             denom = (n * np.sum((dt / 1000) ** 2) - np.sum(dt / 1000) ** 2) * (
                 n - 2)
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60 / 1000
+            self.chg_diffusivity_std_dev = np.sqrt(n * res_chg[0] / denom) / 60 / 1000
             self.conductivity = self.diffusivity * conv_factor
+            self.chg_conductivity = self.chg_diffusivity * conv_factor
             self.conductivity_std_dev = self.diffusivity_std_dev * conv_factor
 
             self.diffusivity_components = m_components / 20
@@ -297,8 +336,9 @@ class DiffusionAnalyzer(MSONable):
                 dc ** 2, axis=-1) ** 0.5, axis=1)
             self.max_framework_displacement = \
                 np.max(self.max_ion_displacements[framework_indices])
-
             self.msd = msd
+            self.mscd = mscd
+            self.haven_ratio = self.diffusivity / self.chg_diffusivity
             self.sq_disp_ions = sq_disp_ions
             self.msd_components = msd_components
             self.dt = dt
@@ -328,12 +368,14 @@ class DiffusionAnalyzer(MSONable):
                 coords + self.corrected_displacements[:, i, :],
                 coords_are_cartesian=True)
 
-    def get_summary_dict(self, include_msd_t=False):
+    def get_summary_dict(self, include_msd_t=False, include_mscd_t=False):
         """
         Provides a summary of diffusion information.
 
         Args:
             include_msd_t (bool): Whether to include mean square displace and
+                time data with the data.
+            include_msd_t (bool): Whether to include mean square charge displace and
                 time data with the data.
 
         Returns:
@@ -342,8 +384,11 @@ class DiffusionAnalyzer(MSONable):
         d = {
             "D": self.diffusivity,
             "D_sigma": self.diffusivity_std_dev,
+            "D_charge": self.chg_diffusivity,
+            "D_charge_sigma": self.chg_diffusivity_std_dev,
             "S": self.conductivity,
             "S_sigma": self.conductivity_std_dev,
+            "S_charge": self.chg_conductivity,
             "D_components": self.diffusivity_components.tolist(),
             "S_components": self.conductivity_components.tolist(),
             "D_components_sigma": self.diffusivity_components_std_dev.tolist(),
@@ -352,12 +397,15 @@ class DiffusionAnalyzer(MSONable):
             "step_skip": self.step_skip,
             "time_step": self.time_step,
             "temperature": self.temperature,
-            "max_framework_displacement": self.max_framework_displacement
+            "max_framework_displacement": self.max_framework_displacement,
+            "Haven_ratio": self.haven_ratio
         }
         if include_msd_t:
             d["msd"] = self.msd.tolist()
             d["msd_components"] = self.msd_components.tolist()
             d["dt"] = self.dt.tolist()
+        if include_mscd_t:
+            d["mscd"] = self.mscd.tolist()
         return d
 
     def get_framework_rms_plot(self, plt=None, granularity=200,
@@ -423,7 +471,8 @@ class DiffusionAnalyzer(MSONable):
             plt: A plot object. Defaults to None, which means one will be
                 generated.
             mode (str): Determines type of msd plot. By "species", "sites",
-                or direction (default).
+                or direction (default). If mode = "mscd", the smoothed mscd vs.
+                time will be plotted.
         """
         from pymatgen.util.plotting import pretty_plot
         plt = pretty_plot(12, 8, plt=plt)
@@ -447,6 +496,9 @@ class DiffusionAnalyzer(MSONable):
                 plt.plot(plot_dt, sd, label="%s - %d" % (
                     site.specie.__str__(), i))
             plt.legend(loc=2, prop={"size": 20})
+        elif mode == "mscd":
+            plt.plot(plot_dt, self.mscd, 'r')
+            plt.legend(["Overall"], loc=2, prop={"size": 20})
         else:
             # Handle default / invalid mode case
             plt.plot(plot_dt, self.msd, 'k')
@@ -454,8 +506,12 @@ class DiffusionAnalyzer(MSONable):
             plt.plot(plot_dt, self.msd_components[:, 1], 'g')
             plt.plot(plot_dt, self.msd_components[:, 2], 'b')
             plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
+
         plt.xlabel("Timestep ({})".format(unit))
-        plt.ylabel("MSD ($\\AA^2$)")
+        if mode == "mscd":
+            plt.ylabel("MSCD ($\\AA^2$)")
+        else:
+            plt.ylabel("MSD ($\\AA^2$)")
         plt.tight_layout()
         return plt
 
@@ -464,10 +520,11 @@ class DiffusionAnalyzer(MSONable):
         Plot the smoothed msd vs time graph. Useful for checking convergence.
 
         Args:
-            mode (str): Either "default" (the default, shows only the MSD for
+            mode (str): Can be "default" (the default, shows only the MSD for
                 the diffusing specie, and its components), "ions" (individual
-                square displacements of all ions), or "species" (mean square
-                displacement by specie).
+                square displacements of all ions), "species" (mean square
+                displacement by specie), or "mscd" (overall mean square charge
+                displacement for diffusing specie).
         """
         self.get_msd_plot(mode=mode).show()
 
@@ -486,12 +543,13 @@ class DiffusionAnalyzer(MSONable):
         with open(filename, "wt") as f:
             if fmt == "dat":
                 f.write("# ")
-            f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c"]))
+            f.write(delimiter.join(["t", "MSD", "MSD_a", "MSD_b", "MSD_c",
+                                    "MSCD"]))
             f.write("\n")
-
-            for dt, msd, msdc in zip(self.dt, self.msd, self.msd_components):
+            for dt, msd, msdc, mscd in zip(self.dt, self.msd,
+                                           self.msd_components, self.mscd):
                 f.write(delimiter.join(["%s" % v for v in [dt, msd] + list(
-                    msdc)]))
+                    msdc) + [mscd]]))
                 f.write("\n")
 
     @classmethod
@@ -543,7 +601,9 @@ class DiffusionAnalyzer(MSONable):
         dp = p[:, 1:] - p[:, :-1]
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
-        c_disp = [np.dot(d, m) for d, m in zip(f_disp, l)]
+        c_disp = []
+        for i in f_disp:
+            c_disp.append( [ np.dot(d, m) for d, m in zip(i, l[1:]) ] )
         disp = np.array(c_disp)
 
         # If is NVT-AIMD, clear lattice data.
@@ -608,7 +668,7 @@ class DiffusionAnalyzer(MSONable):
         step_skip, temperature, time_step = next(s)
 
         return cls.from_structures(
-            structures=s, specie=specie, temperature=temperature,
+            structures=list(s), specie=specie, temperature=temperature,
             time_step=time_step, step_skip=step_skip,
             initial_disp=initial_disp, initial_structure=initial_structure,
             **kwargs)

@@ -10,8 +10,10 @@ import six
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
-from pymatgen.util.coord_utils import get_linear_interpolated_value
+from pymatgen.core.spectrum import Spectrum
+from pymatgen.util.coord import get_linear_interpolated_value
 from monty.json import MSONable
+
 
 """
 This module defines classes to represent the density of states, etc.
@@ -23,6 +25,158 @@ __version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 20, 2012"
+
+
+class DOS(Spectrum):
+    """
+    Replacement basic DOS object. All other DOS objects are extended versions
+    of this object. Work in progress.
+
+    Args:
+        energies: A sequence of energies
+        densities (ndarray): Either a Nx1 or a Nx2 array. If former, it is
+            interpreted as a Spin.up only density. Otherwise, the first column
+            is interpreted as Spin.up and the other is Spin.down.
+        efermi: Fermi level energy.
+
+
+    .. attribute: energies
+
+        The sequence of energies
+
+    .. attribute: densities
+
+        A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}
+
+    .. attribute: efermi
+
+        Fermi level
+    """
+    XLABEL = "Energy"
+    YLABEL = "Density"
+
+    def __init__(self, energies, densities, efermi):
+        super(DOS, self).__init__(energies, densities, efermi)
+        self.efermi = efermi
+
+    def get_interpolated_gap(self, tol=0.001, abs_tol=False, spin=None):
+        """
+        Expects a DOS object and finds the gap
+
+        Args:
+            tol: tolerance in occupations for determining the gap
+            abs_tol: Set to True for an absolute tolerance and False for a
+                relative one.
+            spin: Possible values are None - finds the gap in the summed
+                densities, Up - finds the gap in the up spin channel,
+                Down - finds the gap in the down spin channel.
+
+        Returns:
+            (gap, cbm, vbm):
+                Tuple of floats in eV corresponding to the gap, cbm and vbm.
+        """
+
+        tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
+        if not abs_tol:
+            tol = tol * tdos.sum() / tdos.shape[0]
+        energies = self.x
+        below_fermi = [i for i in range(len(energies))
+                       if energies[i] < self.efermi and tdos[i] > tol]
+        above_fermi = [i for i in range(len(energies))
+                       if energies[i] > self.efermi and tdos[i] > tol]
+        vbm_start = max(below_fermi)
+        cbm_start = min(above_fermi)
+        if vbm_start == cbm_start:
+            return 0.0, self.efermi, self.efermi
+        else:
+            # Interpolate between adjacent values
+            terminal_dens = tdos[vbm_start:vbm_start + 2][::-1]
+            terminal_energies = energies[vbm_start:vbm_start + 2][::-1]
+            start = get_linear_interpolated_value(terminal_dens,
+                                                  terminal_energies, tol)
+            terminal_dens = tdos[cbm_start - 1:cbm_start + 1]
+            terminal_energies = energies[cbm_start - 1:cbm_start + 1]
+            end = get_linear_interpolated_value(terminal_dens,
+                                                terminal_energies, tol)
+            return end - start, end, start
+
+    def get_cbm_vbm(self, tol=0.001, abs_tol=False, spin=None):
+        """
+        Expects a DOS object and finds the cbm and vbm.
+
+        Args:
+            tol: tolerance in occupations for determining the gap
+            abs_tol: An absolute tolerance (True) and a relative one (False)
+            spin: Possible values are None - finds the gap in the summed
+                densities, Up - finds the gap in the up spin channel,
+                Down - finds the gap in the down spin channel.
+
+        Returns:
+            (cbm, vbm): float in eV corresponding to the gap
+        """
+        # determine tolerance
+        if spin is None:
+            tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
+        elif spin == Spin.up:
+            tdos = self.y[:, 0]
+        else:
+            tdos = self.y[:, 1]
+
+        if not abs_tol:
+            tol = tol * tdos.sum() / tdos.shape[0]
+
+        # find index of fermi energy
+        i_fermi = 0
+        while self.x[i_fermi] <= self.efermi:
+            i_fermi += 1
+
+        # work backwards until tolerance is reached
+        i_gap_start = i_fermi
+        while i_gap_start - 1 >= 0 and tdos[i_gap_start - 1] <= tol:
+            i_gap_start -= 1
+
+        # work forwards until tolerance is reached
+        i_gap_end = i_gap_start
+        while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
+            i_gap_end += 1
+        i_gap_end -= 1
+        return self.x[i_gap_end], self.x[i_gap_start]
+
+    def get_gap(self, tol=0.001, abs_tol=False, spin=None):
+        """
+        Expects a DOS object and finds the gap.
+
+        Args:
+            tol: tolerance in occupations for determining the gap
+            abs_tol: An absolute tolerance (True) and a relative one (False)
+            spin: Possible values are None - finds the gap in the summed
+                densities, Up - finds the gap in the up spin channel,
+                Down - finds the gap in the down spin channel.
+
+        Returns:
+            gap in eV
+        """
+        (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
+        return max(cbm - vbm, 0.0)
+
+    def __str__(self):
+        """
+        Returns a string which can be easily plotted (using gnuplot).
+        """
+        if Spin.down in self.densities:
+            stringarray = ["#{:30s} {:30s} {:30s}".format("Energy",
+                                                          "DensityUp",
+                                                          "DensityDown")]
+            for i, energy in enumerate(self.energies):
+                stringarray.append("{:.5f} {:.5f} {:.5f}"
+                                   .format(energy, self.densities[Spin.up][i],
+                                           self.densities[Spin.down][i]))
+        else:
+            stringarray = ["#{:30s} {:30s}".format("Energy", "DensityUp")]
+            for i, energy in enumerate(self.energies):
+                stringarray.append("{:.5f} {:.5f}"
+                                   .format(energy, self.densities[Spin.up][i]))
+        return "\n".join(stringarray)
 
 
 class Dos(MSONable):
@@ -422,6 +576,31 @@ class CompleteDos(Dos):
 
         return {orb: Dos(self.efermi, self.energies, densities)
                 for orb, densities in el_dos.items()}
+
+    @property
+    def spin_polarization(self):
+        """
+        Calculates spin polarization at Fermi level.
+
+        See Sanvito et al., doi: 10.1126/sciadv.1602241 for
+        an example usage.
+
+        :return (float): spin polarization in range [0, 1],
+        will also return NaN if spin polarization ill-defined
+        (e.g. for insulator)
+        """
+        n_F = self.get_interpolated_value(self.efermi)
+
+        n_F_up = n_F[Spin.up]
+        n_F_down = n_F[Spin.down]
+
+        if (n_F_up + n_F_down) == 0:
+            # only well defined for metals or half-mteals
+            return float('NaN')
+
+        spin_polarization = (n_F_up - n_F_down) / (n_F_up + n_F_down)
+
+        return abs(spin_polarization)
 
     @classmethod
     def from_dict(cls, d):

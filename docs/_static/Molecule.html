@@ -11826,15 +11826,15 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Molecule Summary (H4 C1)
+<pre>Full Formula (H4 C1)
 Reduced Formula: H4C
 Charge = 0, Spin Mult = 1
 Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.026719     0.000000    -0.363000
-4 H    -0.513360    -0.889165    -0.363000
-5 H    -0.513360     0.889165    -0.363000
+0 C     0.000000     0.000000     0.000000
+1 H     0.000000     0.000000     1.089000
+2 H     1.026719     0.000000    -0.363000
+3 H    -0.513360    -0.889165    -0.363000
+4 H    -0.513360     0.889165    -0.363000
 </pre>
 </div>
 </div>
@@ -11901,19 +11901,19 @@ Sites (5)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Molecule Summary (H3 C1)
+<pre>Full Formula (H3 C1)
 Reduced Formula: H3C
 Charge = 0, Spin Mult = 2
 Sites (4)
-1 C     0.000000     0.000000     0.000000
-2 H     1.026719     0.000000    -0.363000
-3 H    -0.513360    -0.889165    -0.363000
-4 H    -0.513360     0.889165    -0.363000
-Molecule Summary (H1)
+0 C     0.000000     0.000000     0.000000
+1 H     1.026719     0.000000    -0.363000
+2 H    -0.513360    -0.889165    -0.363000
+3 H    -0.513360     0.889165    -0.363000
+Full Formula (H1)
 Reduced Formula: H2
 Charge = 0, Spin Mult = 2
 Sites (1)
-1 H     0.000000     0.000000     1.089000
+0 H     0.000000     0.000000     1.089000
 </pre>
 </div>
 </div>
@@ -12011,16 +12011,18 @@ Sites (1)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Structure Summary (H4 C1)
+<pre>Full Formula (H4 C1)
 Reduced Formula: H4C
 abc   :  10.000000  10.000000  10.000000
 angles:  90.000000  90.000000  90.000000
 Sites (5)
-1 H     0.500000     0.500000     0.608900
-2 H     0.602672     0.500000     0.463700
-3 H     0.448664     0.411083     0.463700
-4 H     0.448664     0.588917     0.463700
-5 C     0.500000     0.500000     0.500000
+  #  SP           a         b       c
+---  ----  --------  --------  ------
+  0  H     0.5       0.5       0.6089
+  1  H     0.602672  0.5       0.4637
+  2  H     0.448664  0.411083  0.4637
+  3  H     0.448664  0.588917  0.4637
+  4  C     0.5       0.5       0.5
 </pre>
 </div>
 </div>
@@ -12035,7 +12037,7 @@ Sites (5)
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># Writing to XYZ files (easy to open with many molecule file viewers)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.xyzio</span> <span class="kn">import</span> <span class="n">XYZ</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.xyz</span> <span class="kn">import</span> <span class="n">XYZ</span>
 <span class="n">xyz</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">xyz</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s2">&quot;methane.xyz&quot;</span><span class="p">)</span>
 </pre></div>
@@ -12067,7 +12069,7 @@ Sites (5)
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.babelio</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
 <span class="kn">import</span> <span class="nn">pybel</span> <span class="kn">as</span> <span class="nn">pb</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="c1"># Create a pybel.Molecule, which simplifies a lot of access</span>
@@ -12137,22 +12139,21 @@ Inchi= InChI=1S/CH4/h1H4
 
 <div class="output_svg output_subarea ">
 <svg height="200px" id="topsvg" version="1.1" viewBox="0 0 100 100" width="200px" x="0" xmlns="http://www.w3.org/2000/svg" xmlns:cml="http://www.xml-cml.org/schema" xmlns:xlink="http://www.w3.org/1999/xlink" y="0">
-<title>OBDepict</title>
+<title> - Open Babel Depiction</title>
 <rect fill="white" height="100" width="100" x="0" y="0"/>
-<text fill="black" font-family="sans-serif" font-size="6" text-anchor="middle" x="50" y="98"/>
 <g transform="translate(0,0)">
 <svg font-family="sans-serif" height="100" stroke="rgb(0,0,0)" stroke-linecap="round" stroke-width="2" viewBox="0 0 221.89 187.549" width="100" x="0" y="0">
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="79.0" x2="53.3" y1="120.7" y2="129.0"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="77.1" x2="51.4" y1="115.0" y2="123.3"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="155.1" y1="79.8" y2="68.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="133.2" y1="79.8" y2="52.9"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="160.8" y1="117.8" y2="137.9"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="169.2" y1="117.8" y2="112.2"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="142.8" y1="79.8" y2="117.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="120.9" y1="117.8" y2="133.7"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="99.9" x2="78.0" y1="133.7" y2="117.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="78.0" x2="86.4" y1="117.8" y2="92.1"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="103.4" x2="130.4" y1="79.8" y2="79.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="79.0" x2="53.3" y1="120.7" y2="129.0"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="77.1" x2="51.4" y1="115.0" y2="123.3"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="155.1" y1="79.8" y2="68.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="133.2" y1="79.8" y2="52.9"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="160.8" y1="117.8" y2="137.9"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="169.2" y1="117.8" y2="112.2"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="99.9" x2="78.0" y1="133.7" y2="117.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="78.0" x2="86.4" y1="117.8" y2="92.1"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="103.4" x2="130.4" y1="79.8" y2="79.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="142.8" y1="79.8" y2="117.8"/>
+<line opacity="1.0" stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="120.9" y1="117.8" y2="133.7"/>
 <text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="104.402940" y="149.334547">O</text>
 <text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="34.000000" y="138.183816">O</text>
 <text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="84.402940" y="87.780876">O</text>
@@ -12162,6 +12163,7 @@ Inchi= InChI=1S/CH4/h1H4
 <text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="175.889524" y="117.506669">H</text>
 </svg>
 </g>
+<text fill="black" font-family="sans-serif" font-size="18.000000" x="10.000000" y="20.000000"/>
 </svg>
 </div>
 
@@ -12224,7 +12226,7 @@ H 0.000000 0.000000 1.089000
 H 1.026719 0.000000 -0.363000
 H -0.513360 -0.889165 -0.363000
 H -0.513360 0.889165 -0.363000
-#P HF/6-31G(d)  Test
+#P HF/6-31G(d) 
 
 H4 C1
 
@@ -12247,15 +12249,15 @@ D4=119.999966
 
 
 
+
 COMPND    UNNAMED
-AUTHOR    GENERATED BY OPEN BABEL 2.3.2
-HETATM    1  C   LIG     1       0.000   0.000   0.000  1.00  0.00           C  
-HETATM    2  H   LIG     1       0.000   0.000   1.089  1.00  0.00           H  
-HETATM    3  H   LIG     1       1.027   0.000  -0.363  1.00  0.00           H  
-HETATM    4  H   LIG     1      -0.513  -0.889  -0.363  1.00  0.00           H  
-HETATM    5  H   LIG     1      -0.513   0.889  -0.363  1.00  0.00           H  
+AUTHOR    GENERATED BY OPEN BABEL 2.4.1
+HETATM    1  C   UNL     1       0.000   0.000   0.000  1.00  0.00           C  
+HETATM    2  H   UNL     1       0.000   0.000   1.089  1.00  0.00           H  
+HETATM    3  H   UNL     1       1.027   0.000  -0.363  1.00  0.00           H  
+HETATM    4  H   UNL     1      -0.513  -0.889  -0.363  1.00  0.00           H  
+HETATM    5  H   UNL     1      -0.513   0.889  -0.363  1.00  0.00           H  
 CONECT    1    3    4    5    2                                       
-CONECT    1                                                           
 CONECT    2    1                                                      
 CONECT    3    1                                                      
 CONECT    4    1                                                      
@@ -12263,15 +12265,15 @@ CONECT    5    1
 MASTER        0    0    0    0    0    0    0    0    5    0    5    0
 END
 
-Molecule Summary (H4 C1)
+Full Formula (H4 C1)
 Reduced Formula: H4C
 Charge = 0, Spin Mult = 1
 Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.027000     0.000000    -0.363000
-4 H    -0.513000    -0.889000    -0.363000
-5 H    -0.513000     0.889000    -0.363000
+0 C     0.000000     0.000000     0.000000
+1 H     0.000000     0.000000     1.089000
+2 H     1.027000     0.000000    -0.363000
+3 H    -0.513000    -0.889000    -0.363000
+4 H    -0.513000     0.889000    -0.363000
 </pre>
 </div>
 </div>
@@ -12294,7 +12296,7 @@ Sites (5)
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.gaussianio</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.gaussian</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
 <span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;methane&quot;</span><span class="p">,</span> 
                     <span class="n">functional</span><span class="o">=</span><span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G(d)&quot;</span><span class="p">,</span> 
                     <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Opt&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF&quot;</span><span class="p">:</span> <span class="s2">&quot;Tight&quot;</span><span class="p">},</span>
@@ -12317,7 +12319,7 @@ Sites (5)
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>%mem=1000MW
-#P B3LYP/6-31G(d) Opt SCF=Tight Test
+#P B3LYP/6-31G(d) Opt SCF=Tight
 
 methane
 
@@ -12340,6 +12342,7 @@ D4=119.999966
 
 
 
+
 </pre>
 </div>
 </div>
@@ -12354,7 +12357,7 @@ D4=119.999966
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># A standard relaxation + SCF energy nwchem calculation input file for methane.</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.nwchemio</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.nwchem</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
 <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;b3lyp&quot;</span><span class="p">,</span>
                     <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-31G&quot;</span><span class="p">),</span>
@@ -12391,7 +12394,7 @@ end
 
 title &#34;H4C1 dft optimize&#34;
 charge 0
-basis
+basis cartesian
  C library &#34;6-31G&#34;
  H library &#34;6-31G&#34;
 end
@@ -12403,7 +12406,7 @@ task dft optimize
 
 title &#34;H4C1 dft freq&#34;
 charge 0
-basis
+basis cartesian
  C library &#34;6-31G&#34;
  H library &#34;6-31G&#34;
 end
@@ -12415,7 +12418,7 @@ task dft freq
 
 title &#34;H4C1 dft energy&#34;
 charge 0
-basis
+basis cartesian
  C library &#34;6-311G&#34;
  H library &#34;6-311G&#34;
 end

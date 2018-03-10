@@ -4,15 +4,10 @@
 
 from __future__ import unicode_literals
 
-#import unittest
 import unittest
-import sys
-import numpy as np
-from math import fabs
 
-from pymatgen.analysis.defects.point_defects \
-        import StructureMotifInterstitial
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator
 from pymatgen.analysis.defects.point_defects import *
 from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -30,53 +25,6 @@ except ImportError:
 gulp_present = which('gulp')
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
-
-
-class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
-    def setUp(self):
-        """
-        Setup MgO rocksalt structure for testing Vacancy
-        """
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"] * 4 + ["O"] * 4
-        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
-                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
-                                 True)
-        self._mgo_valrad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
-        # self._si = Cssr.from_file("../../../../test_files/Si.cssr").structure
-        # self._ci_valrad_evaluator = ValenceIonicRadiusEvaluator(self._si)
-
-    def test_valences_ionic_structure(self):
-        valence_dict = self._mgo_valrad_evaluator.valences
-        for val in list(valence_dict.values()):
-            self.assertTrue(val in {2, -2})
-
-    def test_radii_ionic_structure(self):
-        radii_dict = self._mgo_valrad_evaluator.radii
-        for rad in list(radii_dict.values()):
-            self.assertTrue(rad in {0.86, 1.26})
-
-
-class ValenceIonicRadiusEvaluatorMultiOxiTest(PymatgenTest):
-    def setUp(self):
-        """
-
-        Setup Fe3O4  structure for testing multiple oxidation states
-        """
-        cif_ob = CifParser(os.path.join(test_dir, "Fe3O4.cif"))
-        self._struct = cif_ob.get_structures()[0]
-        self._valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
-        self._length = len(self._struct.sites)
-
-    def test_valences_ionic_structure(self):
-        valence_set = set(self._valrad_evaluator.valences.values())
-        self.assertEqual(valence_set, {2, 3, -2})
-
-    def test_radii_ionic_structure(self):
-        radii_set = set(self._valrad_evaluator.radii.values())
-        self.assertEqual(len(radii_set), 3)
-        self.assertEqual(radii_set, {0.72, 0.75, 1.26})
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -176,20 +124,6 @@ class VacancyTest(PymatgenTest):
         for sc in vac_scs:
             self.assertIn(sc.formula, expected_structure_formulae)
 
-    @unittest.skip("deprecated")
-    def test_get_volume(self):
-        for i in range(self._mgo_vac.defectsite_count()):
-            vol = self._mgo_vac.get_volume(i)
-            # Once the zeo++ is properly working, make sure vol is +ve
-            self.assertIsInstance(vol, float)
-
-    @unittest.skip("deprecated")
-    def test_get_surface_area(self):
-        for i in range(self._mgo_vac.defectsite_count()):
-            sa = self._mgo_vac.get_surface_area(i)
-            # Once the zeo++ is properly working, make sure vol is +ve
-            self.assertIsInstance(sa, float)
-
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class VacancyFormationEnergyTest(PymatgenTest):
@@ -206,7 +140,7 @@ class VacancyFormationEnergyTest(PymatgenTest):
         self.mgo_vfe = VacancyFormationEnergy(self.mgo_vac)
 
     # This test doesn't pass!
-    #def test_get_energy(self):
+    # def test_get_energy(self):
     #    for i in range(len(self.mgo_vac.enumerate_defectsites())):
     #        vfe = self.mgo_vfe.get_energy(i)
     #        print(vfe)
@@ -311,7 +245,7 @@ class InterstitialVoronoiFaceCenterTest(unittest.TestCase):
         for i in range(self._mgo_interstitial.defectsite_count()):
             coord_no = \
                 self._mgo_interstitial.get_defectsite_coordination_number(
-                i)
+                    i)
             self.assertTrue(isinstance(coord_no, float))
 
     def test_get_coordinated_sites(self):
@@ -559,31 +493,65 @@ class StructureMotifInterstitialTest(PymatgenTest):
 
     def setUp(self):
         self.silicon = Structure(
-                Lattice.from_lengths_and_angles(
-                        [5.47, 5.47, 5.47],
-                        [90.0, 90.0, 90.0]),
-                ["Si", "Si", "Si", "Si", "Si", "Si", "Si", "Si"],
-                [[0.000000, 0.000000, 0.500000],
-                [0.750000, 0.750000, 0.750000],
-                [0.000000, 0.500000, 1.000000],
-                [0.750000, 0.250000, 0.250000],
-                [0.500000, 0.000000, 1.000000],
-                [0.250000, 0.750000, 0.250000],
-                [0.500000, 0.500000, 0.500000],
-                [0.250000, 0.250000, 0.750000]],
-                validate_proximity=False, to_unit_cell=False,
-                coords_are_cartesian=False, site_properties=None)
+            Lattice.from_lengths_and_angles(
+                [5.47, 5.47, 5.47],
+                [90.0, 90.0, 90.0]),
+            ["Si", "Si", "Si", "Si", "Si", "Si", "Si", "Si"],
+            [[0.000000, 0.000000, 0.500000],
+             [0.750000, 0.750000, 0.750000],
+             [0.000000, 0.500000, 1.000000],
+             [0.750000, 0.250000, 0.250000],
+             [0.500000, 0.000000, 1.000000],
+             [0.250000, 0.750000, 0.250000],
+             [0.500000, 0.500000, 0.500000],
+             [0.250000, 0.250000, 0.750000]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=False, site_properties=None)
         self.smi = StructureMotifInterstitial(self.silicon, "Si",
-                motif_types=["tet", "oct"],
-                op_threshs=[0.3, 0.5],
-                dl=0.4, doverlap=1.0, facmaxdl=1.01)
+                                              motif_types=["tet", "oct"],
+                                              op_threshs=[0.3, 0.5],
+                                              dl=0.4, doverlap=1.0,
+                                              facmaxdl=1.01)
+        self.diamond = Structure(
+            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264],
+                     [0, 0, 2.528]]), ["C0+", "C0+"], [[2.554, 1.806, 4.423],
+                                                       [0.365, 0.258, 0.632]],
+            validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
+        self.nacl = Structure(
+            Lattice([[3.485, 0, 2.012], [1.162, 3.286, 2.012],
+                     [0, 0, 4.025]]), ["Na1+", "Cl1-"], [[0, 0, 0],
+                                                         [2.324, 1.643, 4.025]],
+            validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
+        self.cscl = Structure(
+            Lattice([[4.209, 0, 0], [0, 4.209, 0], [0, 0, 4.209]]),
+            ["Cl1-", "Cs1+"], [[2.105, 2.105, 2.105], [0, 0, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.square_pyramid = Structure(
+            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            ["C", "C", "C", "C", "C", "C"], [
+                [0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], \
+                [0, 0, 1]], validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.trigonal_bipyramid = Structure(
+            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
+            ["P", "Cl", "Cl", "Cl", "Cl", "Cl"], [
+                [0, 0, 0], [0, 0, 2.14], [0, 2.02, 0], [1.74937, -1.01, 0], \
+                [-1.74937, -1.01, 0], [0, 0, -2.14]], validate_proximity=False,
+            to_unit_cell=False, coords_are_cartesian=True,
+            site_properties=None)
 
     def test_all(self):
         self.assertIsInstance(self.smi, StructureMotifInterstitial)
 
         self.assertEqual(len(self.smi.enumerate_defectsites()), 1)
         self.assertIsInstance(self.smi.enumerate_defectsites()[0], PeriodicSite)
-        self.assertEqual("Si", self.smi.enumerate_defectsites()[0].species_string)
+        self.assertEqual("Si",
+                         self.smi.enumerate_defectsites()[0].species_string)
 
         self.assertEqual("tet", self.smi.get_motif_type(0))
 
@@ -599,6 +567,46 @@ class StructureMotifInterstitialTest(PymatgenTest):
     def tearDown(self):
         del self.smi
         del self.silicon
+        del self.diamond
+        del self.nacl
+        del self.cscl
+
+
+class TopographyAnalyzerTest(unittest.TestCase):
+    def setUp(self):
+        feo4 = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        feo4.remove_species(["Li"])
+        feo4.remove_oxidation_states()
+        self.feo4 = feo4
+
+    def test_topography_analyzer(self):
+        # check interstitial sites for FePO4 using Voronoi Tessellation
+        vor_feo4 = TopographyAnalyzer(self.feo4,
+                                      framework_ions=["O"],
+                                      cations=["P", "Fe"], check_volume=False)
+        vor_feo4.cluster_nodes(tol=1.2)
+        vor_feo4.remove_collisions(1.2)
+        s_feo4 = vor_feo4.get_structure_with_nodes()
+        sites_feo4 = np.array(
+            [s_feo4[i].frac_coords for i in range(len(s_feo4))
+             if s_feo4[i].species_string == "X0+"])
+
+        # check total number of vnodes
+        self.assertAlmostEqual(len(vor_feo4.vnodes), 24)
+
+        # check four sites that match Li sites in LiFePO4(mp-19017)
+        site_predicted = [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0, 0.5],
+                          [0, 0.5, 0]]
+        for i in range(0, 4):
+            is_site_matched = False
+            for site in sites_feo4:
+                distance = s_feo4.lattice. \
+                    get_distance_and_image(site, site_predicted[i])
+                if distance[0] < 0.01:
+                    is_site_matched = True
+                else:
+                    continue
+            self.assertTrue(is_site_matched)
 
 
 if __name__ == "__main__":

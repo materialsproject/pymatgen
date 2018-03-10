@@ -10,6 +10,7 @@ import itertools
 import warnings
 import logging
 import math
+import glob
 
 import six
 import numpy as np
@@ -227,14 +228,14 @@ class Poscar(MSONable):
         dirname = os.path.dirname(os.path.abspath(filename))
         names = None
         if check_for_POTCAR:
-            for f in os.listdir(dirname):
-                if f == "POTCAR":
-                    try:
-                        potcar = Potcar.from_file(os.path.join(dirname, f))
-                        names = [sym.split("_")[0] for sym in potcar.symbols]
-                        [get_el_sp(n) for n in names]  # ensure valid names
-                    except:
-                        names = None
+            potcars = glob.glob(os.path.join(dirname, "*POTCAR*"))
+            if potcars:
+                try:
+                    potcar = Potcar.from_file(sorted(potcars)[0])
+                    names = [sym.split("_")[0] for sym in potcar.symbols]
+                    [get_el_sp(n) for n in names]  # ensure valid names
+                except:
+                    names = None
         with zopen(filename, "rt") as f:
             return Poscar.from_string(f.read(), names,
                                       read_velocities=read_velocities)
@@ -466,15 +467,17 @@ class Poscar(MSONable):
         if np.linalg.det(latt.matrix) < 0:
             latt = Lattice(-latt.matrix)
 
-        lines = [self.comment, "1.0", str(latt)]
+        format_str = "{{:.{0}f}}".format(significant_figures)
+        lines = [self.comment, "1.0"]
+        for v in latt.matrix:
+            lines.append(" ".join([format_str.format(c) for c in v]))
+
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join([str(x) for x in self.natoms]))
         if self.selective_dynamics:
             lines.append("Selective dynamics")
         lines.append("direct" if direct else "cartesian")
-
-        format_str = "{{:.{0}f}}".format(significant_figures)
 
         for (i, site) in enumerate(self.structure):
             coords = site.frac_coords if direct else site.coords
@@ -614,12 +617,16 @@ class Incar(dict, MSONable):
         """
         super(Incar, self).__init__()
         if params:
-            if params.get("MAGMOM") and (params.get("LSORBIT") or
-                                         params.get("LNONCOLLINEAR")):
+
+            # if Incar contains vector-like magmoms given as a list
+            # of floats, convert to a list of lists
+            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) \
+                    and (params.get("LSORBIT") or params.get("LNONCOLLINEAR")):
                 val = []
                 for i in range(len(params["MAGMOM"])//3):
                     val.append(params["MAGMOM"][i*3:(i+1)*3])
                 params["MAGMOM"] = val
+
             self.update(params)
 
     def __setitem__(self, key, val):
@@ -640,6 +647,8 @@ class Incar(dict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        if d.get("MAGMOM") and isinstance(d["MAGMOM"][0], dict):
+            d["MAGMOM"] = [Magmom.from_dict(m) for m in d["MAGMOM"]]
         return Incar({k: v for k, v in d.items() if k not in ("@module",
                                                               "@class")})
 
@@ -662,6 +671,7 @@ class Incar(dict, MSONable):
         for k in keys:
             if k == "MAGMOM" and isinstance(self[k], list):
                 value = []
+
                 if (isinstance(self[k][0], list) or isinstance(self[k][0], Magmom)) and \
                         (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[k] for i in j))
@@ -673,6 +683,7 @@ class Incar(dict, MSONable):
                     # float magmoms and Magmom objects
                     for m, g in itertools.groupby(self[k], lambda x: float(x)):
                         value.append("{}*{}".format(len(tuple(g)), m))
+
                 lines.append([k, " ".join(value)])
             elif isinstance(self[k], list):
                 lines.append([k, " ".join([str(i) for i in self[k]])])
@@ -744,15 +755,16 @@ class Incar(dict, MSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL", "LANGEVIN_GAMMA",
-                     "QUAD_EFG")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
+        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL",
+                     "LANGEVIN_GAMMA", "QUAD_EFG", "EINT")
+        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LUSE_VDW",
                      "LHFCALC", "ADDGRID", "LSORBIT", "LNONCOLLINEAR")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM", "EDIFFG")
+                      "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE")
+                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE",
+                    "IVDW")
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -812,13 +824,8 @@ class Incar(dict, MSONable):
 
         if "false" in val.lower():
             return False
-        try:
-            if key not in ("TITEL", "SYSTEM"):
-                return re.search(r"^-?[0-9]+", val.capitalize()).group(0)
-            else:
-                return val.capitalize()
-        except:
-            return val.capitalize()
+
+        return val.strip().capitalize()
 
     def diff(self, other):
         """
@@ -1047,6 +1054,8 @@ class Kpoints(MSONable):
         """
         comment = "pymatgen 4.7.6+ generated KPOINTS with grid density = " + \
             "%.0f / atom" % kppa
+        if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
+            kppa += kppa * 0.01
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
@@ -1383,7 +1392,11 @@ def parse_list(s):
     return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
 
 
-@cached_class
+Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
+OrbitalDescription = namedtuple('OrbitalDescription',
+                                ['l', 'E', 'Type', "Rcut", "Type2", "Rcut2"])
+
+
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1458,11 +1471,6 @@ class PotcarSingle(object):
                        "RRKJ": parse_list,
                        "GGA": parse_list}
 
-    Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
-    Description = namedtuple('OrbitalDescription', ['l', 'E',
-                                                    'Type', "Rcut",
-                                                    "Type2", "Rcut2"])
-
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
 
@@ -1511,16 +1519,12 @@ class PotcarSingle(object):
             for line in description_string.group(1).splitlines():
                 description = array_search.findall(line)
                 if description:
-                    descriptions.append(self.Description(int(description[0]),
-                                                         float(description[1]),
-                                                         int(description[2]),
-                                                         float(description[3]),
-                                                         int(description[4]) if
-                                                         len(description) > 4
-                                                         else None,
-                                                         float(description[5]) if
-                                                         len(description) > 4
-                                                         else None))
+                    descriptions.append(
+                        OrbitalDescription(
+                            int(description[0]), float(description[1]),
+                            int(description[2]), float(description[3]),
+                            int(description[4]) if len(description) > 4 else None,
+                            float(description[5]) if len(description) > 4 else None))
 
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
@@ -1610,8 +1614,14 @@ class PotcarSingle(object):
         Attempt to return the atomic symbol based on the VRHFIN keyword.
         """
         element = self.keywords["VRHFIN"].split(":")[0].strip()
-        #VASP incorrectly gives the element symbol for Xe as "X"
-        return "Xe" if element == "X" else element
+        try:
+            return Element(element).symbol
+        except ValueError:
+            # VASP incorrectly gives the element symbol for Xe as "X"
+            # Some potentials, e.g., Zr_sv, gives the symbol as r.
+            if element == "X":
+                return "Xe"
+            return Element(self.symbol.split("_")[0]).symbol
 
     @property
     def atomic_no(self):
@@ -1655,7 +1665,7 @@ class PotcarSingle(object):
                 for item in v:
                     if isinstance(item, float):
                         hash_str += "{:.3f}".format(item)
-                    elif isinstance(item, (self.Orbital, self.Description)):
+                    elif isinstance(item, (Orbital, OrbitalDescription)):
                         for item_v in item:
                             if isinstance(item_v, (int, str)):
                                 hash_str += "{}".format(item_v)

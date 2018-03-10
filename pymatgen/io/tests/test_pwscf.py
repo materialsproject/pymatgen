@@ -3,6 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import unittest
+import os
+
+from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
+from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'Shyue Ping Ong'
 __copyright__ = 'Copyright 2013, The Materials Project'
@@ -11,11 +16,6 @@ __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '3/28/15'
 
-import unittest
-import os
-
-from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
-from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -59,15 +59,15 @@ ATOMIC_SPECIES
   Li  6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
   O  15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
 ATOMIC_POSITIONS crystal
-  Li 0.250000 0.250000 0.250000
-  Li 0.750000 0.750000 0.750000
   O 0.000000 0.000000 0.000000
+  Li 0.750178 0.750178 0.750178
+  Li 0.249822 0.249822 0.249822
 K_POINTS automatic
   1 1 1 0 0 0
 CELL_PARAMETERS angstrom
-  -2.305000 -2.305000 0.000000
-  -2.305000 0.000000 -2.305000
-  0.000000 -2.305000 -2.305000
+  2.917389 0.097894 1.520005
+  0.964634 2.755036 1.520005
+  0.133206 0.097894 3.286918
 """
         self.assertEqual(pw.__str__().strip(), ans.strip())
 

@@ -61,7 +61,7 @@ class CovalentBond(object):
         return self.site1.distance(self.site2)
 
     @staticmethod
-    def is_bonded(site1, site2, tol=0.2, bond_order=None):
+    def is_bonded(site1, site2, tol=0.2, bond_order=None, default_bl=None):
         """
         Test if two sites are bonded, up to a certain limit.
 
@@ -74,6 +74,8 @@ class CovalentBond(object):
                 20% longer.
             bond_order: Bond order to test. If None, the code simply checks
                 against all possible bond data. Defaults to None.
+            default_bl: If a particular type of bond does not exist, use this
+                bond length. If None, a ValueError will be thrown.
 
         Returns:
             Boolean indicating whether two sites are bonded.
@@ -90,6 +92,8 @@ class CovalentBond(object):
                 if dist < (1 + tol) * v:
                     return True
             return False
+        elif default_bl:
+            return dist < (1 + tol) * default_bl
         raise ValueError("No bond data for elements {} - {}".format(*syms))
 
     def __repr__(self):

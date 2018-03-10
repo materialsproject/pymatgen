@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
 try:
     import vtk
@@ -28,10 +28,10 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedChemenvError
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
+from pymatgen.analysis.chemenv.utils.defs_utils import chemenv_citations
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
-
+#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
+#from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import TargettedPenaltiedAbundanceChemenvStrategy
 from pymatgen.core.structure import Molecule
 from collections import OrderedDict
 import numpy as np
@@ -52,13 +52,14 @@ __date__ = "Feb 20, 2016"
 
 strategies_class_lookup = OrderedDict()
 strategies_class_lookup['SimplestChemenvStrategy'] = SimplestChemenvStrategy
-strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
-strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
+
+#strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
+#strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
 
 
 def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
             show_perfect=False, csm_info=None, symmetry_measure_type='csm_wcs_ctwcc', perfect_radius=0.1,
-            show_distorted=True):
+            show_distorted=True, faces_color_override=None):
     if show_perfect:
         if csm_info is None:
             raise ValueError('Not possible to show perfect environment without csm_info')
@@ -103,7 +104,10 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
             symbol = list(site.species_and_occu.keys())[0].symbol
-            mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
+            if faces_color_override:
+                mycolor = faces_color_override
+            else:
+                mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
             vis.add_faces(faces, mycolor, opacity=0.4)
             vis.add_edges(edges)
         if show_perfect:
@@ -128,7 +132,7 @@ def draw_cg(vis, site, neighbors, cg=None, perm=None, perfect2local_map=None,
 
 
 # Visualizing a coordination geometry
-def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True):
+def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None):
     if vis is None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     myspecies = ["O"] * (cg.coordination_number+1)
@@ -141,7 +145,7 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True):
     structure = Molecule(species=myspecies, coords=coords)
     vis.set_structure(structure=structure, reset_camera=True)
     # neighbors_list = coords[1:]
-    draw_cg(vis, site=structure[0], neighbors=structure[1:], cg=cg)
+    draw_cg(vis, site=structure[0], neighbors=structure[1:], cg=cg, faces_color_override=faces_color_override)
     if view_index:
         for ineighbor, neighbor in enumerate(structure[1:]):
             vis.add_text(neighbor.coords, '{}'.format(ineighbor), color=(0, 0, 0))
@@ -152,19 +156,21 @@ def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True):
 
 def welcome(chemenv_config):
     print('Chemical Environment package (ChemEnv)')
+    print(chemenv_citations())
     print(chemenv_config.package_options_description())
 
 
 def thankyou():
     print('Thank you for using the ChemEnv package')
+    print(chemenv_citations())
 
 
 def compute_environments(chemenv_configuration):
-    string_sources = {'cif': {'string': 'a Cif file', 'regexp': '.*\.cif$'},
-                      'mp': {'string': 'the Materials Project database', 'regexp': 'mp-[0-9]+$'}}
+    string_sources = {'cif': {'string': 'a Cif file', 'regexp': r'.*\.cif$'},
+                      'mp': {'string': 'the Materials Project database',
+                             'regexp': r'mp-[0-9]+$'}}
     questions = {'c': 'cif'}
-    if chemenv_configuration.has_materials_project_access:
-        questions['m'] = 'mp'
+    questions['m'] = 'mp'
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
     allcg = AllCoordinationGeometries()
@@ -263,11 +269,22 @@ def compute_environments(chemenv_configuration):
                                 mystring += '{} : {:.2f}       '.format(mingeom[0], csm)
                     print(mystring)
             if test == 'g':
-                test = input('Enter index of site(s) for which you want to see the grid of parameters : ')
-                indices = list(map(int, test.split()))
-                print(indices)
-                for isite in indices:
-                    se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
+                while True:
+                    test = input('Enter index of site(s) (e.g. 0 1 2, separated by spaces) for which you want to see the grid of parameters : ')
+                    try:
+                         indices=[int(x) for x in test.split()]
+                         print(str(indices))
+                         for isite in indices:
+                             if isite <0:
+                                 raise IndexError
+                             se.plot_environments(isite, additional_condition=se.AC.ONLY_ACB)
+                         break
+                    except ValueError:
+                         print('This is not a valid site')
+                    except IndexError:
+                         print('This site is out of the site range')
+
+
             if no_vis:
                 test = input('Go to next structure ? ("y" to do so)')
                 if test == 'y':
@@ -277,12 +294,18 @@ def compute_environments(chemenv_configuration):
             if test in ['y', 'm']:
                 if test == 'm':
                     mydeltas = []
-                    test = input('Enter multiplicity (e.g. 3 2 2) : ')
-                    nns = test.split()
-                    for i0 in range(int(nns[0])):
-                        for i1 in range(int(nns[1])):
-                            for i2 in range(int(nns[2])):
-                                mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
+                    while True:
+                        try:
+                            test = input('Enter multiplicity (e.g. 3 2 2) : ')
+                            nns = test.split()
+                            for i0 in range(int(nns[0])):
+                                for i1 in range(int(nns[1])):
+                                    for i2 in range(int(nns[2])):
+                                        mydeltas.append(np.array([1.0*i0, 1.0*i1, 1.0*i2], np.float))
+                            break
+
+                        except (ValueError,IndexError):
+                            print('Not a valid multiplicity')
                 else:
                     mydeltas = [np.zeros(3, np.float)]
                 if firsttime:

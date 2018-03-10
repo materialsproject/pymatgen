@@ -5,6 +5,8 @@
 from __future__ import division, unicode_literals
 
 import os
+import abc
+import warnings
 import six
 from six.moves import filter, map
 
@@ -12,12 +14,12 @@ from collections import defaultdict
 
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
+from monty.json import MSONable
 
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 
-import abc
 
 """
 This module implements Compatibility corrections for mixing runs of different
@@ -167,13 +169,11 @@ class PotcarCorrection(Correction):
 @cached_class
 class GasCorrection(Correction):
     """
-    Correct anion energies to obtain the right formation energies. Note that
+    Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
     Args:
         config_file: Path to the selected compatibility.yaml config file.
-        correct_peroxide: Specify whether peroxide/superoxide/ozonide
-            corrections are to be applied or not.
     """
     def __init__(self, config_file):
         c = loadfn(config_file)
@@ -197,7 +197,7 @@ class GasCorrection(Correction):
 @cached_class
 class AnionCorrection(Correction):
     """
-    Correct gas energies to obtain the right formation energies. Note that
+    Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
 
     Args:
@@ -251,6 +251,11 @@ class AnionCorrection(Correction):
                         correction += self.oxide_correction["oxide"] * \
                                       comp["O"]
                 else:
+                    warnings.warn(
+                        "No structure or oxide_type parameter present. Note "
+                        "that peroxide/superoxide corrections are not as "
+                        "reliable and relies only on detection of special"
+                        "formulas, e.g., Li2O2.")
                     rform = entry.composition.reduced_formula
                     if rform in UCorrection.common_peroxides:
                         correction += self.oxide_correction["peroxide"] * \
@@ -373,9 +378,10 @@ class UCorrection(Correction):
 
         for el in comp.elements:
             sym = el.symbol
-            #Check for bad U values
+            # Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                raise CompatibilityError('Invalid U value on {}'.format(sym))
+                raise CompatibilityError('Invalid U value of %s on %s' %
+                                         (calc_u.get(sym, 0), sym))
             if sym in ucorr:
                 correction += float(ucorr[sym]) * comp[el]
 
@@ -385,7 +391,7 @@ class UCorrection(Correction):
         return "{} {} Correction".format(self.name, self.compat_type)
 
 
-class Compatibility(object):
+class Compatibility(MSONable):
     """
     The Compatibility class combines a list of corrections to be applied to
     an entry or a set of entries. Note that some of the Corrections have
@@ -479,9 +485,9 @@ class Compatibility(object):
         corrections = []
         corr_dict = self.get_corrections_dict(entry)
         for c in self.corrections:
-            cd = {"name": str(c)}
-            cd["description"] = c.__doc__.split("Args")[0].strip()
-            cd["value"] = corr_dict.get(str(c), 0)
+            cd = {"name": str(c),
+                  "description": c.__doc__.split("Args")[0].strip(),
+                  "value": corr_dict.get(str(c), 0)}
             corrections.append(cd)
         d["corrections"] = corrections
         return d
@@ -496,10 +502,10 @@ class Compatibility(object):
             entry: A ComputedEntry.
         """
         d = self.get_explanation_dict(entry)
-        print("The uncorrected value of the energy of %s is %f eV" % (
-            entry.composition, d["uncorrected_energy"]))
-        print("The following corrections / screening are applied for %s:\n" %\
-            d["compatibility"])
+        print("The uncorrected value of the energy of %s is %f eV" %
+              (entry.composition, d["uncorrected_energy"]))
+        print("The following corrections / screening are applied for %s:\n" %
+              d["compatibility"])
         for c in d["corrections"]:
             print("%s correction: %s\n" % (c["name"],
                                            c["description"]))
@@ -534,6 +540,9 @@ class MaterialsProjectCompatibility(Compatibility):
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
                  check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),
@@ -563,7 +572,10 @@ class MITCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=False):
+                 check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
@@ -593,7 +605,10 @@ class MITAqueousCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=False):
+                 check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MITCompatibility.yaml")
         super(MITAqueousCompatibility, self).__init__(
             [PotcarCorrection(MITRelaxSet, check_hash=check_potcar_hash),
@@ -624,7 +639,10 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=False):
+                 check_potcar_hash=False):
+        self.compat_type = compat_type
+        self.correct_peroxide = correct_peroxide
+        self.check_potcar_hash = check_potcar_hash
         fp = os.path.join(MODULE_DIR, "MPCompatibility.yaml")
         super(MaterialsProjectAqueousCompatibility, self).__init__(
             [PotcarCorrection(MPRelaxSet, check_hash=check_potcar_hash),

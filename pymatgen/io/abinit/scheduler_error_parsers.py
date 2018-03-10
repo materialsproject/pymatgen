@@ -7,7 +7,7 @@ import re
 import abc
 import six
 
-from abc import ABCMeta, abstractproperty, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 """
 Error handlers for errors originating from the Submission systems.
@@ -31,7 +31,8 @@ class CorrectorProtocolScheduler(object):
     script generator method / ... should implement these methods.
     """
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def name(self):
         return str()
 
@@ -81,7 +82,8 @@ class CorrectorProtocolApplication(object):
     script generator method / ... should implement these methods.
     """
 
-    @abstractproperty
+    @property
+    @abc.abstractmethod
     def name(self):
         return str()
 
@@ -252,9 +254,9 @@ class AbstractErrorParser(object):
     def __init__(self, err_file, out_file=None, run_err_file=None, batch_err_file=None):
         self.files = {'err': err_file, 'out': out_file, 'run_err': run_err_file, 'batch_err': batch_err_file}
         self.errors = []
-        return
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def error_definitions(self):
         return dict()
 

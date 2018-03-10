@@ -22,7 +22,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 import numpy as np
-from scipy.misc import factorial
+from scipy.special import factorial
 import itertools
 import abc
 from monty.json import MSONable, MontyDecoder
@@ -154,6 +154,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         self._ref_separation_perm.extend(list(self.point_groups[1]))
         self._argsorted_ref_separation_perm = list(
             np.argsort(self._ref_separation_perm))
+        self.separation = (len(point_groups[0]), len(plane_points), len(point_groups[1]))
 
     @property
     def ordered_indices(self):
@@ -175,49 +176,49 @@ class SeparationPlane(AbstractChemenvAlgorithm):
     def argsorted_ref_separation_perm(self):
         return self._argsorted_ref_separation_perm
 
-    def safe_plane_permutations(self, ordered_plane=False,
-                                ordered_point_groups=None):
-        ordered_point_groups = [False,
-                                False] if ordered_point_groups is None else ordered_point_groups
-        rotate = lambda s, n: s[-n:] + s[:-n]
-        if ordered_plane and self.ordered_plane:
-            plane_perms = [rotate(self.plane_points, ii) for ii in
-                           range(len(self.plane_points))]
-            invplanepoints = self.plane_points[::-1]
-            plane_perms.extend([rotate(invplanepoints, ii) for ii in
-                                range(len(self.plane_points) - 1, -1, -1)])
-        else:
-            plane_perms = list(itertools.permutations(self.plane_points))
-        if ordered_point_groups[0] and self.ordered_point_groups[0]:
-            s0_perms = [rotate(self.point_groups[0], ii) for ii in
-                        range(len(self.point_groups[0]))]
-            invpg0 = self.point_groups[0][::-1]
-            s0_perms.extend([rotate(invpg0, ii) for ii in range(len(invpg0))])
-        else:
-            s0_perms = list(itertools.permutations(self.point_groups[0]))
-        if ordered_point_groups[1] and self.ordered_point_groups[1]:
-            s2_perms = [rotate(self.point_groups[1], ii) for ii in
-                        range(len(self.point_groups[1]))]
-            invpg2 = self.point_groups[1][::-1]
-            s2_perms.extend([rotate(invpg2, ii) for ii in range(len(invpg2))])
-        else:
-            s2_perms = list(itertools.permutations(self.point_groups[1]))
-        add_opposite = False
-        if self._safe_permutations is None:
-            self._safe_permutations = []
-            for perm_side1 in s0_perms:
-                for perm_sep_plane in plane_perms:
-                    for perm_side2 in s2_perms:
-                        perm = list(perm_side1)
-                        perm.extend(list(perm_sep_plane))
-                        perm.extend(list(perm_side2))
-                        self._safe_permutations.append(perm)
-                        if add_opposite:
-                            perm = list(perm_side2)
-                            perm.extend(list(perm_sep_plane))
-                            perm.extend(list(perm_side1))
-                            self._safe_permutations.append(perm)
-        return self._safe_permutations
+    # def safe_plane_permutations(self, ordered_plane=False,
+    #                             ordered_point_groups=None):
+    #     ordered_point_groups = [False,
+    #                             False] if ordered_point_groups is None else ordered_point_groups
+    #     rotate = lambda s, n: s[-n:] + s[:-n]
+    #     if ordered_plane and self.ordered_plane:
+    #         plane_perms = [rotate(self.plane_points, ii) for ii in
+    #                        range(len(self.plane_points))]
+    #         invplanepoints = self.plane_points[::-1]
+    #         plane_perms.extend([rotate(invplanepoints, ii) for ii in
+    #                             range(len(self.plane_points) - 1, -1, -1)])
+    #     else:
+    #         plane_perms = list(itertools.permutations(self.plane_points))
+    #     if ordered_point_groups[0] and self.ordered_point_groups[0]:
+    #         s0_perms = [rotate(self.point_groups[0], ii) for ii in
+    #                     range(len(self.point_groups[0]))]
+    #         invpg0 = self.point_groups[0][::-1]
+    #         s0_perms.extend([rotate(invpg0, ii) for ii in range(len(invpg0))])
+    #     else:
+    #         s0_perms = list(itertools.permutations(self.point_groups[0]))
+    #     if ordered_point_groups[1] and self.ordered_point_groups[1]:
+    #         s2_perms = [rotate(self.point_groups[1], ii) for ii in
+    #                     range(len(self.point_groups[1]))]
+    #         invpg2 = self.point_groups[1][::-1]
+    #         s2_perms.extend([rotate(invpg2, ii) for ii in range(len(invpg2))])
+    #     else:
+    #         s2_perms = list(itertools.permutations(self.point_groups[1]))
+    #     add_opposite = False
+    #     if self._safe_permutations is None:
+    #         self._safe_permutations = []
+    #         for perm_side1 in s0_perms:
+    #             for perm_sep_plane in plane_perms:
+    #                 for perm_side2 in s2_perms:
+    #                     perm = list(perm_side1)
+    #                     perm.extend(list(perm_sep_plane))
+    #                     perm.extend(list(perm_side2))
+    #                     self._safe_permutations.append(perm)
+    #                     if add_opposite:
+    #                         perm = list(perm_side2)
+    #                         perm.extend(list(perm_sep_plane))
+    #                         perm.extend(list(perm_side1))
+    #                         self._safe_permutations.append(perm)
+    #     return self._safe_permutations
 
     def safe_separation_permutations(self, ordered_plane=False,
                                      ordered_point_groups=None,
@@ -276,23 +277,26 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 "point_groups": self.point_groups,
                 "ordered_point_groups": self.ordered_point_groups,
                 "point_groups_permutations": self._point_groups_permutations,
-                "explicit_permutations": self.explicit_permutations,
-                "explicit_optimized_permutations": self.explicit_optimized_permutations,
+                "explicit_permutations": [eperm.tolist() for eperm in self.explicit_permutations]
+                if self.explicit_permutations is not None else None,
+                "explicit_optimized_permutations": [eoperm.tolist()
+                                                    for eoperm in self.explicit_optimized_permutations]
+                if self.explicit_optimized_permutations is not None else None,
                 "multiplicity": self.multiplicity,
                 "other_plane_points": self.other_plane_points,
                 "minimum_number_of_points": self.minimum_number_of_points}
 
     @classmethod
     def from_dict(cls, dd):
-        eop = dd[
-            'explicit_optimized_permutations'] if 'explicit_optimized_permutations' in dd else None
+        eop = [np.array(eoperm) for eoperm in dd[
+            'explicit_optimized_permutations']] if 'explicit_optimized_permutations' in dd else None
         return cls(plane_points=dd['plane_points'],
                    mirror_plane=dd['mirror_plane'],
                    ordered_plane=dd['ordered_plane'],
                    point_groups=dd['point_groups'],
                    ordered_point_groups=dd['ordered_point_groups'],
                    point_groups_permutations=dd['point_groups_permutations'],
-                   explicit_permutations=dd['explicit_permutations'],
+                   explicit_permutations=[np.array(eperm) for eperm in dd['explicit_permutations']],
                    explicit_optimized_permutations=eop,
                    multiplicity=dd[
                        'multiplicity'] if 'multiplicity' in dd else None,
@@ -314,6 +318,8 @@ class CoordinationGeometry(object):
     """
     Class used to store the ideal representation of a chemical environment or "coordination geometry"
     """
+    CSM_SKIP_SEPARATION_PLANE_ALGO = 10.0 # Default value of continuous symmetry measure below which no further
+                                        #  search is performed for the separation plane algorithms
 
     class NeighborsSetsHints(object):
 
@@ -452,6 +458,7 @@ class CoordinationGeometry(object):
             self.centroid = None
         self.equivalent_indices = equivalent_indices
         self.neighbors_sets_hints = neighbors_sets_hints
+        self._pauling_stability_ratio = None
 
     def as_dict(self):
         return {'mp_symbol': self._mp_symbol,
@@ -492,13 +499,12 @@ class CoordinationGeometry(object):
                    faces=dd['_faces'],
                    edges=dd['_edges'],
                    algorithms=[dec.process_decoded(algo_d)
-                               for algo_d in dd['_algorithms']] if dd[
-                                                                       '_algorithms'] is not None else None,
+                               for algo_d in dd['_algorithms']] if dd['_algorithms'] is not None else None,
                    equivalent_indices=dd[
                        'equivalent_indices'] if 'equivalent_indices' in dd else None,
                    neighbors_sets_hints=[cls.NeighborsSetsHints.from_dict(nbshd)
                                          for nbshd in dd['neighbors_sets_hints']]
-                   if 'neighbors_sets_hints' in dd else None)
+                   if ('neighbors_sets_hints' in dd and dd['neighbors_sets_hints'] is not None) else None)
 
     def __str__(self):
         symbol = ''
@@ -551,6 +557,10 @@ class CoordinationGeometry(object):
         # self.setup_permutations()
 
     @property
+    def csm_skip_algo(self):
+        return self.CSM_SKIP_SEPARATION_PLANE_ALGO
+
+    @property
     def distfactor_max(self):
         dists = [np.linalg.norm(pp - self.central_site) for pp in self.points]
         return np.max(dists) / np.min(dists)
@@ -561,6 +571,30 @@ class CoordinationGeometry(object):
         Returns the coordination number of this coordination geometry.
         """
         return self.coordination
+
+    @property
+    def pauling_stability_ratio(self):
+        """
+        Returns the theoretical Pauling stability ratio (rC/rA) for this environment.
+        """
+        if self._pauling_stability_ratio is None:
+            if self.ce_symbol in ['S:1', 'L:2']:
+                self._pauling_stability_ratio = 0.0
+            else:
+                mindist_anions = 1000000.0
+                mindist_cation_anion = 1000000.0
+                for ipt1 in range(len(self.points)):
+                    pt1 = np.array(self.points[ipt1])
+                    mindist_cation_anion = min(mindist_cation_anion,
+                                               np.linalg.norm(pt1-self.central_site))
+                    for ipt2 in range(ipt1+1, len(self.points)):
+                        pt2 = np.array(self.points[ipt2])
+                        mindist_anions = min(mindist_anions,
+                                             np.linalg.norm(pt1-pt2))
+                anion_radius = mindist_anions / 2.0
+                cation_radius = mindist_cation_anion - anion_radius
+                self._pauling_stability_ratio = cation_radius / anion_radius
+        return self._pauling_stability_ratio
 
     @property
     def mp_symbol(self):
@@ -738,55 +772,6 @@ class CoordinationGeometry(object):
         pmeshes.append({"pmesh_string": out})
         return pmeshes
 
-    def get_pmeshes_test(self, sites, permutation=None):
-        """
-        Returns the pmesh strings used for jmol to show this geometry.
-        """
-        pmeshes = []
-        _vertices = [site.coords for site in sites]
-        # if permutation is None:
-        #    _vertices = [site.coords for site in sites]
-        # else:
-        #    _vertices = [sites[ii].coords for ii in permutation]
-        _face_centers = []
-        number_of_faces = 0
-        for face in self._faces:
-            if len(face) in [3, 4]:
-                number_of_faces += 1
-            else:
-                number_of_faces += len(face)
-
-            _face_centers.append(np.array([np.mean([_vertices[face_vertex][ii]
-                                                    for face_vertex in face])
-                                           for ii in range(3)]))
-
-        out = '{}\n'.format(len(_vertices) + len(_face_centers))
-        for vv in _vertices:
-            out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(vv[0], vv[1], vv[2])
-        for fc in _face_centers:
-            out += '{:15.8f} {:15.8f} {:15.8f}\n'.format(fc[0], fc[1], fc[2])
-        out += '{:d}\n'.format(number_of_faces)
-        for iface, face in enumerate(self._faces):
-            if len(face) == 3:
-                out += '4\n'
-            elif len(face) == 4:
-                out += '5\n'
-            else:
-                for ii in range(len(face)):
-                    out += '4\n'
-                    out += '{:d}\n'.format(len(_vertices) + iface)
-                    out += '{:d}\n'.format(permutation[face[ii]])
-                    out += '{:d}\n'.format(
-                        permutation[face[np.mod(ii + 1, len(face))]])
-                    out += '{:d}\n'.format(len(_vertices) + iface)
-            if len(face) in [3, 4]:
-                for face_vertex in face:
-                    out += '{:d}\n'.format(permutation[face_vertex])
-                out += '{:d}\n'.format(permutation[face[0]])
-        pmeshes.append({"pmesh_string": out})
-        return pmeshes
-
-
 class AllCoordinationGeometries(dict):
     """
     Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
@@ -832,6 +817,28 @@ class AllCoordinationGeometries(dict):
         if permutations_safe_override:
             for cg in self.cg_list:
                 cg.set_permutations_safe_override(True)
+
+        self.minpoints = {}
+        self.maxpoints = {}
+        self.separations_cg = {}
+        for cn in range(6, 14):
+            for cg in self.get_implemented_geometries(coordination=cn):
+                if only_symbols is not None and cg.ce_symbol not in only_symbols:
+                    continue
+                if cn not in self.separations_cg:
+                    self.minpoints[cn] = 1000
+                    self.maxpoints[cn] = 0
+                    self.separations_cg[cn] = {}
+                for algo in cg.algorithms:
+                    sep = (len(algo.point_groups[0]),
+                           len(algo.plane_points),
+                           len(algo.point_groups[1]))
+                    if sep not in self.separations_cg[cn]:
+                        self.separations_cg[cn][sep] = []
+                    self.separations_cg[cn][sep].append(cg.mp_symbol)
+                    self.minpoints[cn] = min(self.minpoints[cn], algo.minimum_number_of_points)
+                    self.maxpoints[cn] = max(self.maxpoints[cn], algo.maximum_number_of_points)
+        self.maxpoints_inplane = {cn: max([sep[1] for sep in seps.keys()]) for cn, seps in self.separations_cg.items()}
 
     def __getitem__(self, key):
         return self.get_geometry_from_mp_symbol(key)

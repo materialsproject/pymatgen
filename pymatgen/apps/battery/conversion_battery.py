@@ -3,7 +3,17 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+from scipy.constants import N_A
 
+from pymatgen.core.periodic_table import Element
+from pymatgen.core.units import Charge, Time
+
+from pymatgen.analysis.reaction_calculator import BalancedReaction
+from pymatgen.core.composition import Composition
+from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
+    AbstractVoltagePair
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from monty.json import MontyDecoder
 """
 This module contains the classes to build a ConversionElectrode.
 """
@@ -16,19 +26,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
-
-from scipy.constants import N_A
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.units import Charge, Time
-
-from pymatgen.analysis.reaction_calculator import BalancedReaction
-from pymatgen.core.composition import Composition
-from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
-    AbstractVoltagePair
-from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.phasediagram.analyzer import PDAnalyzer
-from monty.json import MontyDecoder
 
 
 class ConversionElectrode(AbstractElectrode):
@@ -85,9 +82,7 @@ class ConversionElectrode(AbstractElectrode):
             raise ValueError("Not stable compound found at composition {}."
                              .format(comp))
 
-        analyzer = PDAnalyzer(pd)
-
-        profile = analyzer.get_element_profile(working_ion, comp)
+        profile = pd.get_element_profile(working_ion, comp)
         # Need to reverse because voltage goes form most charged to most
         # discharged.
         profile.reverse()
@@ -364,9 +359,10 @@ class ConversionVoltagePair(AbstractVoltagePair):
         """
         working_ion_entry = step1["element_reference"]
         working_ion = working_ion_entry.composition.elements[0].symbol
-        voltage = -step1["chempot"] + working_ion_entry.energy_per_atom
+        working_ion_valence = max(Element(working_ion).oxidation_states)
+        voltage = (-step1["chempot"] + working_ion_entry.energy_per_atom)/working_ion_valence
         mAh = (step2["evolution"] - step1["evolution"]) \
-            * Charge(1, "e").to("C") * Time(1, "s").to("h") * N_A * 1000
+            * Charge(1, "e").to("C") * Time(1, "s").to("h") * N_A * 1000*working_ion_valence
         licomp = Composition(working_ion)
         prev_rxn = step1["reaction"]
         reactants = {comp: abs(prev_rxn.get_coeff(comp))

@@ -5,7 +5,7 @@
 from __future__ import unicode_literals
 
 import unittest
-
+import warnings
 from pymatgen import Composition
 from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, \
     ReactionError, ComputedReaction
@@ -13,6 +13,12 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class ReactionTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_init(self):
         reactants = [Composition("Fe"),
                      Composition("O2")]
@@ -259,18 +265,25 @@ class ReactionTest(unittest.TestCase):
                      Composition("Cl"),
                      Composition("Cl")]
         products = [Composition("LiCl")]
-        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
-                               reactants, products)
+        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
+                              reactants, products)
 
         reactants = [Composition("LiMnCl3"),
                      Composition("LiCl"),
                      Composition("MnCl2")]
         products = [Composition("Li2MnCl4")]
-        self.assertRaisesRegexp(ReactionError, "underdetermined", Reaction,
+        self.assertRaisesRegex(ReactionError, "underdetermined", Reaction,
                                reactants, products)
 
 
 class BalancedReactionTest(unittest.TestCase):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_init(self):
         rct = {Composition('K2SO4'): 3, Composition('Na2S'): 1,
                Composition('Li'): 24}

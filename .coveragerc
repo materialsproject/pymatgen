@@ -1,6 +1,8 @@
 # .coveragerc to control coverage.py
 [run]
 source = pymatgen
+omit =
+    pymatgen/io/abinit/*.py
 
 [report]
 # Regexes for lines to exclude from consideration

@@ -6,7 +6,6 @@ from __future__ import division, unicode_literals
 from fractions import Fraction
 import numpy as np
 import re
-import warnings
 
 from pymatgen.core import Lattice
 from pymatgen.util.string import transformation_to_string
@@ -24,6 +23,7 @@ __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
 __status__ = "Development"
 __date__ = "Apr 2017"
+
 
 class JonesFaithfulTransformation:
     def __init__(self, P, p):
@@ -66,7 +66,8 @@ class JonesFaithfulTransformation:
         :param p: origin shift vector
         :return:
         """
-        P, p = JonesFaithfulTransformation.parse_transformation_string(transformation_string)
+        P, p = JonesFaithfulTransformation.parse_transformation_string(
+            transformation_string)
         return cls(P, p)
 
     @classmethod
@@ -86,12 +87,15 @@ class JonesFaithfulTransformation:
             basis_change = basis_change.split(",")
             origin_shift = origin_shift.split(",")
             # add implicit multiplication symbols
-            basis_change = [re.sub('(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))',
-                                   '*', x, flags=re.X) for x in basis_change]
-            # should be fine to use eval here but be mindful for security reasons
+            basis_change = [re.sub(
+                r'(?<=\w|\))(?=\() | (?<=\))(?=\w) | (?<=(\d|a|b|c))(?=([abc]))',
+                r'*', x, flags=re.X) for x in basis_change]
+            # should be fine to use eval here but be mindful for security
+            # reasons
             # see http://lybniz2.sourceforge.net/safeeval.html
             # could replace with regex? or sympy expression?
-            P = np.array([eval(x, {"__builtins__": None}, {'a': a, 'b': b, 'c': c}) for x in basis_change])
+            P = np.array([eval(x, {"__builtins__": None},
+                               {'a': a, 'b': b, 'c': c}) for x in basis_change])
             P = P.transpose()  # by convention
             p = [float(Fraction(x)) for x in origin_shift]
             return (P, p)
@@ -156,12 +160,12 @@ class JonesFaithfulTransformation:
         I = np.identity(3)
         w_ = np.matmul(Q, (w + np.matmul(W - I, self.p)))
         if isinstance(symmop, MagSymmOp):
-            return MagSymmOp.from_rotation_and_translation_and_time_reversal(rotation_matrix=W_,
-                                                                             translation_vec=w_,
-                                                                             time_reversal=symmop.time_reversal,
-                                                                             tol=symmop.tol)
+            return MagSymmOp.from_rotation_and_translation_and_time_reversal(
+                rotation_matrix=W_, translation_vec=w_,
+                time_reversal=symmop.time_reversal, tol=symmop.tol)
         elif isinstance(symmop, SymmOp):
-            return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
+            return SymmOp.from_rotation_and_translation(
+                rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
 
     def transform_coords(self, coords):
         # type: (List[List[float]]) -> List[List[float]]
@@ -194,4 +198,5 @@ class JonesFaithfulTransformation:
         return str(JonesFaithfulTransformation.transformation_string)
 
     def __repr__(self):
-        return "JonesFaithfulTransformation with P:\n{0}\nand p:\n{1}".format(self.P, self.p)
+        return "JonesFaithfulTransformation with P:\n{0}\nand p:\n{1}".format(
+            self.P, self.p)

@@ -352,7 +352,7 @@ loop_
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.structure, symprec=0.001)
+        writer = CifWriter(poscar.structure, symprec=0.01)
         ans = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
@@ -396,7 +396,7 @@ loop_
 
     def test_symmetrized(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False)
         writer = CifWriter(poscar.structure, symprec=0.1)
         ans = """# generated using pymatgen
 data_FePO4
@@ -490,16 +490,16 @@ loop_
         ans = """# generated using pymatgen
 data_Li2O
 _symmetry_space_group_name_H-M   Fm-3m
-_cell_length_a   4.61000000
-_cell_length_b   4.61000000
-_cell_length_c   4.61000000
+_cell_length_a   4.65884171
+_cell_length_b   4.65884171
+_cell_length_c   4.65884171
 _cell_angle_alpha   90.00000000
 _cell_angle_beta   90.00000000
 _cell_angle_gamma   90.00000000
 _symmetry_Int_Tables_number   225
 _chemical_formula_structural   Li2O
 _chemical_formula_sum   'Li8 O4'
-_cell_volume   97.972181
+_cell_volume   101.11925577
 _cell_formula_units_Z   4
 loop_
  _symmetry_equiv_pos_site_id
@@ -709,8 +709,8 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Li+  Li1  8  0.250000  0.250000  0.250000  1.0
-  O2-  O2  4  0.000000  0.000000  0.000000  1.0"""
+  Li+  Li1  8  0.250000  0.250000  0.250000  1
+  O2-  O2  4  0.000000  0.000000  0.000000  1"""
 
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
@@ -738,7 +738,7 @@ _cell_angle_gamma   60.00000914
 _symmetry_Int_Tables_number   1
 _chemical_formula_structural   Si1.5N0.5
 _chemical_formula_sum   'Si1.5 N0.5'
-_cell_volume   40.0447946443
+_cell_volume   40.04479464
 _cell_formula_units_Z   1
 loop_
 _symmetry_equiv_pos_site_id
@@ -785,7 +785,7 @@ _cell_angle_gamma   60.00000914
 _symmetry_Int_Tables_number   1
 _chemical_formula_structural   X1.5Si1.5
 _chemical_formula_sum   'X1.5 Si1.5'
-_cell_volume   40.0447946443
+_cell_volume   40.04479464
 _cell_formula_units_Z   1
 loop_
   _symmetry_equiv_pos_site_id
@@ -980,10 +980,16 @@ loop_
 class MagCifTest(unittest.TestCase):
 
     def setUp(self):
-        self.mcif = CifParser(os.path.join(test_dir, "magnetic.example.NiO.mcif"))
-        self.mcif_ncl = CifParser(os.path.join(test_dir, "magnetic.ncl.example.GdB4.mcif"))
-        self.mcif_incom = CifParser(os.path.join(test_dir, "magnetic.incommensurate.example.Cr.mcif"))
-        self.mcif_disord = CifParser(os.path.join(test_dir, "magnetic.disordered.example.CuMnO2.mcif"))
+        self.mcif = CifParser(os.path.join(test_dir,
+                                           "magnetic.example.NiO.mcif"))
+        self.mcif_ncl = CifParser(os.path.join(test_dir,
+                                               "magnetic.ncl.example.GdB4.mcif"))
+        self.mcif_incom = CifParser(os.path.join(test_dir,
+                                                 "magnetic.incommensurate.example.Cr.mcif"))
+        self.mcif_disord = CifParser(os.path.join(test_dir,
+                                                  "magnetic.disordered.example.CuMnO2.mcif"))
+        self.mcif_ncl2 = CifParser(os.path.join(test_dir,
+                                                  "Mn3Ge_IR2.mcif"))
 
     def test_mcif_detection(self):
         self.assertTrue(self.mcif.feature_flags["magcif"])
@@ -1049,9 +1055,6 @@ Gd1 5.05 5.05 0.0"""
 
     def test_write(self):
 
-        s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
-        cw = CifWriter(s_ncl, write_magmoms=True)
-
         cw_ref_string = """# generated using pymatgen
 data_GdB4
 _symmetry_space_group_name_H-M   'P 1'
@@ -1064,7 +1067,7 @@ _cell_angle_gamma   90.00000000
 _symmetry_Int_Tables_number   1
 _chemical_formula_structural   GdB4
 _chemical_formula_sum   'Gd4 B16'
-_cell_volume   206.007290027
+_cell_volume   206.00729003
 _cell_formula_units_Z   4
 loop_
  _symmetry_equiv_pos_site_id
@@ -1103,27 +1106,107 @@ loop_
  _atom_site_moment_crystalaxis_x
  _atom_site_moment_crystalaxis_y
  _atom_site_moment_crystalaxis_z
-  Gd1  5.05  5.05  0.0
-  Gd2  -5.05  5.05  0.0
-  Gd3  5.05  -5.05  0.0
-  Gd4  -5.05  -5.05  0.0
+  Gd1  5.05000  5.05000  0.00000
+  Gd2  -5.05000  5.05000  0.00000
+  Gd3  5.05000  -5.05000  0.00000
+  Gd4  -5.05000  -5.05000  0.00000
 """
+        s_ncl = self.mcif_ncl.get_structures(primitive=False)[0]
 
+        cw = CifWriter(s_ncl, write_magmoms=True)
         self.assertEqual(cw.__str__(), cw_ref_string)
+
+        # from list-type magmoms
+        list_magmoms = [list(m) for m in s_ncl.site_properties['magmom']]
+
+        # float magmoms (magnitude only)
+        float_magmoms = [float(m) for m in s_ncl.site_properties['magmom']]
+
+        s_ncl.add_site_property('magmom', list_magmoms)
+        cw = CifWriter(s_ncl, write_magmoms=True)
+        self.assertEqual(cw.__str__(), cw_ref_string)
+
+        s_ncl.add_site_property('magmom', float_magmoms)
+        cw = CifWriter(s_ncl, write_magmoms=True)
+
+        cw_ref_string_magnitudes = """# generated using pymatgen
+data_GdB4
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   7.13160000
+_cell_length_b   7.13160000
+_cell_length_c   4.05050000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   GdB4
+_chemical_formula_sum   'Gd4 B16'
+_cell_volume   206.00729003
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Gd  Gd1  1  0.317460  0.817460  0.000000  1.0
+  Gd  Gd2  1  0.182540  0.317460  0.000000  1.0
+  Gd  Gd3  1  0.817460  0.682540  0.000000  1.0
+  Gd  Gd4  1  0.682540  0.182540  0.000000  1.0
+  B  B5  1  0.000000  0.000000  0.202900  1.0
+  B  B6  1  0.500000  0.500000  0.797100  1.0
+  B  B7  1  0.000000  0.000000  0.797100  1.0
+  B  B8  1  0.500000  0.500000  0.202900  1.0
+  B  B9  1  0.175900  0.038000  0.500000  1.0
+  B  B10  1  0.962000  0.175900  0.500000  1.0
+  B  B11  1  0.038000  0.824100  0.500000  1.0
+  B  B12  1  0.675900  0.462000  0.500000  1.0
+  B  B13  1  0.324100  0.538000  0.500000  1.0
+  B  B14  1  0.824100  0.962000  0.500000  1.0
+  B  B15  1  0.538000  0.675900  0.500000  1.0
+  B  B16  1  0.462000  0.324100  0.500000  1.0
+  B  B17  1  0.086700  0.586700  0.500000  1.0
+  B  B18  1  0.413300  0.086700  0.500000  1.0
+  B  B19  1  0.586700  0.913300  0.500000  1.0
+  B  B20  1  0.913300  0.413300  0.500000  1.0
+loop_
+ _atom_site_moment_label
+ _atom_site_moment_crystalaxis_x
+ _atom_site_moment_crystalaxis_y
+ _atom_site_moment_crystalaxis_z
+  Gd1  0.00000  0.00000  7.14178
+  Gd2  0.00000  0.00000  7.14178
+  Gd3  0.00000  0.00000  -7.14178
+  Gd4  0.00000  0.00000  -7.14178
+"""
+        self.assertEqual(cw.__str__(), cw_ref_string_magnitudes)
+
+        # test we're getting correct magmoms in ncl case
+        s_ncl2 = self.mcif_ncl2.get_structures()[0]
+        list_magmoms = [list(m) for m in s_ncl2.site_properties['magmom']]
+        self.assertEqual(list_magmoms[0][0], 0.0)
+        self.assertAlmostEqual(list_magmoms[0][1], 5.9160793408726366)
+        self.assertAlmostEqual(list_magmoms[1][0], -5.1234749999999991)
+        self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
+
 
     def test_bibtex(self):
 
-        ref_bibtex_string = """@article{Blanco:2006,
-    author = {Blanco, J.A.},
-    title = {?},
-    journal = {PHYSICAL REVIEW B},
-    year = {2006},
-    volume = {73},
-    number = {?},
-    pages = {?--?},
-    doi = {10.1103/PhysRevB.73.212411}
-}"""
-        self.assertEqual(self.mcif_ncl.get_bibtex_strings()[0], ref_bibtex_string)
+        ref_bibtex_string = """@article{cif-reference-0,
+    author = "Blanco, J.A.",
+    journal = "PHYSICAL REVIEW B",
+    volume = "73",
+    year = "2006",
+    pages = "?--?"
+}
+"""
+        self.assertEqual(self.mcif_ncl.get_bibtex_string(), ref_bibtex_string)
 
 if __name__ == '__main__':
     unittest.main()

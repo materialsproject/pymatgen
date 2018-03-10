@@ -312,7 +312,7 @@ class AbinitTimerParser(collections.Iterable):
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
 
         # Compute parallel efficiency (use the run with min number of cpus to normalize).
-        i = frame["tot_ncpus"].idxmin()
+        i = frame["tot_ncpus"].values.argmin()
         ref_wtime = frame.ix[i]["wall_time"]
         ref_ncpus = frame.ix[i]["tot_ncpus"]
         frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
@@ -351,7 +351,8 @@ class AbinitTimerParser(collections.Iterable):
         n = len(timers)
         xx = np.arange(n)
 
-        ax.set_color_cycle(['g', 'b', 'c', 'm', 'y', 'k'])
+        #ax.set_color_cycle(['g', 'b', 'c', 'm', 'y', 'k'])
+        ax.set_prop_cycle(color=['g', 'b', 'c', 'm', 'y', 'k'])
 
         lines, legend_entries = [], []
         # Plot sections with good efficiency.
@@ -484,14 +485,14 @@ class AbinitTimerParser(collections.Iterable):
 
         return fig
 
-    def plot_all(self, **kwargs):
+    def plot_all(self, show=True, **kwargs):
         """
         Call all plot methods provided by the parser.
         """
         figs = []; app = figs.append
-        app(self.plot_stacked_hist())
-        app(self.plot_efficiency())
-        app(self.plot_pie())
+        app(self.plot_stacked_hist(show=show))
+        app(self.plot_efficiency(show=show))
+        app(self.plot_pie(show=show))
         return figs
 
 

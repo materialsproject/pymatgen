@@ -42,6 +42,7 @@ amu_to_kg = const.physical_constants["atomic mass unit-kilogram relationship"][0
 mile_to_meters = const.mile
 bohr_to_angstrom = const.physical_constants["Bohr radius"][0] * 1e10
 bohr_to_ang = bohr_to_angstrom
+ang_to_bohr = 1 / bohr_to_ang
 
 """
 Definitions of supported units. Values below are essentially scaling and
@@ -115,6 +116,13 @@ DERIVED_UNITS = {
         "KN": {"kg": 1, "m": 1, "s": -2, 1000: 1},
         "MN": {"kg": 1, "m": 1, "s": -2, 1e6: 1},
         "GN": {"kg": 1, "m": 1, "s": -2, 1e9: 1},
+    },
+    "frequency":{
+        "Hz": {"s": -1},
+        "KHz": {"s": -1, 1000: 1},
+        "MHz": {"s": -1, 1e6: 1},
+        "GHz": {"s": -1, 1e9: 1},
+        "THz": {"s": -1, 1e12: 1},
     },
     "pressure": {
         "Pa": {"kg": 1, "m": -1, "s": -2},
@@ -335,7 +343,7 @@ class FloatWithUnit(float):
         """
         Initialize a FloatWithUnit from a string. Example Memory.from_string("1. Mb")
         """
-        # Extract num and unit string. 
+        # Extract num and unit string.
         s = s.strip()
         for i, char in enumerate(s):
             if char.isalpha() or char.isspace():

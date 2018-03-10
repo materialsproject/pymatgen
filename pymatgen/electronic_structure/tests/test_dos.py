@@ -8,13 +8,14 @@ import unittest
 import os
 import json
 
+from monty.serialization import loadfn
+
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
-from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.electronic_structure.dos import CompleteDos, DOS
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-
-import scipy
 
 
 class DosTest(unittest.TestCase):
@@ -128,6 +129,47 @@ class CompleteDosTest(unittest.TestCase):
 
     def test_str(self):
         self.assertIsNotNone(str(self.dos))
+
+
+class DOSTest(PymatgenTest):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+            d = json.load(f)
+            y = list(zip(d["densities"]["1"], d["densities"]["-1"]))
+            self.dos = DOS(d["energies"], y, d["efermi"])
+
+    def test_get_gap(self):
+        dos = self.dos
+        self.assertAlmostEqual(dos.get_gap(), 2.0589, 4)
+        self.assertEqual(len(dos.x), 301)
+        self.assertAlmostEqual(dos.get_interpolated_gap(tol=0.001,
+                                                        abs_tol=False,
+                                                        spin=None)[0],
+                               2.16815942458015, 7)
+        self.assertArrayAlmostEqual(dos.get_cbm_vbm(),
+                                    (3.8729, 1.8140000000000001))
+
+        self.assertAlmostEqual(dos.get_interpolated_value(9.9)[0],
+                               1.744588888888891, 7)
+        self.assertAlmostEqual(dos.get_interpolated_value(9.9)[1],
+                               1.756888888888886, 7)
+        self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
+
+        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.up),
+                                    (3.8729, 1.2992999999999999))
+
+        self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.down),
+                                    (4.645, 1.8140000000000001))
+
+
+class SpinPolarizationTest(unittest.TestCase):
+
+    def test_spin_polarization(self):
+
+        dos_path = os.path.join(test_dir, "dos_spin_polarization_mp-865805.json")
+        dos = loadfn(dos_path)
+        self.assertAlmostEqual(dos.spin_polarization, 0.6460514663341762)
 
 if __name__ == '__main__':
     unittest.main()

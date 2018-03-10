@@ -4,6 +4,15 @@
 
 from __future__ import division, unicode_literals
 
+import numpy as np
+import pickle
+
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.sites import Site, PeriodicSite
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.composition import Composition
+
 """
 Created on Jul 17, 2012
 """
@@ -15,15 +24,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 17, 2012"
-
-import numpy as np
-import pickle
-
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.core.sites import Site, PeriodicSite
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.composition import Composition
 
 
 class SiteTest(PymatgenTest):

@@ -4,6 +4,17 @@
 
 from __future__ import division, unicode_literals
 
+import warnings
+import unittest
+import os
+from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
+from pymatgen.alchemy.filters import ContainsSpecieFilter
+from pymatgen.transformations.standard_transformations import \
+    SubstitutionTransformation, RemoveSpeciesTransformation, \
+    OrderDisorderedStructureTransformation
+from pymatgen.transformations.advanced_transformations import \
+    SuperTransformation
+
 '''
 Created on Mar 5, 2012
 '''
@@ -16,21 +27,17 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 5, 2012"
 
-import unittest
-import os
-from pymatgen.alchemy.transmuters import CifTransmuter, PoscarTransmuter
-from pymatgen.alchemy.filters import ContainsSpecieFilter
-from pymatgen.transformations.standard_transformations import \
-    SubstitutionTransformation, RemoveSpeciesTransformation, \
-    OrderDisorderedStructureTransformation
-from pymatgen.transformations.advanced_transformations import \
-    SuperTransformation
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
 class CifTransmuterTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_init(self):
         trans = []

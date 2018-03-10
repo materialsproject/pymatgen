@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals
 import os
 from itertools import product
 from fractions import Fraction
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractmethod
 from collections import Sequence
 import numpy as np
 import warnings
@@ -37,14 +37,15 @@ def get_symm_data(name):
     global SYMM_DATA
     if SYMM_DATA is None:
         SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__),
-                                        "symm_data.yaml"))
+                                        "symm_data.json"))
     return SYMM_DATA[name]
 
 
 class SymmetryGroup(Sequence):
     __metaclass__ = ABCMeta
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def symmetry_ops(self):
         pass
 
@@ -185,7 +186,7 @@ class SpaceGroup(SymmetryGroup):
         Order of Space Group
     """
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__),
-                                   "symm_ops.yaml"))
+                                   "symm_ops.json"))
     SG_SYMBOLS = set(get_symm_data("space_group_encoding").keys())
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])

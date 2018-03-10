@@ -3,6 +3,18 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+import abc
+
+import six
+from six.moves import map
+
+from pymatgen.core.periodic_table import get_el_sp
+from monty.json import MSONable
+from pymatgen.analysis.structure_matcher import StructureMatcher,\
+    ElementComparator
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from collections import defaultdict
 
 """
 This module defines filters for Transmuter object.
@@ -16,18 +28,6 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
-import abc
-
-import six
-from six.moves import map
-
-from pymatgen.core.periodic_table import get_el_sp
-from monty.json import MSONable
-from pymatgen.analysis.structure_matcher import StructureMatcher,\
-    ElementComparator
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from collections import defaultdict
 
 class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, MSONable)):
     """

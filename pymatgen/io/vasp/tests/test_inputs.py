@@ -16,12 +16,12 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
 from pymatgen import Composition, Structure
+from pymatgen.electronic_structure.core import Magmom
 from monty.io import zopen
 
 """
 Created on Jul 16, 2012
 """
-
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -30,16 +30,14 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
 class PoscarTest(PymatgenTest):
-
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         comp = poscar.structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
@@ -94,15 +92,23 @@ direct
 
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'POSCAR.symbols_natoms_multilines')
-        poscar = Poscar.from_file(filepath, check_for_POTCAR=False, read_velocities=False)
-        ordered_expected_elements = ['Fe', 'Cr', 'Fe', 'Fe', 'Cr', 'Cr', 'Cr', 'Cr',
-                                     'Fe', 'Fe', 'Cr', 'Fe', 'Cr', 'Fe', 'Fe', 'Cr',
-                                     'Fe', 'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr', 'Fe',
-                                     'Ni', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr', 'Cr',
-                                     'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr',
-                                     'Fe', 'Fe', 'Ni', 'Fe', 'Fe', 'Fe', 'Cr', 'Cr',
+        poscar = Poscar.from_file(filepath, check_for_POTCAR=False,
+                                  read_velocities=False)
+        ordered_expected_elements = ['Fe', 'Cr', 'Fe', 'Fe', 'Cr', 'Cr', 'Cr',
+                                     'Cr',
+                                     'Fe', 'Fe', 'Cr', 'Fe', 'Cr', 'Fe', 'Fe',
+                                     'Cr',
+                                     'Fe', 'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr',
+                                     'Fe',
+                                     'Ni', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Cr',
+                                     'Cr',
+                                     'Cr', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe', 'Fe',
+                                     'Cr',
+                                     'Fe', 'Fe', 'Ni', 'Fe', 'Fe', 'Fe', 'Cr',
+                                     'Cr',
                                      'Fe', 'Fe', 'Fe', 'Fe', 'Fe']
-        self.assertEqual([site.specie.symbol for site in poscar.structure], ordered_expected_elements)
+        self.assertEqual([site.specie.symbol for site in poscar.structure],
+                         ordered_expected_elements)
 
     def test_to_from_dict(self):
         poscar_string = """Test3
@@ -140,13 +146,41 @@ cart
         self.assertArrayAlmostEqual(site.coords,
                                     np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
+    def test_significant_figures(self):
+        si = 14
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+
+        # Silicon structure for testing.
+        latt = [[3.8401979337, 0.00, 0.00],
+                [1.9200989668, 3.3257101909, 0.00],
+                [0.00, -2.2171384943, 3.1355090603]]
+        struct = Structure(latt, [si, si], coords)
+        poscar = Poscar(struct)
+        expected_str = '''Si2
+1.0
+3.84 0.00 0.00
+1.92 3.33 0.00
+0.00 -2.22 3.14
+Si
+2
+direct
+0.00 0.00 0.00 Si
+0.75 0.50 0.75 Si
+'''
+
+        actual_str = poscar.get_string(significant_figures=2)
+        self.assertEqual(actual_str, expected_str, "Wrong POSCAR output!")
+
+
     def test_str(self):
         si = 14
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
 
-        #Silicon structure for testing.
+        # Silicon structure for testing.
         latt = [[3.8401979337, 0.00, 0.00],
                 [1.9200989668, 3.3257101909, 0.00],
                 [0.00, -2.2171384943, 3.1355090603]]
@@ -166,7 +200,7 @@ direct
 
         self.assertEqual(str(poscar), expected_str, "Wrong POSCAR output!")
 
-        #Vasp 4 type with symbols at the end.
+        # Vasp 4 type with symbols at the end.
         poscar_string = """Test1
 1.0
 -3.840198 0.000000 0.000000
@@ -217,12 +251,12 @@ direct
         self.assertArrayAlmostEqual(p.predictor_corrector,
                                     p3.predictor_corrector, 5)
         self.assertEqual(p.predictor_corrector_preamble,
-                                    p3.predictor_corrector_preamble)
+                         p3.predictor_corrector_preamble)
         os.remove(tempfname)
 
     def test_setattr(self):
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         self.assertRaises(ValueError, setattr, poscar, 'velocities',
                           [[0, 0, 0]])
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
@@ -268,7 +302,7 @@ direct
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
 
-        #Silicon structure for testing.
+        # Silicon structure for testing.
         latt = [[3.8401979337, 0.00, 0.00],
                 [1.9200989668, 3.3257101909, 0.00],
                 [0.00, -2.2171384943, 3.1355090603]]
@@ -282,7 +316,7 @@ direct
             self.assertAlmostEqual(x, 0, 7)
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * const.k) * 1e10
+                      np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
@@ -293,7 +327,7 @@ direct
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
         temperature = struct[0].specie.atomic_mass.to("kg") * \
-            np.sum(v ** 2) / (3 * const.k) * 1e10
+                      np.sum(v ** 2) / (3 * const.k) * 1e10
         self.assertAlmostEqual(temperature, 700, 4,
                                'Temperature instantiated incorrectly')
 
@@ -309,7 +343,6 @@ direct
 
 
 class IncarTest(unittest.TestCase):
-
     def setUp(self):
         file_name = os.path.join(test_dir, 'INCAR')
         self.incar = Incar.from_file(file_name)
@@ -355,14 +388,16 @@ class IncarTest(unittest.TestCase):
                 'LPLANE': {'INCAR1': True, 'INCAR2': None},
                 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5},
                 'NPAR': {'INCAR1': 8, 'INCAR2': 1},
-                'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
-                           'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                'SYSTEM': {
+                    'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
+                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
                 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
                 'LHFCALC': {'INCAR1': True, 'INCAR2': None},
                 'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
-             'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4,
-                      'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
-                      'LORBIT': 11, 'SIGMA': 0.05}})
+                'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3,
+                         'LMAXMIX': 4,
+                         'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
+                         'LORBIT': 11, 'SIGMA': 0.05}})
 
         self.assertEqual(
             incar1.diff(incar3),
@@ -390,19 +425,24 @@ class IncarTest(unittest.TestCase):
                 'LPLANE': {'INCAR1': True, 'INCAR2': None},
                 'ISMEAR': {'INCAR1': 0, 'INCAR2': -5},
                 'NPAR': {'INCAR1': 8, 'INCAR2': 1},
-                'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
-                           'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                'SYSTEM': {
+                    'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
+                    'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
                 'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
                 'LHFCALC': {'INCAR1': True, 'INCAR2': None},
                 'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
-             'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4,
-                      'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
-                      'LORBIT': 11, 'SIGMA': 0.05}})
+                'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3,
+                         'LMAXMIX': 4,
+                         'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
+                         'LORBIT': 11, 'SIGMA': 0.05}})
 
     def test_as_dict_and_from_dict(self):
         d = self.incar.as_dict()
         incar2 = Incar.from_dict(d)
         self.assertEqual(self.incar, incar2)
+        d["MAGMOM"] = [Magmom([1, 2, 3]).as_dict()]
+        incar3 = Incar.from_dict(d)
+        self.assertEqual(incar3["MAGMOM"], [Magmom([1, 2, 3])])
 
     def test_write(self):
         tempfname = "INCAR.testing"
@@ -410,7 +450,6 @@ class IncarTest(unittest.TestCase):
         i = Incar.from_file(tempfname)
         self.assertEqual(i, self.incar)
         os.remove(tempfname)
-
 
     def test_get_string(self):
         s = self.incar.get_string(pretty=True, sort_keys=True)
@@ -447,12 +486,15 @@ TIME       =  0.4"""
     def test_lsorbit_magmom(self):
         magmom1 = [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]]
         magmom2 = [-1, -1, -1, 0, 0, 0, 0, 0]
+        magmom4 = [Magmom([1.0, 2.0, 2.0])]
 
         ans_string1 = "LANGEVIN_GAMMA = 10 10 10\nLSORBIT = True\n" \
                       "MAGMOM = 0.0 0.0 3.0 0 1 0 2 1 2\n"
         ans_string2 = "LANGEVIN_GAMMA = 10\nLSORBIT = True\n" \
                       "MAGMOM = 3*3*-1 3*5*0\n"
         ans_string3 = "LSORBIT = False\nMAGMOM = 2*-1 2*9\n"
+        ans_string4_nolsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = False\nMAGMOM = 1*3.0\n"
+        ans_string4_lsorbit = "LANGEVIN_GAMMA = 10\nLSORBIT = True\nMAGMOM = 1.0 2.0 2.0\n"
 
         incar = Incar({})
         incar["MAGMOM"] = magmom1
@@ -465,8 +507,15 @@ TIME       =  0.4"""
         incar["LANGEVIN_GAMMA"] = 10
         self.assertEqual(ans_string2, str(incar))
 
+        incar["MAGMOM"] = magmom4
+        incar["LSORBIT"] = "F"
+        self.assertEqual(ans_string4_nolsorbit, str(incar))
+        incar["LSORBIT"] = "T"
+        self.assertEqual(ans_string4_lsorbit, str(incar))
+
         incar = Incar.from_string(ans_string1)
-        self.assertEqual(incar["MAGMOM"], [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
+        self.assertEqual(incar["MAGMOM"],
+                         [[0.0, 0.0, 3.0], [0, 1, 0], [2, 1, 2]])
         self.assertEqual(incar["LANGEVIN_GAMMA"], [10, 10, 10])
 
         incar = Incar.from_string(ans_string2)
@@ -489,9 +538,29 @@ TIME       =  0.4"""
         incar2 = Incar.from_string(ans_string1)
         self.assertEqual(ans_string1, str(incar2))
 
+    def test_types(self):
+        incar_str = """ALGO = Fast
+ECUT = 510
+EDIFF = 1e-07
+EINT = -0.85 0.85
+IBRION = -1
+ICHARG = 11
+ISIF = 3
+ISMEAR = 1
+ISPIN = 1
+LPARD = True
+NBMOD = -3
+PREC = Accurate
+SIGMA = 0.1"""
+        i = Incar.from_string(incar_str)
+        self.assertIsInstance(i["EINT"], list)
+        self.assertEqual(i["EINT"][0], -0.85)
 
-class KpointsTest(unittest.TestCase):
+    def test_proc_types(self):
+        self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
 
+
+class KpointsTest(PymatgenTest):
     def test_init(self):
         filepath = os.path.join(test_dir, 'KPOINTS.auto')
         kpoints = Kpoints.from_file(filepath)
@@ -579,7 +648,7 @@ Cartesian
         d = k.as_dict()
         import json
         json.dumps(d)
-        #This doesn't work
+        # This doesn't work
         k2 = Kpoints.from_dict(d)
         self.assertEqual(k.kpts, k2.kpts)
         self.assertEqual(k.style, k2.style)
@@ -590,16 +659,29 @@ Cartesian
         k = Kpoints.gamma_automatic()
         pickle.dumps(k)
 
+    def test_automatic_kpoint(self):
+        # s = PymatgenTest.get_structure("Li2O")
+        p = Poscar.from_string("""Al1
+1.0
+2.473329 0.000000 1.427977
+0.824443 2.331877 1.427977
+0.000000 0.000000 2.855955
+Al
+1
+direct
+0.000000 0.000000 0.000000 Al""")
+        kpoints = Kpoints.automatic_density(p.structure, 1000)
+        self.assertArrayAlmostEqual(kpoints.kpts[0], [10, 10, 10])
+
 
 class PotcarSingleTest(unittest.TestCase):
-
     def setUp(self):
         self.psingle = PotcarSingle.from_file(
             os.path.join(test_dir, "POT_GGA_PAW_PBE", "POTCAR.Mn_pv.gz"))
 
     def test_keywords(self):
         data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': True, 'DEXC': -.003,
-                'STEP': [20.000,   1.050],
+                'STEP': [20.000, 1.050],
                 'RPACOR': 2.080, 'LEXCH': 'PE',
                 'ENMAX': 269.865, 'QCUT': -4.454,
                 'TITEL': 'PAW_PBE Mn_pv 07Sep2000',
@@ -637,10 +719,12 @@ class PotcarSingleTest(unittest.TestCase):
             PotcarSingle.parse_functions['BAD_KEY']
 
     def test_bad_value(self):
-        self.assertRaises(ValueError, PotcarSingle.parse_functions['ENMAX'], "ThisShouldBeAFloat")
+        self.assertRaises(ValueError, PotcarSingle.parse_functions['ENMAX'],
+                          "ThisShouldBeAFloat")
 
     def test_hash(self):
-        self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
+        self.assertEqual(self.psingle.get_potcar_hash(),
+                         "fa52f891f234d49bb4cb5ea96aae8f98")
 
     def test_from_functional_and_symbols(self):
         test_potcar_dir = os.path.abspath(
@@ -658,7 +742,7 @@ class PotcarSingleTest(unittest.TestCase):
         self.assertEqual(self.psingle.potential_type, 'PAW')
 
         psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_LDA_PAW",
-                                "POTCAR.Fe.gz"))
+                                                      "POTCAR.Fe.gz"))
 
         self.assertEqual(psingle.functional, 'Perdew-Zunger81')
 
@@ -678,7 +762,6 @@ class PotcarSingleTest(unittest.TestCase):
 
 
 class PotcarTest(unittest.TestCase):
-
     def setUp(self):
         if "PMG_VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
@@ -698,9 +781,9 @@ class PotcarTest(unittest.TestCase):
         fe_potcar = zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
                                        "POTCAR.Fe_pv.gz")).read().decode(
             "utf-8")
-        #specify V instead of Fe - this makes sure the test won't pass if the
-        #code just grabs the POTCAR from the config file (the config file would
-        #grab the V POTCAR)
+        # specify V instead of Fe - this makes sure the test won't pass if the
+        # code just grabs the POTCAR from the config file (the config file would
+        # grab the V POTCAR)
         potcar = Potcar(["V"], sym_potcar_map={"V": fe_potcar})
         self.assertEqual(potcar.symbols, ["Fe_pv"], "Wrong symbols read in "
                                                     "for POTCAR")
@@ -733,16 +816,19 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(p[0].functional_class, 'LDA')
         self.assertEqual(p[1].functional_class, 'LDA')
 
+    def test_pickle(self):
+        pickle.dumps(self.potcar)
+
     def tearDown(self):
         SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
-class VaspInputTest(unittest.TestCase):
 
+class VaspInputTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'INCAR')
         incar = Incar.from_file(filepath)
         filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
+        poscar = Poscar.from_file(filepath,check_for_POTCAR=False)
         if "PMG_VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -782,6 +868,6 @@ class VaspInputTest(unittest.TestCase):
         vinput = VaspInput.from_dict(d)
         self.assertIn("CONTCAR.Li2O", vinput)
 
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

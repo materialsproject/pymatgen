@@ -4,11 +4,35 @@
 
 from __future__ import division, unicode_literals
 
+import re
+import math
+import subprocess
+import itertools
+import logging
+import glob
+import warnings
+
+import numpy as np
+from monty.fractions import lcm
+import fractions
+
+from six.moves import reduce
+
+from pymatgen.io.vasp.inputs import Poscar
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.periodic_table import DummySpecie
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+from threading import Timer
+
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
 
-This module depends on a compiled enumlib with the executables multienum.x and
+This module depends on a compiled enumlib with the executables enum.x and
 makestr.x available in the path. Please download the library at
 http://enum.sourceforge.net/ and follow the instructions in the README to
 compile these two executables accordingly.
@@ -33,26 +57,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 16, 2012"
 
-import re
-import math
-import subprocess
-import itertools
-import logging
-
-import numpy as np
-from monty.fractions import lcm
-import fractions
-
-from six.moves import reduce
-
-from pymatgen.io.vasp.inputs import Poscar
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.periodic_table import DummySpecie
-from monty.os.path import which
-from monty.dev import requires
-from monty.tempfile import ScratchDir
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +64,14 @@ logger = logging.getLogger(__name__)
 # Favor the use of the newer "enum.x" by Gus Hart instead of the older
 # "multienum.x"
 enum_cmd = which('enum.x') or which('multienum.x')
+# prefer makestr.x at present
+makestr_cmd = which('makestr.x') or which('makeStr.x') or which('makeStr.py')
 
-@requires(enum_cmd and which('makestr.x'),
+
+@requires(enum_cmd and makestr_cmd,
           "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
-          "and 'makestr.x' to be in the path. Please download the library at"
-          "http://enum.sourceforge.net/ and follow the instructions in "
+          "and 'makestr.x' or 'makeStr.py' to be in the path. Please download the "
+          "library at http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
@@ -78,7 +85,8 @@ class EnumlibAdaptor(object):
 
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
                  symm_prec=0.1, enum_precision_parameter=0.001,
-                 refine_structure=False, check_ordered_symmetry=True):
+                 refine_structure=False, check_ordered_symmetry=True,
+                 timeout=None):
         """
         Initializes the adapter with a structure and some parameters.
 
@@ -107,6 +115,10 @@ class EnumlibAdaptor(object):
                 structures. But sometimes including ordered sites
                 slows down enumeration to the point that it cannot be
                 completed. Switch to False in those cases. Defaults to True.
+            timeout (float): If specified, will kill enumlib after specified
+                time in minutes. This can be useful for gracefully handling
+                enumerations in a high-throughput context, for some enumerations
+                which will not terminate in a realistic length of time.
         """
         if refine_structure:
             finder = SpacegroupAnalyzer(structure, symm_prec)
@@ -119,6 +131,7 @@ class EnumlibAdaptor(object):
         self.enum_precision_parameter = enum_precision_parameter
         self.check_ordered_symmetry = check_ordered_symmetry
         self.structures = None
+        self.timeout = timeout
 
     def run(self):
         """
@@ -127,23 +140,15 @@ class EnumlibAdaptor(object):
         # Create a temporary directory for working.
         with ScratchDir(".") as d:
             logger.debug("Temp dir : {}".format(d))
-            try:
-                # Generate input files
-                self._gen_input_file()
-                # Perform the actual enumeration
-                num_structs = self._run_multienum()
-                # Read in the enumeration output as structures.
-                if num_structs > 0:
-                    self.structures = self._get_structures(num_structs)
-                else:
-                    raise ValueError("Unable to enumerate structure.")
-            except Exception:
-                import sys
-                import traceback
-
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                          limit=10, file=sys.stdout)
+            # Generate input files
+            self._gen_input_file()
+            # Perform the actual enumeration
+            num_structs = self._run_multienum()
+            # Read in the enumeration output as structures.
+            if num_structs > 0:
+                self.structures = self._get_structures(num_structs)
+            else:
+                raise EnumError("Unable to enumerate structure.")
 
     def _gen_input_file(self):
         """
@@ -159,6 +164,8 @@ class EnumlibAdaptor(object):
             fitter.get_space_group_number(),
             len(symmetrized_structure.equivalent_sites))
         )
+
+        target_sgnum = fitter.get_space_group_number()
 
         """
         Enumlib doesn"t work when the number of species get too large. To
@@ -210,40 +217,36 @@ class EnumlibAdaptor(object):
             return finder.get_space_group_number()
 
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
-        min_sgnum = get_sg_info(curr_sites)
-        logger.debug("Disorderd sites has sgnum %d" % (
-            min_sgnum))
-        # It could be that some of the ordered sites has a lower symmetry than
-        # the disordered sites.  So we consider the lowest symmetry sites as
-        # disordered in our enumeration.
+        sgnum = get_sg_info(curr_sites)
+        ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
+        logger.debug("Disordered sites has sg # %d" % (sgnum))
         self.ordered_sites = []
-        to_add = []
 
         if self.check_ordered_symmetry:
-            for sites in ordered_sites:
+            while sgnum != target_sgnum:
+                sites = ordered_sites.pop(0)
                 temp_sites = list(curr_sites) + sites
-                sgnum = get_sg_info(temp_sites)
-                if sgnum < min_sgnum:
-                    logger.debug("Adding {} to sites to be ordered. "
-                                 "New sgnum {}"
-                                 .format(sites, sgnum))
-                    to_add = sites
-                    min_sgnum = sgnum
+                new_sgnum = get_sg_info(temp_sites)
+                if sgnum != new_sgnum:
+                    logger.debug("Adding %s in enum. New sg # %d"
+                                 % (sites[0].specie, new_sgnum))
+                    index_species.append(sites[0].specie)
+                    index_amounts.append(len(sites))
+                    sp_label = len(index_species) - 1
+                    for site in sites:
+                        coord_str.append("{} {}".format(
+                            coord_format.format(*site.coords),
+                            sp_label))
+                    disordered_sites.append(sites)
+                    sgnum = new_sgnum
+                else:
+                    self.ordered_sites.extend(sites)
+
+                if sgnum == target_sgnum:
+                    break
 
         for sites in ordered_sites:
-            if sites == to_add:
-                index_species.append(sites[0].specie)
-                index_amounts.append(len(sites))
-                sp_label = len(index_species) - 1
-                logger.debug("Lowest symmetry {} sites are included in enum."
-                             .format(sites[0].specie))
-                for site in sites:
-                    coord_str.append("{} {}".format(
-                        coord_format.format(*site.coords),
-                        sp_label))
-                disordered_sites.append(sites)
-            else:
-                self.ordered_sites.extend(sites)
+            self.ordered_sites.extend(sites)
 
         self.index_species = index_species
 
@@ -252,8 +255,8 @@ class EnumlibAdaptor(object):
         output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
-        output.append("{}".format(len(index_species)))
-        output.append("{}".format(len(coord_str)))
+        output.append("%d" % len(index_species))
+        output.append("%d" % len(coord_str))
         output.extend(coord_str)
 
         output.append("{} {}".format(self.min_cell_size, self.max_cell_size))
@@ -288,10 +291,31 @@ class EnumlibAdaptor(object):
             f.write("\n".join(output))
 
     def _run_multienum(self):
+
         p = subprocess.Popen([enum_cmd],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
-        output = p.communicate()[0].decode("utf-8")
+
+        if self.timeout:
+
+            timed_out = False
+            timer = Timer(self.timeout*60, lambda p: p.kill(), [p])
+
+            try:
+                timer.start()
+                output = p.communicate()[0].decode("utf-8")
+            finally:
+                if not timer.is_alive():
+                    timed_out = True
+                timer.cancel()
+
+            if timed_out:
+                raise TimeoutError('Enumeration took too long.')
+
+        else:
+
+            output = p.communicate()[0].decode("utf-8")
+
         count = 0
         start_count = False
         for line in output.strip().split("\n"):
@@ -304,25 +328,40 @@ class EnumlibAdaptor(object):
 
     def _get_structures(self, num_structs):
         structs = []
-        rs = subprocess.Popen(["makestr.x",
-                               "struct_enum.out", str(0),
-                               str(num_structs - 1)],
+
+        if ".py" in makestr_cmd:
+            options = ["-input", "struct_enum.out", str(1), str(num_structs)]
+        else:
+            options = ["struct_enum.out", str(0), str(num_structs - 1)]
+
+        rs = subprocess.Popen([makestr_cmd] + options,
                               stdout=subprocess.PIPE,
                               stdin=subprocess.PIPE, close_fds=True)
-        rs.communicate()
+        stdout, stderr = rs.communicate()
+        if stderr:
+            logger.warning(stderr.decode())
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             # Need to strip sites of site_properties, which would otherwise
             # result in an index error. Hence Structure is reconstructed in
             # the next step.
+            site_properties = {}
+            for site in self.ordered_sites:
+                for k, v in site.properties.items():
+                    if k in site_properties:
+                        site_properties[k].append(v)
+                    else:
+                        site_properties[k] = [v]
             ordered_structure = Structure(
                 original_latt,
                 [site.species_and_occu for site in self.ordered_sites],
-                [site.frac_coords for site in self.ordered_sites])
+                [site.frac_coords for site in self.ordered_sites],
+                site_properties=site_properties
+            )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
-        for n in range(1, num_structs + 1):
-            with open("vasp.{:06d}".format(n)) as f:
+        for file in glob.glob('vasp.*'):
+            with open(file) as f:
                 data = f.read()
                 data = re.sub(r'scale factor', "1", data)
                 data = re.sub(r'(\d+)-(\d+)', r'\1 -\2', data)
@@ -351,7 +390,13 @@ class EnumlibAdaptor(object):
                         sites.append(PeriodicSite(site.species_and_occu,
                                                   site.frac_coords,
                                                   super_latt).to_unit_cell)
+                    else:
+                        warnings.warn("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))
 
         logger.debug("Read in a total of {} structures.".format(num_structs))
         return structs
+
+
+class EnumError(BaseException):
+    pass
