@@ -420,6 +420,28 @@ class StructureTest(PymatgenTest):
                            [0.00, -2.2171384943, 3.1355090603]])
         self.structure = Structure(lattice, ["Si", "Si"], coords)
 
+    def test_lattice_from_parameter(self):
+        mol = Molecule.from_file("test_files/1000208.xyz")
+
+        s_xyz = Structure(
+            lattice=Lattice.from_parameters(7.3403, 7.2370, 6.407, 90, 106.801, 90),
+            species=mol.species,
+            coords=mol.cart_coords,
+            coords_are_cartesian=True,
+            to_unit_cell=True
+        )
+
+        s_xyz.to("cif", "test_files/1000208_output.cif")
+
+        s_cif = Structure.from_file("test_files/1000208.cif")
+
+        self.assertArrayAlmostEqual(s_cif.lattice.matrix, s_xyz.lattice.matrix)
+
+        sites_xyz = s_xyz.get_sites_in_sphere([1.8803, -0.1484, 0.0472], 0.1)
+        sites_cif = s_cif.get_sites_in_sphere([1.8803, -0.1484, 0.0472], 0.1)
+
+        self.assertArrayAlmostEqual(sites_xyz[0][0].coords, sites_cif[0][0].coords, 5)
+
     def test_mutable_sequence_methods(self):
         s = self.structure
         s[0] = "Fe"
@@ -721,7 +743,7 @@ class StructureTest(PymatgenTest):
         self.assertRaises(ValueError, Structure.from_spacegroup,
                           "Pm-3m", Lattice.cubic(3), ["Cs"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
-    
+
     def test_from_magnetic_spacegroup(self):
 
         # AFM MnF
