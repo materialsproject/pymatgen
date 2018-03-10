@@ -284,11 +284,28 @@ class Lattice(MSONable):
         # Sometimes rounding errors result in values slightly > 1.
         val = abs_cap(val)
         gamma_star = np.arccos(val)
+
+
+        cos_alpha = np.cos(np.radians(alpha))
+        cos_beta = np.cos(np.radians(beta))
+        cos_gamma = np.cos(np.radians(gamma))
+        sin_gamma = np.sin(np.radians(gamma))
+
+        c1 = c*cos_beta
+        c2 = (c*(cos_alpha - (cos_beta * cos_gamma)))/sin_gamma
+
+        # Previous implementation
         vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
         vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
                     b * np.sin(alpha_r) * np.sin(gamma_star),
                     b * np.cos(alpha_r)]
         vector_c = [0.0, 0.0, float(c)]
+
+        # Proposed implementation
+        vector_a = [float(a), 0.0, 0.0]
+        vector_b = [b * cos_gamma, b * sin_gamma,  0]
+        vector_c = [c1,  c2,  math.sqrt(c**2 - c1**2 - c2**2)]
+
         return Lattice([vector_a, vector_b, vector_c])
 
     @classmethod
@@ -296,7 +313,7 @@ class Lattice(MSONable):
         """
         Create a Lattice from a dictionary containing the a, b, c, alpha, beta,
         and gamma parameters if fmt is None.
-        
+
         If fmt == "abivars", the function build a `Lattice` object from a
         dictionary with the Abinit variables `acell` and `rprim` in Bohr.
         If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr
