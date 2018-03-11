@@ -230,9 +230,9 @@ class LatticeTestCase(PymatgenTest):
         self.assertArrayAlmostEqual(latt.matrix,
                                     np.array(cartesian_lattice_vec_by_gulp), 5)
 
-        ans = [[2.578932, 0.826965, 0.000000],
-               [-0.831059, 2.067413, 1.547813],
-               [-0.458407, -2.480895, 1.129126]]
+        ans = [[2.54845,-0.25208, -0.88127],
+               [-0.58395, 1.97814, -1.76253],
+               [-0.27989, 0.75623, 2.6438]]
         self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
                                     np.array(ans), 5)
 
