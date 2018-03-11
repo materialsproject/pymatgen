@@ -35,9 +35,9 @@ reports. Please report any bugs and issues at pymatgen's `Github Issues
 page <https://github.com/materialsproject/pymatgen/issues>`_. For news, tips
 and help with pymatgen, please check out the following official pymatgen
 resources:
-* `Twitter <http://twitter.com/pymatgen>`_. For news and tips.
-* `pymatgen's Google Groups`_. For asking questions.
+* `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
 * `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
+* `pymatgen's Google Groups`_. Post questions that are not covered by examples.
 
     *The code is mightier than the pen.*
 
