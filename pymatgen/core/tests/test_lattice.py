@@ -221,18 +221,9 @@ class LatticeTestCase(PymatgenTest):
 
         latt = Lattice.from_parameters(7.365450, 6.199506, 5.353878,
                                        75.542191, 81.181757, 156.396627)
-
-        cartesian_lattice_vec_by_gulp = [
-                [7.365450, 0.000000, 0.000000],
-                [-5.680850, 2.482301, 0.000000],
-                [ 0.820752, 5.216680, 0.881266]
-        ]
-        self.assertArrayAlmostEqual(latt.matrix,
-                                    np.array(cartesian_lattice_vec_by_gulp), 5)
-
-        ans = [[2.54845,-0.25208, -0.88127],
-               [-0.58395, 1.97814, -1.76253],
-               [-0.27989, 0.75623, 2.6438]]
+        ans = [[2.578932, 0.826965, 0.000000],
+               [-0.831059, 2.067413, 1.547813],
+               [-0.458407, -2.480895, 1.129126]]
         self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
                                     np.array(ans), 5)
 

@@ -124,7 +124,7 @@ class MagmomTest(unittest.TestCase):
         lattice = Lattice.from_parameters(5, 10, 5, 90, 110, 90)
         moment = [1, 0, 2]
         magmom = Magmom.from_moment_relative_to_crystal_axes(moment, lattice)
-        self.assertTrue(np.allclose(magmom.moment, [0.31595971, 0.0, 1.87938524]))
+        self.assertTrue(np.allclose(magmom.moment, [0.93969262, 0.0, 1.65797986]))
         self.assertTrue(np.allclose(magmom.get_moment_relative_to_crystal_axes(lattice), moment))
 
     def test_equality(self):
@@ -134,6 +134,6 @@ class MagmomTest(unittest.TestCase):
 
     def test_negative(self):
         self.assertEqual(-Magmom([1, 2, 3]), Magmom([-1, -2, -3]))
-
+        
 if __name__ == '__main__':
     unittest.main()
