@@ -429,28 +429,6 @@ class StructureTest(PymatgenTest):
                            [0.00, -2.2171384943, 3.1355090603]])
         self.structure = Structure(lattice, ["Si", "Si"], coords)
 
-    def test_lattice_from_parameter(self):
-        mol = Molecule.from_file("test_files/1000208.xyz")
-
-        s_xyz = Structure(
-            lattice=Lattice.from_parameters(7.3403, 7.2370, 6.407, 90, 106.801, 90),
-            species=mol.species,
-            coords=mol.cart_coords,
-            coords_are_cartesian=True,
-            to_unit_cell=True
-        )
-
-        s_xyz.to("cif", "test_files/1000208_output.cif")
-
-        s_cif = Structure.from_file("test_files/1000208.cif")
-
-        self.assertArrayAlmostEqual(s_cif.lattice.matrix, s_xyz.lattice.matrix)
-
-        sites_xyz = s_xyz.get_sites_in_sphere([1.8803, -0.1484, 0.0472], 0.1)
-        sites_cif = s_cif.get_sites_in_sphere([1.8803, -0.1484, 0.0472], 0.1)
-
-        self.assertArrayAlmostEqual(sites_xyz[0][0].coords, sites_cif[0][0].coords, 5)
-
     def test_mutable_sequence_methods(self):
         s = self.structure
         s[0] = "Fe"
@@ -611,7 +589,7 @@ class StructureTest(PymatgenTest):
         coords = [[0, 0, 0],
                   [0.5, 0.5, 0.5]]
         nio = Structure.from_spacegroup(225, latt, species, coords)
-        
+
         # should do nothing, but not fail
         nio.remove_spin()
 
@@ -903,6 +881,32 @@ class StructureTest(PymatgenTest):
         self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
         sorted_s = super_cell.get_sorted_structure()
         self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
+
+    def test_vesta_lattice_matrix(self):
+        silica_zeolite = Molecule.from_file("test_files/CON_vesta.xyz")
+
+        s_vesta = Structure(
+            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, True),
+            species=silica_zeolite.species,
+            coords=silica_zeolite.cart_coords,
+            coords_are_cartesian=True,
+            to_unit_cell=True
+        )
+
+        s_vesta = s_vesta.get_primitive_structure()
+        s_vesta.merge_sites(0.01, 'delete')
+        self.assertEqual(s_vesta.formula, 'Si56 O112')
+
+        broken_s = Structure(
+            lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90),
+            species=silica_zeolite.species,
+            coords=silica_zeolite.cart_coords,
+            coords_are_cartesian=True,
+            to_unit_cell=True
+        )
+
+        broken_s.merge_sites(0.01, 'delete')
+        self.assertEqual(broken_s.formula, 'Si56 O134')
 
 
 class IMoleculeTest(PymatgenTest):
