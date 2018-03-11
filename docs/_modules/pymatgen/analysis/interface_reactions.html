@@ -93,10 +93,11 @@
 <span class="sd">        pd_non_grand (PhaseDiagram): PhaseDiagram object but not</span>
 <span class="sd">            GrandPotentialPhaseDiagram object built from elements in c1 and c2.</span>
 <span class="sd">        use_hull_energy (bool): Whether or not use the convex hull energy for</span>
-<span class="sd">            a given composition for reaction energy calculation. If false, the</span>
-<span class="sd">            energy of ground state structure will be used instead. Note that</span>
-<span class="sd">            in case when ground state can be found for a composition, convex</span>
-<span class="sd">            hull energy will be used associated with a warning message.</span>
+<span class="sd">            a given composition for reaction energy calculation. If false, </span>
+<span class="sd">            the energy of ground state structure will be used instead. </span>
+<span class="sd">            Note that in case when ground state can not be found for a </span>
+<span class="sd">            composition, convex hull energy will be used associated with a </span>
+<span class="sd">            warning message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_no_mixing_energy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
