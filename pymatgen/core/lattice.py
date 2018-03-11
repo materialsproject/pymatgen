@@ -285,7 +285,7 @@ class Lattice(MSONable):
             alpha (float): *alpha* angle in degrees.
             beta (float): *beta* angle in degrees.
             gamma (float): *gamma* angle in degrees.
-            vesta: True if you import xyz coordinates from VESTA
+            vesta: True if you import Cartesian coordinates from VESTA.
 
         Returns:
             Lattice with the specified lattice parameters.
