@@ -182,7 +182,16 @@ be set to “Gen”.</li>
 <dl class="attribute">
 <dt id="pymatgen.io.gaussian.GaussianOutput.structures">
 <code class="descname">structures</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.structures" title="Permalink to this definition">¶</a></dt>
-<dd><p>All structures from the calculation.</p>
+<dd><p>All structures from the calculation in the standard orientation. If the
+symmetry is not considered, the standard orientation is not printed out
+and the input orientation is used instead. Check the <cite>standard_orientation</cite>
+attribute.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussian.GaussianOutput.structures_input_orientation">
+<code class="descname">structures_input_orientation</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.structures_input_orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>All structures from the calculation in the input orientation.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -378,6 +387,22 @@ the quotation. The resumes are given as string.</p>
 <dt id="pymatgen.io.gaussian.GaussianOutput.title">
 <code class="descname">title</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Title of the gaussian run.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussian.GaussianOutput.standard_orientation">
+<code class="descname">standard_orientation</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.standard_orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True, the geometries stored in the structures are in the standard
+orientation. Else, the geometries are in the input orientation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussian.GaussianOutput.bond_orders">
+<code class="descname">bond_orders</code><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.bond_orders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of bond order values read in the output file such as:
+{(0, 1): 0.8709, (1, 6): 1.234, …}</p>
+<p>The keys are the atom indexes and the values are the Wiberg bond indexes
+that are printed using <cite>pop=NBOREAD</cite> and <cite>$nbo bndidx $end</cite>.</p>
 </dd></dl>
 
 <p>Methods:</p>

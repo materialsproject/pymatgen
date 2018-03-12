@@ -35,10 +35,6 @@ def make_doc(ctx):
     with open("docs_rst/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    with cd("examples"):
-       ctx.run("jupyter nbconvert --to html *.ipynb")
-       ctx.run("mv *.html ../docs_rst/_static")
-
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")

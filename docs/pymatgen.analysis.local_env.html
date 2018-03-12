@@ -1104,6 +1104,51 @@ n and their solid angle weights</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.analysis.local_env.VoronoiNN_modified">
+<em class="property">class </em><code class="descname">VoronoiNN_modified</code><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN_modified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN_modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<p>Modified VoronoiNN that only considers neighbors
+with at least 50% weight of max(weight).</p>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.VoronoiNN_modified.get_nn_info">
+<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN_modified.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN_modified.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all near-neighbor sites as well as the associated image locations
+and weights of the site with index n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
+information.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>each dictionary provides information</dt>
+<dd><p class="first last">about a single near neighbor, where key ‘site’ gives
+access to the corresponding Site object, ‘image’ gives
+the image location, and ‘weight’ provides the weight
+that a given near-neighbor site contributes
+to the coordination number (1 or smaller), ‘site_index’
+gives index of the corresponding site in
+the original structure.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">siw (list of dicts)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.calculate_weighted_avg">
 <code class="descname">calculate_weighted_avg</code><span class="sig-paren">(</span><em>bonds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#calculate_weighted_avg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.calculate_weighted_avg" title="Permalink to this definition">¶</a></dt>
