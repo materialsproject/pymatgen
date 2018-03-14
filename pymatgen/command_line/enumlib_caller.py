@@ -223,7 +223,7 @@ class EnumlibAdaptor(object):
         self.ordered_sites = []
 
         if self.check_ordered_symmetry:
-            while sgnum != target_sgnum:
+            while sgnum != target_sgnum and len(ordered_sites) > 0:
                 sites = ordered_sites.pop(0)
                 temp_sites = list(curr_sites) + sites
                 new_sgnum = get_sg_info(temp_sites)
