@@ -242,9 +242,6 @@ class EnumlibAdaptor(object):
                 else:
                     self.ordered_sites.extend(sites)
 
-                if sgnum == target_sgnum:
-                    break
-
         for sites in ordered_sites:
             self.ordered_sites.extend(sites)
 
