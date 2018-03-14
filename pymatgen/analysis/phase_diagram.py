@@ -1249,7 +1249,7 @@ class ReactionDiagram(object):
                         comp = x * comp_vec1 + (1 - x) * comp_vec2
                         entry = PDEntry(
                             Composition(dict(zip(elements, comp))),
-                            energy=energy, entry_id=rxn_str)
+                            energy=energy, attribute=rxn_str)
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError as ex:
                     print(str(ex))
