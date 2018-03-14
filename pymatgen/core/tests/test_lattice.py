@@ -141,6 +141,25 @@ class LatticeTestCase(PymatgenTest):
             for j in range(0, 3):
                 self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5)
 
+    def test_lattice_matricies(self):
+        """
+        If alpha == 90 and beta == 90, two matricies are identical.
+        """
+
+        def _identical(a, b, c, alpha, beta, gamma):
+            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, False).matrix
+            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, True).matrix
+            # self.assertArrayAlmostEqual(mat1, mat2)
+            return ((mat1 - mat2)**2).sum() < 1e-6
+
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 90))
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 80))
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 100))
+
+        self.assertFalse(_identical(2, 3, 4, 100, 90, 90))
+        self.assertFalse(_identical(2, 3, 4, 90, 100, 90))
+        self.assertFalse(_identical(2, 3, 4, 100, 100, 100))
+
     def test_get_lll_reduced_lattice(self):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()

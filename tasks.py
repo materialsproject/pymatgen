@@ -37,6 +37,7 @@ def make_doc(ctx):
 
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
+        ctx.run("rm pymatgen.*.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
@@ -66,6 +67,7 @@ def make_doc(ctx):
         ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
+        ctx.run("rm *.html")
         ctx.run("cp -r html/* .")
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")

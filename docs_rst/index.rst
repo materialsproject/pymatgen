@@ -32,9 +32,12 @@ Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's `Github Issues
-page <https://github.com/materialsproject/pymatgen/issues>`_. If you wish to
-be notified of pymatgen releases and need help with using pymatgen, please
-become a member of `pymatgen's Google Groups`_.
+page <https://github.com/materialsproject/pymatgen/issues>`_. For news, tips
+and help with pymatgen, please check out the following official pymatgen
+resources:
+* `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
+* `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
+* `pymatgen's Google Groups`_. Post questions that are not covered by examples.
 
     *The code is mightier than the pen.*
 

@@ -797,6 +797,32 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
+    def get_vars_dataframe(self, *varnames):
+        """
+        Return pandas DataFrame with the value of the variables specified in `varnames`.
+        Can be used for task/works/flow. It's recursive!
+
+        .. example:
+
+            flow.get_vars_dataframe("ecut", "ngkpt")
+            work.get_vars_dataframe("acell", "usepawu")
+        """
+        import pandas as pd
+        if self.is_task:
+            return pd.DataFrame([{v: self.input.get(v, None) for v in varnames}], index=[self.name], columns=varnames)
+
+        elif self.is_work:
+            frames = [task.get_vars_dataframe(*varnames) for task in self]
+            return pd.concat(frames)
+
+        elif self.is_flow:
+            frames = [work.get_vars_dataframe(*varnames) for work in self]
+            return pd.concat(frames)
+
+        else:
+            #print("Ignoring node of type: `%s`" % type(self))
+            return pd.DataFrame(index=[self.name])
+
     def get_graphviz_dirtree(self, engine="automatic", **kwargs):
         """
         Generate directory graph in the DOT language. The graph show the files and directories
