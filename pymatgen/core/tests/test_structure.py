@@ -881,6 +881,9 @@ class StructureTest(PymatgenTest):
         self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
         sorted_s = super_cell.get_sorted_structure()
         self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
+        super_cell.set_charge(25)
+        self.assertEqual(super_cell.charge,25,"Set charge not properly modifying _charge")
+
 
     def test_vesta_lattice_matrix(self):
         silica_zeolite = Molecule.from_file("test_files/CON_vesta.xyz")
