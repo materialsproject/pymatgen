@@ -144,7 +144,7 @@ class PDEntry(MSONable):
         for entry in entries:
             elements.update(entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, "wb"), delimiter=unicode2str(","),
+        writer = csv.writer(open(filename, "w"), delimiter=unicode2str(","),
                             quotechar=unicode2str("\""),
                             quoting=csv.QUOTE_MINIMAL)
         writer.writerow(["Name"] + elements + ["Energy"])
@@ -1266,13 +1266,13 @@ class ReactionDiagram(object):
         self.entry2 = entry2
         self.rxn_entries = rxn_entries
         self.labels = collections.OrderedDict()
-        for i, e in enumerate(rxn_entries):
-            self.labels[str(i + 1)] = e.entry_id
-            e.name = str(i + 1)
+        for i, e in enumerate(rxn_entries): 
+            self.labels[str(i + 1)] = e.attribute
+            e.name = str(i + 1) 
         self.all_entries = all_entries
         self.pd = pd
 
-    def get_compound_pd(self):
+    def get_compound_pd(self): 
         # For this plot, since the reactions are reported in formation
         # energies, we need to set the energies of the terminal compositions
         # to 0. So we make create copies with 0 energy.
@@ -1283,7 +1283,7 @@ class ReactionDiagram(object):
             self.rxn_entries + [entry1, entry2],
             [Composition(entry1.composition.reduced_formula),
              Composition(entry2.composition.reduced_formula)],
-            normalize_terminal_compositions=False)
+            normalize_terminal_compositions=False) 
         return cpd
 
 
