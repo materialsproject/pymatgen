@@ -258,22 +258,31 @@ class CollinearMagneticStructureAnalyzer:
             magmoms = np.around(magmoms, decimals=round_magmoms_mode)
 
         elif isinstance(round_magmoms_mode, float):
+            
+            try:
 
-            # get range of possible magmoms, pad by 50% just to be safe
-            range_m = max([max(magmoms), abs(min(magmoms))]) * 1.5
+                # get range of possible magmoms, pad by 50% just to be safe
+                range_m = max([max(magmoms), abs(min(magmoms))]) * 1.5
 
-            # construct kde, here "round_magmoms_mode" is the width of the kde
-            kernel = gaussian_kde(magmoms, bw_method=round_magmoms_mode)
+                # construct kde, here "round_magmoms_mode" is the width of the kde
+                kernel = gaussian_kde(magmoms, bw_method=round_magmoms_mode)
 
-            # with a linearly spaced grid 1000x finer than width
-            xgrid = np.linspace(-range_m, range_m, 1000 * range_m / round_magmoms_mode)
+                # with a linearly spaced grid 1000x finer than width
+                xgrid = np.linspace(-range_m, range_m, 1000 * range_m / round_magmoms_mode)
 
-            # and evaluate the kde on this grid, extracting the maxima of the kde peaks
-            kernel_m = kernel.evaluate(xgrid)
-            extrema = xgrid[argrelextrema(kernel_m, comparator=np.greater)]
+                # and evaluate the kde on this grid, extracting the maxima of the kde peaks
+                kernel_m = kernel.evaluate(xgrid)
+                extrema = xgrid[argrelextrema(kernel_m, comparator=np.greater)]
 
-            # round magmoms to these extrema
-            magmoms = [extrema[(np.abs(extrema-m)).argmin()] for m in magmoms]
+                # round magmoms to these extrema
+                magmoms = [extrema[(np.abs(extrema-m)).argmin()] for m in magmoms]
+                
+            except Exception as e:
+                
+                # TODO: typically a singular matrix warning, investigate this
+                warnings.warn('Failed to round magmoms intelligently, '
+                              'falling back to simple rounding.')
+                warnings.warn(e)
 
             # and finally round roughly to the number of significant figures in our kde width
             num_decimals = len(str(round_magmoms_mode).split('.')[1]) + 1
@@ -397,6 +406,8 @@ class CollinearMagneticStructureAnalyzer:
         for sp, magmoms in magtypes.items():
             if len(magmoms) == 1:
                 magtypes[sp] = magmoms.pop()
+            else:
+                magtypes[sp] = sorted(list(magmoms))
 
         return magtypes
 
