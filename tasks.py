@@ -171,6 +171,7 @@ def update_changelog(ctx):
     toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
+    ctx.run("open CHANGES.rst")
 
 
 @task
