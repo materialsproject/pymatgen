@@ -1252,7 +1252,6 @@ class ReactionDiagram(object):
                             energy=energy, attribute=rxn_str)
                         rxn_entries.append(entry)
                 except np.linalg.LinAlgError as ex:
-                    print(str(ex))
                     logger.debug("Reactants = %s" % (", ".join([
                         entry1.composition.reduced_formula,
                         entry2.composition.reduced_formula])))
@@ -1272,7 +1271,14 @@ class ReactionDiagram(object):
         self.all_entries = all_entries
         self.pd = pd
 
-    def get_compound_pd(self): 
+    def get_compound_pd(self):
+        """
+        Get the CompoundPhaseDiagram object, which can then be used for
+        plotting.
+
+        Returns:
+            (CompoundPhaseDiagram)
+        """
         # For this plot, since the reactions are reported in formation
         # energies, we need to set the energies of the terminal compositions
         # to 0. So we make create copies with 0 energy.
