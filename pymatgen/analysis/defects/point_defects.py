@@ -8,7 +8,7 @@ from __future__ import division, unicode_literals
 This module defines classes for point defects.
 """
 
-__author__ = "Bharat Medasani, Nils E. R. Zimmermann"
+__author__ = "Bharat Medasani, Nils E. R. Zimmermann, Danny Broberg, Shyam Dwaraknath, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Bharat Medasani, Nils E. R. Zimmermann"
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
-    Abstract class for point defects
+    [Current version in pymatgen] Abstract class for point defects
     """
 
     @abc.abstractmethod
@@ -2070,3 +2070,385 @@ def calculate_vol(coords):
             c.append(center)
             vol += calculate_vol(c)
         return vol
+
+
+"""
+New additions from Danny and Shyam related to PyCDT merge
+"""
+
+
+class SingleDefect(six.with_metaclass(abc.ABCMeta, object)):
+    """
+    Abstract class for ISOLATED point defects
+
+    Args:
+        structure: Pymatgen Structure without any defects
+        defectsite: Pymatgen Site object for defect
+        charge: (int or float) defect charge
+                default is zero, meaning no change to NELECT after defect is created in the structure
+    """
+    @property
+    def structure(self):
+        """
+        Returns the structure without any defects.
+        """
+        return self._structure
+
+    @property
+    def defectsite(self):
+        """
+        Returns the defect position as a site object
+        """
+        return self._defectsite
+
+    @property
+    def charge(self):
+        """
+        Returns the charge of a defect
+        """
+        return self._charge
+
+    @property
+    def multiplicity(self):
+        """
+        Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
+        """
+        return self._multiplicity
+
+    @property
+    def defect_structure(self):
+        """
+        Given structure and defectsite (and type of defect) should return a defect_structure that is charged
+        """
+        raise NotImplementedError
+
+
+
+class SingleVacancy(SingleDefect):
+    """
+    Subclass of SingleDefect to capture essential information for a single Vacancy defect structure.
+
+    Args:
+        structure: non-defective pymatgen.core.structure.Structure
+        defectsite: pymatgen Site object
+        charge: defect charge (0 is default,
+                meaning no change to NELECT after defect is created in the structure)
+        supercell_size:
+            Size of the supercell in terms of unit cell (just for storage of information)
+        multiplicity: multiplicity of defect within the structure
+
+    """
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None, supercell_size=(1, 1, 1), name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
+        self.supercell_size = supercell_size
+        self.name = name
+
+    @property
+    def defect_structure(self):
+        """
+        Returns Defective Vacancy structure, decorated with charge
+        """
+        #if defect site isnt perfectly matched in structure, better to find closest site in structure
+        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite.coords, 2, include_index=True)
+        defindex = poss_deflist[0][2] #index for defect
+        defect_structure = self.structure.copy()
+        defect_structure.remove_sites([defindex])
+        defect_structure._charge = self.charge
+        return defect_structure
+
+    @staticmethod
+    def generate_defects_from_structure(structure, scaling_matrix=1):
+        """
+        [note, structure similar to ChargeDefectsStructures of PyCDT]
+        A static method which does symmetry analysis and returns all
+        symmetrically distinct vacancies for a structure
+
+        Args:
+            structure: non-defective pymatgen.core.structure.Structure
+            scaling_matrix: if a supercell of the structure is desired, can provide supercell scaling factor
+                    (ex. scaling_matrix = 2, scales supercell to 2x2x2 version of structure )
+                    (ex. scaling_matrix = [2,1,3] scales supercell to 2x1x3 version of structure )
+
+        returns: list of SingleVacancy objects (all with charge = 0)
+        """
+        vacancies = []
+        structure.make_supercell(scaling_matrix)
+        if type(scaling_matrix) in [int, float]:
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
+        else:
+            supercell_size = scaling_matrix
+
+        vac = Vacancy(structure, {}, {})
+        for vac_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
+            vacancies.append( SingleVacancy(structure, defectsite, 0., multiplicity=sitemult,
+                                            supercell_size=supercell_size,
+                                            name="vac_{}_{}".format(vac_cnt+1, defectsite.specie.symbol)))
+
+        return vacancies
+
+
+class SingleAntisite(SingleDefect):
+    """
+    Subclass of SingleDefect to capture essential information for a single Antisite defect structure.
+
+    Args:
+        structure: non-defective pymatgen.core.structure.Structure
+        defectsite: pymatgen Site object [with correct specie type to use for defect]
+        charge: defect charge (0 is default,
+                meaning no change to NELECT after defect is created in the structure)
+        supercell_size:
+            Size of the supercell in terms of unit cell (just for storage of information)
+        multiplicity: multiplicity of defect within the structure
+
+    """
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None, supercell_size=(1, 1, 1), name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
+        self.supercell_size = supercell_size
+        self.name = name
+
+    @property
+    def defect_structure(self):
+        """
+        Returns Defective Antisite structure, decorated with charge
+        """
+
+        #if defect site isnt perfectly matched in structure, better to find closest site in structure
+        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite.coords, 2, include_index=True)
+        defindex = poss_deflist[0][2] #index for defect
+        defect_structure = self.structure.copy()
+
+        defect_structure.remove_sites([defindex])
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.coords, coords_are_cartesian=True)
+        defect_structure._charge = self.charge
+        return defect_structure
+
+    @staticmethod
+    def generate_defects_from_structure(structure, scaling_matrix=1):
+        """
+        [note, structure similar to ChargeDefectsStructures of PyCDT]
+        A static method which does symmetry analysis and returns all
+        symmetrically distinct Antisites for a structure
+
+        Args:
+            structure: non-defective pymatgen.core.structure.Structure
+            scaling_matrix: if a supercell of the structure is desired, can provide supercell scaling factor
+                    (ex. scaling_matrix = 2, scales supercell to 2x2x2 version of structure )
+                    (ex. scaling_matrix = [2,1,3] scales supercell to 2x1x3 version of structure )
+
+        returns: list of SingleAntisite objects (all with charge = 0)
+        """
+        antisites = []
+        struct_species = structure.types_of_specie
+        structure.make_supercell(scaling_matrix)
+        if type(scaling_matrix) in [int, float]:
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
+        else:
+            supercell_size = scaling_matrix
+
+        vac = Vacancy(structure, {}, {}) #even though it is called Vacancy, it is also useful for finding antisites + subs...
+
+        for as_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
+            for as_specie in set(struct_species)-set([defectsite.specie]):
+                as_defectsite = PeriodicSite( as_specie, defectsite.frac_coords, structure.lattice, coords_are_cartesian=False)
+                antisites.append( SingleAntisite(structure, as_defectsite, 0., multiplicity=sitemult,
+                                                 supercell_size=supercell_size,
+                                                 name="as_{}_{}_on_{}".format(as_cnt+1, as_specie.symbol,
+                                                                              defectsite.specie.symbol)))
+
+        return antisites
+
+
+class SingleSubstitution(SingleDefect):
+    """
+    Subclass of SingleDefect to capture essential information for a single Substitution defect structure.
+
+    Args:
+        structure: non-defective pymatgen.core.structure.Structure
+        defectsite: pymatgen Site object [with correct specie type to use for defect]
+        charge: defect charge (0 is default,
+                meaning no change to NELECT after defect is created in the structure)
+        supercell_size:
+            Size of the supercell in terms of unit cell (just for storage of information)
+        multiplicity: multiplicity of defect within the structure
+
+    """
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None, supercell_size=(1, 1, 1), name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
+        self.supercell_size = supercell_size
+        self.name = name
+
+    @property
+    def defect_structure(self):
+        """
+        Returns Defective Substitution structure, decorated with charge
+        """
+
+        #if defect site isnt perfectly matched in structure, better to find closest site in structure
+        poss_deflist = self.structure.get_sites_in_sphere(self.defectsite.coords, 2, include_index=True)
+        defindex = poss_deflist[0][2] #index for defect
+        defect_structure = self.structure.copy()
+
+        defect_structure.remove_sites([defindex])
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.frac_coords, coords_are_cartesian=False)
+        defect_structure._charge = self.charge
+        return defect_structure
+
+    @staticmethod
+    def generate_defects_from_structure(structure, sub_elt, scaling_matrix=1):
+        """
+        [note, structure similar to ChargeDefectsStructures of PyCDT]
+        A static method which does symmetry analysis and returns all
+        symmetrically distinct Substitutions for a structure and sub_element
+
+        Args:
+            structure: non-defective pymatgen.core.structure.Structure
+            sub_elt: element to substitute into the Structure [either as a string or pymatgen Element object]
+            scaling_matrix: if a supercell of the structure is desired, can provide supercell scaling factor
+                    (ex. scaling_matrix = 2, scales supercell to 2x2x2 version of structure )
+                    (ex. scaling_matrix = [2,1,3] scales supercell to 2x1x3 version of structure )
+
+        returns: list of SingleSubstitution objects (all with charge = 0)
+        """
+        substitutions = []
+        structure.make_supercell(scaling_matrix)
+        if type(scaling_matrix) in [int, float]:
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
+        else:
+            supercell_size = scaling_matrix
+
+        vac = Vacancy(structure, {}, {}) #even though it is called Vacancy, it is also useful for finding antisites + subs...
+
+        if type(sub_elt) == Element:
+            sub_sym = sub_elt.symbol
+        else:
+            sub_sym = sub_elt
+
+        for sub_cnt, (defectsite, sitemult) in enumerate(zip(vac._defect_sites, vac._defect_site_multiplicity)):
+            sub_defectsite = PeriodicSite( sub_elt, defectsite.frac_coords, structure.lattice, coords_are_cartesian=False)
+            substitutions.append( SingleSubstitution(structure, sub_defectsite, 0., multiplicity=sitemult,
+                                                     supercell_size=supercell_size,
+                                                     name="sub_{}_{}_on_{}".format(sub_cnt+1, sub_sym,
+                                                                                   defectsite.specie.symbol)))
+
+        return substitutions
+
+
+class SingleInterstitial(SingleDefect):
+    """
+    Subclass of SingleDefect to capture essential information for a single Interstitial defect structure.
+
+    Args:
+        structure: non-defective pymatgen.core.structure.Structure
+        defectsite: pymatgen Site object [with correct specie type to use for defect]
+        charge: defect charge (0 is default,
+                meaning no change to NELECT after defect is created in the structure)
+        multiplicity: multiplicity of defect within the structure
+        supercell_size:
+            Size of the supercell in terms of unit cell (just for storage of information)
+
+    """
+    def __init__(self, structure, defectsite, charge=0., multiplicity=None,  supercell_size=(1, 1, 1),name=None):
+        self._structure = structure
+        self._defectsite = defectsite
+        self._charge = charge
+        self._multiplicity = multiplicity
+        self.supercell_size = supercell_size
+        self.name = name
+
+    @property
+    def defect_structure(self):
+        """
+        Returns Defective Interstitial structure, decorated with charge
+        """
+        defect_structure = self.structure.copy()
+        defect_structure.append( self.defectsite.specie.symbol, self.defectsite.frac_coords, coords_are_cartesian=False)
+        defect_structure._charge = self.charge
+        return defect_structure
+
+    @staticmethod
+    def generate_defects_from_structure(structure, inter_elt, scaling_matrix=1, pycdt_option=True):
+        """
+        [note, structure similar to ChargeDefectsStructures of PyCDT]
+        A static method which does symmetry analysis and returns a list of possible interstitials
+
+        Args:
+            structure: non-defective pymatgen.core.structure.Structure
+            inter_elt: element to insert as interstitial into the Structure [either as a string or pymatgen Element object]
+            scaling_matrix: if a supercell of the structure is desired, can provide supercell scaling factor
+                    (ex. scaling_matrix = 2, scales supercell to 2x2x2 version of structure )
+                    (ex. scaling_matrix = [2,1,3] scales supercell to 2x1x3 version of structure )
+            pycdt_option (bool): if True use new interstitial method developed for PyCDT paper,
+                    if False use VoronoiSite finding algorithm... (can produce MANY candidates..)
+
+        returns: list of SingleInterstitial objects (all with charge = 0)
+        """
+        interstitials = []
+        if type(scaling_matrix) in [int, float]:
+            supercell_size = (scaling_matrix, scaling_matrix, scaling_matrix)
+        else:
+            supercell_size = scaling_matrix
+
+        sc_structure = structure.copy()
+        sc_structure.make_supercell(scaling_matrix)
+
+        print("Searching for interstitial sites (this can take awhile)...")
+        spa = SpacegroupAnalyzer(structure, symprec=1e-2)
+        prim_struct = spa.get_primitive_standard_structure()
+        conv_prim_rat = int(structure.num_sites/prim_struct.num_sites)
+
+        if pycdt_option:
+            inter_types = []
+            inter_cns = []
+            inter_multi = []
+            #TODO: allow for ability to reuse intersites list...
+
+            intersites = []
+            smi = StructureMotifInterstitial(structure, inter_elt, dl=0.2)
+            n_inters = len(smi.enumerate_defectsites())
+            for i in range(n_inters):
+                intersites.append(smi.get_defectsite(i))
+                inter_types.append(smi.get_motif_type(i))
+                inter_cns.append(smi.get_coordinating_elements_cns(i))
+                inter_multi.append(int(
+                    smi.get_defectsite_multiplicity(i)/conv_prim_rat))
+
+            # Now set up the interstitials.
+            for i, intersite in enumerate(intersites):
+                if inter_types and inter_cns:
+                    tmp_string = ""
+                    for elem, cn in inter_cns[i].items():
+                        tmp_string = tmp_string + "_{}{}".format(elem, cn)
+                    if tmp_string == "":
+                        raise RuntimeError("no coordinating neighbors")
+                    name = "inter_{}_{}_{}{}".format(
+                                i+1, inter_elt, inter_types[i], tmp_string)
+                    sitemult = inter_multi[i]
+
+                else:
+                    name = "inter_{}_{}".format(i+1, inter_elt)
+                    # TODO: This needs better structuring
+                    sitemult = int(1.0 / conv_prim_rat)
+
+                site = PeriodicSite(Element(inter_elt), intersite.frac_coords,
+                                    intersite.lattice)
+                site_sc = PeriodicSite(
+                        Element(inter_elt), site.coords, sc_structure.lattice,
+                        coords_are_cartesian=True)
+
+                interstitials.append( SingleInterstitial(sc_structure, site_sc, 0., supercell_size,
+                                                         multiplicity=sitemult, name=name))
+        else:
+            #TODO: add ability to run VoronoiSite method? [Nils used my previous code for this somewhere in pymatgen]
+            pass
+        
+        return interstitials
+
