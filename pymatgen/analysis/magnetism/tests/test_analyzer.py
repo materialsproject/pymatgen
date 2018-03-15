@@ -255,7 +255,7 @@ Magmoms Sites
         self.assertAlmostEqual(sorted(list(msa.magnetic_species_and_magmoms['Ni']))[0], 4.5)
         self.assertAlmostEqual(sorted(list(msa.magnetic_species_and_magmoms['Ni']))[1], 5.0143)
         self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
-
+        
 
 class MagneticDeformationTest(unittest.TestCase):
 

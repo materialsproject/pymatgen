@@ -1,4 +1,4 @@
-numpy==1.14.0
+numpy==1.14.1
 pydispatcher==2.0.5
 sympy==1.1.1
 requests==2.18.4
@@ -10,5 +10,5 @@ tabulate==0.8.2
 enum34==1.1.6; python_version < '3.5'
 matplotlib==2.1.2
 palettable==3.1.0
-spglib==1.10.3.14
+spglib==1.10.3.39
 pandas==0.22.0

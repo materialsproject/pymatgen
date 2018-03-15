@@ -165,8 +165,6 @@ class EnumlibAdaptor(object):
             len(symmetrized_structure.equivalent_sites))
         )
 
-        target_sgnum = fitter.get_space_group_number()
-
         """
         Enumlib doesn"t work when the number of species get too large. To
         simplify matters, we generate the input file only with disordered sites
@@ -216,14 +214,17 @@ class EnumlibAdaptor(object):
                                         self.symm_prec)
             return finder.get_space_group_number()
 
+        target_sgnum = get_sg_info(symmetrized_structure.sites)
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sgnum = get_sg_info(curr_sites)
         ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
         logger.debug("Disordered sites has sg # %d" % (sgnum))
         self.ordered_sites = []
 
+        # progressively add ordered sites to our disordered sites
+        # until we match the symmetry of our input structure
         if self.check_ordered_symmetry:
-            while sgnum != target_sgnum:
+            while sgnum != target_sgnum and len(ordered_sites) > 0:
                 sites = ordered_sites.pop(0)
                 temp_sites = list(curr_sites) + sites
                 new_sgnum = get_sg_info(temp_sites)
@@ -238,12 +239,10 @@ class EnumlibAdaptor(object):
                             coord_format.format(*site.coords),
                             sp_label))
                     disordered_sites.append(sites)
+                    curr_sites = temp_sites
                     sgnum = new_sgnum
                 else:
                     self.ordered_sites.extend(sites)
-
-                if sgnum == target_sgnum:
-                    break
 
         for sites in ordered_sites:
             self.ordered_sites.extend(sites)
@@ -340,6 +339,14 @@ class EnumlibAdaptor(object):
         stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
+
+        # sites retrieved from enumlib will lack site properties
+        # to ensure consistency, we keep track of what site properties
+        # are missing and set them to None
+        # TODO: improve this by mapping ordered structure to original
+        # disorded structure, and retrieving correct site properties
+        disordered_site_properties = {}
+
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             # Need to strip sites of site_properties, which would otherwise
@@ -348,6 +355,7 @@ class EnumlibAdaptor(object):
             site_properties = {}
             for site in self.ordered_sites:
                 for k, v in site.properties.items():
+                    disordered_site_properties[k] = None
                     if k in site_properties:
                         site_properties[k].append(v)
                     else:
@@ -389,7 +397,9 @@ class EnumlibAdaptor(object):
                     if site.specie.symbol != "X":  # We exclude vacancies.
                         sites.append(PeriodicSite(site.species_and_occu,
                                                   site.frac_coords,
-                                                  super_latt).to_unit_cell)
+                                                  super_latt,
+                                                  properties=disordered_site_properties)
+                                     .to_unit_cell)
                     else:
                         warnings.warn("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))

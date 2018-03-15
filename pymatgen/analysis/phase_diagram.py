@@ -11,12 +11,11 @@ import itertools
 from io import open
 import math
 from six.moves import zip
-import warnings
+import logging
 
 from monty.json import MSONable, MontyDecoder
 from monty.string import unicode2str
 from monty.functools import lru_cache
-from monty.dev import deprecated
 
 import numpy as np
 from scipy.spatial import ConvexHull
@@ -42,9 +41,20 @@ __status__ = "Production"
 __date__ = "May 16, 2011"
 
 
+logger = logging.getLogger(__name__)
+
+
 class PDEntry(MSONable):
     """
     An object encompassing all relevant data for phase diagrams.
+
+    .. attribute:: composition
+
+        The composition associated with the PDEntry.
+
+    .. attribute:: energy
+
+        The energy associated with the entry.
 
     .. attribute:: name
 
@@ -52,11 +62,15 @@ class PDEntry(MSONable):
         By default, this is the reduced formula for the composition, but can be
         set to some other string for display purposes.
 
+    .. attribute:: attribute
+
+        A arbitrary attribute.
+
     Args:
-        comp: Composition as a pymatgen.core.structure.Composition
-        energy: Energy for composition.
-        name: Optional parameter to name the entry. Defaults to the reduced
-            chemical formula.
+        composition (Composition): Composition
+        energy (float): Energy for composition.
+        name (str): Optional parameter to name the entry. Defaults to the
+            reduced chemical formula.
         attribute: Optional attribute of the entry. This can be used to
             specify that the entry is a newly found compound, or to specify a
             particular label for the entry, or else ... Used for further
@@ -130,7 +144,7 @@ class PDEntry(MSONable):
         for entry in entries:
             elements.update(entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, "wb"), delimiter=unicode2str(","),
+        writer = csv.writer(open(filename, "w"), delimiter=unicode2str(","),
                             quotechar=unicode2str("\""),
                             quoting=csv.QUOTE_MINIMAL)
         writer.writerow(["Name"] + elements + ["Energy"])
@@ -158,6 +172,7 @@ class PDEntry(MSONable):
                                 quoting=csv.QUOTE_MINIMAL)
             entries = list()
             header_read = False
+            elements = None
             for row in reader:
                 if not header_read:
                     elements = row[1:(len(row) - 1)]
@@ -248,9 +263,8 @@ class TransformedPDEntry(PDEntry):
     compositions.
 
     Args:
-        comp: Transformed composition as a Composition.
-        energy: Energy for composition.
-        original_entry: Original entry that this entry arose from.
+        comp (Composition): Transformed composition as a Composition.
+        original_entry (PDEntry): Original entry that this entry arose from.
     """
 
     def __init__(self, comp, original_entry):
@@ -933,12 +947,12 @@ class PhaseDiagram(MSONable):
                     for v in s._coords:
                         all_coords.append(v)
                         if (np.dot(v + muref, coeff) + ef) / target_comp[
-                            open_elt] > max_open:
+                                open_elt] > max_open:
                             max_open = (np.dot(v + muref, coeff) + ef) / \
                                        target_comp[open_elt]
                             max_mus = v
                         if (np.dot(v + muref, coeff) + ef) / target_comp[
-                            open_elt] < min_open:
+                                open_elt] < min_open:
                             min_open = (np.dot(v + muref, coeff) + ef) / \
                                        target_comp[open_elt]
                             min_mus = v
@@ -1125,6 +1139,160 @@ class CompoundPhaseDiagram(PhaseDiagram):
                    d["normalize_terminal_compositions"])
 
 
+class ReactionDiagram(object):
+
+    def __init__(self, entry1, entry2, all_entries, tol=1e-4,
+                 float_fmt="%.4f"):
+        """
+        Analyzes the possible reactions between a pair of compounds, e.g.,
+        an electrolyte and an electrode.
+
+        Args:
+            entry1 (ComputedEntry): Entry for 1st component. Note that
+                corrections, if any, must already be pre-applied. This is to
+                give flexibility for different kinds of corrections, e.g.,
+                if a particular entry is fitted to an experimental data (such
+                as EC molecule).
+            entry2 (ComputedEntry): Entry for 2nd component. Note that
+                corrections must already be pre-applied. This is to
+                give flexibility for different kinds of corrections, e.g.,
+                if a particular entry is fitted to an experimental data (such
+                as EC molecule).
+            all_entries ([ComputedEntry]): All other entries to be
+                considered in the analysis. Note that corrections, if any,
+                must already be pre-applied.
+            tol (float): Tolerance to be used to determine validity of reaction.
+            float_fmt (str): Formatting string to be applied to all floats.
+                Determines number of decimal places in reaction string.
+        """
+        elements = set()
+        for e in [entry1, entry2]:
+            elements.update([el.symbol for el in e.composition.elements])
+
+        elements = tuple(elements)  # Fix elements to ensure order.
+
+        comp_vec1 = np.array([entry1.composition.get_atomic_fraction(el)
+                              for el in elements])
+        comp_vec2 = np.array([entry2.composition.get_atomic_fraction(el)
+                              for el in elements])
+        r1 = entry1.composition.reduced_composition
+        r2 = entry2.composition.reduced_composition
+
+        logger.debug("%d total entries." % len(all_entries))
+
+        pd = PhaseDiagram(all_entries + [entry1, entry2])
+        terminal_formulas = [entry1.composition.reduced_formula,
+                             entry2.composition.reduced_formula]
+
+        logger.debug("%d stable entries" % len(pd.stable_entries))
+        logger.debug("%d facets" % len(pd.facets))
+        logger.debug("%d qhull_entries" % len(pd.qhull_entries))
+
+        rxn_entries = []
+        done = []
+
+        fmt = lambda fl: float_fmt % fl
+
+        for facet in pd.facets:
+            for face in itertools.combinations(facet, len(facet) - 1):
+                face_entries = [pd.qhull_entries[i] for i in face]
+
+                if any([e.composition.reduced_formula in terminal_formulas
+                        for e in face_entries]):
+                    continue
+
+                try:
+
+                    m = []
+                    for e in face_entries:
+                        m.append([e.composition.get_atomic_fraction(el)
+                                  for el in elements])
+                    m.append(comp_vec2 - comp_vec1)
+                    m = np.array(m).T
+                    coeffs = np.linalg.solve(m, comp_vec2)
+
+                    x = coeffs[-1]
+
+                    if all([c >= -tol for c in coeffs]) and \
+                            (abs(sum(coeffs[:-1]) - 1) < tol) and \
+                            (tol < x < 1 - tol):
+
+                        c1 = x / r1.num_atoms
+                        c2 = (1 - x) / r2.num_atoms
+                        factor = 1 / (c1 + c2)
+
+                        c1 *= factor
+                        c2 *= factor
+
+                        # Avoid duplicate reactions.
+                        if any([np.allclose([c1, c2], cc) for cc in done]):
+                            continue
+
+                        done.append((c1, c2))
+
+                        rxn_str = "%s %s + %s %s -> " % (
+                            fmt(c1), r1.reduced_formula,
+                            fmt(c2), r2.reduced_formula)
+                        products = []
+
+                        energy = - (x * entry1.energy_per_atom +
+                                    (1 - x) * entry2.energy_per_atom)
+                        for c, e in zip(coeffs[:-1], face_entries):
+                            if c > tol:
+                                r = e.composition.reduced_composition
+                                products.append("%s %s" % (
+                                    fmt(c / r.num_atoms * factor),
+                                    r.reduced_formula))
+                                energy += c * e.energy_per_atom
+
+                        rxn_str += " + ".join(products)
+                        comp = x * comp_vec1 + (1 - x) * comp_vec2
+                        entry = PDEntry(
+                            Composition(dict(zip(elements, comp))),
+                            energy=energy, attribute=rxn_str)
+                        rxn_entries.append(entry)
+                except np.linalg.LinAlgError as ex:
+                    logger.debug("Reactants = %s" % (", ".join([
+                        entry1.composition.reduced_formula,
+                        entry2.composition.reduced_formula])))
+                    logger.debug("Products = %s" % (
+                        ", ".join([e.composition.reduced_formula
+                                   for e in face_entries])))
+
+        rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
+
+        self.entry1 = entry1
+        self.entry2 = entry2
+        self.rxn_entries = rxn_entries
+        self.labels = collections.OrderedDict()
+        for i, e in enumerate(rxn_entries): 
+            self.labels[str(i + 1)] = e.attribute
+            e.name = str(i + 1) 
+        self.all_entries = all_entries
+        self.pd = pd
+
+    def get_compound_pd(self):
+        """
+        Get the CompoundPhaseDiagram object, which can then be used for
+        plotting.
+
+        Returns:
+            (CompoundPhaseDiagram)
+        """
+        # For this plot, since the reactions are reported in formation
+        # energies, we need to set the energies of the terminal compositions
+        # to 0. So we make create copies with 0 energy.
+        entry1 = PDEntry(self.entry1.composition, 0)
+        entry2 = PDEntry(self.entry2.composition, 0)
+
+        cpd = CompoundPhaseDiagram(
+            self.rxn_entries + [entry1, entry2],
+            [Composition(entry1.composition.reduced_formula),
+             Composition(entry2.composition.reduced_formula)],
+            normalize_terminal_compositions=False) 
+        return cpd
+
+
 class PhaseDiagramError(Exception):
     """
     An exception class for Phase Diagram generation.
@@ -1261,29 +1429,34 @@ class PDPlotter(object):
 
         return plt
 
-    def plot_element_profile(self, element, comp, show_label_index=None, xlim=5):
+    def plot_element_profile(self, element, comp, show_label_index=None,
+                             xlim=5):
         """
-        Draw the element profile plot for a composition varying different chemical
-        potential of an element.
-        X value is the negative value of the chemical potential reference to elemental
-        chemical potential. For example, if choose Element("Li"), X= -(µLi-µLi0),
-        which corresponds to the voltage versus metal anode.
+        Draw the element profile plot for a composition varying different
+        chemical potential of an element.
+        X value is the negative value of the chemical potential reference to
+        elemental chemical potential. For example, if choose Element("Li"),
+        X= -(µLi-µLi0), which corresponds to the voltage versus metal anode.
         Y values represent for the number of element uptake in this composition
-        (unit: per atom). All reactions are printed to help choosing the profile steps
-        you want to show label in the plot.
+        (unit: per atom). All reactions are printed to help choosing the
+        profile steps you want to show label in the plot.
 
         Args:
-         element (Element): An element of which the chemical potential is considered.
-         It also must be in the phase diagram.
+         element (Element): An element of which the chemical potential is
+            considered. It also must be in the phase diagram.
          comp (Composition): A composition.
-         show_label_index (list of integers): The labels for reaction products you
-         want to show in the plot. Default to None (not showing any annotation for
-         reaction products). For the profile steps you want to show the labels,
-         just add it to the show_label_index. The profile step counts from zero.
-         For example, you can set show_label_index=[0, 2, 5] to label profile step 0,2,5.
-         xlim (float): The max x value. x value is from 0 to xlim. Default to 5 eV.
+         show_label_index (list of integers): The labels for reaction products
+            you want to show in the plot. Default to None (not showing any
+            annotation for reaction products). For the profile steps you want
+            to show the labels, just add it to the show_label_index. The
+            profile step counts from zero. For example, you can set
+            show_label_index=[0, 2, 5] to label profile step 0,2,5.
+         xlim (float): The max x value. x value is from 0 to xlim. Default to
+            5 eV.
+
         Returns:
-            Plot of element profile evolution by varying the chemical potential of an element.
+            Plot of element profile evolution by varying the chemical potential
+            of an element.
         """
         plt = pretty_plot(12, 8)
         pd = self._pd

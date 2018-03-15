@@ -1249,32 +1249,39 @@ class MVLSlabSet(MPRelaxSet):
         k_product: default to 50, kpoint number * length for a & b directions,
             also for c direction in bulk calculations
         bulk (bool): Set to True for bulk calculation. Defaults to False.
+        get_locpot (bool): For calculating the electrostatic potential across the
+            slab. Use this if you want to calculate the work function. Will
+            set if slab calculation only.
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, k_product=50, bulk=False,
-                 auto_dipole=False, **kwargs):
+                 auto_dipole=False, get_locpot=False, set_mix=True, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
         self.auto_dipole = auto_dipole
+        self.get_locpot = get_locpot
         self.kwargs = kwargs
+        self.set_mix = set_mix
 
         slab_incar = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400,
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2
-            slab_incar["AMIN"] = 0.01
-            slab_incar["AMIX"] = 0.2
-            slab_incar["BMIX"] = 0.001
+            if self.set_mix:
+                slab_incar["AMIN"] = 0.01
+                slab_incar["AMIX"] = 0.2
+                slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
                 slab_incar["DIPOL"] = structure.center_of_mass
-
+            if self.get_locpot:
+                slab_incar["LVTOT"] = True
         self._config_dict["INCAR"].update(slab_incar)
 
     @property
@@ -1306,6 +1313,13 @@ class MVLSlabSet(MPRelaxSet):
         kpt.kpts[0] = kpt_calc
 
         return kpt
+
+    def as_dict(self, verbosity=2):
+        d = MSONable.as_dict(self)
+        if verbosity == 1:
+            d.pop("structure", None)
+        return d
+
 
 
 class MVLGBSet(MPRelaxSet):
@@ -1527,7 +1541,7 @@ class MITMDSet(MITRelaxSet):
                     'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
                     'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
                     'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
-                    'SMASS': 0, 'POTIM': time_step, 'PREC': 'Normal',
+                    'SMASS': 0, 'POTIM': time_step, 'PREC': 'Low',
                     'ISPIN': 2 if spin_polarized else 1,
                     "LDAU": False}
 

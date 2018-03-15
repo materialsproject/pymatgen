@@ -281,7 +281,7 @@ class Mrgdvdb(ExecWrapper):
             return out_dvdb
 
         self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-            map(os.path.join, 3 * [workdir], ["mrgdvdb.stdin", "mrgdvdb.stdout", "mrgdvdb.stderr"])
+            map(os.path.join, 3 * [os.path.abspath(workdir)], ["mrgdvdb.stdin", "mrgdvdb.stdout", "mrgdvdb.stderr"])
 
         inp = cStringIO()
         inp.write(out_dvdb + "\n")              # Name of the output file.

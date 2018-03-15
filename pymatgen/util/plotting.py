@@ -328,10 +328,12 @@ def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
                                      gridspec_kw=gridspec_kw, **fig_kw)
     else:
         fig = plt.gcf()
+        ax_array = np.reshape(np.array(ax_array), (nrows, ncols))
         if squeeze:
-            ax_array = np.array(ax_array).ravel()
-            if len(ax_array) == 1:
-                ax_array = ax_array[1]
+            if ax_array.size == 1:
+                ax_array = ax_array[0]
+            elif any(s == 1 for s in ax_array.shape):
+                ax_array = ax_array.ravel()
 
     return ax_array, fig, plt
 

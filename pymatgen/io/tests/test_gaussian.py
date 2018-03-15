@@ -306,6 +306,12 @@ class GaussianOutputTest(unittest.TestCase):
                                                         "3PZ"])
         self.assertListEqual(gau.atom_basis_labels[2], ["1S", "2S"])
 
+        gau = GaussianOutput(os.path.join(test_dir, "H2O_gau_vib.out"))
+
+        self.assertEqual(gau.bond_orders[(0, 1)], 0.7582)
+        self.assertEqual(gau.bond_orders[(1, 2)], 0.0002)
+
+
     def test_scan(self):
         gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
         d = gau.read_scan()

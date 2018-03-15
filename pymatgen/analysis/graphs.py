@@ -42,10 +42,10 @@ __date__ = "August 2017"
 
 ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight, dist')
 
-cn_opt_paras = {}
+cn_opt_params = {}
 with open(os.path.join(os.path.dirname(
-        __file__), 'cn_opt_paras.yaml'), 'r') as f:
-    cn_opt_paras = yaml.safe_load(f)
+        __file__), 'cn_opt_params.yaml'), 'r') as f:
+    cn_opt_params = yaml.safe_load(f)
     f.close()
 
 class StructureGraph(MSONable):
@@ -86,6 +86,13 @@ class StructureGraph(MSONable):
                 del d['id']
             if 'key' in d:
                 del d['key']
+            # ensure images are tuples (conversion to lists happens
+            # when serializing back from json), it's important images
+            # are hashable/immutable
+            if 'to_jimage' in d:
+                d['to_jimage'] = tuple(d['to_jimage'])
+            if 'from_jimage' in d:
+                d['from_jimage'] = tuple(d['from_jimage'])
 
     @classmethod
     def with_empty_graph(cls, structure, name="bonds",
@@ -269,11 +276,11 @@ class StructureGraph(MSONable):
 
         if weight:
             self.graph.add_edge(from_index, to_index,
-                                from_jimage=from_jimage, to_jimage=to_jimage,
+                                to_jimage=to_jimage,
                                 weight=weight)
         else:
             self.graph.add_edge(from_index, to_index,
-                                from_jimage=from_jimage, to_jimage=to_jimage)
+                                to_jimage=to_jimage)
 
     def get_connected_sites(self, n, jimage=(0, 0, 0)):
         """
@@ -334,7 +341,8 @@ class StructureGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        return self.graph.degree(n)
+        number_of_self_loops = sum([1 for n, v in self.graph.edges(n) if n == v])
+        return self.graph.degree(n) - number_of_self_loops
 
     def get_local_order_parameters(self, n):
         """
@@ -353,15 +361,16 @@ class StructureGraph(MSONable):
 
         """
         cn = self.get_coordination_of_site(n)
-        if cn in [int(k_cn) for k_cn in cn_opt_paras.keys()]:
-            names = [k for k in cn_opt_paras[cn].keys()]
+        if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
+            names = [k for k in cn_opt_params[cn].keys()]
             types = []
-            paras = []
+            params = []
             for name in names:
-                types.append(cn_opt_paras[cn][name][0])
-                tmp = cn_opt_paras[cn][name][1] if len(cn_opt_paras[cn][name]) > 1 else None
-                paras.append(tmp)
-            lostops = LocalStructOrderParas(types, parameters=paras)
+                types.append(cn_opt_params[cn][name][0])
+                tmp = cn_opt_params[cn][name][1] \
+                    if len(cn_opt_params[cn][name]) > 1 else None
+                params.append(tmp)
+            lostops = LocalStructOrderParas(types, parameters=params)
             sites = [self.structure[n]]
             for s in self.get_connected_sites(n):
                 sites.append(s.periodic_site)

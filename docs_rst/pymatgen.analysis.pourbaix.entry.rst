@@ -1,5 +1,5 @@
-pymatgen\.analysis\.pourbaix\.entry module
-==========================================
+pymatgen.analysis.pourbaix.entry module
+=======================================
 
 .. automodule:: pymatgen.analysis.pourbaix.entry
     :members:

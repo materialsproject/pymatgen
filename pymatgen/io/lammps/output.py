@@ -325,8 +325,7 @@ class LammpsRun(MSONable):
         end = (step + 1) * self.natoms
         mol_vector_structured = \
             self.trajectory[begin:end][self.mol_config[mol_id]][param]
-        new_shape = mol_vector_structured.shape + (-1,)
-        mol_vector = mol_vector_structured.view(np.float64).reshape(new_shape)
+        mol_vector = np.array(mol_vector_structured.tolist())
         return mol_vector.copy()
 
     # TODO: remove this and use only get_displacements(an order of magnitude faster)
@@ -344,15 +343,13 @@ class LammpsRun(MSONable):
         structures = []
         mass_to_symbol = dict(
             (round(y["Atomic mass"], 1), x) for x, y in _pt_data.items())
-        unique_atomic_masses = np.array([d["mass"] for d in self.lammps_data.masses])
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
         for step in range(self.timesteps.size):
             begin = step * self.natoms
             end = (step + 1) * self.natoms
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
-            new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
-                new_shape)
+            mol_vector = np.array(mol_vector_structured.tolist())
             coords = mol_vector.copy()
             species = [mass_to_symbol[round(unique_atomic_masses[atype - 1], 1)]
                        for atype in self.trajectory[begin:end][:]["atom_type"]]
@@ -379,16 +376,14 @@ class LammpsRun(MSONable):
                            [0, 0, self.box_lengths[2]]])
         mass_to_symbol = dict(
             (round(y["Atomic mass"], 1), x) for x, y in _pt_data.items())
-        unique_atomic_masses = np.array([d["mass"] for d in self.lammps_data.masses])
+        unique_atomic_masses = self.lammps_data.masses["mass"].values
         frac_coords = []
         for step in range(self.timesteps.size):
             begin = step * self.natoms
             end = (step + 1) * self.natoms
             mol_vector_structured = \
                 self.trajectory[begin:end][:][["x", "y", "z"]]
-            new_shape = mol_vector_structured.shape + (-1,)
-            mol_vector = mol_vector_structured.view(np.float64).reshape(
-                new_shape)
+            mol_vector = np.array(mol_vector_structured.tolist())
             coords = mol_vector.copy()
             if step == 0:
                 species = [

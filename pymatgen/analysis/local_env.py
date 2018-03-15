@@ -35,10 +35,10 @@ from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS
 
 
-default_op_paras = {}
+default_op_params = {}
 with open(os.path.join(os.path.dirname(
-        __file__), 'op_paras.yaml'), "rt") as f:
-    default_op_paras = yaml.safe_load(f)
+        __file__), 'op_params.yaml'), "rt") as f:
+    default_op_params = yaml.safe_load(f)
     f.close()
 
 file_dir = os.path.dirname(__file__)
@@ -299,8 +299,15 @@ class NearNeighbors(object):
     def _get_image(frac_coords):
         """Private convenience method for get_nn_info,
         gives lattice image from provided PeriodicSite."""
-        return [int(f) if f >= 0 else int(f - 1)
-                for f in frac_coords]
+        images = [0,0,0]
+        for j, f in enumerate(frac_coords):
+            if f >= 0:
+                images[j] = int(f)
+            else:
+                images[j] = int(f - 1)
+                if f % 1 == 0:
+                    images[j] += 1
+        return images
 
     @staticmethod
     def _get_original_site(structure, site):
@@ -330,6 +337,7 @@ class VoronoiNN(NearNeighbors):
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
+        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -422,6 +430,31 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
+class VoronoiNN_modified(NearNeighbors):
+    """
+    Modified VoronoiNN that only considers neighbors
+    with at least 50% weight of max(weight).
+    """
+
+    def __init__(self):
+        self._cns = {}
+
+    def get_nn_info(self, structure, n):
+
+        vor = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).items()
+        weights = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).values()
+        max_weight = max(weights)
+
+        siw = []
+        for site, weight in vor:
+            if weight > 0.5 * max_weight:
+                siw.append({'site': site,
+                            'image': self._get_image(site.frac_coords),
+                            'weight': weight,
+                            'site_index': self._get_original_site(structure, site)})
+        return siw
+
+
 class JMolNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using an emulation
@@ -439,6 +472,7 @@ class JMolNN(NearNeighbors):
     def __init__(self, tol=1E-3, el_radius_updates=None):
 
         self.tol = tol
+        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -523,6 +557,7 @@ class MinimumDistanceNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -575,6 +610,7 @@ class MinimumOKeeffeNN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -641,6 +677,7 @@ class MinimumVIRENN(NearNeighbors):
 
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -951,7 +988,7 @@ class LocalStructOrderParas(object):
                 definitions of the different order parameters
                 (length of list = number of OPs). If an entry
                 is None, default values are used that are read from
-                the op_paras.yaml file. With few exceptions, 9 different
+                the op_params.yaml file. With few exceptions, 9 different
                 parameters are used across all OPs:
                   "norm": normalizing constant (used in "cn"
                       (default value: 1)).
@@ -1008,16 +1045,16 @@ class LocalStructOrderParas(object):
                                  t + ")!")
         self._types = tuple(types)
 
-        self._paras = []
+        self._params = []
         for i, t in enumerate(self._types):
-            d = default_op_paras[t].copy() if default_op_paras[t] is not None \
+            d = default_op_params[t].copy() if default_op_params[t] is not None \
                 else None
             if parameters is None:
-                self._paras.append(d)
+                self._params.append(d)
             elif parameters[i] is None:
-                self._paras.append(d)
+                self._params.append(d)
             else:
-                self._paras.append(parameters[i].copy())
+                self._params.append(parameters[i].copy())
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -1512,7 +1549,7 @@ class LocalStructOrderParas(object):
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with"
                              " order parameter calculation out-of-bounds!")
-        return self._paras[index]
+        return self._params[index]
 
     def get_order_parameters(self, structure, n, indices_neighs=None, \
                              tol=0.0, target_spec=None):
@@ -1642,7 +1679,7 @@ class LocalStructOrderParas(object):
         # First, coordination number and distance-based OPs.
         for i, t in enumerate(self._types):
             if t == "cn":
-                ops[i] = nneigh / self._paras[i]['norm']
+                ops[i] = nneigh / self._params[i]['norm']
             elif t == "sgl_bd":
                 dist_sorted = sorted(dist)
                 if len(dist_sorted) == 1:
@@ -1722,57 +1759,57 @@ class LocalStructOrderParas(object):
                         # central atom and j and k two of the neighbors.
                         for i, t in enumerate(self._types):
                             if t in ["bent", "sq_pyr_legacy"]:
-                                tmp = self._paras[i]['IGW_TA'] * (
-                                        thetak * ipi - self._paras[i]['TA'])
+                                tmp = self._params[i]['IGW_TA'] * (
+                                        thetak * ipi - self._params[i]['TA'])
                                 qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                 norms[i][j][kc] += 1
                             elif t in ["tri_plan", "tri_plan_max", "tet", "tet_max"]:
-                                tmp = self._paras[i]['IGW_TA'] * (
-                                        thetak * ipi - self._paras[i]['TA'])
+                                tmp = self._params[i]['IGW_TA'] * (
+                                        thetak * ipi - self._params[i]['TA'])
                                 gaussthetak[i] = exp(-0.5 * tmp * tmp)
                                 if t in ["tri_plan_max", "tet_max"]:
                                     qsptheta[i][j][kc] += gaussthetak[i]
                                     norms[i][j][kc] += 1
                             elif t in ["T", "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr"]:
-                                tmp = self._paras[i]['IGW_EP'] * (thetak * ipi - 0.5)
+                                tmp = self._params[i]['IGW_EP'] * (thetak * ipi - 0.5)
                                 qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                 norms[i][j][kc] += 1
                             elif t in ["sq_plan", "oct", "oct_legacy",
                                        "cuboct", "cuboct_max"]:
-                                if thetak >= self._paras[i]['min_SPP']:
-                                    tmp = self._paras[i]['IGW_SPP'] * (
+                                if thetak >= self._params[i]['min_SPP']:
+                                    tmp = self._params[i]['IGW_SPP'] * (
                                             thetak * ipi - 1.0)
                                     qsptheta[i][j][kc] += (
-                                            self._paras[i]['w_SPP'] *
+                                            self._params[i]['w_SPP'] *
                                             exp(-0.5 * tmp * tmp))
-                                    norms[i][j][kc] += self._paras[i]['w_SPP']
+                                    norms[i][j][kc] += self._params[i]['w_SPP']
                             elif t in ["see_saw_rect", "tri_bipyr", "sq_bipyr",
                                        "pent_bipyr", "hex_bipyr", "oct_max",
                                        "sq_plan_max", "hex_plan_max"]:
-                                if thetak < self._paras[i]['min_SPP']:
-                                    tmp = self._paras[i]['IGW_EP'] * (
+                                if thetak < self._params[i]['min_SPP']:
+                                    tmp = self._params[i]['IGW_EP'] * (
                                             thetak * ipi - 0.5) if t != "hex_plan_max" else \
-                                            self._paras[i]['IGW_TA'] * (
-                                            fabs(thetak * ipi - 0.5) - self._paras[i]['TA'])
+                                            self._params[i]['IGW_TA'] * (
+                                            fabs(thetak * ipi - 0.5) - self._params[i]['TA'])
                                     qsptheta[i][j][kc] += exp(
                                         -0.5 * tmp * tmp)
                                     norms[i][j][kc] += 1
                             elif t in ["pent_plan", "pent_plan_max"]:
-                                tmp = 0.4 if thetak <= self._paras[i]['TA'] * pi \
+                                tmp = 0.4 if thetak <= self._params[i]['TA'] * pi \
                                         else 0.8
-                                tmp2 = self._paras[i]['IGW_TA'] * (
+                                tmp2 = self._params[i]['IGW_TA'] * (
                                         thetak * ipi - tmp)
                                 gaussthetak[i] = exp(-0.5 * tmp2 * tmp2)
                                 if t == "pent_plan_max":
                                     qsptheta[i][j][kc] += gaussthetak[i]
                                     norms[i][j][kc] += 1
                             elif t == "bcc" and j < k:
-                                if thetak >= self._paras[i]['min_SPP']:
-                                    tmp = self._paras[i]['IGW_SPP'] * (
+                                if thetak >= self._params[i]['min_SPP']:
+                                    tmp = self._params[i]['IGW_SPP'] * (
                                             thetak * ipi - 1.0)
-                                    qsptheta[i][j][kc] += (self._paras[i]['w_SPP'] *
+                                    qsptheta[i][j][kc] += (self._params[i]['w_SPP'] *
                                                        exp(-0.5 * tmp * tmp))
-                                    norms[i][j][kc] += self._paras[i]['w_SPP']
+                                    norms[i][j][kc] += self._params[i]['w_SPP']
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -1794,8 +1831,8 @@ class LocalStructOrderParas(object):
                                 if t in ["tri_bipyr", "sq_bipyr", "pent_bipyr",
                                          "hex_bipyr", "oct_max", "sq_plan_max",
                                          "hex_plan_max", "see_saw_rect"]:
-                                    if thetam >= self._paras[i]['min_SPP']:
-                                        tmp = self._paras[i]['IGW_SPP'] * (
+                                    if thetam >= self._params[i]['min_SPP']:
+                                        tmp = self._params[i]['IGW_SPP'] * (
                                                 thetam * ipi - 1.0)
                                         qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
                                         norms[i][j][kc] += 1
@@ -1806,12 +1843,12 @@ class LocalStructOrderParas(object):
                                     for i, t in enumerate(self._types):
                                         if t in ["tri_plan", "tri_plan_max", \
                                                  "tet", "tet_max"]:
-                                            tmp = self._paras[i]['IGW_TA'] * (
+                                            tmp = self._params[i]['IGW_TA'] * (
                                                 thetam * ipi -
-                                                self._paras[i]['TA'])
+                                                self._params[i]['TA'])
                                             tmp2 = cos(
-                                                self._paras[i]['fac_AA'] *
-                                                phi) ** self._paras[i][
+                                                self._params[i]['fac_AA'] *
+                                                phi) ** self._params[i][
                                                 'exp_cos_AA']
                                             tmp3 = 1 if t in ["tri_plan_max", "tet_max"] \
                                                 else gaussthetak[i]
@@ -1819,9 +1856,9 @@ class LocalStructOrderParas(object):
                                                 -0.5 * tmp * tmp) * tmp2
                                             norms[i][j][kc] += 1
                                         elif t in ["pent_plan", "pent_plan_max"]:
-                                            tmp = 0.4 if thetam <= self._paras[i]['TA'] * pi \
+                                            tmp = 0.4 if thetam <= self._params[i]['TA'] * pi \
                                                     else 0.8
-                                            tmp2 = self._paras[i]['IGW_TA'] * (
+                                            tmp2 = self._params[i]['IGW_TA'] * (
                                                     thetam * ipi - tmp)
                                             tmp3 = cos(phi)
                                             tmp4 = 1 if t == "pent_plan_max" \
@@ -1831,40 +1868,40 @@ class LocalStructOrderParas(object):
                                             norms[i][j][kc] += 1
                                         elif t in ["T", "tri_pyr", "sq_pyr",
                                                    "pent_pyr", "hex_pyr"]:
-                                            tmp = cos(self._paras[i]['fac_AA'] *
-                                                      phi) ** self._paras[i][
+                                            tmp = cos(self._params[i]['fac_AA'] *
+                                                      phi) ** self._params[i][
                                                       'exp_cos_AA']
-                                            tmp3 = self._paras[i]['IGW_EP'] * (
+                                            tmp3 = self._params[i]['IGW_EP'] * (
                                                     thetam * ipi - 0.5)
                                             qsptheta[i][j][kc] += tmp * exp(
                                                 -0.5 * tmp3 * tmp3)
                                             norms[i][j][kc] += 1
                                         elif t in ["sq_plan", "oct", "oct_legacy"]:
-                                            if thetak < self._paras[i]['min_SPP'] and \
-                                                    thetam < self._paras[i]['min_SPP']:
-                                                tmp = cos(self._paras[i]['fac_AA'] *
-                                                        phi) ** self._paras[i]['exp_cos_AA']
-                                                tmp2 = self._paras[i]['IGW_EP'] * (
+                                            if thetak < self._params[i]['min_SPP'] and \
+                                                    thetam < self._params[i]['min_SPP']:
+                                                tmp = cos(self._params[i]['fac_AA'] *
+                                                        phi) ** self._params[i]['exp_cos_AA']
+                                                tmp2 = self._params[i]['IGW_EP'] * (
                                                         thetam * ipi - 0.5)
                                                 qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                 if t == "oct_legacy":
-                                                    qsptheta[i][j][kc] -= tmp * self._paras[i][6] * self._paras[i][7]
+                                                    qsptheta[i][j][kc] -= tmp * self._params[i][6] * self._params[i][7]
                                                 norms[i][j][kc] += 1
                                         elif t in ["tri_bipyr", "sq_bipyr", "pent_bipyr",
                                                    "hex_bipyr", "oct_max", "sq_plan_max",
                                                    "hex_plan_max"]:
-                                            if thetam < self._paras[i]['min_SPP']:
-                                                if thetak < self._paras[i]['min_SPP']:
-                                                    tmp = cos(self._paras[i]['fac_AA'] *
-                                                            phi) ** self._paras[i]['exp_cos_AA']
-                                                    tmp2 = self._paras[i]['IGW_EP'] * (
+                                            if thetam < self._params[i]['min_SPP']:
+                                                if thetak < self._params[i]['min_SPP']:
+                                                    tmp = cos(self._params[i]['fac_AA'] *
+                                                            phi) ** self._params[i]['exp_cos_AA']
+                                                    tmp2 = self._params[i]['IGW_EP'] * (
                                                             thetam * ipi - 0.5) if t != "hex_plan_max" else \
-                                                            self._paras[i]['IGW_TA'] * (
-                                                            fabs(thetam * ipi - 0.5) - self._paras[i]['TA'])
+                                                            self._params[i]['IGW_TA'] * (
+                                                            fabs(thetam * ipi - 0.5) - self._params[i]['TA'])
                                                     qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1
                                         elif t == "bcc" and j < k:
-                                            if thetak < self._paras[i]['min_SPP']:
+                                            if thetak < self._params[i]['min_SPP']:
                                                 if thetak > piover2:
                                                     fac = 1.0
                                                 else:
@@ -1875,38 +1912,38 @@ class LocalStructOrderParas(object):
                                                     tmp * exp(-0.5 * tmp * tmp)
                                                 norms[i][j][kc] += 1
                                         elif t == "see_saw_rect":
-                                            if thetam < self._paras[i]['min_SPP']:
-                                                if thetak < self._paras[i]['min_SPP'] and phi < 0.75 * pi:
-                                                    tmp = cos(self._paras[i]['fac_AA'] *
-                                                            phi) ** self._paras[i]['exp_cos_AA']
-                                                    tmp2 = self._paras[i]['IGW_EP'] * (
+                                            if thetam < self._params[i]['min_SPP']:
+                                                if thetak < self._params[i]['min_SPP'] and phi < 0.75 * pi:
+                                                    tmp = cos(self._params[i]['fac_AA'] *
+                                                            phi) ** self._params[i]['exp_cos_AA']
+                                                    tmp2 = self._params[i]['IGW_EP'] * (
                                                             thetam * ipi - 0.5)
                                                     qsptheta[i][j][kc] += tmp * \
                                                             exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
                                         elif t in ["cuboct", "cuboct_max"]:
-                                            if thetam < self._paras[i]['min_SPP'] and \
-                                                    thetak > self._paras[i][4] and \
-                                                    thetak < self._paras[i][2]:
-                                                if thetam > self._paras[i][4] and \
-                                                        thetam < self._paras[i][2]:
+                                            if thetam < self._params[i]['min_SPP'] and \
+                                                    thetak > self._params[i][4] and \
+                                                    thetak < self._params[i][2]:
+                                                if thetam > self._params[i][4] and \
+                                                        thetam < self._params[i][2]:
                                                     tmp = cos(phi)
-                                                    tmp2 = self._paras[i][5] * (thetam * ipi - 0.5)
+                                                    tmp2 = self._params[i][5] * (thetam * ipi - 0.5)
                                                     qsptheta[i][j][kc] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
-                                                elif thetam < self._paras[i][4]:
+                                                elif thetam < self._params[i][4]:
                                                     tmp = 0.0556 * (cos(
                                                             phi - 0.5 * pi) - 0.81649658)
-                                                    tmp2 = self._paras[i][6] * (
+                                                    tmp2 = self._params[i][6] * (
                                                             thetam * ipi - onethird)
                                                     qsptheta[i][j][kc] += exp(
                                                         -0.5 * tmp * tmp) * \
                                                         exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
-                                                elif thetam > self._paras[i][2]:
+                                                elif thetam > self._params[i][2]:
                                                     tmp = 0.0556 * (cos(phi - 0.5 * pi) - \
                                                             0.81649658)
-                                                    tmp2 = self._paras[i][6] * (thetam * ipi - \
+                                                    tmp2 = self._params[i][6] * (thetam * ipi - \
                                                             twothird)
                                                     qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
                                                             exp(-0.5 * tmp2 * tmp2)
@@ -1950,7 +1987,7 @@ class LocalStructOrderParas(object):
                         dmean = np.mean(dist)
                         acc = 0.0
                         for d in dist:
-                            tmp = self._paras[i][2] * (d - dmean)
+                            tmp = self._params[i][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
                         for j in range(nneigh):
                             ops[i] = max(qsptheta[i][j]) if j == 0 \
@@ -1997,7 +2034,125 @@ class LocalStructOrderParas(object):
                         for j in range(min([nneigh, nmax])):
                             ops[i] = ops[i] * exp(-0.5 * ((
                                                                   aijs[j] - a) *
-                                                          self._paras[i][
+                                                          self._params[i][
                                                               0]) ** 2)
 
         return ops
+
+
+class BrunnerNN(NearNeighbors):
+    """
+    Determine coordination number using Brunner's algorithm which counts the
+    atoms that are within the largest gap in differences in real space
+    interatomic distances.
+
+    Note: Might be highly inaccurate in certain cases.
+
+    Args:
+        mode (str): type of neighbor-finding approach, where "reciprocal"
+            will use Brunner's method of largest reciprocal gap in
+            interatomic distances, "relative" will use Brunner's method of largest
+            relative gap in interatomic distances, and "real" will use Brunner's
+            method of largest gap in interatomic distances.
+            Defaults to "reciprocal" method.
+        tol (float): tolerance parameter for bond determination
+            (default: 1E-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 8.0.
+    """
+
+    def __init__(self, mode="reciprocal", tol=1.0e-4, cutoff=8.0):
+        self.mode = mode
+        self.tol = tol
+        self.cutoff = cutoff
+        self._cns = {}
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        ds = [i[-1] for i in neighs_dists]
+        ds.sort()
+
+        if self.mode == "reciprocal":
+            ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
+        elif self.mode == "relative":
+            ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
+        elif self.mode == "real":
+            ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
+        else:
+            raise ValueError("Unknown Brunner CN mode.")
+
+        d_max = ds[ns.index(max(ns))]
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < d_max + self.tol:
+                w = ds[0] / dist
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
+        return siw
+
+class EconNN(NearNeighbors):
+
+    """
+    Determines the average effective coordination number for each cation in a given structure
+    using Hoppe's algorithm.
+
+    This method finds all cation-centered polyhedrals in the structure, calculates the bond
+    weight for each peripheral ion in the polyhedral, and sums up the bond weights
+    to obtain the effective coordination number for each polyhedral. It then
+    averages the effective coordination of all polyhedrals with the same cation at the
+    central site.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1e-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 10.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=10.0):
+
+        self.tol = tol
+        self.cutoff = cutoff
+        self._cns = {}
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        all_bond_lengths = [i[-1] for i in neighs_dists]
+        weighted_avg = calculate_weighted_avg(all_bond_lengths)
+
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < self.cutoff:
+                w = exp(1 - (dist / weighted_avg)**6)
+                if w > self.tol:
+                    siw.append({'site': s,
+                                'image': self._get_image(s.frac_coords),
+                                'weight': w,
+                                'site_index': self._get_original_site(structure, s)})
+        return siw
+
+
+def calculate_weighted_avg(bonds):
+    """
+    Returns the weighted average bond length given by
+    Hoppe's effective coordination number formula.
+
+    Args:
+        bonds (list): list of floats that are the
+        bond distances between a cation and its
+        peripheral ions
+    """
+    minimum_bond = min(bonds)
+    weighted_sum = 0.0
+    total_sum = 0.0
+    for entry in bonds:
+        weighted_sum += entry*exp(1 - (entry/minimum_bond)**6)
+        total_sum += exp(1-(entry/minimum_bond)**6)
+    return weighted_sum/total_sum
+

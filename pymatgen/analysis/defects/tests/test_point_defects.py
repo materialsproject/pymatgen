@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 import unittest
 
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator
 from pymatgen.analysis.defects.point_defects import *
 from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -24,57 +25,6 @@ except ImportError:
 gulp_present = which('gulp')
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
-
-
-class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
-    def setUp(self):
-        """
-        Setup MgO rocksalt structure for testing Vacancy
-        """
-        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"] * 4 + ["O"] * 4
-        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
-                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
-                                 True)
-        self._mgo_valrad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
-        # self._si = Cssr.from_file("../../../../test_files/Si.cssr").structure
-        # self._ci_valrad_evaluator = ValenceIonicRadiusEvaluator(self._si)
-
-    def test_valences_ionic_structure(self):
-        valence_dict = self._mgo_valrad_evaluator.valences
-        for val in list(valence_dict.values()):
-            self.assertTrue(val in {2, -2})
-
-    def test_radii_ionic_structure(self):
-        radii_dict = self._mgo_valrad_evaluator.radii
-        for rad in list(radii_dict.values()):
-            self.assertTrue(rad in {0.86, 1.26})
-
-
-class ValenceIonicRadiusEvaluatorMultiOxiTest(PymatgenTest):
-    def setUp(self):
-        """
-
-        Setup Fe3O4  structure for testing multiple oxidation states
-        """
-        cif_ob = CifParser(os.path.join(test_dir, "Fe3O4.cif"))
-        self._struct = cif_ob.get_structures()[0]
-        self._valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
-        self._length = len(self._struct.sites)
-        warnings.simplefilter("ignore")
-
-    def tearDown(self):
-        warnings.resetwarnings()
-
-    def test_valences_ionic_structure(self):
-        valence_set = set(self._valrad_evaluator.valences.values())
-        self.assertEqual(valence_set, {2, 3, -2})
-
-    def test_radii_ionic_structure(self):
-        radii_set = set(self._valrad_evaluator.radii.values())
-        self.assertEqual(len(radii_set), 3)
-        self.assertEqual(radii_set, {0.72, 0.75, 1.26})
 
 
 @unittest.skipIf(not zeo, "zeo not present.")

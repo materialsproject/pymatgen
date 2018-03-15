@@ -502,7 +502,14 @@ class GaussianOutput(object):
 
     .. attribute:: structures
 
-        All structures from the calculation.
+        All structures from the calculation in the standard orientation. If the
+        symmetry is not considered, the standard orientation is not printed out
+        and the input orientation is used instead. Check the `standard_orientation`
+        attribute.
+
+    .. attribute:: structures_input_orientation
+
+        All structures from the calculation in the input orientation.
 
     .. attribute:: energies
 
@@ -642,6 +649,19 @@ class GaussianOutput(object):
 
         Title of the gaussian run.
 
+    .. attribute:: standard_orientation
+
+        If True, the geometries stored in the structures are in the standard
+        orientation. Else, the geometries are in the input orientation.
+
+    .. attribute:: bond_orders
+
+        Dict of bond order values read in the output file such as:
+        {(0, 1): 0.8709, (1, 6): 1.234, ...}
+
+        The keys are the atom indexes and the values are the Wiberg bond indexes
+        that are printed using `pop=NBOREAD` and `$nbo bndidx $end`.
+
     Methods:
 
     .. method:: to_input()
@@ -698,6 +718,7 @@ class GaussianOutput(object):
         end_mulliken_patt = re.compile(
             r'(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile(r"Standard orientation")
+        input_orientation_patt = re.compile(r"Input orientation")
         end_patt = re.compile(r"--+")
         orbital_patt = re.compile(r"(Alpha|Beta)\s*\S+\s*eigenvalues --(.*)")
         thermo_patt = re.compile(r"(Zero-point|Thermal) correction(.*)="
@@ -722,10 +743,11 @@ class GaussianOutput(object):
         resume_patt = re.compile(r"^\s1\\1\\GINC-\S*")
         resume_end_patt = re.compile(r"^\s.*\\\\@")
 
+        bond_order_patt = re.compile(r"Wiberg bond index matrix in the NAO basis:")
+
         self.properly_terminated = False
         self.is_pcm = False
         self.stationary_type = "Minimum"
-        self.structures = []
         self.corrections = {}
         self.energies = []
         self.pcm = None
@@ -739,6 +761,7 @@ class GaussianOutput(object):
         self.hessian = None
         self.resumes = []
         self.title = None
+        self.bond_orders = {}
 
         coord_txt = []
         read_coord = 0
@@ -755,6 +778,10 @@ class GaussianOutput(object):
         read_mo = False
         parse_hessian = False
         routeline = ""
+        standard_orientation = False
+        parse_bond_order = False
+        input_structures = list()
+        std_structures = list()
 
         with zopen(filename) as f:
             for line in f:
@@ -801,19 +828,21 @@ class GaussianOutput(object):
                             self.corrections[key] = float(m.group(3))
 
                     if read_coord:
-                        if not end_patt.search(line):
-                            coord_txt.append(line)
-                        else:
-                            read_coord = (read_coord + 1) % 4
-                            if not read_coord:
-                                sp = []
-                                coords = []
-                                for l in coord_txt[2:]:
-                                    toks = l.split()
-                                    sp.append(Element.from_Z(int(toks[1])))
-                                    coords.append([float(i)
-                                                   for i in toks[3:6]])
-                                self.structures.append(Molecule(sp, coords))
+                        [f.readline() for i in range(3)]
+                        line = f.readline()
+                        sp = []
+                        coords = []
+                        while set(line.strip()) != {"-"}:
+                            toks = line.split()
+                            sp.append(Element.from_Z(int(toks[1])))
+                            coords.append([float(x) for x in toks[3:6]])
+                            line = f.readline()
+
+                        read_coord = False
+                        if geom_orientation == "input":
+                            input_structures.append(Molecule(sp, coords))
+                        elif geom_orientation == "standard":
+                            std_structures.append(Molecule(sp, coords))
 
                     if parse_forces:
                         m = forces_patt.search(line)
@@ -973,7 +1002,7 @@ class GaussianOutput(object):
                         #  Hessian matrix is in the input  orientation framework
                         # WARNING : need #P in the route line
                         parse_hessian = False
-                        ndf = 3 * len(self.structures[0])
+                        ndf = 3 * len(input_structures[0])
                         self.hessian = np.zeros((ndf, ndf))
                         j_indices = range(5)
                         jndf = 0
@@ -990,6 +1019,22 @@ class GaussianOutput(object):
                             jndf += len(vals)
                             line = f.readline()
                             j_indices = [j + 5 for j in j_indices]
+
+                    elif parse_bond_order:
+                        # parse Wiberg bond order
+                        line = f.readline()
+                        line = f.readline()
+                        nat = len(input_structures[0])
+                        matrix = list()
+                        for iat in range(nat):
+                            line = f.readline()
+                            matrix.append([float(v) for v in line.split()[2:]])
+
+                        self.bond_orders = dict()
+                        for iat in range(nat):
+                            for jat in range(iat + 1, nat):
+                                self.bond_orders[(iat, jat)] = matrix[iat][jat]
+                        parse_bond_order = False
 
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
@@ -1025,7 +1070,13 @@ class GaussianOutput(object):
                         self.energies.append(float(m.group(1)))
                     elif std_orientation_patt.search(line):
                         coord_txt = []
-                        read_coord = 1
+                        standard_orientation = True
+                        geom_orientation = "standard"
+                        read_coord = True
+                    elif input_orientation_patt.search(line):
+                        coord_txt = []
+                        geom_orientation = "input"
+                        read_coord = True
                     elif not read_eigen and orbital_patt.search(line):
                         eigen_txt.append(line)
                         read_eigen = True
@@ -1054,6 +1105,8 @@ class GaussianOutput(object):
                         resume.append(line)
                         resume = "".join([r.strip() for r in resume])
                         self.resumes.append(resume)
+                    elif bond_order_patt.search(line):
+                        parse_bond_order = True
 
                     if read_mulliken:
                         if not end_mulliken_patt.search(line):
@@ -1069,6 +1122,15 @@ class GaussianOutput(object):
                                     mulliken_charges.update(dic)
                             read_mulliken = False
                             self.Mulliken_charges = mulliken_charges
+
+        # store the structures. If symmetry is considered, the standard orientation
+        # is used. Else the input orientation is used.
+        if standard_orientation:
+            self.structures = std_structures
+            self.structures_input_orientation = input_structures
+        else:
+            self.structures = input_structures
+            self.structures_input_orientation = input_structures
 
         if not terminated:
             warnings.warn("\n" + self.filename +

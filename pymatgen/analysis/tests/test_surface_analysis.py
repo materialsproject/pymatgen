@@ -6,7 +6,8 @@ import warnings
 import json
 from sympy import Number, Symbol
 
-from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter, NanoscaleStability
+from pymatgen.analysis.surface_analysis import SlabEntry, SurfaceEnergyPlotter, \
+    NanoscaleStability, WorkFunctionAnalyzer
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.analysis.wulff import WulffShape
@@ -164,7 +165,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
 
         for el in self.Oads_analyzer_dict.keys():
             plotter = self.Oads_analyzer_dict[el]
-            for hkl in plotter.entry_dict.keys():
+            for hkl in plotter.all_slab_entries.keys():
                 # Test that the surface energy is clean for specific range of chempot
                 entry1, gamma1 = \
                     plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -7})
@@ -269,6 +270,19 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             all_u.extend(stable_u_range[entry])
         self.assertGreater(len(all_u), 1)
 
+    def test_entry_dict_from_list(self):
+
+        # Plug in a list of entries to see if it works
+        all_Pt_slab_entries = []
+        Pt_entries = self.Pt_analyzer.all_slab_entries
+        for hkl in Pt_entries.keys():
+            for clean in Pt_entries[hkl].keys():
+                all_Pt_slab_entries.append(clean)
+                all_Pt_slab_entries.extend(Pt_entries[hkl][clean])
+        a = SurfaceEnergyPlotter(all_Pt_slab_entries,
+                                 self.Pt_analyzer.ucell_entry)
+        self.assertEqual(type(a).__name__, "SurfaceEnergyPlotter")
+
     # def test_monolayer_vs_BE(self):
     #     for el in self.Oads_analyzer_dict.keys():
     #         # Test WulffShape for adsorbed surfaces
@@ -297,6 +311,26 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     #             # Test WulffShape for adsorbed surfaces
     #             analyzer = self.Oads_analyzer_dict[el]
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
+
+
+class WorkfunctionAnalyzerTest(PymatgenTest):
+
+    def setUp(self):
+
+        self.kwargs = {"poscar_filename": get_path("CONTCAR.relax1.gz"),
+                       "locpot_filename": get_path("LOCPOT.gz"),
+                       "outcar_filename": get_path("OUTCAR.relax1.gz")}
+
+    def test_attributes(self):
+        wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
+        wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=0.25, **self.kwargs)
+        self.assertEqual("%.1f" %(wf_analyzer.ave_bulk_p),
+                         "%.1f" %(wf_analyzer_shift.ave_bulk_p))
+
+    def test_plt(self):
+        wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
+        plt = wf_analyzer.get_locpot_along_slab_plot()
+        self.assertEqual(type(plt).__name__, "module")
 
 
 class NanoscaleStabilityTest(PymatgenTest):
