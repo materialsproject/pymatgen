@@ -21,6 +21,7 @@ from abc import ABCMeta, abstractmethod
 
 from monty.json import MSONable
 
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -79,8 +80,8 @@ class VacancyGenerator(DefectGenerator):
             vac_site = self.equiv_site_seq.pop(0)
             charge = 0.0
             if self.struct_valences:
-                charge = -1*self.struct_valences[self.structure.get_sites_in_sphere(
-                    vac_site[0].coords, 0.1, include_index=True)[0][2]]
+                site_index = self.structure.get_sites_in_sphere(vac_site[0].coords, 0.1, include_index=True)[0][2]
+                charge = -1 * self.struct_valences[site_index]
 
             return Vacancy(self.structure, vac_site[0], multiplicity=len(vac_site), charge=charge)
         else:
