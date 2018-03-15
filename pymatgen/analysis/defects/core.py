@@ -131,7 +131,7 @@ class Substitution(Defect):
         defindex = poss_deflist[0][2]
 
         subsite = defect_structure.pop(defindex)
-        defect_structure.append(self.defectsite.specie.symbol, subsite.coords, coords_are_cartesian=True)
+        defect_structure.append(self.defect_site.specie.symbol, subsite.coords, coords_are_cartesian=True)
         defect_structure.set_charge(self.charge)
         return defect_structure
 
