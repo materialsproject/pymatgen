@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -280,8 +271,8 @@
         <span class="c1"># Used to push error strings.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ParalHintsParser.add_error"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHintsParser.add_error">[docs]</a>    <span class="k">def</span> <span class="nf">add_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">errmsg</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span></div>
+<div class="viewcode-block" id="ParalHintsParser.add_error"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHintsParser.add_error">[docs]</a>    <span class="k">def</span> <span class="nf">add_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">errmsg</span><span class="p">):</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ParalHintsParser.parse"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHintsParser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -298,8 +289,8 @@
                 <span class="n">sexc</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
                 <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;Wrong YAML doc:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Exception:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">sexc</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_error</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span></div></div>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span></div></div>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ParalHints"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints">[docs]</a><span class="k">class</span> <span class="nc">ParalHints</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
@@ -324,8 +315,8 @@
         <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">confs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ParalConf</span><span class="p">(</span><span class="n">mpi_ncpus</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">omp_ncpus</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">efficiency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
                  <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">)]</span>
-
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">confs</span><span class="p">)</span></div>
+</div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">confs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -344,35 +335,35 @@
 
 <div class="viewcode-block" id="ParalHints.max_cores"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_cores">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">max_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Maximum number of cores.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">omp_threads</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Maximum number of cores.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mpi_procs</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">omp_threads</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ParalHints.max_mem_per_proc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_mem_per_proc">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">max_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Maximum memory per MPI process.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Maximum memory per MPI process.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ParalHints.max_speedup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_speedup">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">max_speedup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Maximum speedup.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">speedup</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Maximum speedup.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">speedup</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ParalHints.max_efficiency"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.max_efficiency">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">max_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Maximum parallel efficiency.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">efficiency</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Maximum parallel efficiency.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">efficiency</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ParalHints.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
-    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;confs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="p">}</span></div>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;confs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="p">}</span>
 
 <div class="viewcode-block" id="ParalHints.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">],</span> <span class="n">confs</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;confs&quot;</span><span class="p">])</span></div>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">],</span> <span class="n">confs</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;confs&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ParalHints.copy"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Shallow copy of self.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Shallow copy of self.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ParalHints.select_with_condition"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.select_with_condition">[docs]</a>    <span class="k">def</span> <span class="nf">select_with_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -392,25 +383,25 @@
             <span class="n">add_it</span> <span class="o">=</span> <span class="n">condition</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
             <span class="c1">#if key is &quot;vars&quot;: print(&quot;conf&quot;, conf, &quot;added:&quot;, add_it)</span>
             <span class="k">if</span> <span class="n">add_it</span><span class="p">:</span> <span class="n">new_confs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span> <span class="o">=</span> <span class="n">new_confs</span></div>
+</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span> <span class="o">=</span> <span class="n">new_confs</span>
 
 <div class="viewcode-block" id="ParalHints.sort_by_efficiency"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.sort_by_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sort the configurations in place. items with highest efficiency come first&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">efficiency</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">efficiency</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="ParalHints.sort_by_speedup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.sort_by_speedup">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_speedup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sort the configurations in place. items with highest speedup come first&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">speedup</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">speedup</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="ParalHints.sort_by_mem_per_proc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.sort_by_mem_per_proc">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sort the configurations in place. items with lowest memory per proc come first.&quot;&quot;&quot;</span>
         <span class="c1"># Avoid sorting if mem_per_cpu is not available.</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mem_per_proc</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">mem_per_proc</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="ParalHints.multidimensional_optimization"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ParalHints.multidimensional_optimization">[docs]</a>    <span class="k">def</span> <span class="nf">multidimensional_optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">priorities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;speedup&quot;</span><span class="p">,</span> <span class="s2">&quot;efficiency&quot;</span><span class="p">)):</span>
         <span class="c1"># Mapping property --&gt; options passed to sparse_histogram</span>
@@ -423,8 +414,8 @@
             <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">priority</span> <span class="o">==</span> <span class="s2">&quot;mem_per_proc&quot;</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">opt_confs</span> <span class="o">=</span> <span class="n">histogram</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
 
-        <span class="c1">#histogram.plot(show=True, savefig=&quot;hello.pdf&quot;)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">confs</span><span class="o">=</span><span class="n">opt_confs</span><span class="p">)</span></div>
+        <span class="c1">#histogram.plot(show=True, savefig=&quot;hello.pdf&quot;)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">confs</span><span class="o">=</span><span class="n">opt_confs</span><span class="p">)</span>
 
     <span class="c1">#def histogram_efficiency(self, step=0.1):</span>
     <span class="c1">#    &quot;&quot;&quot;Returns a :class:`SparseHistogram` with configuration grouped by parallel efficiency.&quot;&quot;&quot;</span>
@@ -489,8 +480,8 @@
         <span class="c1">#if len(hints) &gt; 1:</span>
         <span class="c1">#    hints.select_with_condition(dict(num_cores={&quot;$eq&quot;: 1)))</span>
 
-        <span class="c1"># Return final (orderded ) list of configurations (best first).</span>
-        <span class="k">return</span> <span class="n">hints</span></div></div>
+        <span class="c1"># Return final (orderded ) list of configurations (best first).</span></div></div>
+        <span class="k">return</span> <span class="n">hints</span>
 
 
 <span class="k">class</span> <span class="nc">TaskPolicy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -582,8 +573,8 @@
 
 
 <div class="viewcode-block" id="set_user_config_taskmanager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.set_user_config_taskmanager">[docs]</a><span class="k">def</span> <span class="nf">set_user_config_taskmanager</span><span class="p">(</span><span class="n">manager</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">USER_CONFIG_TASKMANAGER</span>
-    <span class="n">USER_CONFIG_TASKMANAGER</span>  <span class="o">=</span> <span class="n">manager</span></div>
+    <span class="k">global</span> <span class="n">USER_CONFIG_TASKMANAGER</span></div>
+    <span class="n">USER_CONFIG_TASKMANAGER</span>  <span class="o">=</span> <span class="n">manager</span>
 
 
 <div class="viewcode-block" id="TaskManager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager">[docs]</a><span class="k">class</span> <span class="nc">TaskManager</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -627,8 +618,8 @@
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;policy: &quot;</span> <span class="o">+</span> <span class="n">TaskPolicy</span><span class="o">.</span><span class="n">autodoc</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;qadapter: &quot;</span> <span class="o">+</span> <span class="n">QueueAdapter</span><span class="o">.</span><span class="n">autodoc</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="c1">#s += &quot;db_connector: &quot; + DBConnector.autodoc()</span>
-        <span class="k">return</span> <span class="n">s</span></div>
+        <span class="c1">#s += &quot;db_connector: &quot; + DBConnector.autodoc()</span></div>
+        <span class="k">return</span> <span class="n">s</span>
 
 <div class="viewcode-block" id="TaskManager.from_user_config"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_user_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_user_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -656,8 +647,8 @@
                 <span class="s2">&quot;It provides a description of the cluster/computer you are running on</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="s2">&quot;Examples are provided in abipy/data/managers.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">YAML_FILE</span><span class="p">,</span> <span class="n">path</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">))</span>
 
-        <span class="n">_USER_CONFIG_TASKMANAGER</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_USER_CONFIG_TASKMANAGER</span></div>
+        <span class="n">_USER_CONFIG_TASKMANAGER</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_USER_CONFIG_TASKMANAGER</span>
 
 <div class="viewcode-block" id="TaskManager.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -666,13 +657,13 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fh</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error while reading TaskManager parameters from </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="k">raise</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error while reading TaskManager parameters from </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span></div>
+            <span class="k">raise</span>
 
 <div class="viewcode-block" id="TaskManager.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_string">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create an instance from string s containing a YAML dictionary.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">s</span><span class="p">))</span></div>
+        <span class="sd">&quot;&quot;&quot;Create an instance from string s containing a YAML dictionary.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
 
 <div class="viewcode-block" id="TaskManager.as_manager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.as_manager">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">as_manager</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
@@ -691,17 +682,17 @@
 
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2"> to TaskManager&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span></div>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Don&#39;t know how to convert type </span><span class="si">%s</span><span class="s2"> to TaskManager&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
 
 <div class="viewcode-block" id="TaskManager.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create an instance from a dictionary.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ENTRIES</span><span class="p">})</span></div>
+        <span class="sd">&quot;&quot;&quot;Create an instance from a dictionary.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ENTRIES</span><span class="p">})</span>
 
 <div class="viewcode-block" id="TaskManager.as_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.as_dict">[docs]</a>    <span class="nd">@pmg_serialize</span>
-    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -752,8 +743,8 @@
 
 <div class="viewcode-block" id="TaskManager.abinit_build"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.abinit_build">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">abinit_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;:class:`AbinitBuild` object with Abinit version and options used to build the code&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">AbinitBuild</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;:class:`AbinitBuild` object with Abinit version and options used to build the code&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">AbinitBuild</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.to_shell_manager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.to_shell_manager">[docs]</a>    <span class="k">def</span> <span class="nf">to_shell_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -797,8 +788,8 @@
         <span class="c1">#print(my_kwargs)</span>
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="o">**</span><span class="n">my_kwargs</span><span class="p">)</span>
         <span class="n">new</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">new</span></div>
+</div>
+        <span class="k">return</span> <span class="n">new</span>
 
 <div class="viewcode-block" id="TaskManager.new_with_fixed_mpi_omp"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.new_with_fixed_mpi_omp">[docs]</a>    <span class="k">def</span> <span class="nf">new_with_fixed_mpi_omp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -809,8 +800,8 @@
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
         <span class="n">new</span><span class="o">.</span><span class="n">policy</span><span class="o">.</span><span class="n">autoparal</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">new</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
-        <span class="n">new</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">new</span></div>
+        <span class="n">new</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">new</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -873,8 +864,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong value of policy.precedence = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">policy</span><span class="o">.</span><span class="n">precedence</span><span class="p">)</span>
 
-        <span class="c1"># No qadapter could be found</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find qadapter for this run!&quot;</span><span class="p">)</span></div>
+        <span class="c1"># No qadapter could be found</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find qadapter for this run!&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_use_qadpos_pconf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qadpos</span><span class="p">,</span> <span class="n">pconf</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -939,20 +930,20 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">omp_threads</span>
 
 <div class="viewcode-block" id="TaskManager.deepcopy"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.deepcopy">[docs]</a>    <span class="k">def</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Deep copy of self.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Deep copy of self.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.set_mpi_procs"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.set_mpi_procs">[docs]</a>    <span class="k">def</span> <span class="nf">set_mpi_procs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the number of MPI processes to use.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Set the number of MPI processes to use.&quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_mpi_procs</span><span class="p">(</span><span class="n">mpi_procs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.set_omp_threads"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.set_omp_threads">[docs]</a>    <span class="k">def</span> <span class="nf">set_omp_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omp_threads</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the number of OpenMp threads to use.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Set the number of OpenMp threads to use.&quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_omp_threads</span><span class="p">(</span><span class="n">omp_threads</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.set_mem_per_proc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.set_mem_per_proc">[docs]</a>    <span class="k">def</span> <span class="nf">set_mem_per_proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the memory (in Megabytes) per CPU.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Set the memory (in Megabytes) per CPU.&quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_mem_per_proc</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">max_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -969,12 +960,12 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            username: (str) the username of the jobs to count (default is to autodetect)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">get_njobs_in_queue</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">get_njobs_in_queue</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.cancel"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Cancel the job. Returns exit status.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Cancel the job. Returns exit status.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.write_jobfile"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.write_jobfile">[docs]</a>    <span class="k">def</span> <span class="nf">write_jobfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1003,8 +994,8 @@
         <span class="c1"># Write the script.</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">job_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">job_file</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o740</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">job_file</span><span class="o">.</span><span class="n">path</span></div>
+            <span class="n">task</span><span class="o">.</span><span class="n">job_file</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o740</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">job_file</span><span class="o">.</span><span class="n">path</span>
 
 <div class="viewcode-block" id="TaskManager.launch"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.launch">[docs]</a>    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1048,12 +1039,12 @@
             <span class="c1"># 2) Change the input file.</span>
             <span class="c1"># 3) Regenerate the submission script</span>
             <span class="c1"># 4) Relaunch</span>
-            <span class="n">task</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">S_ERROR</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;max_num_launches reached: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
-            <span class="k">raise</span></div>
+            <span class="n">task</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">S_ERROR</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;max_num_launches reached: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span></div>
+            <span class="k">raise</span>
 
 <div class="viewcode-block" id="TaskManager.get_collection"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.get_collection">[docs]</a>    <span class="k">def</span> <span class="nf">get_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the MongoDB collection used to store the results.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_connector</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Return the MongoDB collection used to store the results.&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_connector</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.increase_mem"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.increase_mem">[docs]</a>    <span class="k">def</span> <span class="nf">increase_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># OLD</span>
@@ -1064,8 +1055,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">more_mem_per_proc</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">QueueAdapterError</span><span class="p">:</span>
-            <span class="c1"># here we should try to switch to an other qadapter</span>
-            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase mem&#39;</span><span class="p">)</span></div>
+            <span class="c1"># here we should try to switch to an other qadapter</span></div>
+            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase mem&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.increase_ncpus"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.increase_ncpus">[docs]</a>    <span class="k">def</span> <span class="nf">increase_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1075,8 +1066,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">more_cores</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">QueueAdapterError</span><span class="p">:</span>
-            <span class="c1"># here we should try to switch to an other qadapter</span>
-            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase ncpu&#39;</span><span class="p">)</span></div>
+            <span class="c1"># here we should try to switch to an other qadapter</span></div>
+            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase ncpu&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.increase_resources"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.increase_resources">[docs]</a>    <span class="k">def</span> <span class="nf">increase_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1088,22 +1079,22 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">more_mem_per_proc</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">QueueAdapterError</span><span class="p">:</span>
-            <span class="c1"># here we should try to switch to an other qadapter</span>
-            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase resources&#39;</span><span class="p">)</span></div>
+            <span class="c1"># here we should try to switch to an other qadapter</span></div>
+            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase resources&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.exclude_nodes"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.exclude_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">exclude_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">exclude_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">QueueAdapterError</span><span class="p">:</span>
-            <span class="c1"># here we should try to switch to an other qadapter</span>
-            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to exclude nodes&#39;</span><span class="p">)</span></div>
+            <span class="c1"># here we should try to switch to an other qadapter</span></div>
+            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to exclude nodes&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TaskManager.increase_time"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.TaskManager.increase_time">[docs]</a>    <span class="k">def</span> <span class="nf">increase_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">more_time</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">QueueAdapterError</span><span class="p">:</span>
-            <span class="c1"># here we should try to switch to an other qadapter</span>
-            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase time&#39;</span><span class="p">)</span></div></div>
+            <span class="c1"># here we should try to switch to an other qadapter</span></div></div>
+            <span class="k">raise</span> <span class="n">ManagerIncreaseError</span><span class="p">(</span><span class="s1">&#39;manager failed to increase time&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="AbinitBuild"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitBuild">[docs]</a><span class="k">class</span> <span class="nc">AbinitBuild</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1159,6 +1150,7 @@
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while executing </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">script_file</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;stderr:&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="c1">#print(&quot;stdout:&quot;, process.stdout.read())</span>
 
         <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
         <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -1219,8 +1211,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">has_mpi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_mpiio</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
 
         <span class="k">def</span> <span class="nf">yesno2bool</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
-            <span class="n">ans</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">yes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="n">ans</span><span class="p">]</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">yes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">no</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">ans</span><span class="p">]</span>
 
         <span class="c1"># Parse info.</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
@@ -1241,15 +1233,15 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AbinitBuild.version_ge"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitBuild.version_ge">[docs]</a>    <span class="k">def</span> <span class="nf">version_ge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version_string</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;True is Abinit version is &gt;= version_string&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">compare_version</span><span class="p">(</span><span class="n">version_string</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;True is Abinit version is &gt;= version_string&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">compare_version</span><span class="p">(</span><span class="n">version_string</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AbinitBuild.compare_version"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitBuild.compare_version">[docs]</a>    <span class="k">def</span> <span class="nf">compare_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version_string</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compare Abinit version to `version_string` with operator `op`&quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="k">import</span> <span class="n">parse_version</span>
         <span class="kn">from</span> <span class="nn">monty.operator</span> <span class="k">import</span> <span class="n">operator_from_str</span>
-        <span class="n">op</span> <span class="o">=</span> <span class="n">operator_from_str</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">op</span><span class="p">(</span><span class="n">parse_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">),</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">version_string</span><span class="p">))</span></div></div>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">operator_from_str</span><span class="p">(</span><span class="n">op</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">op</span><span class="p">(</span><span class="n">parse_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">),</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">version_string</span><span class="p">))</span>
 
 
 <span class="k">class</span> <span class="nc">FakeProcess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1790,6 +1782,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_INIT</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Reset on </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_qjob</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Reset finalized flags.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">finalized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">finalized</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="mi">0</span>
 
@@ -2533,6 +2529,101 @@
         <span class="n">retcode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">retcode</span>
 
+    <span class="k">def</span> <span class="nf">get_graphviz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;automatic&quot;</span><span class="p">,</span> <span class="n">graph_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate task graph in the DOT language (only parents and children of this task).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            engine: [&#39;dot&#39;, &#39;neato&#39;, &#39;twopi&#39;, &#39;circo&#39;, &#39;fdp&#39;, &#39;sfdp&#39;, &#39;patchwork&#39;, &#39;osage&#39;]</span>
+<span class="sd">            graph_attr: Mapping of (attribute, value) pairs for the graph.</span>
+<span class="sd">            node_attr: Mapping of (attribute, value) pairs set for all nodes.</span>
+<span class="sd">            edge_attr: Mapping of (attribute, value) pairs set for all edges.</span>
+
+<span class="sd">        Returns: graphviz.Digraph &lt;https://graphviz.readthedocs.io/en/stable/api.html#digraph&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># https://www.graphviz.org/doc/info/</span>
+        <span class="kn">from</span> <span class="nn">graphviz</span> <span class="k">import</span> <span class="n">Digraph</span>
+        <span class="n">fg</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">(</span><span class="s2">&quot;task&quot;</span><span class="p">,</span> <span class="c1"># filename=&quot;task_%s.gv&quot; % os.path.basename(self.workdir),</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;dot&quot;</span> <span class="k">if</span> <span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;automatic&quot;</span> <span class="k">else</span> <span class="n">engine</span><span class="p">)</span>
+
+        <span class="c1"># Set graph attributes.</span>
+        <span class="c1">#fg.attr(label=&quot;%s@%s&quot; % (self.__class__.__name__, self.relworkdir))</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="c1">#fg.attr(fontcolor=&quot;white&quot;, bgcolor=&#39;purple:pink&#39;)</span>
+        <span class="c1">#fg.attr(rankdir=&quot;LR&quot;, pagedir=&quot;BL&quot;)</span>
+        <span class="c1">#fg.attr(constraint=&quot;false&quot;, pack=&quot;true&quot;, packMode=&quot;clust&quot;)</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightblue2&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;filled&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Add input attributes.</span>
+        <span class="k">if</span> <span class="n">graph_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">graph_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">node_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">edge_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">edge_attr</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">node_kwargs</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="c1">#shape=&quot;circle&quot;,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;pos_str&quot;</span><span class="p">)</span> <span class="k">else</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">pos_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">edge_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">arrowType</span><span class="o">=</span><span class="s2">&quot;vee&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">)</span>
+        <span class="n">cluster_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span> <span class="n">pagedir</span><span class="o">=</span><span class="s2">&quot;BL&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;rounded&quot;</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s2">&quot;azure2&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build cluster with tasks.</span>
+        <span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">with</span> <span class="n">fg</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">wg</span><span class="p">:</span>
+            <span class="n">wg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="o">**</span><span class="n">cluster_kwargs</span><span class="p">)</span>
+            <span class="n">wg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">wg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+            <span class="c1"># Connect task to children.</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+                <span class="c1"># Test if child is in the same work.</span>
+                <span class="n">myg</span> <span class="o">=</span> <span class="n">wg</span> <span class="k">if</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="k">else</span> <span class="n">fg</span>
+                <span class="n">myg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">child</span><span class="p">))</span>
+                <span class="c1"># Find file extensions required by this task</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">edge_label</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+                <span class="n">myg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">edge_label</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Connect task to parents</span>
+            <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parents</span><span class="p">():</span>
+                <span class="c1"># Test if parent is in the same work.</span>
+                <span class="n">myg</span> <span class="o">=</span> <span class="n">wg</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="k">else</span> <span class="n">fg</span>
+                <span class="n">myg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">parent</span><span class="p">))</span>
+                <span class="c1"># Find file extensions required by self (task)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+                <span class="n">edge_label</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+                <span class="n">myg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">edge_label</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">parent</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Treat the case in which we have a work producing output for other tasks.</span>
+        <span class="c1">#for work in self:</span>
+        <span class="c1">#    children = work.get_children()</span>
+        <span class="c1">#    if not children: continue</span>
+        <span class="c1">#    cluster_name = &quot;cluster%s&quot; % work.name</span>
+        <span class="c1">#    seen = set()</span>
+        <span class="c1">#    for child in children:</span>
+        <span class="c1">#        # This is not needed, too much confusing</span>
+        <span class="c1">#        #fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)</span>
+        <span class="c1">#        # Find file extensions required by work</span>
+        <span class="c1">#        i = [dep.node for dep in child.deps].index(work)</span>
+        <span class="c1">#        for ext in child.deps[i].exts:</span>
+        <span class="c1">#            out = &quot;%s (%s)&quot; % (ext, work.name)</span>
+        <span class="c1">#            fg.node(out)</span>
+        <span class="c1">#            fg.edge(out, child.name, **edge_kwargs)</span>
+        <span class="c1">#            key = (cluster_name, out)</span>
+        <span class="c1">#            if key not in seen:</span>
+        <span class="c1">#                fg.edge(cluster_name, out, color=work.color_hex, **edge_kwargs)</span>
+        <span class="c1">#                seen.add(key)</span>
+
+        <span class="k">return</span> <span class="n">fg</span>
+
 
 <span class="k">class</span> <span class="nc">DecreaseDemandsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2555,8 +2646,8 @@
 <span class="sd">            ainput: `AbinitInput` object.</span>
 <span class="sd">            workdir: Path to the working directory.</span>
 <span class="sd">            manager: :class:`TaskManager` object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AbinitTask.temp_shell_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.temp_shell_task">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">temp_shell_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">mpi_procs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -2574,8 +2665,8 @@
 
         <span class="c1"># Construct the task and run it</span>
         <span class="n">task</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_input</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="o">.</span><span class="n">to_shell_manager</span><span class="p">(</span><span class="n">mpi_procs</span><span class="o">=</span><span class="n">mpi_procs</span><span class="p">))</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s1">&#39;temp_shell_task&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">task</span></div>
+        <span class="n">task</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s1">&#39;temp_shell_task&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">task</span>
 
 <div class="viewcode-block" id="AbinitTask.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2600,8 +2691,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span> <span class="n">logs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rename_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span> <span class="n">logs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rename_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">logs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logs</span><span class="p">))</span></div>
+        <span class="k">if</span> <span class="n">logs</span><span class="p">:</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logs</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">executable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2648,8 +2739,8 @@
             <span class="k">return</span> <span class="n">abiinspect</span><span class="o">.</span><span class="n">GroundStateScfCycle</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dfpt_task</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">abiinspect</span><span class="o">.</span><span class="n">D2DEScfCycle</span>
-
-        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+        <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">filesfile_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2686,8 +2777,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AbinitTask.set_pconfs"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.set_pconfs">[docs]</a>    <span class="k">def</span> <span class="nf">set_pconfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pconfs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the list of autoparal configurations.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pconfs</span> <span class="o">=</span> <span class="n">pconfs</span></div>
+        <span class="sd">&quot;&quot;&quot;Set the list of autoparal configurations.&quot;&quot;&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pconfs</span> <span class="o">=</span> <span class="n">pconfs</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pconfs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2700,8 +2791,8 @@
 <div class="viewcode-block" id="AbinitTask.uses_paral_kgb"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.uses_paral_kgb">[docs]</a>    <span class="k">def</span> <span class="nf">uses_paral_kgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;True if the task is a GS Task and uses paral_kgb with the given value.&quot;&quot;&quot;</span>
         <span class="n">paral_kgb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_inpvar</span><span class="p">(</span><span class="s2">&quot;paral_kgb&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="c1"># paral_kgb is used only in the GS part.</span>
-        <span class="k">return</span> <span class="n">paral_kgb</span> <span class="o">==</span> <span class="n">value</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">GsTask</span><span class="p">)</span></div>
+        <span class="c1"># paral_kgb is used only in the GS part.</span></div>
+        <span class="k">return</span> <span class="n">paral_kgb</span> <span class="o">==</span> <span class="n">value</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">GsTask</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_change_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Change the input structure.&quot;&quot;&quot;</span>
@@ -2768,7 +2859,7 @@
         <span class="n">max_ncpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">max_cores</span>
         <span class="k">if</span> <span class="n">max_ncpus</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="k">return</span> <span class="mi">0</span>
 
-        <span class="n">autoparal_vars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">autoparal</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">autoparal</span><span class="p">,</span> <span class="n">max_ncpus</span><span class="o">=</span><span class="n">max_ncpus</span><span class="p">)</span>
+        <span class="n">autoparal_vars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">autoparal</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">autoparal</span><span class="p">,</span> <span class="n">max_ncpus</span><span class="o">=</span><span class="n">max_ncpus</span><span class="p">,</span> <span class="n">mem_test</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">autoparal_vars</span><span class="p">)</span>
 
         <span class="c1"># Run the job in a shell subprocess with mpi_procs = 1</span>
@@ -2779,6 +2870,7 @@
         <span class="n">retcode</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
         <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1">#process.stdout.close()</span>
 
         <span class="c1"># Remove the variables added for the automatic parallelization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">autoparal_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
@@ -2790,8 +2882,15 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
-            <span class="k">return</span> <span class="mi">2</span>
+            <span class="c1"># In principle Abinit should have written a complete log file</span>
+            <span class="c1"># because we called .wait() but sometimes the Yaml doc is incomplete and</span>
+            <span class="c1"># the parser raises. Let&#39;s wait 5 secs and then try again.</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
+                <span class="k">return</span> <span class="mi">2</span>
 
         <span class="c1">######################################################</span>
         <span class="c1"># Select the optimal configuration according to policy</span>
@@ -2819,8 +2918,8 @@
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stderr_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="mi">0</span></div>
+</div>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="AbinitTask.find_optconf"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.find_optconf">[docs]</a>    <span class="k">def</span> <span class="nf">find_optconf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pconfs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Find the optimal Parallel configuration.&quot;&quot;&quot;</span>
@@ -2828,8 +2927,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_pconfs</span><span class="p">(</span><span class="n">pconfs</span><span class="p">)</span>
 
         <span class="c1"># Select the partition on which we&#39;ll be running and set MPI/OMP cores.</span>
-        <span class="n">optconf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">select_qadapter</span><span class="p">(</span><span class="n">pconfs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">optconf</span></div>
+        <span class="n">optconf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">select_qadapter</span><span class="p">(</span><span class="n">pconfs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">optconf</span>
 
 <div class="viewcode-block" id="AbinitTask.select_files"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.select_files">[docs]</a>    <span class="k">def</span> <span class="nf">select_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">what</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2866,14 +2965,14 @@
                 <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">choices</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="s2">&quot;path&quot;</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Wrong keyword </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">c</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">selected</span></div>
+</div>
+        <span class="k">return</span> <span class="n">selected</span>
 
 <div class="viewcode-block" id="AbinitTask.restart"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        general restart used when scheduler problems have been taken care of</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span>
 
     <span class="c1">#@check_spectator</span>
 <div class="viewcode-block" id="AbinitTask.reset_from_scratch"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.reset_from_scratch">[docs]</a>    <span class="k">def</span> <span class="nf">reset_from_scratch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2911,8 +3010,8 @@
 
         <span class="c1"># Reset datetimes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">datetimes</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">(</span><span class="n">submit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">(</span><span class="n">submit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1">#@check_spectator</span>
 <div class="viewcode-block" id="AbinitTask.fix_abicritical"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.fix_abicritical">[docs]</a>    <span class="k">def</span> <span class="nf">fix_abicritical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2955,8 +3054,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">reset_from_scratch</span><span class="p">()</span>
             <span class="k">return</span> <span class="mi">1</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">S_ERROR</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;We encountered AbiCritical events that could not be fixed&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">S_ERROR</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;We encountered AbiCritical events that could not be fixed&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="mi">0</span>
 
     <span class="c1">#@check_spectator</span>
 <div class="viewcode-block" id="AbinitTask.fix_queue_critical"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.fix_queue_critical">[docs]</a>    <span class="k">def</span> <span class="nf">fix_queue_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3093,8 +3192,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;No solution provided for error </span><span class="si">%s</span><span class="s1">. Unrecoverable error.&#39;</span> <span class="o">%</span> <span class="n">error</span><span class="o">.</span><span class="n">name</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_ERROR</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="mi">0</span></div>
+</div>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="AbinitTask.parse_timing"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AbinitTask.parse_timing">[docs]</a>    <span class="k">def</span> <span class="nf">parse_timing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3107,8 +3206,8 @@
         <span class="n">parser</span> <span class="o">=</span> <span class="n">AbinitTimerParser</span><span class="p">()</span>
         <span class="n">read_ok</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">read_ok</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">parser</span>
-        <span class="k">return</span> <span class="kc">None</span></div></div>
+            <span class="k">return</span> <span class="n">parser</span></div></div>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
 <span class="k">class</span> <span class="nc">ProduceHist</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -3210,8 +3309,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">irdvars</span><span class="p">)</span>
 
         <span class="c1"># Now we can resubmit the job.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ScfTask.inspect"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ScfTask.inspect">[docs]</a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3228,8 +3327,8 @@
         <span class="k">if</span> <span class="n">scf_cycle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;title&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">scf_cycle</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+        <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ScfTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ScfTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ScfTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -3239,8 +3338,8 @@
             <span class="n">results</span><span class="p">[</span><span class="s2">&quot;out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">gsr</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
             <span class="c1"># Add files to GridFS</span>
             <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">GSR</span><span class="o">=</span><span class="n">gsr</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">results</span></div></div>
+</div></div>
+        <span class="k">return</span> <span class="n">results</span>
 
 
 <span class="k">class</span> <span class="nc">CollinearThenNonCollinearScfTask</span><span class="p">(</span><span class="n">ScfTask</span><span class="p">):</span>
@@ -3276,7 +3375,7 @@
         <span class="n">events</span><span class="o">.</span><span class="n">NscfConvergenceWarning</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">160</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mi">45</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
+    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
 
 <div class="viewcode-block" id="NscfTask.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.NscfTask.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3284,10 +3383,13 @@
 <span class="sd">        (in principle, it&#39;s possible to interpolate inside Abinit but tests revealed some numerical noise</span>
 <span class="sd">        Here we change the input file of the NSCF task to have the same FFT mesh.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="n">dep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">parent_task</span> <span class="o">=</span> <span class="n">dep</span><span class="o">.</span><span class="n">node</span>
-        <span class="c1"># TODO: This won&#39;t work if parent_node is a file</span>
+        <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;DEN&quot;</span> <span class="ow">in</span> <span class="n">dep</span><span class="o">.</span><span class="n">exts</span><span class="p">:</span>
+                <span class="n">parent_task</span> <span class="o">=</span> <span class="n">dep</span><span class="o">.</span><span class="n">node</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find parent node producing DEN file&quot;</span><span class="p">)</span>
+
         <span class="k">with</span> <span class="n">parent_task</span><span class="o">.</span><span class="n">open_gsr</span><span class="p">()</span> <span class="k">as</span> <span class="n">gsr</span><span class="p">:</span>
             <span class="n">den_mesh</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
             <span class="n">den_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gsr</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">read_dimvalue</span><span class="p">(</span><span class="s2">&quot;number_of_grid_points_vector1&quot;</span><span class="p">)</span>
@@ -3297,8 +3399,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ngfftdg</span><span class="o">=</span><span class="n">den_mesh</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">ngfft</span><span class="o">=</span><span class="n">den_mesh</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">(</span><span class="n">NscfTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span></div>
+</div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NscfTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
 
 <div class="viewcode-block" id="NscfTask.restart"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.NscfTask.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;NSCF calculations can be restarted only if we have the WFK file.&quot;&quot;&quot;</span>
@@ -3315,8 +3417,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">irdvars</span><span class="p">)</span>
 
         <span class="c1"># Now we can resubmit the job.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span>
 
 <div class="viewcode-block" id="NscfTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.NscfTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">NscfTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -3326,8 +3428,8 @@
             <span class="n">results</span><span class="p">[</span><span class="s2">&quot;out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">gsr</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
             <span class="c1"># Add files to GridFS</span>
             <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">GSR</span><span class="o">=</span><span class="n">gsr</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">results</span></div></div>
+</div></div>
+        <span class="k">return</span> <span class="n">results</span>
 
 
 <div class="viewcode-block" id="RelaxTask"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.RelaxTask">[docs]</a><span class="k">class</span> <span class="nc">RelaxTask</span><span class="p">(</span><span class="n">GsTask</span><span class="p">,</span> <span class="n">ProduceHist</span><span class="p">):</span>
@@ -3346,8 +3448,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_gsr</span><span class="p">()</span> <span class="k">as</span> <span class="n">gsr</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">gsr</span><span class="o">.</span><span class="n">structure</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find the GSR file with the final structure to restart from.&quot;</span><span class="p">)</span></div>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span></div>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find the GSR file with the final structure to restart from.&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RelaxTask.restart"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.RelaxTask.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3416,8 +3518,8 @@
         <span class="c1"># Read the relaxed structure from the GSR file and change the input.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_change_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_final_structure</span><span class="p">())</span>
 
-        <span class="c1"># Now we can resubmit the job.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span></div>
+        <span class="c1"># Now we can resubmit the job.</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span>
 
 <div class="viewcode-block" id="RelaxTask.inspect"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.RelaxTask.inspect">[docs]</a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3446,8 +3548,8 @@
             <span class="k">if</span> <span class="s2">&quot;title&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">relaxation</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">relaxation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong value for what </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">what</span><span class="p">)</span></div>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wrong value for what </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">what</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RelaxTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.RelaxTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">RelaxTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -3457,13 +3559,13 @@
             <span class="n">results</span><span class="p">[</span><span class="s2">&quot;out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">gsr</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
             <span class="c1"># Add files to GridFS</span>
             <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">GSR</span><span class="o">=</span><span class="n">gsr</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">results</span></div>
+</div>
+        <span class="k">return</span> <span class="n">results</span>
 
 <div class="viewcode-block" id="RelaxTask.reduce_dilatmx"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.RelaxTask.reduce_dilatmx">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_dilatmx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mf">1.01</span><span class="p">):</span>
         <span class="n">actual_dilatmx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_inpvar</span><span class="p">(</span><span class="s1">&#39;dilatmx&#39;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
-        <span class="n">new_dilatmx</span> <span class="o">=</span> <span class="n">actual_dilatmx</span> <span class="o">-</span> <span class="nb">min</span><span class="p">((</span><span class="n">actual_dilatmx</span><span class="o">-</span><span class="n">target</span><span class="p">),</span> <span class="n">actual_dilatmx</span><span class="o">*</span><span class="mf">0.05</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">dilatmx</span><span class="o">=</span><span class="n">new_dilatmx</span><span class="p">)</span></div>
+        <span class="n">new_dilatmx</span> <span class="o">=</span> <span class="n">actual_dilatmx</span> <span class="o">-</span> <span class="nb">min</span><span class="p">((</span><span class="n">actual_dilatmx</span><span class="o">-</span><span class="n">target</span><span class="p">),</span> <span class="n">actual_dilatmx</span><span class="o">*</span><span class="mf">0.05</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">dilatmx</span><span class="o">=</span><span class="n">new_dilatmx</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RelaxTask.fix_ofiles"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.RelaxTask.fix_ofiles">[docs]</a>    <span class="k">def</span> <span class="nf">fix_ofiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3484,8 +3586,8 @@
         <span class="c1"># Rename last TIMDEN with out_DEN.</span>
         <span class="n">ofile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="s2">&quot;out_DEN&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">last_timden</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">):</span> <span class="n">ofile</span> <span class="o">+=</span> <span class="s2">&quot;.nc&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Renaming last_denfile </span><span class="si">%s</span><span class="s2"> --&gt; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">last_timden</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ofile</span><span class="p">))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">last_timden</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ofile</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Renaming last_denfile </span><span class="si">%s</span><span class="s2"> --&gt; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">last_timden</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ofile</span><span class="p">))</span></div></div>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">last_timden</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ofile</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">DfptTask</span><span class="p">(</span><span class="n">AbinitTask</span><span class="p">):</span>
@@ -3674,8 +3776,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">symlink_abiext</span><span class="p">(</span><span class="s1">&#39;1WF&#39;</span><span class="p">,</span> <span class="s1">&#39;DDK&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DdkTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.DdkTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">DdkTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_file</span><span class="p">(</span><span class="n">DDK</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDK&quot;</span><span class="p">),</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span></div></div>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">DdkTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_file</span><span class="p">(</span><span class="n">DDK</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDK&quot;</span><span class="p">),</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span>
 
 
 <span class="k">class</span> <span class="nc">BecTask</span><span class="p">(</span><span class="n">DfptTask</span><span class="p">):</span>
@@ -3733,7 +3835,7 @@
         <span class="n">events</span><span class="o">.</span><span class="n">ScfConvergenceWarning</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
+    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">250</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
 
 <div class="viewcode-block" id="PhononTask.restart"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.PhononTask.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3774,8 +3876,8 @@
         <span class="c1"># Add the appropriate variable for restarting.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">irdvars</span><span class="p">)</span>
 
-        <span class="c1"># Now we can resubmit the job.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span></div>
+        <span class="c1"># Now we can resubmit the job.</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PhononTask.inspect"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.PhononTask.inspect">[docs]</a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3786,15 +3888,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scf_cycle</span> <span class="o">=</span> <span class="n">abiinspect</span><span class="o">.</span><span class="n">PhononScfCycle</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">scf_cycle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;title&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">scf_cycle</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="s2">&quot;title&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">scf_cycle</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PhononTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.PhononTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PhononTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">),</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span></div>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PhononTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">),</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span>
 
-<div class="viewcode-block" id="PhononTask.make_links"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.PhononTask.make_links">[docs]</a>    <span class="k">def</span> <span class="nf">make_links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PhononTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_links</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="PhononTask.make_links"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.PhononTask.make_links">[docs]</a>    <span class="k">def</span> <span class="nf">make_links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PhononTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_links</span><span class="p">()</span>
         <span class="c1"># fix the problem that abinit uses the 1WF extension for the DDK output file but reads it with the irdddk flag</span>
         <span class="c1">#if self.indir.has_abiext(&#39;DDK&#39;):</span>
         <span class="c1">#    self.indir.rename_abiext(&#39;DDK&#39;, &#39;1WF&#39;)</span>
@@ -3902,8 +4004,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">irdvars</span><span class="p">)</span>
 
         <span class="c1"># Now we can resubmit the job.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will restart from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">restart_file</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">()</span>
 
     <span class="c1">#def inspect(self, **kwargs):</span>
     <span class="c1">#    &quot;&quot;&quot;Plot graph showing the number of k-points computed and the wall-time used&quot;&quot;&quot;</span>
@@ -3935,8 +4037,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">SigresFile</span><span class="p">(</span><span class="n">sigres_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Exception while reading SIGRES file at </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sigres_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Exception while reading SIGRES file at </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sigres_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span></div>
+            <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="SigmaTask.get_scissors_builder"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.SigmaTask.get_scissors_builder">[docs]</a>    <span class="k">def</span> <span class="nf">get_scissors_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -3948,8 +4050,8 @@
         <span class="kn">from</span> <span class="nn">abipy.electrons.scissors</span> <span class="k">import</span> <span class="n">ScissorsBuilder</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigres_path</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ScissorsBuilder</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigres_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find SIGRES file!&quot;</span><span class="p">)</span></div>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot find SIGRES file!&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SigmaTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.SigmaTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SigmaTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -3958,8 +4060,8 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_sigres</span><span class="p">()</span> <span class="k">as</span> <span class="n">sigres</span><span class="p">:</span>
             <span class="c1">#results[&quot;out&quot;].update(sigres.as_dict())</span>
             <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">SIGRES</span><span class="o">=</span><span class="n">sigres</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">results</span></div></div>
+</div></div>
+        <span class="k">return</span> <span class="n">results</span>
 
 
 <span class="k">class</span> <span class="nc">BseTask</span><span class="p">(</span><span class="n">ManyBodyTask</span><span class="p">):</span>
@@ -4122,8 +4224,8 @@
 <div class="viewcode-block" id="OpticTask.set_workdir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.set_workdir">[docs]</a>    <span class="k">def</span> <span class="nf">set_workdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the working directory of the task.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">OpticTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">workdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="n">chroot</span><span class="p">)</span>
-        <span class="c1"># Small hack: the log file of optics is actually the main output file.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span></div>
+        <span class="c1"># Small hack: the log file of optics is actually the main output file.</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_file</span>
 
 <div class="viewcode-block" id="OpticTask.set_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.set_vars">[docs]</a>    <span class="k">def</span> <span class="nf">set_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4133,8 +4235,8 @@
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;OpticTask intercepted set_vars with args </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;autoparal&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">autoparal</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;autoparal&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="s2">&quot;max_ncpus&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">max_ncpus</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;max_ncpus&quot;</span><span class="p">])</span></div>
+        <span class="k">if</span> <span class="s2">&quot;autoparal&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">autoparal</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;autoparal&quot;</span><span class="p">])</span></div>
+        <span class="k">if</span> <span class="s2">&quot;max_ncpus&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">set_vars</span><span class="p">(</span><span class="n">max_ncpus</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;max_ncpus&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">executable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -4186,26 +4288,26 @@
         <span class="c1"># Get the input specified by the user</span>
         <span class="n">user_file</span> <span class="o">=</span> <span class="n">nmltostring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
 
-        <span class="c1"># Join them.</span>
-        <span class="k">return</span> <span class="n">files</span> <span class="o">+</span> <span class="n">user_file</span></div>
+        <span class="c1"># Join them.</span></div>
+        <span class="k">return</span> <span class="n">files</span> <span class="o">+</span> <span class="n">user_file</span>
 
-<div class="viewcode-block" id="OpticTask.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Public method called before submitting the task.&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="OpticTask.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="sd">&quot;&quot;&quot;Public method called before submitting the task.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="OpticTask.make_links"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.make_links">[docs]</a>    <span class="k">def</span> <span class="nf">make_links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Optic allows the user to specify the paths of the input file.</span>
-<span class="sd">        hence we don&#39;t need to create symbolic links.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        hence we don&#39;t need to create symbolic links.</span></div>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="OpticTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">OpticTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+<div class="viewcode-block" id="OpticTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">OpticTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpticTask.fix_abicritical"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.fix_abicritical">[docs]</a>    <span class="k">def</span> <span class="nf">fix_abicritical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cannot fix abicritical errors for optic</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">0</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="mi">0</span>
 
     <span class="c1">#@check_spectator</span>
 <div class="viewcode-block" id="OpticTask.reset_from_scratch"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.reset_from_scratch">[docs]</a>    <span class="k">def</span> <span class="nf">reset_from_scratch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -4242,8 +4344,8 @@
 
         <span class="c1"># Reset datetimes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">datetimes</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">(</span><span class="n">submit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restart</span><span class="p">(</span><span class="n">submit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpticTask.fix_queue_critical"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.fix_queue_critical">[docs]</a>    <span class="k">def</span> <span class="nf">fix_queue_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4361,8 +4463,8 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;No solution provided for error </span><span class="si">%s</span><span class="s1">. Unrecoverable error.&#39;</span> <span class="o">%</span> <span class="n">error</span><span class="o">.</span><span class="n">name</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_ERROR</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="mi">0</span></div>
+</div>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="OpticTask.autoparal_run"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.OpticTask.autoparal_run">[docs]</a>    <span class="k">def</span> <span class="nf">autoparal_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -4401,6 +4503,7 @@
         <span class="n">retcode</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="c1"># To avoid: ResourceWarning: unclosed file &lt;_io.BufferedReader name=87&gt; in py3k</span>
         <span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1">#process.stdout.close()</span>
 
         <span class="c1"># Remove the variables added for the automatic parallelization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">remove_vars</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">autoparal_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
@@ -4412,8 +4515,15 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
-            <span class="k">return</span> <span class="mi">2</span>
+            <span class="c1"># In principle Abinit should have written a complete log file</span>
+            <span class="c1"># because we called .wait() but sometimes the Yaml doc is incomplete and</span>
+            <span class="c1"># the parser raises. Let&#39;s wait 5 secs and then try again.</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pconfs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
+                <span class="k">return</span> <span class="mi">2</span>
 
         <span class="c1">######################################################</span>
         <span class="c1"># Select the optimal configuration according to policy</span>
@@ -4443,8 +4553,8 @@
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="c1">#os.remove(self.log_file.path)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stderr_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="mi">0</span></div></div>
+</div></div>
+        <span class="k">return</span> <span class="mi">0</span>
 
 
 <div class="viewcode-block" id="AnaddbTask"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask">[docs]</a><span class="k">class</span> <span class="nc">AnaddbTask</span><span class="p">(</span><span class="n">Task</span><span class="p">):</span>
@@ -4506,8 +4616,8 @@
 
         <span class="c1"># Construct the task and run it</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">ddb_node</span><span class="p">,</span>
-                   <span class="n">gkk_node</span><span class="o">=</span><span class="n">gkk_node</span><span class="p">,</span> <span class="n">md_node</span><span class="o">=</span><span class="n">md_node</span><span class="p">,</span> <span class="n">ddk_node</span><span class="o">=</span><span class="n">ddk_node</span><span class="p">,</span>
-                   <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="o">.</span><span class="n">to_shell_manager</span><span class="p">(</span><span class="n">mpi_procs</span><span class="o">=</span><span class="n">mpi_procs</span><span class="p">))</span></div>
+                   <span class="n">gkk_node</span><span class="o">=</span><span class="n">gkk_node</span><span class="p">,</span> <span class="n">md_node</span><span class="o">=</span><span class="n">md_node</span><span class="p">,</span> <span class="n">ddk_node</span><span class="o">=</span><span class="n">ddk_node</span><span class="p">,</span></div>
+                   <span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="o">.</span><span class="n">to_shell_manager</span><span class="p">(</span><span class="n">mpi_procs</span><span class="o">=</span><span class="n">mpi_procs</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">executable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -4568,14 +4678,14 @@
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ddk_node</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDK&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span> <span class="k">else</span> <span class="s2">&quot;DDK_FILE_DOES_NOT_EXIST&quot;</span>
 
-<div class="viewcode-block" id="AnaddbTask.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Public method called before submitting the task.&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="AnaddbTask.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="sd">&quot;&quot;&quot;Public method called before submitting the task.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AnaddbTask.make_links"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.make_links">[docs]</a>    <span class="k">def</span> <span class="nf">make_links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Anaddb allows the user to specify the paths of the input file.</span>
-<span class="sd">        hence we don&#39;t need to create symbolic links.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        hence we don&#39;t need to create symbolic links.</span></div>
+<span class="sd">        &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AnaddbTask.open_phbst"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.open_phbst">[docs]</a>    <span class="k">def</span> <span class="nf">open_phbst</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Open PHBST file produced by Anaddb and returns :class:`PhbstFile` object.&quot;&quot;&quot;</span>
@@ -4589,8 +4699,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PhbstFile</span><span class="p">(</span><span class="n">phbst_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Exception while reading GSR file at </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">phbst_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Exception while reading GSR file at </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">phbst_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span></div>
+            <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="AnaddbTask.open_phdos"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.open_phdos">[docs]</a>    <span class="k">def</span> <span class="nf">open_phdos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Open PHDOS file produced by Anaddb and returns :class:`PhdosFile` object.&quot;&quot;&quot;</span>
@@ -4604,12 +4714,12 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PhdosFile</span><span class="p">(</span><span class="n">phdos_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Exception while reading GSR file at </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">phdos_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Exception while reading GSR file at </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">phdos_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span></div>
+            <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="AnaddbTask.get_results"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.AnaddbTask.get_results">[docs]</a>    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">AnaddbTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">results</span></div></div>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">AnaddbTask</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">results</span>
 </pre></div>
 
           </div>
@@ -4619,12 +4729,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -4640,7 +4752,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4648,7 +4760,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

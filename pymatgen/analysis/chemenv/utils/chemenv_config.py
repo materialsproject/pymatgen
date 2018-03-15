@@ -8,6 +8,7 @@ from os.path import expanduser, exists
 from os import makedirs
 import json
 from six.moves import input
+from pymatgen import SETTINGS
 
 """
 This module contains the classes for configuration of the chemenv package.
@@ -38,8 +39,13 @@ class ChemEnvConfig():
                                'default_max_distance_factor': 1.5
                                }
 
-    def __init__(self, materials_project_configuration=None, package_options=None):
-        self.materials_project_configuration = materials_project_configuration
+    def __init__(self, package_options=None):
+        if SETTINGS.get("PMG_MAPI_KEY", "") != "": 
+            self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY", "")
+        else:
+            self.materials_project_configuration = None
+
+
         if package_options is None:
             self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         else:
@@ -57,13 +63,10 @@ class ChemEnvConfig():
             for key, val in self.package_options.items():
                 print('     {}   :   {}'.format(str(key), str(val)))
             print('\nChoose in the following :')
-            print(' <1> + <ENTER> : setup of the access to the materials project database')
-            print(' <2> + <ENTER> : configuration of the package options (strategy, ...)')
+            print(' <1> + <ENTER> : configuration of the package options (strategy, ...)')
             print(' <q> + <ENTER> : quit without saving configuration')
             test = input(' <S> + <ENTER> : save configuration and quit\n ... ')
             if test == '1':
-                self.setup_materials_project_configuration()
-            elif test == '2':
                 self.setup_package_options()
             elif test == 'q':
                 break
@@ -125,8 +128,7 @@ class ChemEnvConfig():
             root_dir = '{}/.chemenv'.format(home)
         if not exists(root_dir):
             makedirs(root_dir)
-        config_dict = {'materials_project_configuration': self.materials_project_configuration,
-                       'package_options': self.package_options}
+        config_dict = {'package_options': self.package_options}  
         config_file = '{}/config.json'.format(root_dir)
         if exists(config_file):
             test = input('Overwrite existing configuration ? (<Y> + <ENTER> to confirm)')
@@ -149,8 +151,8 @@ class ChemEnvConfig():
             f = open(config_file, 'r')
             config_dict = json.load(f)
             f.close()
-            return ChemEnvConfig(materials_project_configuration=config_dict['materials_project_configuration'],
-                                 package_options=config_dict['package_options'])
+            return ChemEnvConfig(package_options=config_dict['package_options']) 
+            
         except IOError:
             print('Unable to load configuration from file "{}" ...'.format(config_file))
             print(' ... loading default configuration')

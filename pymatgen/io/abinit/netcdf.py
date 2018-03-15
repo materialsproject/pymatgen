@@ -263,7 +263,8 @@ class ETSF_Reader(NetcdfReader):
         charr = self.read_value("chemical_symbols")
         symbols = []
         for v in charr:
-            symbols.append("".join(c.decode("utf-8") for c in v))
+            s = "".join(c.decode("utf-8") for c in v)
+            symbols.append(s.strip())
 
         return symbols
 

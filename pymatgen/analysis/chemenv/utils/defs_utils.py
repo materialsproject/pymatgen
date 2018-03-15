@@ -23,7 +23,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion
 STATS_ENV_PAPER = 'David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,\n' \
                   'Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,\n' \
                   '"Statistical analysis of coordination environments in oxides",\n' \
-                  'Chem. Mater., 2017, 29 (19), pp 8346–8360,\n' \
+                  'Chem. Mater., 2017, 29 (19), pp 8346-8360,\n' \
                   'DOI: 10.1021/acs.chemmater.7b02766\n'
 
 

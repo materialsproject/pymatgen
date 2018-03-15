@@ -190,6 +190,30 @@ class MPResterTest(unittest.TestCase):
         for e in self.rester.get_entries("CdO2", inc_structure=False):
             self.assertIsNotNone(e.data["oxide_type"])
 
+        # test if it will retrieve the conventional unit cell of Ni
+        entry = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
+                                                     conventional_unit_cell=True)
+        Ni = entry.structure
+        self.assertEqual(Ni.lattice.a, Ni.lattice.b)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.c)
+        self.assertEqual(Ni.lattice.alpha, 90)
+        self.assertEqual(Ni.lattice.beta, 90)
+        self.assertEqual(Ni.lattice.gamma, 90)
+
+        # Ensure energy per atom is same
+        primNi = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
+                                                      conventional_unit_cell=False)
+        self.assertEqual(primNi.energy_per_atom, entry.energy_per_atom)
+
+        Ni = self.rester.get_structure_by_material_id("mp-23",
+                                                      conventional_unit_cell=True)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.b)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.c)
+        self.assertEqual(Ni.lattice.alpha, 90)
+        self.assertEqual(Ni.lattice.beta, 90)
+        self.assertEqual(Ni.lattice.gamma, 90)
+
+
     def test_get_pourbaix_entries(self):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
         for pbx_entry in pbx_entries:

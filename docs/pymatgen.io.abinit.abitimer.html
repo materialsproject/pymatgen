@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abitimer module &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.io.abinit.abitimer module &#8212; pymatgen 2018.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2017.12.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,12 +50,12 @@ It also provides tools to analye and to visualize the parallel efficiency.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer">
 <em class="property">class </em><code class="descname">AbinitTimer</code><span class="sig-paren">(</span><em>sections</em>, <em>info</em>, <em>cpu_time</em>, <em>wall_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Container class storing the timing results.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram">
 <code class="descname">cpuwall_histogram</code><span class="sig-paren">(</span><em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer.cpuwall_histogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.cpuwall_histogram" title="Permalink to this definition">¶</a></dt>
-<dd><p>keyword arguments controlling the display of the figure:</p>
+<dd><p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -83,11 +74,11 @@ It also provides tools to analye and to visualize the parallel efficiency.</p>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -135,18 +126,24 @@ Return the names of the sections and the corresponding values.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.pie">
 <code class="descname">pie</code><span class="sig-paren">(</span><em>key='wall_time'</em>, <em>minfract=0.05</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer.pie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.pie" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Plot pie chart for this timer.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>key: Keyword used to extract data from the timer.
-minfract: Don’t show sections whose relative weight is less that minfract.
-ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</dd>
-<dt>Returns:</dt>
-<dd><cite>matplotlib</cite> figure</dd>
-</dl>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<dd><p>Plot pie chart for this timer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> – Keyword used to extract data from the timer.</li>
+<li><strong>minfract</strong> – Don’t show sections whose relative weight is less that minfract.</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>matplotlib</cite> figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -165,11 +162,11 @@ ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre"
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -181,7 +178,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist">
 <code class="descname">scatter_hist</code><span class="sig-paren">(</span><em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimer.scatter_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimer.scatter_hist" title="Permalink to this definition">¶</a></dt>
-<dd><p>keyword arguments controlling the display of the figure:</p>
+<dd><p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -200,11 +197,11 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -241,7 +238,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser">
 <em class="property">class </em><code class="descname">AbinitTimerParser</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Iterable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Iterable</span></code></p>
 <p>Responsible for parsing a list of output files, extracting the timing results
 and analyzing the results.
 Assume the Abinit output files have been produced with <cite>timopt -1</cite>.</p>
@@ -264,7 +261,7 @@ parser.parse(list_of_files)</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abitimer.AbinitTimerParserError" title="pymatgen.io.abinit.abitimer.AbinitTimerParserError"><code class="xref py py-class docutils literal"><span class="pre">AbinitTimerParserError</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abitimer.AbinitTimerParserError" title="pymatgen.io.abinit.abitimer.AbinitTimerParserError"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTimerParserError</span></code></a></p>
 </dd></dl>
 
 <dl class="attribute">
@@ -296,7 +293,7 @@ Files that cannot be opened are ignored. A single filename may also be given.</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="pymatgen.io.abinit.abitimer.ParallelEfficiency"><code class="xref py py-class docutils literal"><span class="pre">ParallelEfficiency</span></code></a> object.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference internal" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="pymatgen.io.abinit.abitimer.ParallelEfficiency"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelEfficiency</span></code></a> object.</td>
 </tr>
 </tbody>
 </table>
@@ -311,18 +308,22 @@ Files that cannot be opened are ignored. A single filename may also be given.</p
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency">
 <code class="descname">plot_efficiency</code><span class="sig-paren">(</span><em>key='wall_time'</em>, <em>what='good+bad'</em>, <em>nmax=5</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerParser.plot_efficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_efficiency" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Plot the parallel efficiency</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">key: Parallel efficiency is computed using the wall_time.
-what: Specifies what to plot: <cite>good</cite> for sections with good parallel efficiency.</p>
-<blockquote>
-<div><cite>bad</cite> for sections with bad efficiency. Options can be concatenated with <cite>+</cite>.</div></blockquote>
-<p class="last">nmax: Maximum number of entries in plot
-ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</p>
-</dd>
-</dl>
+<dd><p>Plot the parallel efficiency</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> – Parallel efficiency is computed using the wall_time.</li>
+<li><strong>what</strong> – Specifies what to plot: <cite>good</cite> for sections with good parallel efficiency.
+<cite>bad</cite> for sections with bad efficiency. Options can be concatenated with <cite>+</cite>.</li>
+<li><strong>nmax</strong> – Maximum number of entries in plot</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <table border="1" class="docutils">
 <colgroup>
 <col width="24%" />
@@ -342,12 +343,15 @@ ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre"
 </tr>
 </tbody>
 </table>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd><cite>matplotlib</cite> figure</dd>
-</dl>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>matplotlib</cite> figure</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -366,11 +370,11 @@ ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre"
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -382,17 +386,23 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie">
 <code class="descname">plot_pie</code><span class="sig-paren">(</span><em>key='wall_time'</em>, <em>minfract=0.05</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerParser.plot_pie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_pie" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Plot pie charts of the different timers.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>key: Keyword used to extract data from timers.
-minfract: Don’t show sections whose relative weight is less that minfract.</dd>
-<dt>Returns:</dt>
-<dd><cite>matplotlib</cite> figure</dd>
-</dl>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<dd><p>Plot pie charts of the different timers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> – Keyword used to extract data from timers.</li>
+<li><strong>minfract</strong> – Don’t show sections whose relative weight is less that minfract.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>matplotlib</cite> figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -411,11 +421,11 @@ minfract: Don’t show sections whose relative weight is less that minfract.</dd
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -427,23 +437,26 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist">
 <code class="descname">plot_stacked_hist</code><span class="sig-paren">(</span><em>key='wall_time'</em>, <em>nmax=5</em>, <em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerParser.plot_stacked_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParser.plot_stacked_hist" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Plot stacked histogram of the different timers.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first docutils">
-<dt>key: Keyword used to extract data from the timers. Only the first <cite>nmax</cite></dt>
-<dd>sections with largest value are show.</dd>
-<dt>mmax: Maximum nuber of sections to show. Other entries are grouped together</dt>
-<dd>in the <cite>others</cite> section.</dd>
-</dl>
-<p class="last">ax: matplotlib <code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> or None if a new figure should be created.</p>
-</dd>
-<dt>Returns:</dt>
-<dd><cite>matplotlib</cite> figure</dd>
-</dl>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<dd><p>Plot stacked histogram of the different timers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> – Keyword used to extract data from the timers. Only the first <cite>nmax</cite>
+sections with largest value are show.</li>
+<li><strong>mmax</strong> – Maximum nuber of sections to show. Other entries are grouped together
+in the <cite>others</cite> section.</li>
+<li><strong>ax</strong> – matplotlib <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> or None if a new figure should be created.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>matplotlib</cite> figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -462,11 +475,11 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -512,14 +525,14 @@ is the list of files that have been parsed successfully.
 <dl class="exception">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerParserError">
 <em class="property">exception </em><code class="descname">AbinitTimerParserError</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerParserError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerParserError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Errors raised by AbinitTimerParser</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerSection">
 <em class="property">class </em><code class="descname">AbinitTimerSection</code><span class="sig-paren">(</span><em>name</em>, <em>cpu_time</em>, <em>cpu_fract</em>, <em>wall_time</em>, <em>wall_fract</em>, <em>ncalls</em>, <em>gflops</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#AbinitTimerSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.AbinitTimerSection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Record with the timing results associated to a section of code.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abitimer.AbinitTimerSection.FIELDS">
@@ -562,7 +575,7 @@ is the list of files that have been parsed successfully.
 <dl class="class">
 <dt id="pymatgen.io.abinit.abitimer.ParallelEfficiency">
 <em class="property">class </em><code class="descname">ParallelEfficiency</code><span class="sig-paren">(</span><em>filenames</em>, <em>ref_idx</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#ParallelEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections">
 <code class="descname">bad_sections</code><span class="sig-paren">(</span><em>key='wall_time'</em>, <em>criterion='mean'</em>, <em>nmax=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abitimer.html#ParallelEfficiency.bad_sections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abitimer.ParallelEfficiency.bad_sections" title="Permalink to this definition">¶</a></dt>
@@ -605,12 +618,14 @@ is the list of files that have been parsed successfully.
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -626,13 +641,13 @@ is the list of files that have been parsed successfully.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

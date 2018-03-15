@@ -42,8 +42,8 @@ but pymatgen offer several advantages:
    `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
    for continuous integration on the Linux and Windows platforms,
    respectively, which ensures that every commit passes a comprehensive suite
-   of unittests. The coverage of the unittests can be seen at
-   `here <coverage/index.html>`_.
+   of unittests. The coverage of the unittests can be seen on
+   `coveralls.io <https://coveralls.io/github/materialsproject/pymatgen>`_.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means
@@ -60,9 +60,12 @@ but pymatgen offer several advantages:
    and maintained by the `Materials Virtual Lab`_, the ABINIT group and many
    other research groups.
 
-With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All developers must ensure that their code passes the
-unittests on both Py2.7 and 3.x.
+Pymatgen is compatible with both Python 2.7+ as well as latest Python 3.x.
+The pymatgen development team will phase out Py2.7 support over the course of
+2018. From v2018.1.1, new features implemented in pymatgen no longer need to
+support Py2.7 (i.e., unittests do not need to pass Py2k testing), though
+existing features will still be Py2.7 compatible. From v2019.1.1, pymatgen will
+be Py3k only.
 
 Getting pymatgen
 ================

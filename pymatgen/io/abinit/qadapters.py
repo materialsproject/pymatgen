@@ -946,7 +946,7 @@ limits:
         This method is called in get_subs_dict. Return a dict with parameters to be added to qparams
         Subclasses may provide a specialized version.
         """
-        logger.debug("optimize_params of baseclass --> no optimization available!!!")
+        #logger.debug("optimize_params of baseclass --> no optimization available!!!")
         return {}
 
     def get_subs_dict(self, qnodes=None):
@@ -1261,6 +1261,7 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --licenses=$${licenses}
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
+#SBATCH --qos=$${qos}
 $${qverbatim}
 """
 

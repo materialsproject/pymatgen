@@ -1,5 +1,5 @@
-pymatgen\.analysis\.phase\_diagram module
-=========================================
+pymatgen.analysis.phase\_diagram module
+=======================================
 
 .. automodule:: pymatgen.analysis.phase_diagram
     :members:

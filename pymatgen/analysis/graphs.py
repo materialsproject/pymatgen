@@ -9,6 +9,7 @@ import subprocess
 import numpy as np
 import os.path
 
+from pymatgen.analysis.local_env import LocalStructOrderParas
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
@@ -18,6 +19,7 @@ from monty.os.path import which
 from operator import itemgetter
 from collections import namedtuple
 from scipy.spatial import KDTree
+import yaml
 
 try:
     import networkx as nx
@@ -39,6 +41,12 @@ __status__ = "Beta"
 __date__ = "August 2017"
 
 ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight, dist')
+
+cn_opt_params = {}
+with open(os.path.join(os.path.dirname(
+        __file__), 'cn_opt_params.yaml'), 'r') as f:
+    cn_opt_params = yaml.safe_load(f)
+    f.close()
 
 class StructureGraph(MSONable):
 
@@ -78,6 +86,13 @@ class StructureGraph(MSONable):
                 del d['id']
             if 'key' in d:
                 del d['key']
+            # ensure images are tuples (conversion to lists happens
+            # when serializing back from json), it's important images
+            # are hashable/immutable
+            if 'to_jimage' in d:
+                d['to_jimage'] = tuple(d['to_jimage'])
+            if 'from_jimage' in d:
+                d['from_jimage'] = tuple(d['from_jimage'])
 
     @classmethod
     def with_empty_graph(cls, structure, name="bonds",
@@ -116,7 +131,7 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy):
+    def with_local_env_strategy(structure, strategy, decorate=True):
         """
         Constructor for StructureGraph, using a strategy
         from  :Class: `pymatgen.analysis.local_env`.
@@ -125,6 +140,8 @@ class StructureGraph(MSONable):
         :param strategy: an instance of a
          :Class: `pymatgen.analysis.local_env.NearNeighbors`
          object
+        :param decorate: flag to indicate whether or not to decorate
+         all sites with coordination environment information.
         :return:
         """
 
@@ -146,6 +163,8 @@ class StructureGraph(MSONable):
                             to_jimage=neighbor['image'],
                             weight=neighbor['weight'],
                             warn_duplicates=False)
+        if decorate:
+            sg.decorate_structure_with_ce_info()
 
         return sg
 
@@ -257,11 +276,11 @@ class StructureGraph(MSONable):
 
         if weight:
             self.graph.add_edge(from_index, to_index,
-                                from_jimage=from_jimage, to_jimage=to_jimage,
+                                to_jimage=to_jimage,
                                 weight=weight)
         else:
             self.graph.add_edge(from_index, to_index,
-                                from_jimage=from_jimage, to_jimage=to_jimage)
+                                to_jimage=to_jimage)
 
     def get_connected_sites(self, n, jimage=(0, 0, 0)):
         """
@@ -322,7 +341,59 @@ class StructureGraph(MSONable):
         :param n: index of site
         :return (int):
         """
-        return self.graph.degree(n)
+        number_of_self_loops = sum([1 for n, v in self.graph.edges(n) if n == v])
+        return self.graph.degree(n) - number_of_self_loops
+
+    def get_local_order_parameters(self, n):
+        """
+        Calculate those local structure order parameters for 
+        the given site whose ideal CN corresponds to the
+        underlying motif (e.g., CN=4, then calculate the
+        square planar, tetrahedral, see-saw-like,
+        rectangular see-saw-like order paramters).
+
+        Args:
+            n (integer): site index.
+
+        Returns:
+            A dict of order parameters (values) and the
+            underlying motif type (keys; for example, tetrahedral).
+
+        """
+        cn = self.get_coordination_of_site(n)
+        if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
+            names = [k for k in cn_opt_params[cn].keys()]
+            types = []
+            params = []
+            for name in names:
+                types.append(cn_opt_params[cn][name][0])
+                tmp = cn_opt_params[cn][name][1] \
+                    if len(cn_opt_params[cn][name]) > 1 else None
+                params.append(tmp)
+            lostops = LocalStructOrderParas(types, parameters=params)
+            sites = [self.structure[n]]
+            for s in self.get_connected_sites(n):
+                sites.append(s.periodic_site)
+            lostop_vals = lostops.get_order_parameters(
+                    sites, 0, indices_neighs=[i for i in range(1, cn+1)])
+            d = {}
+            for i, lostop in enumerate(lostop_vals):
+                d[names[i]] = lostop
+            return d
+        else:
+            return None
+
+    def decorate_structure_with_ce_info(self):
+        """
+        Decorate all sites in the underlying structure
+        with site properties that provides information on the
+        coordination number and coordination pattern based
+        on the (current) structure of this graph.
+        """
+        l = []
+        for i in range(len(self.structure.sites)):
+            l.append(self.get_local_order_parameters(i))
+        self.structure.add_site_property('ce_info', l)
 
     def draw_graph_to_file(self, filename="graph",
                            diff=None,

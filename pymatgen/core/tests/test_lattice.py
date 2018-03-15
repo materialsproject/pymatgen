@@ -70,6 +70,12 @@ class LatticeTestCase(PymatgenTest):
         fcoord = self.tetragonal.get_fractional_coords(coord)
         self.assertArrayAlmostEqual(fcoord, rand_coord)
 
+    def test_d_hkl(self):
+        cubic_copy = self.cubic.copy()
+        hkl = (1,2,3)
+        dhkl = ((hkl[0]**2 + hkl[1]**2 + hkl[2]**2)/(cubic_copy.a**2))**(-1/2)
+        self.assertEqual(dhkl, cubic_copy.d_hkl(hkl))
+
     def test_reciprocal_lattice(self):
         recip_latt = self.lattice.reciprocal_lattice
         self.assertArrayAlmostEqual(recip_latt.matrix,
@@ -134,6 +140,25 @@ class LatticeTestCase(PymatgenTest):
         for i in range(0, 3):
             for j in range(0, 3):
                 self.assertAlmostEqual(mat1[i][j], mat2[i][j], 5)
+
+    def test_lattice_matricies(self):
+        """
+        If alpha == 90 and beta == 90, two matricies are identical.
+        """
+
+        def _identical(a, b, c, alpha, beta, gamma):
+            mat1 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, False).matrix
+            mat2 = Lattice.from_parameters(a, b, c, alpha, beta, gamma, True).matrix
+            # self.assertArrayAlmostEqual(mat1, mat2)
+            return ((mat1 - mat2)**2).sum() < 1e-6
+
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 90))
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 80))
+        self.assertTrue(_identical(2, 3, 4, 90, 90, 100))
+
+        self.assertFalse(_identical(2, 3, 4, 100, 90, 90))
+        self.assertFalse(_identical(2, 3, 4, 90, 100, 90))
+        self.assertFalse(_identical(2, 3, 4, 100, 100, 100))
 
     def test_get_lll_reduced_lattice(self):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])

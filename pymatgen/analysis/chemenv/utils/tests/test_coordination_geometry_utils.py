@@ -8,6 +8,7 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 import numpy as np
 import itertools
 from pymatgen.util.testing import PymatgenTest
+import random
 
 class PlanesUtilsTest(PymatgenTest):
 
@@ -214,6 +215,65 @@ class PlanesUtilsTest(PymatgenTest):
         self.assertEqual(sep[1], [3, 5])
         self.assertEqual(sep[2], [4, 7])
 
+    def test_distances(self):
+        # Test with the common test plane
+        point_1 = np.array([0.0, 0.0, 0.0], np.float)
+        point_2 = np.array([0.0, 0.0, 0.75], np.float)
+        point_3 = np.array([-0.75, 0.0, 0.0], np.float)
+        point_4 = np.array([1.0, 0.0, 0.0], np.float)
+        point_5 = np.array([0.0, -1.5, 0.0], np.float)
+        point_6 = np.array([10.0, 2.0, -20.0], np.float)
+        point_7 = np.array([10.0, 10.0, 10.0], np.float)
+        point_8 = np.array([100.0, 0.0, 0.0], np.float)
+        plist = [point_1, point_2, point_4, point_6, point_7, point_8]
+        distances, indices_sorted = self.plane.distances_indices_sorted(plist)
+        self.assertArrayAlmostEqual(distances, [0.5, 0.0, 1.16666666666666,
+                                                21.1666666666666, 3.8333333333333, 67.1666666666666])
+        self.assertArrayEqual(indices_sorted, [1, 0, 2, 4, 3, 5])
+        # Plane 2y+1=0 (perpendicular to y)
+        plane = Plane.from_coefficients(0, 2, 0, 1)
+        plist = [point_1, point_5, point_6, point_7]
+        distances, indices_sorted = plane.distances_indices_sorted(plist)
+        self.assertArrayAlmostEqual(distances, [0.5, -1.0, 2.5, 10.5])
+        self.assertArrayEqual(indices_sorted, [0, 1, 2, 3])
+        plist = [point_1, point_5, point_6, point_7]
+        distances, indices_sorted = plane.distances_indices_sorted(plist)
+        self.assertArrayAlmostEqual(distances, [0.5, -1.0, 2.5, 10.5])
+        self.assertArrayEqual(indices_sorted, [0, 1, 2, 3])
+        distances, indices_sorted = plane.distances_indices_sorted(plist, sign=True)
+        self.assertArrayAlmostEqual(distances, [0.5, -1.0, 2.5, 10.5])
+        self.assertArrayEqual(indices_sorted, [(0, 1), (1, -1), (2, 1), (3, 1)])
+        plist = [point_5, point_1, point_6, point_7]
+        distances, indices_sorted, groups = plane.distances_indices_groups(plist)
+        self.assertArrayAlmostEqual(distances, [-1.0, 0.5, 2.5, 10.5])
+        self.assertArrayEqual(indices_sorted, [1, 0, 2, 3])
+        self.assertArrayEqual(groups, [[1, 0], [2], [3]])
+        plist = [point_1, point_2, point_3, point_4, point_5, point_6, point_7, point_8]
+        distances, indices_sorted = plane.distances_indices_sorted(plist)
+        self.assertArrayAlmostEqual(distances, [0.5, 0.5, 0.5, 0.5, -1.0, 2.5, 10.5, 0.5])
+        self.assertEqual(set(indices_sorted[:5]), {0, 1, 2, 3, 7})
+        # Plane z=0 (plane xy)
+        plane = Plane.from_coefficients(0, 0, 1, 0)
+        zzs = [0.1, -0.2, 0.7, -2.1, -1.85, 0.0, -0.71, -0.82, -6.5, 1.8]
+        plist = []
+        for zz in zzs:
+            plist.append([random.uniform(-20.0, 20.0), random.uniform(-20.0, 20.0), zz])
+        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta=0.25)
+        self.assertArrayEqual(indices_sorted, [5, 0, 1, 2, 6, 7, 9, 4, 3, 8])
+        self.assertArrayEqual(groups, [[5, 0, 1], [2, 6, 7], [9, 4, 3], [8]])
+        self.assertArrayAlmostEqual(distances, zzs)
+        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1)
+        self.assertArrayEqual(indices_sorted, [5, 0, 1, 2, 6, 7, 9, 4, 3, 8])
+        self.assertArrayEqual(groups, [[5, 0, 1, 2, 6, 7], [9, 4, 3], [8]])
+        self.assertArrayAlmostEqual(distances, zzs)
+        distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta_factor=0.1, sign=True)
+        self.assertArrayEqual(indices_sorted, [(5, 0), (0, 1), (1, -1), (2, 1), (6, -1),
+                                               (7, -1), (9, 1), (4, -1), (3, -1), (8, -1)])
+        self.assertArrayEqual(groups, [[(5, 0), (0, 1), (1, -1), (2, 1), (6, -1), (7, -1)],
+                                       [(9, 1), (4, -1), (3, -1)],
+                                       [(8, -1)]])
+        self.assertArrayAlmostEqual(distances, zzs)
+
     def test_projections(self):
         #Projections of points that are already on the plane
         expected_projected_points = [self.p1, self.p2, self.p3, self.plane.p1, self.plane.p2, self.plane.p3]
@@ -262,4 +322,13 @@ class PlanesUtilsTest(PymatgenTest):
 
 
 if __name__ == "__main__":
+    # p1 = np.array([0.0, 0.0, 0.0])
+    # p2 = np.array([-0.75, 3.0, 2.0])
+    # p3 = np.array([1.0, -1.5, 2.0])
+    # plane = Plane.from_3points(p1, p2, p3)
+    # print(plane.distances([[0.0, 0.0, 0.0], [0.0, 0.0, 0.75], [0.0, 0.0, -0.75], [0.2, -0.3, 0.75], [-0.2, 0.3, -0.75]]))
+    # print(plane.distances_indices_sorted([[0.0, 0.0, 0.0], [0.0, 0.0, 0.75], [0.0, 0.0, -0.75], [0.2, -0.3, 0.75], [-0.2, 0.3, -0.75]]))
+    # print(plane.normal_vector)
+    # print(plane.d)
+    # exit()
     unittest.main()

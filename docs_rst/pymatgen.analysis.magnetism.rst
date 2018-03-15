@@ -1,5 +1,5 @@
-pymatgen\.analysis\.magnetism package
-=====================================
+pymatgen.analysis.magnetism package
+===================================
 
 Submodules
 ----------
@@ -7,6 +7,7 @@ Submodules
 .. toctree::
 
    pymatgen.analysis.magnetism.analyzer
+   pymatgen.analysis.magnetism.jahnteller
 
 Module contents
 ---------------

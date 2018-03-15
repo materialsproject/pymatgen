@@ -586,6 +586,8 @@ class DiffusionAnalyzer(MSONable):
         """
         p, l = [], []
         for i, s in enumerate(structures):
+            if i == 0:
+                structure = s
             p.append(np.array(s.frac_coords)[:, None])
             l.append(s.lattice.matrix)
         if initial_structure is not None:
@@ -612,7 +614,7 @@ class DiffusionAnalyzer(MSONable):
         if initial_disp is not None:
             disp += initial_disp[:, None, :]
 
-        return cls(structures[0], disp, specie, temperature, time_step,
+        return cls(structure, disp, specie, temperature, time_step,
                    step_skip=step_skip, lattices=l, **kwargs)
 
     @classmethod
@@ -666,7 +668,7 @@ class DiffusionAnalyzer(MSONable):
         step_skip, temperature, time_step = next(s)
 
         return cls.from_structures(
-            structures=s, specie=specie, temperature=temperature,
+            structures=list(s), specie=specie, temperature=temperature,
             time_step=time_step, step_skip=step_skip,
             initial_disp=initial_disp, initial_structure=initial_structure,
             **kwargs)

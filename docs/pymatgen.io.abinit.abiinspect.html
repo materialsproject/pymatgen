@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.abiinspect module &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.io.abinit.abiinspect module &#8212; pymatgen 2018.3.13 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2017.12.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,7 +50,7 @@ by extracting information from the main output file (text format).</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter">
 <em class="property">class </em><code class="descname">CyclesPlotter</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#CyclesPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Relies on the plot method of cycle objects to build multiple subfigures.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.add_label_cycle">
@@ -70,15 +61,17 @@ by extracting information from the main output file (text format).</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot">
 <code class="descname">combiplot</code><span class="sig-paren">(</span><em>fontsize=8</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#CyclesPlotter.combiplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.CyclesPlotter.combiplot" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Compare multiple cycels on a grid: one subplot per quantity,
+<dd><p>Compare multiple cycels on a grid: one subplot per quantity,
 all cycles on the same subplot.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>fontsize: Legend fontsize.</dd>
-</dl>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fontsize</strong> – Legend fontsize.</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -97,11 +90,11 @@ all cycles on the same subplot.</p>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -127,7 +120,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle">
 <em class="property">class </em><code class="descname">D2DEScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#D2DEScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
 <p>Result of the Phonon self-consistent cycle.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiinspect.D2DEScfCycle.MAGIC">
@@ -145,7 +138,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle">
 <em class="property">class </em><code class="descname">GroundStateScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#GroundStateScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="pymatgen.io.abinit.abiinspect.ScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiinspect.ScfCycle</span></code></a></p>
 <p>Result of the Ground State self-consistent cycle.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiinspect.GroundStateScfCycle.MAGIC">
@@ -163,15 +156,15 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.PhononScfCycle">
 <em class="property">class </em><code class="descname">PhononScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#PhononScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.PhononScfCycle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="pymatgen.io.abinit.abiinspect.D2DEScfCycle"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.abiinspect.D2DEScfCycle</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.D2DEScfCycle" title="pymatgen.io.abinit.abiinspect.D2DEScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.abiinspect.D2DEScfCycle</span></code></a></p>
 <p>Iterations of the DFPT SCF cycle for phonons.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.Relaxation">
 <em class="property">class </em><code class="descname">Relaxation</code><span class="sig-paren">(</span><em>cycles</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Iterable</span></code></p>
-<p>A list of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="pymatgen.io.abinit.abiinspect.GroundStateScfCycle"><code class="xref py py-class docutils literal"><span class="pre">GroundStateScfCycle</span></code></a> objects.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Iterable</span></code></p>
+<p>A list of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.GroundStateScfCycle" title="pymatgen.io.abinit.abiinspect.GroundStateScfCycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroundStateScfCycle</span></code></a> objects.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Forces, stresses  and crystal structures are missing.
@@ -201,17 +194,22 @@ the data as function of the relaxation step.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiinspect.Relaxation.plot">
 <code class="descname">plot</code><span class="sig-paren">(</span><em>ax_list=None</em>, <em>fontsize=12</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#Relaxation.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.Relaxation.plot" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Plot relaxation history i.e. the results of the last iteration of each SCF cycle.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>ax_list: List of axes. If None a new figure is produced.
-fontsize: legend fontsize.
-kwargs: keyword arguments are passed to ax.plot</dd>
-</dl>
+<dd><p>Plot relaxation history i.e. the results of the last iteration of each SCF cycle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax_list</strong> – List of axes. If None a new figure is produced.</li>
+<li><strong>fontsize</strong> – legend fontsize.</li>
+<li><strong>kwargs</strong> – keyword arguments are passed to ax.plot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Returns: matplotlib figure</p>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -230,11 +228,11 @@ kwargs: keyword arguments are passed to ax.plot</dd>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -270,7 +268,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.ScfCycle">
 <em class="property">class </em><code class="descname">ScfCycle</code><span class="sig-paren">(</span><em>fields</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Mapping</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Mapping</span></code></p>
 <p>It essentially consists of a dictionary mapping string
 to list of floats containing the data at the different iterations.</p>
 <dl class="classmethod">
@@ -302,17 +300,22 @@ to list of floats containing the data at the different iterations.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.abiinspect.ScfCycle.plot">
 <code class="descname">plot</code><span class="sig-paren">(</span><em>ax_list=None</em>, <em>fontsize=12</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#ScfCycle.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.ScfCycle.plot" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Uses matplotlib to plot the evolution of the SCF cycle.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>ax_list: List of axes. If None a new figure is produced.
-fontsize: legend fontsize.
-kwargs: keyword arguments are passed to ax.plot</dd>
-</dl>
+<dd><p>Uses matplotlib to plot the evolution of the SCF cycle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ax_list</strong> – List of axes. If None a new figure is produced.</li>
+<li><strong>fontsize</strong> – legend fontsize.</li>
+<li><strong>kwargs</strong> – keyword arguments are passed to ax.plot</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Returns: matplotlib figure</p>
-</div></blockquote>
-<p>keyword arguments controlling the display of the figure:</p>
+<p>Keyword arguments controlling the display of the figure:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="23%" />
@@ -331,11 +334,11 @@ kwargs: keyword arguments are passed to ax.plot</dd>
 <td>True to show the figure (default: True).</td>
 </tr>
 <tr class="row-even"><td>savefig</td>
-<td>‘abc.png’ or ‘abc.eps’ to save the figure to a file.</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
 </tr>
 <tr class="row-odd"><td>size_kwargs</td>
 <td>Dictionary with options passed to fig.set_size_inches
-example: size_kwargs=dict(w=3, h=4)</td>
+e.g. size_kwargs=dict(w=3, h=4)</td>
 </tr>
 <tr class="row-even"><td>tight_layout</td>
 <td>True to call fig.tight_layout (default: False)</td>
@@ -355,7 +358,7 @@ example: size_kwargs=dict(w=3, h=4)</td>
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.YamlDoc">
 <em class="property">class </em><code class="descname">YamlDoc</code><span class="sig-paren">(</span><em>text</em>, <em>lineno</em>, <em>tag=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlDoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlDoc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Handy object that stores that YAML document, its main tag and the
 position inside the file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -405,12 +408,12 @@ Useful if we don’t have any constructor registered for the tag
 <dl class="class">
 <dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer">
 <em class="property">class </em><code class="descname">YamlTokenizer</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Iterator</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Iterator</span></code></p>
 <p>Provides context-manager support so you can use it in a with statement.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.abiinspect.YamlTokenizer.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer.Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="pymatgen.io.abinit.abiinspect.YamlTokenizerError"><code class="xref py py-class docutils literal"><span class="pre">YamlTokenizerError</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="pymatgen.io.abinit.abiinspect.YamlTokenizerError"><code class="xref py py-class docutils literal notranslate"><span class="pre">YamlTokenizerError</span></code></a></p>
 </dd></dl>
 
 <dl class="method">
@@ -470,8 +473,8 @@ Note that not all file objects are seekable.</p>
 <dl class="exception">
 <dt id="pymatgen.io.abinit.abiinspect.YamlTokenizerError">
 <em class="property">exception </em><code class="descname">YamlTokenizerError</code><a class="reference internal" href="_modules/pymatgen/io/abinit/abiinspect.html#YamlTokenizerError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.abiinspect.YamlTokenizerError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
-<p>Exceptions raised by <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="pymatgen.io.abinit.abiinspect.YamlTokenizer"><code class="xref py py-class docutils literal"><span class="pre">YamlTokenizer</span></code></a>.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exceptions raised by <a class="reference internal" href="#pymatgen.io.abinit.abiinspect.YamlTokenizer" title="pymatgen.io.abinit.abiinspect.YamlTokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">YamlTokenizer</span></code></a>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -516,12 +519,14 @@ Returns None if it is not able to detect the class to instantiate.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -537,13 +542,13 @@ Returns None if it is not able to detect the class to instantiate.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.12.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.13 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -17,8 +17,9 @@ __date__ = "Jul 1 2014"
 
 
 from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator
 from pymatgen.analysis.defects.point_defects import Vacancy, \
-    ValenceIonicRadiusEvaluator, Interstitial
+    Interstitial
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 

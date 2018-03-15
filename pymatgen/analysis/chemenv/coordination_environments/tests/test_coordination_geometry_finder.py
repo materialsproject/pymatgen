@@ -12,9 +12,6 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import AbstractGeometry
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import symmetry_measure
-# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
-# from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimpleAbundanceChemenvStrategy
-# from pymatgen.core.structure import Structure
 
 
 json_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
@@ -49,9 +46,9 @@ class CoordinationGeometryFinderTest(PymatgenTest):
                          '\nAbstract Geometry with 3 points :\n'
                          '  [-1.    0.   -0.25]\n'
                          '  [ 1.    0.   -0.25]\n'
-                         '  [ 0.    0.    0.75]\n'
+                         '  [0.   0.   0.75]\n'
                          'Points are referenced to the centroid (calculated with the central site) :\n'
-                         '  [ 0.    0.    0.25]\n')
+                         '  [0.   0.   0.25]\n')
 
         symm_dict = symmetry_measure([[0.0, 0.0, 0.0]], [1.1, 2.2, 3.3])
         self.assertAlmostEqual(symm_dict['symmetry_measure'], 0.0)
@@ -210,6 +207,7 @@ class CoordinationGeometryFinderTest(PymatgenTest):
             abc.minimum_geometries()
         self.assertAlmostEqual(se_hints.ce_list[0][13][0], se_nohints.ce_list[0][13][0])
         self.assertDictContainsSubset(se_nohints.ce_list[0], se_hints.ce_list[0])
+
 
 if __name__ == "__main__":
     unittest.main()

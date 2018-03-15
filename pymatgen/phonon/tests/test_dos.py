@@ -19,6 +19,8 @@ class DosTest(PymatgenTest):
     def setUp(self):
         with open(os.path.join(test_dir, "NaCl_ph_dos.json"), "r") as f:
             self.dos = PhononDos.from_dict(json.load(f))
+        with open(os.path.join(test_dir, "NaCl_complete_ph_dos.json"), "r") as f:
+            self.structure = CompletePhononDos.from_dict(json.load(f)).structure
 
     def test_properties(self):
         self.assertAlmostEqual(self.dos.densities[15], 0.0001665998)
@@ -37,6 +39,13 @@ class DosTest(PymatgenTest):
         s = json.dumps(self.dos.as_dict())
         self.assertIsNotNone(s)
         self.assertMSONable(self.dos)
+
+    def test_thermodynamic_functions(self):
+        self.assertAlmostEqual(self.dos.cv(300, structure=self.structure), 48.049349514094615)
+        self.assertAlmostEqual(self.dos.internal_energy(300, structure=self.structure), 15527.592023296782)
+        self.assertAlmostEqual(self.dos.helmholtz_free_energy(300, structure=self.structure), -6998.026586063017)
+        self.assertAlmostEqual(self.dos.entropy(300, structure=self.structure), 75.085395923749076)
+        self.assertAlmostEqual(self.dos.zero_point_energy(structure=self.structure), 4847.4624833147582)
 
 
 class CompleteDosTest(PymatgenTest):
@@ -59,6 +68,7 @@ class CompleteDosTest(PymatgenTest):
 
         sum_dos = self.cdos.get_element_dos()[Element.Na] + self.cdos.get_element_dos()[Element.Cl]
         self.assertArrayAlmostEqual(sum_dos.frequencies, self.cdos.frequencies)
+        self.assertArrayAlmostEqual(sum_dos.densities, self.cdos.densities)
 
     def test_dict_methods(self):
         s = json.dumps(self.cdos.as_dict())

@@ -328,10 +328,12 @@ def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False,
                                      gridspec_kw=gridspec_kw, **fig_kw)
     else:
         fig = plt.gcf()
+        ax_array = np.reshape(np.array(ax_array), (nrows, ncols))
         if squeeze:
-            ax_array = np.array(ax_array).ravel()
-            if len(ax_array) == 1:
-                ax_array = ax_array[1]
+            if ax_array.size == 1:
+                ax_array = ax_array[0]
+            elif any(s == 1 for s in ax_array.shape):
+                ax_array = ax_array.ravel()
 
     return ax_array, fig, plt
 
@@ -385,19 +387,21 @@ def add_fig_kwargs(func):
         return fig
 
     # Add docstring to the decorated method.
-    s = "\n" + """\
-    keyword arguments controlling the display of the figure:
+    s = "\n\n" + """\
+        Keyword arguments controlling the display of the figure:
 
-    ================  ====================================================
-    kwargs            Meaning
-    ================  ====================================================
-    title             Title of the plot (Default: None).
-    show              True to show the figure (default: True).
-    savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-    size_kwargs       Dictionary with options passed to fig.set_size_inches
-                      example: size_kwargs=dict(w=3, h=4)
-    tight_layout      True to call fig.tight_layout (default: False)
-    ================  ===================================================="""
+        ================  ====================================================
+        kwargs            Meaning
+        ================  ====================================================
+        title             Title of the plot (Default: None).
+        show              True to show the figure (default: True).
+        savefig           "abc.png" or "abc.eps" to save the figure to a file.
+        size_kwargs       Dictionary with options passed to fig.set_size_inches
+                          e.g. size_kwargs=dict(w=3, h=4)
+        tight_layout      True to call fig.tight_layout (default: False)
+        ================  ====================================================
+
+"""
 
     if wrapper.__doc__ is not None:
         # Add s at the end of the docstring.

@@ -1,10 +1,8 @@
 Change log
 ==========
 
-v2017.12.30
------------
-* Added detailed Shannon radii information and method.
-* Magoms for lanthanides (Weike Ye)
-* Chemenv improvements (David Waroquiers)
-* Ewald summation improvements (Logan Ward)
-* Update to ABINIT support (G Matteo)
+v2018.3.13
+----------
+* Support for VESTA lattice vector definitions. 
+* GaussianOutput read now bond_orders of a NBO calculations (@gVallverdu)
+* Bug fixes to phonons, abinit support.

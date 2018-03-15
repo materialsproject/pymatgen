@@ -23,7 +23,7 @@ with open(os.path.join(test_dir, 'mp1487_raw_defect_energies.json')) as fp:
     mp1487_raw_energy_dict = json.load(fp, cls=MontyDecoder)
 
 
-PULL_REQ = os.environ.get("CI_PULL_REQUEST", None) or os.environ.get("TRAVIS_PULL_REQUEST", None)
+PULL_REQ = os.environ.get("CI_PULL_REQUEST", None) or os.environ.get("TRAVIS", None)
 
 # TODO (from SP): You MUST redo this entire test. The whole test is
 # monstrously slow. It takes more than 10 mins to get through this test alone.

@@ -1,11 +1,5 @@
-pymatgen\.phonon package
-========================
-
-Subpackages
------------
-
-.. toctree::
-
+pymatgen.phonon package
+=======================
 
 Submodules
 ----------

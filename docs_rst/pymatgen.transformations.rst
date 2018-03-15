@@ -1,11 +1,5 @@
-pymatgen\.transformations package
-=================================
-
-Subpackages
------------
-
-.. toctree::
-
+pymatgen.transformations package
+================================
 
 Submodules
 ----------

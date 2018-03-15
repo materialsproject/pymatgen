@@ -1,6 +1,41 @@
 Change log
 ==========
 
+v2018.3.13
+----------
+* Support for VESTA lattice vector definitions. 
+* GaussianOutput read now bond_orders of a NBO calculations (@gVallverdu)
+* Bug fixes to phonons, abinit support.
+
+v2018.3.2
+---------
+* Various algorithms for nearest neighbor analysis (Hillary Pan)
+* Cleanup of local_env modules (Nils)
+* Enhancements to surface packages (Richard)
+* Misc bud fixes
+
+v2018.2.13
+----------
+* Improved chemenv parameters and bug fixes (David Waroquiers).
+* Improved Qchem IO (Shyam).
+* Improved interfacial reactions.
+* local_env update (Nils).
+* Improved ABINIT support (@gmatteo).
+* Misc bug fixes.
+
+v2018.1.29
+----------
+* Improvements to local_env (Nils)
+* Term symbols for Element (Weike Ye).
+* Timeout for enumlib (Horton).
+
+v2018.1.19
+----------
+* Phonon plotting and analysis improvements (Guido Petretto).
+* Voronoi site finder (Hanmei Tang)
+* Some bug fixes for Gaussian (Marco Esters)
+* Misc improvements.
+
 v2017.12.30
 -----------
 * Added detailed Shannon radii information and method.

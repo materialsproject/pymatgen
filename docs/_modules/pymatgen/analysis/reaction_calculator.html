@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.reaction_calculator &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.analysis.reaction_calculator &#8212; pymatgen 2018.3.13 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2017.12.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -146,8 +137,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            reaction energy as a float.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">amt</span> <span class="o">*</span> <span class="n">energies</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">amt</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">,</span>
-                                                        <span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">)])</span></div>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">amt</span> <span class="o">*</span> <span class="n">energies</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">amt</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">,</span></div>
+                                                        <span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">)])</span>
 
 <div class="viewcode-block" id="BalancedReaction.normalize_to"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -160,8 +151,8 @@
 <span class="sd">            factor (float): Factor to normalize to. Defaults to 1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">comp</span><span class="p">)]</span>
-                           <span class="o">*</span> <span class="n">factor</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="o">*</span> <span class="n">scale_factor</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">]</span></div>
+                           <span class="o">*</span> <span class="n">factor</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="o">*</span> <span class="n">scale_factor</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">]</span>
 
 <div class="viewcode-block" id="BalancedReaction.normalize_to_element"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to_element">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_to_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -177,8 +168,8 @@
         <span class="n">coeffs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span>
         <span class="n">current_el_amount</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">all_comp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                                  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_comp</span><span class="p">))])</span> <span class="o">/</span> <span class="mi">2</span>
-        <span class="n">scale_factor</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">/</span> <span class="n">current_el_amount</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="o">*</span> <span class="n">scale_factor</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coeffs</span><span class="p">]</span></div>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">/</span> <span class="n">current_el_amount</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="o">*</span> <span class="n">scale_factor</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coeffs</span><span class="p">]</span>
 
 <div class="viewcode-block" id="BalancedReaction.get_el_amount"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.get_el_amount">[docs]</a>    <span class="k">def</span> <span class="nf">get_el_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -190,8 +181,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Amount of that element in the reaction.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">))])</span> <span class="o">/</span> <span class="mi">2</span></div>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">))])</span> <span class="o">/</span> <span class="mi">2</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -233,15 +224,15 @@
 <div class="viewcode-block" id="BalancedReaction.get_coeff"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.get_coeff">[docs]</a>    <span class="k">def</span> <span class="nf">get_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns coefficient for a particular composition</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">comp</span><span class="p">)]</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">comp</span><span class="p">)]</span>
 
 <div class="viewcode-block" id="BalancedReaction.normalized_repr_and_factor"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr_and_factor">[docs]</a>    <span class="k">def</span> <span class="nf">normalized_repr_and_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Normalized representation for a reaction</span>
 <span class="sd">        For example, ``4 Li + 2 O -&gt; 2Li2O`` becomes ``2 Li + O -&gt; Li2O``</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_str_from_comp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_str_from_comp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">normalized_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -308,24 +299,24 @@
                          <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coeffs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_comp</span><span class="p">)]</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">relevant_comp</span><span class="p">,</span> <span class="n">Composition</span><span class="p">())</span>
         <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">comp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_energy</span><span class="p">(</span><span class="n">energies</span><span class="p">))</span>
-        <span class="n">entry</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">entry</span></div>
+        <span class="n">entry</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">entry</span>
 
 <div class="viewcode-block" id="BalancedReaction.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span> <span class="n">coeff</span>
                               <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants_coeffs</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
-                <span class="s2">&quot;products&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span> <span class="n">coeff</span>
-                             <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products_coeffs</span><span class="o">.</span><span class="n">items</span><span class="p">()}}</span></div>
+                <span class="s2">&quot;products&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span> <span class="n">coeff</span></div>
+                             <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products_coeffs</span><span class="o">.</span><span class="n">items</span><span class="p">()}}</span>
 
 <div class="viewcode-block" id="BalancedReaction.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">reactants</span> <span class="o">=</span> <span class="p">{</span><span class="n">Composition</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span> <span class="n">coeff</span>
                      <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;reactants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="n">products</span> <span class="o">=</span> <span class="p">{</span><span class="n">Composition</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span> <span class="n">coeff</span>
-                    <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">reactants</span><span class="p">,</span> <span class="n">products</span><span class="p">)</span></div>
+                    <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">reactants</span><span class="p">,</span> <span class="n">products</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BalancedReaction.from_string"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.BalancedReaction.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">rxn_string</span><span class="p">):</span>
@@ -345,8 +336,8 @@
         <span class="k">def</span> <span class="nf">get_comp_amt</span><span class="p">(</span><span class="n">comp_str</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">{</span><span class="n">Composition</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)):</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([\d\.]*(?:[eE]-?[\d\.]+)?)\s*([A-Z][\w\.\(\)]*)&quot;</span><span class="p">,</span>
-                                         <span class="n">comp_str</span><span class="p">)}</span>
-        <span class="k">return</span> <span class="n">BalancedReaction</span><span class="p">(</span><span class="n">get_comp_amt</span><span class="p">(</span><span class="n">rct_str</span><span class="p">),</span> <span class="n">get_comp_amt</span><span class="p">(</span><span class="n">prod_str</span><span class="p">))</span></div></div>
+                                         <span class="n">comp_str</span><span class="p">)}</span></div></div>
+        <span class="k">return</span> <span class="n">BalancedReaction</span><span class="p">(</span><span class="n">get_comp_amt</span><span class="p">(</span><span class="n">rct_str</span><span class="p">),</span> <span class="n">get_comp_amt</span><span class="p">(</span><span class="n">prod_str</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="Reaction"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.Reaction">[docs]</a><span class="k">class</span> <span class="nc">Reaction</span><span class="p">(</span><span class="n">BalancedReaction</span><span class="p">):</span>
@@ -437,20 +428,20 @@
 <div class="viewcode-block" id="Reaction.copy"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.Reaction.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a copy of the Reaction object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Reaction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">Reaction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Reaction.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.Reaction.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                <span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">comp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_reactants</span><span class="p">],</span>
-                <span class="s2">&quot;products&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">comp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_products</span><span class="p">]}</span></div>
+                <span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">comp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_reactants</span><span class="p">],</span></div>
+                <span class="s2">&quot;products&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">comp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_products</span><span class="p">]}</span>
 
 <div class="viewcode-block" id="Reaction.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.Reaction.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">reactants</span> <span class="o">=</span> <span class="p">[</span><span class="n">Composition</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">sym_amt</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;reactants&quot;</span><span class="p">]]</span>
-        <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">Composition</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">sym_amt</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">reactants</span><span class="p">,</span> <span class="n">products</span><span class="p">)</span></div></div>
+        <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">Composition</span><span class="p">(</span><span class="n">sym_amt</span><span class="p">)</span> <span class="k">for</span> <span class="n">sym_amt</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]]</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">reactants</span><span class="p">,</span> <span class="n">products</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ReactionError"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.ReactionError">[docs]</a><span class="k">class</span> <span class="nc">ReactionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -461,8 +452,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span></div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span>
 
 
 <div class="viewcode-block" id="ComputedReaction"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.ComputedReaction">[docs]</a><span class="k">class</span> <span class="nc">ComputedReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
@@ -519,15 +510,15 @@
 <div class="viewcode-block" id="ComputedReaction.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.ComputedReaction.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
                 <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                <span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reactant_entries</span><span class="p">],</span>
-                <span class="s2">&quot;products&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_product_entries</span><span class="p">]}</span></div>
+                <span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reactant_entries</span><span class="p">],</span></div>
+                <span class="s2">&quot;products&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_product_entries</span><span class="p">]}</span>
 
 <div class="viewcode-block" id="ComputedReaction.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.reaction_calculator.html#pymatgen.analysis.reaction_calculator.ComputedReaction.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="n">dec</span> <span class="o">=</span> <span class="n">MontyDecoder</span><span class="p">()</span>
         <span class="n">reactants</span> <span class="o">=</span> <span class="p">[</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;reactants&quot;</span><span class="p">]]</span>
-        <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">reactants</span><span class="p">,</span> <span class="n">products</span><span class="p">)</span></div></div>
+        <span class="n">products</span> <span class="o">=</span> <span class="p">[</span><span class="n">dec</span><span class="o">.</span><span class="n">process_decoded</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]]</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">reactants</span><span class="p">,</span> <span class="n">products</span><span class="p">)</span>
 </pre></div>
 
           </div>
@@ -537,12 +528,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -558,7 +551,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -566,7 +559,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

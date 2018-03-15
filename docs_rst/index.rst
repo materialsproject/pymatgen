@@ -32,9 +32,12 @@ Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
 reports. Please report any bugs and issues at pymatgen's `Github Issues
-page <https://github.com/materialsproject/pymatgen/issues>`_. If you wish to
-be notified of pymatgen releases and need help with using pymatgen, please
-become a member of `pymatgen's Google Groups`_.
+page <https://github.com/materialsproject/pymatgen/issues>`_. For news, tips
+and help with pymatgen, please check out the following official pymatgen
+resources:
+* `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
+* `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
+* `pymatgen's Google Groups`_. Post questions that are not covered by examples.
 
     *The code is mightier than the pen.*
 
@@ -46,7 +49,7 @@ Py3k-only with effect from 2019.1.1
 
 Pymatgen has supported both Python 2.7 as well as Python 3.x from version 3.0.
 With increasing support by most standard libraries for Py3k, it no longer makes
-sense to maintain this dual support going foward. Dual support imposes costs in
+sense to maintain this dual support going forward. Dual support imposes costs in
 terms of developmental effort, and also forces compromises in code quality and
 efficiency. Though some legacy clusters may only come with Py2k installed by
 default, the recommended approach in any case is to create an isolated Py3k
@@ -65,10 +68,11 @@ The `Materials Virtual Lab`_ has developed a
 `matgenie web app <http://matgenie.materialsvirtuallab.org>`_ which
 demonstrates some of the basic functionality of pymatgen, as well as a
 `matgenb repository <http://matgenb.materialsvirtuallab.org>`_ of
-Jupyter notebooks for common and advanced use cases.
+Jupyter notebooks for common and advanced use cases. We have deprecated the
+pymatgen examples page in favor of this more sustainable approach going forward.
+One of the ways you can contribute is to fork the matgenb repo and add your own
+examples.
 
-Another good way to explore the functionality of pymatgen is to look at the
-examples in a :doc:`series of ipython notebooks </examples>`.
 Below are a quick look at some of the graphical output possible.
 
 .. figure:: _static/examples.png
@@ -95,7 +99,8 @@ several advantages over other codes out there:
    `CircleCI <https://circleci.com>`_ and `Appveyor <https://www.appveyor.com/>`_
    for continuous integration on the Linux and Windows platforms,
    respectively, which ensures that every commit passes a comprehensive suite
-   of unittests. The coverage of the unittests can be seen at `here <coverage/index.html>`_.
+   of unittests. The coverage of the unittests can be seen on
+   `coveralls.io <https://coveralls.io/github/materialsproject/pymatgen>`_.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly.
 3. **It is open.** You are free to use and contribute to pymatgen. It also means

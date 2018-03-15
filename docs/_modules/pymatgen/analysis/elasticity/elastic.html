@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.elasticity.elastic &#8212; pymatgen 2017.12.30 documentation</title>
+    <title>pymatgen.analysis.elasticity.elastic &#8212; pymatgen 2018.3.13 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2017.12.30',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
@@ -32,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -134,8 +125,8 @@
             <span class="n">strain</span> <span class="o">=</span> <span class="n">Strain</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">strain</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;Strain must be 3x3 or voigt-notation&quot;</span>
         <span class="n">stress_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">strain</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> \
-                <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Stress</span><span class="p">(</span><span class="n">stress_matrix</span><span class="p">)</span></div>
+                <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Stress</span><span class="p">(</span><span class="n">stress_matrix</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NthOrderElasticTensor.energy_density"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.energy_density">[docs]</a>    <span class="k">def</span> <span class="nf">energy_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strain</span><span class="p">,</span> <span class="n">convert_GPa_to_eV</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -143,13 +134,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">e_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_stress</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span><span class="o">*</span><span class="n">strain</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span>
         <span class="k">if</span> <span class="n">convert_GPa_to_eV</span><span class="p">:</span>
-            <span class="n">e_density</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPa_to_eV_A3</span>  <span class="c1"># Conversion factor for GPa to eV/A^3</span>
-        <span class="k">return</span> <span class="n">e_density</span></div>
+            <span class="n">e_density</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPa_to_eV_A3</span>  <span class="c1"># Conversion factor for GPa to eV/A^3</span></div>
+        <span class="k">return</span> <span class="n">e_density</span>
 
 <div class="viewcode-block" id="NthOrderElasticTensor.from_diff_fit"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.from_diff_fit">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_diff_fit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">diff_fit</span><span class="p">(</span><span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">tol</span><span class="p">)[</span><span class="n">order</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span></div></div>
+                      <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">diff_fit</span><span class="p">(</span><span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">tol</span><span class="p">)[</span><span class="n">order</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="ElasticTensor"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor">[docs]</a><span class="k">class</span> <span class="nc">ElasticTensor</span><span class="p">(</span><span class="n">NthOrderElasticTensor</span><span class="p">):</span>
@@ -258,15 +249,15 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n and m must be orthogonal&quot;</span><span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliance_tensor</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">v</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliance_tensor</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">v</span></div>
+        <span class="n">v</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliance_tensor</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">v</span>
 
 <div class="viewcode-block" id="ElasticTensor.directional_elastic_mod"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.directional_elastic_mod">[docs]</a>    <span class="k">def</span> <span class="nf">directional_elastic_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates directional elastic modulus for a specific vector</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="n">get_uvec</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span></div>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">get_uvec</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ElasticTensor.trans_v"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.trans_v">[docs]</a>    <span class="k">def</span> <span class="nf">trans_v</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -283,8 +274,8 @@
         <span class="n">volume</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
         <span class="n">natoms</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span>
         <span class="n">weight</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span>
-        <span class="n">mass_density</span> <span class="o">=</span> <span class="mf">1.6605e3</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mf">1e9</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_vrh</span> <span class="o">/</span> <span class="n">mass_density</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span></div>
+        <span class="n">mass_density</span> <span class="o">=</span> <span class="mf">1.6605e3</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1e9</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_vrh</span> <span class="o">/</span> <span class="n">mass_density</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
 
 <div class="viewcode-block" id="ElasticTensor.long_v"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.long_v">[docs]</a>    <span class="k">def</span> <span class="nf">long_v</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -301,8 +292,8 @@
         <span class="n">volume</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
         <span class="n">natoms</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span>
         <span class="n">weight</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span>
-        <span class="n">mass_density</span> <span class="o">=</span> <span class="mf">1.6605e3</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="mf">1e9</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">+</span> <span class="mf">4.</span><span class="o">/</span><span class="mf">3.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_vrh</span><span class="p">)</span> <span class="o">/</span> <span class="n">mass_density</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span></div>
+        <span class="n">mass_density</span> <span class="o">=</span> <span class="mf">1.6605e3</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1e9</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">+</span> <span class="mf">4.</span><span class="o">/</span><span class="mf">3.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_vrh</span><span class="p">)</span> <span class="o">/</span> <span class="n">mass_density</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
 
 <div class="viewcode-block" id="ElasticTensor.snyder_ac"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_ac">[docs]</a>    <span class="k">def</span> <span class="nf">snyder_ac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -321,8 +312,8 @@
         <span class="n">tot_mass</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">species</span><span class="p">])</span>
         <span class="n">avg_mass</span> <span class="o">=</span> <span class="mf">1.6605e-27</span> <span class="o">*</span> <span class="n">tot_mass</span> <span class="o">/</span> <span class="n">natoms</span>
         <span class="k">return</span> <span class="mf">0.38483</span><span class="o">*</span><span class="n">avg_mass</span> <span class="o">*</span> \
-            <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">**</span> <span class="mf">3.</span>\
-            <span class="o">/</span> <span class="p">(</span><span class="mf">300.</span><span class="o">*</span><span class="n">num_density</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">))</span></div>
+            <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">**</span> <span class="mf">3.</span>\</div>
+            <span class="o">/</span> <span class="p">(</span><span class="mf">300.</span><span class="o">*</span><span class="n">num_density</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ElasticTensor.snyder_opt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_opt">[docs]</a>    <span class="k">def</span> <span class="nf">snyder_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -338,8 +329,8 @@
         <span class="n">volume</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
         <span class="n">num_density</span> <span class="o">=</span> <span class="mf">1e30</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">/</span> <span class="n">volume</span>
         <span class="k">return</span> <span class="mf">1.66914e-23</span> <span class="o">*</span> \
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span><span class="o">/</span><span class="mf">3.</span> \
-            <span class="o">/</span> <span class="n">num_density</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">nsites</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">))</span></div>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span><span class="o">/</span><span class="mf">3.</span> \</div>
+            <span class="o">/</span> <span class="n">num_density</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">nsites</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ElasticTensor.snyder_total"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.snyder_total">[docs]</a>    <span class="k">def</span> <span class="nf">snyder_total</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -350,8 +341,8 @@
 
 <span class="sd">        Returns: Snyder&#39;s total sound velocity (in SI units)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">snyder_ac</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">snyder_opt</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">snyder_ac</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">snyder_opt</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ElasticTensor.clarke_thermalcond"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.clarke_thermalcond">[docs]</a>    <span class="k">def</span> <span class="nf">clarke_thermalcond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -370,8 +361,8 @@
         <span class="n">weight</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span>
         <span class="n">avg_mass</span> <span class="o">=</span> <span class="mf">1.6605e-27</span> <span class="o">*</span> <span class="n">tot_mass</span> <span class="o">/</span> <span class="n">natoms</span>
         <span class="n">mass_density</span> <span class="o">=</span> <span class="mf">1.6605e3</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mf">0.87</span> <span class="o">*</span> <span class="mf">1.3806e-23</span> <span class="o">*</span> <span class="n">avg_mass</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> \
-            <span class="o">*</span> <span class="n">mass_density</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_mod</span><span class="o">**</span><span class="mf">0.5</span></div>
+        <span class="k">return</span> <span class="mf">0.87</span> <span class="o">*</span> <span class="mf">1.3806e-23</span> <span class="o">*</span> <span class="n">avg_mass</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> \</div>
+            <span class="o">*</span> <span class="n">mass_density</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_mod</span><span class="o">**</span><span class="mf">0.5</span>
 
 <div class="viewcode-block" id="ElasticTensor.cahill_thermalcond"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.cahill_thermalcond">[docs]</a>    <span class="k">def</span> <span class="nf">cahill_thermalcond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -386,8 +377,8 @@
         <span class="n">nsites</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
         <span class="n">volume</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
         <span class="n">num_density</span> <span class="o">=</span> <span class="mf">1e30</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">/</span> <span class="n">volume</span>
-        <span class="k">return</span> <span class="mf">1.3806e-23</span> <span class="o">/</span> <span class="mf">2.48</span> <span class="o">*</span> <span class="n">num_density</span><span class="o">**</span><span class="p">(</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> \
-            <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="mf">1.3806e-23</span> <span class="o">/</span> <span class="mf">2.48</span> <span class="o">*</span> <span class="n">num_density</span><span class="o">**</span><span class="p">(</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> \</div>
+            <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ElasticTensor.debye_temperature"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">debye_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -406,8 +397,8 @@
         <span class="n">weight</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span>
         <span class="n">avg_mass</span> <span class="o">=</span> <span class="mf">1.6605e-27</span> <span class="o">*</span> <span class="n">tot_mass</span> <span class="o">/</span> <span class="n">natoms</span>
         <span class="n">mass_density</span> <span class="o">=</span> <span class="mf">1.6605e3</span> <span class="o">*</span> <span class="n">nsites</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">natoms</span> <span class="o">*</span> <span class="n">volume</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mf">2.589e-11</span> <span class="o">*</span> <span class="n">avg_mass</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">mass_density</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span><span class="p">)</span> \
-            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_mod</span><span class="o">**</span><span class="mf">0.5</span></div>
+        <span class="k">return</span> <span class="mf">2.589e-11</span> <span class="o">*</span> <span class="n">avg_mass</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="n">mass_density</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span><span class="p">)</span> \</div>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_mod</span><span class="o">**</span><span class="mf">0.5</span>
 
 <div class="viewcode-block" id="ElasticTensor.debye_temperature_gibbs"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature_gibbs">[docs]</a>    <span class="k">def</span> <span class="nf">debye_temperature_gibbs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -427,8 +418,8 @@
         <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">homogeneous_poisson</span>
         <span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.</span><span class="o">*</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="p">(</span><span class="mf">2.</span><span class="o">/</span><span class="mf">3.</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="mf">2.</span><span class="o">*</span><span class="n">t</span><span class="p">))</span><span class="o">**</span><span class="mf">1.5</span> <span class="o">+</span>
                  <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">t</span><span class="p">))</span><span class="o">**</span><span class="mf">1.5</span><span class="p">)</span><span class="o">**-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mf">2.9772e-11</span> <span class="o">*</span> <span class="n">avg_mass</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">volume</span> <span class="o">/</span> <span class="n">natoms</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span><span class="p">)</span> \
-            <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">**</span> <span class="mf">0.5</span></div>
+        <span class="k">return</span> <span class="mf">2.9772e-11</span> <span class="o">*</span> <span class="n">avg_mass</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">volume</span> <span class="o">/</span> <span class="n">natoms</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">6.</span><span class="p">)</span> \</div>
+            <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">**</span> <span class="mf">0.5</span>
 
 <div class="viewcode-block" id="ElasticTensor.debye_temperature_from_sound_velocities"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature_from_sound_velocities">[docs]</a>    <span class="k">def</span> <span class="nf">debye_temperature_from_sound_velocities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -437,8 +428,8 @@
         <span class="n">v0</span> <span class="o">=</span> <span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-30</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span><span class="p">)</span>
         <span class="n">vl</span><span class="p">,</span> <span class="n">vt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_v</span><span class="p">(</span><span class="n">structure</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_v</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="n">vm</span> <span class="o">=</span> <span class="mi">3</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">vl</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">vt</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
-        <span class="n">td</span> <span class="o">=</span> <span class="mf">1.05457e-34</span> <span class="o">/</span> <span class="mf">1.38065e-23</span> <span class="o">*</span> <span class="n">vm</span> <span class="o">*</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">v0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">td</span></div>
+        <span class="n">td</span> <span class="o">=</span> <span class="mf">1.05457e-34</span> <span class="o">/</span> <span class="mf">1.38065e-23</span> <span class="o">*</span> <span class="n">vm</span> <span class="o">*</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">v0</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">td</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">universal_anisotropy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -459,8 +450,8 @@
 <div class="viewcode-block" id="ElasticTensor.green_kristoffel"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.green_kristoffel">[docs]</a>    <span class="k">def</span> <span class="nf">green_kristoffel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the Green-Kristoffel tensor for a second-order tensor</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">],</span> <span class="s2">&quot;ijkl,i,l&quot;</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">],</span> <span class="s2">&quot;ijkl,i,l&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">property_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -482,8 +473,8 @@
         <span class="n">sp_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">prop</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">)(</span><span class="n">structure</span><span class="p">)</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">s_props</span><span class="p">}</span>
         <span class="n">sp_dict</span><span class="p">[</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="k">if</span> <span class="n">include_base_props</span><span class="p">:</span>
-            <span class="n">sp_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">property_dict</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sp_dict</span></div>
+            <span class="n">sp_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">property_dict</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">sp_dict</span>
 
 <div class="viewcode-block" id="ElasticTensor.from_pseudoinverse"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_pseudoinverse">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_pseudoinverse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">):</span>
@@ -504,8 +495,8 @@
         <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="n">strains</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Strain</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span><span class="o">.</span><span class="n">voigt</span> <span class="k">for</span> <span class="n">strain</span> <span class="ow">in</span> <span class="n">strains</span><span class="p">])</span>
 
-        <span class="n">voigt_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">strains</span><span class="p">),</span> <span class="n">stresses</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">voigt_fit</span><span class="p">)</span></div>
+        <span class="n">voigt_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">strains</span><span class="p">),</span> <span class="n">stresses</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">voigt_fit</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ElasticTensor.from_independent_strains"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensor.from_independent_strains">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_independent_strains</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -539,8 +530,8 @@
         <span class="k">if</span> <span class="n">vasp</span><span class="p">:</span>
             <span class="n">c_ij</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">0.1</span>  <span class="c1"># Convert units/sign convention of vasp stress tensor</span>
         <span class="n">c</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">c_ij</span><span class="p">)</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">zeroed</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">c</span></div></div>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">zeroed</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">c</span>
 
 
 <div class="viewcode-block" id="ComplianceTensor"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ComplianceTensor">[docs]</a><span class="k">class</span> <span class="nc">ComplianceTensor</span><span class="p">(</span><span class="n">Tensor</span><span class="p">):</span>
@@ -554,8 +545,8 @@
         <span class="n">vscale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
         <span class="n">vscale</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span> <span class="o">*=</span> <span class="mi">2</span>
         <span class="n">vscale</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">*=</span> <span class="mi">2</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ComplianceTensor</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s_array</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="n">vscale</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span></div>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ComplianceTensor</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s_array</span><span class="p">,</span> <span class="n">vscale</span><span class="o">=</span><span class="n">vscale</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ElasticTensorExpansion"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion">[docs]</a><span class="k">class</span> <span class="nc">ElasticTensorExpansion</span><span class="p">(</span><span class="n">TensorCollection</span><span class="p">):</span>
@@ -586,8 +577,8 @@
 <span class="sd">        Generates an elastic tensor expansion via the fitting function</span>
 <span class="sd">        defined below in diff_fit</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">c_list</span> <span class="o">=</span> <span class="n">diff_fit</span><span class="p">(</span><span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">c_list</span><span class="p">)</span></div>
+        <span class="n">c_list</span> <span class="o">=</span> <span class="n">diff_fit</span><span class="p">(</span><span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">c_list</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -601,15 +592,15 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate&#39;s a given elastic tensor&#39;s contribution to the</span>
 <span class="sd">        stress using Einstein summation</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">calculate_stress</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">calculate_stress</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.energy_density"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.energy_density">[docs]</a>    <span class="k">def</span> <span class="nf">energy_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strain</span><span class="p">,</span> <span class="n">convert_GPa_to_eV</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the elastic energy density due to a strain</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">energy_density</span><span class="p">(</span><span class="n">strain</span><span class="p">,</span> <span class="n">convert_GPa_to_eV</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">energy_density</span><span class="p">(</span><span class="n">strain</span><span class="p">,</span> <span class="n">convert_GPa_to_eV</span><span class="p">)</span></div>
+                    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_ggt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_ggt">[docs]</a>    <span class="k">def</span> <span class="nf">get_ggt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -622,8 +613,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gk</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">gk</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">])</span>
-                   <span class="o">+</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">]))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">gk</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span></div>
+                   <span class="o">+</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">]))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">gk</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">result</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_tgt"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_tgt">[docs]</a>    <span class="k">def</span> <span class="nf">get_tgt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -664,8 +655,8 @@
                 <span class="k">if</span> <span class="n">temperature</span><span class="p">:</span>
                     <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heat_capacity</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
                 <span class="n">num</span> <span class="o">+=</span> <span class="n">c</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ggt</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span>
-                <span class="n">denom</span> <span class="o">+=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">w</span>
-        <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">denom</span></div>
+                <span class="n">denom</span> <span class="o">+=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">w</span></div>
+        <span class="k">return</span> <span class="n">num</span> <span class="o">/</span> <span class="n">denom</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_gruneisen_parameter"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_gruneisen_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">get_gruneisen_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">quad</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -681,8 +672,8 @@
 <span class="sd">            quad (dict): quadrature for integration, should be</span>
 <span class="sd">                dictionary with &quot;points&quot; and &quot;weights&quot; keys defaults </span>
 <span class="sd">                to quadpy.sphere.Lebedev(19) as read from file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tgt</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">quad</span><span class="p">))</span> <span class="o">/</span> <span class="mf">3.</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_tgt</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">quad</span><span class="p">))</span> <span class="o">/</span> <span class="mf">3.</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_heat_capacity"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_heat_capacity">[docs]</a>    <span class="k">def</span> <span class="nf">get_heat_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">1e2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -704,8 +695,8 @@
         <span class="k">if</span> <span class="n">hbar_w</span> <span class="o">&gt;</span> <span class="n">kt</span> <span class="o">*</span> <span class="n">cutoff</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-        <span class="n">c</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
-        <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="mf">6.022e23</span></div>
+        <span class="n">c</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hbar_w</span> <span class="o">/</span> <span class="n">kt</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span></div>
+        <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="mf">6.022e23</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.omega"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.omega">[docs]</a>    <span class="k">def</span> <span class="nf">omega</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -724,8 +715,8 @@
         <span class="n">weight</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span> <span class="o">*</span> <span class="mf">1.66054e-27</span> <span class="c1"># in kg</span>
         <span class="n">vol</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-30</span> <span class="c1"># in m^3</span>
         <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e9</span> <span class="o">*</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
-               <span class="o">/</span> <span class="p">(</span><span class="n">weight</span> <span class="o">/</span> <span class="n">vol</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
-        <span class="k">return</span> <span class="n">vel</span> <span class="o">/</span> <span class="n">l0</span></div>
+               <span class="o">/</span> <span class="p">(</span><span class="n">weight</span> <span class="o">/</span> <span class="n">vol</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span></div>
+        <span class="k">return</span> <span class="n">vel</span> <span class="o">/</span> <span class="n">l0</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.thermal_expansion_coeff"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff">[docs]</a>    <span class="k">def</span> <span class="nf">thermal_expansion_coeff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;debye&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -753,8 +744,8 @@
             <span class="n">cv</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mf">8.314</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mode must be debye or dulong-petit&quot;</span><span class="p">)</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tgt</span><span class="p">()</span> <span class="o">*</span> <span class="n">cv</span> <span class="o">/</span> <span class="p">(</span><span class="n">soec</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">*</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">v0</span> <span class="o">*</span> <span class="mf">6.022e23</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">alpha</span></div>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tgt</span><span class="p">()</span> <span class="o">*</span> <span class="n">cv</span> <span class="o">/</span> <span class="p">(</span><span class="n">soec</span><span class="o">.</span><span class="n">k_vrh</span> <span class="o">*</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">v0</span> <span class="o">*</span> <span class="mf">6.022e23</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">alpha</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_compliance_expansion"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_compliance_expansion">[docs]</a>    <span class="k">def</span> <span class="nf">get_compliance_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -779,8 +770,8 @@
             <span class="n">einstring_4</span> <span class="o">=</span> <span class="s2">&quot;pqab,abcdef,cdijkl,efmn&quot;</span>
             <span class="k">for</span> <span class="n">es</span> <span class="ow">in</span> <span class="p">[</span><span class="n">einstring_2</span><span class="p">,</span> <span class="n">einstring_3</span><span class="p">,</span> <span class="n">einstring_4</span><span class="p">]:</span>
                 <span class="n">temp</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="n">es</span><span class="p">,</span> <span class="n">ce_exp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">ce_exp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ce_exp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">ce_exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">TensorCollection</span><span class="p">(</span><span class="n">ce_exp</span><span class="p">)</span></div>
+            <span class="n">ce_exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">TensorCollection</span><span class="p">(</span><span class="n">ce_exp</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_strain_from_stress"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_strain_from_stress">[docs]</a>    <span class="k">def</span> <span class="nf">get_strain_from_stress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stress</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -791,8 +782,8 @@
         <span class="n">compl_exp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_compliance_expansion</span><span class="p">()</span>
         <span class="n">strain</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">compl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">compl_exp</span><span class="p">):</span>
-            <span class="n">strain</span> <span class="o">+=</span> <span class="n">compl</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">stress</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">strain</span></div>
+            <span class="n">strain</span> <span class="o">+=</span> <span class="n">compl</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">stress</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">strain</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_effective_ecs"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_effective_ecs">[docs]</a>    <span class="k">def</span> <span class="nf">get_effective_ecs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strain</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -806,8 +797,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ec_sum</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">ecs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">order</span><span class="o">-</span><span class="mi">2</span><span class="p">:]):</span>
-            <span class="n">ec_sum</span> <span class="o">+=</span> <span class="n">ecs</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">strain</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ec_sum</span></div>
+            <span class="n">ec_sum</span> <span class="o">+=</span> <span class="n">ecs</span><span class="o">.</span><span class="n">einsum_sequence</span><span class="p">([</span><span class="n">strain</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">ec_sum</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_wallace_tensor"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_wallace_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">get_wallace_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -824,8 +815,8 @@
                    <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kn,lm-&gt;klmn&quot;</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">+</span>
                    <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;kl,mn-&gt;klmn&quot;</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
         <span class="n">strain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_strain_from_stress</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span>
-        <span class="n">b</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_effective_ecs</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">b</span></div>
+        <span class="n">b</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_effective_ecs</span><span class="p">(</span><span class="n">strain</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">b</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_symmetric_wallace_tensor"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_symmetric_wallace_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetric_wallace_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tau</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -836,8 +827,8 @@
 <span class="sd">            tau (3x3 array-like): stress at which to evaluate</span>
 <span class="sd">                the wallace tensor. </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">wallace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wallace_tensor</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Tensor</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">wallace</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">wallace</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])))</span></div>
+        <span class="n">wallace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wallace_tensor</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Tensor</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">wallace</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">wallace</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])))</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_stability_criteria"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_stability_criteria">[docs]</a>    <span class="k">def</span> <span class="nf">get_stability_criteria</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -853,8 +844,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">get_uvec</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="n">stress</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-        <span class="n">sym_wallace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetric_wallace_tensor</span><span class="p">(</span><span class="n">stress</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">sym_wallace</span><span class="o">.</span><span class="n">voigt</span><span class="p">)</span></div>
+        <span class="n">sym_wallace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetric_wallace_tensor</span><span class="p">(</span><span class="n">stress</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">sym_wallace</span><span class="o">.</span><span class="n">voigt</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ElasticTensorExpansion.get_yield_stress"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.get_yield_stress">[docs]</a>    <span class="k">def</span> <span class="nf">get_yield_stress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -866,8 +857,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: root finding could be more robust</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_stability_criteria</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
-        <span class="n">tens</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_stability_criteria</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tens</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div></div>
+        <span class="n">tens</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_stability_criteria</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">n</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tens</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
 
 
 <span class="c1">#TODO: abstract this for other tensor fitting procedures</span>
@@ -929,8 +920,8 @@
         <span class="n">cvec</span><span class="p">,</span> <span class="n">carr</span> <span class="o">=</span> <span class="n">get_symbol_list</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">svec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">dei_dsi</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
         <span class="n">cmap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cvec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">svec</span><span class="p">)))</span>
-        <span class="n">c_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v_subs</span><span class="p">(</span><span class="n">carr</span><span class="p">,</span> <span class="n">cmap</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">Tensor</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">c_list</span><span class="p">]</span></div>
+        <span class="n">c_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v_subs</span><span class="p">(</span><span class="n">carr</span><span class="p">,</span> <span class="n">cmap</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">Tensor</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">c_list</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="find_eq_stress"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.find_eq_stress">[docs]</a><span class="k">def</span> <span class="nf">find_eq_stress</span><span class="p">(</span><span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
@@ -955,8 +946,8 @@
         <span class="n">eq_stress</span> <span class="o">=</span> <span class="n">eq_stress</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No eq state found, returning zero voigt stress&quot;</span><span class="p">)</span>
-        <span class="n">eq_stress</span> <span class="o">=</span> <span class="n">Stress</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">eq_stress</span></div>
+        <span class="n">eq_stress</span> <span class="o">=</span> <span class="n">Stress</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span></div>
+    <span class="k">return</span> <span class="n">eq_stress</span>
 
 
 <div class="viewcode-block" id="get_strain_state_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.get_strain_state_dict">[docs]</a><span class="k">def</span> <span class="nf">get_strain_state_dict</span><span class="p">(</span><span class="n">strains</span><span class="p">,</span> <span class="n">stresses</span><span class="p">,</span> <span class="n">eq_stress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1016,8 +1007,8 @@
         <span class="n">strain_state</span> <span class="o">=</span> <span class="n">mstrains</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">mstrains</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ind</span><span class="p">))</span>
         <span class="n">strain_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">strain_state</span><span class="p">)</span>
         <span class="n">strain_state_dict</span><span class="p">[</span><span class="n">strain_state</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;strains&quot;</span><span class="p">:</span> <span class="n">mstrains</span><span class="p">,</span>
-                                           <span class="s2">&quot;stresses&quot;</span><span class="p">:</span> <span class="n">mstresses</span><span class="p">}</span>
-    <span class="k">return</span> <span class="n">strain_state_dict</span></div>
+                                           <span class="s2">&quot;stresses&quot;</span><span class="p">:</span> <span class="n">mstresses</span><span class="p">}</span></div>
+    <span class="k">return</span> <span class="n">strain_state_dict</span>
 
 
 <div class="viewcode-block" id="generate_pseudo"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.generate_pseudo">[docs]</a><span class="k">def</span> <span class="nf">generate_pseudo</span><span class="p">(</span><span class="n">strain_states</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
@@ -1057,8 +1048,8 @@
         <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="o">*</span><span class="n">nstates</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cvec</span><span class="p">)))</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cvec</span><span class="p">):</span>
             <span class="n">m</span><span class="p">[:,</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">v_diff</span><span class="p">(</span><span class="n">svec</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
-        <span class="n">mis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">mis</span><span class="p">,</span> <span class="n">absent_syms</span></div>
+        <span class="n">mis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">m</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">mis</span><span class="p">,</span> <span class="n">absent_syms</span>
 
 
 <div class="viewcode-block" id="get_symbol_list"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.get_symbol_list">[docs]</a><span class="k">def</span> <span class="nf">get_symbol_list</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
@@ -1084,8 +1075,8 @@
     <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
         <span class="n">c_vec</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s1">&#39;c_&#39;</span><span class="o">+</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">perm</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
-            <span class="n">c_arr</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_vec</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">c_vec</span><span class="p">,</span> <span class="n">c_arr</span></div>
+            <span class="n">c_arr</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_vec</span><span class="p">[</span><span class="n">n</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="n">c_vec</span><span class="p">,</span> <span class="n">c_arr</span>
 
 
 <div class="viewcode-block" id="subs"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.elastic.html#pymatgen.analysis.elasticity.elastic.subs">[docs]</a><span class="k">def</span> <span class="nf">subs</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">cmap</span><span class="p">):</span>
@@ -1099,8 +1090,8 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Evaluated expression with substitution</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>
 
 <span class="c1"># Vectorized functions</span>
 <span class="n">v_subs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
@@ -1121,8 +1112,8 @@
     <span class="n">exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">acc</span><span class="p">)]</span><span class="o">*</span><span class="n">acc</span><span class="p">)</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">hvec</span><span class="p">]</span> <span class="o">*</span> <span class="n">acc</span><span class="p">)</span> <span class="o">**</span> <span class="n">exp</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
-    <span class="n">b</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
+    <span class="n">b</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 </pre></div>
 
           </div>
@@ -1132,12 +1123,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1153,7 +1146,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.12.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1161,7 +1154,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

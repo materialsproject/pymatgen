@@ -1,3 +1,10 @@
+"""
+Pyinvoke tasks.py file for automating releases and admin stuff.
+
+Author: Shyue Ping Ong
+"""
+
+
 from invoke import task
 import glob
 import os
@@ -14,17 +21,6 @@ from pymatgen import __version__ as CURRENT_VER
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
 
 
-"""
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
-"""
-
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
-
-
 @task
 def make_doc(ctx):
     with open("CHANGES.rst") as f:
@@ -39,12 +35,9 @@ def make_doc(ctx):
     with open("docs_rst/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    with cd("examples"):
-       ctx.run("jupyter nbconvert --to html *.ipynb")
-       ctx.run("mv *.html ../docs_rst/_static")
-
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
+        ctx.run("rm pymatgen.*.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
@@ -74,6 +67,7 @@ def make_doc(ctx):
         ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
+        ctx.run("rm *.html")
         ctx.run("cp -r html/* .")
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
@@ -96,7 +90,7 @@ def update_doc(ctx):
 @task
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
-    ctx.run("python setup.py register sdist bdist_wheel")
+    ctx.run("python setup.py sdist bdist_wheel")
     ctx.run("twine upload dist/*")
 
 

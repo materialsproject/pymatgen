@@ -15,7 +15,6 @@ import ruamel.yaml as yaml
 import six
 import abc
 import logging
-import inspect
 import numpy as np
 
 from monty.string import indent, is_string, list_strings
@@ -36,7 +35,9 @@ __all__ = [
     "ScfConvergenceWarning",
     "NscfConvergenceWarning",
     "RelaxConvergenceWarning",
-    "Correction"
+    "Correction",
+    "DilatmxError",
+    "DilatmxErrorHandler",
 ]
 
 
@@ -566,19 +567,20 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     @pmg_serialize
     def as_dict(self):
-        #@Guido this introspection is nice but it's not safe
+        """
+        Basic implementation of as_dict if __init__ has no arguments. Subclasses may need to overwrite.
+        """
+
         d = {}
-        if hasattr(self, "__init__"):
-            for c in inspect.getfullargspec(self.__init__).args:
-                if c != "self":
-                    d[c] = self.__getattribute__(c)
         return d
 
     @classmethod
     def from_dict(cls, d):
-        kwargs = {k: v for k, v in d.items()
-                  if k in inspect.getfullargspec(cls.__init__).args}
-        return cls(**kwargs)
+        """
+        Basic implementation of from_dict if __init__ has no arguments. Subclasses may need to overwrite.
+        """
+
+        return cls()
 
     @classmethod
     def compare_inputs(cls, new_input, old_input):
@@ -721,6 +723,14 @@ class DilatmxErrorHandler(ErrorHandler):
     def __init__(self, max_dilatmx=1.3):
         self.max_dilatmx = max_dilatmx
 
+    @pmg_serialize
+    def as_dict(self):
+        return {'max_dilatmx': self.max_dilatmx}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(max_dilatmx=d['max_dilatmx'])
+
     def handle_task_event(self, task, event):
         # Read the last structure dumped by ABINIT before aborting.
         filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
@@ -776,6 +786,14 @@ class TolSymErrorHandler(ErrorHandler):
 
     def __init__(self, max_nfixes=3):
         self.max_nfixes = max_nfixes
+
+    @pmg_serialize
+    def as_dict(self):
+        return {'max_nfixes': self.max_nfixes}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(max_nfixes=d['max_nfixes'])
 
     def handle_task_event(self, task, event):
         # TODO: Add limit on the number of fixes one can do for the same error

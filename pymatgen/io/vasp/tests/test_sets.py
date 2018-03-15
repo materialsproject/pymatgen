@@ -462,6 +462,7 @@ class MITMDSetTest(unittest.TestCase):
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MITMDSet)
         self.assertEqual(v._config_dict["INCAR"]["TEBEG"], 300)
+        self.assertEqual(v._config_dict["INCAR"]["PREC"], "Low")
 
 
 class MVLNPTMDSetTest(unittest.TestCase):
@@ -494,6 +495,7 @@ class MVLNPTMDSetTest(unittest.TestCase):
         self.assertEqual(incar["ISIF"], 3)
         self.assertEqual(incar["MDALGO"], 3)
         self.assertEqual(incar["SMASS"], 0)
+        self.assertEqual(incar["PREC"], "Low")
 
         kpoints = npt_set.kpoints
         self.assertEqual(kpoints.kpts, [(1, 1, 1)])
@@ -615,6 +617,8 @@ class MVLSlabSetTest(PymatgenTest):
         poscar_bulk = self.d_bulk["POSCAR"]
 
         self.assertEqual(incar_bulk["ISIF"], 3)
+        self.assertEqual(incar_bulk["EDIFF"], 1e-4)
+        self.assertEqual(incar_bulk["EDIFFG"], -0.02)
         self.assertEqual(poscar_bulk.structure.formula,
                          self.bulk.formula)
 
