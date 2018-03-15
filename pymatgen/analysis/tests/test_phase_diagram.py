@@ -446,6 +446,17 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
 
+class ReactionDiagramTest(unittest.TestCase):
+    def setUp(self):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        (self.elements, self.entries) = PDEntry.from_csv(
+            os.path.join(module_dir, "reaction_entries_test.csv"))
+        self.pd = ReactionDiagram(entry1=self.entries[0],
+                                  entry2=self.entries[1],
+                                  all_entries=self.entries[2:])
+
+    def test_get_compound_pd(self):
+        self.pd.get_compound_pd()
 
 class PDPlotterTest(unittest.TestCase):
     def setUp(self):
