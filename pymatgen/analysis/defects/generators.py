@@ -24,6 +24,7 @@ from monty.json import MSONable
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.defects.point_defects import StructureMotifInterstitial
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class VacancyGenerator(DefectGenerator):
         """
         Initializes a Vacancy Generator
         Args:
-            structure: pymatgen.core.structure.Structure
+            structure(Structure): pymatgen structure object
         """
         self.structure = structure
         self.include_bv_charge = include_bv_charge
@@ -75,7 +76,7 @@ class VacancyGenerator(DefectGenerator):
 
     def __next__(self):
         """
-        Returns the next letter in the sequence or
+        Returns the next vacancy in the sequence or
         raises StopIteration
         """
         if len(self.equiv_site_seq) > 0:
@@ -86,5 +87,43 @@ class VacancyGenerator(DefectGenerator):
                 charge = -1 * self.struct_valences[site_index]
 
             return Vacancy(self.structure, vac_site[0], multiplicity=len(vac_site), charge=charge)
+        else:
+            raise StopIteration
+
+
+class InterstitialGenerator(DefectGenerator):
+    """
+    Generator for interstitials at positions
+    where the interstitialcy is coordinated by nearest neighbors
+    in a way that resembles basic structure motifs
+    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT
+    (Interstitialcy Finding Tool), it was introducted by
+    Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,
+    and Maciej Haranczyk (Front. Mater., 4, 34, 2017),
+    and it is used by the Python Charged Defect Toolkit
+    (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
+    """
+
+    def __init__(self, structure, element):
+        """
+        Initializes an Interstitial generator using structure motifs
+        Args:
+            structure (Structure): pymatgen structure object
+            element (str or Element or Specie): element for the interstitial
+        """
+        self.structure = structure
+        self.element = element
+        interstitial_finder = StructureMotifInterstitial(self.structure, self.element)
+        self.defect_sites = list(interstitial_finder.enumerate_defectsites())
+
+    def __next__(self):
+        """
+        Returns the next interstitial or
+        raises StopIteration
+        """
+        if len(self.defect_sites) > 0:
+            int_site = self.defect_sites.pop(0)
+
+            return Interstitial(self.structure, int_site, multiplicity=1)
         else:
             raise StopIteration
