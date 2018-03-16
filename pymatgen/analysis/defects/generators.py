@@ -52,12 +52,14 @@ class VacancyGenerator(DefectGenerator):
     """
     Simple generator for vacancies based on periodically
     equivalent sites
-
-    Args:
-        structure: pymatgen.core.structure.Structure
     """
 
     def __init__(self, structure, include_bv_charge=False):
+        """
+        Initializes a Vacancy Generator
+        Args:
+            structure: pymatgen.core.structure.Structure
+        """
         self.structure = structure
         self.include_bv_charge = include_bv_charge
 

@@ -27,14 +27,17 @@ logger = logging.getLogger(__name__)
 class Defect(six.with_metaclass(ABCMeta, MSONable)):
     """
     Abstract class for a single point defect
-
-    Args:
-        structure: Pymatgen Structure without any defects
-        charge: (int or float) defect charge
-                default is zero, meaning no change to NELECT after defect is created in the structure
     """
 
     def __init__(self, structure, defect_site, charge=0., multiplicity=1):
+        """
+        Initializes an abstract defect
+
+        Args:
+            structure: Pymatgen Structure without any defects
+            charge: (int or float) defect charge
+                default is zero, meaning no change to NELECT after defect is created in the structure
+        """
         self._structure = structure
         self._charge = charge
         self._defect_site = defect_site
@@ -72,6 +75,8 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
         Given structure and defectsite (and type of defect) should return a defect_structure that is charged
+        Args:
+            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
         """
         return
 
@@ -79,21 +84,13 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
 class Vacancy(Defect):
     """
     Subclass of Defect to capture essential information for a single Vacancy defect structure.
-
-    Args:
-        structure: non-defective pymatgen.core.structure.Structure
-        defectsite: pymatgen Site object
-        charge: defect charge (0 is default,
-                meaning no change to NELECT after defect is created in the structure)
-        supercell_size:
-            Size of the supercell in terms of unit cell (just for storage of information)
-        multiplicity: multiplicity of defect within the structure
-
     """
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
         Returns Defective Vacancy structure, decorated with charge
+        Args:
+            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
         """
         defect_structure = self.structure.copy()
         defect_structure.make_supercell(supercell)
@@ -108,21 +105,13 @@ class Vacancy(Defect):
 class Substitution(Defect):
     """
     Subclass of Defect to capture essential information for a single Substitution defect structure.
-
-    Args:
-        structure: non-defective pymatgen.core.structure.Structure
-        defectsite: pymatgen Site object [with correct specie type to use for defect]
-        charge: defect charge (0 is default,
-                meaning no change to NELECT after defect is created in the structure)
-        supercell_size:
-            Size of the supercell in terms of unit cell (just for storage of information)
-        multiplicity: multiplicity of defect within the structure
-
     """
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
         Returns Defective Substitution structure, decorated with charge
+        Args:
+            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
         """
         defect_structure = self.structure.copy()
         defect_structure.make_supercell(supercell)
@@ -139,21 +128,13 @@ class Substitution(Defect):
 class Interstitial(Defect):
     """
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
-
-    Args:
-        structure: non-defective pymatgen.core.structure.Structure
-        defectsite: pymatgen Site object [with correct specie type to use for defect]
-        charge: defect charge (0 is default,
-                meaning no change to NELECT after defect is created in the structure)
-        multiplicity: multiplicity of defect within the structure
-        supercell_size:
-            Size of the supercell in terms of unit cell (just for storage of information)
-
     """
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
         Returns Defective Interstitial structure, decorated with charge
+        Args:
+            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
         """
         defect_structure = self.structure.copy()
         defect_structure.make_supercell(supercell)
