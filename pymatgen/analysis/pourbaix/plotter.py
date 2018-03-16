@@ -211,7 +211,7 @@ class PourbaixPlotter(object):
         ph_min, ph_max, v_min, v_max = ax.get_xlim() + ax.get_ylim()
 
         # Get stability map
-        phs, vs = np.mgrid[ph_min:ph_max:resolution*1j, 
+        phs, vs = np.mgrid[ph_min:ph_max:resolution*1j,
                            v_min:v_max:resolution*1j]
         if self._pd._multielement and not isinstance(entry, MultiEntry):
             _, _, m_entries = self._analyzer.\
@@ -391,7 +391,7 @@ class PourbaixPlotter(object):
         return center_x, center_y
 
     def get_pourbaix_plot(self, limits=[[-2, 14], [-3, 3]],
-                          title="", label_domains=True):
+                          title="", label_domains=True, plt=None):
         """
         Plot Pourbaix diagram.
 
@@ -403,7 +403,7 @@ class PourbaixPlotter(object):
             plt:
                 matplotlib plot object
         """
-        plt = pretty_plot(16)
+        plt = plt or pretty_plot(16)
         (stable, unstable) = self.pourbaix_plot_data(limits)
         if limits:
             xlim = limits[0]
@@ -685,7 +685,7 @@ class PourbaixPlotter(object):
             add_h2o_stablity_line (Bool): whether plot H2O stability line
             add_center_line (Bool): whether plot lines shows the center coordinate
             h2o_lw (int): line width for H2O stability line and center lines
-            fill_domain (bool): a version without color will be product if set 
+            fill_domain (bool): a version without color will be product if set
                 to False.
             width (float): Width of plot in inches. Defaults to 8in.
                 height (float): Height of plot in inches. Defaults to width * golden
