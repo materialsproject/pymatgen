@@ -2103,11 +2103,8 @@ class BrunnerNN(NearNeighbors):
     def get_nn_info(self, structure, n):
 
         site = structure[n]
-        #site_name = site.species_string
         neighs_dists = structure.get_neighbors(site, self.cutoff)
         ds = [i[-1] for i in neighs_dists]
-        #temp = {}
-        #temp[site_name] = ds.sort()
         ds.sort()
 
         if self.mode == "reciprocal":
