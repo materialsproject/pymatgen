@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.flows module &#8212; pymatgen 2018.2.13 documentation</title>
+    <title>pymatgen.io.abinit.flows module &#8212; pymatgen 2018.3.14 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.2.13 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.14 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -389,6 +389,27 @@ located either in the working directory or in the user configuration dir.</li>
 <dd><p>This function returns a dictionary with the attributes that will be
 put in the mongodb document to facilitate the query.
 Subclasses may want to replace or extend the default behaviour.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.flows.Flow.get_graphviz">
+<code class="descname">get_graphviz</code><span class="sig-paren">(</span><em>engine='automatic'</em>, <em>graph_attr=None</em>, <em>node_attr=None</em>, <em>edge_attr=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.get_graphviz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.get_graphviz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate flow graph in the DOT language.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>engine</strong> – Layout command used. [‘dot’, ‘neato’, ‘twopi’, ‘circo’, ‘fdp’, ‘sfdp’, ‘patchwork’, ‘osage’]</li>
+<li><strong>graph_attr</strong> – Mapping of (attribute, value) pairs for the graph.</li>
+<li><strong>node_attr</strong> – Mapping of (attribute, value) pairs set for all nodes.</li>
+<li><strong>edge_attr</strong> – Mapping of (attribute, value) pairs set for all edges.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: graphviz.Digraph &lt;<a class="reference external" href="https://graphviz.readthedocs.io/en/stable/api.html#digraph">https://graphviz.readthedocs.io/en/stable/api.html#digraph</a>&gt;</p>
 </dd></dl>
 
 <dl class="method">
@@ -878,7 +899,7 @@ kwargs contains the options passed to the launcher.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.flows.Flow.register_task">
-<code class="descname">register_task</code><span class="sig-paren">(</span><em>input</em>, <em>deps=None</em>, <em>manager=None</em>, <em>task_class=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.register_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.register_task" title="Permalink to this definition">¶</a></dt>
+<code class="descname">register_task</code><span class="sig-paren">(</span><em>input</em>, <em>deps=None</em>, <em>manager=None</em>, <em>task_class=None</em>, <em>append=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/flows.html#Flow.register_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.flows.Flow.register_task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Utility function that generates a <cite>Work</cite> made of a single task</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -891,6 +912,7 @@ An empy list of deps implies that this node has no dependencies.</li>
 <li><strong>manager</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> responsible for the submission of the task.
 If manager is None, we use the <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> specified during the creation of the work.</li>
 <li><strong>task_class</strong> – Task subclass to instantiate. Default: <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitTask</span></code></li>
+<li><strong>append</strong> – If true, the task is added to the last work (a new Work is created if flow is empty)</li>
 </ul>
 </td>
 </tr>
@@ -1489,13 +1511,13 @@ Initialized from manager.yml if manager is None.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.2.13 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.14 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

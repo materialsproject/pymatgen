@@ -68,6 +68,7 @@ class CompleteDosTest(PymatgenTest):
 
         sum_dos = self.cdos.get_element_dos()[Element.Na] + self.cdos.get_element_dos()[Element.Cl]
         self.assertArrayAlmostEqual(sum_dos.frequencies, self.cdos.frequencies)
+        self.assertArrayAlmostEqual(sum_dos.densities, self.cdos.densities)
 
     def test_dict_methods(self):
         s = json.dumps(self.cdos.as_dict())

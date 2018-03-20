@@ -214,6 +214,9 @@ class FlowTest(FlowUnitTest):
         flow.show_inputs()
         flow.show_inputs(varnames="znucl")
 
+        df_vars = flow.get_vars_dataframe("ecut", "acell")
+        atrue("ecut" in df_vars)
+
         # Test show_status
         flow.show_status()
         flow.show_tricky_tasks()

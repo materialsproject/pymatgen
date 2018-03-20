@@ -1,11 +1,7 @@
 Change log
 ==========
 
-v2018.2.13
+v2018.3.14
 ----------
-* Improved chemenv parameters and bug fixes (David Waroquiers).
-* Improved Qchem IO (Shyam).
-* Improved interfacial reactions.
-* local_env update (Nils).
-* Improved ABINIT support (@gmatteo).
-* Misc bug fixes.
+* ReactionDiagram for calculating possible reactions between two compositions.
+* Misc bug fixes for EnumlibAdaptor and MagOrderingTransformation

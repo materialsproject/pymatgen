@@ -462,6 +462,7 @@ class MITMDSetTest(unittest.TestCase):
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MITMDSet)
         self.assertEqual(v._config_dict["INCAR"]["TEBEG"], 300)
+        self.assertEqual(v._config_dict["INCAR"]["PREC"], "Low")
 
 
 class MVLNPTMDSetTest(unittest.TestCase):
@@ -494,6 +495,7 @@ class MVLNPTMDSetTest(unittest.TestCase):
         self.assertEqual(incar["ISIF"], 3)
         self.assertEqual(incar["MDALGO"], 3)
         self.assertEqual(incar["SMASS"], 0)
+        self.assertEqual(incar["PREC"], "Low")
 
         kpoints = npt_set.kpoints
         self.assertEqual(kpoints.kpts, [(1, 1, 1)])

@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.surface_analysis &#8212; pymatgen 2018.2.13 documentation</title>
+    <title>pymatgen.analysis.surface_analysis &#8212; pymatgen 2018.3.14 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -78,6 +78,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.wulff</span> <span class="k">import</span> <span class="n">WulffShape</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Outcar</span><span class="p">,</span> <span class="n">Locpot</span><span class="p">,</span> <span class="n">Poscar</span>
 
 <span class="n">EV_PER_ANG2_TO_JOULES_PER_M2</span> <span class="o">=</span> <span class="mf">16.0217656</span>
 
@@ -215,7 +216,7 @@
              <span class="nb">sum</span><span class="p">([</span><span class="n">ads</span><span class="o">.</span><span class="n">energy_per_atom</span> <span class="k">for</span> <span class="n">ads</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adsorbates</span><span class="p">])</span></div>
         <span class="k">return</span> <span class="n">BE</span> <span class="o">*</span> <span class="n">Nads</span> <span class="k">if</span> <span class="n">eads</span> <span class="k">else</span> <span class="n">BE</span>
 
-<div class="viewcode-block" id="SlabEntry.surface_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SlabEntry.surface_energy">[docs]</a>    <span class="k">def</span> <span class="nf">surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ucell_entry</span><span class="p">,</span> <span class="n">ref_entries</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="SlabEntry.surface_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SlabEntry.surface_energy">[docs]</a>    <span class="k">def</span> <span class="nf">surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ucell_entry</span><span class="p">,</span> <span class="n">ref_entries</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the surface energy of this SlabEntry.</span>
 <span class="sd">        Args:</span>
@@ -231,6 +232,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Set up</span>
+        <span class="n">ref_entries</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ref_entries</span> <span class="k">else</span> <span class="n">ref_entries</span>
         <span class="n">gamma</span> <span class="o">=</span> <span class="p">(</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;E_surf&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;Ebulk&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">))</span>
         <span class="n">ucell_comp</span> <span class="o">=</span> <span class="n">ucell_entry</span><span class="o">.</span><span class="n">composition</span>
         <span class="n">ucell_reduced_comp</span> <span class="o">=</span> <span class="n">ucell_comp</span><span class="o">.</span><span class="n">reduced_composition</span>
@@ -256,10 +258,9 @@
         <span class="c1"># as a function of the other elements</span>
         <span class="k">for</span> <span class="n">ref_el</span> <span class="ow">in</span> <span class="n">ucell_comp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">ref_el</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_entries_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">delu</span> <span class="o">=</span> <span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;delu_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ref_el</span><span class="p">))</span>
                 <span class="k">break</span>
-        <span class="n">refEperA</span> <span class="o">=</span> <span class="p">(</span><span class="n">gbulk</span> <span class="o">-</span> <span class="n">gbulk_eqn</span><span class="p">)</span> <span class="o">/</span> <span class="n">ucell_reduced_comp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="n">ref_el</span><span class="p">]</span> <span class="o">-</span> <span class="n">delu</span>
-        <span class="n">bulk_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="n">ref_el</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">delu</span> <span class="o">+</span> <span class="n">refEperA</span><span class="p">)</span>
+        <span class="n">refEperA</span> <span class="o">=</span> <span class="p">(</span><span class="n">gbulk</span> <span class="o">-</span> <span class="n">gbulk_eqn</span><span class="p">)</span> <span class="o">/</span> <span class="n">ucell_reduced_comp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="n">ref_el</span><span class="p">]</span>
+        <span class="n">bulk_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="n">ref_el</span><span class="p">]</span> <span class="o">*</span> <span class="n">refEperA</span>
 
         <span class="k">return</span> <span class="n">gamma</span><span class="o">.</span><span class="n">subs</span><span class="p">({</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;E_surf&quot;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;Ebulk&quot;</span><span class="p">):</span> <span class="n">bulk_energy</span><span class="p">,</span></div>
                            <span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">surface_area</span><span class="p">})</span>
@@ -385,9 +386,11 @@
 <span class="sd">        phases diagrams of two parameters to determine stability of configurations</span>
 <span class="sd">        (future release), and Wulff shapes.</span>
 
-<span class="sd">    .. attribute:: entry_dict</span>
+<span class="sd">    .. attribute:: all_slab_entries</span>
 
-<span class="sd">        Nested dictionary containing a list of entries for slab calculations as</span>
+<span class="sd">        Either a list of SlabEntry objects (note for a list, the SlabEntry must</span>
+<span class="sd">            have the adsorbates and clean_entry parameter pulgged in) or a Nested</span>
+<span class="sd">            dictionary containing a list of entries for slab calculations as</span>
 <span class="sd">            items and the corresponding Miller index of the slab as the key.</span>
 <span class="sd">            To account for adsorption, each value is a sub-dictionary with the</span>
 <span class="sd">            entry of a clean slab calculation as the sub-key and a list of</span>
@@ -404,7 +407,7 @@
 <span class="sd">            where clean_entry1 can be a pristine surface and clean_entry2 can be a</span>
 <span class="sd">            reconstructed surface while ads_entry1 can be adsorption at site 1 with</span>
 <span class="sd">            a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption</span>
-<span class="sd">            entries are present (i.e. if entry_dict[(h,k,l)][clean_entry1]), we</span>
+<span class="sd">            entries are present (i.e. if all_slab_entries[(h,k,l)][clean_entry1]), we</span>
 <span class="sd">            consider adsorption in all plots and analysis for this particular facet.</span>
 
 <span class="sd">    ..attribute:: color_dict</span>
@@ -426,13 +429,13 @@
 <span class="sd">        Randomly generated dictionary of colors associated with each facet.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_dict</span><span class="p">,</span> <span class="n">ucell_entry</span><span class="p">,</span> <span class="n">ref_entries</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_slab_entries</span><span class="p">,</span> <span class="n">ucell_entry</span><span class="p">,</span> <span class="n">ref_entries</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Object for plotting surface energy in different ways for clean and</span>
 <span class="sd">            adsorbed surfaces.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            entry_dict (dict): Dictionary containing a list of entries</span>
-<span class="sd">                for slab calculations. See attributes.</span>
+<span class="sd">            all_slab_entries (dict or list): Dictionary or list containing</span>
+<span class="sd">                all entries for slab calculations. See attributes.</span>
 <span class="sd">            ucell_entry (ComputedStructureEntry): ComputedStructureEntry</span>
 <span class="sd">                of the bulk reference for this particular material.</span>
 <span class="sd">            ref_entries ([ComputedStructureEntries]): A list of entries for</span>
@@ -447,7 +450,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span> <span class="o">=</span> <span class="n">ucell_entry</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ref_entries</span> <span class="o">=</span> <span class="n">ref_entries</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span> <span class="o">=</span> <span class="n">entry_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span> <span class="o">=</span> <span class="n">all_slab_entries</span> <span class="k">if</span> \
+            <span class="nb">type</span><span class="p">(</span><span class="n">all_slab_entries</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;dict&quot;</span> <span class="k">else</span> \
+                <span class="n">entry_dict_from_list</span><span class="p">(</span><span class="n">all_slab_entries</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">color_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_palette_dict</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SurfaceEnergyPlotter.set_all_variables"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.set_all_variables">[docs]</a>    <span class="k">def</span> <span class="nf">set_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">u_dict</span><span class="p">,</span> <span class="n">u_default</span><span class="p">):</span>
@@ -498,14 +503,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">all_entries</span><span class="p">,</span> <span class="n">all_gamma</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">miller_index</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">miller_index</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">all_u_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_all_variables</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">u_dict</span><span class="p">,</span> <span class="n">u_default</span><span class="p">)</span>
             <span class="n">gamma</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="p">,</span>
                                          <span class="n">ref_entries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_entries</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">no_clean</span><span class="p">:</span>
                 <span class="n">all_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
                 <span class="n">all_gamma</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gamma</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">all_u_dict</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">miller_index</span><span class="p">][</span><span class="n">entry</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">miller_index</span><span class="p">][</span><span class="n">entry</span><span class="p">]:</span>
                 <span class="n">all_u_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_all_variables</span><span class="p">(</span><span class="n">ads_entry</span><span class="p">,</span> <span class="n">u_dict</span><span class="p">,</span> <span class="n">u_default</span><span class="p">)</span>
                 <span class="n">gamma</span> <span class="o">=</span> <span class="n">ads_entry</span><span class="o">.</span><span class="n">surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="p">,</span>
                                                  <span class="n">ref_entries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_entries</span><span class="p">)</span>
@@ -536,7 +541,7 @@
         <span class="n">latt</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span> \
             <span class="n">get_conventional_standard_structure</span><span class="p">()</span><span class="o">.</span><span class="n">lattice</span>
 
-        <span class="n">miller_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">miller_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">e_surf_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">miller_list</span><span class="p">:</span>
             <span class="c1"># For all configurations, calculate surface energy as a</span>
@@ -578,7 +583,7 @@
 
         <span class="c1"># initialize a dictionary of lists of fractional areas for each hkl</span>
         <span class="n">hkl_area_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">hkl_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Get plot points for each Miller index</span>
@@ -594,8 +599,8 @@
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
         <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-            <span class="n">clean_entry</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">clean_entry</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
             <span class="c1"># Ignore any facets that never show up on the</span>
             <span class="c1"># Wulff shape regardless of chemical potential</span>
             <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">a</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">hkl_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]]):</span>
@@ -681,17 +686,17 @@
         <span class="n">all_intesects_dict</span><span class="p">,</span> <span class="n">stable_urange_dict</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
 
         <span class="c1"># Get all entries for a specific facet</span>
-        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
 
             <span class="c1"># Skip this facet if this is not the facet we want</span>
             <span class="k">if</span> <span class="n">miller_index</span> <span class="ow">and</span> <span class="n">hkl</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">miller_index</span><span class="p">):</span>
                 <span class="k">continue</span>
 
-            <span class="n">entries_in_hkl</span> <span class="o">=</span> <span class="p">[</span><span class="n">clean</span> <span class="k">for</span> <span class="n">clean</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]]</span>
+            <span class="n">entries_in_hkl</span> <span class="o">=</span> <span class="p">[</span><span class="n">clean</span> <span class="k">for</span> <span class="n">clean</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">no_doped</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]:</span>
                     <span class="n">entries_in_hkl</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">ads_entry</span> <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span>
-                                           <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">entry</span><span class="p">]])</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">entry</span><span class="p">]])</span>
 
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries_in_hkl</span><span class="p">:</span>
                 <span class="n">stable_urange_dict</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -752,7 +757,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">color_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">rgb_indices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
             <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">rgb_indices</span><span class="p">)</span>
@@ -762,14 +767,14 @@
                 <span class="n">color</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Get the clean (solid) colors first</span>
-            <span class="n">clean_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]))</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clean</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">clean_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clean</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
                 <span class="n">c</span><span class="p">[</span><span class="n">rgb_indices</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">clean_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">color_dict</span><span class="p">[</span><span class="n">clean</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
 
                 <span class="c1"># Now get the adsorbed (transparent) colors</span>
-                <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean</span><span class="p">]:</span>
                     <span class="n">c_ads</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
                     <span class="n">c_ads</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span>
                     <span class="n">color_dict</span><span class="p">[</span><span class="n">ads_entry</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_ads</span>
@@ -877,7 +882,7 @@
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">plt</span> <span class="k">else</span> <span class="n">plt</span>
         <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">miller_index</span> <span class="ow">and</span> <span class="n">hkl</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">miller_index</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="c1"># Get the chempot range of each surface if we only</span>
@@ -890,7 +895,7 @@
 
             <span class="n">already_labelled</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">for</span> <span class="n">clean_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">clean_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]:</span>
 
                 <span class="n">urange</span> <span class="o">=</span> <span class="n">stable_u_range_dict</span><span class="p">[</span><span class="n">clean_entry</span><span class="p">]</span> <span class="k">if</span> \
                     <span class="ow">not</span> <span class="n">show_unstable</span> <span class="k">else</span> <span class="n">chempot_range</span>
@@ -912,7 +917,7 @@
                                                              <span class="n">u_default</span><span class="o">=</span><span class="n">u_default</span><span class="p">,</span>
                                                              <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">JPERM2</span><span class="o">=</span><span class="n">JPERM2</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">no_doped</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
                         <span class="c1"># Plot the adsorbed slabs</span>
                         <span class="c1"># Generate a label for the type of slab</span>
                         <span class="n">urange</span> <span class="o">=</span> <span class="n">stable_u_range_dict</span><span class="p">[</span><span class="n">ads_entry</span><span class="p">]</span> \
@@ -952,11 +957,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">ml_be_dict</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">clean_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
-                    <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">clean_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
                         <span class="k">if</span> <span class="n">ads_entry</span><span class="o">.</span><span class="n">get_monolayer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ml_be_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                             <span class="n">ml_be_dict</span><span class="p">[</span><span class="n">ads_entry</span><span class="o">.</span><span class="n">get_monolayer</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000</span>
                         <span class="n">be</span> <span class="o">=</span> <span class="n">ads_entry</span><span class="o">.</span><span class="n">gibbs_binding_energy</span><span class="p">(</span><span class="n">eads</span><span class="o">=</span><span class="n">plot_eads</span><span class="p">)</span>
@@ -1040,15 +1045,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">clean_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">clean_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">all_u_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_all_variables</span><span class="p">(</span><span class="n">clean_entry</span><span class="p">,</span> <span class="n">u_dict</span><span class="p">,</span> <span class="n">u_default</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
 
                     <span class="n">clean_se</span> <span class="o">=</span> <span class="n">clean_entry</span><span class="o">.</span><span class="n">surface_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ucell_entry</span><span class="p">,</span>
                                                           <span class="n">ref_entries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_entries</span><span class="p">)</span>
                     <span class="n">se</span> <span class="o">=</span> <span class="n">clean_se</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">all_u_dict</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">ads_entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_slab_entries</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean_entry</span><span class="p">]:</span>
                         <span class="n">ml</span> <span class="o">=</span> <span class="n">ads_entry</span><span class="o">.</span><span class="n">get_monolayer</span>
                         <span class="n">be</span> <span class="o">=</span> <span class="n">ads_entry</span><span class="o">.</span><span class="n">gibbs_binding_energy</span><span class="p">(</span><span class="n">eads</span><span class="o">=</span><span class="n">plot_eads</span><span class="p">)</span>
 
@@ -1090,6 +1095,248 @@
         <span class="c1">#     return</span>
 
 
+<div class="viewcode-block" id="entry_dict_from_list"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.entry_dict_from_list">[docs]</a><span class="k">def</span> <span class="nf">entry_dict_from_list</span><span class="p">(</span><span class="n">all_slab_entries</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a list of SlabEntry to an appropriate dictionary. It is</span>
+<span class="sd">    assumed that if there is no adsorbate, then it is a clean SlabEntry</span>
+<span class="sd">    and that adsorbed SlabEntry has the clean_entry parameter set.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        all_slab_entries (list): List of SlabEntry objects</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (dict): Dictionary of SlabEntry with the Miller index as the main</span>
+<span class="sd">            key to a dictionary with a clean SlabEntry as the key to a</span>
+<span class="sd">            list of adsorbed SlabEntry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">entry_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">all_slab_entries</span><span class="p">:</span>
+        <span class="n">hkl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">miller_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hkl</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">clean_entry</span><span class="p">:</span>
+            <span class="n">clean</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">clean_entry</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">clean</span> <span class="o">=</span> <span class="n">entry</span>
+        <span class="k">if</span> <span class="n">clean</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">adsorbates</span><span class="p">:</span>
+            <span class="n">entry_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">][</span><span class="n">clean</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+</div>
+    <span class="k">return</span> <span class="n">entry_dict</span>
+
+
+<div class="viewcode-block" id="WorkFunctionAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">WorkFunctionAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that post processes a task document of a vasp calculation (from</span>
+<span class="sd">        using drone.assimilate). Can calculate work function from the vasp</span>
+<span class="sd">        calculations and plot the potential along the c axis. This class</span>
+<span class="sd">        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a</span>
+<span class="sd">        slab calculation and it was insert into the task document along with</span>
+<span class="sd">        the other outputs.</span>
+
+<span class="sd">    .. attribute:: efermi</span>
+
+<span class="sd">        The Fermi energy</span>
+
+<span class="sd">    .. attribute:: locpot_along_c</span>
+
+<span class="sd">        Local potential in eV along points along the  axis</span>
+
+<span class="sd">    .. attribute:: vacuum_locpot</span>
+
+<span class="sd">        The maximum local potential along the c direction for</span>
+<span class="sd">            the slab model, ie the potential at the vacuum</span>
+
+<span class="sd">    .. attribute:: work_function</span>
+
+<span class="sd">        The minimum energy needed to move an electron from the</span>
+<span class="sd">            surface to infinity. Defined as the difference between</span>
+<span class="sd">            the potential at the vacuum and the Fermi energy.</span>
+
+<span class="sd">    .. attribute:: slab</span>
+
+<span class="sd">        The slab structure model</span>
+
+<span class="sd">    .. attribute:: along_c</span>
+
+<span class="sd">        Points along the c direction with same</span>
+<span class="sd">            increments as the locpot in the c axis</span>
+
+<span class="sd">    .. attribute:: ave_locpot</span>
+
+<span class="sd">        Mean of the minimum and maximmum (vacuum) locpot along c</span>
+
+<span class="sd">    .. attribute:: sorted_sites</span>
+
+<span class="sd">        List of sites from the slab sorted along the c direction</span>
+
+<span class="sd">    .. attribute:: ave_bulk_p</span>
+
+<span class="sd">        The average locpot of the slab region along the c direction</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poscar</span><span class="p">,</span> <span class="n">locpot</span><span class="p">,</span> <span class="n">outcar</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the WorkFunctionAnalyzer class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            poscar (MSONable): Poscar vasp output object</span>
+<span class="sd">            locpot (VolumetricData): Locpot vasp output object</span>
+<span class="sd">            outcar (MSONable): Outcar vasp output object</span>
+<span class="sd">            shift (float): Parameter to translate the slab (and</span>
+<span class="sd">                therefore the vacuum) of the slab structure, thereby</span>
+<span class="sd">                translating the plot along the x axis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># properties that can be shifted</span>
+        <span class="n">slab</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">slab</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slab</span><span class="p">)],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">shift</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slab</span> <span class="o">=</span> <span class="n">slab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Get the plot points between 0 and c</span>
+        <span class="c1"># increments of the number of locpot points</span>
+        <span class="n">locpot_along_c</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">locpot</span><span class="o">.</span><span class="n">get_average_along_axis</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">locpot_along_c</span><span class="p">))</span>
+        <span class="n">locpot_along_c_mid</span><span class="p">,</span> <span class="n">locpot_end</span><span class="p">,</span> <span class="n">locpot_start</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">):</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="n">shift</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">locpot_start</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">locpot_along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">locpot_end</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">locpot_along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">locpot_along_c_mid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">locpot_along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span> <span class="o">=</span> <span class="n">locpot_start</span> <span class="o">+</span> <span class="n">locpot_along_c_mid</span> <span class="o">+</span> <span class="n">locpot_end</span>
+
+        <span class="c1"># get the average of the signal in the bulk-like region of the</span>
+        <span class="c1"># slab, i.e. the average of the oscillating region. This gives</span>
+        <span class="c1"># a rough appr. of the potential in the interior of the slab</span>
+        <span class="n">bulk_p</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">)</span> <span class="k">if</span> \
+                  <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> \
+                  <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bulk_p</span><span class="p">)</span>
+
+        <span class="c1"># shift independent quantities</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">=</span> <span class="n">outcar</span><span class="o">.</span><span class="n">efermi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">)</span>
+        <span class="c1"># get the work function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span>
+        <span class="c1"># for setting ylim and annotating</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ave_locpot</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span>
+
+<div class="viewcode-block" id="WorkFunctionAnalyzer.get_locpot_along_slab_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_locpot_along_slab_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_locpot_along_slab_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_energies</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">label_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a plot of the local potential (eV) vs the</span>
+<span class="sd">            position along the c axis of the slab model (Ang)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label_energies (bool): Whether to label relevant energy</span>
+<span class="sd">                quantities such as the work function, Fermi energy,</span>
+<span class="sd">                vacuum locpot, bulk-like locpot</span>
+<span class="sd">            plt (plt): Matplotlib pylab object</span>
+<span class="sd">            label_fontsize (float): Fontsize of labels</span>
+
+<span class="sd">        Returns plt of the locpot vs c axis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">pretty_plot</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">plt</span> <span class="k">else</span> <span class="n">plt</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># plot the raw locpot signal along c</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Get the local averaged signal of the locpot along c</span>
+        <span class="n">xg</span><span class="p">,</span> <span class="n">yg</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">):</span>
+            <span class="c1"># average signal is just the bulk-like potential when in the slab region</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span> \
+                    <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> \
+                            <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">yg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span><span class="p">)</span>
+                <span class="n">xg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">yg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">xg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">along_c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">xg</span><span class="p">,</span> <span class="n">yg</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">xg</span><span class="p">,</span> <span class="n">yg</span><span class="p">)))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xg</span><span class="p">,</span> <span class="n">yg</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># make it look nice</span>
+        <span class="k">if</span> <span class="n">label_energies</span><span class="p">:</span>
+            <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_labels</span><span class="p">(</span><span class="n">plt</span><span class="p">,</span> <span class="n">label_fontsize</span><span class="o">=</span><span class="n">label_fontsize</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locpot_along_c</span><span class="p">),</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_locpot</span><span class="o">*</span><span class="mf">0.2</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Fractional coordinates ($\hat</span><span class="si">{c}</span><span class="s2">$)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Energy (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
+
+<div class="viewcode-block" id="WorkFunctionAnalyzer.get_labels"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.get_labels">[docs]</a>    <span class="k">def</span> <span class="nf">get_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plt</span><span class="p">,</span> <span class="n">label_fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the optional labelling of the plot with relevant quantities</span>
+<span class="sd">        Args:</span>
+<span class="sd">            plt (plt): Plot of the locpot vs c axis</span>
+<span class="sd">            label_fontsize (float): Fontsize of labels</span>
+<span class="sd">        Returns Labelled plt</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">maxc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">minc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># determine whether most of the vacuum is to</span>
+        <span class="c1"># the left or right for labelling purposes</span>
+        <span class="n">vleft</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">minc</span><span class="p">]</span>
+        <span class="n">vright</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">along_c</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">maxc</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">vleft</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vleft</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">vright</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vright</span><span class="p">):</span>
+            <span class="n">label_in_vac</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">vleft</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vleft</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label_in_vac</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">vright</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">vright</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">maxc</span>
+
+        <span class="c1"># label the vacuum locpot</span>
+        <span class="n">label_in_bulk</span> <span class="o">=</span> <span class="n">maxc</span> <span class="o">-</span> <span class="p">(</span><span class="n">maxc</span> <span class="o">-</span> <span class="n">minc</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;b--&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_in_bulk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_locpot</span><span class="o">*</span><span class="mf">0.05</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$V_</span><span class="si">{vac}</span><span class="s2">=</span><span class="si">%.2f</span><span class="s2">$&quot;</span> <span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span>
+                     <span class="n">xytext</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">label_fontsize</span><span class="p">)</span>
+
+        <span class="c1"># label the fermi energy</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;g--&#39;</span><span class="p">,</span>
+                 <span class="n">zorder</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_in_bulk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_locpot</span><span class="o">*</span><span class="mf">0.05</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$E_F=</span><span class="si">%.2f</span><span class="s2">$&quot;</span> <span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span>
+                     <span class="n">xy</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">label_fontsize</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+
+        <span class="c1"># label the bulk-like locpot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">label_in_vac</span><span class="p">)</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_in_vac</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ave_locpot</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$V^</span><span class="si">{interior}</span><span class="s2">_</span><span class="si">{slab}</span><span class="s2">=</span><span class="si">%.2f</span><span class="s2">$&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ave_bulk_p</span><span class="p">),</span>
+                     <span class="n">xy</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">xytext</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">label_fontsize</span><span class="p">)</span>
+
+        <span class="c1"># label the work function as a barrier</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">label_in_vac</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vacuum_locpot</span><span class="p">],</span>
+                 <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_in_vac</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">efermi</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ave_locpot</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\Phi=</span><span class="si">%.2f</span><span class="s2">$&quot;</span> <span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_function</span><span class="p">),</span>
+                     <span class="n">xy</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">xytext</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">label_fontsize</span><span class="p">)</span>
+</div>
+        <span class="k">return</span> <span class="n">plt</span>
+
+<div class="viewcode-block" id="WorkFunctionAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.WorkFunctionAnalyzer.from_files">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">poscar_filename</span><span class="p">,</span> <span class="n">locpot_filename</span><span class="p">,</span> <span class="n">outcar_filename</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">poscar_filename</span><span class="p">)</span>
+        <span class="n">locpot</span> <span class="o">=</span> <span class="n">Locpot</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">locpot_filename</span><span class="p">)</span>
+        <span class="n">outcar</span> <span class="o">=</span> <span class="n">Outcar</span><span class="p">(</span><span class="n">outcar_filename</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">WorkFunctionAnalyzer</span><span class="p">(</span><span class="n">poscar</span><span class="p">,</span> <span class="n">locpot</span><span class="p">,</span> <span class="n">outcar</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="NanoscaleStability"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability">[docs]</a><span class="k">class</span> <span class="nc">NanoscaleStability</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class for analyzing the stability of nanoparticles of different</span>
@@ -1126,7 +1373,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">symprec</span>
 
 <div class="viewcode-block" id="NanoscaleStability.solve_equilibrium_point"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability.solve_equilibrium_point">[docs]</a>    <span class="k">def</span> <span class="nf">solve_equilibrium_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analyzer1</span><span class="p">,</span> <span class="n">analyzer2</span><span class="p">,</span>
-                                <span class="n">u_dict</span><span class="o">=</span><span class="p">{},</span> <span class="n">u_default</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+                                <span class="n">u_dict</span><span class="o">=</span><span class="p">{},</span> <span class="n">u_default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;nanometers&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gives the radial size of two particles where equilibrium is reached</span>
 <span class="sd">            between both particles. NOTE: the solution here is not the same</span>
@@ -1143,6 +1390,7 @@
 <span class="sd">                constant. Note the key should be a sympy Symbol object of the</span>
 <span class="sd">                format: Symbol(&quot;delu_el&quot;) where el is the name of the element.</span>
 <span class="sd">            u_default (float): Default value for all unset chemical potentials</span>
+<span class="sd">            units (str): Can be nanometers or Angstrom</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Particle radius in nm</span>
@@ -1163,11 +1411,12 @@
         <span class="c1"># Now calculate r</span>
         <span class="n">delta_gamma</span> <span class="o">=</span> <span class="n">wulff1</span><span class="o">.</span><span class="n">weighted_surface_energy</span> <span class="o">-</span> <span class="n">wulff2</span><span class="o">.</span><span class="n">weighted_surface_energy</span>
         <span class="n">delta_E</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="o">/</span> <span class="n">s1</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">E1</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span> <span class="o">/</span> <span class="n">s2</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">*</span> <span class="n">E2</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">((</span><span class="o">-</span><span class="mi">3</span> <span class="o">*</span> <span class="n">delta_gamma</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta_E</span><span class="p">))</span>
 </div>
-        <span class="k">return</span> <span class="p">((</span><span class="o">-</span><span class="mi">3</span> <span class="o">*</span> <span class="n">delta_gamma</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta_E</span><span class="p">))</span> <span class="o">/</span> <span class="mi">10</span>
+        <span class="k">return</span> <span class="n">r</span> <span class="o">/</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;nanometers&quot;</span> <span class="k">else</span> <span class="n">r</span>
 
-<div class="viewcode-block" id="NanoscaleStability.wulff_gform_and_r"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r">[docs]</a>    <span class="k">def</span> <span class="nf">wulff_gform_and_r</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wulffshape</span><span class="p">,</span> <span class="n">bulk_entry</span><span class="p">,</span>
-                          <span class="n">r</span><span class="p">,</span> <span class="n">from_sphere_area</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="NanoscaleStability.wulff_gform_and_r"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability.wulff_gform_and_r">[docs]</a>    <span class="k">def</span> <span class="nf">wulff_gform_and_r</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wulffshape</span><span class="p">,</span> <span class="n">bulk_entry</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">from_sphere_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">r_units</span><span class="o">=</span><span class="s2">&quot;nanometers&quot;</span><span class="p">,</span> <span class="n">e_units</span><span class="o">=</span><span class="s2">&quot;keV&quot;</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the formation energy of the particle with arbitrary radius r.</span>
 
@@ -1178,9 +1427,12 @@
 <span class="sd">            from_sphere_area (bool): There are two ways to calculate the bulk</span>
 <span class="sd">                formation energy. Either by treating the volume and thus surface</span>
 <span class="sd">                area of the particle as a perfect sphere, or as a Wulff shape.</span>
+<span class="sd">            r_units (str): Can be nanometers or Angstrom</span>
+<span class="sd">            e_units (str): Can be keV or eV</span>
+<span class="sd">            normalize (str): Whether or not to normalize energy by volume</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            particle formation energy (float in keV), effective radius (float in nm)</span>
+<span class="sd">            particle formation energy (float in keV), effective radius</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Set up</span>
@@ -1203,8 +1455,13 @@
             <span class="n">wulff_v</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">3</span>
             <span class="n">Ebulk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_gform</span><span class="p">(</span><span class="n">bulk_entry</span><span class="p">)</span> <span class="o">*</span> <span class="n">wulff_v</span>
             <span class="n">new_r</span> <span class="o">=</span> <span class="n">r</span>
+
+        <span class="n">new_r</span> <span class="o">=</span> <span class="n">new_r</span> <span class="o">/</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">r_units</span> <span class="o">==</span> <span class="s2">&quot;nanometers&quot;</span> <span class="k">else</span> <span class="n">new_r</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ebulk</span> <span class="o">+</span> <span class="n">tot_wulff_se</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">e</span> <span class="o">/</span> <span class="mi">1000</span> <span class="k">if</span> <span class="n">e_units</span> <span class="o">==</span> <span class="s2">&quot;keV&quot;</span> <span class="k">else</span> <span class="n">e</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">e</span> <span class="o">/</span> <span class="p">((</span><span class="mi">4</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">new_r</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">normalize</span> <span class="k">else</span> <span class="n">e</span>
 </div>
-        <span class="k">return</span> <span class="p">(</span><span class="n">Ebulk</span> <span class="o">+</span> <span class="n">tot_wulff_se</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">new_r</span> <span class="o">/</span> <span class="mi">10</span>
+        <span class="k">return</span> <span class="n">e</span><span class="p">,</span> <span class="n">new_r</span>
 
 <div class="viewcode-block" id="NanoscaleStability.bulk_gform"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability.bulk_gform">[docs]</a>    <span class="k">def</span> <span class="nf">bulk_gform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bulk_entry</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1247,7 +1504,8 @@
 
 <div class="viewcode-block" id="NanoscaleStability.plot_one_stability_map"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_one_stability_map">[docs]</a>    <span class="k">def</span> <span class="nf">plot_one_stability_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">analyzer</span><span class="p">,</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">u_dict</span><span class="o">=</span><span class="p">{},</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
                                <span class="n">increments</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">u_default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                               <span class="n">from_sphere_area</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                               <span class="n">from_sphere_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">e_units</span><span class="o">=</span><span class="s2">&quot;keV&quot;</span><span class="p">,</span>
+                               <span class="n">r_units</span><span class="o">=</span><span class="s2">&quot;nanometers&quot;</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the plot of the formation energy of a particle against its</span>
 <span class="sd">            effect radius</span>
@@ -1266,6 +1524,9 @@
 <span class="sd">            from_sphere_area (bool): There are two ways to calculate the bulk</span>
 <span class="sd">                formation energy. Either by treating the volume and thus surface</span>
 <span class="sd">                area of the particle as a perfect sphere, or as a Wulff shape.</span>
+<span class="sd">            r_units (str): Can be nanometers or Angstrom</span>
+<span class="sd">            e_units (str): Can be keV or eV</span>
+<span class="sd">            normalize (str): Whether or not to normalize energy by volume</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">plt</span> <span class="o">=</span> <span class="n">plt</span> <span class="k">if</span> <span class="n">plt</span> <span class="k">else</span> <span class="n">pretty_plot</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
@@ -1278,11 +1539,16 @@
         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">increments</span><span class="p">):</span>
             <span class="n">gform</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wulff_gform_and_r</span><span class="p">(</span><span class="n">wulffshape</span><span class="p">,</span>
                                               <span class="n">analyzer</span><span class="o">.</span><span class="n">ucell_entry</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span>
-                                              <span class="n">from_sphere_area</span><span class="o">=</span><span class="n">from_sphere_area</span><span class="p">)</span>
+                                              <span class="n">from_sphere_area</span><span class="o">=</span><span class="n">from_sphere_area</span><span class="p">,</span>
+                                              <span class="n">r_units</span><span class="o">=</span><span class="n">r_units</span><span class="p">,</span> <span class="n">e_units</span><span class="o">=</span><span class="n">e_units</span><span class="p">,</span>
+                                              <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">)</span>
             <span class="n">gform_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gform</span><span class="p">)</span>
             <span class="n">r_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Particle radius (nm)&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\Delta \bar</span><span class="si">{G}</span><span class="s2">_</span><span class="si">{form}</span><span class="s2">$ (keV)&quot;</span><span class="p">)</span>
+
+        <span class="n">ru</span> <span class="o">=</span> <span class="s2">&quot;nm&quot;</span> <span class="k">if</span> <span class="n">r_units</span> <span class="o">==</span> <span class="s2">&quot;nanometers&quot;</span> <span class="k">else</span> <span class="s2">&quot;\AA&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Particle radius ($</span><span class="si">%s</span><span class="s2">$)&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">ru</span><span class="p">))</span>
+        <span class="n">eu</span> <span class="o">=</span> <span class="s2">&quot;$</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">^3$&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">e_units</span><span class="p">,</span> <span class="n">ru</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\Delta \bar</span><span class="si">{G}</span><span class="s2">_</span><span class="si">{form}</span><span class="s2">$ (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">eu</span><span class="p">))</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_list</span><span class="p">,</span> <span class="n">gform_list</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
 </div>
@@ -1290,7 +1556,8 @@
 
 <div class="viewcode-block" id="NanoscaleStability.plot_all_stability_map"><a class="viewcode-back" href="../../../pymatgen.analysis.surface_analysis.html#pymatgen.analysis.surface_analysis.NanoscaleStability.plot_all_stability_map">[docs]</a>    <span class="k">def</span> <span class="nf">plot_all_stability_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">increments</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">u_dict</span><span class="o">=</span><span class="p">{},</span>
                                <span class="n">u_default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[],</span>
-                               <span class="n">from_sphere_area</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                               <span class="n">from_sphere_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">e_units</span><span class="o">=</span><span class="s2">&quot;keV&quot;</span><span class="p">,</span>
+                               <span class="n">r_units</span><span class="o">=</span><span class="s2">&quot;nanometers&quot;</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the plot of the formation energy of a particles</span>
 <span class="sd">            of different polymorphs against its effect radius</span>
@@ -1318,7 +1585,9 @@
                                               <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">plt</span><span class="o">=</span><span class="n">plt</span><span class="p">,</span>
                                               <span class="n">increments</span><span class="o">=</span><span class="n">increments</span><span class="p">,</span>
                                               <span class="n">u_default</span><span class="o">=</span><span class="n">u_default</span><span class="p">,</span>
-                                              <span class="n">from_sphere_area</span><span class="o">=</span><span class="n">from_sphere_area</span><span class="p">)</span>
+                                              <span class="n">from_sphere_area</span><span class="o">=</span><span class="n">from_sphere_area</span><span class="p">,</span>
+                                              <span class="n">e_units</span><span class="o">=</span><span class="n">e_units</span><span class="p">,</span> <span class="n">r_units</span><span class="o">=</span><span class="n">r_units</span><span class="p">,</span>
+                                              <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">)</span>
 </div></div>
         <span class="k">return</span> <span class="n">plt</span>
 
@@ -1331,6 +1600,7 @@
         <span class="c1"># class SlabEntryGenerator(object):</span>
         <span class="c1">#     def __init__(self, entry):</span>
         <span class="c1">#         self.entry = entry</span>
+
 </pre></div>
 
           </div>
@@ -1363,7 +1633,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1371,7 +1641,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
