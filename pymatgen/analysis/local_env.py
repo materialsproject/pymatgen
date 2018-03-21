@@ -227,6 +227,39 @@ class NearNeighbors(object):
         siw = self.get_nn_info(structure, n)
         return sum([e['weight'] for e in siw]) if use_weights else len(siw)
 
+    def get_cn_dict(self, structure, n, use_weights=False):
+        """
+        Get coordination number, CN, of each element bonded to site with index n in structure
+
+        Args:
+            structure (Structure): input structure
+            n (integer): index of site for which to determine CN.
+            use_weights (boolean): flag indicating whether (True)
+                to use weights for computing the coordination number
+                or not (False, default: each coordinated site has equal
+                weight).
+
+        Returns:
+            cn (dict): dictionary of CN of each element bonded to site
+        """
+
+        siw = self.get_nn_info(structure, n)
+
+        cn_dict = {}
+        for i in siw:
+            site_element = i['site'].species_string
+            if site_element not in cn_dict:
+                if use_weights:
+                    cn_dict[site_element] = i['weight']
+                else:
+                    cn_dict[site_element] = 1
+            else:
+                if use_weights:
+                    cn_dict[site_element] += i['weight']
+                else:
+                    cn_dict[site_element] += 1
+        return cn_dict
+
     def get_nn(self, structure, n):
         """
         Get near neighbors of site with index n in structure.
