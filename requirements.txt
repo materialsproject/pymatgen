@@ -10,5 +10,5 @@ tabulate==0.8.2
 enum34==1.1.6
 matplotlib==2.2.2
 palettable==3.1.0
-spglib==1.10.3.39
+spglib==1.10.3.41
 pandas==0.22.0
