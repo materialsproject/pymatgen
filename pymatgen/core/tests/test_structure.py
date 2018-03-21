@@ -762,6 +762,10 @@ class StructureTest(PymatgenTest):
                           "Pm-3m", Lattice.cubic(3), ["Cs"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
 
+        s = Structure.from_spacegroup(139, np.eye(3), ["H"], [
+            [Fraction(1, 2), Fraction(1, 4), Fraction(0)]])
+        self.assertEqual(len(s), 8)
+
     def test_from_magnetic_spacegroup(self):
 
         # AFM MnF
