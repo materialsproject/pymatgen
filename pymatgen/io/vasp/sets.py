@@ -330,7 +330,7 @@ class DictSet(VaspInputSet):
                     # else, use fallback LDAU value if it exists
                     else:
                         incar[k] = [v.get(sym, 0)
-                                    if isinstance(v.get(sym, 0), float)
+                                    if isinstance(v.get(sym, 0), (float, int))
                                     else 0 for sym in poscar.site_symbols]
             elif k.startswith("EDIFF") and k != "EDIFFG":
                 if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
