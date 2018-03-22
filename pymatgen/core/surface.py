@@ -1699,6 +1699,55 @@ def miller_index_from_sites(supercell_matrix, coords):
     return get_integer_index(np.transpose(np.cross(v1, v2)))
 
 
+def center_slab(slab):
+    """
+    The goal here is to ensure the center of the slab region
+        is centered close to c=0.5. This makes it easier to
+        find the surface sites and apply operations like doping.
+
+    There are three cases where the slab in not centered:
+    1. The slab region is completely between two vacuums in the
+        box but not necessarily centered. We simply shift the
+        slab by the difference in its center of mass and 0.5
+        along the c direction.
+    2. The slab completely spills outside the box from the bottom
+        and into the top. This makes it incredibly difficult to
+        locate surface sites. We iterate through all sites that
+        spill over (z>c) and shift all sites such that this specific
+        site is now on the other side. Repeat for all sites with z>c.
+    3. This is a simpler case of scenario 2. Either the top or bottom
+        slab sites are at c=0 or c=1. Treat as scenario 2.
+    Args:
+        slab (Slab): Slab structure to center
+    Returns:
+        Returns a centered slab structure
+    """
+
+    # get a reasonable r cutoff to sample neighbors
+    bdists = sorted([nn[1] for nn in
+                     slab.get_neighbors(slab[0], 10) if nn[1] > 0])
+    r = bdists[0] * 3
+
+    all_indices = [i for i, site in enumerate(slab)]
+
+    # check if structure is case 2 or 3, shift all the
+    # sites up to the other side until it is case 1
+    for site in slab:
+        if any([nn[1] > slab.lattice.c for nn
+                in slab.get_neighbors(site, r)]):
+            shift = 1 - site.frac_coords[2] + 0.05
+            slab.translate_sites(all_indices, [0, 0, shift])
+
+    # now the slab is case 1, shift the center of mass of the slab to 0.5
+    weights = [s.species_and_occu.weight for s in slab]
+    center_of_mass = np.average(slab.frac_coords,
+                                weights=weights, axis=0)
+    shift = 0.5 - center_of_mass[2]
+    slab.translate_sites(all_indices, [0, 0, shift])
+
+    return slab
+
+
 def reduce_vector(vector):
 
     # small function to reduce vectors
