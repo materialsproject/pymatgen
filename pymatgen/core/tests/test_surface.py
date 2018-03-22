@@ -476,7 +476,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500),
                                             ["Si"], [(0, 0, 0.5)])
 
-        with open(os.path.join(os.getcwd(), "..",
+        with open(os.path.join(os.getcwd(), "pymatgen", "core",
                                "reconstructions_archive.json")) as data_file:
             self.rec_archive = json.load(data_file)
 

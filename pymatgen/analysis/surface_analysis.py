@@ -473,7 +473,10 @@ class SurfaceEnergyPlotter(object):
                                          ref_entries=self.ref_entries)
             if not no_clean:
                 all_entries.append(entry)
-                all_gamma.append(gamma.subs(all_u_dict))
+                if type(gamma).__name__ == "float":
+                    all_gamma.append(gamma)
+                else:
+                    all_gamma.append(gamma.subs(all_u_dict))
             for ads_entry in self.all_slab_entries[miller_index][entry]:
                 all_u_dict = self.set_all_variables(ads_entry, u_dict, u_default)
                 gamma = ads_entry.surface_energy(self.ucell_entry,
@@ -609,7 +612,10 @@ class SurfaceEnergyPlotter(object):
 
             # remove the free chempots we wish to keep constant and
             # set the equation to 0 (subtract gamma from both sides)
-            all_eqns.append(se.subs(u_dict) - Symbol("gamma"))
+            if type(se).__name__ == "float":
+                all_eqns.append(se - Symbol("gamma"))
+            else:
+                all_eqns.append(se.subs(u_dict) - Symbol("gamma"))
             all_parameters.extend([p for p in list(se.free_symbols)
                                    if p not in all_parameters])
         all_parameters.append(Symbol("gamma"))
