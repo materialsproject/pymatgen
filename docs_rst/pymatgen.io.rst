@@ -9,6 +9,7 @@ Subpackages
     pymatgen.io.abinit
     pymatgen.io.exciting
     pymatgen.io.feff
+    pymatgen.io.lammps
     pymatgen.io.qchem_io
     pymatgen.io.vasp
 

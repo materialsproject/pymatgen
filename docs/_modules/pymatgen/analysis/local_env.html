@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.3.22 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.22 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -244,8 +244,8 @@
         <span class="c1">#el = [site.species_string for site in self._structure.sites]</span>
         <span class="c1">#el = [site.specie for site in self._structure.sites]</span>
         <span class="c1">#valence_dict = dict(zip(el, valences))</span>
-        <span class="c1">#print valence_dict</span></div>
-        <span class="k">return</span> <span class="n">valences</span>
+        <span class="c1">#print valence_dict</span>
+        <span class="k">return</span> <span class="n">valences</span></div>
 
 
 <div class="viewcode-block" id="NearNeighbors"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors">[docs]</a><span class="k">class</span> <span class="nc">NearNeighbors</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -272,8 +272,41 @@
 <span class="sd">            cn (integer or float): coordination number.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">siw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">siw</span><span class="p">])</span> <span class="k">if</span> <span class="n">use_weights</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">siw</span><span class="p">)</span>
+        <span class="n">siw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">siw</span><span class="p">])</span> <span class="k">if</span> <span class="n">use_weights</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">siw</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NearNeighbors.get_cn_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_cn_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get coordination number, CN, of each element bonded to site with index n in structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure</span>
+<span class="sd">            n (integer): index of site for which to determine CN.</span>
+<span class="sd">            use_weights (boolean): flag indicating whether (True)</span>
+<span class="sd">                to use weights for computing the coordination number</span>
+<span class="sd">                or not (False, default: each coordinated site has equal</span>
+<span class="sd">                weight).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            cn (dict): dictionary of CN of each element bonded to site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">siw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="n">cn_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">siw</span><span class="p">:</span>
+            <span class="n">site_element</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span>
+            <span class="k">if</span> <span class="n">site_element</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_dict</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">use_weights</span><span class="p">:</span>
+                    <span class="n">cn_dict</span><span class="p">[</span><span class="n">site_element</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cn_dict</span><span class="p">[</span><span class="n">site_element</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">use_weights</span><span class="p">:</span>
+                    <span class="n">cn_dict</span><span class="p">[</span><span class="n">site_element</span><span class="p">]</span> <span class="o">+=</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cn_dict</span><span class="p">[</span><span class="n">site_element</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">cn_dict</span></div>
 
 <div class="viewcode-block" id="NearNeighbors.get_nn"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_nn">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -286,8 +319,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            sites (list of Site objects): near neighbors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-</div>
-        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="NearNeighbors.get_weights_of_nn_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_weights_of_nn_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_weights_of_nn_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -300,8 +333,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            weights (list of floats): near-neighbor weights.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-</div>
-        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="NearNeighbors.get_nn_images"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_nn_images">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -316,8 +349,8 @@
 <span class="sd">            images (list of 3D integer array): image locations of</span>
 <span class="sd">                near neighbors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-</div>
-        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span></div>
 
 <div class="viewcode-block" id="NearNeighbors.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -340,8 +373,8 @@
 <span class="sd">                the original structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_nn_info(structure, n)&quot;</span></div>
-                <span class="s2">&quot; is not defined!&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_nn_info(structure, n)&quot;</span>
+                <span class="s2">&quot; is not defined!&quot;</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_image</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">):</span>
@@ -361,8 +394,8 @@
     <span class="k">def</span> <span class="nf">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Private convenience method for get_nn_info,</span>
 <span class="sd">        gives original site index from ProvidedPeriodicSite.&quot;&quot;&quot;</span>
-        <span class="n">is_periodic_image</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span></div>
-        <span class="k">return</span> <span class="n">is_periodic_image</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">is_periodic_image</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">is_periodic_image</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VoronoiNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN">[docs]</a><span class="k">class</span> <span class="nc">VoronoiNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -442,8 +475,8 @@
                 <span class="k">for</span> <span class="n">disordered_sp</span> <span class="ow">in</span> <span class="n">nn</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">disordered_sp</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
                         <span class="n">resultweighted</span><span class="p">[</span><span class="n">nn</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span> <span class="o">/</span> <span class="n">maxangle</span>
-</div>
-        <span class="k">return</span> <span class="n">resultweighted</span>
+
+        <span class="k">return</span> <span class="n">resultweighted</span></div>
 
 
 <div class="viewcode-block" id="VoronoiNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
@@ -474,8 +507,8 @@
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
-                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">)})</span></div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
 <div class="viewcode-block" id="VoronoiNN_modified"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN_modified">[docs]</a><span class="k">class</span> <span class="nc">VoronoiNN_modified</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -499,8 +532,8 @@
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
-                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">)})</span></div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
 <div class="viewcode-block" id="JMolNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JMolNN">[docs]</a><span class="k">class</span> <span class="nc">JMolNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -543,8 +576,8 @@
 <span class="sd">        Returns: (float) max bond length</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span></div>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el1_sym</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el2_sym</span><span class="p">]</span> <span class="o">+</span> <span class="n">constant</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el1_sym</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el2_sym</span><span class="p">]</span> <span class="o">+</span> <span class="n">constant</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="JMolNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JMolNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -583,8 +616,8 @@
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">neighb</span><span class="p">,</span>
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">neighb</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
-                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">neighb</span><span class="p">)})</span></div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">neighb</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
 <div class="viewcode-block" id="MinimumDistanceNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumDistanceNN">[docs]</a><span class="k">class</span> <span class="nc">MinimumDistanceNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -635,8 +668,8 @@
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
-                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span></div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
 <div class="viewcode-block" id="MinimumOKeeffeNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumOKeeffeNN">[docs]</a><span class="k">class</span> <span class="nc">MinimumOKeeffeNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -702,8 +735,8 @@
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
-</div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
 <div class="viewcode-block" id="MinimumVIRENN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumVIRENN">[docs]</a><span class="k">class</span> <span class="nc">MinimumVIRENN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -763,8 +796,8 @@
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">vire</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
-</div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
 <div class="viewcode-block" id="solid_angle"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.solid_angle">[docs]</a><span class="k">def</span> <span class="nf">solid_angle</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
@@ -789,8 +822,8 @@
         <span class="n">v</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> \
             <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
         <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acos</span><span class="p">(</span><span class="n">abs_cap</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">phi</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">))</span> <span class="o">*</span> <span class="n">pi</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">phi</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">))</span> <span class="o">*</span> <span class="n">pi</span></div>
 
 
 <div class="viewcode-block" id="get_okeeffe_params"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.get_okeeffe_params">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_params</span><span class="p">(</span><span class="n">el_symbol</span><span class="p">):</span>
@@ -813,8 +846,8 @@
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not find O&#39;Keeffe parameters for element&quot;</span>
                            <span class="s2">&quot; </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> in </span><span class="se">\&quot;</span><span class="s2">BV_PARAMS</span><span class="se">\&quot;</span><span class="s2">dictonary&quot;</span>
                            <span class="s2">&quot; provided by pymatgen&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">el_symbol</span><span class="p">))</span>
-</div>
-    <span class="k">return</span> <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">BV_PARAMS</span><span class="p">[</span><span class="n">el</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="get_okeeffe_distance_prediction"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.get_okeeffe_distance_prediction">[docs]</a><span class="k">def</span> <span class="nf">get_okeeffe_distance_prediction</span><span class="p">(</span><span class="n">el1</span><span class="p">,</span> <span class="n">el2</span><span class="p">):</span>
@@ -840,8 +873,8 @@
     <span class="n">c1</span> <span class="o">=</span> <span class="n">el1_okeeffe_params</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
     <span class="n">c2</span> <span class="o">=</span> <span class="n">el2_okeeffe_params</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span></div>
-            <span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span>
+            <span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_neighbors_of_site_with_index"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.get_neighbors_of_site_with_index">[docs]</a><span class="k">def</span> <span class="nf">get_neighbors_of_site_with_index</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> \
@@ -877,8 +910,8 @@
         <span class="k">return</span> <span class="n">MinimumVIRENN</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">)</span><span class="o">.</span><span class="n">get_nn</span><span class="p">(</span>
                 <span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unsupported neighbor-finding method (</span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span></div>
-                <span class="n">approach</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unsupported neighbor-finding method (</span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">approach</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="site_is_of_motif_type"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.site_is_of_motif_type">[docs]</a><span class="k">def</span> <span class="nf">site_is_of_motif_type</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;min_dist&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> \
@@ -948,8 +981,8 @@
 
     <span class="k">if</span> <span class="n">nmotif</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;multiple assignments&quot;</span>
-</div>
-    <span class="k">return</span> <span class="n">motif_type</span>
+
+    <span class="k">return</span> <span class="n">motif_type</span></div>
 
 <div class="viewcode-block" id="gramschmidt"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.gramschmidt">[docs]</a><span class="k">def</span> <span class="nf">gramschmidt</span><span class="p">(</span><span class="n">vin</span><span class="p">,</span> <span class="n">uin</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -967,8 +1000,8 @@
     <span class="n">vin_uin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">vin</span><span class="p">,</span> <span class="n">uin</span><span class="p">)</span>
     <span class="n">uin_uin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">uin</span><span class="p">,</span> <span class="n">uin</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">uin_uin</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Zero or negative inner product!&quot;</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">vin</span> <span class="o">-</span> <span class="p">(</span><span class="n">vin_uin</span> <span class="o">/</span> <span class="n">uin_uin</span><span class="p">)</span> <span class="o">*</span> <span class="n">uin</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Zero or negative inner product!&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vin</span> <span class="o">-</span> <span class="p">(</span><span class="n">vin_uin</span> <span class="o">/</span> <span class="n">uin_uin</span><span class="p">)</span> <span class="o">*</span> <span class="n">uin</span></div>
 
 
 <div class="viewcode-block" id="LocalStructOrderParas"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParas">[docs]</a><span class="k">class</span> <span class="nc">LocalStructOrderParas</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1214,8 +1247,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pow_cos_t</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pow_cos_t</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sin_n_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sin</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> \
                                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">phis</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cos_n_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cos</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> \</div>
-                                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">phis</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cos_n_p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cos</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> \
+                                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">phis</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="LocalStructOrderParas.get_q2"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParas.get_q2">[docs]</a>    <span class="k">def</span> <span class="nf">get_q2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -1283,8 +1316,8 @@
             <span class="n">imag</span> <span class="o">+=</span> <span class="n">pre_y_2_2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sin_n_p</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
         <span class="n">acc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">real</span> <span class="o">*</span> <span class="n">real</span> <span class="o">+</span> <span class="n">imag</span> <span class="o">*</span> <span class="n">imag</span><span class="p">)</span>
 
-        <span class="n">q2</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">5.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span></div>
-        <span class="k">return</span> <span class="n">q2</span>
+        <span class="n">q2</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">5.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">q2</span></div>
 
 <div class="viewcode-block" id="LocalStructOrderParas.get_q4"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParas.get_q4">[docs]</a>    <span class="k">def</span> <span class="nf">get_q4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -1392,8 +1425,8 @@
             <span class="n">imag</span> <span class="o">+=</span> <span class="n">pre_y_4_4</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sin_n_p</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
         <span class="n">acc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">real</span> <span class="o">*</span> <span class="n">real</span> <span class="o">+</span> <span class="n">imag</span> <span class="o">*</span> <span class="n">imag</span><span class="p">)</span>
 
-        <span class="n">q4</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">9.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span></div>
-        <span class="k">return</span> <span class="n">q4</span>
+        <span class="n">q4</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">9.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">q4</span></div>
 
 <div class="viewcode-block" id="LocalStructOrderParas.get_q6"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParas.get_q6">[docs]</a>    <span class="k">def</span> <span class="nf">get_q6</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thetas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -1557,8 +1590,8 @@
             <span class="n">imag</span> <span class="o">+=</span> <span class="n">pre_y_6_6</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sin_n_p</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
         <span class="n">acc</span> <span class="o">+=</span> <span class="p">(</span><span class="n">real</span> <span class="o">*</span> <span class="n">real</span> <span class="o">+</span> <span class="n">imag</span> <span class="o">*</span> <span class="n">imag</span><span class="p">)</span>
 
-        <span class="n">q6</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">13.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span></div>
-        <span class="k">return</span> <span class="n">q6</span>
+        <span class="n">q6</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">acc</span> <span class="o">/</span> <span class="p">(</span><span class="mf">13.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">nnn</span> <span class="o">*</span> <span class="n">nnn</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">q6</span></div>
 
 <div class="viewcode-block" id="LocalStructOrderParas.get_type"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParas.get_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 
@@ -1574,8 +1607,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Index for getting order parameter type&quot;</span>
-                             <span class="s2">&quot; out-of-bounds!&quot;</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                             <span class="s2">&quot; out-of-bounds!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="LocalStructOrderParas.get_parameters"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParas.get_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 
@@ -1596,8 +1629,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Index for getting parameters associated with&quot;</span>
-                             <span class="s2">&quot; order parameter calculation out-of-bounds!&quot;</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                             <span class="s2">&quot; order parameter calculation out-of-bounds!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="LocalStructOrderParas.get_order_parameters"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.LocalStructOrderParas.get_order_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_order_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">indices_neighs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> \
                              <span class="n">tol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">target_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -2084,8 +2117,8 @@
                                                                   <span class="n">aijs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">*</span>
                                                           <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">i</span><span class="p">][</span>
                                                               <span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-</div></div>
-        <span class="k">return</span> <span class="n">ops</span>
+
+        <span class="k">return</span> <span class="n">ops</span></div></div>
 
 
 <div class="viewcode-block" id="BrunnerNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -2139,8 +2172,8 @@
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
-                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span></div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 <div class="viewcode-block" id="EconNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.EconNN">[docs]</a><span class="k">class</span> <span class="nc">EconNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
 
@@ -2182,8 +2215,8 @@
                     <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
                                 <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                                 <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
-                                <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span></div></div>
-        <span class="k">return</span> <span class="n">siw</span>
+                                <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
 <div class="viewcode-block" id="calculate_weighted_avg"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.calculate_weighted_avg">[docs]</a><span class="k">def</span> <span class="nf">calculate_weighted_avg</span><span class="p">(</span><span class="n">bonds</span><span class="p">):</span>
@@ -2201,8 +2234,8 @@
     <span class="n">total_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
         <span class="n">weighted_sum</span> <span class="o">+=</span> <span class="n">entry</span><span class="o">*</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">entry</span><span class="o">/</span><span class="n">minimum_bond</span><span class="p">)</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
-        <span class="n">total_sum</span> <span class="o">+=</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">entry</span><span class="o">/</span><span class="n">minimum_bond</span><span class="p">)</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">weighted_sum</span><span class="o">/</span><span class="n">total_sum</span>
+        <span class="n">total_sum</span> <span class="o">+=</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">entry</span><span class="o">/</span><span class="n">minimum_bond</span><span class="p">)</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">weighted_sum</span><span class="o">/</span><span class="n">total_sum</span></div>
 
 </pre></div>
 
@@ -2236,7 +2269,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.22 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2244,7 +2277,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

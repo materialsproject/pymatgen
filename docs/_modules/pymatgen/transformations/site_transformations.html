@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.site_transformations &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.transformations.site_transformations &#8212; pymatgen 2018.3.22 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.22 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -110,8 +110,8 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
             <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
                      <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coords_are_cartesian</span><span class="p">,</span>
-                     <span class="n">validate_proximity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validate_proximity</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
+                     <span class="n">validate_proximity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validate_proximity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;InsertSiteTransformation : &quot;</span> <span class="o">+</span> \
@@ -125,8 +125,8 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="ReplaceSiteSpeciesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation">[docs]</a><span class="k">class</span> <span class="nc">ReplaceSiteSpeciesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
@@ -147,8 +147,8 @@
 <div class="viewcode-block" id="ReplaceSiteSpeciesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_species_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">s</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">sp</span></div>
-        <span class="k">return</span> <span class="n">s</span>
+            <span class="n">s</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">sp</span>
+        <span class="k">return</span> <span class="n">s</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;ReplaceSiteSpeciesTransformation :&quot;</span> <span class="o">+</span> \
@@ -163,8 +163,8 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="RemoveSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">RemoveSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
@@ -179,8 +179,8 @@
 
 <div class="viewcode-block" id="RemoveSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_to_remove</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">s</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_to_remove</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;RemoveSitesTransformation :&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -194,8 +194,8 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="TranslateSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.TranslateSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">TranslateSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
@@ -226,8 +226,8 @@
                                   <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_to_move</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="p">,</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">s</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">vector_in_frac_coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;TranslateSitesTransformation for indices &quot;</span> <span class="o">+</span> \
@@ -253,8 +253,8 @@
 <span class="sd">        Json-serializable dict representation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">MSONable</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;translation_vector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
-        <span class="k">return</span> <span class="n">d</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;translation_vector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation_vector</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">d</span></div></div>
 
 
 <div class="viewcode-block" id="PartialRemoveSitesTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation">[docs]</a><span class="k">class</span> <span class="nc">PartialRemoveSitesTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
@@ -356,8 +356,8 @@
         <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">(</span><span class="n">to_delete</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Minimizing Ewald took </span><span class="si">{}</span><span class="s2"> seconds.&quot;</span>
                           <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
-        <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">ematrix</span><span class="p">)),</span></div>
-                 <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()}]</span>
+        <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">ematrix</span><span class="p">)),</span>
+                 <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()}]</span></div>
 
 <div class="viewcode-block" id="PartialRemoveSitesTransformation.complete_ordering"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.complete_ordering">[docs]</a>    <span class="k">def</span> <span class="nf">complete_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">num_remove_dict</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing complete ordering...&quot;</span><span class="p">)</span>
@@ -414,8 +414,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Total symmetrically distinct structures found = </span><span class="si">{}</span><span class="s2">&quot;</span>
                           <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_structures</span><span class="p">)))</span>
-        <span class="n">all_structures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_structures</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">])</span></div>
-        <span class="k">return</span> <span class="n">all_structures</span>
+        <span class="n">all_structures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_structures</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">all_structures</span></div>
 
 <div class="viewcode-block" id="PartialRemoveSitesTransformation.fast_ordering"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.fast_ordering">[docs]</a>    <span class="k">def</span> <span class="nf">fast_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">num_remove_dict</span><span class="p">,</span> <span class="n">num_to_return</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -465,8 +465,8 @@
                  <span class="s2">&quot;energy_above_minimum&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">lowest_energy</span><span class="p">)</span>
                     <span class="o">/</span> <span class="n">num_atoms</span><span class="p">,</span>
                  <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">struct</span><span class="p">})</span>
-</div>
-        <span class="k">return</span> <span class="n">all_structures</span>
+
+        <span class="k">return</span> <span class="n">all_structures</span></div>
 
 <div class="viewcode-block" id="PartialRemoveSitesTransformation.enumerate_ordering"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.enumerate_ordering">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="c1"># Generate the disordered structure first.</span>
@@ -480,8 +480,8 @@
         <span class="c1"># Perform enumeration</span>
         <span class="kn">from</span> <span class="nn">pymatgen.transformations.advanced_transformations</span> <span class="k">import</span> \
             <span class="n">EnumerateStructureTransformation</span>
-        <span class="n">trans</span> <span class="o">=</span> <span class="n">EnumerateStructureTransformation</span><span class="p">()</span></div>
-        <span class="k">return</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">EnumerateStructureTransformation</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PartialRemoveSitesTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -544,8 +544,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid algo.&quot;</span><span class="p">)</span>
 
         <span class="n">opt_s</span> <span class="o">=</span> <span class="n">all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;structure&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">opt_s</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">return_ranked_list</span> \</div>
-            <span class="k">else</span> <span class="n">all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_to_return</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">opt_s</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">return_ranked_list</span> \
+            <span class="k">else</span> <span class="n">all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_to_return</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;PartialRemoveSitesTransformation : Indices and fraction&quot;</span> <span class="o">+</span> \
@@ -559,8 +559,8 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="AddSitePropertyTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.site_transformations.html#pymatgen.transformations.site_transformations.AddSitePropertyTransformation">[docs]</a><span class="k">class</span> <span class="nc">AddSitePropertyTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
@@ -583,16 +583,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">new_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">prop</span><span class="p">])</span></div>
-        <span class="k">return</span> <span class="n">new_structure</span>
+            <span class="n">new_structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">prop</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">new_structure</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 </pre></div>
 
           </div>
@@ -625,7 +625,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.22 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -633,7 +633,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
