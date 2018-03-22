@@ -1241,25 +1241,19 @@ class ReconstructionGenerator(object):
     """
 
     def __init__(self, initial_structure, min_slab_size,
-                 min_vacuum_size, reconstruction_name, termination=0):
+                 min_vacuum_size, reconstruction_name):
 
         """
         Generates reconstructed slabs from a set of instructions
             specified by a dictionary or json file.
 
         Args:
-            initial_structure (Structure): Initial input structure. Note that
-                to ensure that the miller indices correspond to usual
+            initial_structure (Structure): Initial input structure. Note
+                that to ensure that the miller indices correspond to usual
                 crystallographic definitions, you should supply a conventional
                 unit cell structure.
             min_slab_size (float): In Angstroms
             min_vacuum_size (float): In Angstroms
-            termination (int): The index of the termination of the slab. Some
-                surfaces can have more than one termination when using the
-                get_slabs() method from SlabGenerator(). For simplicity, the
-                reconstruction template will operate on the more stable
-                termination (e.g. for diamond (111), the termination without
-                the dangling bond) unless specified.
 
             reconstruction (str): Name of the dict containing the instructions
                 for building a reconstructed slab. The dictionary can contain
@@ -1336,7 +1330,8 @@ class ReconstructionGenerator(object):
 
             NOTE: THE DICTIONARY SHOULD ONLY CONTAIN "points_to_remove" AND
             "points_to_add" FOR THE TOP SURFACE. THE ReconstructionGenerator
-            WILL MODIFY THE BOTTOM SURFACE TO RETURN A SLAB WITH EQUIVALENT SURFACES.
+            WILL MODIFY THE BOTTOM SURFACE ACCORDINGLY TO RETURN A SLAB WITH
+            EQUIVALENT SURFACES.
         """
 
         if reconstruction_name not in reconstructions_archive.keys():
@@ -1349,20 +1344,23 @@ class ReconstructionGenerator(object):
         # Get the instructions to build the reconstruction
         # from the reconstruction_archive
         recon_json = copy.deepcopy(reconstructions_archive[reconstruction_name])
+        new_points_to_add, new_points_to_remove = [], []
         if "base_reconstruction" in recon_json.keys():
             if "points_to_add" in recon_json.keys():
                 new_points_to_add = recon_json["points_to_add"]
             if "points_to_remove" in recon_json.keys():
                 new_points_to_remove = recon_json["points_to_remove"]
+
+            # Build new instructions from a base reconstruction
             recon_json = copy.deepcopy(reconstructions_archive[recon_json["base_reconstruction"]])
-            if new_points_to_add and "points_to_add" not in recon_json.keys():
+            if "points_to_add" in recon_json.keys():
+                del recon_json["points_to_add"]
+            if "points_to_remove" in recon_json.keys():
+                del recon_json["points_to_remove"]
+            if new_points_to_add:
                 recon_json["points_to_add"] = new_points_to_add
-            else:
-                recon_json["points_to_add"].extend(new_points_to_add)
-            if new_points_to_remove and "points_to_remove" not in recon_json.keys():
+            if new_points_to_remove:
                 recon_json["points_to_remove"] = new_points_to_remove
-            else:
-                recon_json["points_to_remove"].extend(new_points_to_remove)
 
         slabgen_params = copy.deepcopy(recon_json["SlabGenerator_parameters"])
         slabgen_params["initial_structure"] = initial_structure.copy()
@@ -1373,11 +1371,9 @@ class ReconstructionGenerator(object):
         self.slabgen_params = slabgen_params
         self.trans_matrix = recon_json["transformation_matrix"]
         self.reconstruction_json = recon_json
-        self.termination = termination
         self.name = reconstruction_name
 
-    def build_slab(self):
-
+    def build_slabs(self):
         """
         Builds the reconstructed slab by:
             (1) Obtaining the unreconstructed slab using the specified
@@ -1391,32 +1387,38 @@ class ReconstructionGenerator(object):
             (Slab): The reconstructed slab.
         """
 
-        slab = self.get_unreconstructed_slab()
-        d= self.get_d()
-        top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
+        slabs = self.get_unreconstructed_slabs()
+        recon_slabs = []
+        for slab in slabs:
+            d = self.get_d(slab)
+            top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
-        # Add any specified sites
-        if "points_to_add" in self.reconstruction_json.keys():
-            for p in self.reconstruction_json["points_to_add"]:
-                p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                           top_site[2]+p[2]*d])[2]
-                slab = self.symmetrically_add_atom(slab, p)
+            # Remove any specified sites
+            if "points_to_remove" in self.reconstruction_json.keys():
+                pts_to_rm = copy.deepcopy(self.reconstruction_json["points_to_remove"])
+                for p in pts_to_rm:
+                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
+                                                               top_site[2]+p[2]*d])[2]
+                    slab = self.symmetrically_remove_atom(slab, p)
 
-        # Remove any specified sites
-        if "points_to_remove" in self.reconstruction_json.keys():
-            for p in self.reconstruction_json["points_to_remove"]:
-                p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
-                                                           top_site[2]+p[2]*d])[2]
-                slab = self.symmetrically_remove_atom(slab, p)
+            # Add any specified sites
+            if "points_to_add" in self.reconstruction_json.keys():
+                pts_to_add = copy.deepcopy(self.reconstruction_json["points_to_add"])
+                for p in pts_to_add:
+                    p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
+                                                               top_site[2]+p[2]*d])[2]
+                    slab = self.symmetrically_add_atom(slab, p)
 
-        slab.reconstruction = self.name
+            slab.reconstruction = self.name
+            setattr(slab, "recon_trans_matrix", self.trans_matrix)
 
-        # Get the oriented_unit_cell with the same axb area.
-        ouc = slab.oriented_unit_cell.copy()
-        ouc.make_supercell(self.trans_matrix)
-        slab.oriented_unit_cell = ouc
+            # Get the oriented_unit_cell with the same axb area.
+            ouc = slab.oriented_unit_cell.copy()
+            ouc.make_supercell(self.trans_matrix)
+            slab.oriented_unit_cell = ouc
+            recon_slabs.append(slab)
 
-        return slab
+        return recon_slabs
 
     def symmetrically_remove_atom(self, slab, point):
 
@@ -1478,24 +1480,25 @@ class ReconstructionGenerator(object):
 
         return slab
 
-    def get_unreconstructed_slab(self):
+    def get_unreconstructed_slabs(self):
 
         """
         Generates the unreconstructed or pristine super slab.
         """
 
-        slab = SlabGenerator(**self.slabgen_params).get_slabs()[self.termination]
-        slab.make_supercell(self.trans_matrix)
-        return slab
+        slabs = []
+        for slab in SlabGenerator(**self.slabgen_params).get_slabs():
+            slab.make_supercell(self.trans_matrix)
+            slabs.append(slab)
+        return slabs
 
-    def get_d(self):
+    def get_d(self, slab):
 
         """
         Determine the distance of space between
         each layer of atoms along c
         """
 
-        slab = self.get_unreconstructed_slab()
         sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
         for i, site in enumerate(sorted_sites):
             if "%.6f" % (site.frac_coords[2]) == \
@@ -1653,8 +1656,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                     continue
                 recon = ReconstructionGenerator(structure, min_slab_size,
                                                 min_vacuum_size, name)
-                slab = recon.build_slab()
-                all_slabs.append(slab)
+                all_slabs.extend(recon.build_slabs())
 
     return all_slabs
 
@@ -1695,6 +1697,55 @@ def miller_index_from_sites(supercell_matrix, coords):
     v2 = np.dot(np.linalg.inv(np.transpose(supercell_matrix)),
                 coords[0] - coords[2])
     return get_integer_index(np.transpose(np.cross(v1, v2)))
+
+
+def center_slab(slab):
+    """
+    The goal here is to ensure the center of the slab region
+        is centered close to c=0.5. This makes it easier to
+        find the surface sites and apply operations like doping.
+
+    There are three cases where the slab in not centered:
+    1. The slab region is completely between two vacuums in the
+        box but not necessarily centered. We simply shift the
+        slab by the difference in its center of mass and 0.5
+        along the c direction.
+    2. The slab completely spills outside the box from the bottom
+        and into the top. This makes it incredibly difficult to
+        locate surface sites. We iterate through all sites that
+        spill over (z>c) and shift all sites such that this specific
+        site is now on the other side. Repeat for all sites with z>c.
+    3. This is a simpler case of scenario 2. Either the top or bottom
+        slab sites are at c=0 or c=1. Treat as scenario 2.
+    Args:
+        slab (Slab): Slab structure to center
+    Returns:
+        Returns a centered slab structure
+    """
+
+    # get a reasonable r cutoff to sample neighbors
+    bdists = sorted([nn[1] for nn in
+                     slab.get_neighbors(slab[0], 10) if nn[1] > 0])
+    r = bdists[0] * 3
+
+    all_indices = [i for i, site in enumerate(slab)]
+
+    # check if structure is case 2 or 3, shift all the
+    # sites up to the other side until it is case 1
+    for site in slab:
+        if any([nn[1] > slab.lattice.c for nn
+                in slab.get_neighbors(site, r)]):
+            shift = 1 - site.frac_coords[2] + 0.05
+            slab.translate_sites(all_indices, [0, 0, shift])
+
+    # now the slab is case 1, shift the center of mass of the slab to 0.5
+    weights = [s.species_and_occu.weight for s in slab]
+    center_of_mass = np.average(slab.frac_coords,
+                                weights=weights, axis=0)
+    shift = 0.5 - center_of_mass[2]
+    slab.translate_sites(all_indices, [0, 0, shift])
+
+    return slab
 
 
 def reduce_vector(vector):
