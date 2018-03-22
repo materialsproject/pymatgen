@@ -616,8 +616,9 @@ class SurfaceEnergyPlotter(object):
                 all_eqns.append(se - Symbol("gamma"))
             else:
                 all_eqns.append(se.subs(u_dict) - Symbol("gamma"))
-            all_parameters.extend([p for p in list(se.free_symbols)
-                                   if p not in all_parameters])
+                all_parameters.extend([p for p in list(se.free_symbols)
+                                       if p not in all_parameters])
+
         all_parameters.append(Symbol("gamma"))
         # Now solve the system of linear eqns to find the chempot
         # where the slabs are at equilibrium with each other
