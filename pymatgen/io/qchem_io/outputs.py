@@ -32,6 +32,7 @@ class QCOutput(MSONable):
     def __init__(self, filename):
         self.filename = filename
         self.data = {}
+        self.data["errors"] = []
         self.text = ""
         with zopen(filename, 'rt') as f:
             self.text = f.read()
@@ -47,12 +48,10 @@ class QCOutput(MSONable):
             print("Exiting...")
             exit()
 
-        # Check if calculation finished. If not, proceed with caution
+        # Check if calculation finished. 
         self.data["completion"] = read_pattern(self.text, {
             "key": r"Thank you very much for using Q-Chem.\s+Have a nice day."
         }).get('key')
-        # if not self.data.get('completion'):
-        #     print("WARNING: calculation did not reach successful completion")
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
@@ -70,6 +69,10 @@ class QCOutput(MSONable):
                 self.text, {
                     "key": r"\s+General SCF calculation program by"
                 }, terminate_on_match=True).get('key')
+
+        # Check if the SCF failed to converge
+        if read_pattern(self.text, {"key": r"SCF failed to converge"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["SCF_failed_to_converge"]
 
         # Parse the SCF
         if self.data.get('using_GEN_SCFMAN', []):
@@ -138,13 +141,9 @@ class QCOutput(MSONable):
 
     def _read_GEN_SCFMAN(self):
         """
-        Parses all GEN_SCFMANs. Starts by checking if the SCF failed to converge and setting the footer accordingly.
+        Parses all GEN_SCFMANs. 
         """
-        self.data["SCF_failed_to_converge"] = read_pattern(
-            self.text, {
-                "key": r"SCF failed to converge"
-            }, terminate_on_match=True).get('key')
-        if self.data.get("SCF_failed_to_converge", []):
+        if "SCF_failed_to_converge" in self.data.get("errors"):
             footer_pattern = r"^\s*gen_scfman_exception: SCF failed to converge"
         else:
             footer_pattern = r"^\s*\-+\n"
@@ -155,13 +154,9 @@ class QCOutput(MSONable):
 
     def _read_SCF(self):
         """
-        Parses all old-style SCFs. Starts by checking if the SCF failed to converge and setting the footer accordingly.
+        Parses all old-style SCFs. 
         """
-        self.data["SCF_failed_to_converge"] = read_pattern(
-            self.text, {
-                "key": r"SCF failed to converge"
-            }, terminate_on_match=True).get('key')
-        if self.data.get("SCF_failed_to_converge", []):
+        if "SCF_failed_to_converge" in self.data.get("errors"):
             footer_pattern = r"^\s*\d+\s*[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
         else:
             footer_pattern = r"^\s*\-+\n"
