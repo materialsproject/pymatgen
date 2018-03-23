@@ -65,6 +65,11 @@ class QCOutput(MSONable):
             self.text, {
                 "key": r"\s+GEN_SCFMAN: A general SCF calculation manager"
             }, terminate_on_match=True).get('key')
+        if not self.data["using_GEN_SCFMAN"]:
+            self.data["using_GEN_SCFMAN"] = read_pattern(
+                self.text, {
+                    "key": r"\s+General SCF calculation program by"
+                }, terminate_on_match=True).get('key')
 
         # Parse the SCF
         if self.data.get('using_GEN_SCFMAN', []):
@@ -133,11 +138,18 @@ class QCOutput(MSONable):
 
     def _read_GEN_SCFMAN(self):
         """
-        Parses all GEN_SCFMANs
+        Parses all GEN_SCFMANs. Starts by checking if the SCF failed to converge and setting the footer accordingly.
         """
+        self.data["SCF_failed_to_converge"] = read_pattern(
+            self.text, {
+                "key": r"SCF failed to converge"
+            }, terminate_on_match=True).get('key')
+        if self.data.get("SCF_failed_to_converge", []):
+            footer_pattern = r"^\s*gen_scfman_exception: SCF failed to converge"
+        else:
+            footer_pattern = r"^\s*\-+\n"
         header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
         table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*"
-        footer_pattern = r"^\s*\-+\n"
 
         self.data["GEN_SCFMAN"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
@@ -154,7 +166,7 @@ class QCOutput(MSONable):
         else:
             footer_pattern = r"^\s*\-+\n"
         header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+DIIS Error\s+\-+\n"
-        table_pattern = r"\s*\d+\s*([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.\+]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*(?:\n\s*Warning: not using a symmetric Q)*(?:\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+(?:\s*\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+)*)*"
+        table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s*([\d\-\.]+)\s+([\d\-\.]+)E([\d\-\.\+]+)(?:\s*\n\s*cpu\s+[\d\-\.]+\swall\s+[\d\-\.]+)*(?:\nin dftxc\.C, eleTot sum is:[\d\-\.]+, tauTot is\:[\d\-\.]+)*(?:\s+Convergence criterion met)*(?:\s+Done RCA\. Switching to DIIS)*(?:\n\s*Warning: not using a symmetric Q)*(?:\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+(?:\s*\nRecomputing EXC\s*[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+)*)*"
 
         self.data["SCF"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
