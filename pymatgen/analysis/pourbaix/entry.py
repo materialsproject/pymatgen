@@ -44,7 +44,7 @@ class PourbaixEntry(MSONable):
 
     Args:
         entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
-            entry object 
+            entry object
     """
     def __init__(self, entry, correction=0.0, entry_id=None):
         if isinstance(entry, IonEntry):
@@ -59,10 +59,10 @@ class PourbaixEntry(MSONable):
             self.charge = 0.0
         self.uncorrected_energy = entry.energy
         self.correction = correction
-        nH = self.entry.composition.get("H", 0.) 
+        nH = self.entry.composition.get("H", 0.)
         nO = self.entry.composition.get("O", 0.)
         nM = sum(self.entry.composition.values()) - nH - nO
- 
+
         self.nM = nM
         self.npH = (nH - 2 * nO)
         self.nH2O = nO
@@ -71,7 +71,7 @@ class PourbaixEntry(MSONable):
             self.name = self.entry.composition.reduced_formula
             self.name += "(s)"
         elif self.phase_type == "Ion":
-            self.name = self.entry.name 
+            self.name = self.entry.name
         try:
             self.entry_id = entry.entry_id
         except AttributeError:
@@ -94,6 +94,19 @@ class PourbaixEntry(MSONable):
         Return g0 for the entry. Legacy function.
         """
         return self.energy
+
+    def g(self, pH, V):
+        """
+        Get free energy for a given pH and V
+
+        Args:
+            pH (float): pH at which to evaluate free energy
+            V (float): voltage at which to evaluate free energy
+
+        Returns:
+            free energy at conditions
+        """
+        return self.g0 + self.npH * 0.0591 * pH + self.nPhi * V
 
     @property
     def conc_term(self):
@@ -333,7 +346,7 @@ class IonEntry(PDEntry):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {"ion": self.ion.as_dict(), "energy": self.energy, 
+        d = {"ion": self.ion.as_dict(), "energy": self.energy,
              "name": self.name}
         return d
 
