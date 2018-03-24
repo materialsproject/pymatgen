@@ -513,29 +513,16 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
-class VoronoiNN_modified(NearNeighbors):
+class VoronoiNN_modified(VoronoiNN):
     """
     Modified VoronoiNN that only considers neighbors
     with at least 50% weight of max(weight).
     """
 
-    def __init__(self):
-        self._cns = {}
-
     def get_nn_info(self, structure, n):
-
-        vor = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).items()
-        weights = VoronoiNN(structure).get_voronoi_polyhedra(structure, n).values()
-        max_weight = max(weights)
-
-        siw = []
-        for site, weight in vor:
-            if weight > 0.5 * max_weight:
-                siw.append({'site': site,
-                            'image': self._get_image(site.frac_coords),
-                            'weight': weight,
-                            'site_index': self._get_original_site(structure, site)})
-        return siw
+        result = super(VoronoiNN_modified, self).get_nn_info(structure, n)
+        max_weight = max(i['weight'] for i in result)
+        return [i for i in result if i['weight'] > 0.5 * max_weight]
 
 
 class JMolNN(NearNeighbors):
