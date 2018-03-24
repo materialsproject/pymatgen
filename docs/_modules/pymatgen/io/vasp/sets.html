@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.3.22 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.22 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -377,7 +377,9 @@
                                     <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">]</span>
                     <span class="c1"># else, use fallback LDAU value if it exists</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">incar</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">]</span>
+                        <span class="n">incar</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span>
+                                    <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;EDIFF&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;EDIFFG&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="s2">&quot;EDIFF&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">settings</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;EDIFF_PER_ATOM&quot;</span><span class="p">:</span>
                     <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;EDIFF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
@@ -1864,7 +1866,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.22 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
