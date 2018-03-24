@@ -349,6 +349,7 @@ class NearNeighbors(object):
         is_periodic_image = [site.is_periodic_image(s) for s in structure]
         return is_periodic_image.index(True)
 
+
 class VoronoiNN(NearNeighbors):
     """
     Uses a Voronoi algorithm to determine near neighbors for each site in a
@@ -386,8 +387,19 @@ class VoronoiNN(NearNeighbors):
 
         Returns:
             A dict of sites sharing a common Voronoi facet with the site
-            n and their solid angle weights
+            n mapped to a directory containing statistics about the facet:
+                - solid_angle - Solid angle subtended by face
+                - angle_normalized - Solid angle normalized such that the
+                    faces with the largest
+                - area - Area of the facet
+                - face_dist - Distance between site n and the facet
+                - volume - Volume of Voronoi cell for this face
+                - n_verts - Number of vertices on the facet
+
         """
+
+        # Assemble the list of neighbors used in the tessellation
+        #   Gets all atoms within a certain radius
         if self.targets is None:
             targets = structure.composition.elements
         else:
@@ -396,40 +408,75 @@ class VoronoiNN(NearNeighbors):
         neighbors = structure.get_sites_in_sphere(
             center.coords, self.cutoff)
         neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
+
+        # Run the Voronoi tessellation
         qvoronoi_input = [s.coords for s in neighbors]
         voro = Voronoi(qvoronoi_input)
         all_vertices = voro.vertices
 
+        # Iterate through all the faces in the tessellation
         results = {}
         for nn, vind in voro.ridge_dict.items():
+            # Get only those that include the cite in question
             if 0 in nn:
                 if -1 in vind:
+                    # -1 indices correspond to the Voronoi cell
+                    #  missing a face
                     if self.allow_pathological:
                         continue
                     else:
                         raise RuntimeError("This structure is pathological,"
                                            " infinite vertex in the voronoi "
                                            "construction")
-
+                # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
-                results[neighbors[sorted(nn)[1]]] = solid_angle(
-                    center.coords, facets)
+                angle = solid_angle(center.coords, facets)
 
-        maxangle = max(results.values())
+                # Compute the volume of associated with this face
+                volume = 0
+                #  qvoronoi returns vertices in CCW order, so I can break
+                #   the face up in to segments (0,1,2), (0,2,3), ... to compute
+                #   its area where each number is a vertex size
+                for j, k in zip(vind[1:], vind[2:]):
+                    volume += vol_tetra(center.coords,
+                                        all_vertices[vind[0]],
+                                        all_vertices[j],
+                                        all_vertices[k])
 
+                # Compute the distance of the site to the face
+                face_dist = np.linalg.norm(center.coords - qvoronoi_input[max(nn)]) / 2
+
+                # Compute the area of the face (knowing V=Ad/3)
+                face_area = 3 * volume / face_dist
+
+                results[neighbors[max(nn)]] = {
+                    'solid_angle': angle,
+                    'volume': volume,
+                    'face_dist': face_dist,
+                    'area': face_area,
+                    'n_verts': len(vind)
+                }
+
+        # Prepare to compute the normalized weight
+        maxangle = max([x['solid_angle'] for x in results.values()])
+
+        # Compute normalized weights, and get only target elements
         resultweighted = {}
-        for nn, angle in results.items():
-            # is nn site is ordered use "nn.specie" to get species, else use "nn.species_and_occu" to get species
+        for nn, nstats in results.items():
+            # Compute the normalized solid angle, which is used
+            #   as a weight elsewhere
+            nstats['angle_normalized'] = nstats['solid_angle'] / maxangle
+
+            # Check if this is a target site
             if nn.is_ordered:
                 if nn.specie in targets:
-                    resultweighted[nn] = angle / maxangle
+                    resultweighted[nn] = nstats
             else:  # is nn site is disordered
                 for disordered_sp in nn.species_and_occu.keys():
                     if disordered_sp in targets:
-                        resultweighted[nn] = angle / maxangle
+                        resultweighted[nn] = nstats
 
         return resultweighted
-
 
     def get_nn_info(self, structure, n):
         """"
@@ -453,12 +500,12 @@ class VoronoiNN(NearNeighbors):
         else:
             targets = self.targets
         siw = []
-        for site, weight in self.get_voronoi_polyhedra(
+        for site, nstats in self.get_voronoi_polyhedra(
                 structure, n).items():
-            if weight > self.tol and site.specie in targets:
+            if nstats['angle_normalized'] > self.tol and site.specie in targets:
                 siw.append({'site': site,
                             'image': self._get_image(site.frac_coords),
-                            'weight': weight,
+                            'weight': nstats['angle_normalized'],
                             'site_index': self._get_original_site(structure, site)})
         return siw
 
@@ -776,6 +823,23 @@ def solid_angle(center, coords):
         vals.append(acos(abs_cap(v)))
     phi = sum(vals)
     return phi + (3 - len(r)) * pi
+
+
+def vol_tetra(vt1, vt2, vt3, vt4):
+    """
+    Calculate the volume of a tetrahedron, given the four vertices of vt1,
+    vt2, vt3 and vt4.
+    Args:
+        vt1 (array-like): coordinates of vertex 1.
+        vt2 (array-like): coordinates of vertex 2.
+        vt3 (array-like): coordinates of vertex 3.
+        vt4 (array-like): coordinates of vertex 4.
+    Returns:
+        (float): volume of the tetrahedron.
+    """
+    vol_tetra = np.abs(np.dot((vt1 - vt4),
+                              np.cross((vt2 - vt4), (vt3 - vt4))))/6
+    return vol_tetra
 
 
 def get_okeeffe_params(el_symbol):
