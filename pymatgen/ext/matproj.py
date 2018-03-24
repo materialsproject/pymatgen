@@ -205,6 +205,20 @@ class MPRester(object):
             sub_url += "/" + prop
         return self._make_request(sub_url)
 
+    def get_materials_ids(self, chemsys_formula):
+        """
+        Get all materials ids for a formula or chemsys.
+
+        Args:
+            chemsys_formula (str): A chemical system (e.g., Li-Fe-O),
+                or formula (e.g., Fe2O3).
+
+        Returns:
+            ([str]) List of all materials ids.
+        """
+        return self._make_request("/materials/%s/mids" % chemsys_formula,
+                                  mp_decode=False)
+
     def get_doc(self, materials_id):
         """
         Get the entire data document for one materials id. Use this judiciously.

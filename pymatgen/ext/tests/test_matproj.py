@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals
 import unittest
 import os
 import warnings
+import random
 from pymatgen import SETTINGS
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
@@ -49,10 +50,11 @@ class MPResterTest(unittest.TestCase):
     def tearDown(self):
         warnings.resetwarnings()
 
-    def test_get_doc(self):
-        doc = self.rester.get_doc("mp-1143")
+    def test_get_all_materials_ids_doc(self):
+        mids = self.rester.get_materials_ids("Al2O3")
+        random.shuffle(mids)
+        doc = self.rester.get_doc(mids.pop(0))
         self.assertEqual(doc["pretty_formula"], "Al2O3")
-        self.assertEqual(doc["task_id"], "mp-1143")
 
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
