@@ -37,5 +37,10 @@ class TestPourbaixDiagram(unittest.TestCase):
         self.assertEqual(set([e.name for e in pbx_lowconc.stable_entries]),
                          {"ZnO(aq)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"})
 
+    def test_get_pourbaix_domains(self):
+        pbx = PourbaixDiagram(self.entries)
+        domains = pbx.get_pourbaix_domains()
+        import nose; nose.tools.set_trace()
+
 if __name__ == '__main__':
     unittest.main()
