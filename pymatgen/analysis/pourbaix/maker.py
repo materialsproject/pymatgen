@@ -8,9 +8,11 @@ import logging
 import numpy as np
 import itertools
 from copy import deepcopy
+from functools import cmp_to_key
 
-from scipy.spatial import ConvexHull
-from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
+from scipy.spatial import ConvexHull, HalfspaceIntersection
+from pymatgen.util.coord import Simplex
+from pymatgen.analysis.pourbaix.entry import MultiEntry
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -114,33 +116,9 @@ class PourbaixDiagram(object):
             self._multielement = False
 
             self._processed_entries = solid_entries + ion_entries
-        self._make_pourbaix_diagram()
+        self._stable_domains, self._stable_domain_vertices = \
+            self.get_pourbaix_domains(self._processed_entries)
 
-    def _create_conv_hull_data(self):
-        """
-        Make data conducive to convex hull generator.
-        """
-        entries_to_process = list()
-        for entry in self._processed_entries:
-            entry.scale(entry.normalization_factor)
-            entry.correction += (- MU_H2O * entry.nH2O + entry.conc_term)
-            entries_to_process.append(entry)
-        self._qhull_entries = entries_to_process
-        return self._process_conv_hull_data(entries_to_process)
-
-    def _process_conv_hull_data(self, entries_to_process):
-        """
-        From a sequence of ion+solid entries, generate the necessary data
-        for generation of the convex hull.
-        """
-        data = []
-        for entry in entries_to_process:
-            row = [entry.npH, entry.nPhi, entry.g0]
-            data.append(row)
-        temp = sorted(zip(data, self._qhull_entries),
-                      key=lambda x: x[0][2])
-        [data, self._qhull_entries] = list(zip(*temp))
-        return data
 
     def _generate_multielement_entries(self, entries):
         """
@@ -209,119 +187,156 @@ class PourbaixDiagram(object):
         except ReactionError:
             return None
 
-    def _make_pourbaix_diagram(self):
+    @staticmethod
+    def get_pourbaix_domains(pourbaix_entries, limits=[[-2, 16], [-4, 4]]):
         """
-        Calculates entries on the convex hull in the dual space.
+        Returns a set of pourbaix stable domains (i. e. polygons) in
+        pH-V space from a list of pourbaix_entries
+
+        This function works by using scipy's HalfspaceIntersection
+        function to construct all of the 2-D polygons that form the
+        boundaries of the planes corresponding to individual entry
+        gibbs free energies as a function of pH and V. Hyperplanes
+        of the form a*pH + b*V + 1 - g(0, 0) are constructed and
+        supplied to HalfspaceIntersection, which then finds the
+        boundaries of each pourbaix region using the intersection
+        points.
+
+        Args:
+            pourbaix_entries ([PourbaixEntry]): Pourbaix entries
+                with which to construct stable pourbaix domains
+            limits ([[float]]): limits in which to do the pourbaix
+                analysis
+
+        Returns:
+            Returns a dict of the form {entry: [boundary_points]}.
+            The list of boundary points are the sides of the N-1
+            dim polytope bounding the allowable ph-V range of each entry.
         """
-        stable_entries = set()
-        self._qhull_data = self._create_conv_hull_data()
-        dim = len(self._qhull_data[0])
-        if len(self._qhull_data) < dim:
-            # TODO: might want to lift this restriction and
-            # supply a warning instead, should work even if it's slow.
-            raise NotImplementedError("Can only do elements with at-least "
-                                      "3 entries for now")
-        if len(self._qhull_data) == dim:
-            self._facets = [list(range(dim))]
-        else:
-            facets_hull = np.array(ConvexHull(self._qhull_data).simplices)
-            self._facets = np.sort(np.array(facets_hull))
-            logger.debug("Final facets are\n{}".format(self._facets))
+        # Get hyperplanes
+        hyperplanes = [[entry.npH, entry.nPhi, 1, -entry.g0]
+                       for entry in pourbaix_entries]
 
-            logger.debug("Removing vertical facets...")
-            vert_facets_removed = list()
-            for facet in self._facets:
-                facetmatrix = np.zeros((len(facet), len(facet)))
-                count = 0
-                for vertex in facet:
-                    facetmatrix[count] = np.array(self._qhull_data[vertex])
-                    facetmatrix[count, dim - 1] = 1
-                    count += 1
-                if abs(np.linalg.det(facetmatrix)) > 1e-8:
-                    vert_facets_removed.append(facet)
-                else:
-                    logger.debug("Removing vertical facet : {}".format(facet))
+        max_contribs = np.max(np.abs(hyperplanes), axis=0)
+        g_max = np.dot(-max_contribs, [limits[0][1], limits[1][1], 0, 1])
 
-            logger.debug("Removing UCH facets by eliminating normal.z >0 ...")
+        # Add border hyperplanes and generate HalfspaceIntersection
+        border_hyperplanes = [[-1, 0, 0, limits[0][0]],
+                              [1, 0, 0, -limits[0][1]],
+                              [0, -1, 0, limits[1][0]],
+                              [0, 1, 0, -limits[1][1]],
+                              [0, 0, -1, 2 * g_max]]
+        hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
+        interior_point = np.average(limits, axis=1).tolist() + [g_max]
+        hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
-            # Find center of hull
-            vertices = set()
-            for facet in vert_facets_removed:
-                for vertex in facet:
-                    vertices.add(vertex)
-            c = [0.0, 0.0, 0.0]
-            c[0] = np.average([self._qhull_data[vertex][0]
-                               for vertex in vertices])
-            c[1] = np.average([self._qhull_data[vertex][1]
-                               for vertex in vertices])
-            c[2] = np.average([self._qhull_data[vertex][2]
-                               for vertex in vertices])
+        # organize the boundary points by entry
+        pourbaix_domains = {entry: [] for entry in pourbaix_entries}
+        for intersection, facet in zip(hs_int.intersections,
+                                       hs_int.dual_facets):
+            for v in facet:
+                if v < len(pourbaix_entries):
+                    this_entry = pourbaix_entries[v]
+                    pourbaix_domains[this_entry].append(intersection)
 
-            # Shift origin to c
-            new_qhull_data = np.array(self._qhull_data)
-            for vertex in vertices:
-                new_qhull_data[vertex] -= c
+        # Remove entries with no pourbaix region
+        pourbaix_domains = {k: v for k, v in pourbaix_domains.items() if v}
+        pourbaix_domain_vertices = {}
 
-            # For each facet, find normal n, find dot product with P, and
-            # check if this is -ve
-            final_facets = list()
-            for facet in vert_facets_removed:
-                a = new_qhull_data[facet[1]] - new_qhull_data[facet[0]]
-                b = new_qhull_data[facet[2]] - new_qhull_data[facet[0]]
-                n = np.cross(a, b)
-                val = np.dot(n, new_qhull_data[facet[0]])
-                if val < 0:
-                    n = -n
-                if n[2] <= 0:
-                    final_facets.append(facet)
-                else:
-                    logger.debug("Removing UCH facet : {}".format(facet))
-            final_facets = np.array(final_facets)
-            self._facets = final_facets
+        for entry, points in pourbaix_domains.items():
+            points = np.array(points)[:, :2]
+            # Initial sort to ensure consistency
+            points = points[np.lexsort(np.transpose(points))]
+            center = np.average(points, axis=0)
+            points_centered = points - center
 
-        stable_vertices = set()
-        for facet in self._facets:
-            for vertex in facet:
-                stable_vertices.add(vertex)
-                stable_entries.add(self._qhull_entries[vertex])
-        self._stable_entries = stable_entries
-        self._vertices = stable_vertices
+            # Sort points by cross product of centered points,
+            # isn't strictly necessary but useful for plotting tools
+            point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
+            points_centered = sorted(points_centered,
+                                     key=cmp_to_key(point_comparator))
+            points = points_centered + center
 
-    @property
-    def facets(self):
+            # Create simplices corresponding to pourbaix boundary
+            simplices = [Simplex(points[indices])
+                         for indices in ConvexHull(points).simplices]
+            pourbaix_domains[entry] = simplices
+            pourbaix_domain_vertices[entry] = points
+
+        return pourbaix_domains, pourbaix_domain_vertices
+
+    def find_stable_entry(self, pH, V):
         """
-        Facets of the convex hull in the form of  [[1,2,3],[4,5,6]...]
-        """
-        return self._facets
+        Finds stable entry at a pH,V condition
+        Args:
+            pH (float): pH to find stable entry
+            V (float): V to find stable entry
 
-    @property
-    def qhull_data(self):
-        """
-        Data used in the convex hull operation. This is essentially a matrix of
-        composition data and energy per atom values created from qhull_entries.
-        """
-        return self._qhull_data
+        Returns:
 
-    @property
-    def qhull_entries(self):
         """
-        Return qhull entries
+        for entry, simplex in self._stable_domains.items():
+            if simplex.in_simplex(pH, V):
+                return entry
+
+    def get_decomposition(self, entry, pH, V):
         """
-        return self._qhull_entries
+        Finds decomposition to most stable entry
+
+        Args:
+            entry (PourbaixEntry): PourbaixEntry corresponding to
+                compound to find the decomposition for
+            pH (float): pH at which to find the decomposition
+            V (float): voltage at which to find the decomposition
+
+        Returns:
+            reaction corresponding to the decomposition
+        """
+        # Find representative multientry
+        if self._multielement and not isinstance(entry, MultiEntry):
+            possible_entries = self._generate_multielement_entries(
+               self._preprocessed_entries, forced_include=[single_entry])
+            # Filter to only include materials where the entry is only solid
+            possible_entries = [e for e in possible_entries
+                                if e.phases.count("Solid") == 1]
+            entry = sorted(possible_entries, key=lambda x: x.g(pH, V))[0]
+
+        # Find stable entry and take the difference
+        stable_entry = self.find_stable_entry(pH, V)
+        return entry.g(pH, V) - stable_entry.g(pH, V)
+
+    def get_stability_map(self, entry, pH_range=[-2, 16], pH_resolution=100,
+                          V_range=[-3, 3], V_resolution=100):
+        """
+        Finds hull energies
+
+        Args:
+            entry (PourbaixEntry): entry for which to find pourbaix stability
+            pH_range (list): range of pHs for which to find stability
+            pH_resolution (int): resolution for pH
+            V_range (list): range of Vs for which to find stability
+            V_resolution (int): resolution for V
+
+        Returns:
+            pHs, Vs, and pourbaix hull energies for the specified entry
+
+        """
+        # Get pourbaix "base" from all stable entries
 
     @property
     def stable_entries(self):
         """
         Returns the stable entries in the Pourbaix diagram.
         """
-        return list(self._stable_entries)
+        return list(self._stable_domains.keys())
 
     @property
     def unstable_entries(self):
         """
         Returns all unstable entries in the Pourbaix diagram
         """
-        return [e for e in self.qhull_entries if e not in self.stable_entries]
+        return [e for e in self._stable_domains.keys()
+                if e not in self.stable_entries]
 
     @property
     def all_entries(self):
@@ -329,13 +344,6 @@ class PourbaixDiagram(object):
         Return all entries used to generate the pourbaix diagram
         """
         return self._processed_entries
-
-    @property
-    def vertices(self):
-        """
-        Return vertices of the convex hull
-        """
-        return self._vertices
 
     @property
     def unprocessed_entries(self):
