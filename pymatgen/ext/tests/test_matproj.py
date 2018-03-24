@@ -48,7 +48,12 @@ class MPResterTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.resetwarnings()
-        
+
+    def test_get_doc(self):
+        doc = self.rester.get_doc("mp-1143")
+        self.assertEqual(doc["pretty_formula"], "Al2O3")
+        self.assertEqual(doc["task_id"], "mp-1143")
+
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
