@@ -363,14 +363,17 @@ class VoronoiNN(NearNeighbors):
             atoms. Defaults to 10.0.
         allow_pathological (bool): whether to allow infinite vertices in
             determination of Voronoi coordination.
+        weight (string) - Statistic used to weigh neighbors (see the statistics
+            available in get_voronoi_polyhedra)
     """
 
     def __init__(self, tol=0, targets=None, cutoff=10.0,
-                 allow_pathological=False):
+                 allow_pathological=False, weight='solid_angle'):
         self.tol = tol
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
+        self.weight = weight
         self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
@@ -457,15 +460,9 @@ class VoronoiNN(NearNeighbors):
                     'n_verts': len(vind)
                 }
 
-        # Prepare to compute the normalized weight
-        maxangle = max([x['solid_angle'] for x in results.values()])
-
-        # Compute normalized weights, and get only target elements
+        # Get only target elements
         resultweighted = {}
         for nn, nstats in results.items():
-            # Compute the normalized solid angle, which is used
-            #   as a weight elsewhere
-            nstats['angle_normalized'] = nstats['solid_angle'] / maxangle
 
             # Check if this is a target site
             if nn.is_ordered:
@@ -500,12 +497,18 @@ class VoronoiNN(NearNeighbors):
         else:
             targets = self.targets
         siw = []
-        for site, nstats in self.get_voronoi_polyhedra(
-                structure, n).items():
-            if nstats['angle_normalized'] > self.tol and site.specie in targets:
+
+        # Run the tessellation
+        nns = self.get_voronoi_polyhedra(structure, n)
+
+        # Determine the maximum weight
+        max_weight = max(nn[self.weight] for nn in nns.values())
+        for site, nstats in nns.items():
+            if nstats[self.weight] > self.tol * max_weight \
+                    and site.specie in targets:
                 siw.append({'site': site,
                             'image': self._get_image(site.frac_coords),
-                            'weight': nstats['angle_normalized'],
+                            'weight': nstats[self.weight] / max_weight,
                             'site_index': self._get_original_site(structure, site)})
         return siw
 
