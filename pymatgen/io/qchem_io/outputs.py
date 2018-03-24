@@ -59,7 +59,7 @@ class QCOutput(MSONable):
                 "key": r"A(?:n)*\sunrestricted[\s\w\-]+SCF\scalculation\swill\sbe"
             }, terminate_on_match=True).get('key')
 
-        # Check if calculation uses GEN_SCFMAN
+        # Check if calculation uses GEN_SCFMAN, multiple potential output formats
         self.data["using_GEN_SCFMAN"] = read_pattern(
             self.text, {
                 "key": r"\s+GEN_SCFMAN: A general SCF calculation manager"
@@ -93,11 +93,18 @@ class QCOutput(MSONable):
         if self.data.get('unrestricted', []):
             self.data["S2"] = read_pattern(self.text, {"key": r"<S\^2>\s=\s+([\d\-\.]+)"}).get('key')
 
-        # Check if the calculation is a geometry optimization. If so, parse the relevant output
+        # Check if the calculation is a geometry optimization. If so, parse the relevant output.
+        # Then, if no optimized geometry or z-matrix is found, and no errors have been previously 
+        # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
+        # to be determined.
         self.data["optimization"] = read_pattern(self.text, {"key": r"(?i)\s*job(?:_)*type\s+=\s+opt"}).get('key')
         if self.data.get('optimization', []):
             self.data["energy_trajectory"] = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get('key')
             self._read_optimized_geometry()
+            if self.data.get("errors") == [] and self.data.get('optimized_geometry') == [] and self.data.get('optimized_zmat') == []:
+                self._check_optimization_errors()
+                
+
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
@@ -113,6 +120,11 @@ class QCOutput(MSONable):
                 })
             for key in temp_dict:
                 self.data[key] = temp_dict.get(key)
+
+        # If the calculation did not finish and no errors have been identified yet, check for other errors
+        if not self.data.get('completion',[]) and self.data.get("errors") == []:
+            self._check_completion_errors()
+
 
     @staticmethod
     def multiple_outputs_from_file(cls, filename, keep_sub_files=True):
@@ -202,3 +214,21 @@ class QCOutput(MSONable):
             footer_pattern = r"^\$end\n"
 
             self.data["optimized_zmat"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+
+    def _check_optimization_errors(self):
+        if read_pattern(self.text, {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["out_of_opt_cycles"]
+        elif read_pattern(self.text, {"key": r"UNABLE TO DETERMINE Lamda IN FormD"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["unable_to_determine_lambda"]
+
+    def _check_completion_errors(self):
+        if read_pattern(self.text, {"key": r"Coordinates do not transform within specified threshold"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["failed_to_transform_coords"]
+        if read_pattern(self.text, {"key": r"Error opening input stream"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["failed_to_read_input"]
+        if read_pattern(self.text, {"key": r"FileMan error: End of file reached prematurely"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["IO_error"]
+        if read_pattern(self.text, {"key": r"The Q\-Chem input file has failed to pass inspection"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["input_file_error"]
+
+
