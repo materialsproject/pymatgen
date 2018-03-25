@@ -1,10 +1,6 @@
 services:
   - mysql
 
-branches:
-  except:
-    - gh-pages
-
 environment:
   matrix:
     - PYTHON: "C:\\Miniconda36-x64"
