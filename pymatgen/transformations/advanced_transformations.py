@@ -787,11 +787,14 @@ class MagOrderingTransformation(AbstractTransformation):
             enum_kwargs.get("min_cell_size", 1)
         )
 
-        max_cell = enum_kwargs.get('max_cell_size')
-        if max_cell:
-            if enum_kwargs["min_cell_size"] > max_cell:
-                raise ValueError('Specified max cell size is smaller'
-                                 ' than the minimum enumerable cell size')
+        if enum_kwargs.get("max_cell_size", None):
+            if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
+                warnings.warn("Specified max cell size ({}) is smaller "
+                              "than the minimum enumerable cell size ({}), "
+                              "changing max cell size to {}".format(enum_kwargs["max_cell_size"],
+                                                                    enum_kwargs["min_cell_size"],
+                                                                    enum_kwargs["min_cell_size"]))
+                enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
         else:
             enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
 

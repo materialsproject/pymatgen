@@ -1261,6 +1261,7 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --licenses=$${licenses}
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
+#SBATCH --qos=$${qos}
 $${qverbatim}
 """
 

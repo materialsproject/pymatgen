@@ -577,6 +577,31 @@ class CompleteDos(Dos):
         return {orb: Dos(self.efermi, self.energies, densities)
                 for orb, densities in el_dos.items()}
 
+    @property
+    def spin_polarization(self):
+        """
+        Calculates spin polarization at Fermi level.
+
+        See Sanvito et al., doi: 10.1126/sciadv.1602241 for
+        an example usage.
+
+        :return (float): spin polarization in range [0, 1],
+        will also return NaN if spin polarization ill-defined
+        (e.g. for insulator)
+        """
+        n_F = self.get_interpolated_value(self.efermi)
+
+        n_F_up = n_F[Spin.up]
+        n_F_down = n_F[Spin.down]
+
+        if (n_F_up + n_F_down) == 0:
+            # only well defined for metals or half-mteals
+            return float('NaN')
+
+        spin_polarization = (n_F_up - n_F_down) / (n_F_up + n_F_down)
+
+        return abs(spin_polarization)
+
     @classmethod
     def from_dict(cls, d):
         """

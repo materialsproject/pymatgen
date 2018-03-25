@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2018.2.13 documentation</title>
+    <title>pymatgen.symmetry.analyzer &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -173,8 +173,8 @@
 <span class="sd">            SpacgroupOperations object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">SpacegroupOperations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_symbol</span><span class="p">(),</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">(),</span></div>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">())</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">(),</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_space_group_symbol"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">get_space_group_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -182,8 +182,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (str): Spacegroup symbol for structure.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;international&quot;</span><span class="p">]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;international&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_space_group_number"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_space_group_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_space_group_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -191,8 +191,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (int): International spacegroup number for structure.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_hall"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_hall">[docs]</a>    <span class="k">def</span> <span class="nf">get_hall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -200,8 +200,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (str): Hall symbol</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;hall&quot;</span><span class="p">]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;hall&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_point_group_symbol"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">get_point_group_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -213,8 +213,8 @@
         <span class="n">rotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span><span class="p">[</span><span class="s2">&quot;rotations&quot;</span><span class="p">]</span>
         <span class="c1"># passing a 0-length rotations list to spglib can segfault</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rotations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;1&#39;</span></div>
-        <span class="k">return</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_pointgroup</span><span class="p">(</span><span class="n">rotations</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">return</span> <span class="s1">&#39;1&#39;</span>
+        <span class="k">return</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_pointgroup</span><span class="p">(</span><span class="n">rotations</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_crystal_system"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_crystal_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -237,8 +237,8 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">v</span><span class="p">):</span>
                 <span class="n">crystal_sytem</span> <span class="o">=</span> <span class="n">k</span>
-                <span class="k">break</span></div>
-        <span class="k">return</span> <span class="n">crystal_sytem</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">crystal_sytem</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_lattice_type"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_lattice_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_lattice_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -256,8 +256,8 @@
             <span class="k">return</span> <span class="s2">&quot;rhombohedral&quot;</span>
         <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;trigonal&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;hexagonal&quot;</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">system</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">system</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_symmetry_dataset"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetry_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetry_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -275,8 +275,8 @@
 <span class="sd">            vectors. Space group operations are obtained by</span>
 <span class="sd">            [(r,t) for r, t in zip(rotations, translations)]</span>
 <span class="sd">            wyckoffs: Wyckoff letters</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_space_group_data</span></div>
 
     <span class="k">def</span> <span class="nf">_get_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -323,8 +323,8 @@
                 <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">invmat</span><span class="p">))</span>
                 <span class="n">trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
             <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span>
-            <span class="n">symmops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">symmops</span>
+            <span class="n">symmops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">symmops</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_point_group_operations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_point_group_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_point_group_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -347,8 +347,8 @@
             <span class="k">if</span> <span class="n">cartesian</span><span class="p">:</span>
                 <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">invmat</span><span class="p">))</span>
             <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
-            <span class="n">symmops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">symmops</span>
+            <span class="n">symmops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">symmops</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_symmetrized_structure"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetrized_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -363,8 +363,8 @@
                                   <span class="bp">self</span><span class="o">.</span><span class="n">get_space_group_number</span><span class="p">(),</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetry_operations</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">SymmetrizedStructure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">,</span> <span class="n">sg</span><span class="p">,</span>
-                                    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;equivalent_atoms&quot;</span><span class="p">],</span></div>
-                                    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;wyckoffs&quot;</span><span class="p">])</span>
+                                    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;equivalent_atoms&quot;</span><span class="p">],</span>
+                                    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;wyckoffs&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_refined_structure"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_refined_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_refined_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -380,8 +380,8 @@
             <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">refine_cell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_tol</span><span class="p">)</span>
 
         <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unique_species</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">]</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">scaled_positions</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">scaled_positions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.find_primitive"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.find_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">find_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -397,8 +397,8 @@
 
         <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unique_species</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">scaled_positions</span><span class="p">,</span></div>
-                         <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">scaled_positions</span><span class="p">,</span>
+                         <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_ir_reciprocal_mesh"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_ir_reciprocal_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">get_ir_reciprocal_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">is_shift</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -425,8 +425,8 @@
         <span class="n">tmp_map</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span> <span class="o">/</span> <span class="n">mesh</span><span class="p">,</span>
-                            <span class="n">tmp_map</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span></div>
-        <span class="k">return</span> <span class="n">results</span>
+                            <span class="n">tmp_map</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_primitive_standard_structure"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_primitive_standard_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_standard_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">international_monoclinic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -501,8 +501,8 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">new_s</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">,</span> <span class="n">new_sites</span><span class="p">)):</span>
                     <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_s</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_conventional_standard_structure"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_conventional_standard_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_conventional_standard_structure</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">international_monoclinic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -780,8 +780,8 @@
         <span class="n">new_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
         <span class="n">new_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">new_coords</span><span class="p">,</span>
                                <span class="n">site_properties</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span>
-                               <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">new_struct</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
+                               <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_struct</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.get_kpoint_weights"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_kpoint_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_kpoint_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kpoints</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -830,8 +830,8 @@
         <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mapped</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mapping</span><span class="p">)))</span> <span class="ow">or</span> <span class="p">(</span>
                 <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">v</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mapped</span><span class="o">.</span><span class="n">values</span><span class="p">()])):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to find 1:1 corresponding between input &quot;</span>
-                             <span class="s2">&quot;kpoints and irreducible grid!&quot;</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="p">[</span><span class="n">w</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span>
+                             <span class="s2">&quot;kpoints and irreducible grid!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">w</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="SpacegroupAnalyzer.is_laue"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupAnalyzer.is_laue">[docs]</a>    <span class="k">def</span> <span class="nf">is_laue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -842,8 +842,8 @@
 
         <span class="n">laue</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="s2">&quot;2/m&quot;</span><span class="p">,</span> <span class="s2">&quot;mmm&quot;</span><span class="p">,</span> <span class="s2">&quot;4/m&quot;</span><span class="p">,</span> <span class="s2">&quot;4/mmm&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;-3&quot;</span><span class="p">,</span> <span class="s2">&quot;-3m&quot;</span><span class="p">,</span> <span class="s2">&quot;6/m&quot;</span><span class="p">,</span> <span class="s2">&quot;6/mmm&quot;</span><span class="p">,</span> <span class="s2">&quot;m-3&quot;</span><span class="p">,</span> <span class="s2">&quot;m-3m&quot;</span><span class="p">]</span>
-</div></div>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_point_group_symbol</span><span class="p">())</span> <span class="ow">in</span> <span class="n">laue</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_point_group_symbol</span><span class="p">())</span> <span class="ow">in</span> <span class="n">laue</span></div></div>
 
 
 <div class="viewcode-block" id="PointGroupAnalyzer"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">PointGroupAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1217,8 +1217,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a PointGroup object for the molecule.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">PointGroupOperations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sch_symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmops</span><span class="p">,</span></div>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">mat_tol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PointGroupOperations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sch_symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmops</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">mat_tol</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PointGroupAnalyzer.get_symmetry_operations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_symmetry_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetry_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1227,8 +1227,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ([SymmOp]): List of symmetry operations.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="n">generate_full_symmops</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmops</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">generate_full_symmops</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symmops</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PointGroupAnalyzer.is_valid_op"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.is_valid_op">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmop</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1249,8 +1249,8 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
                     <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">centered_mol</span><span class="p">[</span><span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">species_and_occu</span>
                     <span class="o">==</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">):</span>
-                <span class="k">return</span> <span class="kc">False</span></div>
-        <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
     <span class="k">def</span> <span class="nf">_get_eq_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1391,8 +1391,8 @@
 <span class="sd">            that maps atom ``i`` unto ``j``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">eq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_eq_sets</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_eq_sets</span><span class="p">(</span><span class="n">eq</span><span class="p">[</span><span class="s1">&#39;eq_sets&#39;</span><span class="p">],</span></div>
-                                     <span class="n">eq</span><span class="p">[</span><span class="s1">&#39;sym_ops&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_eq_sets</span><span class="p">(</span><span class="n">eq</span><span class="p">[</span><span class="s1">&#39;eq_sets&#39;</span><span class="p">],</span>
+                                     <span class="n">eq</span><span class="p">[</span><span class="s1">&#39;sym_ops&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="PointGroupAnalyzer.symmetrize_molecule"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupAnalyzer.symmetrize_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">symmetrize_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a symmetrized molecule</span>
@@ -1438,8 +1438,8 @@
                 <span class="n">coords</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="n">molecule</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">centered_mol</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;sym_mol&#39;</span><span class="p">:</span> <span class="n">molecule</span><span class="p">,</span>
-                <span class="s1">&#39;eq_sets&#39;</span><span class="p">:</span> <span class="n">eq_sets</span><span class="p">,</span></div></div>
-                <span class="s1">&#39;sym_ops&#39;</span><span class="p">:</span> <span class="n">ops</span><span class="p">}</span>
+                <span class="s1">&#39;eq_sets&#39;</span><span class="p">:</span> <span class="n">eq_sets</span><span class="p">,</span>
+                <span class="s1">&#39;sym_ops&#39;</span><span class="p">:</span> <span class="n">ops</span><span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="iterative_symmetrize"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.iterative_symmetrize">[docs]</a><span class="k">def</span> <span class="nf">iterative_symmetrize</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">max_n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
@@ -1490,8 +1490,8 @@
         <span class="n">new</span> <span class="o">=</span> <span class="n">eq</span><span class="p">[</span><span class="s1">&#39;sym_mol&#39;</span><span class="p">]</span>
         <span class="n">finished</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span> <span class="n">previous</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span>
                                <span class="n">atol</span><span class="o">=</span><span class="n">epsilon</span><span class="p">)</span>
-        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span></div>
-    <span class="k">return</span> <span class="n">eq</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">eq</span></div>
 
 
 <div class="viewcode-block" id="cluster_sites"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.cluster_sites">[docs]</a><span class="k">def</span> <span class="nf">cluster_sites</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">give_only_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1530,8 +1530,8 @@
                     <span class="p">(</span><span class="n">avg_dist</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">clustered_sites</span><span class="p">[</span>
-                    <span class="p">(</span><span class="n">avg_dist</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">origin_site</span><span class="p">,</span> <span class="n">clustered_sites</span>
+                    <span class="p">(</span><span class="n">avg_dist</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">origin_site</span><span class="p">,</span> <span class="n">clustered_sites</span></div>
 
 
 <div class="viewcode-block" id="generate_full_symmops"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.generate_full_symmops">[docs]</a><span class="k">def</span> <span class="nf">generate_full_symmops</span><span class="p">(</span><span class="n">symmops</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
@@ -1569,8 +1569,8 @@
 
         <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">full</span> <span class="o">-</span> <span class="n">UNIT</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)):</span>
-            <span class="n">full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="p">[</span><span class="n">SymmOp</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">full</span><span class="p">]</span>
+            <span class="n">full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">SymmOp</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">full</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="SpacegroupOperations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.SpacegroupOperations">[docs]</a><span class="k">class</span> <span class="nc">SpacegroupOperations</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
@@ -1623,11 +1623,11 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">in_sites</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
                     <span class="k">break</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span></div>
-        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">) spacegroup&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">int_symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">) spacegroup&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">int_symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_number</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PointGroupOperations"><a class="viewcode-back" href="../../../pymatgen.symmetry.analyzer.html#pymatgen.symmetry.analyzer.PointGroupOperations">[docs]</a><span class="k">class</span> <span class="nc">PointGroupOperations</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
@@ -1655,8 +1655,8 @@
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sch_symbol</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
 </pre></div>
 
           </div>
@@ -1689,7 +1689,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1697,7 +1697,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -8,6 +8,8 @@ import unittest
 import os
 import json
 
+from monty.serialization import loadfn
+
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
 from pymatgen.electronic_structure.dos import CompleteDos, DOS
 from pymatgen.util.testing import PymatgenTest
@@ -159,6 +161,15 @@ class DOSTest(PymatgenTest):
 
         self.assertArrayAlmostEqual(dos.get_cbm_vbm(spin=Spin.down),
                                     (4.645, 1.8140000000000001))
+
+
+class SpinPolarizationTest(unittest.TestCase):
+
+    def test_spin_polarization(self):
+
+        dos_path = os.path.join(test_dir, "dos_spin_polarization_mp-865805.json")
+        dos = loadfn(dos_path)
+        self.assertAlmostEqual(dos.spin_polarization, 0.6460514663341762)
 
 if __name__ == '__main__':
     unittest.main()

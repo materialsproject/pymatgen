@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.bond_valence &#8212; pymatgen 2018.2.13 documentation</title>
+    <title>pymatgen.analysis.bond_valence &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -131,8 +131,8 @@
             <span class="n">R</span> <span class="o">=</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> \
                 <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
             <span class="n">vij</span> <span class="o">=</span> <span class="n">exp</span><span class="p">((</span><span class="n">R</span> <span class="o">-</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.31</span><span class="p">)</span>
-            <span class="n">bvsum</span> <span class="o">+=</span> <span class="n">vij</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">el1</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="n">el2</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">bvsum</span>
+            <span class="n">bvsum</span> <span class="o">+=</span> <span class="n">vij</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">el1</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="n">el2</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bvsum</span></div>
 
 
 <div class="viewcode-block" id="calculate_bv_sum_unordered"><a class="viewcode-back" href="../../../pymatgen.analysis.bond_valence.html#pymatgen.analysis.bond_valence.calculate_bv_sum_unordered">[docs]</a><span class="k">def</span> <span class="nf">calculate_bv_sum_unordered</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">nn_list</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -171,8 +171,8 @@
                     <span class="n">R</span> <span class="o">=</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">c2</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> \
                         <span class="p">(</span><span class="n">c1</span> <span class="o">*</span> <span class="n">r1</span> <span class="o">+</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
                     <span class="n">vij</span> <span class="o">=</span> <span class="n">exp</span><span class="p">((</span><span class="n">R</span> <span class="o">-</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.31</span><span class="p">)</span>
-                    <span class="n">bvsum</span> <span class="o">+=</span> <span class="n">occu1</span> <span class="o">*</span> <span class="n">occu2</span> <span class="o">*</span> <span class="n">vij</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">el1</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="n">el2</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
-    <span class="k">return</span> <span class="n">bvsum</span>
+                    <span class="n">bvsum</span> <span class="o">+=</span> <span class="n">occu1</span> <span class="o">*</span> <span class="n">occu2</span> <span class="o">*</span> <span class="n">vij</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">el1</span><span class="o">.</span><span class="n">X</span> <span class="o">&lt;</span> <span class="n">el2</span><span class="o">.</span><span class="n">X</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bvsum</span></div>
 
 
 <div class="viewcode-block" id="BVAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.bond_valence.html#pymatgen.analysis.bond_valence.BVAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">BVAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -515,8 +515,8 @@
 
                 <span class="k">return</span> <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="n">frac_site</span><span class="p">)</span> <span class="k">for</span> <span class="n">frac_site</span> <span class="ow">in</span> <span class="n">assigned</span><span class="p">[</span><span class="n">site</span><span class="p">]]</span>
                         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Valences cannot be assigned!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Valences cannot be assigned!&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BVAnalyzer.get_oxi_state_decorated_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.bond_valence.html#pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_oxi_state_decorated_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -538,8 +538,8 @@
             <span class="n">s</span><span class="o">.</span><span class="n">add_oxidation_state_by_site</span><span class="p">(</span><span class="n">valences</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">valences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_valences</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">add_oxidation_state_by_site_fraction</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">valences</span><span class="p">)</span></div></div>
-        <span class="k">return</span> <span class="n">s</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">add_oxidation_state_by_site_fraction</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">valences</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div></div>
 
 
 <div class="viewcode-block" id="get_z_ordered_elmap"><a class="viewcode-back" href="../../../pymatgen.analysis.bond_valence.html#pymatgen.analysis.bond_valence.get_z_ordered_elmap">[docs]</a><span class="k">def</span> <span class="nf">get_z_ordered_elmap</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span>
@@ -554,8 +554,8 @@
 <span class="sd">    &quot;Cr4+&quot;: 0.11} will yield the species in the following order :</span>
 <span class="sd">    Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or</span>
 <span class="sd">    Cr4+, Cr3+, Ni4+, Ni3+, Zn2+</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">([(</span><span class="n">elsp</span><span class="p">,</span> <span class="n">comp</span><span class="p">[</span><span class="n">elsp</span><span class="p">])</span> <span class="k">for</span> <span class="n">elsp</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">([(</span><span class="n">elsp</span><span class="p">,</span> <span class="n">comp</span><span class="p">[</span><span class="n">elsp</span><span class="p">])</span> <span class="k">for</span> <span class="n">elsp</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span></div>
 
 
 <div class="viewcode-block" id="add_oxidation_state_by_site_fraction"><a class="viewcode-back" href="../../../pymatgen.analysis.bond_valence.html#pymatgen.analysis.bond_valence.add_oxidation_state_by_site_fraction">[docs]</a><span class="k">def</span> <span class="nf">add_oxidation_state_by_site_fraction</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">oxidation_states</span><span class="p">):</span>
@@ -577,8 +577,8 @@
                 <span class="n">structure</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_sp</span>
             <span class="k">return</span> <span class="n">structure</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Oxidation state of all sites must be &quot;</span></div>
-                             <span class="s2">&quot;specified in the list.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Oxidation state of all sites must be &quot;</span>
+                             <span class="s2">&quot;specified in the list.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -611,7 +611,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -619,7 +619,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

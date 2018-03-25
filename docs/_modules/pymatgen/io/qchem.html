@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.qchem &#8212; pymatgen 2018.2.13 documentation</title>
+    <title>pymatgen.io.qchem &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -280,8 +280,8 @@
 <span class="sd">        :param velocities (au): list of list of atom velocities </span>
 <span class="sd">        :return: </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocities</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">)</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocities</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">velocities</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocities</span></div>
 
 <div class="viewcode-block" id="QcTask.set_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">set_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
@@ -317,8 +317,8 @@
             <span class="n">basis_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">mol_elements</span> <span class="o">!=</span> <span class="n">basis_elements</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Elements in molecule and mixed basis set don&#39;t match&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">basis_set</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">basis_set</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="QcTask.set_partial_hessian_atoms"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_partial_hessian_atoms">[docs]</a>    <span class="k">def</span> <span class="nf">set_partial_hessian_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alist</span><span class="p">,</span> <span class="n">phess</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alist</span><span class="p">:</span>
@@ -329,8 +329,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;phess&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;phess&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phess</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;jobtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;freq&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;alist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;jobtype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;freq&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;alist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alist</span></div>
 
 <div class="viewcode-block" id="QcTask.set_basis2"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_basis2">[docs]</a>    <span class="k">def</span> <span class="nf">set_basis2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis2_basis_set</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">basis2_basis_set</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
@@ -367,8 +367,8 @@
             <span class="n">basis_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">mol_elements</span> <span class="o">!=</span> <span class="n">basis_elements</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Elements in molecule and mixed basis set don&#39;t match&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">basis2_basis_set</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">basis2_basis_set</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="QcTask.set_auxiliary_basis_set"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_auxiliary_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">set_auxiliary_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aux_basis_set</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aux_basis_set</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
@@ -405,8 +405,8 @@
             <span class="n">basis_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">bs</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">mol_elements</span> <span class="o">!=</span> <span class="n">basis_elements</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Elements in molecule and mixed basis set don&#39;t match&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">aux_basis_set</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t handle type &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">aux_basis_set</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="QcTask.set_ecp"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_ecp">[docs]</a>    <span class="k">def</span> <span class="nf">set_ecp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ecp</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ecp</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
@@ -423,8 +423,8 @@
                 <span class="n">ecp_elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;ecp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ecp_elements</span> <span class="o">-</span> <span class="n">mol_elements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ECP error: the molecule &quot;</span>
-                                     <span class="s2">&quot;doesn&#39;t contain element &quot;</span> <span class="o">+</span></div>
-                                     <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ecp_elements</span> <span class="o">-</span> <span class="n">mol_elements</span><span class="p">))</span>
+                                     <span class="s2">&quot;doesn&#39;t contain element &quot;</span> <span class="o">+</span>
+                                     <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ecp_elements</span> <span class="o">-</span> <span class="n">mol_elements</span><span class="p">))</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -442,8 +442,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">total</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;mem_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span>
-        <span class="k">if</span> <span class="n">static</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;mem_static&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">static</span>
+        <span class="k">if</span> <span class="n">static</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;mem_static&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">static</span></div>
 
 <div class="viewcode-block" id="QcTask.set_max_num_of_scratch_files"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_max_num_of_scratch_files">[docs]</a>    <span class="k">def</span> <span class="nf">set_max_num_of_scratch_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -454,8 +454,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            num: The max number of the scratch files. (Integer)</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;max_sub_file_num&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;max_sub_file_num&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span></div>
 
 <div class="viewcode-block" id="QcTask.set_scf_algorithm_and_iterations"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_scf_algorithm_and_iterations">[docs]</a>    <span class="k">def</span> <span class="nf">set_scf_algorithm_and_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
                                          <span class="n">iterations</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
@@ -471,8 +471,8 @@
         <span class="k">if</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_algorithms</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Algorithm &quot;</span> <span class="o">+</span> <span class="n">algorithm</span> <span class="o">+</span>
                              <span class="s2">&quot; is not available in QChem&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;scf_algorithm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;scf_algorithm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterations</span></div>
 
 <div class="viewcode-block" id="QcTask.set_scf_convergence_threshold"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_scf_convergence_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">set_scf_convergence_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exponent</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -485,8 +485,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            exponent: The exponent of the threshold. (Integer)</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;scf_convergence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exponent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;scf_convergence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exponent</span></div>
 
 <div class="viewcode-block" id="QcTask.set_integral_threshold"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_integral_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">set_integral_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -498,8 +498,8 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            thresh: The exponent of the threshold. (Integer)</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;thresh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thresh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;thresh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thresh</span></div>
 
 <div class="viewcode-block" id="QcTask.set_dft_grid"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_dft_grid">[docs]</a>    <span class="k">def</span> <span class="nf">set_dft_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radical_points</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">angular_points</span><span class="o">=</span><span class="mi">302</span><span class="p">,</span>
                      <span class="n">grid_type</span><span class="o">=</span><span class="s2">&quot;Lebedev&quot;</span><span class="p">):</span>
@@ -532,8 +532,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;xc_grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;-</span><span class="si">{rp:06d}{ap:06d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">rp</span><span class="o">=</span><span class="n">radical_points</span><span class="p">,</span> <span class="n">ap</span><span class="o">=</span><span class="n">angular_points</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Grid type &quot;</span> <span class="o">+</span> <span class="n">grid_type</span> <span class="o">+</span> <span class="s2">&quot; is not supported &quot;</span></div>
-                                                        <span class="s2">&quot;currently&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Grid type &quot;</span> <span class="o">+</span> <span class="n">grid_type</span> <span class="o">+</span> <span class="s2">&quot; is not supported &quot;</span>
+                                                        <span class="s2">&quot;currently&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QcTask.set_scf_initial_guess"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_scf_initial_guess">[docs]</a>    <span class="k">def</span> <span class="nf">set_scf_initial_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="s2">&quot;SAD&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -545,8 +545,8 @@
         <span class="n">availabel_guesses</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;core&quot;</span><span class="p">,</span> <span class="s2">&quot;sad&quot;</span><span class="p">,</span> <span class="s2">&quot;gwh&quot;</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="s2">&quot;fragmo&quot;</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">guess</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">availabel_guesses</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The guess method &quot;</span> <span class="o">+</span> <span class="n">guess</span> <span class="o">+</span> <span class="s2">&quot; is not supported &quot;</span>
-                                                           <span class="s2">&quot;yet&quot;</span><span class="p">)</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;scf_guess&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">guess</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                                                           <span class="s2">&quot;yet&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;scf_guess&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">guess</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="QcTask.set_geom_max_iterations"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_geom_max_iterations">[docs]</a>    <span class="k">def</span> <span class="nf">set_geom_max_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -555,8 +555,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            iterations: the maximum iterations of geometry optimization.</span>
 <span class="sd">            (Integer)</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_max_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_max_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterations</span></div>
 
 <div class="viewcode-block" id="QcTask.set_geom_opt_coords_type"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_geom_opt_coords_type">[docs]</a>    <span class="k">def</span> <span class="nf">set_geom_opt_coords_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_type</span><span class="o">=</span><span class="s2">&quot;internal_switch&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -578,8 +578,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Coodinate system &quot;</span> <span class="o">+</span> <span class="n">coords_type</span> <span class="o">+</span> <span class="s2">&quot; is not &quot;</span>
                              <span class="s2">&quot;supported yet&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_coords&quot;</span><span class="p">]</span> <span class="o">=</span> \</div>
-                <span class="n">coords_map</span><span class="p">[</span><span class="n">coords_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_coords&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">coords_map</span><span class="p">[</span><span class="n">coords_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span></div>
 
 <div class="viewcode-block" id="QcTask.scale_geom_opt_threshold"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.scale_geom_opt_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">scale_geom_opt_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradient</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">displacement</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
                                  <span class="n">energy</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
@@ -603,8 +603,8 @@
                              <span class="s2">&quot;is too tight&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_tol_gradient&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gradient</span> <span class="o">*</span> <span class="mi">300</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_tol_displacement&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">displacement</span> <span class="o">*</span>
-                                                              <span class="mi">1200</span><span class="p">)</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_tol_energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">energy</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+                                                              <span class="mi">1200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_tol_energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">energy</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QcTask.set_geom_opt_use_gdiis"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.set_geom_opt_use_gdiis">[docs]</a>    <span class="k">def</span> <span class="nf">set_geom_opt_use_gdiis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subspace_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -615,15 +615,15 @@
 <span class="sd">                value. The default value is min(NDEG, NATOMS, 4) NDEG = number</span>
 <span class="sd">                of moleculardegrees of freedom.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">subspace_size</span> <span class="o">=</span> <span class="n">subspace_size</span> <span class="k">if</span> <span class="n">subspace_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_max_diis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subspace_size</span>
+        <span class="n">subspace_size</span> <span class="o">=</span> <span class="n">subspace_size</span> <span class="k">if</span> <span class="n">subspace_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;geom_opt_max_diis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subspace_size</span></div>
 
 <div class="viewcode-block" id="QcTask.disable_symmetry"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.disable_symmetry">[docs]</a>    <span class="k">def</span> <span class="nf">disable_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Turn the symmetry off.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;sym_ignore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;symmetry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;sym_ignore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;symmetry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="QcTask.use_cosmo"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.use_cosmo">[docs]</a>    <span class="k">def</span> <span class="nf">use_cosmo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dielectric_constant</span><span class="o">=</span><span class="mf">78.4</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -632,8 +632,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            dielectric_constant: the dielectric constant for the solvent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;solvent_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cosmo&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;solvent_dielectric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dielectric_constant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;solvent_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cosmo&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;solvent_dielectric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dielectric_constant</span></div>
 
 <div class="viewcode-block" id="QcTask.use_pcm"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.use_pcm">[docs]</a>    <span class="k">def</span> <span class="nf">use_pcm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pcm_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solvent_key</span><span class="o">=</span><span class="s2">&quot;solvent&quot;</span><span class="p">,</span> <span class="n">solvent_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">radii_force_field</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -669,8 +669,8 @@
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">else</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;solvent_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pcm&quot;</span>
         <span class="k">if</span> <span class="n">radii_force_field</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pcm&quot;</span><span class="p">][</span><span class="s2">&quot;radii&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bondi&quot;</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;force_fied&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radii_force_field</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pcm&quot;</span><span class="p">][</span><span class="s2">&quot;radii&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bondi&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">][</span><span class="s2">&quot;force_fied&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">radii_force_field</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sections</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;molecule&quot;</span><span class="p">,</span> <span class="s2">&quot;rem&quot;</span><span class="p">]</span> <span class="o">+</span> \
@@ -920,8 +920,8 @@
              <span class="s2">&quot;spin_multiplicity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">,</span>
              <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ghost_atoms</span><span class="p">:</span>
-            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ghost_atoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ghost_atoms</span></div>
-        <span class="k">return</span> <span class="n">d</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">&quot;ghost_atoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ghost_atoms</span>
+        <span class="k">return</span> <span class="n">d</span></div>
 
 <div class="viewcode-block" id="QcTask.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
@@ -955,17 +955,17 @@
                       <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">aux_basis_set</span><span class="o">=</span><span class="n">aux_basis_set</span><span class="p">,</span>
                       <span class="n">ecp</span><span class="o">=</span><span class="n">ecp</span><span class="p">,</span> <span class="n">rem_params</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;rem&quot;</span><span class="p">],</span>
                       <span class="n">optional_params</span><span class="o">=</span><span class="n">optional_params</span><span class="p">,</span>
-                      <span class="n">ghost_atoms</span><span class="o">=</span><span class="n">ghost_atoms</span><span class="p">,</span></div>
-                      <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+                      <span class="n">ghost_atoms</span><span class="o">=</span><span class="n">ghost_atoms</span><span class="p">,</span>
+                      <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QcTask.write_file"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="QcTask.from_file"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="QcTask.from_string"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcTask.from_string">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
@@ -1045,8 +1045,8 @@
                       <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">aux_basis_set</span><span class="o">=</span><span class="n">aux_basis_set</span><span class="p">,</span>
                       <span class="n">ecp</span><span class="o">=</span><span class="n">ecp</span><span class="p">,</span> <span class="n">rem_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;rem&quot;</span><span class="p">],</span>
                       <span class="n">optional_params</span><span class="o">=</span><span class="n">optional_params</span><span class="p">,</span>
-                      <span class="n">ghost_atoms</span><span class="o">=</span><span class="n">ghost_atoms</span><span class="p">,</span></div>
-                      <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+                      <span class="n">ghost_atoms</span><span class="o">=</span><span class="n">ghost_atoms</span><span class="p">,</span>
+                      <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_parse_comment</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
@@ -1457,8 +1457,8 @@
                 <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Keyword </span><span class="si">{}</span><span class="s2"> in $opt section is not supported yet&quot;</span><span class="o">.</span>
-                                 <span class="nb">format</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span></div>
-        <span class="k">return</span> <span class="n">opt_dict</span>
+                                 <span class="nb">format</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">opt_dict</span></div>
 
 
 <div class="viewcode-block" id="QcInput"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcInput">[docs]</a><span class="k">class</span> <span class="nc">QcInput</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -1480,29 +1480,29 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">@@@</span><span class="se">\n\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span><span class="p">])</span>
 
 <div class="viewcode-block" id="QcInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="QcInput.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcInput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
-                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span></div>
-                <span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span><span class="p">]}</span>
+                <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobs</span><span class="p">]}</span></div>
 
 <div class="viewcode-block" id="QcInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">QcTask</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]]</span></div>
-        <span class="k">return</span> <span class="n">QcInput</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">QcTask</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">QcInput</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QcInput.from_string"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcInput.from_string">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
         <span class="n">qc_contents</span> <span class="o">=</span> <span class="n">contents</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;@@@&quot;</span><span class="p">)</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">QcTask</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">cont</span><span class="p">)</span> <span class="k">for</span> <span class="n">cont</span> <span class="ow">in</span> <span class="n">qc_contents</span><span class="p">]</span></div>
-        <span class="k">return</span> <span class="n">QcInput</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">QcTask</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">cont</span><span class="p">)</span> <span class="k">for</span> <span class="n">cont</span> <span class="ow">in</span> <span class="n">qc_contents</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">QcInput</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QcInput.from_file"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcInput.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div></div>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div></div>
 
 
 <div class="viewcode-block" id="QcOutput"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcOutput">[docs]</a><span class="k">class</span> <span class="nc">QcOutput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -2004,8 +2004,8 @@
             <span class="s2">&quot;scf_iteration_energies&quot;</span><span class="p">:</span> <span class="n">scf_iters</span><span class="p">,</span>
             <span class="s2">&quot;solvent_method&quot;</span><span class="p">:</span> <span class="n">solvent_method</span><span class="p">,</span>
             <span class="s2">&quot;scratch_dir&quot;</span><span class="p">:</span> <span class="n">scr_dir</span>
-        <span class="p">}</span></div>
-        <span class="k">return</span> <span class="n">data</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">data</span></div>
 
 <div class="viewcode-block" id="QcNucVeloc"><a class="viewcode-back" href="../../../pymatgen.io.qchem.html#pymatgen.io.qchem.QcNucVeloc">[docs]</a><span class="k">class</span> <span class="nc">QcNucVeloc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2048,8 +2048,8 @@
             <span class="n">nuc_veloc_tokens</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
             <span class="c1"># unit in au</span>
             <span class="n">veloc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="nb">iter</span><span class="p">(</span><span class="n">nuc_veloc_tokens</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">step_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_time</span><span class="p">)</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">velocities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">veloc</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_time</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">velocities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">veloc</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -2082,7 +2082,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2090,7 +2090,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.2.13 documentation</title>
+    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -113,12 +113,12 @@
         <span class="sd">&quot;&quot;&quot;Reset the editor.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span></div>
-            <span class="k">pass</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.shebang"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.shebang">[docs]</a>    <span class="k">def</span> <span class="nf">shebang</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Adds the shebang line.&quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;#!&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shell</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Adds the shebang line.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;#!&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shell</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.declare_var"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.declare_var">[docs]</a>    <span class="k">def</span> <span class="nf">declare_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Declare a env variable. If val is None the variable is unset.&quot;&quot;&quot;</span>
@@ -126,52 +126,52 @@
             <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;export &quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;unset &quot;</span> <span class="o">+</span> <span class="n">key</span>
-</div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.declare_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.declare_vars">[docs]</a>    <span class="k">def</span> <span class="nf">declare_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Declare the variables defined in the dictionary d.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">declare_var</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">declare_var</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.export_envar"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.export_envar">[docs]</a>    <span class="k">def</span> <span class="nf">export_envar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export an environment variable.&quot;&quot;&quot;</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;export &quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;export &quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.export_envars"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.export_envars">[docs]</a>    <span class="k">def</span> <span class="nf">export_envars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export the environment variables contained in the dict env.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">():</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">export_envar</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_envar</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.add_emptyline"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.add_emptyline">[docs]</a>    <span class="k">def</span> <span class="nf">add_emptyline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add an empty line.&quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Add an empty line.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.add_comment"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.add_comment">[docs]</a>    <span class="k">def</span> <span class="nf">add_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add a comment&quot;&quot;&quot;</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="s2">&quot;# &quot;</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Add a comment&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="s2">&quot;# &quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.load_modules"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.load_modules">[docs]</a>    <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modules</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load the list of specified modules.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ScriptEditor.load_module"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.load_module">[docs]</a>    <span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="s1">&#39;module load &#39;</span> <span class="o">+</span> <span class="n">module</span> <span class="o">+</span> <span class="s2">&quot; 2&gt;&gt; mods.err&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="ScriptEditor.load_module"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.load_module">[docs]</a>    <span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="s1">&#39;module load &#39;</span> <span class="o">+</span> <span class="n">module</span> <span class="o">+</span> <span class="s2">&quot; 2&gt;&gt; mods.err&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ScriptEditor.add_line"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<div class="viewcode-block" id="ScriptEditor.add_line"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ScriptEditor.add_lines"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.add_lines">[docs]</a>    <span class="k">def</span> <span class="nf">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+<div class="viewcode-block" id="ScriptEditor.add_lines"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.add_lines">[docs]</a>    <span class="k">def</span> <span class="nf">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ScriptEditor.get_script_str"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.ScriptEditor.get_script_str">[docs]</a>    <span class="k">def</span> <span class="nf">get_script_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a string with the script and reset the editor if reset is True&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div></div>
-        <span class="k">return</span> <span class="n">s</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">s</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">PyLauncherError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -227,8 +227,8 @@
             <span class="n">num_launched</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span>
-</div>
-        <span class="k">return</span> <span class="n">num_launched</span>
+
+        <span class="k">return</span> <span class="n">num_launched</span></div>
 
 <div class="viewcode-block" id="PyLauncher.rapidfire"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyLauncher.rapidfire">[docs]</a>    <span class="k">def</span> <span class="nf">rapidfire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_nlaunch</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_loops</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -275,8 +275,8 @@
 
         <span class="c1"># Update the database.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span>
-</div>
-        <span class="k">return</span> <span class="n">num_launched</span>
+
+        <span class="k">return</span> <span class="n">num_launched</span></div>
 
 <div class="viewcode-block" id="PyLauncher.fetch_tasks_to_run"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyLauncher.fetch_tasks_to_run">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_tasks_to_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -287,8 +287,8 @@
 
         <span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">:</span>
             <span class="n">tasks_to_run</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="n">fetch_alltasks_to_run</span><span class="p">())</span>
-</div></div>
-        <span class="k">return</span> <span class="n">tasks_to_run</span>
+
+        <span class="k">return</span> <span class="n">tasks_to_run</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">PyFlowSchedulerError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -327,8 +327,8 @@
 
 <div class="viewcode-block" id="PyFlowScheduler.autodoc"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.autodoc">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">autodoc</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="n">i</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;Args:&quot;</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">:]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;Args:&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">5</span><span class="p">:]</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -422,15 +422,15 @@
 <div class="viewcode-block" id="PyFlowScheduler.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read the configuration parameters from a Yaml file.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fh</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fh</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PyFlowScheduler.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_string">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create an istance from string s containing a YAML dictionary.&quot;&quot;&quot;</span>
         <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-        <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PyFlowScheduler.from_user_config"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.from_user_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_user_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -452,8 +452,8 @@
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</div>
-        <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;Cannot locate </span><span class="si">%s</span><span class="s2"> neither in current directory nor in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">YAML_FILE</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+
+        <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s2">&quot;Cannot locate </span><span class="si">%s</span><span class="s2"> neither in current directory nor in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">YAML_FILE</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
@@ -498,8 +498,8 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PyFlowScheduler.get_delta_etime"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.get_delta_etime">[docs]</a>    <span class="k">def</span> <span class="nf">get_delta_etime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a `timedelta` object representing with the elapsed time.&quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">))</span>
+        <span class="sd">&quot;&quot;&quot;Returns a `timedelta` object representing with the elapsed time.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PyFlowScheduler.add_flow"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.add_flow">[docs]</a>    <span class="k">def</span> <span class="nf">add_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -518,8 +518,8 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">pid_file</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pid_file</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">pid_file</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">=</span> <span class="n">flow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pid_file</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">pid_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">=</span> <span class="n">flow</span></div>
 
     <span class="k">def</span> <span class="nf">_validate_customer_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -605,8 +605,8 @@
             <span class="k">if</span> <span class="n">ask_yesno</span><span class="p">(</span><span class="s2">&quot;Do you want to cancel all the jobs in the queue? [Y/n]&quot;</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of jobs cancelled:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">cancel</span><span class="p">())</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span></div>
-            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
 
     <span class="k">def</span> <span class="nf">_runem_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -724,8 +724,8 @@
             <span class="c1">#        task.cancel()</span>
             <span class="c1">#except Exception:</span>
             <span class="c1">#    pass</span>
-</div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Exception raised in callback!</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Exception raised in callback!</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The actual callback.&quot;&quot;&quot;</span>
@@ -823,8 +823,8 @@
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Could not remove pid_file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
 
-        <span class="c1"># Save the final status of the flow.</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span>
+        <span class="c1"># Save the final status of the flow.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="PyFlowScheduler.shutdown"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Shutdown the scheduler.&quot;&quot;&quot;</span>
@@ -888,8 +888,8 @@
                 <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">unschedule_job</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
             <span class="c1">#self.sched.print_jobs()</span>
-</div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span></div>
             <span class="c1"># Uncomment the line below if shutdown does not work!</span>
             <span class="c1">#os.system(&quot;kill -9 %d&quot; % os.getpid())</span>
 
@@ -901,8 +901,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_email</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">straceback</span><span class="p">())</span></div>
-            <span class="k">return</span> <span class="o">-</span><span class="mi">2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">straceback</span><span class="p">())</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">2</span></div>
 
     <span class="k">def</span> <span class="nf">_send_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mailto</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -929,8 +929,8 @@
 
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot; [ALL OK]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">all_ok</span> <span class="k">else</span> <span class="s2">&quot; [WARNING]&quot;</span>
-</div>
-        <span class="k">return</span> <span class="n">sendmail</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">tag</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">strio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span> <span class="n">mailto</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mailto</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sendmail</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">tag</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">strio</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span> <span class="n">mailto</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mailto</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">sendmail</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">mailto</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1395,7 +1395,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1403,7 +1403,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
