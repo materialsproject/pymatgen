@@ -63,6 +63,22 @@ class VoronoiNNTest(PymatgenTest):
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
 
+    def test_volume(self):
+        self.nn.targets = None
+        volume = 0
+        for n in range(len(self.s)):
+            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+                volume += nn['volume']
+        self.assertAlmostEquals(self.s.volume, volume)
+
+    def test_solid_angle(self):
+        self.nn.targets = None
+        for n in range(len(self.s)):
+            angle = 0
+            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+                angle += nn['solid_angle']
+            self.assertAlmostEquals(4 * np.pi, angle)
+
     def tearDown(self):
         del self.s
         del self.nn
