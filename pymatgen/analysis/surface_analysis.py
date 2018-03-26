@@ -1472,12 +1472,14 @@ class NanoscaleStability(object):
             WulffShape (scaled by r)
         """
 
+        # get the scaling ratio for the energies
+        r_ratio = r/wulffshape.effective_radius
         miller_list = wulffshape.miller_energy_dict.keys()
         # Normalize the magnitude of the facet normal vectors
         # of the Wulff shape by the minimum surface energy.
         se_list = np.array(list(wulffshape.miller_energy_dict.values()))
-        # Scale the magnitudes by r
-        scaled_se = (se_list / min(se_list)) * r
+        # Scale the magnitudes by r_ratio
+        scaled_se = se_list * r_ratio
 
         return WulffShape(wulffshape.lattice, miller_list,
                           scaled_se, symprec=self.symprec)

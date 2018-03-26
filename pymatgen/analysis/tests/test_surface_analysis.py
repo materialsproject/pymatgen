@@ -386,6 +386,15 @@ class NanoscaleStabilityTest(PymatgenTest):
                                                                 from_sphere_area=True)
         self.assertLess(gfcc, ghcp)
 
+    def test_scaled_wulff(self):
+        # Ensure for a given radius, the effective radius
+        # of the Wulff shape is the same (correctly scaled)
+        w1 = self.nanoscale_stability.scaled_wulff(self.La_hcp_analyzer, 10)
+        w2 = self.nanoscale_stability.scaled_wulff(self.La_fcc_analyzer, 10)
+        self.assertAlmostEqual(w1.effective_radius, w2.effective_radius)
+        self.assertAlmostEqual(w1.effective_radius, 10)
+        self.assertAlmostEqual(10, w2.effective_radius)
+
 
 def get_entry_dict(filename):
     # helper to generate an entry_dict
