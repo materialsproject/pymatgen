@@ -20,6 +20,9 @@ import logging
 
 from abc import ABCMeta, abstractmethod
 from monty.json import MSONable
+from monty.functools import lru_cache
+
+from pymatgen.core.composition import Composition
 
 logger = logging.getLogger(__name__)
 
@@ -71,10 +74,18 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         return self._multiplicity
 
+    @property
+    @abstractmethod
+    def defect_composition(self):
+        """
+        Returns the defect composition as a Composition object
+        """
+        return
+
     @abstractmethod
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
-        Given structure and defectsite (and type of defect) should return a defect_structure that is charged
+        Given structure and defect_site (and type of defect) should return a defect_structure that is charged
         Args:
             supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix
         """
@@ -85,6 +96,12 @@ class Vacancy(Defect):
     """
     Subclass of Defect to capture essential information for a single Vacancy defect structure.
     """
+
+    @property
+    def defect_composition(self):
+        temp_comp = self.structure.composition.as_dict()
+        temp_comp[str(self.defect_site.specie)] -= 1
+        return Composition(temp_comp)
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
@@ -106,6 +123,18 @@ class Substitution(Defect):
     """
     Subclass of Defect to capture essential information for a single Substitution defect structure.
     """
+
+    @property
+    @lru_cache(1)
+    def defect_composition(self):
+        poss_deflist = sorted(
+            self.structure.get_sites_in_sphere(self.defect_site.coords, 2, include_index=True), key=lambda x: x[1])
+        defindex = poss_deflist[0][2]
+
+        temp_comp = self.structure.composition.as_dict()
+        temp_comp[str(self.defect_site.specie)] += 1
+        temp_comp[str(self.structure[defindex].specie)] -= 1
+        return Composition(temp_comp)
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
@@ -129,6 +158,12 @@ class Interstitial(Defect):
     """
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
+
+    @property
+    def defect_composition(self):
+        temp_comp = self.structure.composition.as_dict()
+        temp_comp[str(self.defect_site.specie)] += 1
+        return Composition(temp_comp)
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
         """
