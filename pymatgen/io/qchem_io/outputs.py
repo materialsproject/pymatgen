@@ -48,10 +48,11 @@ class QCOutput(MSONable):
             print("Exiting...")
             exit()
 
-        # Check if calculation finished. 
-        self.data["completion"] = read_pattern(self.text, {
-            "key": r"Thank you very much for using Q-Chem.\s+Have a nice day."
-        }).get('key')
+        # Check if calculation finished
+        self.data["completion"] = read_pattern(
+            self.text, {
+                "key": r"Thank you very much for using Q-Chem.\s+Have a nice day."
+            }, terminate_on_match=True).get('key')
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
@@ -93,18 +94,16 @@ class QCOutput(MSONable):
         if self.data.get('unrestricted', []):
             self.data["S2"] = read_pattern(self.text, {"key": r"<S\^2>\s=\s+([\d\-\.]+)"}).get('key')
 
-        # Check if the calculation is a geometry optimization. If so, parse the relevant output.
-        # Then, if no optimized geometry or z-matrix is found, and no errors have been previously 
-        # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-        # to be determined.
+        # Check if the calculation is a geometry optimization. If so, parse the relevant output
         self.data["optimization"] = read_pattern(self.text, {"key": r"(?i)\s*job(?:_)*type\s+=\s+opt"}).get('key')
         if self.data.get('optimization', []):
             self.data["energy_trajectory"] = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get('key')
             self._read_optimized_geometry()
+            # Then, if no optimized geometry or z-matrix is found, and no errors have been previously 
+            # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
+            # to be determined.
             if self.data.get("errors") == [] and self.data.get('optimized_geometry') == [] and self.data.get('optimized_zmat') == []:
                 self._check_optimization_errors()
-                
-
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
@@ -216,19 +215,29 @@ class QCOutput(MSONable):
             self.data["optimized_zmat"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
     def _check_optimization_errors(self):
+        """
+        Parses two potential optimization errors: failing to converge within the allowed number 
+        of optimization cycles and failure to determine the lamda needed to continue.
+        """
         if read_pattern(self.text, {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["out_of_opt_cycles"]
         elif read_pattern(self.text, {"key": r"UNABLE TO DETERMINE Lamda IN FormD"}, terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["unable_to_determine_lambda"]
+            self.data["errors"] += ["unable_to_determine_lamda"]
 
     def _check_completion_errors(self):
+        """
+        Parses four potential errors that can cause jobs to crash: inability to transform 
+        coordinates due to a bad symmetric specification, an input file that fails to pass
+        inspection, and errors reading and writing files. 
+        """
         if read_pattern(self.text, {"key": r"Coordinates do not transform within specified threshold"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["failed_to_transform_coords"]
+        if read_pattern(self.text, {"key": r"The Q\-Chem input file has failed to pass inspection"}, terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["input_file_error"]
         if read_pattern(self.text, {"key": r"Error opening input stream"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["failed_to_read_input"]
         if read_pattern(self.text, {"key": r"FileMan error: End of file reached prematurely"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["IO_error"]
-        if read_pattern(self.text, {"key": r"The Q\-Chem input file has failed to pass inspection"}, terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["input_file_error"]
+
 
 

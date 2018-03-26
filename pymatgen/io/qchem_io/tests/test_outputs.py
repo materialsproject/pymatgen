@@ -20,7 +20,7 @@ multi_job_dict = loadfn(os.path.join(os.path.dirname(__file__),"multi_job.json")
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files', "molecules")
 
-property_list = {'GEN_SCFMAN', 'SCF', 'restricted_Mulliken', 'unrestricted_Mulliken', 'optimized_geometry', 'optimized_zmat', 'unrestricted',
+property_list = {'GEN_SCFMAN', 'SCF', 'restricted_Mulliken', 'unrestricted_Mulliken', 'optimized_geometry', 'optimized_zmat', 'unrestricted', 'errors',
                  'completion', 'using_GEN_SCFMAN', 'final_energy', 'optimization', 'energy_trajectory', 'frequency_job', 'frequencies', 'enthalpy', 'entropy'}
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
