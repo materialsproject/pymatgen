@@ -232,12 +232,13 @@ class QCOutput(MSONable):
         """
         if read_pattern(self.text, {"key": r"Coordinates do not transform within specified threshold"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["failed_to_transform_coords"]
-        if read_pattern(self.text, {"key": r"The Q\-Chem input file has failed to pass inspection"}, terminate_on_match=True).get('key') == [[]]:
+        elif read_pattern(self.text, {"key": r"The Q\-Chem input file has failed to pass inspection"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["input_file_error"]
-        if read_pattern(self.text, {"key": r"Error opening input stream"}, terminate_on_match=True).get('key') == [[]]:
+        elif read_pattern(self.text, {"key": r"Error opening input stream"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["failed_to_read_input"]
-        if read_pattern(self.text, {"key": r"FileMan error: End of file reached prematurely"}, terminate_on_match=True).get('key') == [[]]:
+        elif read_pattern(self.text, {"key": r"FileMan error: End of file reached prematurely"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["IO_error"]
-
+        else:
+            self.data["errors"] += ["unknown_error"]
 
 
