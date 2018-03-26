@@ -9,6 +9,8 @@ import ruamel.yaml as yaml
 import os
 import json
 
+from pymatgen.core.sites import PeriodicSite
+
 """
 This module provides classes to perform analyses of
 the local environments (e.g., finding near neighbors)
@@ -33,6 +35,8 @@ from pymatgen import Element
 from pymatgen.core.structure import Structure
 from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS
+
+from copy import deepcopy
 
 
 default_op_params = {}
@@ -327,6 +331,125 @@ class NearNeighbors(object):
 
         raise NotImplementedError("get_nn_info(structure, n)"
                 " is not defined!")
+
+    def get_all_nn_info(self, structure):
+        """Get a listing of all neighbors for all sites in a structure
+
+        Args:
+            structure (Structure): Input structure
+        Return:
+            List of NN site information for each site in the structure. Each
+                entry has the same format as `get_nn_info`
+        """
+
+        return [self.get_nn_info(structure, n) for n in range(len(structure))]
+
+    def get_nn_shell_info(self, structure, site_idx, shell):
+        """Get a certain nearest neighbor shell for a certain site.
+
+        Determines all non-backtracking paths through the neighbor network
+        computed by `get_nn_info`. The weight is determined by multiplying
+        the weight of the neighbor at each hop through the network. For
+        example, a 2nd-nearest-neighbor that has a weight of 1 from its
+        1st-nearest-neighbor and weight 0.5 from the original site will
+        be assigned a weight of 0.5.
+
+        As this calculation may involve computing the nearest neighbors of
+        atoms multiple times, the calculation starts by computing all of the
+        neighbor info and then calling `_get_nn_shell_info`. If you are likely
+        to call this method for more than one site, consider calling `get_all_nn`
+        first and then calling this protected method yourself.
+
+        Args:
+            structure (Structure): Input structure
+            site_idx (int): index of site for which to determine neighbor
+                information.
+            shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)
+        Returns:
+            list of dictionaries. Each entry in the list is information about
+                a certain neighbor in the structure, in the same format as
+                `get_nn_info`.
+        """
+
+        all_nn_info = self.get_all_nn_info(structure)
+        return self._get_nn_shell_info(all_nn_info, site_idx, shell)
+
+    def _get_nn_shell_info(self, all_nn_info, site_idx, shell,
+                           _previous_steps=frozenset(), _cur_image=(0,0,0)):
+        """Private method for computing the neighbor shell information
+
+        Args:
+            all_nn_info ([[dict]]) - Results from `get_all_nn_info`
+            site_idx (int) - index of site for which to determine neighbor
+                information.
+            shell (int) - Which neighbor shell to retrieve (1 == 1st NN shell)
+            _previous_step ({(site_idx, image}) - Internal use only: Set of
+                sites that have already been traversed.
+            _cur_image (tuple) - Internal use only Image coordinates of current atom
+        Returns:
+            list of dictionaries. Each entry in the list is information about
+                a certain neighbor in the structure, in the same format as
+                `get_nn_info`
+        """
+
+        if shell <= 0:
+            raise ValueError('Shell must be positive')
+
+        # Append this site to the list of previously-visited sites
+        _previous_steps = _previous_steps.union({(site_idx, _cur_image)})
+
+        # Get all the neighbors of this site
+        possible_steps = list(all_nn_info[site_idx])
+        for i, step in enumerate(possible_steps):
+            # Update the image information
+            step = deepcopy(step)
+            step['site'] = PeriodicSite(step['site'].species_and_occu,
+                                        np.add(step['site']._fcoords, _cur_image),
+                                        step['site'].lattice,
+                                        properties=step['site'].properties
+                                        )
+            step['image'] = tuple(np.add(step['image'], _cur_image).tolist())
+            possible_steps[i] = step
+
+        # Get only the non-backtracking steps
+        allowed_steps = [x for x in possible_steps if
+                         (x['site_index'], x['image']) not in _previous_steps]
+
+        # If we are the last step (i.e., shell == 1), done!
+        if shell == 1:
+            return allowed_steps
+
+        # If not, Get the N-1 NNs of these allowed steps
+        terminal_neighbors = [self._get_nn_shell_info(all_nn_info,
+                                                      x['site_index'],
+                                                      shell - 1,
+                                                      _previous_steps,
+                                                      x['image'])
+                              for x in allowed_steps]
+
+        # Each allowed step results in many terminal neighbors
+        #  And, different first steps might results in the same neighbor
+        #  Now, we condense those neighbors into a single entry per neighbor
+        all_sites = dict()
+        for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
+            for term_site in term_sites:
+                key = (term_site['site_index'], tuple(term_site['image']))
+
+                # The weight for this site is equal to the weight of the
+                #  first step multiplied by the weight of the terminal neighbor
+                term_site['weight'] *= first_site['weight']
+
+                # Check if this site is already known
+                value = all_sites.get(key)
+                if value is not None:
+                    # If so, add to its weight
+                    value['weight'] += term_site['weight']
+                else:
+                    # If not, prepare to add it
+                    value = term_site
+                all_sites[key] = value
+
+        return list(all_sites.values())
 
     @staticmethod
     def _get_image(frac_coords):
