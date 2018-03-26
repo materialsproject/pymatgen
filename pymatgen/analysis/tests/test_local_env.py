@@ -79,6 +79,26 @@ class VoronoiNNTest(PymatgenTest):
                 angle += nn['solid_angle']
             self.assertAlmostEquals(4 * np.pi, angle)
 
+    def test_nn_shell(self):
+        # First, make a SC lattice. Make my math easier
+        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
+
+        # Get the 1NN shell
+        self.nn.targets = None
+        nns = self.nn.get_nn_shell_info(s, 0, 1)
+        self.assertEqual(6, len(nns))
+
+        # Test the 2nd NN shell
+        nns = self.nn.get_nn_shell_info(s, 0, 2)
+        self.assertEqual(18, len(nns))
+        self.assertArrayAlmostEqual([1] * 6,
+                                    [x['weight'] for x in nns if
+                                     max(np.abs(x['image'])) == 2])
+        self.assertArrayAlmostEqual([2] * 12,
+                                    [x['weight'] for x in nns if
+                                     max(np.abs(x['image'])) == 1])
+
+
     def tearDown(self):
         del self.s
         del self.nn
