@@ -377,8 +377,8 @@ class SurfaceEnergyPlotter(object):
     ..attribute:: color_dict
 
         Dictionary of colors (r,g,b,a) when plotting surface energy stability. The
-            keys are individual surface entries where clean surfaces have a solid color
-            while the corresponding adsorbed surface will be transparent.
+            keys are individual surface entries where clean surfaces have a solid
+            color while the corresponding adsorbed surface will be transparent.
 
     .. attribute:: ucell_entry
 
@@ -406,10 +406,14 @@ class SurfaceEnergyPlotter(object):
                 each type of element to be used as a reservoir for
                 nonstoichiometric systems. The length of this list MUST be
                 n-1 where n is the number of different elements in the bulk
-                entry. The chempot of the element ref_entry that is not in
-                the list will be treated as a variable. e.g. if your ucell_entry
-                is for LiFePO4 than your ref_entries should have an entry for Li,
-                Fe, and P if you want to use the chempot of  O as the variable.
+                entry. The bulk energy term in the grand surface potential can
+                be defined by a summation of the chemical potentials for each
+                element in the system. As the bulk energy is already provided,
+                one can solve for one of the chemical potentials as a function
+                of the other chemical potetinals and bulk energy. i.e. there
+                are n-1 variables (chempots). e.g. if your ucell_entry is for
+                LiFePO4 than your ref_entries should have an entry for Li, Fe,
+                and P if you want to use the chempot of O as the variable.
         """
 
         self.ucell_entry = ucell_entry
@@ -795,10 +799,14 @@ class SurfaceEnergyPlotter(object):
         u_dict = self.set_all_variables(entry, u_dict, u_default)
         u_dict[ref_delu] = chempot_range[0]
         gamma_min = entry.surface_energy(self.ucell_entry,
-                                         ref_entries=self.ref_entries).subs(u_dict)
+                                         ref_entries=self.ref_entries)
+        gamma_min = gamma_min if type(gamma_min).__name__ ==\
+                                 "float" else gamma_min.subs(u_dict)
         u_dict[ref_delu] = chempot_range[1]
         gamma_max = entry.surface_energy(self.ucell_entry,
-                                         ref_entries=self.ref_entries).subs(u_dict)
+                                         ref_entries=self.ref_entries)
+        gamma_max = gamma_max if type(gamma_max).__name__ ==\
+                                 "float" else gamma_max.subs(u_dict)
         gamma_range = [gamma_min, gamma_max]
 
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
