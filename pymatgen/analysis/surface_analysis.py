@@ -1377,10 +1377,6 @@ class NanoscaleStability(object):
         """
 
         # Set up
-        s1 = analyzer1.ucell_entry.structure
-        s2 = analyzer2.ucell_entry.structure
-        E1 = analyzer1.ucell_entry.energy_per_atom
-        E2 = analyzer2.ucell_entry.energy_per_atom
         wulff1 = analyzer1.wulff_from_chempot(u_dict=u_dict,
                                               u_default=u_default,
                                               symprec=self.symprec)
@@ -1390,7 +1386,7 @@ class NanoscaleStability(object):
 
         # Now calculate r
         delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy
-        delta_E = (len(s1) / s1.lattice.volume) * E1 - (len(s2) / s2.lattice.volume) * E2
+        delta_E = self.bulk_gform(analyzer1.ucell_entry) - self.bulk_gform(analyzer2.ucell_entry)
         r = ((-3 * delta_gamma) / (delta_E))
 
         return r / 10 if units == "nanometers" else r
@@ -1457,12 +1453,7 @@ class NanoscaleStability(object):
         Args:
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
         """
-
-        ucell = bulk_entry.structure
-        N_per_ucell = len(ucell) / ucell.lattice.volume
-        Gform = N_per_ucell * bulk_entry.energy_per_atom
-
-        return Gform
+        return bulk_entry.energy/bulk_entry.structure.lattice.volume
 
     def scaled_wulff(self, wulffshape, r):
         """
@@ -1495,7 +1486,8 @@ class NanoscaleStability(object):
     def plot_one_stability_map(self, analyzer, max_r, u_dict={}, label="",
                                increments=50, u_default=0, plt=None,
                                from_sphere_area=False, e_units="keV",
-                               r_units="nanometers", normalize=False):
+                               r_units="nanometers", normalize=False,
+                               scale_per_atom=False):
         """
         Returns the plot of the formation energy of a particle against its
             effect radius
@@ -1527,18 +1519,18 @@ class NanoscaleStability(object):
 
         gform_list, r_list = [], []
         for r in np.linspace(1e-6, max_r, increments):
-            gform, r = self.wulff_gform_and_r(wulffshape,
-                                              analyzer.ucell_entry, r,
-                                              from_sphere_area=from_sphere_area,
+            gform, r = self.wulff_gform_and_r(wulffshape, analyzer.ucell_entry,
+                                              r, from_sphere_area=from_sphere_area,
                                               r_units=r_units, e_units=e_units,
-                                              normalize=normalize)
+                                              normalize=normalize,
+                                              scale_per_atom=scale_per_atom)
             gform_list.append(gform)
             r_list.append(r)
 
         ru = "nm" if r_units == "nanometers" else "\AA"
         plt.xlabel(r"Particle radius ($%s$)" %(ru))
         eu = "$%s/%s^3$" %(e_units, ru)
-        plt.ylabel(r"$\Delta \bar{G}_{form}$ (%s)" %(eu))
+        plt.ylabel(r"$G_{form}$ (%s)" %(eu))
 
         plt.plot(r_list, gform_list, label=label)
 
@@ -1547,7 +1539,8 @@ class NanoscaleStability(object):
     def plot_all_stability_map(self, max_r, increments=50, u_dict={},
                                u_default=0, plt=None, labels=[],
                                from_sphere_area=False, e_units="keV",
-                               r_units="nanometers", normalize=False):
+                               r_units="nanometers", normalize=False,
+                               scale_per_atom=False):
         """
         Returns the plot of the formation energy of a particles
             of different polymorphs against its effect radius
@@ -1577,8 +1570,9 @@ class NanoscaleStability(object):
                                               u_default=u_default,
                                               from_sphere_area=from_sphere_area,
                                               e_units=e_units, r_units=r_units,
-                                              normalize=normalize)
-
+                                              normalize=normalize,
+                                              scale_per_atom=scale_per_atom)
+            
         return plt
 
 
