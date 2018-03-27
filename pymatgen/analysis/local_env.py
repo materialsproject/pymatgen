@@ -1075,7 +1075,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, \
             "qtet": 0.5, "qoct": 0.5, "qbcc": 0.5, "q6": 0.4,
             "qtribipyr": 0.8, "qsqpyr": 0.8}
 
-    ops = LocalStructOrderParas([
+    ops = LocalStructOrderParams([
             "cn", "tet", "oct", "bcc", "q6", "sq_pyr", "tri_bipyr"])
 
     neighs_cent = get_neighbors_of_site_with_index(
@@ -1133,7 +1133,7 @@ def gramschmidt(vin, uin):
     return vin - (vin_uin / uin_uin) * uin
 
 
-class LocalStructOrderParas(object):
+class LocalStructOrderParams(object):
     """
     This class permits the calculation of various types of local
     structure order parameters.
@@ -1250,7 +1250,7 @@ class LocalStructOrderParas(object):
                 VoronoiNN class.
         """
         for t in types:
-            if t not in LocalStructOrderParas.__supported_types:
+            if t not in LocalStructOrderParams.__supported_types:
                 raise ValueError("Unknown order parameter type (" + \
                                  t + ")!")
         self._types = tuple(types)

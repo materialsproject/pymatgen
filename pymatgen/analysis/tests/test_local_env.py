@@ -12,7 +12,7 @@ from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
         VoronoiNN, VoronoiNN_modified, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
         get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors, LocalStructOrderParas, BrunnerNN, EconNN
+        NearNeighbors, LocalStructOrderParams, BrunnerNN, EconNN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -69,7 +69,7 @@ class VoronoiNNTest(PymatgenTest):
         for n in range(len(self.s)):
             for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
                 volume += nn['volume']
-        self.assertAlmostEquals(self.s.volume, volume)
+        self.assertAlmostEqual(self.s.volume, volume)
 
     def test_solid_angle(self):
         self.nn.targets = None
@@ -77,7 +77,7 @@ class VoronoiNNTest(PymatgenTest):
             angle = 0
             for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
                 angle += nn['solid_angle']
-            self.assertAlmostEquals(4 * np.pi, angle)
+            self.assertAlmostEqual(4 * np.pi, angle)
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier
@@ -358,7 +358,7 @@ class NearNeighborTest(PymatgenTest):
     def tearDown(self):
         del self.diamond
 
-class LocalStructOrderParasTest(PymatgenTest):
+class LocalStructOrderParamsTest(PymatgenTest):
     def setUp(self):
         self.single_bond = Structure(
             Lattice.from_lengths_and_angles(
@@ -548,7 +548,7 @@ class LocalStructOrderParasTest(PymatgenTest):
 
     def test_init(self):
         self.assertIsNotNone(
-            LocalStructOrderParas(["cn"], parameters=None, cutoff=0.99))
+            LocalStructOrderParams(["cn"], parameters=None, cutoff=0.99))
 
     def test_get_order_parameters(self):
         # Set up everything.
@@ -562,13 +562,13 @@ class LocalStructOrderParasTest(PymatgenTest):
         op_params[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
         op_params[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
         op_params[33] = {'TA': 0.6081734479693927, 'IGW_TA': 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
-        ops_044 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.44)
-        ops_071 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.71)
-        ops_087 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.87)
-        ops_099 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.99)
-        ops_101 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=1.01)
-        ops_501 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=5.01)
-        ops_voro = LocalStructOrderParas(op_types, parameters=op_params)
+        ops_044 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.44)
+        ops_071 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.71)
+        ops_087 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.87)
+        ops_099 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.99)
+        ops_101 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=1.01)
+        ops_501 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=5.01)
+        ops_voro = LocalStructOrderParams(op_types, parameters=op_params)
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)

@@ -7,7 +7,7 @@ from __future__ import division, unicode_literals
 import os
 import numpy as np
 
-from pymatgen.analysis.local_env import LocalStructOrderParas, get_neighbors_of_site_with_index
+from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -99,7 +99,7 @@ class JahnTellerAnalyzer:
         symmetrized_structure = SpacegroupAnalyzer(structure).get_symmetrized_structure()
 
         # to detect structural motifs of a given site
-        op = LocalStructOrderParas(['oct', 'tet'])
+        op = LocalStructOrderParams(['oct', 'tet'])
 
         # dict of site index to the Jahn-Teller analysis of that site
         jt_sites = []
