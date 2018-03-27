@@ -17,6 +17,7 @@ __date__ = "Mar 15, 2018"
 
 import six
 import logging
+import numpy as np
 
 from abc import ABCMeta, abstractmethod
 from monty.json import MSONable
@@ -176,3 +177,124 @@ class Interstitial(Defect):
         defect_structure.append(self.defect_site.specie.symbol, self.defect_site.coords, coords_are_cartesian=True)
         defect_structure.set_charge(self.charge)
         return defect_structure
+
+
+class DefectEntry(MSONable):
+    """
+    An lightweight DefectEntry object containing key computed data
+    for many defect analysis.
+    """
+
+    def __init__(self, defect, uncorrected_energy, vbm=0, corrections={}, parameters={}, entry_id=None):
+        """
+        Args:
+            defect:
+                A Defect object from pymatgen.analysis.defects.core
+            uncorrected_energy (float): Energy of the defect entry. Usually the difference between
+                the final calculated energy for the defect supercell - the perfect 
+                supercell energy
+            vbm: 
+
+            corrections ([Correction]):
+                List of Correction classes (from pymatgen.analysis.defects.corrections)
+                which correct energy due to charge (e.g. Freysoldt or Kumagai)
+                or other factors (e.g. Shallow level shifts)
+            parameters (dict): An optional dict of calculation parameters and data to 
+                use with correction schemes
+            entry_id (obj): An id to uniquely identify this defect, can be any MSONable
+                type
+        """
+        self.defect = defect
+        self.uncorrected_energy = uncorrected_energy
+        self.corrections = corrections
+        self.entry_id = entry_id
+        self.parameter = parameters
+
+    @property
+    def site(self):
+        return self.defect.site
+
+    @property
+    def multiplicty(self):
+        return defect.multiplicty
+
+    @property
+    def charge(self):
+        return defect.charge
+
+    @property
+    def energy(self):
+        """
+        Returns the *corrected* energy of the entry
+        """
+        return self.uncorrected_energy + np.sum(self.correction.values())
+
+    def formation_energy(self, chemical_potentials, fermi_level=0):
+        """
+        Computes the formation energy for a defect taking into account a given chemical potential and fermi_level
+        """
+        chempot_correction = sum([
+            chem_pot * (self.defec.structure.composition[el] - self.defect.defect_composition[el])
+            for el, chem_pot in chemical_potentials
+        ])
+
+        formation_energy = self.energy + chempot_correction
+
+        if "vbm" in self.parameters:
+            formation_energy += self.charge * (self.parameters["vbm"] + fermi_level)
+
+        return formation_energy
+
+    def __repr__(self):
+        """
+        Human readable string representation of this entry
+        """
+        output = [
+            "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
+            "Correction = {:.4f}".format(np.sum(self.correction.values())), "Parameters:"
+        ]
+        for k, v in self.parameters.items():
+            output.append("\t{} = {}".format(k, v))
+        return "\n".join(output)
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class DefectCorrection(MSONable):
+    """
+    A Correction class modeled off the computed entry correction format
+    """
+
+    @abstractmethod
+    def get_correction(self, entry):
+        """
+        Returns correction for a single entry.
+
+        Args:
+            entry: A DefectEntry object.
+
+        Returns:
+            A single dictionary with the format
+            correction_name: energy_correction
+
+        Raises:
+            CompatibilityError if entry is not compatible.
+        """
+        return
+
+    def correct_entry(self, entry):
+        """
+        Corrects a single entry.
+
+        Args:
+            entry: A DefectEntry object.
+
+        Returns:
+            An processed entry.
+
+        Raises:
+            CompatibilityError if entry is not compatible.
+        """
+        entry.correction.update(self.get_correction(entry))
+        return entry
