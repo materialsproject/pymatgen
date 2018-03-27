@@ -1396,7 +1396,8 @@ class NanoscaleStability(object):
         return r / 10 if units == "nanometers" else r
 
     def wulff_gform_and_r(self, wulffshape, bulk_entry, r, from_sphere_area=False,
-                          r_units="nanometers", e_units="keV", normalize=False):
+                          r_units="nanometers", e_units="keV", normalize=False,
+                          scale_per_atom=False):
         """
         Calculates the formation energy of the particle with arbitrary radius r.
 
@@ -1409,7 +1410,9 @@ class NanoscaleStability(object):
                 area of the particle as a perfect sphere, or as a Wulff shape.
             r_units (str): Can be nanometers or Angstrom
             e_units (str): Can be keV or eV
-            normalize (str): Whether or not to normalize energy by volume
+            normalize (bool): Whether or not to normalize energy by volume
+            scale_per_atom (True): Whether or not to normalize by number of
+                atoms in the particle
 
         Returns:
             particle formation energy (float in keV), effective radius
@@ -1423,23 +1426,28 @@ class NanoscaleStability(object):
         # calculate surface energy of the particle
         if not from_sphere_area:
             # By approximating the particle as a Wulff shape
+            w_vol = new_wulff.volume
             tot_wulff_se = 0
             for hkl in new_wulff_area.keys():
                 tot_wulff_se += miller_se_dict[hkl] * new_wulff_area[hkl]
-            Ebulk = self.bulk_gform(bulk_entry) * new_wulff.volume
+            Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = new_wulff.effective_radius
+
         else:
             # By approximating the particle as a perfect sphere
+            w_vol = (4 / 3) * np.pi * r ** 3
             sphere_sa = 4 * np.pi * r ** 2
             tot_wulff_se = wulffshape.weighted_surface_energy * sphere_sa
-            wulff_v = (4 / 3) * np.pi * r ** 3
-            Ebulk = self.bulk_gform(bulk_entry) * wulff_v
+            Ebulk = self.bulk_gform(bulk_entry) * w_vol
             new_r = r
 
         new_r = new_r / 10 if r_units == "nanometers" else new_r
         e = (Ebulk + tot_wulff_se)
         e = e / 1000 if e_units == "keV" else e
         e = e / ((4/3)*np.pi*new_r**3) if normalize else e
+        bulk_struct = bulk_entry.structure
+        density = len(bulk_struct)/bulk_struct.lattice.volume
+        e = e/(density*w_vol) if scale_per_atom else e
 
         return e, new_r
 
