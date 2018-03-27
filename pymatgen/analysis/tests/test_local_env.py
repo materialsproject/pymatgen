@@ -9,10 +9,10 @@ import unittest
 import os
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-        VoronoiNN, JMolNN, \
+        VoronoiNN, VoronoiNN_modified, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
         get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors, LocalStructOrderParas, BrunnerNN
+        NearNeighbors, LocalStructOrderParas, BrunnerNN, EconNN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -62,6 +62,42 @@ class VoronoiNNTest(PymatgenTest):
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
+
+    def test_volume(self):
+        self.nn.targets = None
+        volume = 0
+        for n in range(len(self.s)):
+            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+                volume += nn['volume']
+        self.assertAlmostEquals(self.s.volume, volume)
+
+    def test_solid_angle(self):
+        self.nn.targets = None
+        for n in range(len(self.s)):
+            angle = 0
+            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+                angle += nn['solid_angle']
+            self.assertAlmostEquals(4 * np.pi, angle)
+
+    def test_nn_shell(self):
+        # First, make a SC lattice. Make my math easier
+        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
+
+        # Get the 1NN shell
+        self.nn.targets = None
+        nns = self.nn.get_nn_shell_info(s, 0, 1)
+        self.assertEqual(6, len(nns))
+
+        # Test the 2nd NN shell
+        nns = self.nn.get_nn_shell_info(s, 0, 2)
+        self.assertEqual(18, len(nns))
+        self.assertArrayAlmostEqual([1] * 6,
+                                    [x['weight'] for x in nns if
+                                     max(np.abs(x['image'])) == 2])
+        self.assertArrayAlmostEqual([2] * 12,
+                                    [x['weight'] for x in nns if
+                                     max(np.abs(x['image'])) == 1])
+
 
     def tearDown(self):
         del self.s
@@ -176,6 +212,20 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
             self.nacl, 0), 18)
         self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
+            self.cscl, 0), 8)
+
+        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
+            self.diamond, 0), 4)
+        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
+            self.nacl, 0), 6)
+        self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
+            self.cscl, 0), 14)
+
+        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+            self.diamond, 0), 4)
+        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+            self.nacl, 0), 6)
+        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
             self.cscl, 0), 8)
 
     def tearDown(self):

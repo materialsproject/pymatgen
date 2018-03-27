@@ -458,7 +458,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         #get qpoints
         qpoints = []
         for q in self.qpoints:
-            qpoints.append(q.as_dict()["ccoords"])
+            qpoints.append(list(q.frac_coords))
         d["qpoints"] = qpoints
 
         # get labels

@@ -17,14 +17,12 @@ jobs:
             conda update --quiet --all
             mkdir coverage_reports
             pip install --quiet -r requirements.txt -r requirements-optional.txt
-      - run:
-          command: |
-            export PATH=$HOME/miniconda3/bin:$PATH
+            # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
-            source activate test_env
-            pip install --quiet -e .
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+            pip install --quiet -e .
             nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports
+            # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
             pmg analyze -d test_files
@@ -35,7 +33,6 @@ jobs:
           destination: tr1
       - store_test_results:
           path: coverage_reports/
-
 
 workflows:
   version: 2

@@ -4,9 +4,9 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.qjobs &#8212; pymatgen 2018.2.13 documentation</title>
+    <title>pymatgen.io.abinit.qjobs &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -123,8 +123,8 @@
             <span class="k">if</span> <span class="n">text</span> <span class="o">==</span> <span class="n">s</span><span class="p">:</span> <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1">#raise ValueError(&quot;Wrong string %s&quot; % s)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Got unknown status: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span></div></div>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Got unknown status: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">s</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="QueueJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob">[docs]</a><span class="k">class</span> <span class="nc">QueueJob</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -163,8 +163,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Cannot find QueueJob subclass registered for qtype </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">qtype</span><span class="p">)</span>
             <span class="bp">cls</span> <span class="o">=</span> <span class="n">QueueJob</span>
-</div>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">qname</span><span class="o">=</span><span class="n">qname</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">queue_id</span><span class="p">,</span> <span class="n">qname</span><span class="o">=</span><span class="n">qname</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_id</span><span class="p">,</span> <span class="n">qname</span><span class="o">=</span><span class="s2">&quot;UnknownQueue&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -214,8 +214,8 @@
     <span class="k">def</span> <span class="nf">unknown_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">S_UNKNOWN</span>
 
-<div class="viewcode-block" id="QueueJob.set_status_exitcode_signal"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.set_status_exitcode_signal">[docs]</a>    <span class="k">def</span> <span class="nf">set_status_exitcode_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="p">):</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitcode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="o">=</span> <span class="n">status</span><span class="p">,</span> <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span>
+<div class="viewcode-block" id="QueueJob.set_status_exitcode_signal"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.set_status_exitcode_signal">[docs]</a>    <span class="k">def</span> <span class="nf">set_status_exitcode_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exitcode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="o">=</span> <span class="n">status</span><span class="p">,</span> <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span></div>
 
 <div class="viewcode-block" id="QueueJob.likely_code_error"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.likely_code_error">[docs]</a>    <span class="k">def</span> <span class="nf">likely_code_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -259,8 +259,8 @@
 <span class="sd">        SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">sig_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;SIGFPE&quot;</span><span class="p">,):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">received_signal</span><span class="p">(</span><span class="n">sig_name</span><span class="p">):</span> <span class="k">return</span> <span class="n">sig_name</span></div>
-        <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">received_signal</span><span class="p">(</span><span class="n">sig_name</span><span class="p">):</span> <span class="k">return</span> <span class="n">sig_name</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="QueueJob.received_signal"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.received_signal">[docs]</a>    <span class="k">def</span> <span class="nf">received_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sig_name</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
@@ -269,26 +269,26 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">sig_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="c1"># invalid sig_name or sig_name not available on this OS.</span></div>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="c1"># invalid sig_name or sig_name not available on this OS.</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="QueueJob.estimated_start_time"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.estimated_start_time">[docs]</a>    <span class="k">def</span> <span class="nf">estimated_start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return date with estimated start time. None if it cannot be detected&quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="kc">None</span>
+        <span class="sd">&quot;&quot;&quot;Return date with estimated start time. None if it cannot be detected&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="QueueJob.get_info"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="kc">None</span>
+<div class="viewcode-block" id="QueueJob.get_info"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="QueueJob.get_nodes"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.get_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="kc">None</span>
+<div class="viewcode-block" id="QueueJob.get_nodes"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.get_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="QueueJob.get_stats"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.get_stats">[docs]</a>    <span class="k">def</span> <span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span></div></div>
-        <span class="k">return</span> <span class="kc">None</span>
+<div class="viewcode-block" id="QueueJob.get_stats"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.QueueJob.get_stats">[docs]</a>    <span class="k">def</span> <span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
 <div class="viewcode-block" id="ShellJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.ShellJob">[docs]</a><span class="k">class</span> <span class="nc">ShellJob</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handler for Shell jobs.&quot;&quot;&quot;</span></div>
-    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;shell&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Handler for Shell jobs.&quot;&quot;&quot;</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;shell&quot;</span></div>
 
 
 <div class="viewcode-block" id="SlurmJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.SlurmJob">[docs]</a><span class="k">class</span> <span class="nc">SlurmJob</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
@@ -317,8 +317,8 @@
                 <span class="n">date_string</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">date_string</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
                 <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date_string</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="SlurmJob.get_info"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.SlurmJob.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># See https://computing.llnl.gov/linux/slurm/sacct.html</span>
@@ -370,8 +370,8 @@
         <span class="n">i</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="n">status</span> <span class="o">=</span> <span class="n">status</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_status_exitcode_signal</span><span class="p">(</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">status</span><span class="p">),</span> <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">exitcode</span><span class="o">=</span><span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_status_exitcode_signal</span><span class="p">(</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">status</span><span class="p">),</span> <span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">exitcode</span><span class="o">=</span><span class="n">exitcode</span><span class="p">,</span> <span class="n">signal</span><span class="o">=</span><span class="n">signal</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SlurmJob.get_stats"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.SlurmJob.get_stats">[docs]</a>    <span class="k">def</span> <span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;sacct --long --job </span><span class="si">%s</span><span class="s2"> --parsable2&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">qid</span>
@@ -385,8 +385,8 @@
         <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
-        <span class="c1">#print(&quot;lines0&quot;, lines[0])</span></div></div>
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+        <span class="c1">#print(&quot;lines0&quot;, lines[0])</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="PbsProJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.PbsProJob">[docs]</a><span class="k">class</span> <span class="nc">PbsProJob</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
@@ -440,8 +440,8 @@
         <span class="k">if</span> <span class="n">sdate</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="c1"># TODO One should convert to datetime</span></div>
-        <span class="k">return</span> <span class="n">sdate</span>
+        <span class="c1"># TODO One should convert to datetime</span>
+        <span class="k">return</span> <span class="n">sdate</span></div>
 
 <div class="viewcode-block" id="PbsProJob.get_info"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.PbsProJob.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -482,8 +482,8 @@
 
         <span class="c1"># Exit code and signal are not available.</span>
         <span class="c1"># Once could use tracejob....</span>
-        <span class="c1"># See also http://docs.adaptivecomputing.com/torque/3-0-5/a.gprologueepilogue.php</span></div></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_status_exitcode_signal</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># See also http://docs.adaptivecomputing.com/torque/3-0-5/a.gprologueepilogue.php</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_status_exitcode_signal</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div></div>
 
 
 <span class="c1">#################################</span>
@@ -491,23 +491,23 @@
 <span class="c1">#################################</span>
 
 <div class="viewcode-block" id="TorqueJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.TorqueJob">[docs]</a><span class="k">class</span> <span class="nc">TorqueJob</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span></div>
-    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;torque&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;torque&quot;</span></div>
 
 
 <div class="viewcode-block" id="SgeJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.SgeJob">[docs]</a><span class="k">class</span> <span class="nc">SgeJob</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span></div>
-    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;sge&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;sge&quot;</span></div>
 
 
 <div class="viewcode-block" id="MoabJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.MoabJob">[docs]</a><span class="k">class</span> <span class="nc">MoabJob</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span></div>
-    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;moab&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;moab&quot;</span></div>
 
 
 <div class="viewcode-block" id="BlueGeneJob"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.qjobs.html#pymatgen.io.abinit.qjobs.BlueGeneJob">[docs]</a><span class="k">class</span> <span class="nc">BlueGeneJob</span><span class="p">(</span><span class="n">QueueJob</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span></div>
-    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;bluegene&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Not supported&quot;&quot;&quot;</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s2">&quot;bluegene&quot;</span></div>
 </pre></div>
 
           </div>
@@ -540,7 +540,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.2.13 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -548,7 +548,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

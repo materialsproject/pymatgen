@@ -7,6 +7,7 @@ Submodules
 .. toctree::
 
    pymatgen.analysis.magnetism.analyzer
+   pymatgen.analysis.magnetism.jahnteller
 
 Module contents
 ---------------
