@@ -1572,7 +1572,7 @@ class NanoscaleStability(object):
                                               e_units=e_units, r_units=r_units,
                                               normalize=normalize,
                                               scale_per_atom=scale_per_atom)
-            
+
         return plt
 
 
