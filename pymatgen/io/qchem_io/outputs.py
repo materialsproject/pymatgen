@@ -101,9 +101,12 @@ class QCOutput(MSONable):
             self._read_optimized_geometry()
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously 
             # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-            # to be determined.
+            # to be determined. Also, if there is an energy trajectory, read the last geometry in the 
+            # optimization trajectory for use in the next input file. 
             if self.data.get("errors") == [] and self.data.get('optimized_geometry') == [] and self.data.get('optimized_zmat') == []:
                 self._check_optimization_errors()
+                if self.data.get('energy_trajectory') != None:
+                    self._read_last_geometry()
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
@@ -196,7 +199,6 @@ class QCOutput(MSONable):
 
         self.data["unrestricted_Mulliken"] = read_table_pattern(self.text, header_pattern, table_pattern,
                                                                 footer_pattern)
-
     def _read_optimized_geometry(self):
         """
         Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
@@ -214,15 +216,29 @@ class QCOutput(MSONable):
 
             self.data["optimized_zmat"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
 
+    def _read_last_geometry(self):
+        """
+        Parses the last geometry from an optimization trajectory for use in a new input file.
+        """
+        header_pattern = r"\s+Optimization\sCycle:\s+"+str(len(self.data.get("energy_trajectory")))+"\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+        table_pattern = r"\s+\d+\s+(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        footer_pattern = r"\s+Point Group\:\s+[\d\w]+\s+Number of degrees of freedom\:\s+\d+"
+
+        self.data["last_geometry"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+
     def _check_optimization_errors(self):
         """
-        Parses two potential optimization errors: failing to converge within the allowed number 
-        of optimization cycles and failure to determine the lamda needed to continue.
+        Parses three potential optimization errors: failing to converge within the allowed number 
+        of optimization cycles, failure to determine the lamda needed to continue, and inconsistent
+        size of MO files due to a linear dependence in the AO basis.
         """
         if read_pattern(self.text, {"key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["out_of_opt_cycles"]
         elif read_pattern(self.text, {"key": r"UNABLE TO DETERMINE Lamda IN FormD"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["unable_to_determine_lamda"]
+        elif read_pattern(self.text, {"key": r"Inconsistent size for SCF MO coefficient file"}, terminate_on_match=True).get('key') == [[]]:
+            assert read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True).get('key') == [[]]
+            self.data["errors"] += ["linear_dependent_basis"]
 
     def _check_completion_errors(self):
         """
@@ -240,5 +256,7 @@ class QCOutput(MSONable):
             self.data["errors"] += ["IO_error"]
         else:
             self.data["errors"] += ["unknown_error"]
+
+
 
 
