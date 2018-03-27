@@ -16,7 +16,59 @@ norm = np.linalg.norm
 hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
-kb = 8.6173324e-5 #eV / K
+kb = 8.6173324e-5  #eV / K
+
+
+class QModel(MSONable):
+    """
+    Model for the defect charge distribution.
+    A combination of exponential tail and gaussian distribution is used
+    (see Freysoldt (2011), DOI: 10.1002/pssb.201046289 )
+    q_model(r) = q [x exp(-r/gamma) + (1-x) exp(-r^2/beta^2)]
+            without normalization constants
+    By default, gaussian distribution with 1 Bohr width is assumed.
+    If defect charge is more delocalized, exponential tail is suggested.
+    """
+
+    def __init__(self, beta=1.0, expnorm=0.0, gamma=1.0):
+        """
+        Args:
+            beta: Gaussian decay constant. Default value is 1 Bohr.
+                  When delocalized (eg. diamond), 2 Bohr is more appropriate.
+            expnorm: Weight for the exponential tail in the range of [0-1].
+                     Default is 0.0 indicating no tail .
+                     For delocalized charges ideal value is around 0.54-0.6.
+            gamma: Exponential decay constant
+        """
+        self.beta = beta
+        self.expnorm = expnorm
+        self.gamma = gamma
+
+        self.beta2 = beta * beta
+        self.gamma2 = gamma * gamma
+        if expnorm and not gamma:
+            raise ValueError("Please supply exponential decay constant.")
+
+    def rho_rec(self, g2):
+        """
+        Reciprocal space model charge value
+        for input squared reciprocal vector.
+        Args:
+            g2: Square of reciprocal vector
+
+        Returns:
+            Charge density at the reciprocal vector magnitude
+        """
+        return (self.expnorm / np.sqrt(1 + self.gamma2 * g2) + (1 - self.x) * np.exp(-0.25 * self.beta2 * g2))
+
+    @property
+    def rho_rec_limit0(self):
+        """
+        Reciprocal space model charge value
+        close to reciprocal vector 0 .
+        rho_rec(g->0) -> 1 + rho_rec_limit0 * g^2
+        """
+        return -2 * self.gamma2 * self.expnorm - 0.25 * self.beta2 * (1 - self.x)
 
 
 def eV_to_k(energy):
@@ -28,8 +80,7 @@ def eV_to_k(energy):
     Returns:
         (double) Reciprocal vector magnitude (units of 1/Bohr).
     """
-    return math.sqrt(energy/invang_to_ev) * ang_to_bohr
-
+    return math.sqrt(energy / invang_to_ev) * ang_to_bohr
 
 
 def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
@@ -53,14 +104,14 @@ def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
 
     # Max (i,j,k) that doesn't upset the condition |i*b1+j*b2+k*b3|<=gcut
     gcut = eV_to_k(encut)
-    imax = int(math.ceil(gcut/min(norm(b1), norm(b2), norm(b3))))
+    imax = int(math.ceil(gcut / min(norm(b1), norm(b2), norm(b3))))
     gcut2 = gcut * gcut
 
-    for i in range(-imax, imax+1):
-        for j in range(-imax, imax+1):
-            for k in range(-imax, imax+1):
-                vec = i*b1 + j*b2 + k*b3
-                vec2 = np.dot(vec,vec)
+    for i in range(-imax, imax + 1):
+        for j in range(-imax, imax + 1):
+            for k in range(-imax, imax + 1):
+                vec = i * b1 + j * b2 + k * b3
+                vec2 = np.dot(vec, vec)
                 if (vec2 <= gcut2 and vec2 != 0.0):
                     yield vec2
 
@@ -76,9 +127,9 @@ def closestsites(struct_blk, struct_def, pos):
     Return: (site object, dist, index)
     """
     blk_close_sites = struct_blk.get_sites_in_sphere(pos, 5, include_index=True)
-    blk_close_sites.sort(key=lambda x:x[1])
+    blk_close_sites.sort(key=lambda x: x[1])
     def_close_sites = struct_def.get_sites_in_sphere(pos, 5, include_index=True)
-    def_close_sites.sort(key=lambda x:x[1])
+    def_close_sites.sort(key=lambda x: x[1])
 
     return blk_close_sites[0], def_close_sites[0]
 
@@ -107,7 +158,7 @@ def find_defect_pos(struct_blk, struct_def, defpos=None):
         if defpos:
             return None, defpos.coords
     else:
-        type_def = 'substitution' # also corresponds to antisite
+        type_def = 'substitution'  # also corresponds to antisite
         if defpos:
             return defpos.coords, defpos.coords
 
@@ -119,17 +170,17 @@ def find_defect_pos(struct_blk, struct_def, defpos=None):
                 return blksite[0].coords, None
             elif type_def == 'interstitial':
                 return None, defsite[0].coords
-            else: #subs or antisite type
+            else:  #subs or antisite type
                 return blksite[0].coords, defsite[0].coords
         sitematching.append([blksite[0], blksite[1], defsite[0], defsite[1]])
 
     if type_def == 'vacancy':
         #in case site type is same for closest site to vacancy
-        sitematching.sort(key=lambda x:x[3])
+        sitematching.sort(key=lambda x: x[3])
         vacant = sitematching[-1]
         return vacant[0].coords, None
     elif type_def == 'interstitial':
         #just in case site type is same for closest site to interstit
-        sitematching.sort(key=lambda x:x[1])
+        sitematching.sort(key=lambda x: x[1])
         interstit = sitematching[-1]
-        return  None, interstit[2].coords
+        return None, interstit[2].coords
