@@ -176,7 +176,7 @@ class FreysoldtCorrection(DefectCorrection):
                 eper += (q_model.rho_rec(g2)**2) / g2
             eper *= (q**2) * 2 * round(np.pi, 6) / vol
             eper += (q**2) *4* round(np.pi, 6) \
-                    * q_model.rho_rec_limit0() / vol
+                    * q_model.rho_rec_limit0 / vol
             converge.append(eper)
             if len(converge) > 2:
                 if abs(converge[-1] - converge[-2]) < madetol:

@@ -10,6 +10,8 @@ __date__ = "January 11, 2018"
 
 import math
 
+from monty.json import MSONable
+
 import numpy as np
 norm = np.linalg.norm
 
@@ -59,7 +61,7 @@ class QModel(MSONable):
         Returns:
             Charge density at the reciprocal vector magnitude
         """
-        return (self.expnorm / np.sqrt(1 + self.gamma2 * g2) + (1 - self.x) * np.exp(-0.25 * self.beta2 * g2))
+        return (self.expnorm / np.sqrt(1 + self.gamma2 * g2) + (1 - self.expnorm) * np.exp(-0.25 * self.beta2 * g2))
 
     @property
     def rho_rec_limit0(self):
@@ -68,7 +70,7 @@ class QModel(MSONable):
         close to reciprocal vector 0 .
         rho_rec(g->0) -> 1 + rho_rec_limit0 * g^2
         """
-        return -2 * self.gamma2 * self.expnorm - 0.25 * self.beta2 * (1 - self.x)
+        return -2 * self.gamma2 * self.expnorm - 0.25 * self.beta2 * (1 - self.expnorm)
 
 
 def eV_to_k(energy):
@@ -133,54 +135,3 @@ def closestsites(struct_blk, struct_def, pos):
 
     return blk_close_sites[0], def_close_sites[0]
 
-
-def find_defect_pos(struct_blk, struct_def, defpos=None):
-    """
-    output cartesian coords of defect in bulk,defect cells.
-
-    Args:
-        struct_blk:
-        struct_def:
-        defpos: (if known) defect position as a pymatgen Site object within the bulk supercell
-            if this is not given, then defect position can be determined
-            (but if large relaxation occured, this process can sometimes be problematic...)
-
-    If vacancy defectpos=None,
-    if interstitial bulkpos=None,
-    if antisite/sub then both defined
-    """
-    if len(struct_blk.sites) > len(struct_def.sites):
-        type_def = 'vacancy'
-        if defpos:
-            return defpos.coords, None
-    elif len(struct_blk.sites) < len(struct_def.sites):
-        type_def = 'interstitial'
-        if defpos:
-            return None, defpos.coords
-    else:
-        type_def = 'substitution'  # also corresponds to antisite
-        if defpos:
-            return defpos.coords, defpos.coords
-
-    sitematching = []
-    for site in struct_blk.sites:
-        blksite, defsite = closestsites(struct_blk, struct_def, site.coords)
-        if blksite[0].specie.symbol != defsite[0].specie.symbol:
-            if type_def == 'vacancy':
-                return blksite[0].coords, None
-            elif type_def == 'interstitial':
-                return None, defsite[0].coords
-            else:  #subs or antisite type
-                return blksite[0].coords, defsite[0].coords
-        sitematching.append([blksite[0], blksite[1], defsite[0], defsite[1]])
-
-    if type_def == 'vacancy':
-        #in case site type is same for closest site to vacancy
-        sitematching.sort(key=lambda x: x[3])
-        vacant = sitematching[-1]
-        return vacant[0].coords, None
-    elif type_def == 'interstitial':
-        #just in case site type is same for closest site to interstit
-        sitematching.sort(key=lambda x: x[1])
-        interstit = sitematching[-1]
-        return None, interstit[2].coords
