@@ -18,7 +18,7 @@ from pymatgen.analysis.defects.core import DefectCorrection
 from pymatgen.entries import CompatibilityError
 
 from pymatgen.io.vasp.outputs import Locpot
-from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared
+from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel
 
 
 class FreysoldtCorrection(DefectCorrection):
@@ -41,9 +41,9 @@ class FreysoldtCorrection(DefectCorrection):
 
     """
 
-    def __init__(self, dielectric_const, q_model, energy_cutoff=520, madelung_energy_tolerance=0.0001):
+    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001):
         self.dielectric_const = dielectric_const
-        self.q_model = q_model
+        self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
         self.madelung_energy_tolerance = madelung_energy_tolerance
 
