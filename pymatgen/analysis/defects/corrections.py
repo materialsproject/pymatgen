@@ -31,10 +31,7 @@ class FreysoldtCorrection(DefectCorrection):
         bulk_planar_averages
 
         defect_planar_averages
-
-        lattice:
-            Pymatgen Lattice object of structure's Supercell
-
+        
 
     axis_grid, pureavg, defavg, lattice, dielectricconst, q, defect_position, axis,
                           q_model=QModel(), madetol=0.0001, title=None, widthsample=1.0
@@ -78,7 +75,7 @@ class FreysoldtCorrection(DefectCorrection):
             list_bulk_plnr_avg_esp.append(entry.parameters["bulk_planar_averages"][axis][1])
             list_defect_plnr_avg_esp.append(entry.parameters["defect_planar_averages"][axis][1])
 
-        lattice = entry.parameters["lattice"]
+        lattice = entry.structure.lattice
         dielectricconst = self.dielectric
         q = entry.defect.charge
         
@@ -109,7 +106,7 @@ class FreysoldtCorrection(DefectCorrection):
                 lattice,
                 self.dielectric,
                 self.defect.charge,
-                entry.site.coords
+                entry.site.coords,
                 axis,
                 q_model=self.q_model,
                 madetol=self.madelung_energy_tolerance,
