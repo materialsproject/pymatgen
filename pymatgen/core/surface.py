@@ -572,7 +572,7 @@ class Slab(Structure):
 
         return all(equal_surf_sites)
 
-    def get_symmetric_site(self, point):
+    def get_symmetric_site(self, point, cartesian=False):
         """
         This method uses symmetry operations to find equivalent sites on
             both sides of the slab. Works mainly for slabs with Laue
@@ -589,7 +589,7 @@ class Slab(Structure):
         """
 
         sg = SpacegroupAnalyzer(self)
-        ops = sg.get_symmetry_operations()
+        ops = sg.get_symmetry_operations(cartesian=cartesian)
 
         # Each operation on a point will return an equivalent point.
         # We want to find the point on the other side of the slab.
@@ -600,8 +600,8 @@ class Slab(Structure):
                 continue
 
             # Add dummy site to check the overall structure is symmetric
-            slab.append("O", point)
-            slab.append("O", site2)
+            slab.append("O", point, coords_are_cartesian=cartesian)
+            slab.append("O", site2, coords_are_cartesian=cartesian)
             sg = SpacegroupAnalyzer(slab)
             if sg.is_laue():
                 break
@@ -1389,8 +1389,28 @@ class ReconstructionGenerator(object):
 
         slabs = self.get_unreconstructed_slabs()
         recon_slabs = []
+
+        def get_d(slab):
+
+            """
+            Determine the distance of space between
+            each layer of atoms along c
+            """
+
+            sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+            for i, site in enumerate(sorted_sites):
+                if "%.6f" % (site.frac_coords[2]) == \
+                                "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
+                    continue
+                else:
+                    d = abs(site.frac_coords[2] - \
+                            sorted_sites[i + 1].frac_coords[2])
+                    break
+
+            return slab.lattice.get_cartesian_coords([0, 0, d])[2]
+
         for slab in slabs:
-            d = self.get_d(slab)
+            d = get_d(slab)
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
 
             # Remove any specified sites
@@ -1491,25 +1511,6 @@ class ReconstructionGenerator(object):
             slab.make_supercell(self.trans_matrix)
             slabs.append(slab)
         return slabs
-
-    def get_d(self, slab):
-
-        """
-        Determine the distance of space between
-        each layer of atoms along c
-        """
-
-        sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-        for i, site in enumerate(sorted_sites):
-            if "%.6f" % (site.frac_coords[2]) == \
-                            "%.6f" % (sorted_sites[i+1].frac_coords[2]):
-                continue
-            else:
-                d = abs(site.frac_coords[2] - \
-                        sorted_sites[i+1].frac_coords[2])
-                break
-
-        return slab.lattice.get_cartesian_coords([0,0,d])[2]
 
 
 def get_recp_symmetry_operation(structure, symprec=0.01):

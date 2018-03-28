@@ -96,7 +96,7 @@ class SlabEntry(ComputedStructureEntry):
 
     def __init__(self, structure, energy, miller_index, correction=0.0,
                  parameters=None, data=None, entry_id=None, label=None,
-                 adsorbates=[], clean_entry=None):
+                 adsorbates=None, clean_entry=None):
 
         """
         Make a SlabEntry containing all relevant surface thermodynamics data.
@@ -125,7 +125,7 @@ class SlabEntry(ComputedStructureEntry):
 
         self.miller_index = miller_index
         self.label = label
-        self.adsorbates = adsorbates
+        self.adsorbates = [] if not adsorbates else adsorbates
         self.clean_entry = clean_entry
         self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): \
                                      ads for ads in adsorbates}
@@ -335,7 +335,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @staticmethod
     def from_computed_structure_entry(entry, miller_index, label=None,
-                                      adsorbates=[], clean_entry=None, **kwargs):
+                                      adsorbates=None, clean_entry=None, **kwargs):
         """
         Returns SlabEntry from a ComputedStructureEntry
         """
