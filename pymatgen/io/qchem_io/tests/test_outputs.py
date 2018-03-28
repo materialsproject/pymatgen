@@ -22,7 +22,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 property_list = {'GEN_SCFMAN', 'SCF', 'restricted_Mulliken', 'unrestricted_Mulliken', 'optimized_geometry', 'optimized_zmat', 'unrestricted', 'errors',
                  'completion', 'using_GEN_SCFMAN', 'final_energy', 'optimization', 'energy_trajectory', 'frequency_job', 'frequencies', 'last_geom',
-                 'enthalpy', 'entropy'}
+                 'enthalpy', 'entropy', 'molecule_from_last_geometry', 'molecule_from_optimized_geometry', 'charge', 'multiplicity'}
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",

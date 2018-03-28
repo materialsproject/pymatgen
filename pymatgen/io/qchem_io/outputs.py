@@ -8,6 +8,7 @@ import os
 
 from monty.io import zopen
 from monty.json import MSONable
+from pymatgen.core import Molecule
 
 from .utils import read_table_pattern, read_pattern
 """
@@ -47,6 +48,9 @@ class QCOutput(MSONable):
                   ". Please instead call QCOutput.mulitple_outputs_from_file(QCOutput,'" + filename + "')")
             print("Exiting...")
             exit()
+
+        # Parse the charge and multiplicity
+        self._read_charge_and_multiplicity()
 
         # Check if calculation finished
         self.data["completion"] = read_pattern(
@@ -153,6 +157,27 @@ class QCOutput(MSONable):
                 os.remove(filename + '.' + str(i))
         return to_return
 
+    def _read_charge_and_multiplicity(self):
+        temp_charge = read_pattern(self.text, {"key": r"\$molecule\s+([\-\d])+\s+\d"}, terminate_on_match=True).get('key')
+        if temp_charge != None:
+            self.data["charge"] = int(temp_charge[0][0])
+        else:
+            temp_charge = read_pattern(self.text, {"key": r"Sum of atomic charges \=\s+([\d\-\.\+]+)"}, terminate_on_match=True).get('key')
+            if temp_charge != None:
+                self.data["charge"] = int(float(temp_charge[0][0]))
+            else:
+                self.data["errors"] += ["cannot_read_charge"]
+
+        temp_multiplicity = read_pattern(self.text, {"key": r"\$molecule\s+[\-\d]+\s+(\d)"}, terminate_on_match=True).get('key')
+        if temp_multiplicity != None:
+            self.data["multiplicity"] = int(temp_multiplicity[0][0])
+        else:
+            temp_multiplicity = read_pattern(self.text, {"key": r"Sum of spin\s+charges \=\s+([\d\-\.\+]+)"}, terminate_on_match=True).get('key')
+            if temp_multiplicity == None:
+                self.data["multiplicity"] = 1
+            else:
+                self.data["multiplicity"] = int(float(temp_multiplicity[0][0]))+1
+
     def _read_GEN_SCFMAN(self):
         """
         Parses all GEN_SCFMANs. 
@@ -197,8 +222,23 @@ class QCOutput(MSONable):
         table_pattern = r"\s+\d+\s(\w+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s\s\-+\s+Sum of atomic charges"
 
-        self.data["unrestricted_Mulliken"] = read_table_pattern(self.text, header_pattern, table_pattern,
-                                                                footer_pattern)
+        self.data["unrestricted_Mulliken"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+
+    def _make_geometry_into_molecule(self, geometry):
+        """
+        Takes a parsed geometry and makes it into a pymatgen Molecule object for storage.
+        Makes it easier to use a geometry simply from other modules. 
+        """
+        coords = []
+        species = []
+        for ii in range(len(geometry)):
+            temp_coords = []
+            species += [geometry[ii][0]]
+            for jj in range(3):
+                temp_coords += [float(geometry[ii][jj+1])]
+            coords += [temp_coords]
+        return Molecule(species=species, coords=coords, charge=self.data.get('charge'), spin_multiplicity=self.data.get('multiplicity'))
+
     def _read_optimized_geometry(self):
         """
         Parses optimized XYZ coordinates. If not present, parses optimized Z-matrix.
@@ -215,6 +255,8 @@ class QCOutput(MSONable):
             footer_pattern = r"^\$end\n"
 
             self.data["optimized_zmat"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+        elif "cannot_read_charge" not in self.data.get('errors'):
+            self.data["molecule_from_optimized_geometry"] = self._make_geometry_into_molecule(self.data.get('optimized_geometry')[0])
 
     def _read_last_geometry(self):
         """
@@ -225,6 +267,8 @@ class QCOutput(MSONable):
         footer_pattern = r"\s+Point Group\:\s+[\d\w]+\s+Number of degrees of freedom\:\s+\d+"
 
         self.data["last_geometry"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+        if self.data.get('last_geometry') != [] and "cannot_read_charge" not in self.data.get('errors'):
+            self.data["molecule_from_last_geometry"] = self._make_geometry_into_molecule(self.data.get('last_geometry')[0])
 
     def _check_optimization_errors(self):
         """
