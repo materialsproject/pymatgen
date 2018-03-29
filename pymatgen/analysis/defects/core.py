@@ -44,7 +44,7 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         self._structure = structure
         self._charge = charge
-        self._defect_site = defect_site
+        self._site = defect_site
         self._multiplicity = multiplicity
 
     @property
@@ -62,11 +62,11 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         return self._charge
 
     @property
-    def defect_site(self):
+    def site(self):
         """
         Returns the defect position as a site object
         """
-        return self._defect_site
+        return self._site
 
     @property
     def multiplicity(self):
@@ -101,7 +101,7 @@ class Vacancy(Defect):
     @property
     def defect_composition(self):
         temp_comp = self.structure.composition.as_dict()
-        temp_comp[str(self.defect_site.specie)] -= 1
+        temp_comp[str(self.site.specie)] -= 1
         return Composition(temp_comp)
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
@@ -113,7 +113,7 @@ class Vacancy(Defect):
         defect_structure = self.structure.copy()
         defect_structure.make_supercell(supercell)
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(self.defect_site.coords, 2, include_index=True), key=lambda x: x[1])
+            defect_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
         defect_structure.remove_sites([defindex])
         defect_structure.set_charge(self.charge)
@@ -129,11 +129,11 @@ class Substitution(Defect):
     @lru_cache(1)
     def defect_composition(self):
         poss_deflist = sorted(
-            self.structure.get_sites_in_sphere(self.defect_site.coords, 2, include_index=True), key=lambda x: x[1])
+            self.structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
 
         temp_comp = self.structure.composition.as_dict()
-        temp_comp[str(self.defect_site.specie)] += 1
+        temp_comp[str(self.site.specie)] += 1
         temp_comp[str(self.structure[defindex].specie)] -= 1
         return Composition(temp_comp)
 
@@ -146,11 +146,11 @@ class Substitution(Defect):
         defect_structure = self.structure.copy()
         defect_structure.make_supercell(supercell)
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(self.defect_site.coords, 2, include_index=True), key=lambda x: x[1])
+            defect_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
 
         subsite = defect_structure.pop(defindex)
-        defect_structure.append(self.defect_site.specie.symbol, subsite.coords, coords_are_cartesian=True)
+        defect_structure.append(self.site.specie.symbol, subsite.coords, coords_are_cartesian=True)
         defect_structure.set_charge(self.charge)
         return defect_structure
 
@@ -163,7 +163,7 @@ class Interstitial(Defect):
     @property
     def defect_composition(self):
         temp_comp = self.structure.composition.as_dict()
-        temp_comp[str(self.defect_site.specie)] += 1
+        temp_comp[str(self.site.specie)] += 1
         return Composition(temp_comp)
 
     def generate_defect_structure(self, supercell=(1, 1, 1)):
@@ -174,7 +174,7 @@ class Interstitial(Defect):
         """
         defect_structure = self.structure.copy()
         defect_structure.make_supercell(supercell)
-        defect_structure.append(self.defect_site.specie.symbol, self.defect_site.coords, coords_are_cartesian=True)
+        defect_structure.append(self.site.specie.symbol, self.site.coords, coords_are_cartesian=True)
         defect_structure.set_charge(self.charge)
         return defect_structure
 
@@ -201,6 +201,8 @@ class DefectEntry(MSONable):
                 or other factors (e.g. Shallow level shifts)
             parameters (dict): An optional dict of calculation parameters and data to 
                 use with correction schemes
+                (examples of parameter keys: supercell_size, axis_grid, bulk_planar_averages
+                defect_planar_averages )
             entry_id (obj): An id to uniquely identify this defect, can be any MSONable
                 type
         """
@@ -216,11 +218,11 @@ class DefectEntry(MSONable):
 
     @property
     def multiplicty(self):
-        return defect.multiplicty
+        return self.defect.multiplicty
 
     @property
     def charge(self):
-        return defect.charge
+        return self.defect.charge
 
     @property
     def energy(self):
@@ -234,7 +236,7 @@ class DefectEntry(MSONable):
         Computes the formation energy for a defect taking into account a given chemical potential and fermi_level
         """
         chempot_correction = sum([
-            chem_pot * (self.defec.structure.composition[el] - self.defect.defect_composition[el])
+            chem_pot * (self.defect.structure.composition[el] - self.defect.defect_composition[el])
             for el, chem_pot in chemical_potentials
         ])
 
@@ -250,7 +252,9 @@ class DefectEntry(MSONable):
         Human readable string representation of this entry
         """
         output = [
-            "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
+            #TODO: add defect.name abilities... maybe with composition?
+            # "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
+            "DefectEntry {} - {}".format(self.entry_id, "DEFECT"), "Energy = {:.4f}".format(self.energy),
             "Correction = {:.4f}".format(np.sum(self.correction.values())), "Parameters:"
         ]
         for k, v in self.parameters.items():
