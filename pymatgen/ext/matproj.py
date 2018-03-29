@@ -12,6 +12,7 @@ import warnings
 
 from monty.json import MontyDecoder, MontyEncoder
 from six import string_types
+from copy import deepcopy
 
 from pymatgen import SETTINGS
 
@@ -407,7 +408,7 @@ class MPRester(object):
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
         """
-        from pymatgen.analysis.pourbaix.entry import PourbaixEntry, IonEntry
+        from pymatgen.analysis.pourbaix.maker import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import\
@@ -424,7 +425,7 @@ class MPRester(object):
             i.elements for i in ion_ref_comps))
         ion_ref_entries = self.get_entries_in_chemsys(
             list(set([str(e) for e in ion_ref_elts] + ['O', 'H'])),
-            property_data=['e_above_hull'])
+            property_data=['e_above_hull'], compatible_only=False)
         compat = MaterialsProjectAqueousCompatibility("Advanced")
         ion_ref_entries = compat.process_entries(ion_ref_entries)
         ion_ref_pd = PhaseDiagram(ion_ref_entries)
@@ -443,9 +444,9 @@ class MPRester(object):
             elt = i_d['Major_Elements'][0]
             correction_factor = ion_entry.ion.composition[elt]\
                                 / stable_ref.composition[elt]
-            correction = solid_diff * correction_factor
-            pbx_entries.append(PourbaixEntry(ion_entry, correction,
-                                             'ion-{}'.format(n)))
+            ion_entry.energy += solid_diff * correction_factor
+            pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
+            # import nose; nose.tools.set_trace()
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys}\
@@ -455,9 +456,17 @@ class MPRester(object):
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element('H'), Element('O')} or \
                     extra_elts.intersection(entry_elts)):
-                pbx_entry = PourbaixEntry(entry)
-                pbx_entry.g0_replace(ion_ref_pd.get_form_energy(entry))
-                pbx_entry.reduced_entry()
+                # replace energy with formation energy, use dict to
+                # avoid messing with the ion_ref_pd and to keep all old params
+                form_e = ion_ref_pd.get_form_energy(entry)
+                new_entry = deepcopy(entry)
+                new_entry.uncorrected_energy = form_e
+                new_entry.correction = 0.0
+                pbx_entry = PourbaixEntry(new_entry)
+                if entry.entry_id == "mp-697146":
+                    pass
+                    # import nose; nose.tools.set_trace()
+                # pbx_entry.reduced_entry()
                 pbx_entries.append(pbx_entry)
 
         return pbx_entries
