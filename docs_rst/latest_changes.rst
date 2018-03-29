@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v2018.3.14
+v2018.3.22
 ----------
-* ReactionDiagram for calculating possible reactions between two compositions.
-* Misc bug fixes for EnumlibAdaptor and MagOrderingTransformation
+* Bug fixes to phase diagram module, enumlib adaptor, local env analysis.

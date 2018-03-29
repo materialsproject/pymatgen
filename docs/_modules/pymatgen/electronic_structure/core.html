@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.electronic_structure.core &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.electronic_structure.core &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -83,8 +83,8 @@
     <span class="k">def</span> <span class="nf">__float__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="OrbitalType"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.OrbitalType">[docs]</a><span class="nd">@unique</span>
@@ -99,8 +99,8 @@
     <span class="n">d</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 
 <div class="viewcode-block" id="Orbital"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Orbital">[docs]</a><span class="nd">@unique</span>
@@ -137,8 +137,8 @@
     <span class="k">def</span> <span class="nf">orbital_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns OrbitalType of an orbital.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="n">OrbitalType</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">OrbitalType</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
 
 
 <div class="viewcode-block" id="Magmom"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom">[docs]</a><span class="k">class</span> <span class="nc">Magmom</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -222,8 +222,8 @@
 <span class="sd">        :param saxis: desired saxis</span>
 <span class="sd">        :return: </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">global_moment</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">magmom</span><span class="o">.</span><span class="n">get_moment</span><span class="p">(</span><span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">),</span> <span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">)</span>
+        <span class="n">magmom</span> <span class="o">=</span> <span class="n">Magmom</span><span class="p">(</span><span class="n">global_moment</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">magmom</span><span class="o">.</span><span class="n">get_moment</span><span class="p">(</span><span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">),</span> <span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_get_transformation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saxis</span><span class="p">):</span>
 
@@ -282,8 +282,8 @@
 
         <span class="c1"># round small values to zero</span>
         <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-</div>
-        <span class="k">return</span> <span class="n">moment</span>
+
+        <span class="k">return</span> <span class="n">moment</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">global_moment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -310,8 +310,8 @@
 <span class="sd">        the magnetic moment rotated as required.</span>
 
 <span class="sd">        :return: Magmom</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="n">Magmom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_moment</span><span class="p">())</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Magmom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_moment</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="Magmom.get_00t_magmom_with_xyz_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_00t_magmom_with_xyz_saxis">[docs]</a>    <span class="k">def</span> <span class="nf">get_00t_magmom_with_xyz_saxis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -349,8 +349,8 @@
                 <span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="n">t</span>
                 <span class="n">new_saxis</span> <span class="o">=</span> <span class="o">-</span><span class="n">new_saxis</span>
             <span class="k">return</span> <span class="n">Magmom</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">],</span> <span class="n">saxis</span><span class="o">=</span><span class="n">new_saxis</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">Magmom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Magmom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Magmom.have_consistent_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.have_consistent_saxis">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">have_consistent_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">):</span>
@@ -369,8 +369,8 @@
         <span class="n">match_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">magmom</span><span class="o">.</span><span class="n">saxis</span> <span class="o">==</span> <span class="n">ref_saxis</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">match_ref</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Magmom.get_consistent_set_and_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_consistent_set_and_saxis">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_consistent_set_and_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">,</span> <span class="n">saxis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -387,8 +387,8 @@
             <span class="n">saxis</span> <span class="o">=</span> <span class="n">Magmom</span><span class="o">.</span><span class="n">get_suggested_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">saxis</span> <span class="o">=</span> <span class="n">saxis</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">saxis</span><span class="p">)</span>
-        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">magmom</span><span class="o">.</span><span class="n">get_moment</span><span class="p">(</span><span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span></div>
-        <span class="k">return</span> <span class="p">(</span><span class="n">magmoms</span><span class="p">,</span> <span class="n">saxis</span><span class="p">)</span>
+        <span class="n">magmoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">magmom</span><span class="o">.</span><span class="n">get_moment</span><span class="p">(</span><span class="n">saxis</span><span class="o">=</span><span class="n">saxis</span><span class="p">)</span> <span class="k">for</span> <span class="n">magmom</span> <span class="ow">in</span> <span class="n">magmoms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">magmoms</span><span class="p">,</span> <span class="n">saxis</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Magmom.get_suggested_saxis"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_suggested_saxis">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_suggested_saxis</span><span class="p">(</span><span class="n">magmoms</span><span class="p">):</span>
@@ -413,8 +413,8 @@
         <span class="n">magmoms</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">magmoms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">magmoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_00t_magmom_with_xyz_saxis</span><span class="p">()</span><span class="o">.</span><span class="n">saxis</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Magmom.are_collinear"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.are_collinear">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">are_collinear</span><span class="p">(</span><span class="n">magmoms</span><span class="p">):</span>
@@ -440,8 +440,8 @@
         <span class="n">num_ncl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">ref_magmom</span><span class="p">,</span> <span class="n">magmoms</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">num_ncl</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Magmom.from_moment_relative_to_crystal_axes"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.from_moment_relative_to_crystal_axes">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_moment_relative_to_crystal_axes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">moment</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
@@ -458,8 +458,8 @@
         <span class="n">unit_m</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">moment</span><span class="p">),</span> <span class="n">unit_m</span><span class="p">)</span>
         <span class="c1"># round small values to zero</span>
-        <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span>
+        <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Magmom.get_moment_relative_to_crystal_axes"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.core.html#pymatgen.electronic_structure.core.Magmom.get_moment_relative_to_crystal_axes">[docs]</a>    <span class="k">def</span> <span class="nf">get_moment_relative_to_crystal_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -475,8 +475,8 @@
         <span class="c1"># note np.matmul() requires numpy version &gt;= 1.10</span>
         <span class="n">moment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_moment</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">unit_m</span><span class="p">))</span>
         <span class="c1"># round small values to zero</span>
-        <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
-        <span class="k">return</span> <span class="n">moment</span>
+        <span class="n">moment</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">moment</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">moment</span></div>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -536,8 +536,8 @@
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
             <span class="k">return</span> <span class="s1">&#39;Magnetic moment </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;Magnetic moment </span><span class="si">{0}</span><span class="s1"> (spin axis = </span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">,</span></div>
-                                                                  <span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;Magnetic moment </span><span class="si">{0}</span><span class="s1"> (spin axis = </span><span class="si">{1}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment</span><span class="p">,</span>
+                                                                  <span class="bp">self</span><span class="o">.</span><span class="n">saxis</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -570,7 +570,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -578,7 +578,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

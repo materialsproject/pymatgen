@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -538,8 +538,8 @@
 <div class="viewcode-block" id="Work.set_manager"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.set_manager">[docs]</a>    <span class="k">def</span> <span class="nf">set_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the :class:`TaskManager` to use to launch the :class:`Task`.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span></div>
-            <span class="n">task</span><span class="o">.</span><span class="n">set_manager</span><span class="p">(</span><span class="n">manager</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">set_manager</span><span class="p">(</span><span class="n">manager</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">flow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -551,16 +551,16 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_flow&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">=</span> <span class="n">flow</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">!=</span> <span class="n">flow</span><span class="p">:</span></div>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._flow != flow&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">!=</span> <span class="n">flow</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._flow != flow&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.pos"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.pos">[docs]</a>    <span class="nd">@lazy_property</span>
     <span class="k">def</span> <span class="nf">pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The position of self in the :class:`Flow`&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">work</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">work</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">i</span></div>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find the position of </span><span class="si">%s</span><span class="s2"> in flow </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">i</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find the position of </span><span class="si">%s</span><span class="s2"> in flow </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">))</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pos_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -580,15 +580,15 @@
         <span class="c1"># that will be used by its children.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;indata&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;outdata&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;tmpdata&quot;</span><span class="p">))</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;tmpdata&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.chroot"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.chroot">[docs]</a>    <span class="k">def</span> <span class="nf">chroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_workdir</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">new_workdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="n">new_tdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span></div>
-            <span class="n">task</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">new_tdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">new_tdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">new_tdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">)</span>
@@ -601,8 +601,8 @@
 
 <div class="viewcode-block" id="Work.chunks"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.chunks">[docs]</a>    <span class="k">def</span> <span class="nf">chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Yield successive chunks of tasks of lenght chunk_size.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">tasks</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span></div>
-            <span class="k">yield</span> <span class="n">tasks</span>
+        <span class="k">for</span> <span class="n">tasks</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">tasks</span></div>
 
     <span class="k">def</span> <span class="nf">opath_from_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -615,8 +615,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the path of the output file with extension ext.</span>
 <span class="sd">        Use it when the file does not exist yet.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="s2">&quot;out_&quot;</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path_in</span><span class="p">(</span><span class="s2">&quot;out_&quot;</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">processes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -678,8 +678,8 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="s2">&quot;workdir&quot;</span><span class="p">):</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">task_workdir</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">workdir</span> <span class="o">!=</span> <span class="n">task_workdir</span><span class="p">:</span></div>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;task.workdir != task_workdir: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="n">task_workdir</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">workdir</span> <span class="o">!=</span> <span class="n">task_workdir</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;task.workdir != task_workdir: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="n">task_workdir</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Work.register"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.register">[docs]</a>    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">task_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -726,21 +726,21 @@
         <span class="c1"># Handle possible dependencies.</span>
         <span class="k">if</span> <span class="n">required_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">add_required_files</span><span class="p">(</span><span class="n">required_files</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">task</span>
+
+        <span class="k">return</span> <span class="n">task</span></div>
 
     <span class="c1"># Needed by NodeContainer</span>
     <span class="n">register_task</span> <span class="o">=</span> <span class="n">register</span>
 
 <div class="viewcode-block" id="Work.path_in_workdir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.path_in_workdir">[docs]</a>    <span class="k">def</span> <span class="nf">path_in_workdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create the absolute path of filename in the working directory.&quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Create the absolute path of filename in the working directory.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.setup"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method called before running the calculations.</span>
-<span class="sd">        The default implementation is empty.</span></div>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        The default implementation is empty.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="Work.build"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates the top level directory.&quot;&quot;&quot;</span>
@@ -753,8 +753,8 @@
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c1"># Connect signals within the work.</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect_signals</span><span class="p">()</span>
+        <span class="c1"># Connect signals within the work.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_signals</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -782,8 +782,8 @@
 
         <span class="k">if</span> <span class="n">only_min</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">status_list</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">status_list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status_list</span></div>
 
 <div class="viewcode-block" id="Work.check_status"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.check_status">[docs]</a>    <span class="k">def</span> <span class="nf">check_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the status of the tasks.&quot;&quot;&quot;</span>
@@ -796,8 +796,8 @@
         <span class="c1"># Take into account possible dependencies. Use a list instead of generators</span>
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">task</span><span class="o">.</span><span class="n">S_LOCKED</span><span class="p">:</span> <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="n">task</span><span class="o">.</span><span class="n">S_SUB</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">task</span><span class="o">.</span><span class="n">S_OK</span> <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">deps_status</span><span class="p">):</span></div>
-                <span class="n">task</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">S_READY</span><span class="p">,</span> <span class="s2">&quot;Status set to Ready&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">&lt;</span> <span class="n">task</span><span class="o">.</span><span class="n">S_SUB</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">status</span> <span class="o">==</span> <span class="n">task</span><span class="o">.</span><span class="n">S_OK</span> <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">deps_status</span><span class="p">):</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">S_READY</span><span class="p">,</span> <span class="s2">&quot;Status set to Ready&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.rmtree"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.rmtree">[docs]</a>    <span class="k">def</span> <span class="nf">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude_wildcard</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -818,23 +818,23 @@
             <span class="k">for</span> <span class="n">dirpath</span><span class="p">,</span> <span class="n">dirnames</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
                     <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">w</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span></div>
-                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">w</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.rm_indatadir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.rm_indatadir">[docs]</a>    <span class="k">def</span> <span class="nf">rm_indatadir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all the indata directories.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span></div>
-            <span class="n">task</span><span class="o">.</span><span class="n">rm_indatadir</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">rm_indatadir</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Work.rm_outdatadir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.rm_outdatadir">[docs]</a>    <span class="k">def</span> <span class="nf">rm_outdatadir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all the indata directories.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span></div>
-            <span class="n">task</span><span class="o">.</span><span class="n">rm_outatadir</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">rm_outatadir</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Work.rm_tmpdatadir"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.rm_tmpdatadir">[docs]</a>    <span class="k">def</span> <span class="nf">rm_tmpdatadir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all the tmpdata directories.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span></div>
-            <span class="n">task</span><span class="o">.</span><span class="n">rm_tmpdatadir</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">rm_tmpdatadir</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Work.move"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">isabspath</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -847,8 +847,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isabspath</span><span class="p">:</span>
             <span class="n">dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">),</span> <span class="n">dest</span><span class="p">)</span>
-</div>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
+        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.submit_tasks"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.submit_tasks">[docs]</a>    <span class="k">def</span> <span class="nf">submit_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -858,8 +858,8 @@
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span></div>
-            <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Work.start"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -874,8 +874,8 @@
         <span class="c1"># Build dirs and files.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c1"># Submit tasks (does not block)</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">submit_tasks</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span>
+        <span class="c1"># Submit tasks (does not block)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">submit_tasks</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.read_etotals"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.read_etotals">[docs]</a>    <span class="k">def</span> <span class="nf">read_etotals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;Ha&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -897,8 +897,8 @@
                     <span class="n">etot</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s2">&quot;etotal&quot;</span><span class="p">)</span>
 
             <span class="n">etotals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etot</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">EnergyArray</span><span class="p">(</span><span class="n">etotals</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">EnergyArray</span><span class="p">(</span><span class="n">etotals</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.parse_timers"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.parse_timers">[docs]</a>    <span class="k">def</span> <span class="nf">parse_timers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -911,8 +911,8 @@
 
         <span class="n">parser</span> <span class="o">=</span> <span class="n">AbinitTimerParser</span><span class="p">()</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filenames</span><span class="p">)</span>
-</div></div>
-        <span class="k">return</span> <span class="n">parser</span>
+
+        <span class="k">return</span> <span class="n">parser</span></div></div>
 
 
 <div class="viewcode-block" id="BandStructureWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BandStructureWork">[docs]</a><span class="k">class</span> <span class="nc">BandStructureWork</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
@@ -952,8 +952,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            `matplotlib` figure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">nscf_task</span><span class="o">.</span><span class="n">open_gsr</span><span class="p">()</span> <span class="k">as</span> <span class="n">gsr</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">gsr</span><span class="o">.</span><span class="n">ebands</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">nscf_task</span><span class="o">.</span><span class="n">open_gsr</span><span class="p">()</span> <span class="k">as</span> <span class="n">gsr</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gsr</span><span class="o">.</span><span class="n">ebands</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BandStructureWork.plot_ebands_with_edos"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BandStructureWork.plot_ebands_with_edos">[docs]</a>    <span class="k">def</span> <span class="nf">plot_ebands_with_edos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos_pos</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -975,8 +975,8 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos_tasks</span><span class="p">[</span><span class="n">dos_pos</span><span class="p">]</span><span class="o">.</span><span class="n">open_gsr</span><span class="p">()</span> <span class="k">as</span> <span class="n">gsr</span><span class="p">:</span>
             <span class="n">dos_ebands</span> <span class="o">=</span> <span class="n">gsr</span><span class="o">.</span><span class="n">ebands</span>
 
-        <span class="n">edos</span> <span class="o">=</span> <span class="n">dos_ebands</span><span class="o">.</span><span class="n">get_edos</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">gs_ebands</span><span class="o">.</span><span class="n">plot_with_edos</span><span class="p">(</span><span class="n">edos</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">edos</span> <span class="o">=</span> <span class="n">dos_ebands</span><span class="o">.</span><span class="n">get_edos</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gs_ebands</span><span class="o">.</span><span class="n">plot_with_edos</span><span class="p">(</span><span class="n">edos</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BandStructureWork.plot_edoses"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BandStructureWork.plot_edoses">[docs]</a>    <span class="k">def</span> <span class="nf">plot_edoses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dos_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1003,8 +1003,8 @@
                 <span class="n">edos</span> <span class="o">=</span> <span class="n">gsr</span><span class="o">.</span><span class="n">ebands</span><span class="o">.</span><span class="n">get_edos</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
                 <span class="n">ngkpt</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get_inpvar</span><span class="p">(</span><span class="s2">&quot;ngkpt&quot;</span><span class="p">)</span>
                 <span class="n">plotter</span><span class="o">.</span><span class="n">add_edos</span><span class="p">(</span><span class="s2">&quot;ngkpt </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ngkpt</span><span class="p">),</span> <span class="n">edos</span><span class="p">)</span>
-</div></div>
-        <span class="k">return</span> <span class="n">plotter</span><span class="o">.</span><span class="n">combiplot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">plotter</span><span class="o">.</span><span class="n">combiplot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="RelaxWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.RelaxWork">[docs]</a><span class="k">class</span> <span class="nc">RelaxWork</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
@@ -1072,8 +1072,8 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Converging dilatmx. Value reduce from </span><span class="si">{}</span><span class="s1"> to </span><span class="si">{}</span><span class="s1">.&#39;</span>
                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">actual_dilatmx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ioncell_task</span><span class="o">.</span><span class="n">get_inpvar</span><span class="p">(</span><span class="s1">&#39;dilatmx&#39;</span><span class="p">)))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ioncell_task</span><span class="o">.</span><span class="n">reset_from_scratch</span><span class="p">()</span>
-</div>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">RelaxWork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">on_ok</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">RelaxWork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">on_ok</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RelaxWork.plot_ion_relaxation"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.RelaxWork.plot_ion_relaxation">[docs]</a>    <span class="k">def</span> <span class="nf">plot_ion_relaxation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1082,8 +1082,8 @@
 
 <span class="sd">        Return `matplotlib` figure or None if hist file is not found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">ion_task</span><span class="o">.</span><span class="n">open_hist</span><span class="p">()</span> <span class="k">as</span> <span class="n">hist</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">hist</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">hist</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">ion_task</span><span class="o">.</span><span class="n">open_hist</span><span class="p">()</span> <span class="k">as</span> <span class="n">hist</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hist</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">hist</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="RelaxWork.plot_ioncell_relaxation"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.RelaxWork.plot_ioncell_relaxation">[docs]</a>    <span class="k">def</span> <span class="nf">plot_ioncell_relaxation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1092,8 +1092,8 @@
 
 <span class="sd">        Return `matplotlib` figure or None if hist file is not found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">ioncell_task</span><span class="o">.</span><span class="n">open_hist</span><span class="p">()</span> <span class="k">as</span> <span class="n">hist</span><span class="p">:</span></div></div>
-            <span class="k">return</span> <span class="n">hist</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">hist</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">ioncell_task</span><span class="o">.</span><span class="n">open_hist</span><span class="p">()</span> <span class="k">as</span> <span class="n">hist</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">hist</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">hist</span> <span class="k">else</span> <span class="kc">None</span></div></div>
 
 
 <div class="viewcode-block" id="G0W0Work"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.G0W0Work">[docs]</a><span class="k">class</span> <span class="nc">G0W0Work</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
@@ -1155,8 +1155,8 @@
                     <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_sigma_task</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">nscf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">,</span> <span class="n">scr_task</span><span class="p">:</span> <span class="s2">&quot;SCR&quot;</span><span class="p">})</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">sigma_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_sigma_task</span><span class="p">(</span><span class="n">sigma_inputs</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">nscf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">,</span> <span class="n">scr_task</span><span class="p">:</span> <span class="s2">&quot;SCR&quot;</span><span class="p">})</span></div>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sigma_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_sigma_task</span><span class="p">(</span><span class="n">sigma_inputs</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">nscf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">,</span> <span class="n">scr_task</span><span class="p">:</span> <span class="s2">&quot;SCR&quot;</span><span class="p">})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sigma_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SigmaConvWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.SigmaConvWork">[docs]</a><span class="k">class</span> <span class="nc">SigmaConvWork</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
@@ -1181,8 +1181,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sigma_inputs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="n">sigma_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sigma_inputs</span><span class="p">]</span>
 
-        <span class="k">for</span> <span class="n">sigma_input</span> <span class="ow">in</span> <span class="n">sigma_inputs</span><span class="p">:</span></div>
-            <span class="bp">self</span><span class="o">.</span><span class="n">register_sigma_task</span><span class="p">(</span><span class="n">sigma_input</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">wfk_node</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">,</span> <span class="n">scr_node</span><span class="p">:</span> <span class="s2">&quot;SCR&quot;</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">sigma_input</span> <span class="ow">in</span> <span class="n">sigma_inputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_sigma_task</span><span class="p">(</span><span class="n">sigma_input</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">wfk_node</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">,</span> <span class="n">scr_node</span><span class="p">:</span> <span class="s2">&quot;SCR&quot;</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="BseMdfWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BseMdfWork">[docs]</a><span class="k">class</span> <span class="nc">BseMdfWork</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
@@ -1222,8 +1222,8 @@
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
             <span class="n">mdf_path</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">EXT</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">mdf_path</span><span class="p">:</span>
-                <span class="n">robot</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">mdf_path</span><span class="p">)</span></div></div>
-        <span class="k">return</span> <span class="n">robot</span>
+                <span class="n">robot</span><span class="o">.</span><span class="n">add_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">mdf_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">robot</span></div></div>
 
     <span class="c1">#def plot_conv_mdf(self, **kwargs)</span>
     <span class="c1">#    with self.get_mdf_robot() as robot:</span>
@@ -1279,8 +1279,8 @@
             <span class="c1"># Add the garbage collector.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">gc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">new_task</span><span class="o">.</span><span class="n">set_gc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">gc</span><span class="p">)</span>
-</div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="QptdmWork.merge_scrfiles"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.QptdmWork.merge_scrfiles">[docs]</a>    <span class="k">def</span> <span class="nf">merge_scrfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_scrfiles</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1303,8 +1303,8 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">scr_file</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
                     <span class="k">pass</span>
-</div>
-        <span class="k">return</span> <span class="n">final_scr</span>
+
+        <span class="k">return</span> <span class="n">final_scr</span></div>
 
     <span class="c1">#@check_spectator</span>
 <div class="viewcode-block" id="QptdmWork.on_all_ok"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.QptdmWork.on_all_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1313,8 +1313,8 @@
 <span class="sd">        It runs `mrgscr` in sequential on the local machine to produce</span>
 <span class="sd">        the final SCR file in the outdir of the `Work`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">final_scr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_scrfiles</span><span class="p">()</span></div></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;mrgscr done&quot;</span><span class="p">,</span> <span class="n">final_scr</span><span class="o">=</span><span class="n">final_scr</span><span class="p">)</span>
+        <span class="n">final_scr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_scrfiles</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;mrgscr done&quot;</span><span class="p">,</span> <span class="n">final_scr</span><span class="o">=</span><span class="n">final_scr</span><span class="p">)</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">MergeDdb</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1390,8 +1390,8 @@
             <span class="n">multi</span> <span class="o">=</span> <span class="n">scf_task</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">make_ph_inputs_qpoint</span><span class="p">(</span><span class="n">qpt</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">ph_inp</span> <span class="ow">in</span> <span class="n">multi</span><span class="p">:</span>
                 <span class="n">new</span><span class="o">.</span><span class="n">register_phonon_task</span><span class="p">(</span><span class="n">ph_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">scf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">})</span>
-</div>
-        <span class="k">return</span> <span class="n">new</span>
+
+        <span class="k">return</span> <span class="n">new</span></div>
 
 <div class="viewcode-block" id="PhononWork.from_scf_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.from_scf_input">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">is_ngqpt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1411,8 +1411,8 @@
             <span class="n">multi</span> <span class="o">=</span> <span class="n">scf_task</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">make_ph_inputs_qpoint</span><span class="p">(</span><span class="n">qpt</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">ph_inp</span> <span class="ow">in</span> <span class="n">multi</span><span class="p">:</span>
                 <span class="n">new</span><span class="o">.</span><span class="n">register_phonon_task</span><span class="p">(</span><span class="n">ph_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">scf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">})</span>
-</div>
-        <span class="k">return</span> <span class="n">new</span>
+
+        <span class="k">return</span> <span class="n">new</span></div>
 
 <div class="viewcode-block" id="PhononWork.merge_pot1_files"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.merge_pot1_files">[docs]</a>    <span class="k">def</span> <span class="nf">merge_pot1_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1442,8 +1442,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">mrgdvdb</span> <span class="o">=</span> <span class="n">wrappers</span><span class="o">.</span><span class="n">Mrgdvdb</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">manager</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">mrgdvdb</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">pot1_files</span><span class="p">,</span> <span class="n">out_dvdb</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">out_dvdb</span>
+
+        <span class="k">return</span> <span class="n">out_dvdb</span></div>
 
     <span class="c1">#@check_spectator</span>
 <div class="viewcode-block" id="PhononWork.on_all_ok"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.on_all_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1460,8 +1460,8 @@
 
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;DDB merge done&quot;</span><span class="p">)</span>
         <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="n">out_ddb</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span>
-</div></div>
-        <span class="k">return</span> <span class="n">results</span>
+
+        <span class="k">return</span> <span class="n">results</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">BecWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
@@ -1607,7 +1607,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1615,7 +1615,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

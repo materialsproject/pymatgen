@@ -11,6 +11,9 @@ import os
 from enum import Enum, unique
 from collections import namedtuple
 
+from scipy.stats import gaussian_kde
+from scipy.signal import argrelextrema
+
 from pymatgen.core.structure import Specie, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -82,12 +85,15 @@ class CollinearMagneticStructureAnalyzer:
         * "replace_all_if_undefined" is the same as "replace_all" but only if
           no magmoms are defined in input structure, otherwise it will respect
           existing magmoms.
+        * "normalize" will normalize magmoms to unity, but will respect sign
+          (used for comparing orderings), magmoms < theshold will be set to zero
 
         :param structure: Structure object
         :param overwrite_magmom_mode (str): default "none"
-        :param round_magmoms (int): will round input magmoms to
-        specified number of decimal places, suggest value of 1 or False
-        for typical DFT calculations depending on application
+        :param round_magmoms (int or bool): will round input magmoms to
+        specified number of decimal places if integer is supplied, if set
+        to a float will try and group magmoms together using a kernel density
+        estimator of provided width, and extracting peaks of the estimator
         :param detect_valences (bool): if True, will attempt to assign valences
         to input structure
         :param make_primitive (bool): if True, will transform to primitive
@@ -182,7 +188,8 @@ class CollinearMagneticStructureAnalyzer:
         # overwrite existing magmoms with default_magmoms
         if overwrite_magmom_mode not in ("none", "respect_sign",
                                          "respect_zeros", "replace_all",
-                                         "replace_all_if_undefined"):
+                                         "replace_all_if_undefined",
+                                         "normalize"):
             raise ValueError("Unsupported mode.")
 
         for idx, site in enumerate(structure):
@@ -221,14 +228,14 @@ class CollinearMagneticStructureAnalyzer:
             elif overwrite_magmom_mode == "replace_all":
                 magmoms[idx] = default_magmom
 
-        # round magmoms to specified number of
-        # decimal places, used to smooth out
-        # computational data
-        # TODO: be a bit smarter about rounding magmoms!
-        if round_magmoms:
-            magmoms = np.around(structure.site_properties['magmom'],
-                                decimals=round_magmoms)
-            structure.add_site_property(magmoms)
+            # overwrite_magmom_mode = "normalize" set magmoms magnitude to 1
+
+            elif overwrite_magmom_mode == "normalize":
+                if magmoms[idx] != 0:
+                    magmoms[idx] = int(magmoms[idx]/abs(magmoms[idx]))
+
+        # round magmoms, used to smooth out computational data
+        magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms
 
         structure.add_site_property('magmom', magmoms)
 
@@ -236,6 +243,52 @@ class CollinearMagneticStructureAnalyzer:
             structure = structure.get_primitive_structure(use_site_props=True)
 
         self.structure = structure
+
+    @staticmethod
+    def _round_magmoms(magmoms, round_magmoms_mode):
+        """
+        If round_magmoms_mode is an integer, simply round to that number
+        of decimal places, else if set to a float will try and round
+        intelligently by grouping magmoms.
+        """
+
+        if isinstance(round_magmoms_mode, int):
+
+            # simple rounding to number of decimal places
+            magmoms = np.around(magmoms, decimals=round_magmoms_mode)
+
+        elif isinstance(round_magmoms_mode, float):
+            
+            try:
+
+                # get range of possible magmoms, pad by 50% just to be safe
+                range_m = max([max(magmoms), abs(min(magmoms))]) * 1.5
+
+                # construct kde, here "round_magmoms_mode" is the width of the kde
+                kernel = gaussian_kde(magmoms, bw_method=round_magmoms_mode)
+
+                # with a linearly spaced grid 1000x finer than width
+                xgrid = np.linspace(-range_m, range_m, 1000 * range_m / round_magmoms_mode)
+
+                # and evaluate the kde on this grid, extracting the maxima of the kde peaks
+                kernel_m = kernel.evaluate(xgrid)
+                extrema = xgrid[argrelextrema(kernel_m, comparator=np.greater)]
+
+                # round magmoms to these extrema
+                magmoms = [extrema[(np.abs(extrema-m)).argmin()] for m in magmoms]
+                
+            except Exception as e:
+                
+                # TODO: typically a singular matrix warning, investigate this
+                warnings.warn('Failed to round magmoms intelligently, '
+                              'falling back to simple rounding.')
+                warnings.warn(e)
+
+            # and finally round roughly to the number of significant figures in our kde width
+            num_decimals = len(str(round_magmoms_mode).split('.')[1]) + 1
+            magmoms = np.around(magmoms, decimals=num_decimals)
+
+        return magmoms
 
     def get_structure_with_spin(self):
         """
@@ -335,17 +388,26 @@ class CollinearMagneticStructureAnalyzer:
     def magnetic_species_and_magmoms(self):
         """
         Returns a dict of magnetic species and the magnitude of
-        their associated magmoms. Implicitly assumes the magnetic
-        moment is the same magnitude for a given species.
+        their associated magmoms. Will return a set if there are
+        multiple magmoms per species.
+
         :return: dict of magnetic species and magmoms
         """
 
-        # TODO: improve detection when magnitude of magmoms varies
-
         structure = self.get_ferromagnetic_structure()
 
-        magtypes = {str(site.specie): site.properties['magmom'] for site in structure
-                    if site.properties['magmom'] > 0}
+        magtypes = {str(site.specie): set() for site in structure
+                    if site.properties['magmom'] != 0}
+
+        for site in structure:
+            if site.properties['magmom'] != 0:
+                magtypes[str(site.specie)].add(site.properties['magmom'])
+
+        for sp, magmoms in magtypes.items():
+            if len(magmoms) == 1:
+                magtypes[sp] = magmoms.pop()
+            else:
+                magtypes[sp] = sorted(list(magmoms))
 
         return magtypes
 
@@ -444,7 +506,7 @@ class CollinearMagneticStructureAnalyzer:
         """
 
         a = CollinearMagneticStructureAnalyzer(self.structure,
-                                               overwrite_magmom_mode="respect_sign")\
+                                               overwrite_magmom_mode="normalize")\
             .get_structure_with_spin()
 
         # sign of spins doesn't matter, so we're comparing both
@@ -452,14 +514,16 @@ class CollinearMagneticStructureAnalyzer:
         # this code is possibly redundant, but is included out of
         # an abundance of caution
         b_positive = CollinearMagneticStructureAnalyzer(other,
-                                                        overwrite_magmom_mode="respect_sign")
+                                                        overwrite_magmom_mode="normalize",
+                                                        make_primitive=False)
 
         b_negative = b_positive.structure.copy()
         b_negative.add_site_property('magmom',
                                      np.multiply(-1, b_negative.site_properties['magmom']))
 
         b_negative = CollinearMagneticStructureAnalyzer(b_negative,
-                                                        overwrite_magmom_mode="respect_sign")
+                                                        overwrite_magmom_mode="normalize",
+                                                        make_primitive=False)
 
         b_positive = b_positive.get_structure_with_spin()
         b_negative = b_negative.get_structure_with_spin()

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.feff.inputs &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.io.feff.inputs &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -164,8 +164,8 @@
 <span class="sd">            Header Object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">CifParser</span><span class="p">(</span><span class="n">cif_file</span><span class="p">)</span>
-        <span class="n">structure</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get_structures</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span></div>
-        <span class="k">return</span> <span class="n">Header</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get_structures</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Header</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">structure_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -189,8 +189,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns Header object from file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">hs</span> <span class="o">=</span> <span class="n">Header</span><span class="o">.</span><span class="n">header_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">Header</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">hs</span><span class="p">)</span>
+        <span class="n">hs</span> <span class="o">=</span> <span class="n">Header</span><span class="o">.</span><span class="n">header_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Header</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">hs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Header.header_string_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.header_string_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">header_string_from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;feff.inp&#39;</span><span class="p">):</span>
@@ -231,8 +231,8 @@
                         <span class="n">feff_header_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">end</span> <span class="o">=</span> <span class="mi">1</span>
-</div>
-        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">feff_header_str</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">feff_header_str</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Header.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Header.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">header_str</span><span class="p">):</span>
@@ -290,8 +290,8 @@
             <span class="n">h</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">comment2</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">h</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="s2">&quot;Header not generated by pymatgen, cannot return header object&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Header not generated by pymatgen, cannot return header object&quot;</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -325,8 +325,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            filename: Filename and path for file to be written to disk</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div></div>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Atoms"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms">[docs]</a><span class="k">class</span> <span class="nc">Atoms</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -409,8 +409,8 @@
                         <span class="n">coords</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="n">coords</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="s2">&quot;END&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
                     <span class="n">atoms_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-</div>
-        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atoms_str</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">atoms_str</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Atoms.cluster_from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.cluster_from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">cluster_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -432,8 +432,8 @@
         <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">line_list</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">l</span><span class="p">:</span>
                 <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[:</span><span class="mi">3</span><span class="p">]])</span>
-                <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span></div>
-        <span class="k">return</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">symbols</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+                <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">symbols</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Atoms.get_lines"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Atoms.get_lines">[docs]</a>    <span class="k">def</span> <span class="nf">get_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -454,8 +454,8 @@
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
                           <span class="s2">&quot;</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">z</span><span class="p">),</span> <span class="n">ipot</span><span class="p">,</span> <span class="n">site_symbol</span><span class="p">,</span>
                           <span class="s2">&quot;</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cluster</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-</div>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -476,8 +476,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">           filename: path for file to be written</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div></div>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Tags"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags">[docs]</a><span class="k">class</span> <span class="nc">Tags</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
@@ -519,8 +519,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tags_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">tags_dict</span><span class="p">[</span><span class="s1">&#39;@module&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
-        <span class="n">tags_dict</span><span class="p">[</span><span class="s1">&#39;@class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span></div>
-        <span class="k">return</span> <span class="n">tags_dict</span>
+        <span class="n">tags_dict</span><span class="p">[</span><span class="s1">&#39;@class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">tags_dict</span></div>
 
 <div class="viewcode-block" id="Tags.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
@@ -536,8 +536,8 @@
         <span class="n">i</span> <span class="o">=</span> <span class="n">Tags</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;@module&quot;</span><span class="p">,</span> <span class="s2">&quot;@class&quot;</span><span class="p">):</span>
-                <span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span></div>
-        <span class="k">return</span> <span class="n">i</span>
+                <span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">i</span></div>
 
 <div class="viewcode-block" id="Tags.get_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.get_string">[docs]</a>    <span class="k">def</span> <span class="nf">get_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -577,8 +577,8 @@
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stringify_val</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">])])</span>
         <span class="k">if</span> <span class="n">pretty</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="n">str_delimited</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">str_delimited</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_stringify_val</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
@@ -600,8 +600,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            filename: filename and path to write to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Tags.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;feff.inp&quot;</span><span class="p">):</span>
@@ -648,8 +648,8 @@
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">eels_keys</span><span class="p">,</span> <span class="n">eels_params</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
                 <span class="n">eels_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
             <span class="n">params</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">eels_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="n">eels_dict</span>
-</div>
-        <span class="k">return</span> <span class="n">Tags</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Tags</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Tags.proc_val"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.proc_val">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">proc_val</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
@@ -705,8 +705,8 @@
 
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
-</div>
-        <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">val</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Tags.diff"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Tags.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -737,8 +737,8 @@
             <span class="k">if</span> <span class="n">k2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">similar_param</span> <span class="ow">and</span> <span class="n">k2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">different_param</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">k2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                     <span class="n">different_param</span><span class="p">[</span><span class="n">k2</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;FEFF_TAGS1&quot;</span><span class="p">:</span> <span class="s2">&quot;Default&quot;</span><span class="p">,</span>
-                                           <span class="s2">&quot;FEFF_TAGS2&quot;</span><span class="p">:</span> <span class="n">v2</span><span class="p">}</span></div>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Same&quot;</span><span class="p">:</span> <span class="n">similar_param</span><span class="p">,</span> <span class="s2">&quot;Different&quot;</span><span class="p">:</span> <span class="n">different_param</span><span class="p">}</span>
+                                           <span class="s2">&quot;FEFF_TAGS2&quot;</span><span class="p">:</span> <span class="n">v2</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Same&quot;</span><span class="p">:</span> <span class="n">similar_param</span><span class="p">,</span> <span class="s2">&quot;Different&quot;</span><span class="p">:</span> <span class="n">different_param</span><span class="p">}</span></div>
 
     <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -750,8 +750,8 @@
             <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">!=</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tags have conflicting values!&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">params</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span></div>
-        <span class="k">return</span> <span class="n">Tags</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">params</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">Tags</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Potential"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential">[docs]</a><span class="k">class</span> <span class="nc">Potential</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -817,8 +817,8 @@
                         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
                             <span class="k">if</span> <span class="n">pot_data</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                                 <span class="n">pot_data_over</span> <span class="o">=</span> <span class="mi">0</span>
-</div>
-        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pot_str</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pot_str</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Potential.pot_dict_from_string"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Potential.pot_dict_from_string">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">pot_dict_from_string</span><span class="p">(</span><span class="n">pot_data</span><span class="p">):</span>
@@ -851,8 +851,8 @@
                     <span class="n">pot_dict</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
                     <span class="n">pot_dict_reverse</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">atom</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
-                <span class="k">pass</span></div>
-        <span class="k">return</span> <span class="n">pot_dict</span><span class="p">,</span> <span class="n">pot_dict_reverse</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">pot_dict</span><span class="p">,</span> <span class="n">pot_dict_reverse</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -889,8 +889,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            filename: filename and path to write potential file to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div></div>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Paths"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.Paths">[docs]</a><span class="k">class</span> <span class="nc">Paths</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -934,8 +934,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write paths.dat.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span></div></div>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="FeffParserError"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.FeffParserError">[docs]</a><span class="k">class</span> <span class="nc">FeffParserError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -947,8 +947,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="s2">&quot;FeffParserError : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;FeffParserError : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span></div>
 
 
 <div class="viewcode-block" id="get_atom_map"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.get_atom_map">[docs]</a><span class="k">def</span> <span class="nf">get_atom_map</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
@@ -967,8 +967,8 @@
     <span class="p">[</span><span class="n">unique_pot_atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">syms</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">unique_pot_atoms</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
     <span class="n">atom_map</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_pot_atoms</span><span class="p">):</span>
-        <span class="n">atom_map</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span></div>
-    <span class="k">return</span> <span class="n">atom_map</span>
+        <span class="n">atom_map</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">atom_map</span></div>
 
 
 <div class="viewcode-block" id="get_absorbing_atom_symbol_index"><a class="viewcode-back" href="../../../../pymatgen.io.feff.inputs.html#pymatgen.io.feff.inputs.get_absorbing_atom_symbol_index">[docs]</a><span class="k">def</span> <span class="nf">get_absorbing_atom_symbol_index</span><span class="p">(</span><span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
@@ -986,8 +986,8 @@
         <span class="k">return</span> <span class="n">absorbing_atom</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">indices_from_symbol</span><span class="p">(</span><span class="n">absorbing_atom</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absorbing_atom</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">absorbing_atom</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span> <span class="n">absorbing_atom</span>
-    <span class="k">else</span><span class="p">:</span></div>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;absorbing_atom must be either specie symbol or site index&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;absorbing_atom must be either specie symbol or site index&quot;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -1020,7 +1020,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1028,7 +1028,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

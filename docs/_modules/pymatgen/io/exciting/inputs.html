@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.exciting.inputs &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.io.exciting.inputs &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -216,13 +216,13 @@
         <span class="c1"># create lattice and structure object</span>
         <span class="n">lattice_in</span><span class="o">=</span><span class="n">Lattice</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
         <span class="n">structure_in</span><span class="o">=</span><span class="n">Structure</span><span class="p">(</span><span class="n">lattice_in</span><span class="p">,</span><span class="n">elements</span><span class="p">,</span><span class="n">positions</span><span class="p">,</span><span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">cartesian</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">ExcitingInput</span><span class="p">(</span><span class="n">structure_in</span><span class="p">,</span> <span class="n">title_in</span><span class="p">,</span> <span class="n">lockxyz</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ExcitingInput</span><span class="p">(</span><span class="n">structure_in</span><span class="p">,</span> <span class="n">title_in</span><span class="p">,</span> <span class="n">lockxyz</span><span class="p">)</span></div>
 <div class="viewcode-block" id="ExcitingInput.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">ExcitingInput</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ExcitingInput</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExcitingInput.write_etree"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.write_etree">[docs]</a>    <span class="k">def</span> <span class="nf">write_etree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bandstr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
@@ -303,8 +303,8 @@
                     <span class="n">pt</span><span class="o">=</span><span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="s1">&#39;point&#39;</span><span class="p">,</span><span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="n">symbol</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">bandstr</span> <span class="ow">and</span> <span class="n">celltype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;primitive&#39;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bandstructure is only implemented for the </span><span class="se">\</span>
-<span class="s2">                              standard primitive unit cell!&quot;</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">root</span>
+<span class="s2">                              standard primitive unit cell!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">root</span></div>
 <div class="viewcode-block" id="ExcitingInput.write_string"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.write_string">[docs]</a>    <span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bandstr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">write_etree</span><span class="p">(</span><span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">,</span> <span class="n">bandstr</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">)</span>
@@ -312,8 +312,8 @@
             <span class="c1"># output should be a string not a bytes object</span>
             <span class="n">string</span><span class="o">=</span><span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incorrect celltype!&#39;</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">string</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incorrect celltype!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">string</span></div>
 <div class="viewcode-block" id="ExcitingInput.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celltype</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bandstr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">write_etree</span><span class="p">(</span><span class="n">celltype</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">,</span> <span class="n">bandstr</span><span class="p">,</span> <span class="n">symprec</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">)</span>
@@ -321,8 +321,8 @@
             <span class="n">tree</span><span class="o">=</span><span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
             <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incorrect celltype!&#39;</span><span class="p">)</span></div>
-        <span class="k">return</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incorrect celltype!&#39;</span><span class="p">)</span>
+        <span class="k">return</span></div>
     <span class="c1"># Missing PrerryPrint option in the current version of xml.etree.cElementTree</span>
 <div class="viewcode-block" id="ExcitingInput.indent"><a class="viewcode-back" href="../../../../pymatgen.io.exciting.inputs.html#pymatgen.io.exciting.inputs.ExcitingInput.indent">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -337,8 +337,8 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                 <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">level</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span></div></div>
-                <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">if</span> <span class="n">level</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+                <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span></div></div>
 </pre></div>
 
           </div>
@@ -371,7 +371,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -379,7 +379,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

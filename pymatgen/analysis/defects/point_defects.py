@@ -37,7 +37,7 @@ from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
-from pymatgen.analysis.local_env import LocalStructOrderParas, \
+from pymatgen.analysis.local_env import LocalStructOrderParams, \
     MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator
 from pymatgen.analysis.structure_analyzer import RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -1446,7 +1446,7 @@ class StructureMotifInterstitial(Defect):
         struct_w_inter = struct.copy()
         struct_w_inter.append(inter_elem, [0, 0, 0])
         natoms = len(list(struct_w_inter.sites))
-        ops = LocalStructOrderParas(motif_types, cutoff=-10.0)
+        ops = LocalStructOrderParams(motif_types, cutoff=-10.0)
         trialsites = []
 
         # Loop over trial positions that are based on a regular

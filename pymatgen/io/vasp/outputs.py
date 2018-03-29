@@ -2807,7 +2807,7 @@ class VolumetricData(object):
             :return: str
             """
             s = "{:.10E}".format(f)
-            if f > 0:
+            if f >= 0:
                 return "0."+s[0]+s[2:12]+'E'+"{:+03}".format(int(s[13:])+1)
             else:
                 return "-."+s[1]+s[3:13]+'E'+"{:+03}".format(int(s[14:])+1)

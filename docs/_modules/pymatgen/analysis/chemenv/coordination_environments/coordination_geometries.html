@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometries &#8212; pymatgen 2018.3.23 documentation</title>
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -99,16 +99,16 @@
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A JSON serializable dict representation of the algorithm</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">pass</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">algorithm_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algorithm_type</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span></div>
 
 
 <div class="viewcode-block" id="ExplicitPermutationsAlgorithm"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm">[docs]</a><span class="k">class</span> <span class="nc">ExplicitPermutationsAlgorithm</span><span class="p">(</span><span class="n">AbstractChemenvAlgorithm</span><span class="p">):</span>
@@ -134,8 +134,8 @@
                 <span class="s2">&quot;permutations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_permutations</span><span class="p">}</span>
 
 <div class="viewcode-block" id="ExplicitPermutationsAlgorithm.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span></div></div>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;permutations&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;permutations&#39;</span><span class="p">])</span></div></div>
 
 
 <div class="viewcode-block" id="SeparationPlane"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane">[docs]</a><span class="k">class</span> <span class="nc">SeparationPlane</span><span class="p">(</span><span class="n">AbstractChemenvAlgorithm</span><span class="p">):</span>
@@ -312,8 +312,8 @@
                             <span class="n">perm</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">perm_side2</span><span class="p">)</span>
                             <span class="n">perm</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">perm_sep_plane</span><span class="p">))</span>
                             <span class="n">perm</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">perm_side1</span><span class="p">))</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">_safe_permutations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_safe_permutations</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_safe_permutations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_safe_permutations</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -349,8 +349,8 @@
                    <span class="n">multiplicity</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span>
                        <span class="s1">&#39;multiplicity&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;multiplicity&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                    <span class="n">other_plane_points</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span>
-                       <span class="s1">&#39;other_plane_points&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;other_plane_points&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span></div>
-                   <span class="n">minimum_number_of_points</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;minimum_number_of_points&#39;</span><span class="p">])</span>
+                       <span class="s1">&#39;other_plane_points&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;other_plane_points&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">minimum_number_of_points</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;minimum_number_of_points&#39;</span><span class="p">])</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;Separation plane algorithm with the following reference separation :</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -358,8 +358,8 @@
             <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">point_groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]]),</span>
             <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">plane_points</span><span class="p">]),</span>
             <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span> <span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">point_groups</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
-        <span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">out</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
 
 
 <div class="viewcode-block" id="CoordinationGeometry"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry">[docs]</a><span class="k">class</span> <span class="nc">CoordinationGeometry</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -381,8 +381,8 @@
 
 <div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.hints"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.hints">[docs]</a>        <span class="k">def</span> <span class="nf">hints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hints_info</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">hints_info</span><span class="p">[</span><span class="s1">&#39;csm&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;csm_max&#39;</span><span class="p">]:</span>
-                <span class="k">return</span> <span class="p">[]</span></div>
-            <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_hints&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hints_type</span><span class="p">))(</span><span class="n">hints_info</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_hints&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hints_type</span><span class="p">))(</span><span class="n">hints_info</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.single_cap_hints"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.single_cap_hints">[docs]</a>        <span class="k">def</span> <span class="nf">single_cap_hints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hints_info</span><span class="p">):</span>
             <span class="n">cap_index_perfect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;cap_index&#39;</span><span class="p">]</span>
@@ -391,8 +391,8 @@
             <span class="n">nb_set_voronoi_indices_perfect_aligned</span> <span class="o">=</span> <span class="n">nb_set</span><span class="o">.</span><span class="n">get_neighb_voronoi_indices</span><span class="p">(</span><span class="n">permutation</span><span class="o">=</span><span class="n">permutation</span><span class="p">)</span>
             <span class="n">cap_voronoi_index</span> <span class="o">=</span> <span class="n">nb_set_voronoi_indices_perfect_aligned</span><span class="p">[</span><span class="n">cap_index_perfect</span><span class="p">]</span>
             <span class="n">new_site_voronoi_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nb_set</span><span class="o">.</span><span class="n">site_voronoi_indices</span><span class="p">)</span>
-            <span class="n">new_site_voronoi_indices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cap_voronoi_index</span><span class="p">)</span></div>
-            <span class="k">return</span> <span class="p">[</span><span class="n">new_site_voronoi_indices</span><span class="p">]</span>
+            <span class="n">new_site_voronoi_indices</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cap_voronoi_index</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">new_site_voronoi_indices</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.double_cap_hints"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.double_cap_hints">[docs]</a>        <span class="k">def</span> <span class="nf">double_cap_hints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hints_info</span><span class="p">):</span>
             <span class="n">first_cap_index_perfect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;first_cap_index&#39;</span><span class="p">]</span>
@@ -408,8 +408,8 @@
             <span class="n">new_site_voronoi_indices1</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">first_cap_voronoi_index</span><span class="p">)</span>
             <span class="n">new_site_voronoi_indices2</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">second_cap_voronoi_index</span><span class="p">)</span>
             <span class="n">new_site_voronoi_indices3</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">first_cap_voronoi_index</span><span class="p">)</span>
-            <span class="n">new_site_voronoi_indices3</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">second_cap_voronoi_index</span><span class="p">)</span></div>
-            <span class="k">return</span> <span class="p">[</span><span class="n">new_site_voronoi_indices1</span><span class="p">,</span> <span class="n">new_site_voronoi_indices2</span><span class="p">,</span> <span class="n">new_site_voronoi_indices3</span><span class="p">]</span>
+            <span class="n">new_site_voronoi_indices3</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">second_cap_voronoi_index</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">new_site_voronoi_indices1</span><span class="p">,</span> <span class="n">new_site_voronoi_indices2</span><span class="p">,</span> <span class="n">new_site_voronoi_indices3</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.triple_cap_hints"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.triple_cap_hints">[docs]</a>        <span class="k">def</span> <span class="nf">triple_cap_hints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hints_info</span><span class="p">):</span>
             <span class="n">first_cap_index_perfect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;first_cap_index&#39;</span><span class="p">]</span>
@@ -441,17 +441,17 @@
             <span class="n">new_site_voronoi_indices7</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">second_cap_voronoi_index</span><span class="p">)</span>
             <span class="n">new_site_voronoi_indices7</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">third_cap_voronoi_index</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">new_site_voronoi_indices1</span><span class="p">,</span> <span class="n">new_site_voronoi_indices2</span><span class="p">,</span> <span class="n">new_site_voronoi_indices3</span><span class="p">,</span>
-                    <span class="n">new_site_voronoi_indices4</span><span class="p">,</span> <span class="n">new_site_voronoi_indices5</span><span class="p">,</span> <span class="n">new_site_voronoi_indices6</span><span class="p">,</span></div>
-                    <span class="n">new_site_voronoi_indices7</span><span class="p">]</span>
+                    <span class="n">new_site_voronoi_indices4</span><span class="p">,</span> <span class="n">new_site_voronoi_indices5</span><span class="p">,</span> <span class="n">new_site_voronoi_indices6</span><span class="p">,</span>
+                    <span class="n">new_site_voronoi_indices7</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.as_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.as_dict">[docs]</a>        <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;hints_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hints_type</span><span class="p">,</span></div>
-                    <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">}</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;hints_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hints_type</span><span class="p">,</span>
+                    <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.NeighborsSetsHints.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.NeighborsSetsHints.from_dict">[docs]</a>        <span class="nd">@classmethod</span>
         <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">hints_type</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;hints_type&#39;</span><span class="p">],</span></div></div>
-                       <span class="n">options</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">hints_type</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;hints_type&#39;</span><span class="p">],</span>
+                       <span class="n">options</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span><span class="s1">&#39;options&#39;</span><span class="p">])</span></div></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">alternative_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">IUPAC_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">IUCr_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -526,8 +526,8 @@
                 <span class="s1">&#39;_algorithms&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">algo</span><span class="o">.</span><span class="n">as_dict</span> <span class="k">for</span> <span class="n">algo</span> <span class="ow">in</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_algorithms</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algorithms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s1">&#39;equivalent_indices&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">,</span>
-                <span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">nbsh</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">nbsh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets_hints</span><span class="p">]</span></div>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets_hints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">}</span>
+                <span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">nbsh</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">nbsh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets_hints</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_sets_hints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.from_dict"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dd</span><span class="p">):</span>
@@ -551,8 +551,8 @@
                    <span class="n">equivalent_indices</span><span class="o">=</span><span class="n">dd</span><span class="p">[</span>
                        <span class="s1">&#39;equivalent_indices&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;equivalent_indices&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                    <span class="n">neighbors_sets_hints</span><span class="o">=</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">NeighborsSetsHints</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">nbshd</span><span class="p">)</span>
-                                         <span class="k">for</span> <span class="n">nbshd</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">]]</span></div>
-                   <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;neighbors_sets_hints&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="ow">and</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+                                         <span class="k">for</span> <span class="n">nbshd</span> <span class="ow">in</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">]]</span>
+                   <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;neighbors_sets_hints&#39;</span> <span class="ow">in</span> <span class="n">dd</span> <span class="ow">and</span> <span class="n">dd</span><span class="p">[</span><span class="s1">&#39;neighbors_sets_hints&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">symbol</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -600,8 +600,8 @@
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination</span>
 
-<div class="viewcode-block" id="CoordinationGeometry.set_permutations_safe_override"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override">[docs]</a>    <span class="k">def</span> <span class="nf">set_permutations_safe_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations_safe_override</span><span class="p">):</span></div>
-        <span class="bp">self</span><span class="o">.</span><span class="n">permutations_safe_override</span> <span class="o">=</span> <span class="n">permutations_safe_override</span>
+<div class="viewcode-block" id="CoordinationGeometry.set_permutations_safe_override"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override">[docs]</a>    <span class="k">def</span> <span class="nf">set_permutations_safe_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations_safe_override</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">permutations_safe_override</span> <span class="o">=</span> <span class="n">permutations_safe_override</span></div>
         <span class="c1"># self.setup_permutations()</span>
 
     <span class="nd">@property</span>
@@ -661,20 +661,20 @@
 <div class="viewcode-block" id="CoordinationGeometry.get_coordination_number"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the coordination number of this coordination geometry.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordination</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.is_implemented"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.is_implemented">[docs]</a>    <span class="k">def</span> <span class="nf">is_implemented</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns True if this coordination geometry is implemented.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.get_name"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the name of this coordination geometry.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">IUPAC_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -719,8 +719,8 @@
         <span class="n">perms</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">eqv_indices</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_indices</span><span class="p">:</span>
             <span class="n">perms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="n">permutation</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">eqv_indices</span><span class="p">]))</span>
-        <span class="n">perms</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span></div>
-        <span class="k">return</span> <span class="n">perms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">perms</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">perms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">algorithms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -732,8 +732,8 @@
 <div class="viewcode-block" id="CoordinationGeometry.get_central_site"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_central_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_central_site</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the central site of this coordination geometry.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_site</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.faces"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.faces">[docs]</a>    <span class="k">def</span> <span class="nf">faces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">permutation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -743,8 +743,8 @@
         <span class="k">if</span> <span class="n">permutation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span></div>
-        <span class="k">return</span> <span class="p">[[</span><span class="n">coords</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_faces</span><span class="p">]</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">sites</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">coords</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_faces</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.edges"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.edges">[docs]</a>    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">permutation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><span class="s1">&#39;sites&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -760,8 +760,8 @@
         <span class="c1"># else:</span>
         <span class="c1">#     coords = [sites[ii].coords for ii in permutation]</span>
         <span class="k">if</span> <span class="n">permutation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">coords</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span></div>
-        <span class="k">return</span> <span class="p">[[</span><span class="n">coords</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">]</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">coords</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">coords</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.solid_angles"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles">[docs]</a>    <span class="k">def</span> <span class="nf">solid_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -770,8 +770,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">permutation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid_angles</span>
-        <span class="k">else</span><span class="p">:</span></div>
-            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_solid_angles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_solid_angles</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="CoordinationGeometry.get_pmeshes"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.get_pmeshes">[docs]</a>    <span class="k">def</span> <span class="nf">get_pmeshes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">permutation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -817,8 +817,8 @@
                 <span class="k">for</span> <span class="n">face_vertex</span> <span class="ow">in</span> <span class="n">face</span><span class="p">:</span>
                     <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:d}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">face_vertex</span><span class="p">)</span>
                 <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:d}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">face</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">pmeshes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;pmesh_string&quot;</span><span class="p">:</span> <span class="n">out</span><span class="p">})</span></div></div>
-        <span class="k">return</span> <span class="n">pmeshes</span>
+        <span class="n">pmeshes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;pmesh_string&quot;</span><span class="p">:</span> <span class="n">out</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">pmeshes</span></div></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries">[docs]</a><span class="k">class</span> <span class="nc">AllCoordinationGeometries</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -934,8 +934,8 @@
                     <span class="k">if</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;cg&#39;</span><span class="p">:</span>
                         <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;mp_symbol&#39;</span><span class="p">:</span>
-                        <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">geom</span>
+                        <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">geom</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_symbol_name_mapping"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_symbol_name_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">get_symbol_name_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">geom</span> <span class="o">=</span> <span class="p">{}</span>
@@ -945,8 +945,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">gg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_list</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">gg</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">()</span> <span class="o">==</span> <span class="n">coordination</span><span class="p">:</span>
-                    <span class="n">geom</span><span class="p">[</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">name</span></div>
-        <span class="k">return</span> <span class="n">geom</span>
+                    <span class="n">geom</span><span class="p">[</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="n">geom</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_symbol_cn_mapping"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_symbol_cn_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">get_symbol_cn_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">geom</span> <span class="o">=</span> <span class="p">{}</span>
@@ -956,8 +956,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">gg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_list</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">gg</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">()</span> <span class="o">==</span> <span class="n">coordination</span><span class="p">:</span>
-                    <span class="n">geom</span><span class="p">[</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">coordination_number</span></div>
-        <span class="k">return</span> <span class="n">geom</span>
+                    <span class="n">geom</span><span class="p">[</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">coordination_number</span>
+        <span class="k">return</span> <span class="n">geom</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_implemented_geometries"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_implemented_geometries">[docs]</a>    <span class="k">def</span> <span class="nf">get_implemented_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">returned</span><span class="o">=</span><span class="s1">&#39;cg&#39;</span><span class="p">,</span>
                                    <span class="n">include_deactivated</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -982,8 +982,8 @@
                     <span class="k">if</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;cg&#39;</span><span class="p">:</span>
                         <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;mp_symbol&#39;</span><span class="p">:</span>
-                        <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">geom</span>
+                        <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">geom</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_not_implemented_geometries"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_not_implemented_geometries">[docs]</a>    <span class="k">def</span> <span class="nf">get_not_implemented_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordination</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                        <span class="n">returned</span><span class="o">=</span><span class="s1">&#39;mp_symbol&#39;</span><span class="p">):</span>
@@ -1006,8 +1006,8 @@
                     <span class="k">if</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;cg&#39;</span><span class="p">:</span>
                         <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">returned</span> <span class="o">==</span> <span class="s1">&#39;mp_symbol&#39;</span><span class="p">:</span>
-                        <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">)</span></div>
-        <span class="k">return</span> <span class="n">geom</span>
+                        <span class="n">geom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">geom</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_geometry_from_name"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_geometry_from_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1018,8 +1018,8 @@
             <span class="k">if</span> <span class="n">gg</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">gg</span><span class="o">.</span><span class="n">alternative_names</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">gg</span>
         <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-            <span class="s1">&#39;No coordination geometry found with name &quot;</span><span class="si">{name}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span></div>
-                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+            <span class="s1">&#39;No coordination geometry found with name &quot;</span><span class="si">{name}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_geometry_from_IUPAC_symbol"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_IUPAC_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">get_geometry_from_IUPAC_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">IUPAC_symbol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1030,8 +1030,8 @@
             <span class="k">if</span> <span class="n">gg</span><span class="o">.</span><span class="n">IUPAC_symbol</span> <span class="o">==</span> <span class="n">IUPAC_symbol</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">gg</span>
         <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-            <span class="s1">&#39;No coordination geometry found with IUPAC symbol &quot;</span><span class="si">{symbol}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span></div>
-                <span class="n">symbol</span><span class="o">=</span><span class="n">IUPAC_symbol</span><span class="p">))</span>
+            <span class="s1">&#39;No coordination geometry found with IUPAC symbol &quot;</span><span class="si">{symbol}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">symbol</span><span class="o">=</span><span class="n">IUPAC_symbol</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_geometry_from_IUCr_symbol"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_IUCr_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">get_geometry_from_IUCr_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">IUCr_symbol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1042,8 +1042,8 @@
             <span class="k">if</span> <span class="n">gg</span><span class="o">.</span><span class="n">IUCr_symbol</span> <span class="o">==</span> <span class="n">IUCr_symbol</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">gg</span>
         <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-            <span class="s1">&#39;No coordination geometry found with IUCr symbol &quot;</span><span class="si">{symbol}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span></div>
-                <span class="n">symbol</span><span class="o">=</span><span class="n">IUCr_symbol</span><span class="p">))</span>
+            <span class="s1">&#39;No coordination geometry found with IUCr symbol &quot;</span><span class="si">{symbol}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">symbol</span><span class="o">=</span><span class="n">IUCr_symbol</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.get_geometry_from_mp_symbol"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.get_geometry_from_mp_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">get_geometry_from_mp_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1054,8 +1054,8 @@
             <span class="k">if</span> <span class="n">gg</span><span class="o">.</span><span class="n">mp_symbol</span> <span class="o">==</span> <span class="n">mp_symbol</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">gg</span>
         <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-            <span class="s1">&#39;No coordination geometry found with mp_symbol &quot;</span><span class="si">{symbol}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span></div>
-                <span class="n">symbol</span><span class="o">=</span><span class="n">mp_symbol</span><span class="p">))</span>
+            <span class="s1">&#39;No coordination geometry found with mp_symbol &quot;</span><span class="si">{symbol}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">symbol</span><span class="o">=</span><span class="n">mp_symbol</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.is_a_valid_coordination_geometry"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.is_a_valid_coordination_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">is_a_valid_coordination_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mp_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                          <span class="n">IUPAC_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">IUCr_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1111,8 +1111,8 @@
                         <span class="k">return</span> <span class="kc">False</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">except</span> <span class="ne">LookupError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span></div>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Should not be here !&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Should not be here !&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AllCoordinationGeometries.pretty_print"><a class="viewcode-back" href="../../../../../pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.AllCoordinationGeometries.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;implemented_geometries&#39;</span><span class="p">,</span> <span class="n">maxcn</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">additional_info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;all_geometries_latex_images&#39;</span><span class="p">:</span>
@@ -1186,8 +1186,8 @@
                     <span class="k">for</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_geometries</span><span class="p">(</span><span class="n">coordination</span><span class="o">=</span><span class="n">cn</span><span class="p">):</span>
                         <span class="n">mystring</span> <span class="o">+=</span> <span class="s1">&#39; - </span><span class="si">{mp}</span><span class="s1"> : </span><span class="si">{name}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mp</span><span class="o">=</span><span class="n">cg</span><span class="o">.</span><span class="n">mp_symbol</span><span class="p">,</span>
                                                                 <span class="n">name</span><span class="o">=</span><span class="n">cg</span><span class="o">.</span><span class="n">get_name</span><span class="p">())</span>
-                <span class="n">mystring</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span></div></div>
-        <span class="k">return</span> <span class="n">mystring</span>
+                <span class="n">mystring</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">mystring</span></div></div>
 </pre></div>
 
           </div>
@@ -1220,7 +1220,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.3.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1228,7 +1228,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
