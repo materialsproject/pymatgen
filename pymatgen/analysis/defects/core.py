@@ -208,7 +208,7 @@ class DefectEntry(MSONable):
         self.uncorrected_energy = uncorrected_energy
         self.corrections = corrections
         self.entry_id = entry_id
-        self.parameter = parameters
+        self.parameters = parameters
 
     @property
     def site(self):
