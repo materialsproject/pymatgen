@@ -1390,25 +1390,6 @@ class ReconstructionGenerator(object):
         slabs = self.get_unreconstructed_slabs()
         recon_slabs = []
 
-        def get_d(slab):
-
-            """
-            Determine the distance of space between
-            each layer of atoms along c
-            """
-
-            sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-            for i, site in enumerate(sorted_sites):
-                if "%.6f" % (site.frac_coords[2]) == \
-                                "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
-                    continue
-                else:
-                    d = abs(site.frac_coords[2] - \
-                            sorted_sites[i + 1].frac_coords[2])
-                    break
-
-            return slab.lattice.get_cartesian_coords([0, 0, d])[2]
-
         for slab in slabs:
             d = get_d(slab)
             top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
@@ -1439,6 +1420,24 @@ class ReconstructionGenerator(object):
             recon_slabs.append(slab)
 
         return recon_slabs
+        
+
+        def get_d(slab):
+            """
+            Determine the distance of space between
+            each layer of atoms along c
+            """
+            sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
+            for i, site in enumerate(sorted_sites):
+                if "%.6f" % (site.frac_coords[2]) == \
+                                "%.6f" % (sorted_sites[i + 1].frac_coords[2]):
+                    continue
+                else:
+                    d = abs(site.frac_coords[2] - \
+                            sorted_sites[i + 1].frac_coords[2])
+                    break
+            return slab.lattice.get_cartesian_coords([0, 0, d])[2]
+
 
     def symmetrically_remove_atom(self, slab, point):
 
