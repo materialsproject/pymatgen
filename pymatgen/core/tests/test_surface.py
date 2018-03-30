@@ -12,7 +12,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
     get_symmetrically_distinct_miller_indices, ReconstructionGenerator, \
-    miller_index_from_sites
+    miller_index_from_sites, get_d
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
@@ -536,7 +536,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
                                          "diamond_100_2x1")
         s1 = recon.get_unreconstructed_slabs()[0]
         s2 = recon2.get_unreconstructed_slabs()[0]
-        self.assertAlmostEqual(recon.get_d(s1), recon2.get_d(s2))
+        self.assertAlmostEqual(get_d(s1), get_d(s2))
 
     def test_previous_reconstructions(self):
 
