@@ -1327,7 +1327,7 @@ class WorkFunctionAnalyzer(object):
         min_points = int(min_points_frac*len(self.locpot_along_c))
         peak_i = self.locpot_along_c.index(self.vacuum_locpot)
         all_flat = []
-        for i, pos in enumerate(self.along_c):
+        for i in range(len(self.along_c)):
             if peak_i - min_points < i <  peak_i + min_points:
                 if abs(self.vacuum_locpot - self.locpot_along_c[i]) > conv_within:
                     all_flat.append(False)
