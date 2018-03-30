@@ -166,7 +166,7 @@ class QCOutput(MSONable):
             if temp_charge != None:
                 self.data["charge"] = int(float(temp_charge[0][0]))
             else:
-                self.data["errors"] += ["cannot_read_charge"]
+                self.data["charge"] = None
 
         temp_multiplicity = read_pattern(self.text, {"key": r"\$molecule\s+[\-\d]+\s+(\d)"}, terminate_on_match=True).get('key')
         if temp_multiplicity != None:
@@ -255,7 +255,7 @@ class QCOutput(MSONable):
             footer_pattern = r"^\$end\n"
 
             self.data["optimized_zmat"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-        elif "cannot_read_charge" not in self.data.get('errors'):
+        elif self.data.get('charge') != None:
             self.data["molecule_from_optimized_geometry"] = self._make_geometry_into_molecule(self.data.get('optimized_geometry')[0])
 
     def _read_last_geometry(self):
@@ -267,7 +267,7 @@ class QCOutput(MSONable):
         footer_pattern = r"\s+Point Group\:\s+[\d\w]+\s+Number of degrees of freedom\:\s+\d+"
 
         self.data["last_geometry"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-        if self.data.get('last_geometry') != [] and "cannot_read_charge" not in self.data.get('errors'):
+        if self.data.get('last_geometry') != [] and self.data.get('charge') != None:
             self.data["molecule_from_last_geometry"] = self._make_geometry_into_molecule(self.data.get('last_geometry')[0])
 
     def _check_optimization_errors(self):
