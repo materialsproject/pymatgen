@@ -128,7 +128,7 @@ class SlabEntry(ComputedStructureEntry):
         self.adsorbates = [] if not adsorbates else adsorbates
         self.clean_entry = clean_entry
         self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): \
-                                     ads for ads in adsorbates}
+                                     ads for ads in self.adsorbates}
 
         super(SlabEntry, self).__init__(
             structure, energy, correction=correction,
@@ -1207,8 +1207,8 @@ class WorkFunctionAnalyzer(object):
         # for setting ylim and annotating
         self.ave_locpot = (self.vacuum_locpot-min(self.locpot_along_c))/2
 
-    def get_locpot_along_slab_plot(self, label_energies=True, plt=None,
-                                   label_fontsize=10):
+    def get_locpot_along_slab_plot(self, label_energies=True,
+                                   plt=None, label_fontsize=10):
         """
         Returns a plot of the local potential (eV) vs the
             position along the c axis of the slab model (Ang)
@@ -1253,7 +1253,7 @@ class WorkFunctionAnalyzer(object):
                   self.vacuum_locpot+self.ave_locpot*0.2])
         plt.xlabel(r"Fractional coordinates ($\hat{c}$)", fontsize=25)
         plt.xticks(fontsize=15, rotation=45)
-        plt.ylabel(r"Energy (eV)", fontsize=25)
+        plt.ylabel(r"Potential (eV)", fontsize=25)
         plt.yticks(fontsize=15)
 
         return plt
@@ -1294,7 +1294,6 @@ class WorkFunctionAnalyzer(object):
 
         # label the bulk-like locpot
         plt.plot([0, 1], [self.ave_bulk_p]*2, 'r--', linewidth=1., zorder=-1)
-        print(label_in_vac)
         xy = [label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05]
         plt.annotate(r"$V^{interior}_{slab}=%.2f$" % (self.ave_bulk_p),
                      xy=xy, xytext=xy, color='r', fontsize=label_fontsize)
@@ -1307,6 +1306,34 @@ class WorkFunctionAnalyzer(object):
                      xy=xy, xytext=xy, fontsize=label_fontsize)
 
         return plt
+
+    def is_converged(self, min_points_frac=0.015, tol=0.0025):
+        """
+        A well converged work function should have a flat electrostatic
+            potential within some distance (min_point) about where the peak
+            electrostatic potential is found along the c direction of the
+            slab. This is dependent on the size of the slab.
+        Args:
+            min_point (fractional coordinates): The number of data points
+                +/- the point of where the electrostatic potential is at
+                its peak along the c direction.
+            tol (float): If the electrostatic potential stays the same
+                within this tolerance, within the min_points, it is converged.
+
+        Returns a bool (whether or not the work function is converged)
+        """
+
+        conv_within = tol*(max(self.locpot_along_c)-min(self.locpot_along_c))
+        min_points = int(min_points_frac*len(self.locpot_along_c))
+        peak_i = self.locpot_along_c.index(self.vacuum_locpot)
+        all_flat = []
+        for i, pos in enumerate(self.along_c):
+            if peak_i - min_points < i <  peak_i + min_points:
+                if abs(self.vacuum_locpot - self.locpot_along_c[i]) > conv_within:
+                    all_flat.append(False)
+                else:
+                    all_flat.append(True)
+        return all(all_flat)
 
     @staticmethod
     def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0):
