@@ -1017,7 +1017,8 @@ class MPRester(object):
         return WulffShape(lattice, millers, energies)
 
     def get_interface_reactions(self, reactant1, reactant2,
-                                open_el=None, relative_mu=None):
+                                open_el=None, relative_mu=None,
+                                use_hull_energy=False):
         """
         Gets critical reactions between two reactants.
 
@@ -1031,6 +1032,11 @@ class MPRester(object):
             open_el (str): Element in reservoir available to system
             relative_mu (float): Relative chemical potential of element in
                 reservoir with respect to pure substance. Must be non-positive.
+            use_hull_energy (bool): Whether to use the convex hull energy for a
+            given composition for the reaction energy calculation. If false,
+            the energy of the ground state structure will be preferred; if a
+            ground state can not be found for a composition, the convex hull
+            energy will be used with a warning message.
 
         Returns:
             list: list of dicts of form {ratio,energy,rxn} where `ratio` is the
@@ -1041,7 +1047,8 @@ class MPRester(object):
         """
         payload = {"reactants": " ".join([reactant1, reactant2]),
                    "open_el": open_el,
-                   "relative_mu": relative_mu}
+                   "relative_mu": relative_mu,
+                   "use_hull_energy": use_hull_energy}
         return self._make_request("/interface_reactions",
                                   payload=payload, method="POST")
 
