@@ -310,6 +310,10 @@ class MPResterTest(unittest.TestCase):
         kinks_open_O = self.rester.get_interface_reactions(
             "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
         self.assertTrue(len(kinks_open_O) > 0)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.filterwarnings("always", message="The reactant.+")
+            self.rester.get_interface_reactions("LiCoO2", "MnO3")
+            self.assertTrue("The reactant" in str(w[-1].message))
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")
