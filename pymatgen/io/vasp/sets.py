@@ -1256,8 +1256,12 @@ class MVLSlabSet(MPRelaxSet):
     """
 
     def __init__(self, structure, k_product=50, bulk=False,
-                 auto_dipole=False, set_mix=True, **kwargs):
+                 auto_dipole=False, set_mix=True, sort_structure=True, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
+
+        if sort_structure:
+            structure = structure.get_sorted_structure()
+
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
