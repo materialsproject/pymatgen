@@ -492,6 +492,7 @@ class VoronoiNN(NearNeighbors):
 
     def __init__(self, tol=0, targets=None, cutoff=10.0,
                  allow_pathological=False, weight='solid_angle'):
+        super(VoronoiNN, self).__init__()
         self.tol = tol
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
@@ -538,13 +539,41 @@ class VoronoiNN(NearNeighbors):
         # Run the Voronoi tessellation
         qvoronoi_input = [s.coords for s in neighbors]
         voro = Voronoi(qvoronoi_input)
+
+        # Extract data about the site in question
+        return self._extract_cell_info(0, neighbors, targets, voro)
+
+    def _extract_cell_info(self, site_idx, sites, targets, voro):
+        """Get the information about a certain atom from the results of a tessellation
+
+        Args:
+            site_idx (int) - Index of the atom in question
+            sites ([Site]) - List of all sites in the tessellation
+            targets ([Element]) - Target elements
+            voro - Output of qvoronoi
+        Returns:
+            A dict of sites sharing a common Voronoi facet with the site
+            n mapped to a directory containing statistics about the facet:
+                - solid_angle - Solid angle subtended by face
+                - angle_normalized - Solid angle normalized such that the
+                    faces with the largest
+                - area - Area of the facet
+                - face_dist - Distance between site n and the facet
+                - volume - Volume of Voronoi cell for this face
+                - n_verts - Number of vertices on the facet
+        """
+        # Get the coordinates of every vertex
         all_vertices = voro.vertices
+
+        # Get the coordinates of the central site
+        center_coords = sites[site_idx].coords
 
         # Iterate through all the faces in the tessellation
         results = {}
         for nn, vind in voro.ridge_dict.items():
             # Get only those that include the cite in question
-            if 0 in nn:
+            if site_idx in nn:
+                other_site = nn[0] if nn[1] == site_idx else nn[1]
                 if -1 in vind:
                     # -1 indices correspond to the Voronoi cell
                     #  missing a face
@@ -556,7 +585,7 @@ class VoronoiNN(NearNeighbors):
                                            "construction")
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
-                angle = solid_angle(center.coords, facets)
+                angle = solid_angle(center_coords, facets)
 
                 # Compute the volume of associated with this face
                 volume = 0
@@ -564,18 +593,19 @@ class VoronoiNN(NearNeighbors):
                 #   the face up in to segments (0,1,2), (0,2,3), ... to compute
                 #   its area where each number is a vertex size
                 for j, k in zip(vind[1:], vind[2:]):
-                    volume += vol_tetra(center.coords,
+                    volume += vol_tetra(center_coords,
                                         all_vertices[vind[0]],
                                         all_vertices[j],
                                         all_vertices[k])
 
                 # Compute the distance of the site to the face
-                face_dist = np.linalg.norm(center.coords - qvoronoi_input[max(nn)]) / 2
+                face_dist = np.linalg.norm(
+                    center_coords - sites[other_site].coords) / 2
 
                 # Compute the area of the face (knowing V=Ad/3)
                 face_area = 3 * volume / face_dist
 
-                results[neighbors[max(nn)]] = {
+                results[sites[other_site]] = {
                     'solid_angle': angle,
                     'volume': volume,
                     'face_dist': face_dist,
@@ -586,7 +616,6 @@ class VoronoiNN(NearNeighbors):
         # Get only target elements
         resultweighted = {}
         for nn, nstats in results.items():
-
             # Check if this is a target site
             if nn.is_ordered:
                 if nn.specie in targets:
@@ -595,7 +624,6 @@ class VoronoiNN(NearNeighbors):
                 for disordered_sp in nn.species_and_occu.keys():
                     if disordered_sp in targets:
                         resultweighted[nn] = nstats
-
         return resultweighted
 
     def get_nn_info(self, structure, n):

@@ -48,6 +48,7 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
         del self._mgo_uc
         del self._mgo_valrad_evaluator
 
+
 class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.s = self.get_structure('LiFePO4')
