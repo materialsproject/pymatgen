@@ -36,8 +36,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS
 
-from copy import deepcopy
-
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
@@ -402,7 +400,7 @@ class NearNeighbors(object):
         possible_steps = list(all_nn_info[site_idx])
         for i, step in enumerate(possible_steps):
             # Update the image information
-            step = deepcopy(step)
+            step = dict(step)
             step['site'] = PeriodicSite(step['site'].species_and_occu,
                                         np.add(step['site']._fcoords, _cur_image),
                                         step['site'].lattice,
