@@ -208,8 +208,13 @@ class NearNeighbors(object):
     neighbors and others that are within some tolerable distance.
     """
 
-    def __init__(self):
-        pass
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return self.__dict__ == other.__dict__
+        return False
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
 
     def get_cn(self, structure, n, use_weights=False):
         """
@@ -496,12 +501,11 @@ class VoronoiNN(NearNeighbors):
         self.allow_pathological = allow_pathological
         self.targets = targets
         self.weight = weight
-        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
-        Gives a weighted polyhedra around a site. This uses the Voronoi
-        construction with solid angle weights.
+        Gives a weighted polyhedra around a site.
+
         See ref: A Proposed Rigorous Definition of Coordination Number,
         M. O'Keeffe, Acta Cryst. (1979). A35, 772-775
 
@@ -689,9 +693,7 @@ class JMolNN(NearNeighbors):
     """
 
     def __init__(self, tol=1E-3, el_radius_updates=None):
-
         self.tol = tol
-        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -773,10 +775,8 @@ class MinimumDistanceNN(NearNeighbors):
     """
 
     def __init__(self, tol=0.1, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -826,10 +826,8 @@ class MinimumOKeeffeNN(NearNeighbors):
     """
 
     def __init__(self, tol=0.1, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -893,10 +891,8 @@ class MinimumVIRENN(NearNeighbors):
     """
 
     def __init__(self, tol=0.1, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -2301,7 +2297,6 @@ class BrunnerNN(NearNeighbors):
         self.mode = mode
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2350,10 +2345,8 @@ class EconNN(NearNeighbors):
     """
 
     def __init__(self, tol=1.0e-4, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
