@@ -40,7 +40,7 @@ class ChemicalShift(SquareTensor):
     """
 
     HaeberlenNotation = namedtuple(typename="HaeberlenNotion",
-                                   field_names="sigma_iso, delta_sigma, zeta, eta")
+                                   field_names="sigma_iso, delta_sigma_iso, zeta, eta")
     MehringNotation = namedtuple(typename="MehringNotation",
                                  field_names="sigma_iso, sigma_11, sigma_22, sigma_33")
     MarylandNotation = namedtuple(typename="MarylandNotation",
