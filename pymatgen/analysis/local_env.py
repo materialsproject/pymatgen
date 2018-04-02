@@ -505,16 +505,19 @@ class VoronoiNN(NearNeighbors):
             determination of Voronoi coordination.
         weight (string) - Statistic used to weigh neighbors (see the statistics
             available in get_voronoi_polyhedra)
+        extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
     """
 
     def __init__(self, tol=0, targets=None, cutoff=10.0,
-                 allow_pathological=False, weight='solid_angle'):
+                 allow_pathological=False, weight='solid_angle',
+                 extra_nn_info=True):
         super(VoronoiNN, self).__init__()
         self.tol = tol
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
         self.weight = weight
+        self.extra_nn_info = extra_nn_info
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -681,10 +684,18 @@ class VoronoiNN(NearNeighbors):
             site = nstats['site']
             if nstats[self.weight] > self.tol * max_weight \
                     and site.specie in targets:
-                siw.append({'site': site,
-                            'image': self._get_image(site.frac_coords),
-                            'weight': nstats[self.weight] / max_weight,
-                            'site_index': self._get_original_site(structure, site)})
+                nn_info = {'site': site,
+                           'image': self._get_image(site.frac_coords),
+                           'weight': nstats[self.weight] / max_weight,
+                           'site_index': self._get_original_site(
+                               structure, site)}
+
+                if self.extra_nn_info:
+                    # Add all the information about the site
+                    poly_info = nstats
+                    del poly_info['site']
+                    nn_info['poly_info'] = poly_info
+                siw.append(nn_info)
         return siw
 
 
