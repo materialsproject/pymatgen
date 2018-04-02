@@ -32,7 +32,7 @@ class TestChemicalShiftNotation(PymatgenTest):
             195.0788, 68.1733, 0.8337)
         hae1 = cs.haeberlen_values
         self.assertAlmostEqual(hae1.sigma_iso, 195.0788, places=5)
-        self.assertAlmostEqual(hae1.delta_sigma, -65.33899505250002, places=5)
+        self.assertAlmostEqual(hae1.delta_sigma_iso, -65.33899505250002, places=5)
         self.assertAlmostEqual(hae1.zeta, -43.559330035000016, places=5)
         self.assertAlmostEqual(hae1.eta, 0.13013537835511454, places=5)
         meh1 = cs.mehring_values
