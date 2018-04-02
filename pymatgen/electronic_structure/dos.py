@@ -493,7 +493,7 @@ class FermiDos(Dos):
             default dos.efermi.
         """
         fermi = self.efermi # initialize target fermi
-        for i in range(precision):
+        for _ in range(precision):
             frange = np.arange(-nstep, nstep+1) * step + fermi
             calc_doping = np.array([self.get_doping(f, T) for f in frange])
             relative_error = abs(calc_doping/c - 1.0)
