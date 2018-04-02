@@ -414,6 +414,60 @@ class Dos(MSONable):
                               for spin, dens in self.densities.items()}}
 
 
+class DosFermi(Dos):
+    """
+    This wrapper class helps relates the density of states, doping levels
+    (i.e. carrier concentrations) and corresponding fermi levels. A negative
+    doping concentration (c) means that the majority carriers are electrons
+    (n-type doping) and if positive holes/p-type
+    Args:
+        dos (pymatgen Dos class): density of states at corresponding energy levels
+        structure (pymatgen Structure class): provided either as input or
+            inside Dos (e.g. if CompleteDos used)
+        nelecs(float): the number of electrons included in the energy range of
+            dos. It is used for normalizing the densities. Default is the total
+            number of electrons in the structure.
+    """
+    def __init__(self, dos, structure=None, nelecs=None):
+        super(DosFermi, self).__init__(
+            dos.efermi, energies=dos.energies,
+            densities={k: np.array(d) for k, d in dos.densities.items()})
+        if structure is None:
+            try:
+                self.structure = dos.structure
+            except:
+                raise ValueError('"structure" not provided!')
+        else:
+            self.structure = structure
+        self.volume = self.structure.volume
+        self.energies = np.array(dos.energies)
+        self.de = np.hstack((self.energies[1:], self.energies[-1])) - self.energies
+        tdos = np.array(self.get_densities())
+        nelecs = nelecs or self.structure.composition.total_electrons
+        # normalize total density of states based on integral at 0K
+        self.tdos = tdos*nelecs / (tdos*self.de)[self.energies <= self.efermi].sum()
+        ecbm, evbm = self.get_cbm_vbm()
+        self.idx_vbm = np.argmin(abs(self.energies - evbm))
+        self.idx_cbm = np.argmin(abs(self.energies - ecbm))
+        self.A_to_cm = 1e-8
+
+
+    def get_doping(self, fermi, T):
+        """
+        Calculate the doping (majority carrier concentration) at a given fermi
+        level and temperature.
+
+        Args:
+            fermi (float): the fermi level in eV
+            T (float): the temperature in Kelvin
+        Returns (float): in units 1/cm3. If negative it means that the majority
+            carriers are electrons (n-type doping) and if positive holes/p-type
+        """
+        cb_integral = np.sum(self.tdos[self.idx_cbm:] * f0(self.energies[self.idx_cbm:], fermi, T) * self.de[self.idx_cbm:], axis=0)
+        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1] * (1 - f0(self.energies[:self.idx_vbm + 1], fermi, T)) * self.de[:self.idx_vbm + 1],axis=0)
+        return (vb_integral-cb_integral) / (self.volume*self.A_to_cm**3)
+
+
 class CompleteDos(Dos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
