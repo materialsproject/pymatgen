@@ -461,6 +461,7 @@ class FermiDos(Dos):
         Args:
             fermi (float): the fermi level in eV
             T (float): the temperature in Kelvin
+
         Returns (float): in units 1/cm3. If negative it means that the majority
             carriers are electrons (n-type doping) and if positive holes/p-type
         """
@@ -475,9 +476,9 @@ class FermiDos(Dos):
     def get_fermi(self, c, T, rtol=0.01, nstep=20, step=0.1, precision=8):
         """
         Finds the fermi level at which the doping concentration at the given
-        temperature (T) is equal to c using. A greedy algorithm is used where
-        the relative error is minimized by calculating the doping at a grid
-        that is continuously become finer.
+        temperature (T) is equal to c. A greedy algorithm is used where the
+        relative error is minimized by calculating the doping at a grid which
+        is continuously become finer.
 
         Args:
             c (float): doping concentration. c<0 represents n-type doping and
@@ -488,14 +489,14 @@ class FermiDos(Dos):
             step (float): initial step in fermi level when searching
             precision (int): essentially the decimal places of calculated fermi
 
-        Returns (float): the fermi level. Note that this is different than the
+        Returns (float): the fermi level. Note that this is different from the
             default dos.efermi.
         """
         fermi = self.efermi # initialize target fermi
         for i in range(precision):
             frange = np.arange(-nstep, nstep+1) * step + fermi
             calc_doping = np.array([self.get_doping(f, T) for f in frange])
-            relative_error = abs(calc_doping - c) / abs(c)
+            relative_error = abs(calc_doping/c - 1.0)
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
         if min(relative_error) > rtol:
