@@ -375,13 +375,28 @@ class NearNeighbors(object):
         """
 
         all_nn_info = self.get_all_nn_info(structure)
-        return self._get_nn_shell_info(all_nn_info, site_idx, shell)
+        sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-    def _get_nn_shell_info(self, all_nn_info, site_idx, shell,
+        # Update the site positions
+        #   Did not do this during NN options because that can be slower
+        output = []
+        for info in sites:
+            orig_site = structure[info['site_index']]
+            info['site'] = PeriodicSite(orig_site.species_and_occu,
+                                        np.add(orig_site._fcoords,
+                                               info['image']),
+                                        structure.lattice,
+                                        properties=orig_site.properties)
+            output.append(info)
+        return output
+
+
+    def _get_nn_shell_info(self, structure, all_nn_info, site_idx, shell,
                            _previous_steps=frozenset(), _cur_image=(0,0,0)):
         """Private method for computing the neighbor shell information
 
         Args:
+            structure (Structure) - Structure being assessed
             all_nn_info ([[dict]]) - Results from `get_all_nn_info`
             site_idx (int) - index of site for which to determine neighbor
                 information.
@@ -392,7 +407,7 @@ class NearNeighbors(object):
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
-                `get_nn_info`
+                `get_nn_info`. Does not update the site positions
         """
 
         if shell <= 0:
@@ -405,12 +420,9 @@ class NearNeighbors(object):
         possible_steps = list(all_nn_info[site_idx])
         for i, step in enumerate(possible_steps):
             # Update the image information
+            #  Note: We do not update the site position yet, as making a
+            #    PeriodicSite for each intermediate step is too costly
             step = dict(step)
-            step['site'] = PeriodicSite(step['site'].species_and_occu,
-                                        np.add(step['site']._fcoords, _cur_image),
-                                        step['site'].lattice,
-                                        properties=step['site'].properties
-                                        )
             step['image'] = tuple(np.add(step['image'], _cur_image).tolist())
             possible_steps[i] = step
 
@@ -420,38 +432,39 @@ class NearNeighbors(object):
 
         # If we are the last step (i.e., shell == 1), done!
         if shell == 1:
+            # No further work needed, just package these results
             return allowed_steps
+        else:
+            # If not, Get the N-1 NNs of these allowed steps
+            terminal_neighbors = [self._get_nn_shell_info(structure,
+                                                          all_nn_info,
+                                                          x['site_index'],
+                                                          shell - 1,
+                                                          _previous_steps,
+                                                          x['image'])
+                                  for x in allowed_steps]
 
-        # If not, Get the N-1 NNs of these allowed steps
-        terminal_neighbors = [self._get_nn_shell_info(all_nn_info,
-                                                      x['site_index'],
-                                                      shell - 1,
-                                                      _previous_steps,
-                                                      x['image'])
-                              for x in allowed_steps]
+            # Each allowed step results in many terminal neighbors
+            #  And, different first steps might results in the same neighbor
+            #  Now, we condense those neighbors into a single entry per neighbor
+            all_sites = dict()
+            for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
+                for term_site in term_sites:
+                    key = (term_site['site_index'], tuple(term_site['image']))
 
-        # Each allowed step results in many terminal neighbors
-        #  And, different first steps might results in the same neighbor
-        #  Now, we condense those neighbors into a single entry per neighbor
-        all_sites = dict()
-        for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
-            for term_site in term_sites:
-                key = (term_site['site_index'], tuple(term_site['image']))
+                    # The weight for this site is equal to the weight of the
+                    #  first step multiplied by the weight of the terminal neighbor
+                    term_site['weight'] *= first_site['weight']
 
-                # The weight for this site is equal to the weight of the
-                #  first step multiplied by the weight of the terminal neighbor
-                term_site['weight'] *= first_site['weight']
-
-                # Check if this site is already known
-                value = all_sites.get(key)
-                if value is not None:
-                    # If so, add to its weight
-                    value['weight'] += term_site['weight']
-                else:
-                    # If not, prepare to add it
-                    value = term_site
-                all_sites[key] = value
-
+                    # Check if this site is already known
+                    value = all_sites.get(key)
+                    if value is not None:
+                        # If so, add to its weight
+                        value['weight'] += term_site['weight']
+                    else:
+                        # If not, prepare to add it
+                        value = term_site
+                    all_sites[key] = value
         return list(all_sites.values())
 
     @staticmethod
