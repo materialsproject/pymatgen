@@ -11,13 +11,16 @@ from monty.serialization import loadfn
 import warnings
 import numpy as np
 
-from pymatgen.analysis.pourbaix.maker import PourbaixDiagram, PourbaixEntry,\
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry,\
     MultiEntry, PourbaixPlotter, IonEntry
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.ion import Ion
+from pymatgen import SETTINGS
 
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
-class TestPourbaixEntry(unittest.TestCase):
+class PourbaixEntryTest(unittest.TestCase):
     """
     Test all functions using a fictitious entry
     """
@@ -70,25 +73,37 @@ class TestPourbaixEntry(unittest.TestCase):
                                         np.array([1, 2, 3]))
 
 class TestPourbaixDiagram(unittest.TestCase):
-    def setUp(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        self.test_data = loadfn(os.path.join(module_dir, 'pourbaix_test_data.json'))
-        self.pbx = PourbaixDiagram(self.test_data['Zn'])
+    @classmethod
+    def setUpClass(cls):
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        cls.test_data = loadfn(os.path.join(test_dir, 'pourbaix_test_data.json'))
+        cls.pbx = PourbaixDiagram(cls.test_data['Zn'], filter_solids=True)
+        cls.pbx_nofilter = PourbaixDiagram(self.test_data['Zn'],
+                                           filter_solids=False)
 
     def test_pourbaix_diagram(self):
         self.assertEqual(set([e.name for e in self.pbx.stable_entries]),
                          {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
                          "List of stable entries does not match")
 
-        pbx_nofilter = PourbaixDiagram(self.test_data['Zn'], filter_solids=False)
-        self.assertEqual(set([e.name for e in pbx_nofilter.stable_entries]),
+        self.assertEqual(set([e.name for e in self.pbx_nofilter.stable_entries]),
                          {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)",
                           "ZnO2(s)", "ZnH(s)"},
                          "List of stable entries for unfiltered pbx does not match")
 
-        pbx_lowconc = PourbaixDiagram(self.test_data['Zn'], conc_dict={"Zn": 1e-8})
+        pbx_lowconc = PourbaixDiagram(self.test_data['Zn'], conc_dict={"Zn": 1e-8},
+                                      filter_solids=True)
         self.assertEqual(set([e.name for e in pbx_lowconc.stable_entries]),
                          {"Zn(HO)2(aq)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"})
+
+        # Binary system
+        pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
+                                    comp_dict = {"Ag": 0.5, "Te": 0.5})
+        self.assertEqual(pd_binary.stable_entries, 10)
+
+        # Find a specific multientry to test
+        blargh
+
 
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data['Zn'])
@@ -108,25 +123,18 @@ class TestPourbaixDiagram(unittest.TestCase):
         # Test an unstable hydride to ensure HER correction works
         self.assertAlmostEqual(self.pbx.get_decomposition_energy(entry, -3, -2),
                                10)
-
-        # Test an unstable oxide to ensure OER correction works
-
         # Test a list of pHs
+        self.pbx.get_decomposition_energy(entry, np.linspace(0, 2, 5), 2)
 
         # Test a list of Vs
+        self.pbx.get_decomposition_energy(entry, 4, np.linspace(-3, 3, 10))
 
         # Test a set of matching arrays
-        for entry in [entry for entry in self.pbx.all_entries
-                      if entry not in self.pbx.stable_entries]:
-            decomp_energy = self.pbx.get_decomposition_energy(entry, 10, 0)
+        ph, v = np.meshgrid(np.linspace(0, 14), np.linspace(-3, 3))
+        self.pbx.get_decomposition_energy(entry, ph, v)
 
-        # Test to ensure HER decomposition isn't negative
-
-            # for entr in decomp_entries:
-            #    self.assertEqual(decomp_entries[entr], self.decomp_test[entry.name][entr.name])
-            # e_above_hull = self.analyzer.get_e_above_hull(entry)
-            # self.assertAlmostEqual(e_above_hull, self.e_above_hull_test[entry.name], 3)
-
+    @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
+                     "PMG_MAPI_KEY environment variable not set.")
     def test_mpr_pipeline(self):
         from pymatgen import MPRester
         mpr = MPRester()
@@ -134,14 +142,12 @@ class TestPourbaixDiagram(unittest.TestCase):
         pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
         pbx.find_stable_entry(10, 0)
 
-
 class TestPourbaixPlotter(unittest.TestCase):
-
     def setUp(self):
         warnings.simplefilter("ignore")
 
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        self.test_data = loadfn(os.path.join(module_dir, "pourbaix_test_data.json"))
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        self.test_data = loadfn(os.path.join(test_dir, "pourbaix_test_data.json"))
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
 
