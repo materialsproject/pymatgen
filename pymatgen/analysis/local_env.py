@@ -968,18 +968,27 @@ def solid_angle(center, coords):
     Returns:
         The solid angle.
     """
-    o = np.array(center)
-    r = [np.array(c) - o for c in coords]
-    r.append(r[0])
-    n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
-    n.append(np.cross(r[1], r[0]))
-    vals = []
-    for i in range(len(n) - 1):
-        v = -np.dot(n[i], n[i + 1]) \
-            / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-        vals.append(acos(abs_cap(v)))
-    phi = sum(vals)
-    return phi + (3 - len(r)) * pi
+
+    # Compute the displacement from the center
+    r = [np.subtract(c, center) for c in coords]
+
+    # Compute the magnitude of each vector
+    r_norm = [np.linalg.norm(i) for i in r]
+
+    # Compute the solid angle for each tetrahedron that makes up the facet
+    #  Following: https://en.wikipedia.org/wiki/Solid_angle#Tetrahedron
+    angle = 0
+    for i in range(1, len(r)-1):
+        j = i + 1
+        tp = np.abs(np.dot(r[0], np.cross(r[i], r[j])))
+        de = r_norm[0] * r_norm[i] * r_norm[j] + \
+            r_norm[j] * np.dot(r[0], r[i]) + \
+            r_norm[i] * np.dot(r[0], r[j]) + \
+            r_norm[0] * np.dot(r[i], r[j])
+        my_angle = np.arctan(tp / de)
+        angle += (my_angle if my_angle > 0 else my_angle + np.pi) * 2
+
+    return angle
 
 
 def vol_tetra(vt1, vt2, vt3, vt4):
