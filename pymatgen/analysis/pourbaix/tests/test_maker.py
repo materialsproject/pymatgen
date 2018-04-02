@@ -9,6 +9,7 @@ import unittest
 import os
 from monty.serialization import loadfn
 import warnings
+import numpy as np
 
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram, PourbaixEntry,\
     MultiEntry, PourbaixPlotter, IonEntry
@@ -60,15 +61,22 @@ class TestPourbaixEntry(unittest.TestCase):
         self.assertEqual(sol_entry.energy, self.PxSol.energy,
                          "as_dict and from_dict energies unequal")
 
+    def test_energy_functions(self):
+        # TODO: actually test these for values
+        self.PxSol.energy_at_conditions(10, 0)
+        self.PxSol.energy_at_conditions(np.array([1, 2, 3]), 0)
+        self.PxSol.energy_at_conditions(10, np.array([1, 2, 3]))
+        self.PxSol.energy_at_conditions(np.array([1, 2, 3]),
+                                        np.array([1, 2, 3]))
+
 class TestPourbaixDiagram(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self.test_data = loadfn(os.path.join(module_dir, 'pourbaix_test_data.json'))
+        self.pbx = PourbaixDiagram(self.test_data['Zn'])
 
     def test_pourbaix_diagram(self):
-        # Single
-        pbx = PourbaixDiagram(self.test_data['Zn'])
-        self.assertEqual(set([e.name for e in pbx.stable_entries]),
+        self.assertEqual(set([e.name for e in self.pbx.stable_entries]),
                          {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
                          "List of stable entries does not match")
 
@@ -86,13 +94,38 @@ class TestPourbaixDiagram(unittest.TestCase):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data['Zn'])
 
     def test_get_decomposition(self):
-        for entry in [entry for entry in self.pd.all_entries
-                      if entry not in self.pd.stable_entries]:
-            decomp_entries = self.analyzer.get_decomposition(entry)
-            for entr in decomp_entries:
-                self.assertEqual(decomp_entries[entr], self.decomp_test[entry.name][entr.name])
-            e_above_hull = self.analyzer.get_e_above_hull(entry)
-            self.assertAlmostEqual(e_above_hull, self.e_above_hull_test[entry.name], 3)
+        # Test a stable entry to ensure that it's zero in the stable region
+        entry = self.test_data['Zn'][12] # Should correspond to mp-2133
+        self.assertAlmostEqual(self.pbx.get_decomposition_energy(entry, 10, 1),
+                               0.0, 5, "Decomposition energy of ZnO is not 0.")
+        # Test an unstable entry to ensure that it's never zero
+        entry = self.test_data['Zn'][11]
+        ph, v = np.meshgrid(np.linspace(0, 14), np.linspace(-2, 4))
+        result = self.pbx.get_decomposition_energy(entry, ph, v)
+        self.assertTrue((result > 0).all(),
+                        "Unstable energy has hull energy of 0 or less")
+
+        # Test an unstable hydride to ensure HER correction works
+        self.assertAlmostEqual(self.pbx.get_decomposition_energy(entry, -3, -2),
+                               10)
+
+        # Test an unstable oxide to ensure OER correction works
+
+        # Test a list of pHs
+
+        # Test a list of Vs
+
+        # Test a set of matching arrays
+        for entry in [entry for entry in self.pbx.all_entries
+                      if entry not in self.pbx.stable_entries]:
+            decomp_energy = self.pbx.get_decomposition_energy(entry, 10, 0)
+
+        # Test to ensure HER decomposition isn't negative
+
+            # for entr in decomp_entries:
+            #    self.assertEqual(decomp_entries[entr], self.decomp_test[entry.name][entr.name])
+            # e_above_hull = self.analyzer.get_e_above_hull(entry)
+            # self.assertAlmostEqual(e_above_hull, self.e_above_hull_test[entry.name], 3)
 
     def test_mpr_pipeline(self):
         from pymatgen import MPRester

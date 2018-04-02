@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 MU_H2O = -2.4583
 PREFAC = 0.0591
 
-# TODO: Revise to more closely reflect PDEntry
+# TODO: Revise to more closely reflect PDEntry, invoke from energy/composition
 # TODO: PourbaixEntries depend implicitly on having entry energies be
 #       formation energies, this should be fixed
 # TODO: uncorrected_energy is a bit of a misnomer, but not sure what to rename
@@ -58,8 +58,8 @@ class PourbaixEntry(MSONable):
     + (nH - 2nO) pH + phi (-nH + 2nO + q)
 
     Note that the energies corresponding to the input entries
-    should be formation energies with respect to constituent
-    elements in order for the pourbaix diagram formalism to
+    should be formation energies with respect to hydrogen and
+    oxygen gas in order for the pourbaix diagram formalism to
     work. This may be changed to be more flexible in the future.
 
     Args:
@@ -126,25 +126,52 @@ class PourbaixEntry(MSONable):
         """
         return self.energy / self.composition.num_atoms
 
-    def energy_at_conditions(self, pH, V):
+    def energy_at_conditions(self, pH, V, correct_oer=False,
+                             correct_her=False):
         """
         Get free energy for a given pH and V
 
         Args:
             pH (float): pH at which to evaluate free energy
             V (float): voltage at which to evaluate free energy
+            correct_oer (bool): whether to correct the energy to
+                use oxygen as the stable precursor to calculate
+                the formation energy in the OER region
+            correct_her (bool): whether to correct the energy to
+                use hydrogen as the stable precursor to calculate
+                the formation energy in the HER region
 
         Returns:
             free energy at conditions
         """
-        return self.energy + self.npH * 0.0591 * pH + self.nPhi * V
+        e = self.energy + self.npH * PREFAC * pH + self.nPhi * V
+
+        # Treat single energy
+        if not isinstance(e, np.ndarray):
+            return self.energy_at_conditions(np.array([pH]), np.array([V]),
+                                             correct_oer, correct_her)[0]
+
+        # Legendre transform to get back to pH-e-O2 space
+        if correct_oer:
+            mask = V + pH * PREFAC > 1.23
+            # e[mask] -= self.nH2O * (MU_H2O - 2*PREFAC*pH - 2*V)[mask]
+            e[mask] += self.nH2O * (MU_H2O + 2 * (V + pH * PREFAC))
+
+        # Legendre transform to get back to H-e-H2O space
+        if correct_her:
+            mask = V + pH * PREFAC < 0.0
+            e[mask] -= self.npH * (PREFAC * pH + V)[mask] \
+
+        return e
 
     @property
     def normalized_energy(self):
         return self.energy * self.normalization_factor
 
-    def normalized_energy_at_conditions(self, pH, V):
-        return self.energy_at_conditions(pH, V) * self.normalization_factor
+    def normalized_energy_at_conditions(self, pH, V, correct_oer=False,
+                                        correct_her=False):
+        return self.energy_at_conditions(pH, V, correct_oer, correct_her) \
+               * self.normalization_factor
 
     @property
     def conc_term(self):
@@ -363,11 +390,6 @@ elements_HO = {Element('H'), Element('O')}
 #       heatmap plotter, because the reference states for decomposition
 #       don't include oxygen/hydrogen in the OER/HER regions
 
-# TODO: a lot of the determination of stable entries could be
-#       vectorized using the pourbaix plane equations and numpy,
-#       this could be much more efficient but probably also more
-#       confusing to read
-
 class PourbaixDiagram(object):
     """
     Class to create a Pourbaix diagram from entries
@@ -378,14 +400,14 @@ class PourbaixDiagram(object):
             equal parts of each elements
         conc_dict {str: float}: Dictionary of ion concentrations, defaults
             to 1e-6 for each element
-        filter_multielement (bool): applying this filter to a multi-
-            element pourbaix diagram makes generates it a bit more
-            efficiently by filtering the entries used to generate
-            the hull.  This breaks some of the functionality of
-            the analyzer, though, so use with caution.
+        filter_solids (bool): applying this filter to a pourbaix
+            diagram ensures all included phases are filtered by
+            stability on the compositional phase diagram.  This
+            breaks some of the functionality of the analysis, though,
+            so use with caution.
     """
     def __init__(self, entries, comp_dict=None, conc_dict=None,
-                 filter_solids=True):
+                 filter_solids=False):
 
         entries = deepcopy(entries)
         # Get non-OH elements
@@ -422,10 +444,10 @@ class PourbaixDiagram(object):
         self._unprocessed_entries = entries
 
         if filter_solids:
+            # O is 2.46 b/c pbx entry finds energies referenced to H2O
             entries_HO = [ComputedEntry('H', 0), ComputedEntry('O', 2.46)]
             solid_pd = PhaseDiagram(solid_entries + entries_HO)
             solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
-            # import nose; nose.tools.set_trace()
 
         if len(comp_dict) > 1:
             self._multielement = True
@@ -540,7 +562,7 @@ class PourbaixDiagram(object):
             dim polytope bounding the allowable ph-V range of each entry.
         """
         if limits is None:
-            limits = [[-2, 16], [-3, 3]]
+            limits = [[-2, 16], [-4, 4]]
 
         # Get hyperplanes
         hyperplanes = [np.array([-PREFAC * entry.npH, -entry.nPhi,
@@ -595,6 +617,7 @@ class PourbaixDiagram(object):
                          for indices in ConvexHull(points).simplices]
             pourbaix_domains[entry] = simplices
             pourbaix_domain_vertices[entry] = points
+        # import nose; nose.tools.set_trace()
 
         return pourbaix_domains, pourbaix_domain_vertices
 
@@ -632,75 +655,23 @@ class PourbaixDiagram(object):
             # Filter to only include materials where the entry is only solid
             possible_entries = [e for e in possible_entries
                                 if e.phases.count("Solid") == 1]
-            entry = sorted(possible_entries, key=lambda x: x.g(pH, V))[0]
-
-        # Find stable entry and take the difference
-        stable_entry = self.find_stable_entry(pH, V)
-
-        # TODO: Correct entries in OER region
-
-        # TODO: Correct entries in HER region
-        return entry.g(pH, V) - stable_entry.g(pH, V)
-
-    def get_stability_mesh(self, entry, pH_range=[-2, 16], pH_resolution=100,
-                           V_range=[-3, 3], V_resolution=100):
-        """
-        Finds hull energies for a particular entry over a range of
-        pH/Voltage, used in heatmap plotting our pourbaix stability
-
-        Args:
-            entry (PourbaixEntry): entry for which to find pourbaix stability
-            pH_range (list): range of pHs for which to find stability
-            pH_resolution (int): resolution for pH
-            V_range (list): range of Vs for which to find stability
-            V_resolution (int): resolution for V
-
-        Returns:
-            pHs, Vs, and pourbaix hull energies for the specified entry
-
-        """
-        pH_array, V_array, base = self.get_hull_mesh(
-            pH_range, pH_resolution, V_range, V_resolution)
-        # Find representative multientries
-        if self._multielement and not isinstance(entry, MultiEntry):
-            possible_entries = self._generate_multielement_entries(
-               self._preprocessed_entries, forced_include=[entry])
-            # Filter to only include materials where the entry is only solid
-            possible_entries = [e for e in possible_entries
-                                if e.phases.count("Solid") == 1]
-            possible_entry_gs = np.array([e.g(pH_array, V_array)
-                                          for e in possible_entries])
-            entry_energy_map = np.min(possible_entry_gs, axis=0)
+            possible_energies = [e.normalized_energy_at_conditions(pH, V)
+                                       for e in possible_entries]
         else:
-            entry_energy_map = entry.g(pH_array, V_array)
+            possible_energies = [entry.normalized_energy_at_conditions(pH, V)]
 
-        # TODO: fix oxygen/hydrogen evolution regions
-        return entry_energy_map - base
 
-    def get_hull_mesh(self, pH_range=[-2, 16], pH_resolution=100,
-                      V_range=[-3, 3], V_resolution=100):
-        """
-        Gets a mesh corresponding to pourbaix base (e. g. stable
-        domains). This is done by calculating all of the energy
-        arrays corresponding to the stable energies and taking
-        the total array minimum using numpy.
+        min_energy = np.min(possible_energies, axis=0)
 
-        Args:
-            entry (PourbaixEntry): entry for which to find pourbaix stability
-            pH_range (list): range of pHs for which to find stability
-            pH_resolution (int): resolution for pH
-            V_range (list): range of Vs for which to find stability
-            V_resolution (int): resolution for V
+        # Find entry and take the difference
+        hull = self.get_hull_energy(pH, V)
+        return min_energy - hull
 
-        Returns: array corresponding pH, V, and hull energies
-
-        """
-        pH_array, V_array = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution*1j,
-                                     V_range[0]:V_range[1]:V_resolution*1j]
-        all_gs = np.array([e.normalized_energy_at_conditions(pH_array, V_array)
-                           for e in self.stable_entries])
+    def get_hull_energy(self, pH, V, correct_oer=False, correct_her=False):
+        all_gs = np.array([e.normalized_energy_at_conditions(
+            pH, V, correct_oer, correct_her) for e in self.stable_entries])
         base = np.min(all_gs, axis=0)
-        return pH_array, V_array, base
+        return base
 
     @property
     def stable_entries(self):
@@ -800,7 +771,7 @@ class PourbaixPlotter(object):
 
         for entry, vertices in self._pd._stable_domain_vertices.items():
             center = np.average(vertices, axis=0)
-            x, y = np.transpose(vertices + [vertices[0]])
+            x, y = np.transpose(np.vstack([vertices, vertices[0]]))
             plt.plot(x, y, 'k-', linewidth=lw)
             if label_domains:
                 plt.annotate(self.print_name(entry), center, ha='center',
@@ -811,17 +782,18 @@ class PourbaixPlotter(object):
         plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
-    def plot_entry_stability(self, entry, resolution=100, e_hull_max=1,
+    def plot_entry_stability(self, entry, pH_range=[-2, 16], pH_resolution=100,
+                             V_range=[-3, 3], V_resolution=100, e_hull_max=1,
                              cmap='RdYlBu_r', **kwargs):
         # plot the Pourbaix diagram
         plt = self.get_pourbaix_plot(**kwargs)
         ax = plt.gca()
-        ph_min, ph_max, v_min, v_max = ax.get_xlim() + ax.get_ylim()
+        pH, V = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution*1j,
+                         V_range[0]:V_range[1]:V_resolution*1j]
 
-        phs, vs, stability = self._pd.get_hull_mesh([ph_min, ph_max], 100,
-                                                    [v_min, v_max], 100)
+        stability = self._pd.get_decomposition_energy(pH, V)
         # Plot stability map
-        plt.pcolor(phs, vs, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
+        plt.pcolor(pH, V, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
         cbar = plt.colorbar()
         cbar.set_label("Stability of {} (eV/atom)".format(self.print_name(entry)))
 
