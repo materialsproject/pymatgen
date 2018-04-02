@@ -1291,6 +1291,8 @@ def str2float(text):
     """
 
     try:
+        # Note that the ending ) is sometimes missing. That is why the code has
+        # been modified to treat it as optional. Same logic applies to lists.
         return float(re.sub(r"\(.+\)*", "", text))
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
