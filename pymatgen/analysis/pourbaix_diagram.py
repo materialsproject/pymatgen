@@ -126,52 +126,25 @@ class PourbaixEntry(MSONable):
         """
         return self.energy / self.composition.num_atoms
 
-    def energy_at_conditions(self, pH, V, correct_oer=False,
-                             correct_her=False):
+    def energy_at_conditions(self, pH, V):
         """
         Get free energy for a given pH and V
 
         Args:
             pH (float): pH at which to evaluate free energy
             V (float): voltage at which to evaluate free energy
-            correct_oer (bool): whether to correct the energy to
-                use oxygen as the stable precursor to calculate
-                the formation energy in the OER region
-            correct_her (bool): whether to correct the energy to
-                use hydrogen as the stable precursor to calculate
-                the formation energy in the HER region
 
         Returns:
             free energy at conditions
         """
-        e = self.energy + self.npH * PREFAC * pH + self.nPhi * V
-
-        # Treat single energy
-        if not isinstance(e, np.ndarray):
-            return self.energy_at_conditions(np.array([pH]), np.array([V]),
-                                             correct_oer, correct_her)[0]
-
-        # Legendre transform to get back to pH-e-O2 space
-        if correct_oer:
-            mask = V + pH * PREFAC > 1.23
-            # e[mask] -= self.nH2O * (MU_H2O - 2*PREFAC*pH - 2*V)[mask]
-            e[mask] += self.nH2O * (MU_H2O + 2 * (V + pH * PREFAC))
-
-        # Legendre transform to get back to H-e-H2O space
-        if correct_her:
-            mask = V + pH * PREFAC < 0.0
-            e[mask] -= self.npH * (PREFAC * pH + V)[mask] \
-
-        return e
+        return self.energy + self.npH * PREFAC * pH + self.nPhi * V
 
     @property
     def normalized_energy(self):
         return self.energy * self.normalization_factor
 
-    def normalized_energy_at_conditions(self, pH, V, correct_oer=False,
-                                        correct_her=False):
-        return self.energy_at_conditions(pH, V, correct_oer, correct_her) \
-               * self.normalization_factor
+    def normalized_energy_at_conditions(self, pH, V):
+        return self.energy_at_conditions(pH, V) * self.normalization_factor
 
     @property
     def conc_term(self):
@@ -215,9 +188,9 @@ class PourbaixEntry(MSONable):
     @property
     def normalization_factor(self):
         """
-        Sum of number of atoms
+        Sum of number of atoms minus the number of H and O in composition
         """
-        return 1.0 / (self.num_atoms - self.composition.get('H', 0) \
+        return 1.0 / (self.num_atoms - self.composition.get('H', 0)
                       - self.composition.get('O', 0))
 
     @property
@@ -282,11 +255,15 @@ class MultiEntry(PourbaixEntry):
         # Attributes that are just lists of entry attributes
         elif item in ["entry_id", "phase"]:
             return [getattr(e, item) for e in self.entry_list]
-        # Custom string handling for name
-        elif item == "name":
-            return " + ".join([e.name for e in self.entry_list])
         # normalization_factor, num_atoms should work from superclass
         return self.__getattribute__(item)
+
+    @property
+    def name(self):
+        """
+        Multientry name, i. e. the name of each entry joined by ' + '
+        """
+        return " + ".join([e.name for e in self.entry_list])
 
     def __repr__(self):
         return "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
@@ -302,7 +279,8 @@ class MultiEntry(PourbaixEntry):
                 "weights": self.weights}
 
     def from_dict(self, d):
-        return MultiEntry()
+        return MultiEntry(d.get("entry_list"), d.get("weights"))
+
 
 class IonEntry(PDEntry):
     """
