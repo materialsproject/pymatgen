@@ -4,15 +4,14 @@
 
 from __future__ import division, unicode_literals
 import numpy as np
-
 import six
-
+from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.coord import get_linear_interpolated_value
-from monty.json import MSONable
+from scipy.constants.codata import value as _cd
 
 
 """
@@ -669,3 +668,14 @@ def _get_orb_type(orb):
         return orb.orbital_type
     except AttributeError:
         return orb
+
+
+def f0(E, fermi, T):
+    """
+    Returns the equilibrium fermi-dirac.
+    Args:
+        E (float): energy in eV
+        fermi (float): the fermi level in eV
+        T (float): the temperature in kelvin
+    """
+    return 1./ ( 1.+np.exp((E-fermi)/(_cd("Boltzmann constant in eV/K") * T)) )
