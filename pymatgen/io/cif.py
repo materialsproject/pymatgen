@@ -1291,10 +1291,10 @@ def str2float(text):
     """
 
     try:
-        return float(re.sub(r"\(.+\)", "", text))
+        return float(re.sub(r"\(.+\)*", "", text))
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
-            return float(re.sub(r"\(.+\)", "", text[0]))
+            return float(re.sub(r"\(.+\)*", "", text[0]))
     except ValueError as ex:
         if text.strip() == ".":
             return 0
