@@ -390,7 +390,6 @@ class NearNeighbors(object):
             output.append(info)
         return output
 
-
     def _get_nn_shell_info(self, structure, all_nn_info, site_idx, shell,
                            _previous_steps=frozenset(), _cur_image=(0,0,0)):
         """Private method for computing the neighbor shell information
@@ -485,8 +484,10 @@ class NearNeighbors(object):
     def _get_original_site(structure, site):
         """Private convenience method for get_nn_info,
         gives original site index from ProvidedPeriodicSite."""
-        is_periodic_image = [site.is_periodic_image(s) for s in structure]
-        return is_periodic_image.index(True)
+        for i, s in enumerate(structure):
+            if site.is_periodic_image(s):
+                return i
+        raise Exception('Site not found!')
 
 
 class VoronoiNN(NearNeighbors):
@@ -556,19 +557,22 @@ class VoronoiNN(NearNeighbors):
         voro = Voronoi(qvoronoi_input)
 
         # Extract data about the site in question
-        return self._extract_cell_info(0, neighbors, targets, voro)
+        return self._extract_cell_info(structure, 0, neighbors, targets, voro)
 
-    def _extract_cell_info(self, site_idx, sites, targets, voro):
+    def _extract_cell_info(self, structure, site_idx, sites, targets, voro):
         """Get the information about a certain atom from the results of a tessellation
 
         Args:
+            structure (Structure) - Structure being assessed
             site_idx (int) - Index of the atom in question
             sites ([Site]) - List of all sites in the tessellation
             targets ([Element]) - Target elements
             voro - Output of qvoronoi
         Returns:
-            A dict of sites sharing a common Voronoi facet with the site
-            n mapped to a directory containing statistics about the facet:
+            A dict of sites sharing a common Voronoi facet. Key is facet id
+             (not useful) and values are dictionaries containing statistics
+             about the facet:
+                - site: Pymatgen site
                 - solid_angle - Solid angle subtended by face
                 - angle_normalized - Solid angle normalized such that the
                     faces with the largest
@@ -598,6 +602,7 @@ class VoronoiNN(NearNeighbors):
                         raise RuntimeError("This structure is pathological,"
                                            " infinite vertex in the voronoi "
                                            "construction")
+
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
                 angle = solid_angle(center_coords, facets)
@@ -620,7 +625,9 @@ class VoronoiNN(NearNeighbors):
                 # Compute the area of the face (knowing V=Ad/3)
                 face_area = 3 * volume / face_dist
 
-                results[sites[other_site]] = {
+                # Store by face index
+                results[other_site] = {
+                    'site': sites[other_site],
                     'solid_angle': angle,
                     'volume': volume,
                     'face_dist': face_dist,
@@ -630,15 +637,16 @@ class VoronoiNN(NearNeighbors):
 
         # Get only target elements
         resultweighted = {}
-        for nn, nstats in results.items():
+        for nn_index, nstats in results.items():
             # Check if this is a target site
+            nn = nstats['site']
             if nn.is_ordered:
                 if nn.specie in targets:
-                    resultweighted[nn] = nstats
+                    resultweighted[nn_index] = nstats
             else:  # is nn site is disordered
                 for disordered_sp in nn.species_and_occu.keys():
                     if disordered_sp in targets:
-                        resultweighted[nn] = nstats
+                        resultweighted[nn_index] = nstats
         return resultweighted
 
     def get_nn_info(self, structure, n):
@@ -669,7 +677,8 @@ class VoronoiNN(NearNeighbors):
 
         # Determine the maximum weight
         max_weight = max(nn[self.weight] for nn in nns.values())
-        for site, nstats in nns.items():
+        for nstats in nns.values():
+            site = nstats['site']
             if nstats[self.weight] > self.tol * max_weight \
                     and site.specie in targets:
                 siw.append({'site': site,
