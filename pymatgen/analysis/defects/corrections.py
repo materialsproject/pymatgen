@@ -14,11 +14,12 @@ import numpy as np
 
 from scipy import stats  #for statistical uncertainties of pot alignment
 from monty.json import MSONable
-from pymatgen.analysis.defects.core import DefectCorrection
-from pymatgen.entries import CompatibilityError
+# from pymatgen.analysis.defects.core import DefectCorrection
+from core import DefectCorrection
+# from pymatgen.entries import CompatibilityError
 
 from pymatgen.io.vasp.outputs import Locpot
-from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared
+from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel
 
 
 class FreysoldtCorrection(DefectCorrection):
@@ -32,21 +33,18 @@ class FreysoldtCorrection(DefectCorrection):
 
         defect_planar_averages
 
-        lattice:
-            Pymatgen Lattice object of structure's Supercell
-
 
     axis_grid, pureavg, defavg, lattice, dielectricconst, q, defect_position, axis,
                           q_model=QModel(), madetol=0.0001, title=None, widthsample=1.0
 
     """
 
-    def __init__(self, dielectric_const, q_model, energy_cutoff=520, madelung_energy_tolerance=0.0001):
+    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001):
         self.dielectric_const = dielectric_const
-        self.q_model = q_model
+        self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
         self.madelung_energy_tolerance = madelung_energy_tolerance
-
+        self.metadata = {}
 
         if isinstance(dielectric_const, int) or \
                 isinstance(dielectric_const, float):
@@ -59,40 +57,18 @@ class FreysoldtCorrection(DefectCorrection):
         Gets the Freysoldt correction for a defect entry
         """
 
-        list_axis_grid = [
-            entry.parameters["bulk_planar_averages"][0][0],
-            entry.parameters["bulk_planar_averages"][1][0],
-            entry.parameters["bulk_planar_averages"][2][0],
-            entry.parameters["defect_planar_averages"][0][0],
-            entry.parameters["defect_planar_averages"][1][0],
-            entry.parameters["defect_planar_averages"][2][0]
-        ]
+        list_axis_grid = entry.parameters["axis_grid"]
+        list_bulk_plnr_avg_esp = entry.parameters["bulk_planar_averages"]
+        list_defect_plnr_avg_esp = entry.parameters["defect_planar_averages"]
+        list_axes = range(len(list_axis_grid))
 
-        list_axis_grid = []
-        list_bulk_plnr_avg_esp = []
-        list_defect_plnr_avg_esp = []
-        list_axes = range(3)
-
-        for axis in range(3):
-            list_axis_grid.append(entry.parameters["bulk_planar_averages"][axis][0])
-            list_bulk_plnr_avg_esp.append(entry.parameters["bulk_planar_averages"][axis][1])
-            list_defect_plnr_avg_esp.append(entry.parameters["defect_planar_averages"][axis][1])
-
-        lattice = entry.parameters["lattice"]
-        dielectricconst = self.dielectric
+        lattice = entry.defect.structure.lattice
         q = entry.defect.charge
-        
-        list_axes = list(range(3))
-
-        self.dielectric_const = dielectric_const
-        self.q_model = q_model
-        self.energy_cutoff = energy_cutoff
-        self.madelung_energy_tolerance = madelung_energy_tolerance
 
         es_corr = self.perform_es_corr(
             lattice,
             self.dielectric,
-            self.defect.charge,
+            entry.charge,
             energy_cutoff=self.energy_cutoff,
             q_model=self.q_model,
             madetol=self.madelung_energy_tolerance)
@@ -108,8 +84,8 @@ class FreysoldtCorrection(DefectCorrection):
                 defavg,
                 lattice,
                 self.dielectric,
-                self.defect.charge,
-                entry.site.coords
+                entry.charge,
+                entry.site.coords,
                 axis,
                 q_model=self.q_model,
                 madetol=self.madelung_energy_tolerance,
@@ -123,17 +99,17 @@ class FreysoldtCorrection(DefectCorrection):
                 "freysoldt_potential_alignment": pot_corr}
 
 
-    def perform_es_corr(self, lattice, dielectricconst, q, energy_cutoff=520, q_model=QModel(), madetol=0.0001):
+    def perform_es_corr(self, lattice, dielectric, q, energy_cutoff=520, q_model=QModel(), madetol=0.0001):
         """
         Peform Electrostatic Freysoldt Correction
         """
         logger = logging.getLogger(__name__)
-        # ap = lattice.get_cartesian_coords(1)
         logger.info('Running Freysoldt 2011 PC calculation (should be '\
                      'equivalent to sxdefectalign)')
         logger.debug('defect lattice constants are (in angstroms)' \
                       + str(lattice.abc))
-        [a1, a2, a3] = ang_to_bohr * np.array(lattice.abc)
+
+        [a1, a2, a3] = ang_to_bohr * np.array(lattice.get_cartesian_coords(1))
         logging.debug( 'In atomic units, lat consts are (in bohr):' \
                       + str([a1, a2, a3]))
         vol = np.dot(a1, np.cross(a2, a3))  #vol in bohr^3
@@ -176,7 +152,7 @@ class FreysoldtCorrection(DefectCorrection):
                 eper += (q_model.rho_rec(g2)**2) / g2
             eper *= (q**2) * 2 * round(np.pi, 6) / vol
             eper += (q**2) *4* round(np.pi, 6) \
-                    * q_model.rho_rec_limit0() / vol
+                    * q_model.rho_rec_limit0 / vol
             converge.append(eper)
             if len(converge) > 2:
                 if abs(converge[-1] - converge[-2]) < madetol:
@@ -191,7 +167,7 @@ class FreysoldtCorrection(DefectCorrection):
         logger.info('difference (periodic-iso) is %f hartree', round(eper - eiso, 6))
         logger.info('difference in (eV) is %f', round((eper - eiso) * hart_to_ev, 4))
 
-        es_corr = round((eiso - eper) / dielectricconst * hart_to_ev, 6)
+        es_corr = round((eiso - eper) / dielectric * hart_to_ev, 6)
         logger.info('Defect Correction without alignment %f (eV): ', es_corr)
         return es_corr
 
@@ -244,7 +220,7 @@ class FreysoldtCorrection(DefectCorrection):
         v_G = np.empty(len(axis_grid), np.dtype('c16'))
         epsilon = dielectricconst
         # q needs to be that of the back ground
-        v_G[0] = 4 * np.pi * -q / epsilon * q_model.rho_rec_limit0()
+        v_G[0] = 4 * np.pi * -q / epsilon * q_model.rho_rec_limit0
         for i in range(1, nx):
             if (2 * i < nx):
                 g = i * dg
@@ -288,16 +264,16 @@ class FreysoldtCorrection(DefectCorrection):
         else:
             self.metadata['pot_corr_uncertainty_md'][axis] = {'stats': stats.describe(tmppot), 'potcorr': -q * C}
 
-        #make plot, if desired
-        if title:
-            plotter = FreysoldtCorrPlotter(axis_grid, v_R, defavg - pureavg, final_shift,
-                                           np.array([mid - checkdis, mid + checkdis]))
-            if title != 'written':
-                plotter.plot(title=title)
-            else:
-                # TODO: Make this default fname more defect specific so it doesnt
-                # over write previous defect data written
-                fname = 'FreyAxisData'  # Extension is npz
-                plotter.to_datafile(fname)
+        # #make plot, if desired
+        # if title:
+        #     plotter = FreysoldtCorrPlotter(axis_grid, v_R, defavg - pureavg, final_shift,
+        #                                    np.array([mid - checkdis, mid + checkdis]))
+        #     if title != 'written':
+        #         plotter.plot(title=title)
+        #     else:
+        #         # TODO: Make this default fname more defect specific so it doesnt
+        #         # over write previous defect data written
+        #         fname = 'FreyAxisData'  # Extension is npz
+        #         plotter.to_datafile(fname)
 
-        return
+        return self.pot_corr
