@@ -414,12 +414,13 @@ class Dos(MSONable):
                               for spin, dens in self.densities.items()}}
 
 
-class DosFermi(Dos):
+class FermiDos(Dos):
     """
     This wrapper class helps relates the density of states, doping levels
     (i.e. carrier concentrations) and corresponding fermi levels. A negative
     doping concentration (c) means that the majority carriers are electrons
-    (n-type doping) and if positive holes/p-type
+    (n-type doping) and positive c represents holes or p-type doping.
+
     Args:
         dos (pymatgen Dos class): density of states at corresponding energy levels
         structure (pymatgen Structure class): provided either as input or
@@ -429,7 +430,7 @@ class DosFermi(Dos):
             number of electrons in the structure.
     """
     def __init__(self, dos, structure=None, nelecs=None):
-        super(DosFermi, self).__init__(
+        super(FermiDos, self).__init__(
             dos.efermi, energies=dos.energies,
             densities={k: np.array(d) for k, d in dos.densities.items()})
         if structure is None:
@@ -451,11 +452,11 @@ class DosFermi(Dos):
         self.idx_cbm = np.argmin(abs(self.energies - ecbm))
         self.A_to_cm = 1e-8
 
-
     def get_doping(self, fermi, T):
         """
         Calculate the doping (majority carrier concentration) at a given fermi
-        level and temperature.
+        level and temperature. A simple Left Riemann sum is used for integrating
+        the density of states over energy & equilibrium Fermi-Dirac distribution
 
         Args:
             fermi (float): the fermi level in eV
@@ -463,9 +464,44 @@ class DosFermi(Dos):
         Returns (float): in units 1/cm3. If negative it means that the majority
             carriers are electrons (n-type doping) and if positive holes/p-type
         """
-        cb_integral = np.sum(self.tdos[self.idx_cbm:] * f0(self.energies[self.idx_cbm:], fermi, T) * self.de[self.idx_cbm:], axis=0)
-        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1] * (1 - f0(self.energies[:self.idx_vbm + 1], fermi, T)) * self.de[:self.idx_vbm + 1],axis=0)
+        cb_integral = np.sum(self.tdos[self.idx_cbm:]\
+                             * f0(self.energies[self.idx_cbm:], fermi, T)\
+                             * self.de[self.idx_cbm:], axis=0)
+        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1]\
+                             * (1-f0(self.energies[:self.idx_vbm+1], fermi, T))\
+                             * self.de[:self.idx_vbm + 1],axis=0)
         return (vb_integral-cb_integral) / (self.volume*self.A_to_cm**3)
+
+    def get_fermi(self, c, T, rtol=0.01, nstep=20, step=0.1, precision=8):
+        """
+        Finds the fermi level at which the doping concentration at the given
+        temperature (T) is equal to c using. A greedy algorithm is used where
+        the relative error is minimized by calculating the doping at a grid
+        that is continuously become finer.
+
+        Args:
+            c (float): doping concentration. c<0 represents n-type doping and
+                c>0 represents p-type doping (i.e. majority carriers are holes)
+            T (float): absolute temperature in Kelvin
+            rtol (float): maximum acceptable relative error
+            nstep (int): number of steps checked around a given fermi level
+            step (float): initial step in fermi level when searching
+            precision (int): essentially the decimal places of calculated fermi
+
+        Returns (float): the fermi level. Note that this is different than the
+            default dos.efermi.
+        """
+        fermi = self.efermi # initialize target fermi
+        for i in range(precision):
+            frange = np.arange(-nstep, nstep+1) * step + fermi
+            calc_doping = np.array([self.get_doping(f, T) for f in frange])
+            relative_error = abs(calc_doping - c) / abs(c)
+            fermi = frange[np.argmin(relative_error)]
+            step /= 10.0
+        if min(relative_error) > rtol:
+            raise ValueError('Could not find fermi within {}% of c={}'.format(
+                    rtol*100, c))
+        return fermi
 
 
 class CompleteDos(Dos):
