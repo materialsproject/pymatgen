@@ -214,7 +214,7 @@ class NearNeighbors(object):
         return False
 
     def __hash__(self):
-        return hash(tuple(sorted(self.__dict__.items())))
+        return len(self.__dict__.items())
 
     def get_cn(self, structure, n, use_weights=False):
         """
