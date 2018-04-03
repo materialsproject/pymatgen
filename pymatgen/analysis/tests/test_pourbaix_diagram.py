@@ -108,6 +108,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertEqual(set([e.name for e in pbx_lowconc.stable_entries]),
                          {"Zn(HO)2(aq)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"})
 
+    def test_multicomponent(self):
         # Binary system
         pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
                                     comp_dict={"Ag": 0.5, "Te": 0.5},
