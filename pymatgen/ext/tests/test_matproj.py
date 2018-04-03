@@ -17,8 +17,7 @@ from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.pourbaix.entry import PourbaixEntry
-from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
+from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
