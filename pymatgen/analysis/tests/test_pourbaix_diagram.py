@@ -175,6 +175,14 @@ class PourbaixDiagramTest(unittest.TestCase):
         test_entry = pbx.find_stable_entry(8, 2)
         self.assertAlmostEqual(test_entry.energy, 2.393900378500001)
 
+        # Test custom ions
+        entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])
+        ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
+        custom_ion_entry = PourbaixEntry(ion, entry_id='my_ion')
+        pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
+                              comp_dict={"Na": 1, "Sn": 12, "C": 24})
+        self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
+                               8.31082110278154)
 
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):

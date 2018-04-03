@@ -635,9 +635,11 @@ class PourbaixDiagram(object):
         if self._multielement and not isinstance(entry, MultiEntry):
             possible_entries = self._generate_multielement_entries(
                self._preprocessed_entries, forced_include=[entry])
+
             # Filter to only include materials where the entry is only solid
-            possible_entries = [e for e in possible_entries
-                                if e.phase_type.count("Solid") == 1]
+            if entry.phase_type == "solid":
+                possible_entries = [e for e in possible_entries
+                                    if e.phase_type.count("Solid") == 1]
             possible_energies = [e.normalized_energy_at_conditions(pH, V)
                                        for e in possible_entries]
         else:
