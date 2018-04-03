@@ -414,11 +414,12 @@ class PourbaixDiagram(object):
 
         for entry in ion_entries:
             ion_elts = list(set(entry.composition.elements) - elements_HO)
-            if len(ion_elts) != 1:
-                raise ValueError("Elemental concentration not compatible "
-                                 "with multi-element ions")
-            entry.concentration = conc_dict[ion_elts[0].symbol] \
-                                  * entry.normalization_factor
+            if not entry.concentration:
+                if len(ion_elts) != 1 and not entry.concentration:
+                    raise ValueError("Elemental concentration not compatible "
+                                     "with multi-element ions")
+                entry.concentration = conc_dict[ion_elts[0].symbol] \
+                                      * entry.normalization_factor
 
         if not len(solid_entries + ion_entries) == len(entries):
             raise ValueError("All supplied entries must have a phase type of "
@@ -801,7 +802,7 @@ class PourbaixPlotter(object):
         return self._pd._pourbaix_domain_vertices[entry]
 
 
-def generate_entry_label(self, entry):
+def generate_entry_label(entry):
     """
     Generates a label for the pourbaix plotter
 
