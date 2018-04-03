@@ -754,7 +754,7 @@ class PourbaixPlotter(object):
             x, y = np.transpose(np.vstack([vertices, vertices[0]]))
             plt.plot(x, y, 'k-', linewidth=lw)
             if label_domains:
-                plt.annotate(self.print_name(entry), center, ha='center',
+                plt.annotate(generate_entry_label(entry), center, ha='center',
                              va='center', fontsize=20, color="b")
 
         plt.xlabel("pH")
@@ -778,7 +778,8 @@ class PourbaixPlotter(object):
         # Plot stability map
         plt.pcolor(pH, V, stability, cmap=cmap, vmin=0, vmax=e_hull_max)
         cbar = plt.colorbar()
-        cbar.set_label("Stability of {} (eV/atom)".format(self.print_name(entry)))
+        cbar.set_label("Stability of {} (eV/atom)".format(
+            generate_entry_label(entry)))
 
         # Set ticklabels
         ticklabels = [t.get_text() for t in cbar.ax.get_yticklabels()]
