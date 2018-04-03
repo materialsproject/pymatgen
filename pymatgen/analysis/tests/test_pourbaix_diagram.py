@@ -12,7 +12,7 @@ import warnings
 import numpy as np
 
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry,\
-    MultiEntry, PourbaixPlotter, IonEntry
+    PourbaixPlotter, IonEntry, MultiEntry
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.core.ion import Ion
 from pymatgen import SETTINGS
@@ -35,11 +35,11 @@ class PourbaixEntryTest(unittest.TestCase):
 
     def test_pourbaix_entry(self):
         self.assertEqual(self.PxIon.entry.energy, 25, "Wrong Energy!")
-        self.assertEqual(self.PxIon.entry.name,\
-                          "MnO4[-]", "Wrong Entry!")
+        self.assertEqual(self.PxIon.entry.name,
+                         "MnO4[-]", "Wrong Entry!")
         self.assertEqual(self.PxSol.entry.energy, 49, "Wrong Energy!")
-        self.assertEqual(self.PxSol.entry.name,\
-                           "Mn2O3", "Wrong Entry!")
+        self.assertEqual(self.PxSol.entry.name,
+                         "Mn2O3", "Wrong Entry!")
         # self.assertEqual(self.PxIon.energy, 25, "Wrong Energy!")
         # self.assertEqual(self.PxSol.energy, 49, "Wrong Energy!")
         self.assertEqual(self.PxIon.concentration, 1e-4, "Wrong concentration!")
@@ -71,6 +71,19 @@ class PourbaixEntryTest(unittest.TestCase):
         self.PxSol.energy_at_conditions(10, np.array([1, 2, 3]))
         self.PxSol.energy_at_conditions(np.array([1, 2, 3]),
                                         np.array([1, 2, 3]))
+
+    def test_multi_entry(self):
+        # TODO: More robust multientry test
+        m_entry = MultiEntry([self.PxSol, self.PxIon])
+        for attr in ['energy', 'composition', 'nPhi']:
+            self.assertEqual(getattr(m_entry, attr),
+                             getattr(self.PxSol, attr) + getattr(self.PxIon, attr))
+
+        # As dict, from dict
+        m_entry_dict = m_entry.as_dict()
+        m_entry_new = MultiEntry.from_dict(m_entry_dict)
+        self.assertEqual(m_entry_new.energy, m_entry.energy)
+
 
 class PourbaixDiagramTest(unittest.TestCase):
     @classmethod
@@ -117,6 +130,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data['Zn'])
+        self.assertEqual(len(domains[0]), 7)
 
     def test_get_decomposition(self):
         # Test a stable entry to ensure that it's zero in the stable region
@@ -158,6 +172,7 @@ class PourbaixDiagramTest(unittest.TestCase):
                               conc_dict={"Ag": 1e-8, "Te": 1e-8})
         self.assertEqual(len(pbx.stable_entries), 30)
         test_entry = pbx.find_stable_entry(8, 2)
+        self.assertAlmostEqual(test_entry.energy, 2.393900378500001)
 
 
 class PourbaixPlotterTest(unittest.TestCase):
@@ -173,13 +188,13 @@ class PourbaixPlotterTest(unittest.TestCase):
     def test_plot_pourbaix(self):
         plotter = PourbaixPlotter(self.pd)
         # Default limits
-        plt = plotter.get_pourbaix_plot()
+        plotter.get_pourbaix_plot()
         # Non-standard limits
-        plt = plotter.get_pourbaix_plot(limits=[[-5, 4], [-2, 2]])
+        plotter.get_pourbaix_plot(limits=[[-5, 4], [-2, 2]])
 
     def test_plot_entry_stability(self):
         entry = self.pd.all_entries[0]
-        plt = self.plotter.plot_entry_stability(entry, limits=[[-2, 14], [-3, 3]])
+        self.plotter.plot_entry_stability(entry, limits=[[-2, 14], [-3, 3]])
 
         # binary system
         pd_binary = PourbaixDiagram(self.test_data['Ag-Te'],

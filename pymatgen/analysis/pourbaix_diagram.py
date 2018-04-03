@@ -24,12 +24,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
 
-"""
-Module containing tools and classes which facilitate 
-the computation of pourbaix diagrams
-"""
-
-
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.3"
@@ -292,8 +286,9 @@ class MultiEntry(PourbaixEntry):
         return {"entry_list": self.entry_list,
                 "weights": self.weights}
 
-    def from_dict(self, d):
-        return MultiEntry(d.get("entry_list"), d.get("weights"))
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d.get("entry_list"), d.get("weights"))
 
 
 # TODO: this class isn't particularly useful in its current form, could be
@@ -776,7 +771,6 @@ class PourbaixPlotter(object):
             V_range = [-3, 3]
         # plot the Pourbaix diagram
         plt = self.get_pourbaix_plot(**kwargs)
-        ax = plt.gca()
         pH, V = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution*1j,
                          V_range[0]:V_range[1]:V_resolution*1j]
 
@@ -793,21 +787,6 @@ class PourbaixPlotter(object):
 
         return plt
 
-    def print_name(self, entry):
-        """
-        Print entry name if single, else print multientry
-        """
-        str_name = ""
-        if isinstance(entry, MultiEntry):
-            if len(entry.entry_list) > 2:
-                return str(entry)
-            for e in entry.entry_list:
-                str_name += latexify_ion(latexify(e.name)) + " + "
-            str_name = str_name[:-3]
-            return str_name
-        else:
-            return latexify_ion(latexify(entry.name))
-
     def domain_vertices(self, entry):
         """
         Returns the vertices of the Pourbaix domain.
@@ -820,6 +799,24 @@ class PourbaixPlotter(object):
         """
         return self._pd._pourbaix_domain_vertices[entry]
 
+
+def generate_entry_label(self, entry):
+    """
+    Generates a label for the pourbaix plotter
+
+    Args:
+        entry (PourbaixEntry or MultiEntry): entry to get a label for
+    """
+    str_name = ""
+    if isinstance(entry, MultiEntry):
+        if len(entry.entry_list) > 2:
+            return str(entry)
+        for e in entry.entry_list:
+            str_name += latexify_ion(latexify(e.name)) + " + "
+        str_name = str_name[:-3]
+        return str_name
+    else:
+        return latexify_ion(latexify(entry.name))
 
 def latexify_ion(formula):
     return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", formula)
