@@ -440,23 +440,18 @@ class PourbaixDiagram(object):
 
         if len(comp_dict) > 1:
             self._multielement = True
-            if filter_multielement:
-                # Add two high-energy H/O entries that ensure the hull
-                # includes all stable solids.
-                entries_HO = [ComputedEntry('H', 10000), ComputedEntry('O', 10000)]
-                solid_pd = PhaseDiagram(solid_entries + entries_HO)
-                solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
             self._processed_entries = self._generate_multielement_entries(
                     solid_entries + ion_entries)
+            self._preprocessed_entries
         else:
             self._multielement = False
-
             self._processed_entries = solid_entries + ion_entries
+
         self._stable_domains, self._stable_domain_vertices = \
             self.get_pourbaix_domains(self._processed_entries)
 
 
-    def _generate_multielement_entries(self, entries):
+    def _generate_multielement_entries(self, entries, forced_include=None):
         """
         Create entries for multi-element Pourbaix construction.
 
@@ -467,12 +462,16 @@ class PourbaixDiagram(object):
         Args:
             entries ([PourbaixEntries]): list of pourbaix entries
                 to process into MultiEntries
+            forced_include ([PourbaixEntries]) list of pourbaix entries
+                that must be included in multielement entries
         """
-        N = len(self._elt_comp)  # No. of elements
+        N = len(self._elt_comp) # No. of elements
         total_comp = Composition(self._elt_comp)
+        forced_include = forced_include or []
 
         # generate all possible combinations of compounds that have all elts
-        entry_combos = [itertools.combinations(entries, j+1) for j in range(N)]
+        entry_combos = [itertools.combinations(
+            entries, j + 1 - len(forced_include)) for j in range(N)]
         entry_combos = itertools.chain.from_iterable(entry_combos)
         entry_combos = [forced_include + list(ec) for ec in entry_combos]
         entry_combos = filter(lambda x: total_comp < MultiEntry(x).composition,
