@@ -809,14 +809,8 @@ def generate_entry_label(entry):
     Args:
         entry (PourbaixEntry or MultiEntry): entry to get a label for
     """
-    str_name = ""
     if isinstance(entry, MultiEntry):
-        if len(entry.entry_list) > 2:
-            return str(entry)
-        for e in entry.entry_list:
-            str_name += latexify_ion(latexify(e.name)) + " + "
-        str_name = str_name[:-3]
-        return str_name
+        return " + ".join([latexify_ion(e.name) for e in entry.entry_list])
     else:
         return latexify_ion(latexify(entry.name))
 
