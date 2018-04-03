@@ -442,7 +442,7 @@ class PourbaixDiagram(object):
             self._multielement = True
             self._processed_entries = self._generate_multielement_entries(
                     solid_entries + ion_entries)
-            self._preprocessed_entries
+            self._preprocessed_entries = solid_entries + ion_entries
         else:
             self._multielement = False
             self._processed_entries = solid_entries + ion_entries

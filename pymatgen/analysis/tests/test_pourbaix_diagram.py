@@ -111,7 +111,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         pd_ternary = PourbaixDiagram(self.test_data['Ag-Te-N'], filter_solids=True)
         self.assertEqual(len(pd_ternary.stable_entries), 49)
 
-        ag = self.test_data['Ag-Te-N'][36]
+        ag = self.test_data['Ag-Te-N'][30]
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 2, -1), 0)
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 10, -2), 0)
 
