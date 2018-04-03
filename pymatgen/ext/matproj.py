@@ -408,7 +408,7 @@ class MPRester(object):
             chemsys ([str]): A list of elements comprising the chemical
                 system, e.g. ['Li', 'Fe']
         """
-        from pymatgen.analysis.pourbaix.maker import PourbaixEntry, IonEntry
+        from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
         from pymatgen.entries.compatibility import\
