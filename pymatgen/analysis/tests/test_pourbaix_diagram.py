@@ -65,20 +65,19 @@ class PourbaixEntryTest(unittest.TestCase):
                          "as_dict and from_dict energies unequal")
 
     def test_energy_functions(self):
-        # TODO: actually test these for values
+        # TODO: test these for values
         self.PxSol.energy_at_conditions(10, 0)
         self.PxSol.energy_at_conditions(np.array([1, 2, 3]), 0)
         self.PxSol.energy_at_conditions(10, np.array([1, 2, 3]))
         self.PxSol.energy_at_conditions(np.array([1, 2, 3]),
                                         np.array([1, 2, 3]))
 
-class TestPourbaixDiagram(unittest.TestCase):
+class PourbaixDiagramTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        test_dir = os.path.dirname(os.path.abspath(__file__))
         cls.test_data = loadfn(os.path.join(test_dir, 'pourbaix_test_data.json'))
         cls.pbx = PourbaixDiagram(cls.test_data['Zn'], filter_solids=True)
-        cls.pbx_nofilter = PourbaixDiagram(self.test_data['Zn'],
+        cls.pbx_nofilter = PourbaixDiagram(cls.test_data['Zn'],
                                            filter_solids=False)
 
     def test_pourbaix_diagram(self):
@@ -98,12 +97,23 @@ class TestPourbaixDiagram(unittest.TestCase):
 
         # Binary system
         pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
-                                    comp_dict = {"Ag": 0.5, "Te": 0.5})
-        self.assertEqual(pd_binary.stable_entries, 10)
+                                    comp_dict={"Ag": 0.5, "Te": 0.5},
+                                    conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        self.assertEqual(len(pd_binary.stable_entries), 30)
+        test_entry = pd_binary.find_stable_entry(8, 2)
+        self.assertTrue("mp-499" in test_entry.entry_id)
 
         # Find a specific multientry to test
-        blargh
+        self.assertEqual(pd_binary.get_decomposition_energy(test_entry, 8, 2), 0)
+        self.assertEqual(pd_binary.get_decomposition_energy(
+            test_entry.entry_list[0], 8, 2), 0)
 
+        pd_ternary = PourbaixDiagram(self.test_data['Ag-Te-N'], filter_solids=True)
+        self.assertEqual(len(pd_ternary.stable_entries), 49)
+
+        ag = self.test_data['Ag-Te-N'][36]
+        self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 2, -1), 0)
+        self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 10, -2), 0)
 
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data['Zn'])
@@ -113,16 +123,17 @@ class TestPourbaixDiagram(unittest.TestCase):
         entry = self.test_data['Zn'][12] # Should correspond to mp-2133
         self.assertAlmostEqual(self.pbx.get_decomposition_energy(entry, 10, 1),
                                0.0, 5, "Decomposition energy of ZnO is not 0.")
+
         # Test an unstable entry to ensure that it's never zero
         entry = self.test_data['Zn'][11]
         ph, v = np.meshgrid(np.linspace(0, 14), np.linspace(-2, 4))
-        result = self.pbx.get_decomposition_energy(entry, ph, v)
-        self.assertTrue((result > 0).all(),
+        result = self.pbx_nofilter.get_decomposition_energy(entry, ph, v)
+        self.assertTrue((result >= 0).all(),
                         "Unstable energy has hull energy of 0 or less")
 
         # Test an unstable hydride to ensure HER correction works
         self.assertAlmostEqual(self.pbx.get_decomposition_energy(entry, -3, -2),
-                               10)
+                               11.093744395)
         # Test a list of pHs
         self.pbx.get_decomposition_energy(entry, np.linspace(0, 2, 5), 2)
 
@@ -142,11 +153,16 @@ class TestPourbaixDiagram(unittest.TestCase):
         pbx = PourbaixDiagram(data, filter_solids=True, conc_dict={"Zn": 1e-8})
         pbx.find_stable_entry(10, 0)
 
-class TestPourbaixPlotter(unittest.TestCase):
+        data = mpr.get_pourbaix_entries(["Ag", "Te"])
+        pbx = PourbaixDiagram(data, filter_solids=True,
+                              conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        self.assertEqual(len(pbx.stable_entries), 30)
+        test_entry = pbx.find_stable_entry(8, 2)
+
+
+class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore")
-
-        test_dir = os.path.dirname(os.path.abspath(__file__))
         self.test_data = loadfn(os.path.join(test_dir, "pourbaix_test_data.json"))
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
