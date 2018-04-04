@@ -1419,10 +1419,10 @@ class PDPlotter(object):
         return lines, stable_entries, unstable_entries
 
     def get_plot(self, label_stable=True, label_unstable=True, ordering=None,
-                 energy_colormap=None, process_attributes=False):
+                 energy_colormap=None, process_attributes=False, plt=None):
         if self._dim < 4:
             plt = self._get_2d_plot(label_stable, label_unstable, ordering,
-                                    energy_colormap,
+                                    energy_colormap, plt=plt,
                                     process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
@@ -1505,14 +1505,14 @@ class PDPlotter(object):
     def _get_2d_plot(self, label_stable=True, label_unstable=True,
                      ordering=None, energy_colormap=None, vmin_mev=-60.0,
                      vmax_mev=60.0, show_colorbar=True,
-                     process_attributes=False):
+                     process_attributes=False, plt=None):
         """
         Shows the plot using pylab.  Usually I won't do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """
-
-        plt = pretty_plot(8, 6)
+        if plt is None:
+            plt = pretty_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         if ordering is None:
             (lines, labels, unstable) = self.pd_plot_data
