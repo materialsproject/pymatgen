@@ -85,7 +85,7 @@
     <span class="n">get_high_accuracy_voronoi_nodes</span>
 <span class="kn">from</span> <span class="nn">pymatgen.command_line.gulp_caller</span> <span class="k">import</span> <span class="n">get_energy_buckingham</span><span class="p">,</span> \
     <span class="n">get_energy_relax_structure_buckingham</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">LocalStructOrderParas</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">LocalStructOrderParams</span><span class="p">,</span> \
     <span class="n">MinimumDistanceNN</span><span class="p">,</span> <span class="n">VoronoiNN</span><span class="p">,</span> <span class="n">ValenceIonicRadiusEvaluator</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="k">import</span> <span class="n">RelaxationAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span>
@@ -1494,7 +1494,7 @@
         <span class="n">struct_w_inter</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inter_elem</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">))</span>
-        <span class="n">ops</span> <span class="o">=</span> <span class="n">LocalStructOrderParas</span><span class="p">(</span><span class="n">motif_types</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">)</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">(</span><span class="n">motif_types</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">)</span>
         <span class="n">trialsites</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Loop over trial positions that are based on a regular</span>

@@ -78,7 +78,6 @@ easy_install.</p>
 <h2>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>Optional libraries that are required if you need certain features.</p>
 <ol class="arabic simple">
-<li>pyhull 1.5.2+: For electronic structure, generation of Pourbaix diagrams.</li>
 <li>sympy: For defect generation and analysis.</li>
 <li>VTK with Python bindings 5.8+ (<a class="reference external" href="http://www.vtk.org/">http://www.vtk.org/</a>): For visualization of
 crystal structures using the pymatgen.vis package. Note that the VTK
@@ -104,7 +103,7 @@ the moment) required only for certain features:</p>
 <li>ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
 must be in the path. Get it at <a class="reference external" href="http://www.ffmpeg.org">http://www.ffmpeg.org</a>.</li>
 <li>enum: For the use of
-<a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation</span></code></a>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation</span></code>
 and <a class="reference internal" href="pymatgen.command_line.enumlib_caller.html#module-pymatgen.command_line.enumlib_caller" title="pymatgen.command_line.enumlib_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.enumlib_caller</span></code></a> module. This library by Gus
 Hart provides a robust way to enumerate derivative structures. It can be
 used to completely enumerate all symmetrically distinct ordered structures
@@ -113,7 +112,7 @@ advanced transformations (e.g., MagOrderingTransformation) use
 EnumerateStructureTransformation. The enum.x and makestr.x
 executables must be in the path. Get it at <a class="reference external" href="http://enum.sourceforge.net">http://enum.sourceforge.net</a> and
 follow the instructions to compile multienum.x and makestr.x.</li>
-<li>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
+<li>bader: For use with <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code>.
 This library by Henkelmann et al. provides a robust way to calculate the
 Bader analysis from a CHGCAR. The bader executable must be in the path.
 Get it at <a class="reference external" href="http://theory.cm.utexas.edu/bader">http://theory.cm.utexas.edu/bader</a>.</li>

@@ -192,6 +192,23 @@ general list of useful properties.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_doc">
+<code class="descname">get_doc</code><span class="sig-paren">(</span><em>materials_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_doc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_doc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the entire data document for one materials id. Use this judiciously.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>materials_id</strong> (<em>str</em>) – E.g., mp-1143 for Al2O3</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dict of json document of all data that is displayed on a materials
+details page.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_dos_by_material_id">
 <code class="descname">get_dos_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_dos_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_dos_by_material_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a Dos corresponding to a material_id.</p>
@@ -361,7 +378,7 @@ Materials Project REST interface.</p>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_interface_reactions">
-<code class="descname">get_interface_reactions</code><span class="sig-paren">(</span><em>reactant1</em>, <em>reactant2</em>, <em>open_el=None</em>, <em>relative_mu=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_interface_reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_interface_reactions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_interface_reactions</code><span class="sig-paren">(</span><em>reactant1</em>, <em>reactant2</em>, <em>open_el=None</em>, <em>relative_mu=None</em>, <em>use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_interface_reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_interface_reactions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets critical reactions between two reactants.</p>
 <p>Get critical reactions (“kinks” in the mixing ratio where
 reaction products change) between two reactants. See the
@@ -376,6 +393,11 @@ reaction products change) between two reactants. See the
 <li><strong>open_el</strong> (<em>str</em>) – Element in reservoir available to system</li>
 <li><strong>relative_mu</strong> (<em>float</em>) – Relative chemical potential of element in
 reservoir with respect to pure substance. Must be non-positive.</li>
+<li><strong>use_hull_energy</strong> (<em>bool</em>) – Whether to use the convex hull energy for a</li>
+<li><strong>composition for the reaction energy calculation. If false</strong><strong>,</strong> (<em>given</em>) – </li>
+<li><strong>energy of the ground state structure will be preferred; if a</strong> (<em>the</em>) – </li>
+<li><strong>state can not be found for a composition</strong><strong>, </strong><strong>the convex hull</strong> (<em>ground</em>) – </li>
+<li><strong>will be used with a warning message.</strong> (<em>energy</em>) – </li>
 </ul>
 </td>
 </tr>
@@ -424,6 +446,23 @@ equivalent to an old materials id)</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – A material id.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BibTeX (str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_materials_ids">
+<code class="descname">get_materials_ids</code><span class="sig-paren">(</span><em>chemsys_formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_materials_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_materials_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all materials ids for a formula or chemsys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chemsys_formula</strong> (<em>str</em>) – A chemical system (e.g., Li-Fe-O),
+or formula (e.g., Fe2O3).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">([str]) List of all materials ids.</td>
 </tr>
 </tbody>
 </table>
