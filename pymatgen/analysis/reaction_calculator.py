@@ -368,8 +368,10 @@ class Reaction(BalancedReaction):
 
         if not ok:
             r_mat = np.array([[c[el] for el in els] for c in reactants])
-            if np.linalg.lstsq(r_mat.T, np.zeros(len(els)), rcond=None)[2] \
-                    != len(reactants):
+            reactants_underdetermined = (
+                np.linalg.lstsq(r_mat.T, np.zeros(len(els)), rcond=None)[2]
+                != len(reactants))
+            if reactants_underdetermined:
                 raise ReactionError("Reaction cannot be balanced. "
                                     "Reactants are underdetermined.")
             raise ReactionError("Reaction cannot be balanced. "
