@@ -274,9 +274,10 @@ class DiffusionAnalyzer(MSONable):
                 if smoothed == "max":
                     # For max smoothing, we need to weight by variance.
                     w_root = (1 / dt) ** 0.5
-                    return np.linalg.lstsq(a * w_root[:, None], b * w_root)
+                    return np.linalg.lstsq(
+                        a * w_root[:, None], b * w_root, rcond=None)
                 else:
-                    return np.linalg.lstsq(a, b)
+                    return np.linalg.lstsq(a, b, rcond=None)
 
             # Get self diffusivity
             m_components = np.zeros(3)
@@ -817,7 +818,7 @@ def fit_arrhenius(temps, diffusivities):
     logd = np.log(diffusivities)
     # Do a least squares regression of log(D) vs 1/T
     a = np.array([t_1, np.ones(len(temps))]).T
-    w, res, _, _ = np.linalg.lstsq(a, logd)
+    w, res, _, _ = np.linalg.lstsq(a, logd, rcond=None)
     w = np.array(w)
     n = len(temps)
     if n > 2:
