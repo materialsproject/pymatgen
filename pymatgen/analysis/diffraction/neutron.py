@@ -63,7 +63,7 @@ class NDCalculator(object):
     This code is a slight modification of XRDCalculator in
     pymatgen.analysis.diffraction.xrd. See it for details of the algorithm.
     Main changes by using neutron instead of X-ray are as follows:
-    1. Atomic scattering factor is a constant.
+    1. Atomic scattering length is a constant.
     2. Polarization correction term of Lorentz factor is unnecessary.
 
     """
@@ -378,3 +378,12 @@ def get_unique_families(hkls):
 
     return pretty_unique
 
+if __name__ == '__main__':
+    import sys
+    sys.path.append("/Users/resnant/Documents/jupyter/pymatgen/")
+    from pymatgen import Lattice, Structure
+    from pymatgen.analysis.diffraction.neutron import NDCalculator
+    c = NDCalculator(debye_waller_factors={'Li':1, 'Ge':1, 'P':1, 'S':1})
+    structure = Structure.from_file('/Users/resnant/Documents/jupyter/pymatgen/test_files/Li10GeP2S12.cif')
+    nd = c.get_nd_pattern(structure, two_theta_range=(0, 150))
+    print(nd)
