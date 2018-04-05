@@ -425,11 +425,13 @@ class FermiDos(Dos):
         dos (pymatgen Dos class): density of states at corresponding energy levels
         structure (pymatgen Structure class): provided either as input or
             inside Dos (e.g. if CompleteDos used)
-        nelecs(float): the number of electrons included in the energy range of
+        nelecs (float): the number of electrons included in the energy range of
             dos. It is used for normalizing the densities. Default is the total
             number of electrons in the structure.
+        bandgap (float): if set, the energy values are scissored so that the
+            electronic band gap matches this value.
     """
-    def __init__(self, dos, structure=None, nelecs=None):
+    def __init__(self, dos, structure=None, nelecs=None, bandgap=None):
         super(FermiDos, self).__init__(
             dos.efermi, energies=dos.energies,
             densities={k: np.array(d) for k, d in dos.densities.items()})
@@ -451,6 +453,10 @@ class FermiDos(Dos):
         self.idx_vbm = np.argmin(abs(self.energies - evbm))
         self.idx_cbm = np.argmin(abs(self.energies - ecbm))
         self.A_to_cm = 1e-8
+        if bandgap:
+            idx_fermi = np.argmin(abs(self.energies - self.efermi))
+            self.energies[:idx_fermi] -= (bandgap - (ecbm - evbm)) / 2.0
+            self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
     def get_doping(self, fermi, T):
         """
@@ -473,7 +479,7 @@ class FermiDos(Dos):
                              * self.de[:self.idx_vbm + 1],axis=0)
         return (vb_integral-cb_integral) / (self.volume*self.A_to_cm**3)
 
-    def get_fermi(self, c, T, rtol=0.01, nstep=20, step=0.1, precision=8):
+    def get_fermi(self, c, T, rtol=0.01, nstep=50, step=0.1, precision=8):
         """
         Finds the fermi level at which the doping concentration at the given
         temperature (T) is equal to c. A greedy algorithm is used where the
