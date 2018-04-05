@@ -121,6 +121,7 @@ setup(
                   "pymatgen.symmetry": ["*.yaml", "*.json"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
+                  "pymatgen.structure_prediction": ["DLS_bond_params.yaml"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
                   "pymatgen.analysis.defects": ["*.json"],
