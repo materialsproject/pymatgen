@@ -183,6 +183,9 @@ class PourbaixDiagramTest(unittest.TestCase):
                               comp_dict={"Na": 1, "Sn": 12, "C": 24})
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
                                8.31082110278154)
+        pbx = PourbaixDiagram(mpr.get_pourbaix_entries(['Sn', 'C']))
+        pbx.stable_entries
+
 
 class PourbaixPlotterTest(unittest.TestCase):
     def setUp(self):

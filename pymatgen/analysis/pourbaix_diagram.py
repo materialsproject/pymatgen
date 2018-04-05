@@ -215,6 +215,13 @@ class PourbaixEntry(MSONable):
         """
         return self.composition.num_atoms
 
+    @property
+    def non_oh_elts(self):
+        """
+        convenience method for getting non-O and non-H elements
+        """
+        return list(set(self.composition) - {Element('O'), Element('H')})
+
     def __repr__(self):
         return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, "\
                "nPhi = {}, nH2O = {}, entry_id = {} ".format(
@@ -390,9 +397,8 @@ class PourbaixDiagram(object):
             so use with caution.
     """
     def __init__(self, entries, comp_dict=None, conc_dict=None,
-                 filter_solids=False):
+                 filter_solids=False, filter_multielement=True):
 
-        entries = deepcopy(entries)
         # Get non-OH elements
         pbx_elts = set(itertools.chain.from_iterable(
             [entry.composition.elements for entry in entries]))
@@ -412,38 +418,49 @@ class PourbaixDiagram(object):
         ion_entries = [entry for entry in entries
                        if entry.phase_type == "Ion"]
 
-        for entry in ion_entries:
-            ion_elts = list(set(entry.composition.elements) - elements_HO)
-            # TODO: the logic here for ion concentration setting is in two
-            #       places, in PourbaixEntry and here, should be consolidated
-            if len(ion_elts) == 1:
-                entry.concentration = conc_dict[ion_elts[0].symbol] \
-                                      * entry.normalization_factor
-            elif len(ion_elts) > 1 and not entry.concentration:
-                raise ValueError("Elemental concentration not compatible "
-                                 "with multi-element ions")
+        # If a conc_dict is specified, override individual entry concentrations
+        if conc_dict:
+            for entry in ion_entries:
+                if len(entry.non_oh_elts) == 1:
+                    entry.concentration = conc_dict[entry.non_oh_elts[0].symbol]\
+                                          * entry.normalization_factor
+                elif len(entry.non_oh_elts) > 1 and not entry.concentration:
+                    raise ValueError("Elemental concentration not compatible "
+                                     "with multi-element ions")
 
         if not len(solid_entries + ion_entries) == len(entries):
             raise ValueError("All supplied entries must have a phase type of "
                              "either \"Solid\" or \"Ion\"")
-
-        self._unprocessed_entries = entries
 
         if filter_solids:
             # O is 2.46 b/c pbx entry finds energies referenced to H2O
             entries_HO = [ComputedEntry('H', 0), ComputedEntry('O', 2.46)]
             solid_pd = PhaseDiagram(solid_entries + entries_HO)
             solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
-            # import nose; nose.tools.set_trace()
+
+
+        # Find the stable entries in each unary pourbaix diagram
+        if filter_multielement:
+            stable_unary_entries = []
+            for elt in self._elt_comp:
+                unary_elt_entries = [e for e in entries
+                                 if tuple(e.non_oh_elts) == (elt,)]
+                stable_unary_entries.extend(
+                    PourbaixDiagram(unary_elt_entries).stable_entries)
+            self._analysis_entries = stable_unary_entries \
+                + [e for e in entries if len(e.non_oh_elts) > 1])
+        else:
+            self._analysis_entries = solid_entries + ion_entries
+
 
         if len(comp_dict) > 1:
             self._multielement = True
             self._processed_entries = self._generate_multielement_entries(
-                    solid_entries + ion_entries)
-            self._preprocessed_entries = solid_entries + ion_entries
+                    self._analysis_entries)
         else:
             self._multielement = False
-            self._processed_entries = solid_entries + ion_entries
+            self._analysis_entries = entries
+            self._processed_entries = entries
 
         self._stable_domains, self._stable_domain_vertices = \
             self.get_pourbaix_domains(self._processed_entries)
