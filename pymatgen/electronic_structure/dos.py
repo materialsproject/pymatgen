@@ -7,6 +7,8 @@ import numpy as np
 
 import six
 
+from scipy.constants import physical_constants
+from scipy.integrate import trapz
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
@@ -25,6 +27,8 @@ __version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 20, 2012"
+
+kB = physical_constants["Boltzmann constant in eV/K"][0]
 
 
 class DOS(Spectrum):
@@ -375,6 +379,54 @@ class Dos(MSONable):
         """
         (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
+
+    def get_n_density(self, relative_fermi_level, temperature):
+        """
+        Obtain the free electron concentration as a function of Fermi level and
+        temperature using Fermi-Dirac statistics and conduction band DOS
+        Args:
+            relative_fermi_level: the Fermi level relative to the VBM
+            temperature: temperature in Kelvin
+        Returns:
+            Electron density in #/cm^3
+        """
+        gap = self.get_gap()
+        cbm, vbm = self.get_cbm_vbm()
+
+        fermi_level = relative_fermi_level + vbm
+
+        if self.energies[-1] - fermi_level < 3.0:
+            print("The upper limit of energy is within 3 eV of Fermi level. "
+                  "Check for the convergence of electron concentration")
+        i = np.searchsorted(self.energies, cbm)
+        fd_stat = 1. / (1 + np.exp((self.energies[i:] - fermi_level) / (kB * temperature)))
+        y = fd_stat * self.get_densities()[i:]
+        density = trapz(y, self.energies[i:]) * (1e24 / self.structure.volume)
+        return density
+
+    def get_p_density(self, relative_fermi_level, temperature):
+        """
+        Obtain the hole concentration as a function of Fermi level and
+        temperature using Fermi-Dirac statistics and conduction band DOS
+        Args:
+            relative_fermi_level: the Fermi level relative to the VBM
+            temperature: temperature in Kelvin
+        Returns:
+            Hole density
+        """
+        gap = self.get_gap()
+        cbm, vbm = self.get_cbm_vbm()
+
+        fermi_level = relative_fermi_level + vbm
+
+        if fermi_level - self.energies[0] < 3.0:
+            print("The lower limit of energy is within 3 eV of Fermi level. "
+                  "Check for the convergence of hole concentration")
+        i = np.searchsorted(self.energies, vbm) + 1
+        fd_stat = 1. / (1 + np.exp((fermi_level - self.energies[:i]) / (kB * temperature)))
+        y = fd_stat * self.get_densities()[:i]
+        density = trapz(y, self.energies[:i]) * (1e24 / self.structure.volume)
+        return density
 
     def __str__(self):
         """
