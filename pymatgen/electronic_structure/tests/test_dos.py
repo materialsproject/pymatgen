@@ -47,6 +47,33 @@ class DosTest(unittest.TestCase):
         for spin in Spin:
             self.assertAlmostEqual(sum(dens[spin]), sum(smeared[spin]))
 
+    def test_charge_densities(self):
+
+        dos = self.dos
+        self.assertAlmostEqual(dos.get_n_density(0.1,300),8.7986436E-17)
+        self.assertAlmostEqual(dos.get_n_density(0.5,300),4.6144748E-10)
+        self.assertAlmostEqual(dos.get_n_density(1.0,300),0.11581256)
+        self.assertAlmostEqual(dos.get_n_density(1.5,300),2.90662281407534E7)
+        self.assertAlmostEqual(dos.get_n_density(2.0,300),7.293581638304925E15)
+
+        self.assertAlmostEqual(dos.get_n_density(1.0,100),3.7723915236090155e-42)
+        self.assertAlmostEqual(dos.get_n_density(1.0,500),73611631.20419557)
+        self.assertAlmostEqual(dos.get_n_density(1.0,1000),534437896384801.8)
+        self.assertAlmostEqual(dos.get_n_density(1.0,1500),1.2904355751632894e+17)
+
+
+        self.assertAlmostEqual(dos.get_p_density(0.1,300),3.780973340568742e+16)
+        self.assertAlmostEqual(dos.get_p_density(0.5,300),7212216464.317844)
+        self.assertAlmostEqual(dos.get_p_density(1.0,300),28.736611510279285)
+        self.assertAlmostEqual(dos.get_p_density(1.5,300),1.1449917582413169e-07)
+        self.assertAlmostEqual(dos.get_p_density(2.0,300),4.562145839538449e-16)
+
+        self.assertAlmostEqual(dos.get_p_density(1.0,100),9.138435688705244e-35)
+        self.assertAlmostEqual(dos.get_p_density(1.0,500),1296993486.5685039)
+        self.assertAlmostEqual(dos.get_p_density(1.0,1000),1066897769478645.2)
+        self.assertAlmostEqual(dos.get_p_density(1.0,1500),1.1840531097443749e+17)
+
+
 
 class CompleteDosTest(unittest.TestCase):
 
