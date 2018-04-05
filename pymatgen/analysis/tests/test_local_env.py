@@ -48,6 +48,7 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
         del self._mgo_uc
         del self._mgo_valrad_evaluator
 
+
 class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.s = self.get_structure('LiFePO4')
@@ -98,6 +99,31 @@ class VoronoiNNTest(PymatgenTest):
                                     [x['weight'] for x in nns if
                                      max(np.abs(x['image'])) == 1])
 
+        # Test the 3rd NN shell
+        nns = self.nn.get_nn_shell_info(s, 0, 3)
+        for nn in nns:
+            #  Check that the coordinates were set correctly
+            self.assertArrayAlmostEqual(nn['site'].frac_coords, nn['image'])
+
+        # Test with a structure that has unequal faces
+        cscl = Structure(Lattice([[4.209, 0, 0], [0, 4.209, 0], [0, 0, 4.209]]),
+            ["Cl1-", "Cs1+"], [[2.1045, 2.1045, 2.1045], [0, 0, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.nn.weight = 'area'
+        nns = self.nn.get_nn_shell_info(cscl, 0, 1)
+        self.assertEqual(14, len(nns))
+        self.assertEqual(6, np.isclose([x['weight'] for x in nns],
+                                       0.125/0.32476).sum())  # Square faces
+        self.assertEqual(8, np.isclose([x['weight'] for x in nns], 1).sum())
+
+        nns = self.nn.get_nn_shell_info(cscl, 0, 2)
+        # Weight of getting back on to own site
+        #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
+        #  Hex-hex hop: 8*7 options times 1 weight each
+        self.assertAlmostEqual(60.4444,
+                               np.sum([x['weight'] for x in nns if x['site_index'] == 0]),
+                               places=3)
 
     def tearDown(self):
         del self.s

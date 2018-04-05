@@ -253,6 +253,34 @@
             <span class="n">sub_url</span> <span class="o">+=</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">prop</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="n">sub_url</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MPRester.get_materials_ids"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_materials_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_materials_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys_formula</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all materials ids for a formula or chemsys.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            chemsys_formula (str): A chemical system (e.g., Li-Fe-O),</span>
+<span class="sd">                or formula (e.g., Fe2O3).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ([str]) List of all materials ids.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/materials/</span><span class="si">%s</span><span class="s2">/mids&quot;</span> <span class="o">%</span> <span class="n">chemsys_formula</span><span class="p">,</span>
+                                  <span class="n">mp_decode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MPRester.get_doc"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_doc">[docs]</a>    <span class="k">def</span> <span class="nf">get_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materials_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the entire data document for one materials id. Use this judiciously.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            materials_id (str): E.g., mp-1143 for Al2O3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict of json document of all data that is displayed on a materials</span>
+<span class="sd">            details page.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/materials/</span><span class="si">%s</span><span class="s2">/doc&quot;</span> <span class="o">%</span> <span class="n">materials_id</span><span class="p">,</span>
+                                  <span class="n">mp_decode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="MPRester.get_task_data"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_task_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_task_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemsys_formula_id</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Flexible method to get any data using the Materials Project REST</span>
@@ -1037,7 +1065,8 @@
         <span class="k">return</span> <span class="n">WulffShape</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">millers</span><span class="p">,</span> <span class="n">energies</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MPRester.get_interface_reactions"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_interface_reactions">[docs]</a>    <span class="k">def</span> <span class="nf">get_interface_reactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactant1</span><span class="p">,</span> <span class="n">reactant2</span><span class="p">,</span>
-                                <span class="n">open_el</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_mu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                                <span class="n">open_el</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">relative_mu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">use_hull_energy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets critical reactions between two reactants.</span>
 
@@ -1051,6 +1080,11 @@
 <span class="sd">            open_el (str): Element in reservoir available to system</span>
 <span class="sd">            relative_mu (float): Relative chemical potential of element in</span>
 <span class="sd">                reservoir with respect to pure substance. Must be non-positive.</span>
+<span class="sd">            use_hull_energy (bool): Whether to use the convex hull energy for a</span>
+<span class="sd">            given composition for the reaction energy calculation. If false,</span>
+<span class="sd">            the energy of the ground state structure will be preferred; if a</span>
+<span class="sd">            ground state can not be found for a composition, the convex hull</span>
+<span class="sd">            energy will be used with a warning message.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list: list of dicts of form {ratio,energy,rxn} where `ratio` is the</span>
@@ -1061,7 +1095,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;reactants&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">reactant1</span><span class="p">,</span> <span class="n">reactant2</span><span class="p">]),</span>
                    <span class="s2">&quot;open_el&quot;</span><span class="p">:</span> <span class="n">open_el</span><span class="p">,</span>
-                   <span class="s2">&quot;relative_mu&quot;</span><span class="p">:</span> <span class="n">relative_mu</span><span class="p">}</span>
+                   <span class="s2">&quot;relative_mu&quot;</span><span class="p">:</span> <span class="n">relative_mu</span><span class="p">,</span>
+                   <span class="s2">&quot;use_hull_energy&quot;</span><span class="p">:</span> <span class="n">use_hull_energy</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/interface_reactions&quot;</span><span class="p">,</span>
                                   <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">)</span></div>
 
