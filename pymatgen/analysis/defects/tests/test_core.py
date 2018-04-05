@@ -42,13 +42,14 @@ class DefectsCoreTest(PymatgenTest):
 
         # test multiplicity
         vac = Vacancy(struc, struc[V_index])
-        self.assertEqual(vac.multiplicity, 1.0)
+        self.assertEqual(vac.multiplicity, 2)
 
-        vac = Vacancy(struc, struc[V_index], multiplicity=4.0)
-        self.assertEqual(vac.multiplicity, 4.0)
+        O_index = struc.indices_from_symbol("O")[0]
+        vac = Vacancy(struc, struc[O_index])
+        self.assertEqual(vac.multiplicity, 4)
 
         # Test composoition
-        self.assertEqual(dict(vac.defect_composition.as_dict()), {"V": 1, "O": 4})
+        self.assertEqual(dict(vac.defect_composition.as_dict()), {"V": 2, "O": 3})
 
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -124,13 +125,15 @@ class DefectsCoreTest(PymatgenTest):
 
         # test multiplicity
         substitution = Substitution(struc, sub_site)
-        self.assertEqual(substitution.multiplicity, 1.0)
+        self.assertEqual(substitution.multiplicity, 2.0)
 
-        substitution = Substitution(struc, sub_site, multiplicity=4.0)
-        self.assertEqual(substitution.multiplicity, 4.0)
+        O_index = struc.indices_from_symbol("O")[0]
+        sub_site = PeriodicSite("Sr", struc[O_index].coords, struc.lattice, coords_are_cartesian=True)
+        substitution = Substitution(struc, sub_site)
+        self.assertEqual(substitution.multiplicity, 4)
 
         # Test composoition
-        self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 1, "Sr": 1, "O": 4})
+        self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3})
 
 
 if __name__ == "__main__":
