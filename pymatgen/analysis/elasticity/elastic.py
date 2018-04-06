@@ -614,7 +614,8 @@ class ElasticTensorExpansion(TensorCollection):
             n (3x1 array-like): direction for Cv determination
             u (3x1 array-like): polarization direction, note that
                 no attempt for verification of eigenvectors is made
-            overflow_cutoff (float)
+            cutoff (float): cutoff for scale of kt / (hbar * omega)
+                if lower than this value, returns 0
         """
         k = 1.38065e-23
         kt = k*temperature
@@ -788,7 +789,7 @@ class ElasticTensorExpansion(TensorCollection):
         return (comp.x, tens.x)
 
 
-#TODO: abstract this for other tensor fitting procedures
+# TODO: abstract this for other tensor fitting procedures
 def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
     """
     nth order elastic constant fitting function based on
