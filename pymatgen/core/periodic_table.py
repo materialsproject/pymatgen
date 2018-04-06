@@ -904,7 +904,7 @@ class Element(Enum):
         Get a dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes
         """
-        return self.data.get("NMR Quadrupole Moment",{})
+        return {k: FloatWithUnit(v,"mbarn") for k,v in self.data.get("NMR Quadrupole Moment",{}).items()}
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
