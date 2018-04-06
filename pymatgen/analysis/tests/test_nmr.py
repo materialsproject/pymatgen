@@ -6,7 +6,7 @@ from monty.json import MontyDecoder
 
 import numpy as np
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.nmr import ChemicalShielding
+from pymatgen.analysis.nmr import ChemicalShielding, ElectricFieldGradient
 
 
 class TestChemicalShieldingNotation(PymatgenTest):
@@ -44,6 +44,32 @@ class TestChemicalShieldingNotation(PymatgenTest):
         self.assertAlmostEqual(mary1.sigma_iso, 195.0788, places=5)
         self.assertAlmostEqual(mary1.omega, 68.1733, places=5)
         self.assertAlmostEqual(mary1.kappa, 0.8337, places=5)
+
+class TestElectricFieldGradient(PymatgenTest):
+
+
+    def test_construction(self):
+        efg = ElectricFieldGradient(np.arange(9).reshape((3,3)))
+        self.assertEqual(efg.shape,(3,3))
+
+        efg = ElectricFieldGradient([1,2,3])
+        self.assertEqual(efg.shape,(3,3))
+
+    def test_principal_axis_system(self):
+        efg = ElectricFieldGradient([1,2,3])
+        self.assertArrayEqual(efg.principal_axis_system,efg)
+
+        efg = ElectricFieldGradient(np.arange(9).reshape((3,3)))
+        self.assertArrayAlmostEqual(np.diag(efg.principal_axis_system),[-1.3484692e+00, -1.1543332e-15,  1.3348469e+01],decimal=5)
+
+    def test_Attributes(self):
+
+        efg = ElectricFieldGradient([[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]])
+        self.assertAlmostEqual(efg.V_yy,11.516,places=3)
+        self.assertAlmostEqual(efg.V_xx, 4.204,places=3)
+        self.assertAlmostEqual(efg.V_zz,-15.721,places=3)
+        self.assertAlmostEqual(efg.asymmetry,0.465,places=3)
+        self.assertAlmostEqual(efg.coupling_constant("Al"),5.573,places=3)
  
 
 if __name__ == '__main__':

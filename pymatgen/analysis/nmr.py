@@ -5,6 +5,12 @@
 from __future__ import division, unicode_literals
 from pymatgen.analysis.elasticity.tensors import SquareTensor
 from collections import namedtuple
+
+from pymatgen.core.units import FloatWithUnit, Unit
+
+from pymatgen.core.periodic_table import Specie
+from pymatgen.core.structure import Site
+
 import numpy as np
 """
 A module for NMR analysis
@@ -68,7 +74,7 @@ class ChemicalShielding(SquareTensor):
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         sigmas = np.diag(pas)
-        sigmas = sorted(sigmas, key=lambda x: np.abs(x-sigma_iso))
+        sigmas = sorted(sigmas, key=lambda x: np.abs(x - sigma_iso))
         sigma_yy, sigma_xx, sigma_zz = sigmas
         delta_sigma = sigma_zz - 0.5 * (sigma_xx + sigma_yy)
         zeta = sigma_zz - sigma_iso
@@ -104,3 +110,112 @@ class ChemicalShielding(SquareTensor):
         sigma_11 = (3.0 * sigma_iso - omega - sigma_22) / 2.0
         sigma_33 = 3.0 * sigma_iso - sigma_22 - sigma_11
         return cls(np.diag([sigma_11, sigma_22, sigma_33]))
+
+
+class ElectricFieldGradient(SquareTensor):
+    """
+    This class extends the SquareTensor to perform extra analysis unique to
+    NMR Electric Field Gradient tensors in units of V/Angstrom^2
+
+    Authors: Shyam Dwaraknath, Xiaohui Qu
+    """
+
+    def __new__(cls, efg_matrix):
+        """
+        Create a Chemical Shielding tensor.
+        Note that the constructor uses __new__
+        rather than __init__ according to the standard method of
+        subclassing numpy ndarrays.
+
+        Args:
+            efg_matrix (1x3 or 3x3 array-like): the 3x3 array-like
+                representing the electric field tensor
+                or a 1x3 array of the primary values corresponding to the principal axis system
+        """
+        t_array = np.array(efg_matrix)
+
+        if t_array.shape == (3, ):
+            return super(ElectricFieldGradient, cls).__new__(cls, np.diag(efg_matrix))
+        elif t_array.shape == (3, 3):
+            return super(ElectricFieldGradient, cls).__new__(cls, efg_matrix)
+
+    @property
+    def principal_axis_system(self):
+        """
+        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagnol components are non-zero
+        """
+        return ElectricFieldGradient(np.diag(np.sort(np.linalg.eigvals(self))))
+
+    @property
+    def V_xx(self):
+        diags = np.diag(self.principal_axis_system)
+        return sorted(diags,key=lambda x: np.abs(x))[0]
+
+    @property
+    def V_yy(self):
+        diags = np.diag(self.principal_axis_system)
+        return sorted(diags,key=lambda x: np.abs(x))[1]
+
+    @property
+    def V_zz(self):
+        diags = np.diag(self.principal_axis_system)
+        return sorted(diags,key=lambda x: np.abs(x))[2]
+
+
+    @property
+    def asymmetry(self):
+        """
+        Asymmetry of the electric field tensor defined as:
+            (V_yy - V_xx)/V_zz
+        """
+        diags = np.diag(self.principal_axis_system)
+        V = sorted(diags,key=lambda x: np.abs(x))
+        return np.abs((V[1]-V[0])/V[2])
+
+    
+    def coupling_constant(self, specie):
+        """
+            Cq for a specific atom type for this electric field tensor:
+                Cq=e*Q*V_zz/h
+            h: planck's constant     
+            Q  : nuclear electric quadrupole moment in mb (millibarn
+            e: elementary proton charge
+
+        Args:
+            specie: flexible input to specify the species at this site.
+                    Can take a isotope or element string, Specie object,
+                    or Site object
+
+        Return:
+
+            the coupling constant as a FloatWithUnit in MHz
+        """
+        planks_constant = FloatWithUnit(6.62607004E-34 ,"m^2 kg s^-1")
+        Vzz = FloatWithUnit(self.V_zz,"V ang^-2")
+        e = FloatWithUnit(-1.60217662E-19, "C")
+
+
+        # Convert from string to Specie object
+        if isinstance(specie,str):
+            # isotope was provided in string format
+            if len(specie.split("-")) > 1:
+                isotope = str(specie)
+                specie = Specie(specie.split("-")[0])
+                Q = specie.get_nmr_quadrupole_moment(isotope)
+            else:
+                specie = Specie(specie)
+                Q = specie.get_nmr_quadrupole_moment()
+        elif isinstance(specie,Site):
+            specie = specie.specie
+            Q = specie.get_nmr_quadrupole_moment()
+        elif isinstance(specie,Specie):
+            Q = specie.get_nmr_quadrupole_moment()
+        else:
+            raise ValueError("Invalid speciie provided for Quadrupolar Coupling Constant calcuations")
+
+        return (e*Q*Vzz/planks_constant).to("MHz")
+
+
+
+
+
