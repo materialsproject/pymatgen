@@ -6,29 +6,29 @@ from monty.json import MontyDecoder
 
 import numpy as np
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.nmr import ChemicalShift
+from pymatgen.analysis.nmr import ChemicalShielding
 
 
-class TestChemicalShiftNotation(PymatgenTest):
+class TestChemicalShieldingNotation(PymatgenTest):
     
     def test_construction(self):
-        cs = ChemicalShift(np.arange(9).reshape((3,3)))
+        cs = ChemicalShielding(np.arange(9).reshape((3,3)))
         self.assertEqual(cs.shape,(3,3))
 
-        cs = ChemicalShift([1,2,3])
+        cs = ChemicalShielding([1,2,3])
         self.assertEqual(cs.shape,(3,3))
         self.assertArrayEqual(np.diag(cs),[1,2,3])
 
 
     def test_principal_axis_system(self):
-        cs = ChemicalShift([1,2,3])
+        cs = ChemicalShielding([1,2,3])
         self.assertArrayEqual(cs.principal_axis_system,cs)
 
-        cs = ChemicalShift(np.arange(9).reshape((3,3)))
+        cs = ChemicalShielding(np.arange(9).reshape((3,3)))
         self.assertArrayAlmostEqual(np.diag(cs.principal_axis_system),[-1.3484692e+00, -1.1543332e-15,  1.3348469e+01],decimal=5)
 
     def test_notations(self):
-        cs = ChemicalShift.from_maryland_notation(
+        cs = ChemicalShielding.from_maryland_notation(
             195.0788, 68.1733, 0.8337)
         hae1 = cs.haeberlen_values
         self.assertAlmostEqual(hae1.sigma_iso, 195.0788, places=5)

@@ -10,76 +10,71 @@ import numpy as np
 A module for NMR analysis
 """
 
-
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
 __version__ = "0.2"
-__maintainer__ = "Xiaohui Qu"
+__maintainer__ = "Shyam Dwaraknath"
 __credits__ = "Xiaohui Qu"
 __email__ = "shyamd@lbl.gov"
 __date__ = "Mar 1, 2018"
 
 
-class ChemicalShift(SquareTensor):
+class ChemicalShielding(SquareTensor):
     """
     This class extends the SquareTensor to perform extra analysis unique to
-    NMR Chemical shift tensors
-    
-    Three notations to describe chemical shift tensor (RK Harris; Magn. Reson.
+    NMR Chemical shielding tensors
+
+    Three notations to describe chemical shielding tensor (RK Harris; Magn. Reson.
     Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.
 
     Args:
-        sigma_1 (float): chemical shift tensor principle component 1
-        sigma_2 (float): chemical shift tensor principle component 2
-        sigma_3 (float): chemical shift tensor principle component 3
+        sigma_1 (float): chemical shielding tensor principle component 1
+        sigma_2 (float): chemical shielding tensor principle component 2
+        sigma_3 (float): chemical shielding tensor principle component 3
 
     .. attribute:: sigma_11, simga_22, sigma33
         principle components in Mehring notation
 
-    Authors: Xiaohui Qu
+    Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    HaeberlenNotation = namedtuple(typename="HaeberlenNotion",
-                                   field_names="sigma_iso, delta_sigma_iso, zeta, eta")
-    MehringNotation = namedtuple(typename="MehringNotation",
-                                 field_names="sigma_iso, sigma_11, sigma_22, sigma_33")
-    MarylandNotation = namedtuple(typename="MarylandNotation",
-                                  field_names="sigma_iso, omega, kappa")
-
+    HaeberlenNotation = namedtuple(typename="HaeberlenNotion", field_names="sigma_iso, delta_sigma_iso, zeta, eta")
+    MehringNotation = namedtuple(typename="MehringNotation", field_names="sigma_iso, sigma_11, sigma_22, sigma_33")
+    MarylandNotation = namedtuple(typename="MarylandNotation", field_names="sigma_iso, omega, kappa")
 
     def __new__(cls, cs_matrix):
         """
-        Create a Chemical Shift tensor.
+        Create a Chemical Shielding tensor.
         Note that the constructor uses __new__
         rather than __init__ according to the standard method of
         subclassing numpy ndarrays.
 
         Args:
             cs_matrix (1x3 or 3x3 array-like): the 3x3 array-like
-                representing the chemical shift tensor
+                representing the chemical shielding tensor
                 or a 1x3 array of the primary sigma values corresponding to the principal axis system
         """
         t_array = np.array(cs_matrix)
 
-        if t_array.shape == (3,):
-            return super(ChemicalShift, cls).__new__(cls, np.diag(cs_matrix))
-        elif t_array.shape == (3,3):
-            return super(ChemicalShift, cls).__new__(cls, cs_matrix)
+        if t_array.shape == (3, ):
+            return super(ChemicalShielding, cls).__new__(cls, np.diag(cs_matrix))
+        elif t_array.shape == (3, 3):
+            return super(ChemicalShielding, cls).__new__(cls, cs_matrix)
 
     @property
     def principal_axis_system(self):
         """
-        Returns a chemical shift tensor aligned to the principle axis system so that only the 3 diagnol components are non-zero
+        Returns a chemical shielding tensor aligned to the principle axis system so that only the 3 diagnol components are non-zero
         """
-        return ChemicalShift(np.diag(np.sort(np.linalg.eigvals(self))))
+        return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self))))
 
     @property
     def haeberlen_values(self):
         """
-        Returns: the Chemical shift tensor in Haeberlen Notation
+        Returns: the Chemical shielding tensor in Haeberlen Notation
         """
         pas = self.principal_axis_system
-        sigma_iso = pas.trace()/3
+        sigma_iso = pas.trace() / 3
         sigma_indexes = np.argsort(np.abs(np.diag(pas) - sigma_iso))
         sigmas = np.diag(pas)[sigma_indexes]
         sigma_yy = sigmas[0]
@@ -93,10 +88,10 @@ class ChemicalShift(SquareTensor):
     @property
     def mehring_values(self):
         """
-        Returns: the Chemical shift tensor in Mehring Notation
+        Returns: the Chemical shielding tensor in Mehring Notation
         """
         pas = self.principal_axis_system
-        sigma_iso = pas.trace()/3
+        sigma_iso = pas.trace() / 3
         sigma_11 = np.diag(pas)[0]
         sigma_22 = np.diag(pas)[1]
         sigma_33 = np.diag(pas)[2]
@@ -105,10 +100,10 @@ class ChemicalShift(SquareTensor):
     @property
     def maryland_values(self):
         """
-        Returns: the Chemical shift tensor in Maryland Notation
+        Returns: the Chemical shielding tensor in Maryland Notation
         """
         pas = self.principal_axis_system
-        sigma_iso = pas.trace()/3
+        sigma_iso = pas.trace() / 3
         omega = np.diag(pas)[2] - np.diag(pas)[0]
         # There is a typo in equation 20 from Magn. Reson. Chem. 2008, 46, 582–598, the sign is wrong.
         # There correct order is presented in Solid State Nucl. Magn. Reson. 1993, 2, 285-288.
