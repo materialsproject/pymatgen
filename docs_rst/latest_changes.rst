@@ -1,11 +1,9 @@
 Change log
 ==========
 
-v2018.2.13
-----------
-* Improved chemenv parameters and bug fixes (David Waroquiers).
-* Improved Qchem IO (Shyam).
-* Improved interfacial reactions.
-* local_env update (Nils).
-* Improved ABINIT support (@gmatteo).
-* Misc bug fixes.
+v2018.4.6
+---------
+* Updated debye temperature formulation (Joey Montoya)
+* Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)
+* Improved Pourbaix code (Joey Montoya)
+* Local env code improvements (Nils)

@@ -7,6 +7,7 @@ from pymatgen.core import Specie, Element, Lattice, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.analysis.magnetism import *
 
+import os
 import unittest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -168,6 +169,12 @@ class CollinearMagneticStructureAnalyzerTest(unittest.TestCase):
         magmoms = msa.structure.site_properties['magmom']
         self.assertEqual(magmoms, [5, 0])
 
+        mode = "normalize"
+        msa = CollinearMagneticStructureAnalyzer(msa.structure,
+                                                 overwrite_magmom_mode='normalize')
+        magmoms = msa.structure.site_properties['magmom']
+        self.assertEqual(magmoms, [1, 0])
+
     def test_get_ferromagnetic_structure(self):
 
         msa = CollinearMagneticStructureAnalyzer(self.NiO,
@@ -227,8 +234,38 @@ Magmoms Sites
         PeriodicSite: O (0.0000, 2.0850, 0.0000) [0.5000, 0.0000, 0.5000]
 -5.00   PeriodicSite: Ni (0.0000, 2.0850, -2.0850) [0.5000, 0.5000, 0.5000]"""
 
-        self.assertEqual(str(msa), ref_msa_str)
+        # just compare lines form 'Magmoms Sites',
+        # since lattice param string can vary based on machine precision
+        self.assertEqual("\n".join(str(msa).split("\n")[-5:-1]),
+                         "\n".join(ref_msa_str.split("\n")[-5:-1]))
 
+    def test_round_magmoms(self):
+
+        struct = self.NiO_AFM_001.copy()
+        struct.add_site_property('magmom', [-5.0143, -5.02, 0.147, 0.146])
+
+        msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
+        self.assertTrue(np.allclose(msa.magmoms, [-5.0171, -5.0171, 0.1465, 0.1465]))
+        self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'], 5.0171)
+        self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
+
+        struct.add_site_property('magmom', [-5.0143, 4.5, 0.147, 0.146])
+        msa = CollinearMagneticStructureAnalyzer(struct, round_magmoms=0.001, make_primitive=False)
+        self.assertTrue(np.allclose(msa.magmoms, [-5.0143, 4.5, 0.1465, 0.1465]))
+        self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][0], 4.5)
+        self.assertAlmostEqual(msa.magnetic_species_and_magmoms['Ni'][1], 5.0143)
+        self.assertAlmostEqual(msa.magnetic_species_and_magmoms['O'], 0.1465)
+        
+
+class MagneticDeformationTest(unittest.TestCase):
+
+    def test_magnetic_deformation(self):
+
+        test_structs = loadfn(os.path.join(test_dir, 'magnetic_deformation.json'))
+        mag_def = magnetic_deformation(test_structs[0], test_structs[1])
+
+        self.assertEqual(mag_def.type, "NM-FM")
+        self.assertAlmostEqual(mag_def.deformation, 5.0130859485170971)
 
 if __name__ == '__main__':
     unittest.main()

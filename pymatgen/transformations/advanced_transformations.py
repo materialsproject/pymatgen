@@ -437,9 +437,10 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         **kwargs: Args for SubstitutionProbability class lambda_table, alpha
     """
 
-    def __init__(self, threshold=1e-2, **kwargs):
+    def __init__(self, threshold=1e-2, scale_volumes=True, **kwargs):
         self.kwargs = kwargs
         self.threshold = threshold
+        self.scale_volumes = scale_volumes
         self._substitutor = SubstitutionPredictor(threshold=threshold,
                                                   **kwargs)
 
@@ -458,6 +459,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
             output = {'structure': st.apply_transformation(structure),
                       'probability': pred['probability'],
                       'threshold': self.threshold, 'substitutions': {}}
+            
             # dictionary keys have to be converted to strings for JSON
             for key, value in pred['substitutions'].items():
                 output['substitutions'][str(key)] = str(value)
@@ -787,11 +789,14 @@ class MagOrderingTransformation(AbstractTransformation):
             enum_kwargs.get("min_cell_size", 1)
         )
 
-        max_cell = enum_kwargs.get('max_cell_size')
-        if max_cell:
-            if enum_kwargs["min_cell_size"] > max_cell:
-                raise ValueError('Specified max cell size is smaller'
-                                 ' than the minimum enumerable cell size')
+        if enum_kwargs.get("max_cell_size", None):
+            if enum_kwargs["min_cell_size"] > enum_kwargs["max_cell_size"]:
+                warnings.warn("Specified max cell size ({}) is smaller "
+                              "than the minimum enumerable cell size ({}), "
+                              "changing max cell size to {}".format(enum_kwargs["max_cell_size"],
+                                                                    enum_kwargs["min_cell_size"],
+                                                                    enum_kwargs["min_cell_size"]))
+                enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
         else:
             enum_kwargs["max_cell_size"] = enum_kwargs["min_cell_size"]
 

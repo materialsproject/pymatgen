@@ -21,6 +21,7 @@ class PhononDosPlotterTest(unittest.TestCase):
         with open(os.path.join(test_dir, "NaCl_complete_ph_dos.json"), "r") as f:
             self.dos = CompletePhononDos.from_dict(json.load(f))
             self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
+            self.plotter_nostack = PhononDosPlotter(sigma=0.2, stack=False)
 
     def test_add_dos_dict(self):
         d = self.plotter.get_dos_dict()
@@ -43,6 +44,8 @@ class PhononDosPlotterTest(unittest.TestCase):
         rc('text', usetex=False)
         self.plotter.add_dos("Total", self.dos)
         self.plotter.get_plot(units="mev")
+        self.plotter_nostack.add_dos("Total", self.dos)
+        self.plotter_nostack.get_plot(units="mev")
 
 
 class PhononBSPlotterTest(unittest.TestCase):

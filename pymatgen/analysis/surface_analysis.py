@@ -30,6 +30,7 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.util.plotting import pretty_plot
+from pymatgen.io.vasp.outputs import Outcar, Locpot, Poscar
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -167,7 +168,7 @@ class SlabEntry(ComputedStructureEntry):
              sum([ads.energy_per_atom for ads in self.adsorbates])
         return BE * Nads if eads else BE
 
-    def surface_energy(self, ucell_entry, ref_entries=[]):
+    def surface_energy(self, ucell_entry, ref_entries=None):
         """
         Calculates the surface energy of this SlabEntry.
         Args:
@@ -183,6 +184,7 @@ class SlabEntry(ComputedStructureEntry):
         """
 
         # Set up
+        ref_entries = [] if not ref_entries else ref_entries
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
@@ -208,10 +210,9 @@ class SlabEntry(ComputedStructureEntry):
         # as a function of the other elements
         for ref_el in ucell_comp.as_dict().keys():
             if str(ref_el) not in ref_entries_dict.keys():
-                delu = Symbol("delu_" + str(ref_el))
                 break
-        refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el] - delu
-        bulk_energy += self.composition.as_dict()[ref_el] * (delu + refEperA)
+        refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el]
+        bulk_energy += self.composition.as_dict()[ref_el] * refEperA
 
         return gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
                            Symbol("A"): self.surface_area})
@@ -337,9 +338,11 @@ class SurfaceEnergyPlotter(object):
         phases diagrams of two parameters to determine stability of configurations
         (future release), and Wulff shapes.
 
-    .. attribute:: entry_dict
+    .. attribute:: all_slab_entries
 
-        Nested dictionary containing a list of entries for slab calculations as
+        Either a list of SlabEntry objects (note for a list, the SlabEntry must
+            have the adsorbates and clean_entry parameter pulgged in) or a Nested
+            dictionary containing a list of entries for slab calculations as
             items and the corresponding Miller index of the slab as the key.
             To account for adsorption, each value is a sub-dictionary with the
             entry of a clean slab calculation as the sub-key and a list of
@@ -356,7 +359,7 @@ class SurfaceEnergyPlotter(object):
             where clean_entry1 can be a pristine surface and clean_entry2 can be a
             reconstructed surface while ads_entry1 can be adsorption at site 1 with
             a 2x2 coverage while ads_entry2 can have a 3x3 coverage. If adsorption
-            entries are present (i.e. if entry_dict[(h,k,l)][clean_entry1]), we
+            entries are present (i.e. if all_slab_entries[(h,k,l)][clean_entry1]), we
             consider adsorption in all plots and analysis for this particular facet.
 
     ..attribute:: color_dict
@@ -378,13 +381,13 @@ class SurfaceEnergyPlotter(object):
         Randomly generated dictionary of colors associated with each facet.
     """
 
-    def __init__(self, entry_dict, ucell_entry, ref_entries=[]):
+    def __init__(self, all_slab_entries, ucell_entry, ref_entries=None):
         """
         Object for plotting surface energy in different ways for clean and
             adsorbed surfaces.
         Args:
-            entry_dict (dict): Dictionary containing a list of entries
-                for slab calculations. See attributes.
+            all_slab_entries (dict or list): Dictionary or list containing
+                all entries for slab calculations. See attributes.
             ucell_entry (ComputedStructureEntry): ComputedStructureEntry
                 of the bulk reference for this particular material.
             ref_entries ([ComputedStructureEntries]): A list of entries for
@@ -399,7 +402,9 @@ class SurfaceEnergyPlotter(object):
 
         self.ucell_entry = ucell_entry
         self.ref_entries = ref_entries
-        self.entry_dict = entry_dict
+        self.all_slab_entries = all_slab_entries if \
+            type(all_slab_entries).__name__ == "dict" else \
+                entry_dict_from_list(all_slab_entries)
         self.color_dict = self.color_palette_dict()
 
     def set_all_variables(self, entry, u_dict, u_default):
@@ -450,14 +455,14 @@ class SurfaceEnergyPlotter(object):
         """
 
         all_entries, all_gamma = [], []
-        for entry in self.entry_dict[miller_index].keys():
+        for entry in self.all_slab_entries[miller_index].keys():
             all_u_dict = self.set_all_variables(entry, u_dict, u_default)
             gamma = entry.surface_energy(self.ucell_entry,
                                          ref_entries=self.ref_entries)
             if not no_clean:
                 all_entries.append(entry)
                 all_gamma.append(gamma.subs(all_u_dict))
-            for ads_entry in self.entry_dict[miller_index][entry]:
+            for ads_entry in self.all_slab_entries[miller_index][entry]:
                 all_u_dict = self.set_all_variables(ads_entry, u_dict, u_default)
                 gamma = ads_entry.surface_energy(self.ucell_entry,
                                                  ref_entries=self.ref_entries)
@@ -488,7 +493,7 @@ class SurfaceEnergyPlotter(object):
         latt = SpacegroupAnalyzer(self.ucell_entry.structure). \
             get_conventional_standard_structure().lattice
 
-        miller_list = self.entry_dict.keys()
+        miller_list = self.all_slab_entries.keys()
         e_surf_list = []
         for hkl in miller_list:
             # For all configurations, calculate surface energy as a
@@ -530,7 +535,7 @@ class SurfaceEnergyPlotter(object):
 
         # initialize a dictionary of lists of fractional areas for each hkl
         hkl_area_dict = {}
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             hkl_area_dict[hkl] = []
 
         # Get plot points for each Miller index
@@ -546,8 +551,8 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7)
         axes = plt.gca()
 
-        for i, hkl in enumerate(self.entry_dict.keys()):
-            clean_entry = list(self.entry_dict[hkl].keys())[0]
+        for hkl in self.all_slab_entries.keys():
+            clean_entry = list(self.all_slab_entries[hkl].keys())[0]
             # Ignore any facets that never show up on the
             # Wulff shape regardless of chemical potential
             if all([a == 0 for a in hkl_area_dict[hkl]]):
@@ -633,17 +638,17 @@ class SurfaceEnergyPlotter(object):
         all_intesects_dict, stable_urange_dict = {}, {}
 
         # Get all entries for a specific facet
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
 
             # Skip this facet if this is not the facet we want
             if miller_index and hkl != tuple(miller_index):
                 continue
 
-            entries_in_hkl = [clean for clean in self.entry_dict[hkl]]
+            entries_in_hkl = [clean for clean in self.all_slab_entries[hkl]]
             if not no_doped:
-                for entry in self.entry_dict[hkl]:
+                for entry in self.all_slab_entries[hkl]:
                     entries_in_hkl.extend([ads_entry for ads_entry in
-                                           self.entry_dict[hkl][entry]])
+                                           self.all_slab_entries[hkl][entry]])
 
             for entry in entries_in_hkl:
                 stable_urange_dict[entry] = []
@@ -704,7 +709,7 @@ class SurfaceEnergyPlotter(object):
         """
 
         color_dict = {}
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
             random.shuffle(rgb_indices)
@@ -714,14 +719,14 @@ class SurfaceEnergyPlotter(object):
                 color[ind] = np.random.uniform(0, 1)
 
             # Get the clean (solid) colors first
-            clean_list = np.linspace(0, 1, len(self.entry_dict[hkl]))
-            for i, clean in enumerate(self.entry_dict[hkl].keys()):
+            clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))
+            for i, clean in enumerate(self.all_slab_entries[hkl].keys()):
                 c = copy.copy(color)
                 c[rgb_indices[2]] = clean_list[i]
                 color_dict[clean] = c
 
                 # Now get the adsorbed (transparent) colors
-                for ads_entry in self.entry_dict[hkl][clean]:
+                for ads_entry in self.all_slab_entries[hkl][clean]:
                     c_ads = copy.copy(c)
                     c_ads[3] = alpha
                     color_dict[ads_entry] = c_ads
@@ -829,7 +834,7 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7) if not plt else plt
         axes = plt.gca()
 
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             if miller_index and hkl != tuple(miller_index):
                 continue
             # Get the chempot range of each surface if we only
@@ -842,7 +847,7 @@ class SurfaceEnergyPlotter(object):
 
             already_labelled = []
             label = ''
-            for clean_entry in self.entry_dict[hkl]:
+            for clean_entry in self.all_slab_entries[hkl]:
 
                 urange = stable_u_range_dict[clean_entry] if \
                     not show_unstable else chempot_range
@@ -864,7 +869,7 @@ class SurfaceEnergyPlotter(object):
                                                              u_default=u_default,
                                                              label=label, JPERM2=JPERM2)
                 if not no_doped:
-                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+                    for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         # Plot the adsorbed slabs
                         # Generate a label for the type of slab
                         urange = stable_u_range_dict[ads_entry] \
@@ -904,11 +909,11 @@ class SurfaceEnergyPlotter(object):
         """
 
         plt = pretty_plot(width=8, height=7)
-        for hkl in self.entry_dict.keys():
+        for hkl in self.all_slab_entries.keys():
             ml_be_dict = {}
-            for clean_entry in self.entry_dict[hkl].keys():
-                if self.entry_dict[hkl][clean_entry]:
-                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+            for clean_entry in self.all_slab_entries[hkl].keys():
+                if self.all_slab_entries[hkl][clean_entry]:
+                    for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         if ads_entry.get_monolayer not in ml_be_dict.keys():
                             ml_be_dict[ads_entry.get_monolayer] = 1000
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
@@ -992,15 +997,15 @@ class SurfaceEnergyPlotter(object):
         """
 
         plt = pretty_plot(width=8, height=7)
-        for hkl in self.entry_dict.keys():
-            for clean_entry in self.entry_dict[hkl].keys():
+        for hkl in self.all_slab_entries.keys():
+            for clean_entry in self.all_slab_entries[hkl].keys():
                 all_u_dict = self.set_all_variables(clean_entry, u_dict, u_default)
-                if self.entry_dict[hkl][clean_entry]:
+                if self.all_slab_entries[hkl][clean_entry]:
 
                     clean_se = clean_entry.surface_energy(self.ucell_entry,
                                                           ref_entries=self.ref_entries)
                     se = clean_se.subs(all_u_dict)
-                    for ads_entry in self.entry_dict[hkl][clean_entry]:
+                    for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         ml = ads_entry.get_monolayer
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
 
@@ -1042,6 +1047,248 @@ class SurfaceEnergyPlotter(object):
         #     return
 
 
+def entry_dict_from_list(all_slab_entries):
+    """
+    Converts a list of SlabEntry to an appropriate dictionary. It is
+    assumed that if there is no adsorbate, then it is a clean SlabEntry
+    and that adsorbed SlabEntry has the clean_entry parameter set.
+
+    Args:
+        all_slab_entries (list): List of SlabEntry objects
+
+    Returns:
+        (dict): Dictionary of SlabEntry with the Miller index as the main
+            key to a dictionary with a clean SlabEntry as the key to a
+            list of adsorbed SlabEntry.
+    """
+
+    entry_dict = {}
+
+    for entry in all_slab_entries:
+        hkl = tuple(entry.miller_index)
+        if hkl not in entry_dict.keys():
+            entry_dict[hkl] = {}
+        if entry.clean_entry:
+            clean = entry.clean_entry
+        else:
+            clean = entry
+        if clean not in entry_dict[hkl].keys():
+            entry_dict[hkl][clean] = []
+        if entry.adsorbates:
+            entry_dict[hkl][clean].append(entry)
+
+    return entry_dict
+
+
+class WorkFunctionAnalyzer(object):
+    """
+    A class that post processes a task document of a vasp calculation (from
+        using drone.assimilate). Can calculate work function from the vasp
+        calculations and plot the potential along the c axis. This class
+        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a
+        slab calculation and it was insert into the task document along with
+        the other outputs.
+
+    .. attribute:: efermi
+
+        The Fermi energy
+
+    .. attribute:: locpot_along_c
+
+        Local potential in eV along points along the  axis
+
+    .. attribute:: vacuum_locpot
+
+        The maximum local potential along the c direction for
+            the slab model, ie the potential at the vacuum
+
+    .. attribute:: work_function
+
+        The minimum energy needed to move an electron from the
+            surface to infinity. Defined as the difference between
+            the potential at the vacuum and the Fermi energy.
+
+    .. attribute:: slab
+
+        The slab structure model
+
+    .. attribute:: along_c
+
+        Points along the c direction with same
+            increments as the locpot in the c axis
+
+    .. attribute:: ave_locpot
+
+        Mean of the minimum and maximmum (vacuum) locpot along c
+
+    .. attribute:: sorted_sites
+
+        List of sites from the slab sorted along the c direction
+
+    .. attribute:: ave_bulk_p
+
+        The average locpot of the slab region along the c direction
+    """
+
+    def __init__(self, poscar, locpot, outcar, shift=0):
+        """
+        Initializes the WorkFunctionAnalyzer class.
+
+        Args:
+            poscar (MSONable): Poscar vasp output object
+            locpot (VolumetricData): Locpot vasp output object
+            outcar (MSONable): Outcar vasp output object
+            shift (float): Parameter to translate the slab (and
+                therefore the vacuum) of the slab structure, thereby
+                translating the plot along the x axis.
+        """
+
+        # properties that can be shifted
+        slab = poscar.structure.copy()
+        slab.translate_sites([i for i, site in enumerate(slab)], [0,0,shift])
+        self.slab = slab
+        self.sorted_sites = sorted(self.slab, key=lambda site: site.frac_coords[2])
+
+        # Get the plot points between 0 and c
+        # increments of the number of locpot points
+        locpot_along_c = copy.copy(locpot.get_average_along_axis(2))
+        self.along_c = np.linspace(0, 1, num=len(locpot_along_c))
+        locpot_along_c_mid, locpot_end, locpot_start = [], [], []
+        for i, s in enumerate(self.along_c):
+            j = s + shift
+            if j > 1:
+                locpot_start.append(locpot_along_c[i])
+            elif j < 0:
+                locpot_end.append(locpot_along_c[i])
+            else:
+                locpot_along_c_mid.append(locpot_along_c[i])
+        self.locpot_along_c = locpot_start + locpot_along_c_mid + locpot_end
+
+        # get the average of the signal in the bulk-like region of the
+        # slab, i.e. the average of the oscillating region. This gives
+        # a rough appr. of the potential in the interior of the slab
+        bulk_p = [p for i, p in enumerate(self.locpot_along_c) if \
+                  self.sorted_sites[-1].frac_coords[2] > self.along_c[i] \
+                  > self.sorted_sites[0].frac_coords[2]]
+        self.ave_bulk_p = np.mean(bulk_p)
+
+        # shift independent quantities
+        self.efermi = outcar.efermi
+        self.vacuum_locpot = max(self.locpot_along_c)
+        # get the work function
+        self.work_function = self.vacuum_locpot - self.efermi
+        # for setting ylim and annotating
+        self.ave_locpot = (self.vacuum_locpot-min(self.locpot_along_c))/2
+
+    def get_locpot_along_slab_plot(self, label_energies=True, plt=None,
+                                   label_fontsize=10):
+        """
+        Returns a plot of the local potential (eV) vs the
+            position along the c axis of the slab model (Ang)
+
+        Args:
+            label_energies (bool): Whether to label relevant energy
+                quantities such as the work function, Fermi energy,
+                vacuum locpot, bulk-like locpot
+            plt (plt): Matplotlib pylab object
+            label_fontsize (float): Fontsize of labels
+
+        Returns plt of the locpot vs c axis
+        """
+
+        plt = pretty_plot() if not plt else plt
+        ax = list(plt.subplots())[1]
+        ax.spines['top'].set_visible(False)
+
+        # plot the raw locpot signal along c
+        plt.plot(self.along_c, self.locpot_along_c, 'b--')
+
+        # Get the local averaged signal of the locpot along c
+        xg, yg = [], []
+        for i, p in enumerate(self.locpot_along_c):
+            # average signal is just the bulk-like potential when in the slab region
+            if p < self.ave_bulk_p \
+                    or self.sorted_sites[-1].frac_coords[2] >= self.along_c[i] \
+                            >= self.sorted_sites[0].frac_coords[2]:
+                yg.append(self.ave_bulk_p)
+                xg.append(self.along_c[i])
+            else:
+                yg.append(p)
+                xg.append(self.along_c[i])
+        xg, yg = zip(*sorted(zip(xg, yg)))
+        plt.plot(xg, yg, 'r', linewidth=2.5, zorder=-1)
+
+        # make it look nice
+        if label_energies:
+            plt = self.get_labels(plt, label_fontsize=label_fontsize)
+        plt.xlim([0, 1])
+        plt.ylim([min(self.locpot_along_c),
+                  self.vacuum_locpot+self.ave_locpot*0.2])
+        plt.xlabel(r"Fractional coordinates ($\hat{c}$)", fontsize=25)
+        plt.xticks(fontsize=15, rotation=45)
+        plt.ylabel(r"Energy (eV)", fontsize=25)
+        plt.yticks(fontsize=15)
+
+        return plt
+
+    def get_labels(self, plt, label_fontsize=10):
+        """
+        Handles the optional labelling of the plot with relevant quantities
+        Args:
+            plt (plt): Plot of the locpot vs c axis
+            label_fontsize (float): Fontsize of labels
+        Returns Labelled plt
+        """
+
+        maxc = self.sorted_sites[-1].frac_coords[2]
+        minc = self.sorted_sites[0].frac_coords[2]
+        # determine whether most of the vacuum is to
+        # the left or right for labelling purposes
+        vleft = [i for i in self.along_c if i <= minc]
+        vright = [i for i in self.along_c if i >= maxc]
+        if max(vleft) - min(vleft) > max(vright) - min(vright):
+            label_in_vac = (max(vleft) - min(vleft))/2
+        else:
+            label_in_vac = (max(vright) - min(vright))/2 + maxc
+
+        # label the vacuum locpot
+        label_in_bulk = maxc - (maxc - minc) / 2
+        plt.plot([0, 1], [self.vacuum_locpot]*2, 'b--', zorder=-5, linewidth=1)
+        xy = [label_in_bulk, self.vacuum_locpot+self.ave_locpot*0.05]
+        plt.annotate(r"$V_{vac}=%.2f$" %(self.vacuum_locpot), xy=xy,
+                     xytext=xy, color='b', fontsize=label_fontsize)
+
+        # label the fermi energy
+        plt.plot([0, 1], [self.efermi]*2, 'g--',
+                 zorder=-5, linewidth=3)
+        xy = [label_in_bulk, self.efermi+self.ave_locpot*0.05]
+        plt.annotate(r"$E_F=%.2f$" %(self.efermi), xytext=xy,
+                     xy=xy, fontsize=label_fontsize, color='g')
+
+        # label the bulk-like locpot
+        plt.plot([0, 1], [self.ave_bulk_p]*2, 'r--', linewidth=1., zorder=-1)
+        print(label_in_vac)
+        xy = [label_in_vac, self.ave_bulk_p + self.ave_locpot * 0.05]
+        plt.annotate(r"$V^{interior}_{slab}=%.2f$" % (self.ave_bulk_p),
+                     xy=xy, xytext=xy, color='r', fontsize=label_fontsize)
+
+        # label the work function as a barrier
+        plt.plot([label_in_vac]*2, [self.efermi, self.vacuum_locpot],
+                 'k--', zorder=-5, linewidth=2)
+        xy = [label_in_vac, self.efermi + self.ave_locpot * 0.05]
+        plt.annotate(r"$\Phi=%.2f$" %(self.work_function),
+                     xy=xy, xytext=xy, fontsize=label_fontsize)
+
+        return plt
+
+    @staticmethod
+    def from_files(poscar_filename, locpot_filename, outcar_filename, shift=0):
+        poscar = Poscar.from_file(poscar_filename)
+        locpot = Locpot.from_file(locpot_filename)
+        outcar = Outcar(outcar_filename)
+        return WorkFunctionAnalyzer(poscar, locpot, outcar, shift=shift)
+
+
 class NanoscaleStability(object):
     """
     A class for analyzing the stability of nanoparticles of different
@@ -1078,7 +1325,7 @@ class NanoscaleStability(object):
         self.symprec = symprec
 
     def solve_equilibrium_point(self, analyzer1, analyzer2,
-                                u_dict={}, u_default=0):
+                                u_dict={}, u_default=0, units="nanometers"):
         """
         Gives the radial size of two particles where equilibrium is reached
             between both particles. NOTE: the solution here is not the same
@@ -1095,6 +1342,7 @@ class NanoscaleStability(object):
                 constant. Note the key should be a sympy Symbol object of the
                 format: Symbol("delu_el") where el is the name of the element.
             u_default (float): Default value for all unset chemical potentials
+            units (str): Can be nanometers or Angstrom
 
         Returns:
             Particle radius in nm
@@ -1115,11 +1363,12 @@ class NanoscaleStability(object):
         # Now calculate r
         delta_gamma = wulff1.weighted_surface_energy - wulff2.weighted_surface_energy
         delta_E = (len(s1) / s1.lattice.volume) * E1 - (len(s2) / s2.lattice.volume) * E2
+        r = ((-3 * delta_gamma) / (delta_E))
 
-        return ((-3 * delta_gamma) / (delta_E)) / 10
+        return r / 10 if units == "nanometers" else r
 
-    def wulff_gform_and_r(self, wulffshape, bulk_entry,
-                          r, from_sphere_area=False):
+    def wulff_gform_and_r(self, wulffshape, bulk_entry, r, from_sphere_area=False,
+                          r_units="nanometers", e_units="keV", normalize=False):
         """
         Calculates the formation energy of the particle with arbitrary radius r.
 
@@ -1130,9 +1379,12 @@ class NanoscaleStability(object):
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
+            r_units (str): Can be nanometers or Angstrom
+            e_units (str): Can be keV or eV
+            normalize (str): Whether or not to normalize energy by volume
 
         Returns:
-            particle formation energy (float in keV), effective radius (float in nm)
+            particle formation energy (float in keV), effective radius
         """
 
         # Set up
@@ -1156,7 +1408,12 @@ class NanoscaleStability(object):
             Ebulk = self.bulk_gform(bulk_entry) * wulff_v
             new_r = r
 
-        return (Ebulk + tot_wulff_se) / 1000, new_r / 10
+        new_r = new_r / 10 if r_units == "nanometers" else new_r
+        e = (Ebulk + tot_wulff_se)
+        e = e / 1000 if e_units == "keV" else e
+        e = e / ((4/3)*np.pi*new_r**3) if normalize else e
+
+        return e, new_r
 
     def bulk_gform(self, bulk_entry):
         """
@@ -1199,7 +1456,8 @@ class NanoscaleStability(object):
 
     def plot_one_stability_map(self, analyzer, max_r, u_dict={}, label="",
                                increments=50, u_default=0, plt=None,
-                               from_sphere_area=False):
+                               from_sphere_area=False, e_units="keV",
+                               r_units="nanometers", normalize=False):
         """
         Returns the plot of the formation energy of a particle against its
             effect radius
@@ -1218,6 +1476,9 @@ class NanoscaleStability(object):
             from_sphere_area (bool): There are two ways to calculate the bulk
                 formation energy. Either by treating the volume and thus surface
                 area of the particle as a perfect sphere, or as a Wulff shape.
+            r_units (str): Can be nanometers or Angstrom
+            e_units (str): Can be keV or eV
+            normalize (str): Whether or not to normalize energy by volume
         """
 
         plt = plt if plt else pretty_plot(width=8, height=7)
@@ -1230,11 +1491,16 @@ class NanoscaleStability(object):
         for r in np.linspace(1e-6, max_r, increments):
             gform, r = self.wulff_gform_and_r(wulffshape,
                                               analyzer.ucell_entry, r,
-                                              from_sphere_area=from_sphere_area)
+                                              from_sphere_area=from_sphere_area,
+                                              r_units=r_units, e_units=e_units,
+                                              normalize=normalize)
             gform_list.append(gform)
             r_list.append(r)
-        plt.xlabel("Particle radius (nm)")
-        plt.ylabel(r"$\Delta \bar{G}_{form}$ (keV)")
+
+        ru = "nm" if r_units == "nanometers" else "\AA"
+        plt.xlabel(r"Particle radius ($%s$)" %(ru))
+        eu = "$%s/%s^3$" %(e_units, ru)
+        plt.ylabel(r"$\Delta \bar{G}_{form}$ (%s)" %(eu))
 
         plt.plot(r_list, gform_list, label=label)
 
@@ -1242,7 +1508,8 @@ class NanoscaleStability(object):
 
     def plot_all_stability_map(self, max_r, increments=50, u_dict={},
                                u_default=0, plt=None, labels=[],
-                               from_sphere_area=False):
+                               from_sphere_area=False, e_units="keV",
+                               r_units="nanometers", normalize=False):
         """
         Returns the plot of the formation energy of a particles
             of different polymorphs against its effect radius
@@ -1270,7 +1537,9 @@ class NanoscaleStability(object):
                                               label=label, plt=plt,
                                               increments=increments,
                                               u_default=u_default,
-                                              from_sphere_area=from_sphere_area)
+                                              from_sphere_area=from_sphere_area,
+                                              e_units=e_units, r_units=r_units,
+                                              normalize=normalize)
 
         return plt
 
@@ -1283,3 +1552,4 @@ class NanoscaleStability(object):
         # class SlabEntryGenerator(object):
         #     def __init__(self, entry):
         #         self.entry = entry
+

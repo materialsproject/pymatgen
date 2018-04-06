@@ -274,7 +274,7 @@ class Lattice(MSONable):
                                        ang[0], ang[1], ang[2])
 
     @staticmethod
-    def from_parameters(a, b, c, alpha, beta, gamma):
+    def from_parameters(a, b, c, alpha, beta, gamma, vesta=False):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
 
@@ -285,6 +285,7 @@ class Lattice(MSONable):
             alpha (float): *alpha* angle in degrees.
             beta (float): *beta* angle in degrees.
             gamma (float): *gamma* angle in degrees.
+            vesta: True if you import Cartesian coordinates from VESTA.
 
         Returns:
             Lattice with the specified lattice parameters.
@@ -293,16 +294,33 @@ class Lattice(MSONable):
         alpha_r = radians(alpha)
         beta_r = radians(beta)
         gamma_r = radians(gamma)
-        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
-            / (np.sin(alpha_r) * np.sin(beta_r))
-        # Sometimes rounding errors result in values slightly > 1.
-        val = abs_cap(val)
-        gamma_star = np.arccos(val)
-        vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
-        vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
-                    b * np.sin(alpha_r) * np.sin(gamma_star),
-                    b * np.cos(alpha_r)]
-        vector_c = [0.0, 0.0, float(c)]
+
+        if vesta:
+            cos_alpha = np.cos(alpha_r)
+            cos_beta = np.cos(beta_r)
+            cos_gamma = np.cos(gamma_r)
+            sin_gamma = np.sin(gamma_r)
+
+            c1 = c*cos_beta
+            c2 = (c*(cos_alpha - (cos_beta * cos_gamma))) / sin_gamma
+
+            vector_a = [float(a), 0.0, 0.0]
+            vector_b = [b * cos_gamma, b * sin_gamma,  0]
+            vector_c = [c1,  c2,  math.sqrt(c**2 - c1**2 - c2**2)]
+
+        else:
+            val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
+                / (np.sin(alpha_r) * np.sin(beta_r))
+            # Sometimes rounding errors result in values slightly > 1.
+            val = abs_cap(val)
+            gamma_star = np.arccos(val)
+
+            vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+            vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                        b * np.sin(alpha_r) * np.sin(gamma_star),
+                        b * np.cos(alpha_r)]
+            vector_c = [0.0, 0.0, float(c)]
+
         return Lattice([vector_a, vector_b, vector_c])
 
     @classmethod
@@ -691,7 +709,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2):k])
                     q = np.diag(m[(k - 2):k])
-                    result = np.linalg.lstsq(q.T, p.T)[0].T
+                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T
                     u[k:3, (k - 2):k] = result
 
         return a.T, mapping.T

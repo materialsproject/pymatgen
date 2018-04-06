@@ -11,6 +11,7 @@ import itertools
 from io import open
 import math
 from six.moves import zip
+import logging
 
 from monty.json import MSONable, MontyDecoder
 from monty.string import unicode2str
@@ -38,6 +39,9 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "May 16, 2011"
+
+
+logger = logging.getLogger(__name__)
 
 
 class PDEntry(MSONable):
@@ -140,7 +144,7 @@ class PDEntry(MSONable):
         for entry in entries:
             elements.update(entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, "wb"), delimiter=unicode2str(","),
+        writer = csv.writer(open(filename, "w"), delimiter=unicode2str(","),
                             quotechar=unicode2str("\""),
                             quoting=csv.QUOTE_MINIMAL)
         writer.writerow(["Name"] + elements + ["Energy"])
@@ -1135,6 +1139,160 @@ class CompoundPhaseDiagram(PhaseDiagram):
                    d["normalize_terminal_compositions"])
 
 
+class ReactionDiagram(object):
+
+    def __init__(self, entry1, entry2, all_entries, tol=1e-4,
+                 float_fmt="%.4f"):
+        """
+        Analyzes the possible reactions between a pair of compounds, e.g.,
+        an electrolyte and an electrode.
+
+        Args:
+            entry1 (ComputedEntry): Entry for 1st component. Note that
+                corrections, if any, must already be pre-applied. This is to
+                give flexibility for different kinds of corrections, e.g.,
+                if a particular entry is fitted to an experimental data (such
+                as EC molecule).
+            entry2 (ComputedEntry): Entry for 2nd component. Note that
+                corrections must already be pre-applied. This is to
+                give flexibility for different kinds of corrections, e.g.,
+                if a particular entry is fitted to an experimental data (such
+                as EC molecule).
+            all_entries ([ComputedEntry]): All other entries to be
+                considered in the analysis. Note that corrections, if any,
+                must already be pre-applied.
+            tol (float): Tolerance to be used to determine validity of reaction.
+            float_fmt (str): Formatting string to be applied to all floats.
+                Determines number of decimal places in reaction string.
+        """
+        elements = set()
+        for e in [entry1, entry2]:
+            elements.update([el.symbol for el in e.composition.elements])
+
+        elements = tuple(elements)  # Fix elements to ensure order.
+
+        comp_vec1 = np.array([entry1.composition.get_atomic_fraction(el)
+                              for el in elements])
+        comp_vec2 = np.array([entry2.composition.get_atomic_fraction(el)
+                              for el in elements])
+        r1 = entry1.composition.reduced_composition
+        r2 = entry2.composition.reduced_composition
+
+        logger.debug("%d total entries." % len(all_entries))
+
+        pd = PhaseDiagram(all_entries + [entry1, entry2])
+        terminal_formulas = [entry1.composition.reduced_formula,
+                             entry2.composition.reduced_formula]
+
+        logger.debug("%d stable entries" % len(pd.stable_entries))
+        logger.debug("%d facets" % len(pd.facets))
+        logger.debug("%d qhull_entries" % len(pd.qhull_entries))
+
+        rxn_entries = []
+        done = []
+
+        fmt = lambda fl: float_fmt % fl
+
+        for facet in pd.facets:
+            for face in itertools.combinations(facet, len(facet) - 1):
+                face_entries = [pd.qhull_entries[i] for i in face]
+
+                if any([e.composition.reduced_formula in terminal_formulas
+                        for e in face_entries]):
+                    continue
+
+                try:
+
+                    m = []
+                    for e in face_entries:
+                        m.append([e.composition.get_atomic_fraction(el)
+                                  for el in elements])
+                    m.append(comp_vec2 - comp_vec1)
+                    m = np.array(m).T
+                    coeffs = np.linalg.solve(m, comp_vec2)
+
+                    x = coeffs[-1]
+
+                    if all([c >= -tol for c in coeffs]) and \
+                            (abs(sum(coeffs[:-1]) - 1) < tol) and \
+                            (tol < x < 1 - tol):
+
+                        c1 = x / r1.num_atoms
+                        c2 = (1 - x) / r2.num_atoms
+                        factor = 1 / (c1 + c2)
+
+                        c1 *= factor
+                        c2 *= factor
+
+                        # Avoid duplicate reactions.
+                        if any([np.allclose([c1, c2], cc) for cc in done]):
+                            continue
+
+                        done.append((c1, c2))
+
+                        rxn_str = "%s %s + %s %s -> " % (
+                            fmt(c1), r1.reduced_formula,
+                            fmt(c2), r2.reduced_formula)
+                        products = []
+
+                        energy = - (x * entry1.energy_per_atom +
+                                    (1 - x) * entry2.energy_per_atom)
+                        for c, e in zip(coeffs[:-1], face_entries):
+                            if c > tol:
+                                r = e.composition.reduced_composition
+                                products.append("%s %s" % (
+                                    fmt(c / r.num_atoms * factor),
+                                    r.reduced_formula))
+                                energy += c * e.energy_per_atom
+
+                        rxn_str += " + ".join(products)
+                        comp = x * comp_vec1 + (1 - x) * comp_vec2
+                        entry = PDEntry(
+                            Composition(dict(zip(elements, comp))),
+                            energy=energy, attribute=rxn_str)
+                        rxn_entries.append(entry)
+                except np.linalg.LinAlgError as ex:
+                    logger.debug("Reactants = %s" % (", ".join([
+                        entry1.composition.reduced_formula,
+                        entry2.composition.reduced_formula])))
+                    logger.debug("Products = %s" % (
+                        ", ".join([e.composition.reduced_formula
+                                   for e in face_entries])))
+
+        rxn_entries = sorted(rxn_entries, key=lambda e: e.name, reverse=True)
+
+        self.entry1 = entry1
+        self.entry2 = entry2
+        self.rxn_entries = rxn_entries
+        self.labels = collections.OrderedDict()
+        for i, e in enumerate(rxn_entries): 
+            self.labels[str(i + 1)] = e.attribute
+            e.name = str(i + 1) 
+        self.all_entries = all_entries
+        self.pd = pd
+
+    def get_compound_pd(self):
+        """
+        Get the CompoundPhaseDiagram object, which can then be used for
+        plotting.
+
+        Returns:
+            (CompoundPhaseDiagram)
+        """
+        # For this plot, since the reactions are reported in formation
+        # energies, we need to set the energies of the terminal compositions
+        # to 0. So we make create copies with 0 energy.
+        entry1 = PDEntry(self.entry1.composition, 0)
+        entry2 = PDEntry(self.entry2.composition, 0)
+
+        cpd = CompoundPhaseDiagram(
+            self.rxn_entries + [entry1, entry2],
+            [Composition(entry1.composition.reduced_formula),
+             Composition(entry2.composition.reduced_formula)],
+            normalize_terminal_compositions=False) 
+        return cpd
+
+
 class PhaseDiagramError(Exception):
     """
     An exception class for Phase Diagram generation.
@@ -1261,10 +1419,10 @@ class PDPlotter(object):
         return lines, stable_entries, unstable_entries
 
     def get_plot(self, label_stable=True, label_unstable=True, ordering=None,
-                 energy_colormap=None, process_attributes=False):
+                 energy_colormap=None, process_attributes=False, plt=None):
         if self._dim < 4:
             plt = self._get_2d_plot(label_stable, label_unstable, ordering,
-                                    energy_colormap,
+                                    energy_colormap, plt=plt,
                                     process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
@@ -1347,14 +1505,14 @@ class PDPlotter(object):
     def _get_2d_plot(self, label_stable=True, label_unstable=True,
                      ordering=None, energy_colormap=None, vmin_mev=-60.0,
                      vmax_mev=60.0, show_colorbar=True,
-                     process_attributes=False):
+                     process_attributes=False, plt=None):
         """
         Shows the plot using pylab.  Usually I won't do imports in methods,
         but since plotting is a fairly expensive library to load and not all
         machines have matplotlib installed, I have done it this way.
         """
-
-        plt = pretty_plot(8, 6)
+        if plt is None:
+            plt = pretty_plot(8, 6)
         from matplotlib.font_manager import FontProperties
         if ordering is None:
             (lines, labels, unstable) = self.pd_plot_data

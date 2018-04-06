@@ -35,12 +35,9 @@ def make_doc(ctx):
     with open("docs_rst/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    with cd("examples"):
-       ctx.run("jupyter nbconvert --to html *.ipynb")
-       ctx.run("mv *.html ../docs_rst/_static")
-
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
+        ctx.run("rm pymatgen.*.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
@@ -70,6 +67,7 @@ def make_doc(ctx):
         ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
+        ctx.run("rm *.html")
         ctx.run("cp -r html/* .")
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
@@ -173,6 +171,7 @@ def update_changelog(ctx):
     toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
+    ctx.run("open CHANGES.rst")
 
 
 @task

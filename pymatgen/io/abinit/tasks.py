@@ -2495,7 +2495,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         # https://www.graphviz.org/doc/info/
         from graphviz import Digraph
-        fg = Digraph("task", filename="task_%s.gv" % os.path.basename(self.workdir),
+        fg = Digraph("task", # filename="task_%s.gv" % os.path.basename(self.workdir),
             engine="dot" if engine == "automatic" else engine)
 
         # Set graph attributes.

@@ -35,12 +35,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.surface import Slab, SlabGenerator
 from pymatgen.analysis.local_env import VoronoiNN, JMolNN
 
-default_op_paras = {}
-with open(os.path.join(os.path.dirname(
-        __file__), 'op_paras.yaml'), "rt") as f:
-    default_op_paras = yaml.safe_load(f)
-    f.close()
-
 
 def average_coordination_number(structures, freq=10):
     """

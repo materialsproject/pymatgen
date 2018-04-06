@@ -544,6 +544,7 @@ class AdsorbateSiteFinder(object):
                                     "%.6f" % (site.frac_coords[2]):
                         props["surface_properties"][ii] = "substitute"
                         slab.replace(ii, atom)
+                        break
 
             props["surface_properties"][i] = "substitute"
             slab.replace(i, atom)
