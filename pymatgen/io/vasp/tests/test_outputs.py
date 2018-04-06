@@ -768,6 +768,19 @@ class OutcarTest(PymatgenTest):
             for k in e1.keys():
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
+        exepected_tensors = [[[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]],
+                                     [[11.11, -1.371, 2.652], [-1.371, 3.635, 3.572], [2.652, 3.572, -14.746]],
+                                     [[-3.098, 6.511, 7.732], [6.511, 1.419, 11.445], [7.732, 11.445, 1.678]],
+                                     [[-3.098, -6.511, 7.732], [-6.511, 1.419, -11.445], [7.732, -11.445, 1.678]],
+                                     [[2.344, -10.775, -7.006],[-10.775, -7.152, -11.309],[-7.006, -11.309, 4.808]],
+                                     [[2.344, 10.775, -7.006], [10.775, -7.152, 11.309], [-7.006, 11.309, 4.808]],
+                                     [[2.404, -0.588, -6.83], [-0.588, 10.435, 3.159], [-6.83, 3.159, -12.839]],
+                                     [[2.404, 0.588, -6.83], [0.588, 10.435, -3.159], [-6.83, -3.159, -12.839]]]
+
+        self.assertEqual(len(outcar.data["unsym_efg_tensor"][2:10]), len(exepected_tensors))
+        for e1, e2 in zip(outcar.data["unsym_efg_tensor"][2:10], exepected_tensors):
+            self.assertArrayAlmostEqual(e1,e2)
+
     def test_read_fermi_contact_shift(self):
         filepath = os.path.join(test_dir, "OUTCAR_fc")
         outcar = Outcar(filepath)

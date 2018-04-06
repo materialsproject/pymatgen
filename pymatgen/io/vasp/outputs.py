@@ -37,6 +37,7 @@ from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
+from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 
 """
 Classes for reading/manipulating/writing VASP ouput files.
@@ -1634,6 +1635,7 @@ class Outcar(MSONable):
         if self.data.get("nmr_efg",None):
             self.nmr_efg = True
             self.read_nmr_efg()
+            self.read_nmr_efg_tensor()
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -1908,10 +1910,31 @@ class Outcar(MSONable):
             raise ValueError("NMR UNSYMMETRIZED TENSORS is not found")
 
 
+    def read_nmr_efg_tensor(self):
+        """
+        Parses the NMR Electric Field Gradient Raw Tensors
+
+        Returns:
+            A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR
+        """
+
+
+        header_pattern=r'Electric field gradients \(V/A\^2\)\n' \
+                       r'-*\n' \
+                       r' ion\s+V_xx\s+V_yy\s+V_zz\s+V_xy\s+V_xz\s+V_yz\n'\
+                       r'-*\n' 
+
+        row_pattern = r'\d+\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)'
+        footer_pattern = r'-*\n'
+
+        data =  self.read_table_pattern(header_pattern, row_pattern, footer_pattern, postprocess=float)
+        tensors = [make_symmetric_matrix_from_upper_tri(d) for d in data]
+        self.data["unsym_efg_tensor"] = tensors
+        return tensors
 
     def read_nmr_efg(self):
         """
-        Parse the NMR Electric Field Gradient tensors.
+        Parse the NMR Electric Field Gradient interpretted values.
 
         Returns:
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
@@ -2526,14 +2549,16 @@ class Outcar(MSONable):
 
 
         if self.nmr_cs:
-            d.update({"nmr": {"valence and core": self.data["chemical_shifts"]["valence_and_core"],
+            d.update({"nmr_cs": {"valence and core": self.data["chemical_shifts"]["valence_and_core"],
                 "valence_only": self.data["chemical_shifts"]["valence_only"],
                 "g0": self.data["cs_g0_contribution"],
                 "core": self.data["cs_core_contribution"],
                 "raw": self.data["unsym_cs_tensor"]}})
 
         if self.nmr_efg:
-            d.update({"nmr_efg": self.data["efg"]})
+            d.update({"nmr_efg": {"raw" : self.data["unsym_efg_tensor"],
+                                  "parameters" :   self.data["efg"]}})
+
 
         return d
 
