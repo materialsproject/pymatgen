@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.magnetism.jahnteller &#8212; pymatgen 2018.3.23 documentation</title>
+    <title>pymatgen.analysis.magnetism.jahnteller &#8212; pymatgen 2018.4.6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.4.6 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -55,7 +55,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">LocalStructOrderParas</span><span class="p">,</span> <span class="n">get_neighbors_of_site_with_index</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">LocalStructOrderParams</span><span class="p">,</span> <span class="n">get_neighbors_of_site_with_index</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">get_el_sp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
@@ -147,7 +147,7 @@
         <span class="n">symmetrized_structure</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
 
         <span class="c1"># to detect structural motifs of a given site</span>
-        <span class="n">op</span> <span class="o">=</span> <span class="n">LocalStructOrderParas</span><span class="p">([</span><span class="s1">&#39;oct&#39;</span><span class="p">,</span> <span class="s1">&#39;tet&#39;</span><span class="p">])</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">([</span><span class="s1">&#39;oct&#39;</span><span class="p">,</span> <span class="s1">&#39;tet&#39;</span><span class="p">])</span>
 
         <span class="c1"># dict of site index to the Jahn-Teller analysis of that site</span>
         <span class="n">jt_sites</span> <span class="o">=</span> <span class="p">[]</span>
@@ -439,7 +439,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.4.6 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
