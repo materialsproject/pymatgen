@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v2018.4.6
+---------
+* Updated debye temperature formulation (Joey Montoya)
+* Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)
+* Improved Pourbaix code (Joey Montoya)
+* Local env code improvements (Nils)
+
 v2018.3.22
 ----------
 * Bug fixes to structure, phase diagram module, enumlib adaptor, local env analysis.
