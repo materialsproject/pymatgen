@@ -27,14 +27,6 @@ class ChemicalShielding(SquareTensor):
     Three notations to describe chemical shielding tensor (RK Harris; Magn. Reson.
     Chem. 2008, 46, 582–598; DOI: 10.1002/mrc.2225) are supported.
 
-    Args:
-        sigma_1 (float): chemical shielding tensor principle component 1
-        sigma_2 (float): chemical shielding tensor principle component 2
-        sigma_3 (float): chemical shielding tensor principle component 3
-
-    .. attribute:: sigma_11, simga_22, sigma33
-        principle components in Mehring notation
-
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
@@ -75,11 +67,9 @@ class ChemicalShielding(SquareTensor):
         """
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
-        sigma_indexes = np.argsort(np.abs(np.diag(pas) - sigma_iso))
-        sigmas = np.diag(pas)[sigma_indexes]
-        sigma_yy = sigmas[0]
-        sigma_xx = sigmas[1]
-        sigma_zz = sigmas[2]
+        sigmas = np.diag(pas)
+        sigmas = sorted(sigmas, key=lambda x: np.abs(x-sigma_iso))
+        sigma_yy, sigma_xx, sigma_zz = sigmas
         delta_sigma = sigma_zz - 0.5 * (sigma_xx + sigma_yy)
         zeta = sigma_zz - sigma_iso
         eta = (sigma_yy - sigma_xx) / zeta
@@ -92,9 +82,7 @@ class ChemicalShielding(SquareTensor):
         """
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
-        sigma_11 = np.diag(pas)[0]
-        sigma_22 = np.diag(pas)[1]
-        sigma_33 = np.diag(pas)[2]
+        sigma_11, sigma_22, sigma_33 = np.diag(pas)
         return self.MehringNotation(sigma_iso, sigma_11, sigma_22, sigma_33)
 
     @property
