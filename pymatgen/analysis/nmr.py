@@ -149,18 +149,17 @@ class ElectricFieldGradient(SquareTensor):
     @property
     def V_xx(self):
         diags = np.diag(self.principal_axis_system)
-        return sorted(diags,key=lambda x: np.abs(x))[0]
+        return sorted(diags, key=lambda x: np.abs(x))[0]
 
     @property
     def V_yy(self):
         diags = np.diag(self.principal_axis_system)
-        return sorted(diags,key=lambda x: np.abs(x))[1]
+        return sorted(diags, key=lambda x: np.abs(x))[1]
 
     @property
     def V_zz(self):
         diags = np.diag(self.principal_axis_system)
-        return sorted(diags,key=lambda x: np.abs(x))[2]
-
+        return sorted(diags, key=lambda x: np.abs(x))[2]
 
     @property
     def asymmetry(self):
@@ -169,16 +168,19 @@ class ElectricFieldGradient(SquareTensor):
             (V_yy - V_xx)/V_zz
         """
         diags = np.diag(self.principal_axis_system)
-        V = sorted(diags,key=lambda x: np.abs(x))
-        return np.abs((V[1]-V[0])/V[2])
+        V = sorted(diags, key=lambda x: np.abs(x))
+        return np.abs((V[1] - V[0]) / V[2])
 
-    
     def coupling_constant(self, specie):
         """
-            Cq for a specific atom type for this electric field tensor:
-                Cq=e*Q*V_zz/h
+        Computes the couplling constant C_q as defined in:
+            Wasylishen R E, Ashbrook S E, Wimperis S. NMR of quadrupolar nuclei
+            in solid materials[M]. John Wiley & Sons, 2012. (Chapter 3.2) 
+
+        C_q for a specific atom type for this electric field tensor:
+                C_q=e*Q*V_zz/h
             h: planck's constant     
-            Q  : nuclear electric quadrupole moment in mb (millibarn
+            Q: nuclear electric quadrupole moment in mb (millibarn
             e: elementary proton charge
 
         Args:
@@ -190,13 +192,12 @@ class ElectricFieldGradient(SquareTensor):
 
             the coupling constant as a FloatWithUnit in MHz
         """
-        planks_constant = FloatWithUnit(6.62607004E-34 ,"m^2 kg s^-1")
-        Vzz = FloatWithUnit(self.V_zz,"V ang^-2")
+        planks_constant = FloatWithUnit(6.62607004E-34, "m^2 kg s^-1")
+        Vzz = FloatWithUnit(self.V_zz, "V ang^-2")
         e = FloatWithUnit(-1.60217662E-19, "C")
 
-
         # Convert from string to Specie object
-        if isinstance(specie,str):
+        if isinstance(specie, str):
             # isotope was provided in string format
             if len(specie.split("-")) > 1:
                 isotope = str(specie)
@@ -205,17 +206,12 @@ class ElectricFieldGradient(SquareTensor):
             else:
                 specie = Specie(specie)
                 Q = specie.get_nmr_quadrupole_moment()
-        elif isinstance(specie,Site):
+        elif isinstance(specie, Site):
             specie = specie.specie
             Q = specie.get_nmr_quadrupole_moment()
-        elif isinstance(specie,Specie):
+        elif isinstance(specie, Specie):
             Q = specie.get_nmr_quadrupole_moment()
         else:
-            raise ValueError("Invalid speciie provided for Quadrupolar Coupling Constant calcuations")
+            raise ValueError("Invalid speciie provided for quadrupolar coupling constant calcuations")
 
-        return (e*Q*Vzz/planks_constant).to("MHz")
-
-
-
-
-
+        return (e * Q * Vzz / planks_constant).to("MHz")
