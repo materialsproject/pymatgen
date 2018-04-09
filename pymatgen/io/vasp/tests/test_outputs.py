@@ -55,12 +55,12 @@ class VasprunTest(unittest.TestCase):
         VASP 5.4.4 writes out two dielectric functions to vasprun.xml
         These are the "density-density" and "velocity-velocity" linear response functions.
         See the comments in `linear_optics.F` for details.
-        """ 
-        v = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_5.4.4"), 
+        """
+        v = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric_5.4.4"),
                     parse_potcar_file=False)
-        self.assertEqual( v.dielectric is not None, True )
-        self.assertEqual( 'density' in v.dielectric_data, True )
-        self.assertEqual( 'velocity' in v.dielectric_data, True )
+        self.assertEqual(v.dielectric is not None, True)
+        self.assertEqual('density' in v.dielectric_data, True)
+        self.assertEqual('velocity' in v.dielectric_data, True)
 
     def test_optical_absorption_coeff(self):
         v = Vasprun(os.path.join(test_dir, "vasprun.BSE.xml.gz"))
@@ -185,7 +185,7 @@ class VasprunTest(unittest.TestCase):
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
         self.assertAlmostEqual(vasprun_ggau.projected_eigenvalues[Spin.up][
-                                   0][0][96][0], 0.0032)
+            0][0][96][0], 0.0032)
         d = vasprun_ggau.as_dict()
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
@@ -349,9 +349,8 @@ class VasprunTest(unittest.TestCase):
             vasprun = Vasprun(filepath,
                               parse_projected_eigen=True,
                               parse_potcar_file=False)
-            bs = vasprun.get_band_structure(kpoints_filename=
-                                            os.path.join(test_dir,
-                                                         'KPOINTS_Si_bands'))
+            bs = vasprun.get_band_structure(kpoints_filename=os.path.join(test_dir,
+                                                                          'KPOINTS_Si_bands'))
             cbm = bs.get_cbm()
             vbm = bs.get_vbm()
             self.assertEqual(cbm['kpoint_index'], [13],
@@ -465,7 +464,7 @@ class VasprunTest(unittest.TestCase):
     def test_parsing_efg_calcs(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            filepath = os.path.join(test_dir,  "nmr", "efg", "AlPO4", 
+            filepath = os.path.join(test_dir,  "nmr", "efg", "AlPO4",
                                     'vasprun.xml')
             vasprun = Vasprun(filepath)
             nestep = len(vasprun.ionic_steps[-1]['electronic_steps'])
@@ -689,21 +688,21 @@ class OutcarTest(PymatgenTest):
                                 "hydromagnesite", "OUTCAR")
         outcar = Outcar(filename)
         expected_chemical_shielding = [[191.9974, 69.5232, 0.6342],
-                                    [195.0808, 68.183, 0.833],
-                                    [192.0389, 69.5762, 0.6329],
-                                    [195.0844, 68.1756, 0.8336],
-                                    [192.005, 69.5289, 0.6339],
-                                    [195.0913, 68.1859, 0.833],
-                                    [192.0237, 69.565, 0.6333],
-                                    [195.0788, 68.1733, 0.8337]] 
+                                       [195.0808, 68.183, 0.833],
+                                       [192.0389, 69.5762, 0.6329],
+                                       [195.0844, 68.1756, 0.8336],
+                                       [192.005, 69.5289, 0.6339],
+                                       [195.0913, 68.1859, 0.833],
+                                       [192.0237, 69.565, 0.6333],
+                                       [195.0788, 68.1733, 0.8337]]
 
         self.assertAlmostEqual(
             len(outcar.data["chemical_shielding"]["valence_only"][20: 28]),
             len(expected_chemical_shielding))
 
         self.assertArrayAlmostEqual(outcar.data["chemical_shielding"]["valence_and_core"][20:28],
-          expected_chemical_shielding,decimal=5)
-        
+                                    expected_chemical_shielding, decimal=5)
+
     def test_chemical_shielding_with_different_core_contribution(self):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
@@ -769,17 +768,17 @@ class OutcarTest(PymatgenTest):
                 self.assertAlmostEqual(e1[k], e2[k], places=5)
 
         exepected_tensors = [[[11.11, 1.371, 2.652], [1.371, 3.635, -3.572], [2.652, -3.572, -14.746]],
-                                     [[11.11, -1.371, 2.652], [-1.371, 3.635, 3.572], [2.652, 3.572, -14.746]],
-                                     [[-3.098, 6.511, 7.732], [6.511, 1.419, 11.445], [7.732, 11.445, 1.678]],
-                                     [[-3.098, -6.511, 7.732], [-6.511, 1.419, -11.445], [7.732, -11.445, 1.678]],
-                                     [[2.344, -10.775, -7.006],[-10.775, -7.152, -11.309],[-7.006, -11.309, 4.808]],
-                                     [[2.344, 10.775, -7.006], [10.775, -7.152, 11.309], [-7.006, 11.309, 4.808]],
-                                     [[2.404, -0.588, -6.83], [-0.588, 10.435, 3.159], [-6.83, 3.159, -12.839]],
-                                     [[2.404, 0.588, -6.83], [0.588, 10.435, -3.159], [-6.83, -3.159, -12.839]]]
+                             [[11.11, -1.371, 2.652], [-1.371, 3.635, 3.572], [2.652, 3.572, -14.746]],
+                             [[-3.098, 6.511, 7.732], [6.511, 1.419, 11.445], [7.732, 11.445, 1.678]],
+                             [[-3.098, -6.511, 7.732], [-6.511, 1.419, -11.445], [7.732, -11.445, 1.678]],
+                             [[2.344, -10.775, -7.006], [-10.775, -7.152, -11.309], [-7.006, -11.309, 4.808]],
+                             [[2.344, 10.775, -7.006], [10.775, -7.152, 11.309], [-7.006, 11.309, 4.808]],
+                             [[2.404, -0.588, -6.83], [-0.588, 10.435, 3.159], [-6.83, 3.159, -12.839]],
+                             [[2.404, 0.588, -6.83], [0.588, 10.435, -3.159], [-6.83, -3.159, -12.839]]]
 
         self.assertEqual(len(outcar.data["unsym_efg_tensor"][2:10]), len(exepected_tensors))
         for e1, e2 in zip(outcar.data["unsym_efg_tensor"][2:10], exepected_tensors):
-            self.assertArrayAlmostEqual(e1,e2)
+            self.assertArrayAlmostEqual(e1, e2)
 
     def test_read_fermi_contact_shift(self):
         filepath = os.path.join(test_dir, "OUTCAR_fc")
@@ -817,9 +816,8 @@ class BSVasprunTest(unittest.TestCase):
     def test_get_band_structure(self):
         filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
         vasprun = BSVasprun(filepath, parse_potcar_file=False)
-        bs = vasprun.get_band_structure(kpoints_filename=
-                                        os.path.join(test_dir,
-                                                     'KPOINTS_Si_bands'))
+        bs = vasprun.get_band_structure(kpoints_filename=os.path.join(test_dir,
+                                                                      'KPOINTS_Si_bands'))
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
         self.assertEqual(cbm['kpoint_index'], [13], "wrong cbm kpoint index")
@@ -1038,12 +1036,12 @@ class WavecarTest(unittest.TestCase):
     def setUp(self):
         self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2'))
         self.a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
-                          [0.0, 0.0, 10.0]])
+                           [0.0, 0.0, 10.0]])
         self.vol = np.dot(self.a[0, :], np.cross(self.a[1, :], self.a[2, :]))
         self.b = np.array([np.cross(self.a[1, :], self.a[2, :]),
-                          np.cross(self.a[2, :], self.a[0, :]),
-                          np.cross(self.a[0, :], self.a[1, :])])
-        self.b = 2*np.pi*self.b/self.vol
+                           np.cross(self.a[2, :], self.a[0, :]),
+                           np.cross(self.a[0, :], self.a[1, :])])
+        self.b = 2 * np.pi * self.b / self.vol
 
     def test_init(self):
         self.assertEqual(self.w.filename, os.path.join(test_dir, 'WAVECAR.N2'))
@@ -1119,18 +1117,18 @@ class WavecarTest(unittest.TestCase):
     def test_evaluate_wavefunc(self):
         self.w.Gpoints.append(np.array([0, 0, 0]))
         self.w.kpoints.append(np.array([0, 0, 0]))
-        self.w.coeffs.append([[1+1j]])
+        self.w.coeffs.append([[1 + 1j]])
         self.assertAlmostEqual(self.w.evaluate_wavefunc(-1, -1, [0, 0, 0]),
-                               (1+1j)/np.sqrt(self.vol), places=4)
+                               (1 + 1j) / np.sqrt(self.vol), places=4)
         self.assertAlmostEqual(self.w.evaluate_wavefunc(0, 0, [0, 0, 0]),
-                               np.sum(self.w.coeffs[0][0])/np.sqrt(self.vol),
+                               np.sum(self.w.coeffs[0][0]) / np.sqrt(self.vol),
                                places=4)
 
     def test_fft_mesh(self):
         mesh = self.w.fft_mesh(0, 5)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (14, 1, 1))
-        self.assertEqual(mesh[tuple((self.w.ng/2).astype(np.int))], 0j)
+        self.assertEqual(mesh[tuple((self.w.ng / 2).astype(np.int))], 0j)
         mesh = self.w.fft_mesh(0, 5, shift=False)
         ind = np.argmax(np.abs(mesh))
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
