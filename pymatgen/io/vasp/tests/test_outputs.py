@@ -684,11 +684,11 @@ class OutcarTest(PymatgenTest):
 
         self.assertIsNotNone(outcar.as_dict())
 
-    def test_chemical_shifts(self):
+    def test_chemical_shielding(self):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "hydromagnesite", "OUTCAR")
         outcar = Outcar(filename)
-        expected_chemical_shifts = [[191.9974, 69.5232, 0.6342],
+        expected_chemical_shielding = [[191.9974, 69.5232, 0.6342],
                                     [195.0808, 68.183, 0.833],
                                     [192.0389, 69.5762, 0.6329],
                                     [195.0844, 68.1756, 0.8336],
@@ -698,21 +698,21 @@ class OutcarTest(PymatgenTest):
                                     [195.0788, 68.1733, 0.8337]] 
 
         self.assertAlmostEqual(
-            len(outcar.data["chemical_shifts"]["valence_only"][20: 28]),
-            len(expected_chemical_shifts))
+            len(outcar.data["chemical_shielding"]["valence_only"][20: 28]),
+            len(expected_chemical_shielding))
 
-        self.assertArrayAlmostEqual(outcar.data["chemical_shifts"]["valence_and_core"][20:28],
-          expected_chemical_shifts,decimal=5)
+        self.assertArrayAlmostEqual(outcar.data["chemical_shielding"]["valence_and_core"][20:28],
+          expected_chemical_shielding,decimal=5)
         
-    def test_chemical_shifts_with_different_core_contribution(self):
+    def test_chemical_shielding_with_different_core_contribution(self):
         filename = os.path.join(test_dir, "nmr", "cs", "core.diff",
                                 "core.diff.chemical.shifts.OUTCAR")
         outcar = Outcar(filename)
-        c_vo = outcar.data["chemical_shifts"]["valence_only"][7]
+        c_vo = outcar.data["chemical_shielding"]["valence_only"][7]
         for x1, x2 in zip(list(c_vo),
                           [198.7009, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)
-        c_vc = outcar.data["chemical_shifts"]["valence_and_core"][7]
+        c_vc = outcar.data["chemical_shielding"]["valence_and_core"][7]
         for x1, x2 in zip(list(c_vc),
                           [-1.9406, 73.7484, 1.0000]):
             self.assertAlmostEqual(x1, x2)

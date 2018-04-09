@@ -431,7 +431,7 @@ class Vasprun(MSONable):
                     if not self.parameters.get("LCHIMAG", False):
                         ionic_steps.append(self._parse_calculation(elem))
                     else:
-                        ionic_steps.extend(self._parse_chemical_shift_calculation(elem))
+                        ionic_steps.extend(self._parse_chemical_shielding_calculation(elem))
                 elif parse_dos and tag == "dos":
                     try:
                         self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -1089,7 +1089,7 @@ class Vasprun(MSONable):
         return oscillator_strength, probability_transition
 
 
-    def _parse_chemical_shift_calculation(self, elem):
+    def _parse_chemical_shielding_calculation(self, elem):
         calculation = []
         istep = {}
         try:
@@ -1366,14 +1366,13 @@ class Outcar(MSONable):
         Note that this data is not always present.  LORBIT must be set to some
         other value than the default.
 
-    .. attribute:: chemical_shifts
+    .. attribute:: chemical_shielding
 
-        Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
-        (cs1, cs2, ...)
+        chemical shielding on each ion as a dictionary with core and valence contributions
         
     .. attribute:: unsym_cs_tensor
 
-        Unsymmetrized Chemical Shift tensor matrixes on each ion as a list.
+        Unsymmetrized chemical shielding tensor matrixes on each ion as a list.
         e.g.,
         [[[sigma11, sigma12, sigma13],
           [sigma21, sigma22, sigma23],
@@ -1384,10 +1383,10 @@ class Outcar(MSONable):
           [sigma31, sigma32, sigma33]]]
           
     .. attribute:: unsym_cs_tensor 
-        G=0 contribution to chemical shift. 2D rank 3 matrix
+        G=0 contribution to chemical shielding. 2D rank 3 matrix
     
     .. attribute:: cs_core_contribution
-       Core contribution to chemical shift. dict. e.g.,
+       Core contribution to chemical shielding. dict. e.g.,
        {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
 
     .. attribute:: efg
@@ -1625,7 +1624,7 @@ class Outcar(MSONable):
         self.read_pattern({"nmr_cs": r"LCHIMAG   =     (T)"})
         if self.data.get("nmr_cs",None):
             self.nmr_cs = True
-            self.read_chemical_shifts()
+            self.read_chemical_shielding()
             self.read_cs_g0_contribution()
             self.read_cs_core_contribution()
             self.read_cs_raw_symmetrized_tensors()
@@ -1794,13 +1793,13 @@ class Outcar(MSONable):
         self.dielectric_tensor_function = np.array(data["REAL"]) + \
             1j * np.array(data["IMAGINARY"])
 
-    def read_chemical_shifts(self):
+    def read_chemical_shielding(self):
         """
-        Parse the NMR chemical shifts data. Only the second part "absolute, valence and core"
-        will be parsed. And only the three right most field (ISO_SHIFT, SPAN, SKEW) will be retrieved.
+        Parse the NMR chemical shieldings data. Only the second part "absolute, valence and core"
+        will be parsed. And only the three right most field (ISO_SHIELDING, SPAN, SKEW) will be retrieved.
 
         Returns:
-            List of chemical shifts in the order of atoms from the OUTCAR. Maryland notation is adopted.
+            List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.
         """
         header_pattern = r"\s+CSA tensor \(J\. Mason, Solid State Nucl\. Magn\. Reson\. 2, " \
                          r"285 \(1993\)\)\s+" \
@@ -1826,12 +1825,12 @@ class Outcar(MSONable):
         for name, cs_table in [["valence_only", cs_valence_only],
                                ["valence_and_core", cs_valence_and_core]]:
             all_cs[name] = cs_table
-        self.data["chemical_shifts"] = all_cs
+        self.data["chemical_shielding"] = all_cs
 
 
     def read_cs_g0_contribution(self):
         """
-            Parse the  G0 contribution of NMR chemical shift.
+            Parse the  G0 contribution of NMR chemical shielding.
 
             Returns:
             G0 contribution matrix as list of list. 
@@ -1848,7 +1847,7 @@ class Outcar(MSONable):
 
     def read_cs_core_contribution(self):
         """
-            Parse the core contribution of NMR chemical shift.
+            Parse the core contribution of NMR chemical shielding.
 
             Returns:
             G0 contribution matrix as list of list. 
@@ -2549,8 +2548,8 @@ class Outcar(MSONable):
 
 
         if self.nmr_cs:
-            d.update({"nmr_cs": {"valence and core": self.data["chemical_shifts"]["valence_and_core"],
-                "valence_only": self.data["chemical_shifts"]["valence_only"],
+            d.update({"nmr_cs": {"valence and core": self.data["chemical_shielding"]["valence_and_core"],
+                "valence_only": self.data["chemical_shielding"]["valence_only"],
                 "g0": self.data["cs_g0_contribution"],
                 "core": self.data["cs_core_contribution"],
                 "raw": self.data["unsym_cs_tensor"]}})
