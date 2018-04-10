@@ -6,7 +6,7 @@ import spglib
 from scipy.optimize import minimize
 import itertools as it
 import numpy as np
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 #from monty.serialization import loadfn,dumpfn
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.bandstructure import \
@@ -498,7 +498,7 @@ class BZT_TransportProperties(object):
             mu_doping[dop_type] = np.zeros((len(temp_r),len(doping)))
             for t,temp in enumerate(temp_r):
                 for i, dop_car in enumerate(doping_carriers):
-                    mu_doping[dop_type][t,i] = BL.refine_mu0(self.epsilon, self.dos, self.nelect + dop_car, temp, self.dosweight)
+                    mu_doping[dop_type][t,i] = self.find_mu_doping(self.epsilon, self.dos, self.nelect + dop_car, temp, self.dosweight)
 
                 N, L0, L1, L2, Lm11 = BL.fermiintegrals(self.epsilon, self.dos, self.vvdos, mur=mu_doping[dop_type][t], Tr=np.array([temp]), dosweight=self.dosweight)
                 cond[t], sbk[t], kappa[t], hall[t] = BL.calc_Onsager_coefficients(L0, L1, L2, mu_doping[dop_type][t], np.array([temp]), self.volume, Lm11)
@@ -520,11 +520,22 @@ class BZT_TransportProperties(object):
                     
             self.cond_Effective_mass_doping[dop_type] = cond_eff_mass
             
-        
+        self.doping_carriers = doping_carriers
         self.doping = doping
         self.mu_doping = mu_doping
         self.mu_doping_eV = {k:v/units.eV - self.efermi for k,v in mu_doping.items()}
-        
+
+
+    def find_mu_doping(self,epsilon, dos, N0, T, dosweight=2.):
+        delta = np.empty_like(epsilon)
+        for i, e in enumerate(epsilon):
+            delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
+        delta = np.abs(delta)
+        # Find the position optimizing this distance
+        pos = np.abs(delta).argmin()
+        return epsilon[pos]
+    
+    
     def props_as_dict(self):
         props = ("Conductivity","Seebeck","Kappa")#,"Hall"
         p_units = (r"$\mathrm{kS\,m^{-1}}$",r"$\mu$V/K",r"")
@@ -579,7 +590,7 @@ class BZT_Plotter(object):
             p_array = eval("self.bzt_transP." + props[idx_prop]+'_'+prop_x)
         mu = self.bzt_transP.mu_r_eV
         
-        fig = plt.figure()
+        fig = plt.figure(figsize=(10,8))
         temps_all = self.bzt_transP.temp_r.tolist()
         if temps == None:
             temps = self.bzt_transP.temp_r.tolist()
@@ -595,7 +606,7 @@ class BZT_Plotter(object):
                     prop_out = np.linalg.eigh(p_array[ti])[0].mean(axis=1)
                     
                 plt.plot(mu, prop_out,label=str(temp)+' K')
-            plt.xlabel(r"$\mu$")
+            plt.xlabel(r"$\mu$ (eV)", fontsize=30)
             plt.xlim(xlim)
 
         elif prop_z == 'temp' and prop_x == 'doping':
@@ -605,7 +616,7 @@ class BZT_Plotter(object):
                     prop_out = np.linalg.eigh(p_array[dop_type][ti])[0].mean(axis=1)
                     
                 plt.semilogx(doping_all, prop_out,'s-',label=str(temp)+' K')
-            plt.xlabel(r"Carrier Conc $cm^{-3}$")
+            plt.xlabel(r"Carrier Conc $cm^{-3}$", fontsize=30)
             #plt.xlim()
         
         elif prop_z == 'doping' and prop_x == 'temp':
@@ -614,13 +625,15 @@ class BZT_Plotter(object):
                 if output=='avg_eigs':
                     prop_out = np.linalg.eigh(p_array[dop_type][:,di])[0].mean(axis=1)
                     
-                plt.plot(temps_all, prop_out,'s-',label=str(dop)+' K')
-             plt.xlabel(r"Temperature (K)")
+                plt.plot(temps_all, prop_out,'s-',label=str(dop)+' $cm^{-3}$')
+             plt.xlabel(r"Temperature (K)", fontsize=30)
             
-        plt.ylabel(props[idx_prop] + ' ' +p_units[idx_prop])
-        plt.legend()
+        plt.ylabel(props[idx_prop] + ' ' +p_units[idx_prop], fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        plt.legend(fontsize=15)
         plt.tight_layout()
-        
+        plt.grid()
         return plt
     
     
@@ -632,11 +645,11 @@ class BZT_Plotter(object):
         
         return BSPlotter(sbs).get_plot()
 
-    def plot_dos(self):
+    def plot_dos(self,T=None):
         if self.bzt_interp == None:
             raise BoltztrapError("BZT_Interpolator not present")
         
-        tdos = self.bzt_interp.get_dos()
+        tdos = self.bzt_interp.get_dos(T=T)
         
         dosPlotter = DosPlotter()
         dosPlotter.add_dos('Total',tdos)
