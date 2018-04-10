@@ -329,9 +329,9 @@ class MPRester(object):
                 calculations for more accurate phase diagrams and reaction
                 energies.
             inc_structure (str): If None, entries returned are
-                ComputedEntries. If inc_structure="final",
-                ComputedStructureEntries with final structures are returned.
-                Otherwise, ComputedStructureEntries with initial structures
+                ComputedEntries. If inc_structure="initial",
+                ComputedStructureEntries with initial structures are returned.
+                Otherwise, ComputedStructureEntries with final structures
                 are returned.
             property_data (list): Specify additional properties to include in
                 entry.data. If None, no data. Should be a subset of
@@ -350,10 +350,10 @@ class MPRester(object):
         if property_data:
             props += property_data
         if inc_structure:
-            if inc_structure == "final":
-                props.append("structure")
-            else:
+            if inc_structure == "initial":
                 props.append("initial_structure")
+            else:
+                props.append("structure")
 
         if not isinstance(chemsys_formula_id_criteria, dict):
             criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
@@ -379,8 +379,8 @@ class MPRester(object):
                                   entry_id=d["task_id"])
 
             else:
-                prim = d["structure"] if inc_structure == "final" else d[
-                    "initial_structure"]
+                prim = d["initial_structure"] if inc_structure == "initial"\
+                    else d["structure"]
                 if conventional_unit_cell:
                     s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
                     energy = d["energy"]*(len(s)/len(prim))
