@@ -431,7 +431,8 @@ class BZT_TransportProperties(object):
         self.dosweight = BZT_Interpolator.data.dosweight
         lattvec = BZT_Interpolator.data.get_lattvec()
 
-        self.epsilon, self.dos, self.vvdos, self.cdos = BL.BTPDOS(self.BZT_Interpolator.eband, self.BZT_Interpolator.vvband, npts=npts_mu)
+        self.epsilon, self.dos, self.vvdos, self.cdos = BL.BTPDOS(BZT_Interpolator.eband, BZT_Interpolator.vvband, npts=npts_mu)
+        
         if margin == None:
             margin = 9. * units.BOLTZMANN * temp_r.max()
             
