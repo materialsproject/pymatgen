@@ -122,6 +122,8 @@ class PMG_Vasprun_Loader:
             raise BoltztrapError("spin bs case not implemented")
         
         self.lattvec = self.structure.lattice.matrix * units.Angstrom
+        
+        #TODO: read mommat from vasprun
         self.mommat = None
         self.fermi = vrun.efermi * units.eV
         self.nelect = vrun.parameters['NELECT']
@@ -464,6 +466,7 @@ class BZT_TransportProperties(object):
                 
         self.cond_Effective_mass_mu = cond_eff_mass
         
+        #TODO: try to use ArrayWithUnits ?
         self.Conductivity_mu *= CRTA # S / m
         self.Seebeck_mu *= 1e6  # microvolt / K
         
@@ -602,30 +605,43 @@ class BZT_Plotter(object):
         if prop_z == 'temp' and prop_x == 'mu':
             for temp in temps:
                 ti = temps_all.index(temp)
+                prop_out = np.linalg.eigh(p_array[ti])[0]
                 if output=='avg_eigs':
-                    prop_out = np.linalg.eigh(p_array[ti])[0].mean(axis=1)
+                    plt.plot(mu, prop_out.mean(axis=1),label=str(temp)+' K')
+                elif output=='eigs':
+                    for i in range(3):
+                        plt.plot(mu, prop_out[:,i],
+                                 label='eig_'+str(i)+' ' + str(temp)+' K')
                     
-                plt.plot(mu, prop_out,label=str(temp)+' K')
             plt.xlabel(r"$\mu$ (eV)", fontsize=30)
             plt.xlim(xlim)
 
         elif prop_z == 'temp' and prop_x == 'doping':
             for temp in temps:
                 ti = temps_all.index(temp)
+                prop_out = np.linalg.eigh(p_array[dop_type][ti])[0]
                 if output=='avg_eigs':
-                    prop_out = np.linalg.eigh(p_array[dop_type][ti])[0].mean(axis=1)
-                    
-                plt.semilogx(doping_all, prop_out,'s-',label=str(temp)+' K')
+                    plt.semilogx(doping_all, prop_out.mean(axis=1),'s-',
+                                 label=str(temp)+' K')
+                elif output=='eigs':
+                    for i in range(3):
+                        plt.plot(doping_all, prop_out[:,i],'s-',
+                                 label='eig_'+str(i)+' '+str(temp)+' K')                    
             plt.xlabel(r"Carrier Conc $cm^{-3}$", fontsize=30)
             #plt.xlim()
         
         elif prop_z == 'doping' and prop_x == 'temp':
              for dop in doping:
                 di = doping_all.index(dop)
+                prop_out = np.linalg.eigh(p_array[dop_type][:,di])[0]
                 if output=='avg_eigs':
-                    prop_out = np.linalg.eigh(p_array[dop_type][:,di])[0].mean(axis=1)
-                    
-                plt.plot(temps_all, prop_out,'s-',label=str(dop)+' $cm^{-3}$')
+                    plt.plot(temps_all, prop_out.mean(axis=1),
+                             's-',label=str(dop)+' $cm^{-3}$')
+                elif output=='eigs':
+                    for i in range(3):
+                        plt.plot(temps_all, prop_out[:,i],'s-',
+                                 label='eig_'+str(i)+' '+str(dop)+' $cm^{-3}$')
+                
              plt.xlabel(r"Temperature (K)", fontsize=30)
             
         plt.ylabel(props[idx_prop] + ' ' +p_units[idx_prop], fontsize=30)
