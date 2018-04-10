@@ -180,7 +180,7 @@ class MPResterTest(unittest.TestCase):
         for e in entries:
             self.assertEqual(e.composition.reduced_formula, "TiO2")
 
-        entries = self.rester.get_entries("TiO2", inc_structure="final")
+        entries = self.rester.get_entries("TiO2", inc_structure=True)
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
@@ -197,8 +197,8 @@ class MPResterTest(unittest.TestCase):
             self.assertIsNotNone(e.data["oxide_type"])
 
         # test if it will retrieve the conventional unit cell of Ni
-        entry = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
-                                                     conventional_unit_cell=True)
+        entry = self.rester.get_entry_by_material_id(
+            "mp-23", inc_structure=True, conventional_unit_cell=True)
         Ni = entry.structure
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
@@ -207,17 +207,28 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(Ni.lattice.gamma, 90)
 
         # Ensure energy per atom is same
-        primNi = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
-                                                      conventional_unit_cell=False)
+        primNi = self.rester.get_entry_by_material_id(
+            "mp-23", inc_structure=True, conventional_unit_cell=False)
         self.assertEqual(primNi.energy_per_atom, entry.energy_per_atom)
 
-        Ni = self.rester.get_structure_by_material_id("mp-23",
-                                                      conventional_unit_cell=True)
+        Ni = self.rester.get_structure_by_material_id(
+            "mp-23", conventional_unit_cell=True)
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
         self.assertEqual(Ni.lattice.alpha, 90)
         self.assertEqual(Ni.lattice.beta, 90)
         self.assertEqual(Ni.lattice.gamma, 90)
+
+        # Test case where convs are different from initial and final
+        th = self.rester.get_structure_by_material_id(
+            "mp-37", conventional_unit_cell=True)
+        th_entry = self.rester.get_entry_by_material_id(
+            "mp-37", inc_structure=True, conventional_unit_cell=True)
+        th_entry_initial = self.rester.get_entry_by_material_id(
+            "mp-37", inc_structure="initial", conventional_unit_cell=True)
+        self.assertEqual(th, th_entry.structure)
+        self.assertEqual(len(th_entry.structure), 4)
+        self.assertEqual(len(th_entry_initial.structure), 2)
 
 
     def test_get_pourbaix_entries(self):
