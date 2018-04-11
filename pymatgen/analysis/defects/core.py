@@ -93,6 +93,14 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         return
 
+    @property
+    @abstractmethod
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        return
+
 
 class Vacancy(Defect):
     """
@@ -133,6 +141,13 @@ class Vacancy(Defect):
 
         equivalent_sites = periodic_struc.find_equivalent_sites(self.bulk_structure[defindex])
         return len(equivalent_sites)
+
+    @property
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        return "Vac_{}_{}".format(self.site.specie,self.multiplicity)
 
 
 class Substitution(Defect):
@@ -183,6 +198,17 @@ class Substitution(Defect):
         equivalent_sites = periodic_struc.find_equivalent_sites(self.bulk_structure[defindex])
         return len(equivalent_sites)
 
+    @property
+    @lru_cache(1)
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        poss_deflist = sorted(
+            self.bulk_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
+        defindex = poss_deflist[0][2]
+        return "{}_{}_{}".format(self.bulk_structure[defindex].specie,self.site.specie,self.multiplicity)
+
 
 class Interstitial(Defect):
     """
@@ -228,6 +254,12 @@ class Interstitial(Defect):
         """
         return self._multiplicity
 
+    @property
+    def name(self):
+        """
+        Returns a name for this defect
+        """
+        return "Int_{}_{}".format(self.site.specie,self.multiplicity)
 
 class DefectEntry(MSONable):
     """
@@ -235,7 +267,7 @@ class DefectEntry(MSONable):
     for many defect analysis.
     """
 
-    def __init__(self, defect, uncorrected_energy, vbm=0, corrections={}, parameters={}, entry_id=None):
+    def __init__(self, defect, uncorrected_energy, corrections={}, parameters={}, entry_id=None):
         """
         Args:
             defect:
@@ -243,8 +275,6 @@ class DefectEntry(MSONable):
             uncorrected_energy (float): Energy of the defect entry. Usually the difference between
                 the final calculated energy for the defect supercell - the perfect 
                 supercell energy
-            vbm: 
-
             corrections ([Correction]):
                 List of Correction classes (from pymatgen.analysis.defects.corrections)
                 which correct energy due to charge (e.g. Freysoldt or Kumagai)
@@ -285,6 +315,13 @@ class DefectEntry(MSONable):
         """
         return self.uncorrected_energy + np.sum(self.correction.values())
 
+    @property
+    def name(self):
+        """
+        Returms the defect name
+        """
+        return self.defect.name
+
     def formation_energy(self, chemical_potentials = None, fermi_level=0):
         """
         Computes the formation energy for a defect taking into account a given chemical potential and fermi_level
@@ -303,19 +340,19 @@ class DefectEntry(MSONable):
 
         return formation_energy
 
-    def defect_concentration(self, mu_elts, temp=300, fermi_level=0.0):
+    def defect_concentration(self, chemical_potentials, temperature=300, fermi_level=0.0):
         """
         Get the defect concentration for a temperature and Fermi level.
         Args:
-            temp:
+            temperature:
                 the temperature in K
-            Ef:
+            fermi_level:
                 the fermi level in eV (with respect to the VBM)
         Returns:
             defects concentration in cm^-3
         """
         n = self.multiplicity * 1e24 / self.defect.bulk_structure.volume
-        conc = n*exp( -1.0*self.formation_energy(mu_elts, fermi_level=fermi_level)/(kb*temp))
+        conc = n*exp( -1.0*self.formation_energy(chemical_potentials, fermi_level=fermi_level)/(kb*temperature))
 
         return conc
 
