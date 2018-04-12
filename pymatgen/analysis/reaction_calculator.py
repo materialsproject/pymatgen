@@ -336,10 +336,11 @@ class Reaction(BalancedReaction):
         coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b, rcond=None)
 
         # for whatever reason the rank returned by lstsq isn't always correct
-        # seems to be a problem with low-rank M but inconsistent system  M x = b.
+        # seems to be a problem with low-rank M but inconsistent system
+        # M x = b.
         # the singular values seem ok, so checking based on those
         if sum(np.abs(s) > 1e-12) == len(f_mat):
-            if res and res[0] > self.TOLERANCE ** 2:
+            if res.size > 0 and res[0] > self.TOLERANCE ** 2:
                 raise ReactionError("Reaction cannot be balanced.")
             else:
                 ok = True
