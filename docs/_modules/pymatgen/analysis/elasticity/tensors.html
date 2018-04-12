@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.elasticity.tensors &#8212; pymatgen 2018.3.23 documentation</title>
+    <title>pymatgen.analysis.elasticity.tensors &#8212; pymatgen 2018.4.6 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.4.6 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -164,7 +164,7 @@
 
 <div class="viewcode-block" id="Tensor.transform"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symm_op</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Applies a transformation (via a symmetry operation) to a tensor. </span>
+<span class="sd">        Applies a transformation (via a symmetry operation) to a tensor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            symm_op (SymmOp): a symmetry operation to apply to the tensor</span>
@@ -211,8 +211,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">symmetrized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a generally symmetrized tensor, calculated by taking </span>
-<span class="sd">        the sum of the tensor and its transpose with respect to all </span>
+<span class="sd">        Returns a generally symmetrized tensor, calculated by taking</span>
+<span class="sd">        the sum of the tensor and its transpose with respect to all</span>
 <span class="sd">        possible permutations of indices</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">perms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">)))</span>
@@ -247,8 +247,8 @@
 <span class="sd">        Returns a tensor that is invariant with respect to symmetry</span>
 <span class="sd">        operations corresponding to a structure</span>
 
-<span class="sd">        Args: </span>
-<span class="sd">            structure (Structure): structure from which to generate </span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): structure from which to generate</span>
 <span class="sd">                symmetry operations</span>
 <span class="sd">            symprec (float): symmetry tolerance for the Spacegroup Analyzer</span>
 <span class="sd">                used to generate the symmetry operations</span>
@@ -262,9 +262,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Tests whether a tensor is invariant with respect to the</span>
 <span class="sd">        symmetry operations of a particular structure by testing</span>
-<span class="sd">        whether the residual of the symmetric portion is below a </span>
+<span class="sd">        whether the residual of the symmetric portion is below a</span>
 <span class="sd">        tolerance</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            structure (Structure): structure to be fit to</span>
 <span class="sd">            tol (float): tolerance for symmetry testing</span>
@@ -326,7 +326,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor based on the voigt notation vector or matrix.</span>
 
-<span class="sd">        Args: </span>
+<span class="sd">        Args:</span>
 <span class="sd">            voigt_input (array-like): voigt input for a given tensor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">voigt_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">voigt_input</span><span class="p">)</span>
@@ -438,12 +438,12 @@
 
 <div class="viewcode-block" id="Tensor.from_values_indices"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.from_values_indices">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_values_indices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">populate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                            <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voigt_rank</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                            <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voigt_rank</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                             <span class="n">vsym</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a tensor from values and indices, with options</span>
 <span class="sd">        for populating the remainder of the tensor.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            values (floats): numbers to place at indices</span>
 <span class="sd">            indices (array-likes): indices to place values at</span>
@@ -453,7 +453,7 @@
 <span class="sd">            voigt_rank (int): full tensor rank to indicate the</span>
 <span class="sd">                shape of the resulting tensor.  This is necessary</span>
 <span class="sd">                if one provides a set of indices more minimal than</span>
-<span class="sd">                the shape of the tensor they want, e.g. </span>
+<span class="sd">                the shape of the tensor they want, e.g.</span>
 <span class="sd">                Tensor.from_values_indices((0, 0), 100)</span>
 <span class="sd">            vsym (bool): whether to voigt symmetrize during the</span>
 <span class="sd">                optimization procedure</span>
@@ -491,7 +491,7 @@
 <span class="sd">        2. Symmetrize the tensor with respect to crystal symmetry and</span>
 <span class="sd">           (optionally) voigt symmetry</span>
 <span class="sd">        3. Reset the non-zero entries of the original tensor</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            structure (structure object)</span>
 <span class="sd">            prec (float): precision for determining a non-zero value</span>
@@ -542,7 +542,7 @@
             <span class="n">test_new</span> <span class="o">=</span> <span class="n">test_old</span><span class="o">.</span><span class="n">fit_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">vsym</span><span class="p">:</span>
                 <span class="n">test_new</span> <span class="o">=</span> <span class="n">test_new</span><span class="o">.</span><span class="n">voigt_symmetrized</span>
-            <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_old</span> <span class="o">-</span> <span class="n">test_new</span><span class="p">)</span> 
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_old</span> <span class="o">-</span> <span class="n">test_new</span><span class="p">)</span>
             <span class="n">converged</span> <span class="o">=</span> <span class="p">(</span><span class="n">diff</span> <span class="o">&lt;</span> <span class="n">prec</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">converged</span><span class="p">:</span>
                 <span class="k">break</span>
@@ -592,16 +592,16 @@
         <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">is_symmetric</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="TensorCollection.fit_to_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.fit_to_structure">[docs]</a>    <span class="k">def</span> <span class="nf">fit_to_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">fit_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">fit_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="p">)</span>
                                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
-    
+
 <div class="viewcode-block" id="TensorCollection.is_fit_to_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.is_fit_to_structure">[docs]</a>    <span class="k">def</span> <span class="nf">is_fit_to_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">is_fit_to_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">voigt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">voigt</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ranks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">rank</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
@@ -752,7 +752,7 @@
     <span class="k">return</span> <span class="n">unique_tdict</span></div>
 
 
-<div class="viewcode-block" id="get_tkd_value"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.get_tkd_value">[docs]</a><span class="k">def</span> <span class="nf">get_tkd_value</span><span class="p">(</span><span class="n">tensor_keyed_dict</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">allclose_kwargs</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="get_tkd_value"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.get_tkd_value">[docs]</a><span class="k">def</span> <span class="nf">get_tkd_value</span><span class="p">(</span><span class="n">tensor_keyed_dict</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">allclose_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to find a value in a tensor-keyed-</span>
 <span class="sd">    dictionary using an approximation to the key.  This</span>
@@ -761,13 +761,15 @@
 <span class="sd">    (e. g. from symmetry_reduce).  Resolves most</span>
 <span class="sd">    hashing issues, and is preferable to redefining</span>
 <span class="sd">    eq methods in the base tensor class.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        tensor_keyed_dict (dict): dict with Tensor keys</span>
 <span class="sd">        tensor (Tensor): tensor to find value of in the dict</span>
 <span class="sd">        allclose_kwargs (dict): dict of keyword-args</span>
 <span class="sd">            to pass to allclose.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">allclose_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">allclose_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">tkey</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tensor_keyed_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tkey</span><span class="p">,</span> <span class="o">**</span><span class="n">allclose_kwargs</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">value</span></div>
@@ -803,7 +805,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.4.6 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

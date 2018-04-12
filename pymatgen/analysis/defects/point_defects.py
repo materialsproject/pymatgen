@@ -16,22 +16,22 @@ __email__ = "mbkumar@gmail.com, n.zimmermann@tuhh.de"
 __status__ = "Production"
 __date__ = "Nov 28, 2016"
 
-import os
 import abc
-import json
 import itertools
 import numpy as np
 import warnings
 import logging
+import six
+import pandas as pd
 from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
-from bisect import bisect_left
 
 from pymatgen.core.periodic_table import Specie, Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
+from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
@@ -45,11 +45,17 @@ from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
+from monty.dev import requires
 
-import six
+try:
+    from skimage.feature import peak_local_max
+
+    peak_local_max_found = True
+except ImportError:
+    peak_local_max_found = False
+
 from six.moves import filter
 from six.moves import map
-from six.moves import zip
 
 logger = logging.getLogger(__name__)
 
@@ -666,7 +672,7 @@ class Interstitial(Defect):
                 #    i += 1
                 i -= 1
             ind += 1
-        # print self.defectsite_count()
+            # print self.defectsite_count()
 
     def _supercell_with_defect(self, scaling_matrix, defect_site, element):
         sc = self._structure.copy()
@@ -1487,14 +1493,18 @@ class StructureMotifInterstitial(Defect):
                             motif_type = "unrecognized"
                             if "tet" in motif_types:
                                 if nneighs == 4 and \
-                                        opvals[motif_types.index("tet")] > \
-                                        op_threshs[motif_types.index("tet")]:
+                                                opvals[
+                                                    motif_types.index("tet")] > \
+                                                op_threshs[
+                                                    motif_types.index("tet")]:
                                     motif_type = "tet"
                                     this_op = opvals[motif_types.index("tet")]
                             if "oct" in motif_types:
                                 if nneighs == 6 and \
-                                        opvals[motif_types.index("oct")] > \
-                                        op_threshs[motif_types.index("oct")]:
+                                                opvals[
+                                                    motif_types.index("oct")] > \
+                                                op_threshs[
+                                                    motif_types.index("oct")]:
                                     motif_type = "oct"
                                     this_op = opvals[motif_types.index("oct")]
 
@@ -1585,7 +1595,7 @@ class StructureMotifInterstitial(Defect):
             discard_motif = []
             for indi, i in enumerate(include):
                 if trialsites[i]["mtype"] != motif or \
-                        i in discard_motif:
+                                i in discard_motif:
                     continue
                 multiplicity[i] = 1
                 symposlist = [trialsites[i]["fracs"].dot(
@@ -1595,7 +1605,7 @@ class StructureMotifInterstitial(Defect):
                 for indj in range(indi + 1, len(include)):
                     j = include[indj]
                     if trialsites[j]["mtype"] != motif or \
-                            j in discard_motif:
+                                    j in discard_motif:
                         continue
                     for sympos in symposlist:
                         dist, image = struct.lattice.get_distance_and_image(
@@ -2054,6 +2064,312 @@ class VoronoiPolyhedron(object):
 
     def __str__(self):
         return "Voronoi polyhedron %s" % self.name
+
+
+class ChgDenAnalyzer:
+    """
+    Analyzer to find potential interstitial sites based on charge density. The
+    `total` charge density is used.
+    """
+
+    def __init__(self, chgcar):
+        """
+        Initialization.
+
+        Args:
+            chgcar (pmg.Chgcar): input Chgcar object.
+        """
+        self.chgcar = chgcar
+        self.structure = chgcar.structure
+        self.extrema_coords = []  # list of frac_coords of local extrema
+        self.extrema_type = None  # "local maxima" or "local minima"
+        self._extrema_df = None  # extrema frac_coords - chg density table
+        self._charge_distribution_df = None  # frac_coords - chg density table
+
+    @classmethod
+    def from_file(cls, chgcar_filename):
+        chgcar = Chgcar.from_file(chgcar_filename)
+        return cls(chgcar=chgcar)
+
+    @property
+    def charge_distribution_df(self):
+        if self._charge_distribution_df is None:
+            return self._get_charge_distribution_df()
+        else:
+            return self._charge_distribution_df
+
+    @property
+    def extrema_df(self):
+        if self.extrema_type is None:
+            logger.warning("Please run ChgDenAnalyzer.get_local_extrema first!")
+        return self._extrema_df
+
+    def _get_charge_distribution_df(self):
+        """
+        Return a complete table of fractional coordinates - charge density.
+        """
+        # Fraction coordinates and corresponding indices
+        axis_grid = np.array(
+            [np.array(self.chgcar.get_axis_grid(i)) /
+             self.structure.lattice.abc[i] for i in range(3)])
+        axis_index = np.array([range(len(axis_grid[i])) for i in range(3)])
+
+        data = {}
+
+        for index in itertools.product(*axis_index):
+            a, b, c = index
+            f_coords = (axis_grid[0][a], axis_grid[1][b], axis_grid[2][c])
+            data[f_coords] = self.chgcar.data["total"][a][b][c]
+
+        # Fraction coordinates - charge density table
+        df = pd.Series(data).reset_index()
+        df.columns = ['a', 'b', 'c', 'Charge Density']
+        self._charge_distribution_df = df
+
+        return df
+
+    def _update_extrema(self, f_coords, extrema_type,
+                        threshold_frac=None, threshold_abs=None):
+        """Update _extrema_df, extrema_type and extrema_coords"""
+
+        if threshold_frac is not None:
+            if threshold_abs is not None:
+                logger.warning(  # Exit if both filter are set
+                    "Filter can be either threshold_frac or threshold_abs!")
+                return
+            assert 0 <= threshold_frac <= 1, "threshold_frac range is [0, 1]!"
+
+        # Return empty result if coords list is empty
+        if len(f_coords) == 0:
+            df = pd.DataFrame({}, columns=['A', 'B', 'C', "Chgcar"])
+            self._extrema_df = df
+            self.extrema_coords = []
+            logger.info("Find {} {}.".format(len(df), extrema_type))
+            return
+
+        data = {}
+        unit = 1 / np.array(self.chgcar.dim)  # pixel along a, b, c
+
+        for fc in f_coords:
+            a, b, c = tuple(map(int, fc / unit))
+            data[tuple(fc)] = self.chgcar.data["total"][a][b][c]
+
+        df = pd.Series(data).reset_index()
+        df.columns = ['a', 'b', 'c', 'Charge Density']
+        ascending = (extrema_type == "local minima")
+
+        if threshold_abs is None:
+            threshold_frac = threshold_frac \
+                if threshold_frac is not None else 1.0
+            num_extrema = int(threshold_frac * len(f_coords))
+            df = df.sort_values(by="Charge Density",
+                                ascending=ascending)[0: num_extrema]
+            df.reset_index(drop=True, inplace=True)  # reset major index
+        else:  # threshold_abs is set
+            df = df.sort_values(by="Charge Density", ascending=ascending)
+            df = df[df["Charge Density"] <= threshold_abs] if ascending \
+                else df[df["Charge Density"] >= threshold_abs]
+
+        extrema_coords = []
+        for row in df.iterrows():
+            fc = np.array(row[1]["a": "c"])
+            extrema_coords.append(fc)
+
+        self._extrema_df = df
+        self.extrema_type = extrema_type
+        self.extrema_coords = extrema_coords
+        logger.info("Find {} {}.".format(len(df), extrema_type))
+
+    @requires(peak_local_max_found,
+              "get_local_extrema requires skimage.feature.peak_local_max module"
+              " to be installed. Please confirm your skimage installation.")
+    def get_local_extrema(self, find_min=True,
+                          threshold_frac=None, threshold_abs=None):
+        """
+        Get all local extrema fractional coordinates in charge density,
+        searching for local minimum by default. Note that sites are NOT grouped
+        symmetrically.
+
+        Args:
+            find_min (bool): True to find local minimum else maximum, otherwise
+                find local maximum.
+
+            threshold_frac (float): optional fraction of extrema shown, which
+                returns `threshold_frac * tot_num_extrema` extrema fractional
+                coordinates based on highest/lowest intensity.
+
+                E.g. set 0.2 to show the extrema with 20% highest or lowest
+                intensity. Value range: 0 <= threshold_frac <= 1
+
+                Note that threshold_abs and threshold_frac should not set in the
+                same time.
+
+            threshold_abs (float): optional filter. When searching for local
+                minima, intensity <= threshold_abs returns; when searching for
+                local maxima, intensity >= threshold_abs returns.
+
+                Note that threshold_abs and threshold_frac should not set in the
+                same time.
+
+        Returns:
+            extrema_coords (list): list of fractional coordinates corresponding
+                to local extrema.
+        """
+        sign, extrema_type = 1, "local maxima"
+
+        if find_min:
+            sign, extrema_type = -1, "local minima"
+
+        # Make 3x3x3 supercell
+        # This is a trick to resolve the periodical boundary issue.
+        total_chg = sign * self.chgcar.data["total"]
+        total_chg = np.tile(total_chg, reps=(3, 3, 3))
+        coordinates = peak_local_max(total_chg, min_distance=1)
+
+        # Remove duplicated sites introduced by supercell.
+        f_coords = [coord / total_chg.shape * 3 for coord in coordinates]
+        f_coords = [f - 1 for f in f_coords if
+                    all(np.array(f) < 2) and all(np.array(f) >= 1)]
+
+        # Update information
+        self._update_extrema(f_coords, extrema_type,
+                             threshold_frac=threshold_frac,
+                             threshold_abs=threshold_abs)
+
+        return self.extrema_coords
+
+    def cluster_nodes(self, tol=0.2):
+        """
+        Cluster nodes that are too close together using a tol.
+
+        Args:
+            tol (float): A distance tolerance. PBC is taken into account.
+        """
+        lattice = self.structure.lattice
+        vf_coords = self.extrema_coords
+
+        if len(vf_coords) == 0:
+            if self.extrema_type is None:
+                logger.warning(
+                    "Please run ChgDenAnalyzer.get_local_extrema first!")
+                return
+            new_f_coords = []
+            self._update_extrema(new_f_coords, self.extrema_type)
+            return new_f_coords
+
+        # Manually generate the distance matrix (which needs to take into
+        # account PBC.
+        dist_matrix = np.array(lattice.get_all_distances(vf_coords, vf_coords))
+        dist_matrix = (dist_matrix + dist_matrix.T) / 2
+
+        for i in range(len(dist_matrix)):
+            dist_matrix[i, i] = 0
+        condensed_m = squareform(dist_matrix)
+        z = linkage(condensed_m)
+        cn = fcluster(z, tol, criterion="distance")
+        merged_fcoords = []
+
+        for n in set(cn):
+            frac_coords = []
+            for i, j in enumerate(np.where(cn == n)[0]):
+                if i == 0:
+                    frac_coords.append(self.extrema_coords[j])
+                else:
+                    f_coords = self.extrema_coords[j]
+                    # We need the image to combine the frac_coords properly.
+                    d, image = lattice.get_distance_and_image(frac_coords[0],
+                                                              f_coords)
+                    frac_coords.append(f_coords + image)
+            merged_fcoords.append(np.average(frac_coords, axis=0))
+
+        self._update_extrema(merged_fcoords, extrema_type=self.extrema_type)
+        logger.debug(
+            "{} vertices after combination.".format(len(self.extrema_coords)))
+
+    def remove_collisions(self, min_dist=0.5):
+        """
+        Remove predicted sites that are too close to existing atoms in the
+        structure.
+
+        Args:
+            min_dist (float): The minimum distance (in Angstrom) that
+                a predicted site needs to be from existing atoms. A min_dist
+                with value <= 0 returns all sites without distance checking.
+        """
+        s_f_coords = self.structure.frac_coords
+        f_coords = self.extrema_coords
+        if len(f_coords) == 0:
+            if self.extrema_type is None:
+                logger.warning(
+                    "Please run ChgDenAnalyzer.get_local_extrema first!")
+                return
+            new_f_coords = []
+            self._update_extrema(new_f_coords, self.extrema_type)
+            return new_f_coords
+
+        dist_matrix = self.structure.lattice.get_all_distances(f_coords,
+                                                               s_f_coords)
+        all_dist = np.min(dist_matrix, axis=1)
+        new_f_coords = []
+
+        for i, f in enumerate(f_coords):
+            if all_dist[i] > min_dist:
+                new_f_coords.append(f)
+        self._update_extrema(new_f_coords, self.extrema_type)
+
+        return new_f_coords
+
+    def get_structure_with_nodes(self, find_min=True, min_dist=0.5, tol=0.2,
+                                 threshold_frac=None, threshold_abs=None):
+        """
+        Get the modified structure with the possible interstitial sites added.
+        The species is set as a DummySpecie X.
+
+        Args:
+            find_min (bool): True to find local minimum else maximum, otherwise
+                find local maximum.
+
+            min_dist (float): The minimum distance (in Angstrom) that
+                a predicted site needs to be from existing atoms. A min_dist
+                with value <= 0 returns all sites without distance checking.
+
+            tol (float): A distance tolerance of nodes clustering that sites too
+                closed to other predicted sites will be merged. PBC is taken
+                into account.
+
+            threshold_frac (float): optional fraction of extrema, which returns
+                `threshold_frac * tot_num_extrema` extrema fractional
+                coordinates based on highest/lowest intensity.
+
+                E.g. set 0.2 to insert DummySpecie atom at the extrema with 20%
+                highest or lowest intensity.
+                Value range: 0 <= threshold_frac <= 1
+
+                Note that threshold_abs and threshold_frac should not set in the
+                same time.
+
+            threshold_abs (float): optional filter. When searching for local
+                minima, intensity <= threshold_abs returns; when searching for
+                local maxima, intensity >= threshold_abs returns.
+
+                Note that threshold_abs and threshold_frac should not set in the
+                same time.
+
+        Returns:
+            structure (Structure)
+        """
+
+        structure = self.structure.copy()
+        self.get_local_extrema(find_min=find_min,
+                               threshold_frac=threshold_frac,
+                               threshold_abs=threshold_abs)
+
+        self.remove_collisions(min_dist)
+        self.cluster_nodes(tol=tol)
+        for fc in self.extrema_coords:
+            structure.append("X", fc)
+
+        return structure
 
 
 def calculate_vol(coords):
