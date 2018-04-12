@@ -361,8 +361,10 @@ class BZT_Interpolator(object):
     def pockets_finder(self,bands,vbm_idx):
         
         
-        def get_energy(kpt,bnd,equivalences,lattvec,coeffs):
-            return fite.getBands(kpt[np.newaxis,:], equivalences, lattvec, coeffs)[0][bnd]
+        def get_energy(kpt,bnd,cbm,equivalences,lattvec,coeffs):
+            sign = -1 if cbm == False else 1
+            return sign*fite.getBands(kpt[np.newaxis,:], 
+                                      equivalences, lattvec, coeffs)[0][bnd]
             
         R = []
         for i in it.combinations_with_replacement([0,0.05,-0.05],3):
@@ -371,7 +373,7 @@ class BZT_Interpolator(object):
                     R.append(j)
         R=R[1:]
         out = []
-        print('ok')
+        print('okk')
         
         for bnd in bands:
             out.append([])
@@ -389,7 +391,7 @@ class BZT_Interpolator(object):
                         nit=0
                         while suc == False:
                             res=minimize(get_energy,xkpt[np.newaxis,:],
-                                            args=(bnd,self.equivalences,
+                                            args=(bnd,cbm,self.equivalences,
                                                   self.data.lattvec, self.coeffs),
                                             method='BFGS',tol=1e-06)
                             suc=res.success
@@ -400,7 +402,7 @@ class BZT_Interpolator(object):
                         found = True
                         
                         for r in R:
-                            if ene > get_energy(xkpt,bnd,self.equivalences,
+                            if ene > get_energy(xkpt,bnd,cbm,self.equivalences,
                                                   self.data.lattvec, self.coeffs):
                                 found = False
                                 break
