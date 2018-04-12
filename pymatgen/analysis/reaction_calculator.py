@@ -363,7 +363,7 @@ class Reaction(BalancedReaction):
                 # try a solution
                 coeffs, res, _, s = np.linalg.lstsq(f_mat.T, b, rcond=None)
                 if sum(np.abs(s) > 1e-12) == len(self._all_comp) and \
-                        (not res or res[0] < self.TOLERANCE ** 2):
+                        (res.size == 0 or res[0] < self.TOLERANCE ** 2):
                     ok = True
                     break
 
@@ -398,6 +398,7 @@ class Reaction(BalancedReaction):
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
         return cls(reactants, products)
+
 
 class ReactionError(Exception):
     """

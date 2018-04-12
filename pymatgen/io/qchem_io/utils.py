@@ -23,7 +23,8 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
             are lists of lists, because you can grep multiple items on one line.
     """
 
-    compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
+    compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL)
+                for key, pattern in patterns.items()}
     matches = defaultdict(list)
     for key, pattern in compiled.items():
         for match in pattern.finditer(text_str):
