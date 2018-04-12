@@ -24,6 +24,7 @@ except ImportError:
 from itertools import groupby
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp, DummySpecie
 from monty.io import zopen
+from monty.dev import requires
 from pymatgen.util.coord import in_coord_list_pbc, pbc_diff, \
     find_in_coord_list_pbc
 from monty.string import remove_non_ascii
@@ -42,6 +43,7 @@ try:
 except ImportError:
     warnings.warn("Please install optional dependency pybtex if you"
                   "want to extract references from CIF files.")
+    BibliographyData, Entry = None, None
 
 """
 Wrapper classes for Cif input and output from Structures.
@@ -78,6 +80,14 @@ def _get_cod_data():
 
     return _COD_DATA
 
+
+upper_case_elements = ['AC', 'AG', 'AL', 'AM', 'AR', 'AS', 'AT', 'AU', 'BA', 'BE', 'BI', 'BK', 'BR', 'CA',
+                       'CD', 'CE', 'CF', 'CL', 'CM', 'CO', 'CR', 'CS', 'CU', 'DY', 'ER', 'ES', 'EU', 'FE',
+                       'FM', 'FR', 'GA', 'GD', 'GE', 'HE', 'HF', 'HG', 'HO', 'IN', 'IR', 'KR', 'LA', 'LI',
+                       'LR', 'LU', 'MD', 'MG', 'MN', 'MO', 'NA', 'NB', 'ND', 'NE', 'NI', 'NO', 'NP', 'OS',
+                       'PA', 'PB', 'PD', 'PM', 'PO', 'PR', 'PT', 'PU', 'RA', 'RB', 'RE', 'RH', 'RN', 'RU',
+                       'SB', 'SC', 'SE', 'SI', 'SM', 'SN', 'SR', 'TA', 'TB', 'TC', 'TE', 'TH', 'TI', 'TL',
+                       'TM', 'XE', 'YB', 'ZN', 'ZR']
 
 class CifBlock(object):
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
@@ -317,6 +327,7 @@ class CifParser(object):
         # store if CIF contains features from non-core CIF dictionaries
         # e.g. magCIF
         self.feature_flags = {}
+        self.errors = []
 
         def is_magcif():
             """
@@ -533,6 +544,36 @@ class CifParser(object):
             for final_key, interim_key in changes_to_make.items():
                 data.data[final_key] = data.data[interim_key]
 
+        """
+        This part of the code deals with cases where _atom_site_type_symbol
+        contains symbols with all capital letters (e.g. CA instead of Ca).
+        Common in the COD database.
+        """
+
+        if "_atom_site_type_symbol" in data.data.keys():
+            # _atom_site_type_symbol capitalization with str.title().
+            # Some exception will remain with both capital letters.
+            no_capitalization_symbols = ["OH", "NH"]
+            new_atom_site_type_symbols = []
+            for sym in data.data["_atom_site_type_symbol"]:
+                if any(sym.startswith(c) for c in no_capitalization_symbols):
+                    new_atom_site_type_symbols.append(sym)
+                else:
+                    new_atom_site_type_symbols.append(sym.title())
+
+            data.data["_atom_site_type_symbol"] = new_atom_site_type_symbols
+        elif '_atom_site_label' in data.data.keys():
+            r = re.compile("|".join(upper_case_elements))
+
+            for i, sym in enumerate(data.data['_atom_site_label']):
+                match = r.match(sym)
+                if match:
+                    new_sym = sym.replace(match.group(), match.group().title())
+                    msg = "label {} converted to {}".format(sym, new_sym)
+                    warnings.warn(msg)
+                    self.errors.append(msg)
+                    data.data['_atom_site_label'][i] = new_sym
+
         return data
 
     def _unique_coords(self, coords_in, magmoms_in=None, lattice=None):
@@ -612,6 +653,7 @@ class CifParser(object):
                         return self.get_lattice(data, lengths, angles,
                                                 lattice_type=lattice_type)
                     except AttributeError as exc:
+                        self.errors.append(str(exc))
                         warnings.warn(exc)
 
                 else:
@@ -631,7 +673,9 @@ class CifParser(object):
             if data.data.get(symmetry_label):
                 xyz = data.data.get(symmetry_label)
                 if isinstance(xyz, six.string_types):
-                    warnings.warn("A 1-line symmetry op P1 CIF is detected!")
+                    msg = "A 1-line symmetry op P1 CIF is detected!"
+                    warnings.warn(msg)
+                    self.errors.append(msg)
                     xyz = [xyz]
                 try:
                     symops = [SymmOp.from_xyz_string(s)
@@ -661,9 +705,10 @@ class CifParser(object):
                         spg = space_groups.get(sg)
                         if spg:
                             symops = SpaceGroup(spg).symmetry_ops
-                            warnings.warn(
-                                "No _symmetry_equiv_pos_as_xyz type key found. "
-                                "Spacegroup from %s used." % symmetry_label)
+                            msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
+                                    "Spacegroup from %s used." % symmetry_label
+                            warnings.warn(msg)
+                            self.errors.append(msg)
                             break
                     except ValueError:
                         # Ignore any errors
@@ -676,9 +721,10 @@ class CifParser(object):
                                 xyz = d["symops"]
                                 symops = [SymmOp.from_xyz_string(s)
                                           for s in xyz]
-                                warnings.warn(
-                                    "No _symmetry_equiv_pos_as_xyz type key found. "
-                                    "Spacegroup from %s used." % symmetry_label)
+                                msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
+                                        "Spacegroup from %s used." % symmetry_label
+                                warnings.warn(msg)
+                                self.errors.append(msg)
                                 break
                     except Exception as ex:
                         continue
@@ -700,8 +746,10 @@ class CifParser(object):
                         continue
 
         if not symops:
-            warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. "
-                          "Defaulting to P1.")
+            msg = "No _symmetry_equiv_pos_as_xyz type key found. " \
+                  "Defaulting to P1."
+            warnings.warn(msg)
+            self.errors.append(msg)
             symops = [SymmOp.from_xyz_string(s) for s in ['x', 'y', 'z']]
 
         return symops
@@ -770,8 +818,9 @@ class CifParser(object):
             magsymmops = msg.symmetry_ops
 
         if not magsymmops:
-            warnings.warn(
-                "No magnetic symmetry detected, using primitive symmetry.")
+            msg = "No magnetic symmetry detected, using primitive symmetry."
+            warnings.warn(msg)
+            self.errors.append(msg)
             magsymmops = [MagSymmOp.from_xyzt_string("x, y, z, 1")]
 
         return magsymmops
@@ -833,7 +882,9 @@ class CifParser(object):
                 else:
                     v = special.get(m[0], m[0])
                 if len(m) > 1 or (m[0] in special):
-                    warnings.warn("{} parsed as {}".format(sym, v))
+                    msg = "{} parsed as {}".format(sym, v)
+                    warnings.warn(msg)
+                    self.errors.append(msg)
                 return v
 
         def get_num_implicit_hydrogens(sym):
@@ -927,9 +978,10 @@ class CifParser(object):
         sum_occu = [sum(c.values()) for c in coord_to_species.values()
                     if not set(c.elements) == {Element("O"), Element("H")}]
         if any([o > 1 for o in sum_occu]):
-            warnings.warn(
-                "Some occupancies (%s) sum to > 1! If they are within "
-                "the tolerance, they will be rescaled." % str(sum_occu))
+            msg = "Some occupancies (%s) sum to > 1! If they are within " \
+                    "the tolerance, they will be rescaled." % str(sum_occu)
+            warnings.warn(msg)
+            self.errors.append(msg)
 
         allspecies = []
         allcoords = []
@@ -1031,11 +1083,13 @@ class CifParser(object):
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
+                self.errors.append(str(exc))
                 warnings.warn(str(exc))
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
 
+    @requires(BibliographyData, "Bibliographic data extraction requires pybtex.")
     def get_bibtex_string(self):
         """
         Get BibTeX reference from CIF file.
@@ -1095,6 +1149,10 @@ class CifParser(object):
             for k2, v2 in v.data.items():
                 d[k][k2] = v2
         return d
+
+    @property
+    def has_errors(self):
+        return len(self.errors) > 0
 
 
 class CifWriter(object):
