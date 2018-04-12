@@ -1665,11 +1665,10 @@ def get_integer_index(miller_index):
     """
     Converts a vector of floats to whole numbers
     """
-    md = [Fraction(n).limit_denominator(12).denominator
-          for i, n in enumerate(miller_index)]
+    md = [Fraction(n).limit_denominator(12).denominator for n in miller_index]
     miller_index *= reduce(lambda x, y: x * y, md)
     round_miller_index = np.int_(np.round(miller_index, 1))
-    if any([i > 1e-6 for i in abs(miller_index - round_miller_index)]):
+    if np.any(np.abs(miller_index - round_miller_index) > 1e-6):
         warnings.warn("Non-integer encountered in Miller index")
 
     return miller_index / np.abs(reduce(gcd, round_miller_index))
