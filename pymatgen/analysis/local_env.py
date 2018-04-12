@@ -34,8 +34,7 @@ from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.core.structure import Structure
 from pymatgen.util.num import abs_cap
-from pymatgen.analysis.bond_valence import BV_PARAMS
-
+from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
