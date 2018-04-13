@@ -2072,30 +2072,22 @@ class LocalStructOrderParas(object):
 
         return ops
 
+class BrunnerNN_reciprocal(NearNeighbors):
 
-class BrunnerNN(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
-    interatomic distances.
-
-    Note: Might be highly inaccurate in certain cases.
+    interatomic distances. This algorithm uses Brunner's method of
+    largest reciprocal gap in interatomic distances.
 
     Args:
-        mode (str): type of neighbor-finding approach, where "reciprocal"
-            will use Brunner's method of largest reciprocal gap in
-            interatomic distances, "relative" will use Brunner's method of largest
-            relative gap in interatomic distances, and "real" will use Brunner's
-            method of largest gap in interatomic distances.
-            Defaults to "reciprocal" method.
         tol (float): tolerance parameter for bond determination
             (default: 1E-4).
         cutoff (float): cutoff radius in Angstrom to look for near-neighbor
             atoms. Defaults to 8.0.
     """
 
-    def __init__(self, mode="reciprocal", tol=1.0e-4, cutoff=8.0):
-        self.mode = mode
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
         self.tol = tol
         self.cutoff = cutoff
         self._cns = {}
@@ -2107,14 +2099,87 @@ class BrunnerNN(NearNeighbors):
         ds = [i[-1] for i in neighs_dists]
         ds.sort()
 
-        if self.mode == "reciprocal":
-            ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
-        elif self.mode == "relative":
-            ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
-        elif self.mode == "real":
-            ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
-        else:
-            raise ValueError("Unknown Brunner CN mode.")
+        ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
+
+        d_max = ds[ns.index(max(ns))]
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < d_max + self.tol:
+                w = ds[0] / dist
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
+        return siw
+
+class BrunnerNN_relative(NearNeighbors):
+
+    """
+    Determine coordination number using Brunner's algorithm which counts the
+    atoms that are within the largest gap in differences in real space
+    interatomic distances. This algorithm uses Brunner's method of
+    of largest relative gap in interatomic distances.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1E-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 8.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
+        self.tol = tol
+        self.cutoff = cutoff
+        self._cns = {}
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        ds = [i[-1] for i in neighs_dists]
+        ds.sort()
+
+        ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
+
+        d_max = ds[ns.index(max(ns))]
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < d_max + self.tol:
+                w = ds[0] / dist
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
+        return siw
+
+class BrunnerNN_real(NearNeighbors):
+
+    """
+    Determine coordination number using Brunner's algorithm which counts the
+    atoms that are within the largest gap in differences in real space
+    interatomic distances. This algorithm uses Brunner's method of
+    largest gap in interatomic distances.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1E-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 8.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
+        self.tol = tol
+        self.cutoff = cutoff
+        self._cns = {}
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        ds = [i[-1] for i in neighs_dists]
+        ds.sort()
+
+        ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
