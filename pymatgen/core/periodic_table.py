@@ -445,10 +445,7 @@ class Element(Enum):
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
-                                elif (
-                                        item ==
-                                        "coefficient_of_linear_thermal_expansion"
-                                ):
+                                elif item == "coefficient_of_linear_thermal_expansion":
                                     unit = "K^-1"
                                 else:
                                     unit = toks[1]
@@ -898,7 +895,7 @@ class Element(Enum):
         """
         Checks if this element can be quadrupolar
         """
-        return len(self.data.get("NMR Quadrupole Moment",{})) > 0
+        return len(self.data.get("NMR Quadrupole Moment", {})) > 0
 
     @property
     def nmr_quadrupole_moment(self):
@@ -906,7 +903,8 @@ class Element(Enum):
         Get a dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes
         """
-        return {k: FloatWithUnit(v,"mbarn") for k,v in self.data.get("NMR Quadrupole Moment",{}).items()}
+        return {k: FloatWithUnit(v, "mbarn")
+                for k,v in self.data.get("NMR Quadrupole Moment",{}).items()}
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
