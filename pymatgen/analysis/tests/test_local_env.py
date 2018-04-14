@@ -12,7 +12,7 @@ from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
         VoronoiNN, VoronoiNN_modified, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
         get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors, LocalStructOrderParas, BrunnerNN_reciprocal, \
+        NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
         BrunnerNN_real, BrunnerNN_relative , EconNN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
