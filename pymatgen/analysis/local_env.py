@@ -708,7 +708,6 @@ class VoronoiNN_modified(VoronoiNN):
     def get_nn_info(self, structure, n):
         result = super(VoronoiNN_modified, self).get_nn_info(structure, n)
         max_weight = max(i['weight'] for i in result)
-        print [i for i in result if i['weight'] > 0.5 * max_weight]
         return [i for i in result if i['weight'] > 0.5 * max_weight]
 
 
