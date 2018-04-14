@@ -686,14 +686,10 @@ class Element(Enum):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        if self.X != self.X:
-            # Checks whether self.X is NaN.
-            return False
-        elif other.X != other.X:
-            # Checks whether other.X is NaN.
-            return True
-        if self.X != other.X:
-            return self.X < other.X
+        x1 = float("inf") if self.X != self.X else self.X
+        x2 = float("inf") if other.X != other.X else other.X
+        if x1 != x2:
+            return x1 < x2
         else:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
@@ -1033,8 +1029,10 @@ class Specie(MSONable):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state, followed by spin.
         """
-        if self.X != other.X:
-            return self.X < other.X
+        x1 = float("inf") if self.X != self.X else self.X
+        x2 = float("inf") if other.X != other.X else other.X
+        if x1 != x2:
+            return x1 < x2
         elif self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
