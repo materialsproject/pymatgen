@@ -403,11 +403,11 @@ class Element(Enum):
         if "X" in self._data:
             return self._data["X"]
         else:
-            warnings.warn("No electronegativity for %s. Setting to infinity. "
+            warnings.warn("No electronegativity for %s. Setting to NaN. "
                           "This has no physical meaning, and is mainly done to "
                           "avoid errors caused by the code expecting a float."
                           % self.symbol)
-            return float("inf")
+            return float("NaN")
 
     def __getattr__(self, item):
         if item in ["mendeleev_no", "electrical_resistivity",
@@ -686,6 +686,12 @@ class Element(Enum):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
+        if self.X != self.X:
+            # Checks whether self.X is NaN.
+            return False
+        elif other.X != other.X:
+            # Checks whether other.X is NaN.
+            return True
         if self.X != other.X:
             return self.X < other.X
         else:
