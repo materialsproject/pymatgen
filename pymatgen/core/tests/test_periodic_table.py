@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals
 import unittest
 import pickle
 import warnings
+import math
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
@@ -26,6 +27,11 @@ class ElementTestCase(PymatgenTest):
 
         # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
+
+    def test_nan_X(self):
+        self.assertTrue(math.isnan(Element.He.X))
+        els = sorted([Element.He, Element.H, Element.F])
+        self.assertEqual(els, [Element.H, Element.F, Element.He])
 
     def test_dict(self):
         fe = Element.Fe
@@ -288,6 +294,14 @@ class SpecieTestCase(PymatgenTest):
 
         s = Specie("Co", 3).get_crystal_field_spin("tet", spin_config="low")
         self.assertEqual(s, 2)
+
+    def test_get_nmr_mom(self):
+        self.assertEqual(Specie("H").get_nmr_quadrupole_moment(), 2.860)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment(), -0.808)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment("Li-7"), -40.1)
+        self.assertEqual(Specie("Si").get_nmr_quadrupole_moment(), 0.0)
+        self.assertRaises(ValueError, Specie("Li").get_nmr_quadrupole_moment,
+                          "Li-109")
 
     def test_get_shannon_radius(self):
         self.assertEqual(Specie("Li", 1).get_shannon_radius("IV"), 0.59)

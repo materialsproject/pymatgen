@@ -403,11 +403,11 @@ class Element(Enum):
         if "X" in self._data:
             return self._data["X"]
         else:
-            warnings.warn("No electronegativity for %s. Setting to infinity. "
+            warnings.warn("No electronegativity for %s. Setting to NaN. "
                           "This has no physical meaning, and is mainly done to "
                           "avoid errors caused by the code expecting a float."
                           % self.symbol)
-            return float("inf")
+            return float("NaN")
 
     def __getattr__(self, item):
         if item in ["mendeleev_no", "electrical_resistivity",
@@ -445,10 +445,7 @@ class Element(Enum):
                                 toks[0] += factor
                                 if item == "electrical_resistivity":
                                     unit = "ohm m"
-                                elif (
-                                        item ==
-                                        "coefficient_of_linear_thermal_expansion"
-                                ):
+                                elif item == "coefficient_of_linear_thermal_expansion":
                                     unit = "K^-1"
                                 else:
                                     unit = toks[1]
@@ -461,7 +458,7 @@ class Element(Enum):
                                 if set(units.keys()).issubset(
                                         SUPPORTED_UNIT_NAMES):
                                     val = FloatWithUnit(toks[0], unit)
-                        except ValueError as ex:
+                        except ValueError:
                             # Ignore error. val will just remain a string.
                             pass
             return val
@@ -686,8 +683,10 @@ class Element(Enum):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        if self.X != other.X:
-            return self.X < other.X
+        x1 = float("inf") if self.X != self.X else self.X
+        x2 = float("inf") if other.X != other.X else other.X
+        if x1 != x2:
+            return x1 < x2
         else:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
@@ -799,21 +798,17 @@ class Element(Enum):
         """
         Return the block character "s,p,d,f"
         """
-        block = ""
-        if (self.is_actinoid or self.is_lanthanoid) and \
-                self.Z not in [71, 103]:
-            block = "f"
+        if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
+            return "f"
         elif self.is_actinoid or self.is_lanthanoid:
-            block = "d"
+            return "d"
         elif self.group in [1, 2]:
-            block = "s"
+            return "s"
         elif self.group in range(13, 19):
-            block = "p"
+            return "p"
         elif self.group in range(3, 13):
-            block = "d"
-        else:
-            raise ValueError("unable to determine block")
-        return block
+            return "d"
+        raise ValueError("unable to determine block")
 
     @property
     def is_noble_gas(self):
@@ -890,6 +885,22 @@ class Element(Enum):
         True if element is a actinoid.
         """
         return 88 < self.Z < 104
+
+    @property
+    def is_quadrupolar(self):
+        """
+        Checks if this element can be quadrupolar
+        """
+        return len(self.data.get("NMR Quadrupole Moment", {})) > 0
+
+    @property
+    def nmr_quadrupole_moment(self):
+        """
+        Get a dictionary the nuclear electric quadrupole moment in units of
+        e*millibarns for various isotopes
+        """
+        return {k: FloatWithUnit(v, "mbarn")
+                for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
 
     def __deepcopy__(self, memo):
         return Element(self.symbol)
@@ -993,8 +1004,8 @@ class Specie(MSONable):
         exactly the same.
         """
         return isinstance(other, Specie) and self.symbol == other.symbol \
-               and self.oxi_state == other.oxi_state \
-               and self._properties == other._properties
+            and self.oxi_state == other.oxi_state \
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1012,8 +1023,10 @@ class Specie(MSONable):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state, followed by spin.
         """
-        if self.X != other.X:
-            return self.X < other.X
+        x1 = float("inf") if self.X != self.X else self.X
+        x2 = float("inf") if other.X != other.X else other.X
+        if x1 != x2:
+            return x1 < x2
         elif self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
@@ -1105,6 +1118,31 @@ class Specie(MSONable):
             output += ",%s=%s" % (p, v)
         return output
 
+    def get_nmr_quadrupole_moment(self, isotope=None):
+        """
+        Gets the nuclear electric quadrupole moment in units of
+        e*millibarns
+
+        Args:
+            isotope (str): the isotope to get the quadrupole moment for
+                default is None, which gets the lowest mass isotope
+        """
+
+        quad_mom = self._el.nmr_quadrupole_moment
+
+        if len(quad_mom) == 0:
+            return 0.0
+
+        if isotope is None:
+            isotopes = list(quad_mom.keys())
+            isotopes.sort(key=lambda x: int(x.split("-")[1]), reverse=False)
+            return quad_mom.get(isotopes[0], 0.0)
+        else:
+            if isotope not in quad_mom:
+                raise ValueError("No quadrupole moment for isotope {}".format(
+                    isotope))
+            return quad_mom.get(isotope, 0.0)
+
     def get_shannon_radius(self, cn, spin="", radius_type="ionic"):
         """
         Get the local environment specific ionic radius for species.
@@ -1149,7 +1187,7 @@ class Specie(MSONable):
             if k != spin:
                 warnings.warn(
                     "Specified spin state of %s not consistent with database "
-                    "spin of %s. Because there is only one spin data available, "
+                    "spin of %s. Only one spin data available, and "
                     "that value is returned." % (spin, k)
                 )
         else: 
@@ -1185,7 +1223,7 @@ class Specie(MSONable):
         if nelectrons < 0 or nelectrons > 10:
             raise AttributeError(
                 "Invalid oxidation state {} for element {}"
-                    .format(self.oxi_state, self.symbol))
+                .format(self.oxi_state, self.symbol))
         if spin_config == "high":
             return nelectrons if nelectrons <= 5 else 10 - nelectrons
         elif spin_config == "low":
@@ -1297,8 +1335,8 @@ class DummySpecie(Specie):
         if not isinstance(other, DummySpecie):
             return False
         return isinstance(other, Specie) and self.symbol == other.symbol \
-               and self.oxi_state == other.oxi_state \
-               and self._properties == other._properties
+            and self.oxi_state == other.oxi_state \
+            and self._properties == other._properties
 
     def __ne__(self, other):
         return not self.__eq__(other)

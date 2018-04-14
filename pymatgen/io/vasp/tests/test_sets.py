@@ -182,12 +182,29 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertEqual(MPRelaxSet(struct).incar['LDAUU'], [5.3, 0, 0])
 
         # test for default LDAUU value
-
         userset_ldauu_fallback = MPRelaxSet(struct,
                                             user_incar_settings={
                                                 'LDAUU': {'Fe': 5.0, 'S': 0}}
                                             )
         self.assertEqual(userset_ldauu_fallback.incar['LDAUU'], [5.0, 0, 0])
+        
+        # Expected to be oxide (O is the most electronegative atom)
+        s = Structure(lattice, ["Fe", "O", "S"], coords)
+        incar = MITRelaxSet(s).incar
+        self.assertEqual(incar["LDAUU"], [4.0, 0, 0])
+
+        # Expected to be chloride (Cl is the most electronegative atom)
+        s = Structure(lattice, ["Fe", "Cl", "S"], coords)
+        incar = MITRelaxSet(s, user_incar_settings={"LDAU": True}).incar
+        self.assertFalse("LDAUU" in incar)  # LDAU = False
+
+        # User set a compound to be sulfide by specifing values of "LDAUL" etc.
+        s = Structure(lattice, ["Fe", "Cl", "S"], coords)
+        incar = MITRelaxSet(s, user_incar_settings={"LDAU": True,
+                                                    "LDAUL": {"Fe": 3},
+                                                    "LDAUU": {"Fe": 1.8}}).incar
+        self.assertEqual(incar["LDAUL"], [3.0, 0, 0])
+        self.assertEqual(incar["LDAUU"], [1.8, 0, 0])
 
         # test that van-der-Waals parameters are parsed correctly
         incar = MITRelaxSet(struct, vdw='optB86b').incar
@@ -205,9 +222,10 @@ class MITMPRelaxSetTest(unittest.TestCase):
         latt = Lattice(np.array([[3.8401979337, 0.00, 0.00],
                                  [1.9200989668, 3.3257101909, 0.00],
                                  [0.00, -2.2171384943, 3.1355090603]]))
-        struct = Structure(latt, [si, si], coords,charge=1)
+        struct = Structure(latt, [si, si], coords, charge=1)
         mpr = MPRelaxSet(struct)
-        self.assertEqual(mpr.incar["NELECT"],mpr.nelect+1,"NELECT not properly set for nonzero charge")
+        self.assertEqual(mpr.incar["NELECT"], mpr.nelect+1,
+                         "NELECT not properly set for nonzero charge")
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
@@ -582,6 +600,31 @@ class MPSOCSetTest(PymatgenTest):
         self.assertEqual(vis.incar["SAXIS"], [1, 0, 0])
         self.assertEqual(vis.incar["MAGMOM"], [[0, 0, 3]])
         self.assertEqual(vis.incar['SIGMA'], 0.025)
+
+
+class MPNMRSetTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_incar(self):
+        filepath = os.path.join(test_dir, 'Li.cif')
+        structure = Structure.from_file(filepath)
+
+        vis = MPNMRSet(structure)
+        self.assertTrue(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), None)
+
+        vis = MPNMRSet(structure, mode="efg")
+        self.assertFalse(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), [-0.808])
+
+        vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
+        self.assertFalse(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), [-40.1])
 
 
 class MVLSlabSetTest(PymatgenTest):

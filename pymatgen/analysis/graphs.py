@@ -9,7 +9,7 @@ import subprocess
 import numpy as np
 import os.path
 
-from pymatgen.analysis.local_env import LocalStructOrderParas
+from pymatgen.analysis.local_env import LocalStructOrderParams
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
@@ -370,7 +370,7 @@ class StructureGraph(MSONable):
                 tmp = cn_opt_params[cn][name][1] \
                     if len(cn_opt_params[cn][name]) > 1 else None
                 params.append(tmp)
-            lostops = LocalStructOrderParas(types, parameters=params)
+            lostops = LocalStructOrderParams(types, parameters=params)
             sites = [self.structure[n]]
             for s in self.get_connected_sites(n):
                 sites.append(s.periodic_site)

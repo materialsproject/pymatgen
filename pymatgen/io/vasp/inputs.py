@@ -128,6 +128,7 @@ class Poscar(MSONable):
                 site_properties["velocities"] = velocities
             if predictor_corrector:
                 site_properties["predictor_corrector"] = predictor_corrector
+            structure = Structure.from_sites(structure)
             self.structure = structure.copy(site_properties=site_properties)
             self.true_names = true_names
             self.comment = structure.formula if comment is None else comment

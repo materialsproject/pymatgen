@@ -17,6 +17,7 @@ import warnings
 import copy
 import os
 import json
+from fractions import Fraction
 
 import numpy as np
 from scipy.spatial.distance import squareform
@@ -25,7 +26,7 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure, Composition
+from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
@@ -90,8 +91,9 @@ class Slab(Structure):
 
     def __init__(self, lattice, species, coords, miller_index,
                  oriented_unit_cell, shift, scale_factor, reorient_lattice=True,
-                 validate_proximity=False, to_unit_cell=False, reconstruction=None,
-                 coords_are_cartesian=False, site_properties=None, energy=None):
+                 validate_proximity=False, to_unit_cell=False,
+                 reconstruction=None, coords_are_cartesian=False,
+                 site_properties=None, energy=None):
         """
         Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
@@ -476,18 +478,20 @@ class Slab(Structure):
         for analysis involving broken bonds and for finding adsorption sites.
 
             Args:
-                tag (bool): Option to adds site attribute "is_surfsite" (bool) to
-                    all sites of slab. Defaults to False
+                tag (bool): Option to adds site attribute "is_surfsite" (bool)
+                    to all sites of slab. Defaults to False
 
             Returns:
-                A dictionary grouping sites on top and bottom of the slab together.
-                    {"top": [sites with indices], "bottom": [sites with indices}
+                A dictionary grouping sites on top and bottom of the slab
+                together.
+                {"top": [sites with indices], "bottom": [sites with indices}
 
         TODO:
             Is there a way to determine site equivalence between sites in a slab
-            and bulk system? This would allow us get the coordination number of a
-            specific site for multi-elemental systems or systems with more than one
-            unequivalent sites. This will allow us to use this for compound systems.
+            and bulk system? This would allow us get the coordination number of
+            a specific site for multi-elemental systems or systems with more
+            than one unequivalent site. This will allow us to use this for
+            compound systems.
         """
 
         from pymatgen.analysis.local_env import VoronoiNN
@@ -683,12 +687,13 @@ class SlabGenerator(object):
                 eventual structure.
             center_slab (bool): Whether to center the slab in the cell with
                 equal vacuum spacing from the top and bottom.
-            in_unit_planes (bool): Whether to set min_slab_size and min_vac_size in
-                units of hkl planes (True) or Angstrom (False/default). Setting in
-                units of planes is useful for ensuring some slabs have a certain
-                nlayer of atoms. e.g. for Cs (100), a 10 Ang slab will result in a
-                slab with only 2 layer of atoms, whereas Fe (100) will have more layer
-                of atoms. By using units of hkl planes instead, we ensure both slabs
+            in_unit_planes (bool): Whether to set min_slab_size and min_vac_size
+                in units of hkl planes (True) or Angstrom (False/default).
+                Setting in units of planes is useful for ensuring some slabs
+                have a certain nlayer of atoms. e.g. for Cs (100), a 10 Ang
+                slab will result in a slab with only 2 layer of atoms, whereas
+                Fe (100) will have more layer of atoms. By using units of hkl
+                planes instead, we ensure both slabs
                 have the same number of atoms. The slab thickness will be in
                 min_slab_size/math.ceil(self._proj_height/dhkl)
                 multiples of oriented unit cells.
@@ -837,8 +842,7 @@ class SlabGenerator(object):
         props = self.oriented_unit_cell.site_properties
         props = {k: v * nlayers_slab for k, v in props.items()}
         frac_coords = self.oriented_unit_cell.frac_coords
-        frac_coords = np.array(frac_coords) +\
-                      np.array([0, 0, -shift])[None, :]
+        frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)
         a, b, c = self.oriented_unit_cell.lattice.matrix
         new_lattice = [a, b, nlayers * c]
@@ -1060,8 +1064,8 @@ class SlabGenerator(object):
                     poly_coord = 0
                     if site.species_string == el:
 
-                        for nn in self.oriented_unit_cell.get_neighbors(site,
-                                                                        blength):
+                        for nn in self.oriented_unit_cell.get_neighbors(
+                                site, blength):
                             if nn[0].species_string == pair[i-1]:
                                 poly_coord += 1
                     cnlist.append(poly_coord)
@@ -1200,6 +1204,7 @@ class SlabGenerator(object):
 
         return nonstoich_slabs
 
+
 module_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(module_dir,
                        "reconstructions_archive.json")) as data_file:
@@ -1268,44 +1273,48 @@ class ReconstructionGenerator(object):
                 following keys and items to ensure compatibility with the
                 ReconstructionGenerator:
 
-                    "name" (str): A descriptive name for the type of reconstruction.
-                        Typically the name will have the type of structure the
-                        reconstruction is for, the Miller index, and Wood's notation
-                        along with anything to describe the reconstruction: e.g.:
+                    "name" (str): A descriptive name for the type of
+                        reconstruction. Typically the name will have the type
+                        of structure the reconstruction is for, the Miller
+                        index, and Wood's notation along with anything to
+                        describe the reconstruction: e.g.:
                         "fcc_110_missing_row_1x2"
-                    "description" (str): A longer description of your reconstruction.
-                        This is to help future contributors who want to add other
-                        types of reconstructions to the archive on pymatgen to check
-                        if the reconstruction already exists. Please read the
-                        descriptions carefully before adding a new type of
-                        reconstruction to ensure it is not in the archive yet.
-                    "reference" (str): Optional reference to where the reconstruction
-                        was taken from or first observed.
+                    "description" (str): A longer description of your
+                        reconstruction. This is to help future contributors who
+                        want to add other types of reconstructions to the
+                        archive on pymatgen to check if the reconstruction
+                        already exists. Please read the descriptions carefully
+                        before adding a new type of reconstruction to ensure it
+                        is not in the archive yet.
+                    "reference" (str): Optional reference to where the
+                        reconstruction was taken from or first observed.
                     "spacegroup" (dict): e.g. {"symbol": "Fm-3m", "number": 225}
                         Indicates what kind of structure is this reconstruction.
                     "miller_index" ([h,k,l]): Miller index of your reconstruction
-                    "Woods_notation" (str): For a reconstruction, the a and b lattice
-                        may change to accomodate the symmetry of the reconstruction.
-                        This notation indicates the change in the vectors relative to
-                        the primitive (p) or conventional (c) slab cell. E.g. p(2x1):
+                    "Woods_notation" (str): For a reconstruction, the a and b
+                        lattice may change to accomodate the symmetry of the
+                        reconstruction. This notation indicates the change in
+                        the vectors relative to the primitive (p) or
+                        conventional (c) slab cell. E.g. p(2x1):
 
-                        Wood, E. A. (1964). Vocabulary of surface crystallography.
-                            Journal of Applied Physics, 35(4), 1306–1312.
+                        Wood, E. A. (1964). Vocabulary of surface
+                        crystallography. Journal of Applied Physics, 35(4),
+                        1306–1312.
 
-                    "transformation_matrix" (numpy array): A 3x3 matrix to transform
-                        the slab. Only the a and b lattice vectors should change while
-                        the c vector remains the same.
-                    "SlabGenerator_parameters" (dict): A dictionary containing the
-                        parameters for the SlabGenerator class excluding the
-                        miller_index, min_slab_size and min_vac_size as the Miller
-                        index is already specified and the min_slab_size and
-                        min_vac_size can be changed regardless of what type of
-                        reconstruction is used. Having a consistent set of
-                        SlabGenerator parameters allows for the instructions to be
-                        reused to consistently build a reconstructed slab.
-                    "points_to_remove" (list of coords): A list of sites to remove
-                        where the first two indices are fraction (in a an b) and
-                        the third index is in units of 1/d (in c).
+                    "transformation_matrix" (numpy array): A 3x3 matrix to
+                        transform the slab. Only the a and b lattice vectors
+                        should change while the c vector remains the same.
+                    "SlabGenerator_parameters" (dict): A dictionary containing
+                        the parameters for the SlabGenerator class excluding the
+                        miller_index, min_slab_size and min_vac_size as the
+                        Miller index is already specified and the min_slab_size
+                        and min_vac_size can be changed regardless of what type
+                        of reconstruction is used. Having a consistent set of
+                        SlabGenerator parameters allows for the instructions to
+                        be reused to consistently build a reconstructed slab.
+                    "points_to_remove" (list of coords): A list of sites to
+                        remove where the first two indices are fraction (in a
+                        and b) and the third index is in units of 1/d (in c).
                     "points_to_add" (list of frac_coords): A list of sites to add
                         where the first two indices are fraction (in a an b) and
                         the third index is in units of 1/d (in c).
@@ -1658,20 +1667,18 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
 
     return all_slabs
 
-import fractions
 
 def get_integer_index(miller_index):
     """
     Converts a vector of floats to whole numbers
     """
-    md = [fractions.Fraction(n).limit_denominator(12).denominator \
-          for i, n in enumerate(miller_index)]
+    md = [Fraction(n).limit_denominator(12).denominator for n in miller_index]
     miller_index *= reduce(lambda x, y: x * y, md)
-    round_miller_index = np.array([np.round(i, 1) for i in miller_index])
-    if any([i > 1e-6 for i in abs(miller_index - round_miller_index)]):
+    round_miller_index = np.int_(np.round(miller_index, 1))
+    if np.any(np.abs(miller_index - round_miller_index) > 1e-6):
         warnings.warn("Non-integer encountered in Miller index")
 
-    return miller_index / np.abs(reduce(fractions.gcd, round_miller_index))
+    return miller_index / np.abs(reduce(gcd, round_miller_index))
 
 
 def miller_index_from_sites(supercell_matrix, coords):

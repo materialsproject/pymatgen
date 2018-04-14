@@ -1,6 +1,12 @@
 pymatgen.optimization package
 =============================
 
+Subpackages
+-----------
+
+.. toctree::
+
+
 Submodules
 ----------
 

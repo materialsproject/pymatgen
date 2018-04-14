@@ -520,7 +520,8 @@ class IStructure(SiteCollection, MSONable):
                 "different!" % (len(species), len(coords))
             )
 
-        frac_coords = coords if not coords_are_cartesian else \
+        frac_coords = np.array(coords, dtype=np.float) \
+            if not coords_are_cartesian else \
             lattice.get_fractional_coords(coords)
 
         props = {} if site_properties is None else site_properties
