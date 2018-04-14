@@ -10,16 +10,19 @@ __date__ = "January 11, 2018"
 
 import logging
 import sys
+import math
 import numpy as np
+norm = np.linalg.norm
 
 from scipy import stats  #for statistical uncertainties of pot alignment
 from monty.json import MSONable
-from pymatgen.analysis.defects.core import DefectCorrection
+from pymatgen.util.coord import pbc_shortest_vectors
+# from pymatgen.analysis.defects.core import DefectCorrection
 from core import DefectCorrection
 # from pymatgen.entries import CompatibilityError
 
 from pymatgen.io.vasp.outputs import Locpot
-from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel
+from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
 
 import matplotlib
 matplotlib.use('Agg')

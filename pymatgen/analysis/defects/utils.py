@@ -85,6 +85,32 @@ def eV_to_k(energy):
     return math.sqrt(energy / invang_to_ev) * ang_to_bohr
 
 
+def genrecip(a1, a2, a3, encut):
+    """
+    Args:
+        a1, a2, a3: lattice vectors in bohr
+        encut: energy cut off in eV
+    Returns:
+        reciprocal lattice vectors with energy less than encut
+    """
+    vol = np.dot(a1, np.cross(a2, a3))  # 1/bohr^3
+    b1 = (2 * np.pi / vol) * np.cross(a2, a3)  # units 1/bohr
+    b2 = (2 * np.pi / vol) * np.cross(a3, a1)
+    b3 = (2 * np.pi / vol) * np.cross(a1, a2)
+
+    # create list of recip space vectors that satisfy |i*b1+j*b2+k*b3|<=encut
+    gcut = eV_to_k(encut)
+    imax = int(math.ceil(gcut/min(map(norm, [b1, b2, b3]))))
+
+    for i in range(-imax, imax + 1):
+        for j in range(-imax, imax + 1):
+            for k in range(-imax, imax + 1):
+                vec = i*b1 + j*b2 + k*b3
+                en = invang_to_ev * (((1.0/ang_to_bohr) * norm(vec))**2)
+                if (en <= encut and en != 0):
+                    yield vec
+
+
 def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
     """
     Generate reciprocal vector magnitudes within the cutoff along the specied
