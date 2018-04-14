@@ -12,12 +12,8 @@ from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
         VoronoiNN, VoronoiNN_modified, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
         get_neighbors_of_site_with_index, site_is_of_motif_type, \
-<<<<<<< HEAD
         NearNeighbors, LocalStructOrderParas, BrunnerNN_reciprocal, \
         BrunnerNN_real, BrunnerNN_relative , EconNN
-=======
-        NearNeighbors, LocalStructOrderParams, BrunnerNN, EconNN
->>>>>>> upstream/master
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
