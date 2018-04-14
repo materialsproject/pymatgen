@@ -515,11 +515,9 @@ class VoronoiNN(NearNeighbors):
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
-<<<<<<< HEAD
-=======
         self.weight = weight
         self.extra_nn_info = extra_nn_info
->>>>>>> upstream/master
+        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -707,6 +705,9 @@ class VoronoiNN_modified(VoronoiNN):
     with at least 50% weight of max(weight).
     """
 
+    def __init__(self):
+        self._cns = {}
+
     def get_nn_info(self, structure, n):
         result = super(VoronoiNN_modified, self).get_nn_info(structure, n)
         max_weight = max(i['weight'] for i in result)
@@ -729,6 +730,7 @@ class JMolNN(NearNeighbors):
 
     def __init__(self, tol=1E-3, el_radius_updates=None):
         self.tol = tol
+        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -812,6 +814,7 @@ class MinimumDistanceNN(NearNeighbors):
     def __init__(self, tol=0.1, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -863,6 +866,7 @@ class MinimumOKeeffeNN(NearNeighbors):
     def __init__(self, tol=0.1, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -928,6 +932,7 @@ class MinimumVIRENN(NearNeighbors):
     def __init__(self, tol=0.1, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -2373,6 +2378,7 @@ class BrunnerNN_relative(NearNeighbors):
     def __init__(self, tol=1.0e-4, cutoff=8.0):
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2456,6 +2462,7 @@ class EconNN(NearNeighbors):
     def __init__(self, tol=1.0e-4, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
+        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
