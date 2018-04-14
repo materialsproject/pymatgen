@@ -370,7 +370,6 @@ class VoronoiNN(NearNeighbors):
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
-        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
