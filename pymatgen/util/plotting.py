@@ -205,7 +205,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
             the first 9 rows of elements.
     """
 
-    # Convert elemental data in the form of numpy array for plotting.
+    # Convert primitive_elemental data in the form of numpy array for plotting.
     max_val = max(elemental_data.values())
     min_val = min(elemental_data.values())
     max_row = min(max_row, 9)

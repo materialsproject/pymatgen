@@ -7,6 +7,7 @@ from __future__ import division, unicode_literals
 import unittest
 import pickle
 import warnings
+import math
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
@@ -26,6 +27,11 @@ class ElementTestCase(PymatgenTest):
 
         # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
+
+    def test_nan_X(self):
+        self.assertTrue(math.isnan(Element.He.X))
+        els = sorted([Element.He, Element.H, Element.F])
+        self.assertEqual(els, [Element.H, Element.F, Element.He])
 
     def test_dict(self):
         fe = Element.Fe
