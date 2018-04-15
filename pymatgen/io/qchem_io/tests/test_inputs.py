@@ -9,7 +9,6 @@ import os
 import unittest
 from pymatgen import Molecule
 from pymatgen.util.testing import PymatgenTest
-from collections import OrderedDict
 from pymatgen.io.qchem_io.inputs import QCInput
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath"
@@ -27,6 +26,7 @@ class TestQCInput(PymatgenTest):
 
     # ef setUpClass(cls):
     # add things that show up over and over again
+
 
     def test_molecule_template(self):
         species = ["C", "O"]
@@ -61,12 +61,12 @@ $end"""
         self.assertEqual(rem_actual, rem_test)
 
     def test_opt_template(self):
-        opt_params = OrderedDict({
+        opt_params = {
             "CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
             "FIXED": ["x y 2 4 5"],
             "DUMMY": ["M 2 3 4 5"],
             "CONNECT": ["4 3 2 3 5 6"]
-        })
+        }
         opt_test = QCInput.opt_template(opt_params)
         opt_actual = """$opt
 CONSTRAINT
@@ -159,13 +159,13 @@ $rem
   gen_scfman = true
 $end"""
         rem_test = QCInput.read_rem(str_rem)
-        rem_actual = OrderedDict({
+        rem_actual = {
             "jobtype": "opt",
             "method": "wB97M-V",
             "basis": "def2-QZVPPD",
             "max_scf_cycles": "300",
             "gen_scfman": "true"
-        })
+        }
         self.assertDictEqual(rem_actual, rem_test)
 
     def test_read_opt(self):
@@ -188,12 +188,12 @@ CONNECT
 ENDCONNECT
 $end"""
         opt_test = QCInput.read_opt(str_opt)
-        opt_actual = OrderedDict({
+        opt_actual = {
             "CONSTRAINT": ["tors 2 3 4 5 25.0", "bend 2 1 4 110.0"],
             "FIXED": ["x y 2 4 5"],
             "DUMMY": ["M 2 3 4 5"],
             "CONNECT": ["4 3 2 3 5 6"]
-        })
+        }
         self.assertDictEqual(opt_actual, opt_test)
 
     def test__str__(self):
@@ -201,13 +201,13 @@ $end"""
         coords = [[-9.5782000000, 0.6241500000, 0.0000000000],
                   [-7.5827400000, 0.5127000000, -0.0000000000]]
         molecule = Molecule(species=species, coords=coords)
-        rem = OrderedDict({
+        rem = {
             "jobtype": "opt",
             "method": "wB97M-V",
             "basis": "def2-QZVPPD",
             "max_scf_cycles": "300",
             "gen_scfman": "true"
-        })
+        }
         str_test = QCInput(molecule=molecule, rem=rem).__str__()
         str_actual = """$molecule
  0 1
@@ -288,7 +288,7 @@ $end
                   [-2.81590978, -0.00516172, -1.58990580]]
         molecule_actual = Molecule(species, coords)
         self.assertEqual(molecule_actual, qcinput_test.molecule)
-        rem_actual = OrderedDict({
+        rem_actual = {
             "jobtype": "opt",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
@@ -300,9 +300,9 @@ $end
             "sym_ignore": "true",
             "symmetry": "false",
             "thresh": "14"
-        })
+        }
         self.assertDictEqual(rem_actual, qcinput_test.rem)
-        opt_actual = OrderedDict({"CONSTRAINT": ["tors 6 8 9 10 0.0"]})
+        opt_actual = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
         self.assertDictEqual(opt_actual, qcinput_test.opt)
 
     def test_multi_job_string(self):
@@ -324,7 +324,7 @@ $end
                   [-4.80776535, 0.00535688, -2.99564645],
                   [-2.81590978, -0.00516172, -1.58990580]]
         molecule_1 = Molecule(species, coords)
-        rem_1 = OrderedDict({
+        rem_1 = {
             "jobtype": "opt",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
@@ -336,11 +336,11 @@ $end
             "sym_ignore": "true",
             "symmetry": "false",
             "thresh": "14"
-        })
-        opt_1 = OrderedDict({"CONSTRAINT": ["tors 6 8 9 10 0.0"]})
+        }
+        opt_1 = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
         job_1 = QCInput(molecule=molecule_1, rem=rem_1, opt=opt_1)
         molecule_2 = "read"
-        rem_2 = OrderedDict({
+        rem_2 = {
             "jobtype": "sp",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
@@ -352,7 +352,7 @@ $end
             "sym_ignore": "true",
             "symmetry": "false",
             "thresh": "14"
-        })
+        }
         job_2 = QCInput(molecule=molecule_2, rem=rem_2)
         job_list = [job_1, job_2]
         multi_job_str_test = QCInput.multi_job_string(job_list=job_list)
@@ -438,7 +438,7 @@ $end
                   [-4.80776535, 0.00535688, -2.99564645],
                   [-2.81590978, -0.00516172, -1.58990580]]
         molecule_1_actual = Molecule(species, coords)
-        rem_1_actual = OrderedDict({
+        rem_1_actual = {
             "jobtype": "opt",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
@@ -450,14 +450,14 @@ $end
             "sym_ignore": "true",
             "symmetry": "false",
             "thresh": "14"
-        })
-        opt_1_actual = OrderedDict({"CONSTRAINT": ["tors 6 8 9 10 0.0"]})
+        }
+        opt_1_actual = {"CONSTRAINT": ["tors 6 8 9 10 0.0"]}
         self.assertEqual(molecule_1_actual, job_list_test[0].molecule)
         self.assertEqual(rem_1_actual, job_list_test[0].rem)
         self.assertEqual(opt_1_actual, job_list_test[0].opt)
 
         molecule_2_actual = "read"
-        rem_2_actual = OrderedDict({
+        rem_2_actual = {
             "jobtype": "sp",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
@@ -469,7 +469,7 @@ $end
             "sym_ignore": "true",
             "symmetry": "false",
             "thresh": "14"
-        })
+        }
         self.assertEqual(molecule_2_actual, job_list_test[1].molecule)
         self.assertEqual(rem_2_actual, job_list_test[1].rem)
 
