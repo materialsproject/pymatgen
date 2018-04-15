@@ -545,6 +545,13 @@ class BSPlotter(object):
                          data['cbm'][0][1] + e_max)
         else:
             plt.ylim(ylim)
+            if not self._bs.is_metal() and vbm_cbm_marker:
+                for cbm in data['cbm']:
+                        plt.scatter(cbm[0], cbm[1], color='r', marker='o',
+                                    s=100)
+                for vbm in data['vbm']:
+                        plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                                    s=100)
 
         plt.tight_layout()
 

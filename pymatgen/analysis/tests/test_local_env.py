@@ -12,7 +12,8 @@ from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
         VoronoiNN, VoronoiNN_modified, JMolNN, \
         MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
         get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors, LocalStructOrderParams, BrunnerNN, EconNN
+        NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
+        BrunnerNN_real, BrunnerNN_relative , EconNN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -219,25 +220,25 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
-        self.assertAlmostEqual(BrunnerNN(tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
             self.diamond, 0), 4)
-        self.assertAlmostEqual(BrunnerNN(tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
             self.nacl, 0), 6)
-        self.assertAlmostEqual(BrunnerNN(tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
             self.cscl, 0), 14)
 
-        self.assertAlmostEqual(BrunnerNN(mode="real", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
             self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN(mode="real", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
             self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN(mode="real", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
-        self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
             self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
             self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
         self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
