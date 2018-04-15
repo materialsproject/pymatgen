@@ -380,6 +380,68 @@ loop_
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Mo4 P2 H60 C60 I4 O4")
 
+    def test_parse_symbol(self):
+        """
+        Test the _parse_symbol function with several potentially
+        problematic examples of symbols and labels.
+        """
+
+        test_cases = {
+            "MgT": "Mg",
+            "MgT1": "Mg",
+            "H(46A)": "H",
+            "O(M)": "O",
+            "N(Am)": "N",
+            "H1N2a": "H",
+            "CO(1)": "Co",
+            "Wat1": "O",
+            "MgM2A": "Mg",
+            "CaX": "Ca",
+            "X1": "X",
+            "X": "X",
+            "OA1": "O",
+            "NaA2": "Na",
+            "O-H2": "O",
+            "OD2": "O",
+            "OW": "O",
+            "SiT": "Si",
+            "SiTet": "Si",
+            "Na-Int": "Na",
+            "CaD1": "Ca",
+            "KAm": "K",
+            "D+1": "D",
+            "D": "D",
+            "D1-": "D",
+            "D4": "D",
+            "D0": "D",
+            "NH": "N",
+            "NH2": "N",
+            "NH3": "N",
+            "SH": "S"
+        }
+
+        for e in Element:
+            name = e.name
+            test_cases[name] = name
+            if len(name) == 2:
+                test_cases[name.upper()] = name
+                test_cases[name.upper() + str(1)] = name
+                test_cases[name.upper() + "A"] = name
+            test_cases[name + str(1)] = name
+            test_cases[name + str(2)] = name
+            test_cases[name + str(3)] = name
+            test_cases[name + str(1) + "A"] = name
+
+        special = {"Hw": "H", "Ow": "O", "Wat": "O",
+                   "wat": "O", "OH": "", "OH2": ""}
+        test_cases.update(special)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            parser = CifParser(os.path.join(test_dir, 'LiFePO4.cif'))
+            for sym, expected_symbol in test_cases.items():
+                self.assertEqual(parser._parse_symbol(sym), expected_symbol)
+
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)

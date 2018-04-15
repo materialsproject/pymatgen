@@ -81,14 +81,6 @@ def _get_cod_data():
     return _COD_DATA
 
 
-upper_case_elements = ['AC', 'AG', 'AL', 'AM', 'AR', 'AS', 'AT', 'AU', 'BA', 'BE', 'BI', 'BK', 'BR', 'CA',
-                       'CD', 'CE', 'CF', 'CL', 'CM', 'CO', 'CR', 'CS', 'CU', 'DY', 'ER', 'ES', 'EU', 'FE',
-                       'FM', 'FR', 'GA', 'GD', 'GE', 'HE', 'HF', 'HG', 'HO', 'IN', 'IR', 'KR', 'LA', 'LI',
-                       'LR', 'LU', 'MD', 'MG', 'MN', 'MO', 'NA', 'NB', 'ND', 'NE', 'NI', 'NO', 'NP', 'OS',
-                       'PA', 'PB', 'PD', 'PM', 'PO', 'PR', 'PT', 'PU', 'RA', 'RB', 'RE', 'RH', 'RN', 'RU',
-                       'SB', 'SC', 'SE', 'SI', 'SM', 'SN', 'SR', 'TA', 'TB', 'TC', 'TE', 'TH', 'TI', 'TL',
-                       'TM', 'XE', 'YB', 'ZN', 'ZR']
-
 class CifBlock(object):
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
 
@@ -544,36 +536,6 @@ class CifParser(object):
             for final_key, interim_key in changes_to_make.items():
                 data.data[final_key] = data.data[interim_key]
 
-        """
-        This part of the code deals with cases where _atom_site_type_symbol
-        contains symbols with all capital letters (e.g. CA instead of Ca).
-        Common in the COD database.
-        """
-
-        if "_atom_site_type_symbol" in data.data.keys():
-            # _atom_site_type_symbol capitalization with str.title().
-            # Some exception will remain with both capital letters.
-            no_capitalization_symbols = ["OH", "NH"]
-            new_atom_site_type_symbols = []
-            for sym in data.data["_atom_site_type_symbol"]:
-                if any(sym.startswith(c) for c in no_capitalization_symbols):
-                    new_atom_site_type_symbols.append(sym)
-                else:
-                    new_atom_site_type_symbols.append(sym.title())
-
-            data.data["_atom_site_type_symbol"] = new_atom_site_type_symbols
-        elif '_atom_site_label' in data.data.keys():
-            r = re.compile("|".join(upper_case_elements))
-
-            for i, sym in enumerate(data.data['_atom_site_label']):
-                match = r.match(sym)
-                if match:
-                    new_sym = sym.replace(match.group(), match.group().title())
-                    msg = "label {} converted to {}".format(sym, new_sym)
-                    warnings.warn(msg)
-                    self.errors.append(msg)
-                    data.data['_atom_site_label'][i] = new_sym
-
         return data
 
     def _unique_coords(self, coords_in, magmoms_in=None, lattice=None):
@@ -865,27 +827,47 @@ class CifParser(object):
             return None
         return magmoms
 
+    def _parse_symbol(self, sym):
+        """
+        Parse a string with a symbol to extract a string representing an element.
+
+        Args:
+            sym (str): A symbol to be parsed.
+
+        Returns:
+            A string with the parsed symbol. None if no parsing was possible.
+        """
+        # Common representations for elements/water in cif files
+        # TODO: fix inconsistent handling of water
+        special = {"Hw": "H", "Ow": "O", "Wat": "O",
+                   "wat": "O", "OH": "", "OH2": "", "NO3": "N"}
+
+        parsed_sym = None
+        # try with special symbols, otherwise check the first two letters,
+        # then the first letter alone. If everything fails try extracting the first letters.
+        m_sp = re.match("|".join(special.keys()), sym)
+        if m_sp:
+            parsed_sym = special[m_sp.group()]
+        elif Element.is_valid_symbol(sym[:2].title()):
+            parsed_sym = sym[:2].title()
+        elif Element.is_valid_symbol(sym[0].upper()):
+            parsed_sym = sym[0].upper()
+        else:
+            m = re.match(r"w?[A-Z][a-z]*", sym)
+            if m:
+                parsed_sym = m.group()
+
+        if parsed_sym is not None and (m_sp or not re.match("{}\d*".format(parsed_sym), sym)):
+            msg = "{} parsed as {}".format(sym, parsed_sym)
+            warnings.warn(msg)
+            self.errors.append(msg)
+
+        return parsed_sym
+
     def _get_structure(self, data, primitive):
         """
         Generate structure from part of the cif.
         """
-
-        def parse_symbol(sym):
-            # Common representations for elements/water in cif files
-            # TODO: fix inconsistent handling of water
-            special = {"D": "D", "Hw": "H", "Ow": "O", "Wat": "O",
-                       "wat": "O", "OH": "", "OH2": ""}
-            m = re.findall(r"w?[A-Z][a-z]*", sym)
-            if m and m != "?":
-                if sym in special:
-                    v = special[sym]
-                else:
-                    v = special.get(m[0], m[0])
-                if len(m) > 1 or (m[0] in special):
-                    msg = "{} parsed as {}".format(sym, v)
-                    warnings.warn(msg)
-                    self.errors.append(msg)
-                return v
 
         def get_num_implicit_hydrogens(sym):
             num_h = {"Wat": 2, "wat": 2, "O-H": 1}
@@ -927,11 +909,11 @@ class CifParser(object):
             try:
                 # If site type symbol exists, use it. Otherwise, we use the
                 # label.
-                symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+                symbol = self._parse_symbol(data["_atom_site_type_symbol"][i])
                 num_h = get_num_implicit_hydrogens(
                     data["_atom_site_type_symbol"][i])
             except KeyError:
-                symbol = parse_symbol(data["_atom_site_label"][i])
+                symbol = self._parse_symbol(data["_atom_site_label"][i])
                 num_h = get_num_implicit_hydrogens(data["_atom_site_label"][i])
             if not symbol:
                 continue
