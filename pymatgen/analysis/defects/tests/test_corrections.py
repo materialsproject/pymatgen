@@ -4,12 +4,18 @@
 
 from __future__ import unicode_literals
 
+import os
 import unittest
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.io.vasp import Vasprun
 from pymatgen.analysis.defects.core import DefectEntry, Vacancy
-from pymatgen.analysis.defects.corrections import FreysoldtCorrection, freysoldt_plotter, KumagaiCorrection, find_optimal_gamma, generate_g_sum, kumagai_plotter
+from pymatgen.analysis.defects.corrections import FreysoldtCorrection, freysoldt_plotter,\
+            KumagaiCorrection, find_optimal_gamma, generate_g_sum, kumagai_plotter, BandFillingCorrection
+
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 
 class DefectsCorrectionsTest(PymatgenTest):
@@ -123,9 +129,101 @@ class DefectsCorrectionsTest(PymatgenTest):
             rset[eltind].append(vals['dist_to_defect'])
             Vqbset[eltind].append(vals['Vqb'])
             Vpcset[eltind].append(vals['Vpc'])
-        
+
         kp = kumagai_plotter(rset, Vqbset, Vpcset, eltnames, samplerad=4.5, title = 'test', saved=False)
         self.assertTrue( kp)
+
+    def test_bandfilling(self):
+        v = Vasprun(os.path.join(test_dir, 'vasprun.xml'))
+        eigenvalues = v.eigenvalues.copy()
+        kptweights = v.actual_kpoints_weights
+        potalign = 0.
+        vbm = v.eigenvalue_band_properties[2]
+        cbm = v.eigenvalue_band_properties[1]
+        params = {'eigenvalues': eigenvalues, 'kpoint_weights': kptweights, 'potalign': potalign,
+                  'vbm': vbm, 'cbm': cbm}
+        bfc = BandFillingCorrection()
+        struc = PymatgenTest.get_structure("VO2")
+        struc.make_supercell(3)
+        struc = struc
+        vac = Vacancy(struc, struc.sites[0], charge=-3)
+
+        #test trivial performing bandfilling correction
+        bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
+        self.assertAlmostEqual(bf_corr, 0.)
+        self.assertFalse(bfc.metadata['occupied_def_levels'])
+        self.assertFalse(bfc.metadata['unoccupied_def_levels'])
+        self.assertFalse(bfc.metadata['total_occupation_defect_levels'])
+        self.assertFalse(bfc.metadata['num_elec_cbm'])
+        self.assertFalse(bfc.metadata['num_hole_vbm'])
+        self.assertFalse(bfc.metadata['potalign'])
+
+        #test trivial full entry bandfill evaluation
+        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+
+        corr = bfc.get_correction( de)
+        self.assertAlmostEqual(corr['bandfilling'], 0.)
+
+
+        #modify the eigenvalue list to have free holes
+        hole_eigenvalues = {}
+        for spinkey, spinset in eigenvalues.items():
+            hole_eigenvalues[spinkey] = []
+            for kptset in spinset:
+                hole_eigenvalues[spinkey].append([])
+                for eig in kptset:
+                    if (eig[0] < vbm) and (eig[0] > vbm - .8):
+                        hole_eigenvalues[spinkey][-1].append([eig[0], 0.5])
+                    else:
+                        hole_eigenvalues[spinkey][-1].append(eig)
+
+        hole_bf_corr = bfc.perform_bandfill_corr( hole_eigenvalues, kptweights, potalign, vbm, cbm)
+        self.assertAlmostEqual(hole_bf_corr, -0.82276673248)
+        self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 1.6250001299)
+        self.assertFalse(bfc.metadata['num_elec_cbm'])
+
+
+        #modify the eigenvalue list to have free electrons
+        elec_eigenvalues = {}
+        for spinkey, spinset in eigenvalues.items():
+            elec_eigenvalues[spinkey] = []
+            for kptset in spinset:
+                elec_eigenvalues[spinkey].append([])
+                for eig in kptset:
+                    if (eig[0] > cbm) and (eig[0] < cbm + .2):
+                        elec_eigenvalues[spinkey][-1].append([eig[0], 0.5])
+                    else:
+                        elec_eigenvalues[spinkey][-1].append(eig)
+
+        elec_bf_corr = bfc.perform_bandfill_corr( elec_eigenvalues, kptweights, potalign, vbm, cbm)
+        self.assertAlmostEqual(elec_bf_corr, -0.18063751445099)
+        self.assertAlmostEqual(bfc.metadata['num_elec_cbm'], 1.708333469999)
+        self.assertFalse(bfc.metadata['num_hole_vbm'])
+
+
+        #modify the potalignment and introduce new occupied defect levels from vbm states
+        potalign = 0.1
+
+        bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
+        self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
+        self.assertAlmostEqual(bf_corr, 0.)
+        occu = [[1.6204, 0.16666668], [1.6346500000000002, 0.16666668], [1.557, 0.16666668], [1.6498000000000002, 0.08333334]]
+        self.assertEqual(bfc.metadata['occupied_def_levels'], occu)
+        self.assertEqual(bfc.metadata['total_occupation_defect_levels'], 0.58333338)
+        self.assertFalse(bfc.metadata['unoccupied_def_levels'])
+
+
+        #modify the potalignment and introduce new unoccupied defect levels from cbm states
+        potalign = -0.1
+
+        bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
+        self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
+        self.assertAlmostEqual(bf_corr, 0.)
+        self.assertFalse(bfc.metadata['occupied_def_levels'])
+        unoccu = [4.0589, 4.07565, 4.063840000000001, 4.00525, 4.013800000000001,
+                  4.0324, 4.04355, 3.9906, 3.9951499999999998]
+        self.assertEqual(bfc.metadata['unoccupied_def_levels'], unoccu)
+
 
 
 

@@ -21,7 +21,6 @@ from pymatgen.util.coord import pbc_shortest_vectors
 from core import DefectCorrection
 # from pymatgen.entries import CompatibilityError
 
-from pymatgen.io.vasp.outputs import Locpot
 from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
 
 import matplotlib
@@ -313,7 +312,7 @@ def freysoldt_plotter(x, v_R, dft_diff, final_shift, check, title = None, saved=
 
 
 """
-Below Here is for kumagai
+Below Here is for kumagai correction
 """
 
 def find_optimal_gamma(structure, epsilon, tolerance = 0.0001, max_encut = 510):
@@ -493,7 +492,7 @@ class KumagaiCorrection(DefectCorrection):
                 self.metadata['gamma'] = find_optimal_gamma(bulk_structure, self.dielectric,
                                                             self.madelung_energy_tolerance)
 
-        if not self.metadata['g_sum']:
+        if not len(self.metadata['g_sum']):
             if "g_sum" in entry.parameters.keys():
                 self.metadata['g_sum'] = entry.parameters["g_sum"]
             else:
@@ -746,8 +745,6 @@ class KumagaiCorrection(DefectCorrection):
         return pot_corr
 
 
-
-
 def kumagai_plotter(r, Vqb, Vpc, eltnames, samplerad=None, title = None, saved=False):
     """
     atomic site  electrostatic potential plotter for Kumagai
@@ -790,5 +787,117 @@ def kumagai_plotter(r, Vqb, Vpc, eltnames, samplerad=None, title = None, saved=F
         plt.savefig(str(title) + 'KumagaisiteavgPlot.pdf')
     else:
         return plt
+
+
+"""
+Below Here is for other corrections
+"""
+
+class BandFillingCorrection(DefectCorrection):
+    """
+    A class for BandFillingCorrection class. Largely adapted from PyCDT code
+
+    Requires some parameters in the DefectEntry to properly function:
+        eigenvalues
+            dictionary of defect eigenvalues, as stored in a Vasprun
+
+        kpoint_weights
+            kpoint weights corresponding to the dictionary of eigenvalues
+
+        potalign
+            potential alignment for the defect calculation
+            Only applies to non-zero charge,
+            When using potential alignment Correction (freysoldt or kumagai), need to divide by -q
+
+        cbm
+            CBM of bulk calculation (or band structure calculation of bulk);
+            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA cbm
+
+        vbm
+            VBM of bulk calculation (or band structure calculation of bulk);
+            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA vbm
+
+    """
+    def __init__(self):
+        self.metadata = {'occupied_def_levels': [], 'unoccupied_def_levels': [],
+                         'total_occupation_defect_levels': None,
+                         'num_hole_vbm': None, 'num_elec_cbm': None, 'potalign': None }
+
+    def get_correction(self, entry):
+        """
+        Gets the BandFilling correction for a defect entry
+        """
+        eigenvalues = entry.parameters["eigenvalues"]
+        kpoint_weights = entry.parameters["kpoint_weights"]
+        potalign = entry.parameters["potalign"]
+        vbm = entry.parameters["vbm"]
+        cbm = entry.parameters["cbm"]
+
+        bf_corr = self.perform_bandfill_corr( eigenvalues, kpoint_weights, potalign, vbm, cbm)
+
+        return {'bandfilling': bf_corr}
+
+
+    def perform_bandfill_corr(self, eigenvalues, kpoint_weights, potalign, vbm, cbm):
+        """
+        This calculates the band filling correction based on excess of electrons/holes in CB/VB...
+
+        Note that the total free holes and electrons may also be used for a "shallow donor/acceptor"
+               correction with specified band shifts: +num_elec_cbm * Delta E_CBM (or -num_hole_vbm * Delta E_VBM)
+               [this is done in the LevelShiftingCorrection class]
+        """
+        bf_corr = 0.
+
+        self.metadata['potalign'] = potalign
+        self.metadata['num_hole_vbm'] = 0.
+        self.metadata['num_elec_cbm'] = 0.
+
+        if len(eigenvalues.keys()) == 1: #needed because occupation of non-spin calcs is still 1... should be 2
+            spinfctr = 1.
+        elif len(eigenvalues.keys()) == 2:
+            spinfctr = 2.
+        else:
+            raise ValueError("Eigenvalue keys greater than 2")
+
+        #for tracking mid gap states...
+        resolution = 0.01 #this is energy resolution to maintain for gap states
+        occupied_midgap = {en:[] for en in np.arange( vbm, cbm+resolution, resolution)}
+        occupation = {en:0. for en in np.arange( vbm, cbm+resolution, resolution)}
+        unoccupied_midgap = {en:[] for en in np.arange( vbm, cbm+resolution, resolution)}
+
+        for spinset in eigenvalues.values():
+            for kptset, weight in zip(spinset, kpoint_weights):
+                for eig in kptset: #eig[0] is eigenvalue and eig[1] is occupation
+                    neweig = [eig[0] + potalign, eig[1]] #apply potential shift to eigenvalues
+                    if (neweig[1] and (neweig[0] > cbm)): #donor MB correction
+                        bf_corr += weight * spinfctr * neweig[1] * (neweig[0] - cbm) # "move the electrons down"
+                        self.metadata['num_elec_cbm'] += weight  * spinfctr * neweig[1]
+                    elif (neweig[1] !=1.) and (neweig[0] <= vbm): #acceptor MB correction
+                        bf_corr += weight * spinfctr * (1.-neweig[1]) * (vbm - neweig[0]) #"move the holes up"
+                        self.metadata['num_hole_vbm'] += weight * spinfctr * (1.-neweig[1])
+                    elif (neweig[0] > vbm) and (neweig[0] < cbm):
+                        for en in np.arange(vbm, cbm+resolution, resolution):
+                            if (neweig[0]< en + resolution) and (neweig[0]>en):
+                                if neweig[1]:
+                                    occupied_midgap[en].append(neweig[0])
+                                    occupation[en]+= neweig[1] * weight * spinfctr
+                                else:
+                                    unoccupied_midgap[en].append(neweig[0])
+                                continue
+
+        bf_corr *= -1  #need to take negative of this shift for energetic correction
+
+        # summarize defect level results
+        self.metadata['total_occupation_defect_levels'] = 0.
+        self.metadata['occupied_def_levels'] = []
+        self.metadata['unoccupied_def_levels'] = []
+        for en in occupied_midgap.keys():
+            if len(occupied_midgap[en]):
+                self.metadata['occupied_def_levels'].append([np.mean(occupied_midgap[en]), occupation[en]])
+                self.metadata['total_occupation_defect_levels'] += occupation[en]
+            elif len(unoccupied_midgap[en]):
+                self.metadata['unoccupied_def_levels'].append(np.mean(unoccupied_midgap[en]))
+
+        return bf_corr
 
 
