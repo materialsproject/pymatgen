@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from collections import OrderedDict
 import logging
 from monty.json import MSONable
 from pymatgen.core import Molecule
@@ -35,14 +34,12 @@ class QCInput(MSONable):
             previous calculation.
         rem (dict):
             A dictionary of all the input parameters for the rem section of QChem input file.
-            If for some reason the order matters use an OrderedDict from collections.
             Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
         opt (dict of lists):
             A dictionary of opt sections, where each opt section is a key and the corresponding
-            values are a list of strings. Stings must be formatted as instructed by the QChem manual. Again if order
-            matters use an OrderedDict.
+            values are a list of strings. Stings must be formatted as instructed by the QChem manual.
             The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
-            Ex. opt = OrderedDict({"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]})
+            Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
     """
 
     def __init__(self, molecule, rem, opt=None):
@@ -199,7 +196,7 @@ class QCInput(MSONable):
         row = r"\s*(\S+)\s+=?\s+(\S+)"
         footer = r"^\s*\$end"
         rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        rem = OrderedDict({key: val for key, val in rem_table[0]})
+        rem = {key: val for key, val in rem_table[0]}
         return rem
 
     @staticmethod
@@ -212,30 +209,30 @@ class QCInput(MSONable):
         }
         opt_matches = read_pattern(string, patterns)
         opt_sections = [key for key in opt_matches.keys()]
-        opt = OrderedDict({})
+        opt = {}
         if "CONSTRAINT" in opt_sections:
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
             c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer)
-            opt.update({"CONSTRAINT": [val[0] for val in c_table[0]]})
+            opt["CONSTRAINT"] = [val[0] for val in c_table[0]]
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"
             f_row = r"(\w.*)\n"
             f_footer = r"^\s*ENDFIXED\n"
             f_table = read_table_pattern(string, header_pattern=f_header, row_pattern=f_row, footer_pattern=f_footer)
-            opt.update({"FIXED": [val[0] for val in f_table[0]]})
+            opt["FIXED"] = [val[0] for val in f_table[0]]
         if "DUMMY" in opt_sections:
             d_header = r"^\s*DUMMY\n"
             d_row = r"(\w.*)\n"
             d_footer = r"^\s*ENDDUMMY\n"
             d_table = read_table_pattern(string, header_pattern=d_header, row_pattern=d_row, footer_pattern=d_footer)
-            opt.update({"DUMMY": [val[0] for val in d_table[0]]})
+            opt["DUMMY"] = [val[0] for val in d_table[0]]
         if "CONNECT" in opt_sections:
             cc_header = r"^\s*CONNECT\n"
             cc_row = r"(\w.*)\n"
             cc_footer = r"^\s*ENDCONNECT\n"
             cc_table = read_table_pattern(
                 string, header_pattern=cc_header, row_pattern=cc_row, footer_pattern=cc_footer)
-            opt.update({"CONNECT": [val[0] for val in cc_table[0]]})
+            opt["CONNECT"] = [val[0] for val in cc_table[0]]
         return opt
