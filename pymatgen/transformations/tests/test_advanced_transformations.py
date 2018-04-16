@@ -18,7 +18,7 @@ from pymatgen.transformations.advanced_transformations import \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
-    MagOrderParameterConstraint
+    MagOrderParameterConstraint, DisorderOrderedTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
@@ -574,6 +574,20 @@ class SlabTransformationTest(PymatgenTest):
         self.assertArrayAlmostEqual(slab_from_gen.cart_coords, 
                                     slab_from_trans.cart_coords)
 
+
+class DisorderedOrderedTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        # non-sensical example just for testing purposes
+        struct = self.get_structure('BaNiO3')
+
+        trans = DisorderOrderedTransformation()
+        output = trans.apply_transformation(struct)
+
+        self.assertFalse(output.is_ordered)
+        self.assertDictEqual(output.species_and_occu[-1].as_dict(),
+                             {'Ni': 0.5, 'Ba': 0.5})
 
 if __name__ == "__main__":
     import logging
