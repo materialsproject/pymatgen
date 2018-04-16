@@ -2317,7 +2317,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
-    interatomic distances.t This algorithm uses Brunner's method of
+    interatomic distances. This algorithm uses Brunner's method of
     largest reciprocal gap in interatomic distances.
 
     Args:
