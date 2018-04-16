@@ -517,7 +517,6 @@ class VoronoiNN(NearNeighbors):
         self.targets = targets
         self.weight = weight
         self.extra_nn_info = extra_nn_info
-        self._cns = {}
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -727,7 +726,6 @@ class JMolNN(NearNeighbors):
 
     def __init__(self, tol=1E-3, el_radius_updates=None):
         self.tol = tol
-        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -811,7 +809,6 @@ class MinimumDistanceNN(NearNeighbors):
     def __init__(self, tol=0.1, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -863,7 +860,6 @@ class MinimumOKeeffeNN(NearNeighbors):
     def __init__(self, tol=0.1, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -929,7 +925,6 @@ class MinimumVIRENN(NearNeighbors):
     def __init__(self, tol=0.1, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -2322,7 +2317,7 @@ class BrunnerNN_reciprocal(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
-    interatomic distances. This algorithm uses Brunner's method of
+    interatomic distances.t This algorithm uses Brunner's method of
     largest reciprocal gap in interatomic distances.
 
     Args:
@@ -2335,7 +2330,6 @@ class BrunnerNN_reciprocal(NearNeighbors):
     def __init__(self, tol=1.0e-4, cutoff=8.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2375,7 +2369,6 @@ class BrunnerNN_relative(NearNeighbors):
     def __init__(self, tol=1.0e-4, cutoff=8.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2415,7 +2408,6 @@ class BrunnerNN_real(NearNeighbors):
     def __init__(self, tol=1.0e-4, cutoff=8.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2459,7 +2451,6 @@ class EconNN(NearNeighbors):
     def __init__(self, tol=1.0e-4, cutoff=10.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
