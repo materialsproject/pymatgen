@@ -9,11 +9,11 @@ import unittest
 import os
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-        VoronoiNN, VoronoiNN_modified, JMolNN, \
-        MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
-        get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
-        BrunnerNN_real, BrunnerNN_relative , EconNN
+    VoronoiNN, VoronoiNN_modified, JMolNN, \
+    MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
+    get_neighbors_of_site_with_index, site_is_of_motif_type, \
+    NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
+    BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -793,6 +793,61 @@ class LocalStructOrderParamsTest(PymatgenTest):
         del self.T_shape
         del self.cuboctahedron
         del self.see_saw_rect
+
+
+class CrystalNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.lifepo4 = self.get_structure('LiFePO4')
+        self.lifepo4.add_oxidation_state_by_guess()
+
+    def test_sanity(self):
+        with self.assertRaises(ValueError):
+            cnn = CrystalNN()
+            cnn.get_cn(self.lifepo4, 0, use_weights=True)
+
+        with self.assertRaises(ValueError):
+            cnn = CrystalNN(weighted_cn=True)
+            cnn.get_cn(self.lifepo4, 0, use_weights=False)
+
+    def test_discrete_cn(self):
+        cnn = CrystalNN()
+        cn_array = []
+        expected_array = [6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+                          4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        for idx, _ in enumerate(self.lifepo4):
+            cn_array.append(cnn.get_cn(self.lifepo4, idx))
+
+        self.assertSequenceEqual(cn_array, expected_array)
+
+    def test_weighted_cn(self):
+        cnn = CrystalNN(weighted_cn=True)
+        cn_array = []
+        expected_array = [6.0194, 6.0176, 6.0194, 6.0176, 5.5919, 5.5909,
+                          5.5914, 5.5914, 3.9504, 3.9504, 3.9504, 3.9504,
+                          3.7935, 3.5778, 3.5731, 3.6358, 3.6358, 3.5731,
+                          3.5778, 3.7935, 3.7935, 3.5778, 3.5721, 3.6368,
+                          3.6368, 3.5721, 3.5778, 3.7935]
+        for idx, _ in enumerate(self.lifepo4):
+            cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
+
+        self.assertArrayAlmostEqual(expected_array, cn_array, 2)
+
+    def test_fixed_length(self):
+        cnn = CrystalNN(fingerprint_length=30)
+        nndata = cnn.get_nn_data(self.lifepo4, 0)
+        self.assertEqual(len(nndata.cn_weights), 30)
+        self.assertEqual(len(nndata.cn_nninfo), 30)
+
+    def test_cation_anion(self):
+        cnn = CrystalNN(weighted_cn=True, cation_anion=True)
+        self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
+                               5.93283, 2)
+
+    def test_x_diff_weight(self):
+        cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
+        self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
+                               6.072855, 2)
 
 
 if __name__ == '__main__':
