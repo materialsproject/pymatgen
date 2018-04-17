@@ -2660,11 +2660,10 @@ class CrystalNN(NearNeighbors):
             for i in range(length):
                 cn = i+1
                 if cn not in cn_scores:
-                    cn_scores[cn] == 0
-                    cn_info[cn] == []
+                    cn_scores[cn] = 0
+                    cn_info[cn] = []
 
         return self.NNData(nn, cn_scores, cn_info)
-
 
     def get_cn(self, structure, n, use_weights=False):
         """
