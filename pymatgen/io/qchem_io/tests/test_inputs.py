@@ -489,32 +489,32 @@ $end
         self.assertEqual(rem_2_actual, job_list_test[1].rem)
 
     def test_read_pcm(self):
-         str_pcm = """I'm once again trying to break you!
+        str_pcm = """I'm once again trying to break you!
 
- $pcm
-     theory = cpcm
-     radii = uff
-     vdwscale = 1.1
- $end"""
-         pcm_test = QCInput.read_pcm(str_pcm)
-         pcm_actual = {
+$pcm
+   theory = cpcm
+   radii = uff
+   vdwscale = 1.1
+$end"""
+        pcm_test = QCInput.read_pcm(str_pcm)
+        pcm_actual = {
              "theory": "cpcm",
              "radii": "uff",
              "vdwscale": "1.1"
-         }
-         self.assertDictEqual(pcm_actual, pcm_test)
+        }
+        self.assertDictEqual(pcm_actual, pcm_test)
 
     def test_read_solvent(self):
-         str_solvent = """Once again, I'm trying to break you!
+        str_solvent = """Once again, I'm trying to break you!
 
- $solvent
-     dielectric = 5.0
- $end"""
-         solvent_test = QCInput.read_solvent(str_solvent)
-         solvent_actual = {
+$solvent
+   dielectric = 5.0
+$end"""
+        solvent_test = QCInput.read_solvent(str_solvent)
+        solvent_actual = {
              "dielectric": "5.0",
-         }
-         self.assertDictEqual(solvent_actual, solvent_test)
+        }
+        self.assertDictEqual(solvent_actual, solvent_test)
 
 if __name__ == "__main__":
     unittest.main()
