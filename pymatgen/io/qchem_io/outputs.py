@@ -5,6 +5,7 @@
 import re
 import logging
 import os
+import numpy as np
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -112,20 +113,21 @@ class QCOutput(MSONable):
                 if self.data.get('energy_trajectory') != None:
                     self._read_last_geometry()
 
+        # Check if the calculation contains a constraint in an $opt section. 
+        self.data["opt_constraint"] = read_pattern(self.text, {"key": r"\$opt\s+CONSTRAINT"}).get('key')
+        if self.data.get('opt_constraint'):
+            self.data["dihedral_constraint"] = read_pattern(
+                self.text, {
+                    "key": r"Constraints and their Current Values\s+Value\s+Constraint\s+Dihedral\:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+                }).get('key')
+
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
             self.text, {
                 "key": r"(?i)\s*job(?:_)*type\s+=\s+freq"
             }, terminate_on_match=True).get('key')
         if self.data.get('frequency_job', []):
-            temp_dict = read_pattern(
-                self.text, {
-                    "frequencies": r"\s*Frequency:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
-                    "enthalpy": r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
-                    "entropy": r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"
-                })
-            for key in temp_dict:
-                self.data[key] = temp_dict.get(key)
+            self._read_frequency_data()
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
         if not self.data.get('completion',[]) and self.data.get("errors") == []:
@@ -269,6 +271,42 @@ class QCOutput(MSONable):
         self.data["last_geometry"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
         if self.data.get('last_geometry') != [] and self.data.get('charge') != None:
             self.data["molecule_from_last_geometry"] = self._make_geometry_into_molecule(self.data.get('last_geometry')[0])
+
+    def _read_frequency_data(self):
+        """
+        Parses frequencies, enthalpy, entropy, mode vectors, and the geometry of the molecule.
+        """
+        temp_dict = read_pattern(self.text, {
+                    "frequencies": r"\s*Frequency:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                    "enthalpy": r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
+                    "entropy": r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"})
+        for key in temp_dict:
+            self.data[key] = temp_dict.get(key)
+
+        header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
+        table_pattern = r"\s*([a-zA-Z][a-zA-Z\s])\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
+        footer_pattern = r"TransDip\s+[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*(?:[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*)*"
+        self.data["frequency_mode_vectors"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
+        if float(self.data.get('frequencies')[0][0]) < 0.0:
+            all_vecs = self.data.get('frequency_mode_vectors')
+            temp_vecs = np.zeros(shape=(len(all_vecs[0]),3),dtype=float)
+            for ii in range(len(all_vecs[0])):
+                for jj in range(1,4):
+                    temp_vecs[ii,jj-1] = float(all_vecs[0][ii][jj])
+            self.data["negative_freq_vecs"] = temp_vecs
+
+        header_pattern = r"Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
+        table_pattern = r"\s*\d+\s+([a-zA-Z]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
+        footer_pattern = r"\s*-+"
+        tmp_freq_geom = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)[0]
+        freq_species = []
+        freq_geometry = np.zeros(shape=(len(tmp_freq_geom),3),dtype=float)
+        for ii in range(len(tmp_freq_geom)):
+            freq_species += [tmp_freq_geom[ii][0]]
+            for jj in range(3):
+                freq_geometry[ii,jj] = float(tmp_freq_geom[ii][jj+1])
+        self.data["freq_species"] = freq_species
+        self.data["freq_geometry"] = freq_geometry
 
     def _check_optimization_errors(self):
         """
