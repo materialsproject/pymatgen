@@ -102,6 +102,7 @@ $end"""
         solvent_actual = """$solvent
    dielectric = 5.0
 $end"""
+        self.assertEqual(solvent_actual, solvent_test)
 
     def test_find_sections(self):
         str_single_job_input = """$molecule
