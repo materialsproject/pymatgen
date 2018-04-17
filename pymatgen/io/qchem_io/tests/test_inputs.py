@@ -11,7 +11,7 @@ from pymatgen import Molecule
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.qchem_io.inputs import QCInput
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __email__ = "b.wood@berkeley.edu"
@@ -87,6 +87,21 @@ CONNECT
 ENDCONNECT
 $end"""
         self.assertEqual(opt_actual, opt_test)
+
+    def test_pcm_template(self):
+        pcm_params = {"theory": "cpcm"}
+        pcm_test = QCInput.pcm_template(pcm_params)
+        pcm_actual = """$pcm
+   theory = cpcm
+$end"""
+        self.assertEqual(pcm_actual, pcm_test)
+
+    def test_solvent_template(self):
+        solvent_params = {"dielectric": "5.0"}
+        solvent_test = QCInput.solvent_template(solvent_params)
+        solvent_actual = """$solvent
+   dielectric = 5.0
+$end"""
 
     def test_find_sections(self):
         str_single_job_input = """$molecule
@@ -473,6 +488,33 @@ $end
         self.assertEqual(molecule_2_actual, job_list_test[1].molecule)
         self.assertEqual(rem_2_actual, job_list_test[1].rem)
 
+    def test_read_pcm(self):
+         str_pcm = """I'm once again trying to break you!
+
+ $pcm
+     theory = cpcm
+     radii = uff
+     vdwscale = 1.1
+ $end"""
+         pcm_test = QCInput.read_pcm(str_pcm)
+         pcm_actual = {
+             "theory": "cpcm",
+             "radii": "uff",
+             "vdwscale": "1.1"
+         }
+         self.assertDictEqual(pcm_actual, pcm_test)
+
+    def test_read_solvent(self):
+         str_solvent = """Once again, I'm trying to break you!
+
+ $solvent
+     dielectric = 5.0
+ $end"""
+         solvent_test = QCInput.read_solvent(str_solvent)
+         solvent_actual = {
+             "dielectric": "5.0",
+         }
+         self.assertDictEqual(solvent_actual, solvent_test)
 
 if __name__ == "__main__":
     unittest.main()
