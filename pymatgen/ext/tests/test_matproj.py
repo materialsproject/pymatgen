@@ -14,7 +14,8 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructureSymmLine, BandStructure)
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
@@ -169,6 +170,10 @@ class MPResterTest(unittest.TestCase):
     def test_get_bandstructure_by_material_id(self):
         bs = self.rester.get_bandstructure_by_material_id("mp-2254")
         self.assertIsInstance(bs, BandStructureSymmLine)
+        bs_unif = self.rester.get_bandstructure_by_material_id(
+            "mp-2254", line_mode=False)
+        self.assertIsInstance(bs_unif, BandStructure)
+        self.assertNotIsInstance(bs_unif, BandStructureSymmLine)
 
     def test_get_structures(self):
         structs = self.rester.get_structures("Mn3O4")
