@@ -14,14 +14,16 @@ mpl.use("pdf")
 
 """
 TODO: Modify unittest doc.
+
+These calculated values were verified with VESTA and FullProf.
 """
 
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "4/4/18"
+__maintainer__ = "Yuta Suzuki"
+__email__ = "resnant@outlook.jp"
+__date__ = "4/19/18"
 
 
 class NDCalculatorTest(PymatgenTest):
@@ -54,29 +56,19 @@ class NDCalculatorTest(PymatgenTest):
         nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[0], 26.21057350859598)
         self.assertAlmostEqual(nd.y[0], 100)
+        self.assertAlmostEqual(nd.x[2], 44.39599754)
+        self.assertAlmostEqual(nd.y[2], 42.62382267)
         self.assertAlmostEqual(len(list(nd.hkls[0].keys())[0]), 4)
 
-        # Test with and without Debye-Waller factor
-        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C':1})  # CuKa radiation
+        # Test with Debye-Waller factor
+        s = self.get_structure("Graphite")
+        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C':1})
         nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[0], 26.21057350859598)
         self.assertAlmostEqual(nd.y[0], 100)
         self.assertAlmostEqual(nd.x[2], 44.39599754)
         self.assertAlmostEqual(nd.y[2], 39.471514740)
 
-        # Test with and without Debye-Waller factor
-        # tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2,
-        #                      [[0, 0, 0], [0.5, 0.5, 0.5]])
-        # nd = c.get_nd_pattern(tungsten, scaled=False)
-        # self.assertAlmostEqual(nd.x[0], 40.294828554672264)
-        # self.assertAlmostEqual(nd.y[0], 2414237.5633093244)
-        # self.assertAlmostEqual(nd.d_hkls[0], 2.2382050944897789)
-        # c = ndCalculator(debye_waller_factors={"W": 0.1526})
-        # nd = c.get_nd_pattern(tungsten, scaled=False)
-        # self.assertAlmostEqual(nd.x[0], 40.294828554672264)
-        # self.assertAlmostEqual(nd.y[0], 2377745.2296686019)
-        # self.assertAlmostEqual(nd.d_hkls[0], 2.2382050944897789)
-        # c.get_xrd_plot(tungsten)
 
 if __name__ == '__main__':
     unittest.main()

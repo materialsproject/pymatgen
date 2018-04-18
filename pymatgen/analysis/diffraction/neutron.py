@@ -22,15 +22,15 @@ This module implements a neutron diffraction (ND) pattern calculator.
 __author__ = "Yuta Suzuki"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "4/2/18"
-#todo: update here
+__maintainer__ = "Yuta Suzuki"
+__email__ = "resnant@outlook.jp"
+__date__ = "4/19/18"
 
 
 
 with open(os.path.join(os.path.dirname(__file__),
                        "neutron_scattering_length.json")) as f:
+    # This table was cited from "Neutron Data Booklet" 2nd ed (Old City 2003).
     ATOMIC_SCATTERING_LEN = json.load(f)
 
 
@@ -59,12 +59,16 @@ class NDPattern(Spectrum):
 
 class NDCalculator(object):
     """
-    Computes the ND pattern of a crystal structure.
+    Computes the powder neutron diffraction pattern of a crystal structure.
     This code is a slight modification of XRDCalculator in
     pymatgen.analysis.diffraction.xrd. See it for details of the algorithm.
     Main changes by using neutron instead of X-ray are as follows:
     1. Atomic scattering length is a constant.
     2. Polarization correction term of Lorentz factor is unnecessary.
+
+    Reference:
+    Marc De Graef and Michael E. McHenry, Structure of Materials 2nd ed,
+    Chapter13, Cambridge University Press 2003.
 
     """
 
@@ -79,7 +83,7 @@ class NDCalculator(object):
     # absences do not cancel exactly to zero.
     SCALED_INTENSITY_TOL = 1e-3
 
-    def __init__(self, wavelength=1.54, symprec=0, debye_waller_factors=None):
+    def __init__(self, wavelength=1.54184, symprec=0, debye_waller_factors=None):
         """
         Initializes the ND calculator with a given radiation.
 
@@ -99,7 +103,7 @@ class NDCalculator(object):
 
     def get_nd_pattern(self, structure, scaled=True, two_theta_range=(0, 90)):
         """
-        Calculates the ND pattern for a structure.
+        Calculates the powder neutron diffraction pattern for a structure.
 
         Args:
             structure (Structure): Input structure
@@ -134,12 +138,11 @@ class NDCalculator(object):
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # Create a flattened array of zs, coeffs, fcoords and occus. This is
+        # Create a flattened array of coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
         # later. Note that these are not necessarily the same size as the
         # structure as each partially occupied specie occupies its own
         # position in the flattened array.
-        zs = []
         coeffs = []
         fcoords = []
         occus = []
@@ -147,7 +150,6 @@ class NDCalculator(object):
 
         for site in structure:
             for sp, occu in site.species_and_occu.items():
-                zs.append(sp.Z)
                 try:
                     c = ATOMIC_SCATTERING_LEN[sp.symbol]
                 except KeyError:
@@ -159,7 +161,6 @@ class NDCalculator(object):
                 fcoords.append(site.frac_coords)
                 occus.append(occu)
 
-        zs = np.array(zs)
         coeffs = np.array(coeffs)
         fcoords = np.array(fcoords)
         occus = np.array(occus)
@@ -182,15 +183,12 @@ class NDCalculator(object):
                 # 1/|ghkl|)
                 s = g_hkl / 2
 
-                # Store s^2 since we are using it a few times.
-                s2 = s ** 2
+                # Calculate Debye-Waller factor
+                dw_correction = np.exp(-dwfactors * (s**2))
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
                 g_dot_r = np.dot(fcoords, np.transpose([hkl])).T[0]
-
-                # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dwfactors * s2)
 
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
@@ -243,7 +241,7 @@ class NDCalculator(object):
                      annotate_peaks=True, ax=None, with_labels=True,
                      fontsize=16):
         """
-        Returns the ND plot as a matplotlib.pyplot.
+        Returns the neutron diffraction plot as a matplotlib.pyplot.
 
         Args:
             structure: Input structure
@@ -291,7 +289,7 @@ class NDCalculator(object):
     def show_nd_plot(self, structure, two_theta_range=(0, 90),
                       annotate_peaks=True):
         """
-        Shows the ND plot.
+        Shows the neutron diffraction plot.
 
         Args:
             structure (Structure): Input structure
@@ -309,7 +307,7 @@ class NDCalculator(object):
     def plot_structures(self, structures, two_theta_range=(0, 90),
                        annotate_peaks=True, fontsize=6, **kwargs):
         """
-        Plot ND for multiple structures on the same figure.
+        Plot the neutron diffraction pattern for multiple structures on the same figure.
 
         Args:
             structures (Structure): List of structures
@@ -368,23 +366,3 @@ def get_unique_families(hkls):
         pretty_unique[sorted(v)[-1]] = len(v)
 
     return pretty_unique
-
-if __name__ == '__main__':
-    import math
-    import sys
-    sys.path.append("/Users/resnant/Documents/jupyter/pymatgen/")
-    import pandas as pd
-    from pymatgen import Lattice, Structure
-    from pymatgen.analysis.diffraction.neutron import NDCalculator
-    c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C':1})
-    structure = Structure.from_file('/Users/resnant/Documents/jupyter/pymg_dev/graphite.cif')
-    # structure = Structure.from_file('/Users/resnant/Documents/jupyter/pymg_dev/test_cif/9004229_B2FeCo.cif')
-    nd_pattern = c.get_nd_pattern(structure, two_theta_range=(0, 90))
-    print(nd_pattern)
-    nd_df = pd.DataFrame({'two_theta': nd_pattern.x,
-                           'intensity': nd_pattern.y,
-                           'hkl_mult': nd_pattern.hkls,
-                           'd_hkl': nd_pattern.d_hkls,
-                           })
-    print(len(nd_pattern.x))
-    # nd_df.to_csv('/Users/resnant/Documents/jupyter/pymg_dev/graphite_nd_Biso1.csv')
