@@ -51,11 +51,18 @@ class NDCalculatorTest(PymatgenTest):
 
         # Test a hexagonal structure.
         s = self.get_structure("Graphite")
-
         nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[0], 26.21057350859598)
         self.assertAlmostEqual(nd.y[0], 100)
         self.assertAlmostEqual(len(list(nd.hkls[0].keys())[0]), 4)
+
+        # Test with and without Debye-Waller factor
+        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C':1})  # CuKa radiation
+        nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
+        self.assertAlmostEqual(nd.x[0], 26.21057350859598)
+        self.assertAlmostEqual(nd.y[0], 100)
+        self.assertAlmostEqual(nd.x[2], 44.39599754)
+        self.assertAlmostEqual(nd.y[2], 39.471514740)
 
         # Test with and without Debye-Waller factor
         # tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2,

@@ -189,16 +189,7 @@ class NDCalculator(object):
                 # hkl.
                 g_dot_r = np.dot(fcoords, np.transpose([hkl])).T[0]
 
-                # Highly vectorized computation of atomic scattering factors.
-                # Equivalent non-vectorized code is::
-                #
-                #   for site in structure:
-                #      el = site.specie
-                #      coeff = ATOMIC_SCATTERING_LEN[el.symbol]
-                #      fs = el.Z - 41.78214 * s2 * sum(
-                #          [d[0] * exp(-d[1] * s2) for d in coeff])
-
-
+                # Calculate Debye-Waller factor
                 dw_correction = np.exp(-dwfactors * s2)
 
                 # Structure factor = sum of atomic scattering factors (with
@@ -379,11 +370,21 @@ def get_unique_families(hkls):
     return pretty_unique
 
 if __name__ == '__main__':
+    import math
     import sys
     sys.path.append("/Users/resnant/Documents/jupyter/pymatgen/")
+    import pandas as pd
     from pymatgen import Lattice, Structure
     from pymatgen.analysis.diffraction.neutron import NDCalculator
-    c = NDCalculator(debye_waller_factors={'Li':1, 'Ge':1, 'P':1, 'S':1})
-    structure = Structure.from_file('/Users/resnant/Documents/jupyter/pymatgen/test_files/Li10GeP2S12.cif')
-    nd = c.get_nd_pattern(structure, two_theta_range=(0, 150))
-    print(nd)
+    c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C':1})
+    structure = Structure.from_file('/Users/resnant/Documents/jupyter/pymg_dev/graphite.cif')
+    # structure = Structure.from_file('/Users/resnant/Documents/jupyter/pymg_dev/test_cif/9004229_B2FeCo.cif')
+    nd_pattern = c.get_nd_pattern(structure, two_theta_range=(0, 90))
+    print(nd_pattern)
+    nd_df = pd.DataFrame({'two_theta': nd_pattern.x,
+                           'intensity': nd_pattern.y,
+                           'hkl_mult': nd_pattern.hkls,
+                           'd_hkl': nd_pattern.d_hkls,
+                           })
+    print(len(nd_pattern.x))
+    # nd_df.to_csv('/Users/resnant/Documents/jupyter/pymg_dev/graphite_nd_Biso1.csv')
