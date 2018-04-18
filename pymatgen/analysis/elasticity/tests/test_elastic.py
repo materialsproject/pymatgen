@@ -139,10 +139,8 @@ class ElasticTensorTest(PymatgenTest):
         self.assertAlmostEqual(0.37896275,
                                self.elastic_tensor_1.cahill_thermalcond(self.structure))
         # Debye
-        self.assertAlmostEqual(247.3058931,
+        self.assertAlmostEqual(198.8037985019,
                                self.elastic_tensor_1.debye_temperature(self.structure))
-        self.assertAlmostEqual(189.05670205,
-                               self.elastic_tensor_1.debye_temperature_gibbs(self.structure))
 
         # structure-property dict
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)

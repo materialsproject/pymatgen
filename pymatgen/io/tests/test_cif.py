@@ -16,6 +16,10 @@ from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpec
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.electronic_structure.core import Magmom
+try:
+    import pybtex
+except ImportError:
+    pybtex = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -276,6 +280,7 @@ loop_
         # conventional cell if it is correct, one if not.
         parser = CifParser(os.path.join(test_dir, "Fe.cif"))
         self.assertEqual(len(parser.get_structures(primitive=False)[0]), 2)
+        self.assertFalse(parser.has_errors)
 
     def test_site_symbol_preference(self):
         parser = CifParser(os.path.join(test_dir, 'site_type_symbol_test.cif'))
@@ -298,31 +303,37 @@ loop_
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1928405.cif'))
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Er1 Mn3.888 Fe2.112 Sn6")
+            self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, previously parsed as an ordered structure
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1011081.cif'))
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Zr0.2 Nb0.8")
+            self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, incorrect label, previously unparsable
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1615854.cif'))
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Na2 Al2 Si6 O16")
+            self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, incorrect label, previously unparsable
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1622133.cif'))
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Ca0.184 Mg13.016 Fe2.8 Si16 O48")
+            self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, previously parsed as an ordered structure
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1908491.cif'))
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Mn0.48 Zn0.52 Ga2 Se4")
+            self.assertTrue(parser.has_errors)
 
             # Partial occupancy on sites, incorrect label, previously unparsable
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1811457.cif'))
             for s in parser.get_structures(True):
                 self.assertEqual(s.formula, "Ba2 Mg0.6 Zr0.2 Ta1.2 O6")
+            self.assertTrue(parser.has_errors)
 
             # Incomplete powder diffraction data, previously unparsable
             # This CIF file contains the molecular species "NH3" which is
@@ -333,21 +344,103 @@ loop_
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1002871.cif'))
             self.assertEqual(parser.get_structures(True)[0].formula, "Cu1 Br2 N6")
             self.assertEqual(parser.get_structures(True)[1].formula, "Cu1 Br4 N6")
+            self.assertTrue(parser.has_errors)
 
             # Incomplete powder diffraction data, previously unparsable
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1704003.cif'))
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Rb4 Mn2 F12")
+            self.assertTrue(parser.has_errors)
 
             # Unparsable species 'OH/OH2', previously parsed as "O"
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1500382.cif'))
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Mg6 B2 O6 F1.764")
+            self.assertTrue(parser.has_errors)
 
             # Unparsable species 'OH/OH2', previously parsed as "O"
             parser = CifParser(os.path.join(test_dir, 'PF_sd_1601634.cif'))
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Zn1.29 Fe0.69 As2 Pb1.02 O8")
+
+    def test_CifParserCod(self):
+        """
+        Parsing problematic cif files from the COD database
+        """
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+
+            # Symbol in capital letters
+            parser = CifParser(os.path.join(test_dir, 'Cod_2100513.cif'))
+            for s in parser.get_structures(True):
+                self.assertEqual(s.formula, "Ca4 Nb2.0 Al2 O12")
+
+            # Label in capital letters
+            parser = CifParser(os.path.join(test_dir, 'Cod_4115344.cif'))
+            for s in parser.get_structures(True):
+                self.assertEqual(s.formula, "Mo4 P2 H60 C60 I4 O4")
+
+    def test_parse_symbol(self):
+        """
+        Test the _parse_symbol function with several potentially
+        problematic examples of symbols and labels.
+        """
+
+        test_cases = {
+            "MgT": "Mg",
+            "MgT1": "Mg",
+            "H(46A)": "H",
+            "O(M)": "O",
+            "N(Am)": "N",
+            "H1N2a": "H",
+            "CO(1)": "Co",
+            "Wat1": "O",
+            "MgM2A": "Mg",
+            "CaX": "Ca",
+            "X1": "X",
+            "X": "X",
+            "OA1": "O",
+            "NaA2": "Na",
+            "O-H2": "O",
+            "OD2": "O",
+            "OW": "O",
+            "SiT": "Si",
+            "SiTet": "Si",
+            "Na-Int": "Na",
+            "CaD1": "Ca",
+            "KAm": "K",
+            "D+1": "D",
+            "D": "D",
+            "D1-": "D",
+            "D4": "D",
+            "D0": "D",
+            "NH": "N",
+            "NH2": "N",
+            "NH3": "N",
+            "SH": "S"
+        }
+
+        for e in Element:
+            name = e.name
+            test_cases[name] = name
+            if len(name) == 2:
+                test_cases[name.upper()] = name
+                test_cases[name.upper() + str(1)] = name
+                test_cases[name.upper() + "A"] = name
+            test_cases[name + str(1)] = name
+            test_cases[name + str(2)] = name
+            test_cases[name + str(3)] = name
+            test_cases[name + str(1) + "A"] = name
+
+        special = {"Hw": "H", "Ow": "O", "Wat": "O",
+                   "wat": "O", "OH": "", "OH2": ""}
+        test_cases.update(special)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            parser = CifParser(os.path.join(test_dir, 'LiFePO4.cif'))
+            for sym, expected_symbol in test_cases.items():
+                self.assertEqual(parser._parse_symbol(sym), expected_symbol)
 
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -1196,6 +1289,7 @@ loop_
         self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
 
 
+    @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):
 
         ref_bibtex_string = """@article{cif-reference-0,

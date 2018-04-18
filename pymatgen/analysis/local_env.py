@@ -4,11 +4,15 @@
 
 from __future__ import division, unicode_literals
 
+import math
+from collections import namedtuple
+
 import six
 import ruamel.yaml as yaml
 import os
 import json
 
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.sites import PeriodicSite
 
 """
@@ -34,8 +38,7 @@ from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.core.structure import Structure
 from pymatgen.util.num import abs_cap
-from pymatgen.analysis.bond_valence import BV_PARAMS
-
+from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
@@ -2313,30 +2316,22 @@ class LocalStructOrderParams(object):
 
         return ops
 
+class BrunnerNN_reciprocal(NearNeighbors):
 
-class BrunnerNN(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
-    interatomic distances.
-
-    Note: Might be highly inaccurate in certain cases.
+    interatomic distances. This algorithm uses Brunner's method of
+    largest reciprocal gap in interatomic distances.
 
     Args:
-        mode (str): type of neighbor-finding approach, where "reciprocal"
-            will use Brunner's method of largest reciprocal gap in
-            interatomic distances, "relative" will use Brunner's method of largest
-            relative gap in interatomic distances, and "real" will use Brunner's
-            method of largest gap in interatomic distances.
-            Defaults to "reciprocal" method.
         tol (float): tolerance parameter for bond determination
             (default: 1E-4).
         cutoff (float): cutoff radius in Angstrom to look for near-neighbor
             atoms. Defaults to 8.0.
     """
 
-    def __init__(self, mode="reciprocal", tol=1.0e-4, cutoff=8.0):
-        self.mode = mode
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
         self.tol = tol
         self.cutoff = cutoff
 
@@ -2347,14 +2342,85 @@ class BrunnerNN(NearNeighbors):
         ds = [i[-1] for i in neighs_dists]
         ds.sort()
 
-        if self.mode == "reciprocal":
-            ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
-        elif self.mode == "relative":
-            ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
-        elif self.mode == "real":
-            ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
-        else:
-            raise ValueError("Unknown Brunner CN mode.")
+        ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
+
+        d_max = ds[ns.index(max(ns))]
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < d_max + self.tol:
+                w = ds[0] / dist
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
+        return siw
+
+class BrunnerNN_relative(NearNeighbors):
+
+    """
+    Determine coordination number using Brunner's algorithm which counts the
+    atoms that are within the largest gap in differences in real space
+    interatomic distances. This algorithm uses Brunner's method of
+    of largest relative gap in interatomic distances.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1E-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 8.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
+        self.tol = tol
+        self.cutoff = cutoff
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        ds = [i[-1] for i in neighs_dists]
+        ds.sort()
+
+        ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
+
+        d_max = ds[ns.index(max(ns))]
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < d_max + self.tol:
+                w = ds[0] / dist
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
+        return siw
+
+class BrunnerNN_real(NearNeighbors):
+
+    """
+    Determine coordination number using Brunner's algorithm which counts the
+    atoms that are within the largest gap in differences in real space
+    interatomic distances. This algorithm uses Brunner's method of
+    largest gap in interatomic distances.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1E-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 8.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
+        self.tol = tol
+        self.cutoff = cutoff
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        ds = [i[-1] for i in neighs_dists]
+        ds.sort()
+
+        ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -2407,6 +2473,284 @@ class EconNN(NearNeighbors):
                                 'weight': w,
                                 'site_index': self._get_original_site(structure, s)})
         return siw
+
+
+class CrystalNN(NearNeighbors):
+    """
+    This is custom near neighbor method intended for use in all kinds of
+    periodic structures (metals, minerals, porous structures, etc). It is based
+    on a Voronoi algorithm and uses the solid angle weights to determine the
+    probability of various coordination environments. The algorithm can also
+    modify probability using smooth distance cutoffs as well as Pauling
+    electronegativity differences. The output can either be the most probable
+    coordination environment or a weighted list of coordination environments.
+    """
+
+    NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
+
+    def __init__(self, weighted_cn=False, cation_anion=False,
+                 distance_cutoffs=(1.25, 2), x_diff_weight=True,
+                 search_cutoff=6, fingerprint_length=None):
+        """
+        Initialize CrystalNN with desired paramters.
+
+        Args:
+            weighted_cn: (bool) if set to True, will return fractional weights
+                for each potential near neighbor.
+            cation_anion: (bool) if set True, will restrict bonding targets to
+                sites with opposite or zero charge. Requires an oxidation states
+                on all sites in the structure.
+            distance_cutoffs: ([float, float]) - min and max cutoff for smooth
+                distance filtering. Set to None to turn off.
+            x_diff_weight: (float) - if multiple types of neighbor elements are
+                possible, this sets preferences for targets with higher
+                electronegativity difference.
+            search_cutoff: (float) cutoff in Angstroms for initial neighbor
+                search
+            fingerprint_length: (int) if a fixed_length CN "fingerprint" is
+                desired from get_nn_data(), set this parameter
+        """
+        self.weighted_cn=weighted_cn
+        self.cation_anion = cation_anion
+        self.distance_cutoffs = distance_cutoffs
+        self.x_diff_weight = x_diff_weight
+        self.search_cutoff = search_cutoff
+        self.fingerprint_length = fingerprint_length
+
+    def get_nn_info(self, structure, n):
+        """
+        Get all near-neighbor information.
+        Args:
+            structure: (Structure) pymatgen Structure
+            n: (int) index of target site
+
+        Returns:
+            siw (list of dicts): each dictionary provides information
+                about a single near neighbor, where key 'site' gives
+                access to the corresponding Site object, 'image' gives
+                the image location, and 'weight' provides the weight
+                that a given near-neighbor site contributes
+                to the coordination number (1 or smaller), 'site_index'
+                gives index of the corresponding site in
+                the original structure.
+        """
+
+        nndata = self.get_nn_data(structure, n)
+
+        if not self.weighted_cn:
+            max_key = max(nndata.cn_weights, key=lambda k: nndata.cn_weights[k])
+            nn = nndata.cn_nninfo[max_key]
+            for entry in nn:
+                entry["weight"] = 1
+            return nn
+
+        else:
+            for entry in nndata.all_nninfo:
+                weight = 0
+                for cn in nndata.cn_nninfo:
+                    for cn_entry in nndata.cn_nninfo[cn]:
+                        if entry["site"] == cn_entry["site"]:
+                            weight += nndata.cn_weights[cn]
+
+                entry["weight"] = weight
+
+            return nndata.all_nninfo
+
+    def get_nn_data(self, structure, n, length=None):
+        """
+        The main logic of the method to compute near neighbor.
+
+        Args:
+            structure: (Structure) enclosing structure object
+            n: (int) index of target site to get NN info for
+            length: (int) if set, will return a fixed range of CN numbers
+
+        Returns:
+            a namedtuple (NNData) object that contains:
+                - all near neighbor sites with weights
+                - a dict of CN -> weight
+                - a dict of CN -> associated near neighbor sites
+        """
+
+        length = length or self.fingerprint_length
+
+        # determine possible bond targets
+        target = None
+        if self.cation_anion:
+            target = []
+            m_oxi = structure[n].specie.oxi_state
+            for site in structure:
+                if site.specie.oxi_state * m_oxi <= 0:  # opposite charge
+                    target.append(site.specie)
+            if not target:
+                raise ValueError(
+                    "No valid targets for site within cation_anion constraint!")
+
+        # get base VoronoiNN targets
+        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=6)
+        nn = vnn.get_nn_info(structure, n)
+
+        # adjust solid angle weights based on distance
+        if self.distance_cutoffs:
+            r1 = self._get_radius(structure[n])
+            for entry in nn:
+                r2 = self._get_radius(entry["site"])
+                dist = np.linalg.norm(
+                    structure[n].coords - entry["site"].coords)
+                dist_ratio = dist / (r1 + r2)
+                dist_weight = 0
+                cutoff_low = self.distance_cutoffs[0]
+                cutoff_high = self.distance_cutoffs[1]
+                if dist_ratio <= cutoff_low:
+                    dist_weight = 1
+                elif dist_ratio < cutoff_high:
+                    dist_weight = (math.cos((dist_ratio - cutoff_low) / (
+                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
+
+                entry["weight"] = entry["weight"] * dist_weight
+
+        # adjust solid angle weight best on electronegativity difference
+        if self.x_diff_weight > 0:
+            for entry in nn:
+                X1 = structure[n].specie.X
+                X2 = entry["site"].specie.X
+
+                if math.isnan(X1) or math.isnan(X1):
+                    chemical_weight = 1
+                else:
+                    chemical_weight = 1 + self.x_diff_weight * \
+                                      abs(X1 - X2)/3.3  # 3.3 is max deltaX
+
+                entry["weight"] = entry["weight"] * chemical_weight
+
+        # sort nearest neighbors from highest to lowest weight
+        nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+
+        # renormalize & round weights, remove unneeded data
+        highest_weight = nn[0]["weight"]
+        for entry in nn:
+            entry["weight"] = entry["weight"] / highest_weight
+            entry["weight"] = round(entry["weight"], 3)
+            del entry["poly_info"]  # trim
+
+        # remove entries with no weight
+        nn = [x for x in nn if x["weight"] > 0]
+
+        # get the transition distances, i.e. all distinct weights
+        dist_bins = []
+        for entry in nn:
+            if not dist_bins or dist_bins[-1] != entry["weight"]:
+                dist_bins.append(entry["weight"])
+        dist_bins.append(0)
+
+        # main algorithm to determine fingerprint from bond weights
+        cn_scores = {}  # CN -> score for that CN
+        cn_info = {}  # CN -> list of nearneighbor info for that CN
+        for idx, val in enumerate(dist_bins):
+            if val != 0:
+                nn_info = []
+                for entry in nn:
+                    if entry["weight"] >= val:
+                        nn_info.append(entry)
+                cn = len(nn_info)
+                cn_info[cn] = nn_info
+                cn_scores[cn] = self._semicircle_integral(dist_bins, idx)
+
+        if length:
+            for i in range(length):
+                cn = i+1
+                if cn not in cn_scores:
+                    cn_scores[cn] = 0
+                    cn_info[cn] = []
+
+        return self.NNData(nn, cn_scores, cn_info)
+
+    def get_cn(self, structure, n, use_weights=False):
+        """
+        Get coordination number, CN, of site with index n in structure.
+
+        Args:
+            structure (Structure): input structure.
+            n (integer): index of site for which to determine CN.
+            use_weights (boolean): flag indicating whether (True)
+                to use weights for computing the coordination number
+                or not (False, default: each coordinated site has equal
+                weight).
+        Returns:
+            cn (integer or float): coordination number.
+        """
+        if self.weighted_cn != use_weights:
+            raise ValueError("The weighted_cn parameter and use_weights "
+                             "parameter should match!")
+
+        return super(CrystalNN, self).get_cn(structure, n, use_weights)
+
+    def get_cn_dict(self, structure, n, use_weights=False):
+        """
+        Get coordination number, CN, of each element bonded to site with index n in structure
+
+        Args:
+            structure (Structure): input structure
+            n (integer): index of site for which to determine CN.
+            use_weights (boolean): flag indicating whether (True)
+                to use weights for computing the coordination number
+                or not (False, default: each coordinated site has equal
+                weight).
+
+        Returns:
+            cn (dict): dictionary of CN of each element bonded to site
+        """
+        if self.weighted_cn != use_weights:
+            raise ValueError("The weighted_cn parameter and use_weights "
+                             "parameter should match!")
+
+        return super(CrystalNN, self).get_cn_dict(structure, n, use_weights)
+
+
+    @staticmethod
+    def _semicircle_integral(dist_bins, idx):
+        """
+        An internal method to get an integral between two bounds of a unit
+        semicircle. Used in algorithm to determine bond probabilities.
+        Args:
+            dist_bins: (float) list of all possible bond weights
+            idx: (float) index of starting bond weight
+
+        Returns:
+            (float) integral of portion of unit semicircle
+
+        """
+        r = 1
+
+        x1 = dist_bins[idx]
+        x2 = dist_bins[idx + 1]
+
+        if dist_bins[idx] == 1:
+            area1 = 0.25 * math.pi * r ** 2
+        else:
+            area1 = 0.5 * ((x1 * math.sqrt(r ** 2 - x1 ** 2)) + (
+                        r ** 2 * math.atan(x1 / math.sqrt(r ** 2 - x1 ** 2))))
+
+        area2 = 0.5 * ((x2 * math.sqrt(r ** 2 - x2 ** 2)) + (
+                    r ** 2 * math.atan(x2 / math.sqrt(r ** 2 - x2 ** 2))))
+
+        return (area1 - area2) / (0.25 * math.pi * r ** 2)
+
+
+    @staticmethod
+    def _get_radius(site):
+        """
+        An internal method to get the expected radius for a site.
+        Args:
+            site: (Site)
+
+        Returns:
+            Covalent radius of element on site, or Atomic radius if unavailable
+        """
+        try:
+            return CovalentRadius.radius[site.specie.symbol]
+        except:
+            return site.specie.atomic_radius
 
 
 def calculate_weighted_avg(bonds):
