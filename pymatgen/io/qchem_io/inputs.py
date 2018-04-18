@@ -10,7 +10,7 @@ from .utils import read_table_pattern, read_pattern
 Classes for reading/manipulating/writing QChem ouput files.
 """
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __email__ = "b.wood@berkeley.edu"
@@ -42,10 +42,12 @@ class QCInput(MSONable):
             Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
     """
 
-    def __init__(self, molecule, rem, opt=None):
+    def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None):
         self.molecule = molecule
         self.rem = rem
         self.opt = opt
+        self.pcm = pcm
+        self.solvent = solvent
 
     def __str__(self):
         combined_list = []
@@ -58,6 +60,14 @@ class QCInput(MSONable):
         # opt section
         if self.opt:
             combined_list.append(self.opt_template(self.opt))
+            combined_list.append("")
+        # pcm section
+        if self.pcm:
+            combined_list.append(self.pcm_template(self.pcm))
+            combined_list.append("")
+        # solvent section
+        if self.solvent:
+            combined_list.append(self.solvent_template(self.solvent))
             combined_list.append("")
         return '\n'.join(combined_list)
 
@@ -78,9 +88,15 @@ class QCInput(MSONable):
         rem = cls.read_rem(string)
         # only molecule and rem are necessary everything else is checked
         opt = None
+        pcm = None
+        solvent = None
         if "opt" in sections:
             opt = cls.read_opt(string)
-        return cls(molecule, rem, opt=opt)
+        if "pcm" in sections:
+            pcm = cls.read_pcm(string)
+        if "solvent" in sections:
+            solvent = cls.read_solvent(string)
+        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent)
 
     def write_file(self, filename):
         with open(filename, 'w') as f:
@@ -147,6 +163,24 @@ class QCInput(MSONable):
         del opt_list[-1]
         opt_list.append("$end")
         return '\n'.join(opt_list)
+
+    @staticmethod
+    def pcm_template(pcm):
+        pcm_list = []
+        pcm_list.append("$pcm")
+        for key, value in pcm.items():
+            pcm_list.append("   {key} = {value}".format(key=key, value=value))
+        pcm_list.append("$end")
+        return '\n'.join(pcm_list)
+
+    @staticmethod
+    def solvent_template(solvent):
+        solvent_list = []
+        solvent_list.append("$solvent")
+        for key, value in solvent.items():
+            solvent_list.append("   {key} = {value}".format(key=key, value=value))
+        solvent_list.append("$end")
+        return '\n'.join(solvent_list)
 
     @staticmethod
     def find_sections(string):
@@ -236,3 +270,21 @@ class QCInput(MSONable):
                 string, header_pattern=cc_header, row_pattern=cc_row, footer_pattern=cc_footer)
             opt["CONNECT"] = [val[0] for val in cc_table[0]]
         return opt
+
+    @staticmethod
+    def read_pcm(string):
+        header = r"^\s*\$pcm"
+        row = r"\s*(\S+)\s+=?\s+(\S+)"
+        footer = r"^\s*\$end"
+        pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        pcm = {key: val for key, val in pcm_table[0]}
+        return pcm
+
+    @staticmethod
+    def read_solvent(string):
+        header = r"^\s*\$solvent"
+        row = r"\s*(\S+)\s+=?\s+(\S+)"
+        footer = r"^\s*\$end"
+        solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        solvent = {key: val for key, val in solvent_table[0]}
+        return solvent
