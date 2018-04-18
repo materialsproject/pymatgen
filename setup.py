@@ -97,7 +97,7 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2018.3.14",
+    version="2018.4.6",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy', 'setuptools>=18.0'],
     install_requires=["numpy>=1.9", "six", "requests", "ruamel.yaml>=0.15.6",
@@ -120,7 +120,8 @@ setup(
                   "pymatgen.io.feff": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml", "*.json"],
                   "pymatgen.entries": ["*.yaml"],
-                  "pymatgen.structure_prediction": ["data/*.json"],
+                  "pymatgen.analysis.structure_prediction": ["data/*.json"],
+                  "pymatgen.analysis.structure_prediction": ["DLS_bond_params.yaml"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
                   "pymatgen.analysis.defects": ["*.json"],

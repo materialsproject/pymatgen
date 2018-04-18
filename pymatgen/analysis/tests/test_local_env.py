@@ -9,10 +9,11 @@ import unittest
 import os
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-        VoronoiNN, VoronoiNN_modified, JMolNN, \
-        MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
-        get_neighbors_of_site_with_index, site_is_of_motif_type, \
-        NearNeighbors, LocalStructOrderParas, BrunnerNN, EconNN
+    VoronoiNN, VoronoiNN_modified, JMolNN, \
+    MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
+    get_neighbors_of_site_with_index, site_is_of_motif_type, \
+    NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
+    BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.cif import CifParser
@@ -48,6 +49,7 @@ class ValenceIonicRadiusEvaluatorTest(PymatgenTest):
         del self._mgo_uc
         del self._mgo_valrad_evaluator
 
+
 class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.s = self.get_structure('LiFePO4')
@@ -62,6 +64,67 @@ class VoronoiNNTest(PymatgenTest):
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
+
+    def test_volume(self):
+        self.nn.targets = None
+        volume = 0
+        for n in range(len(self.s)):
+            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+                volume += nn['volume']
+        self.assertAlmostEqual(self.s.volume, volume)
+
+    def test_solid_angle(self):
+        self.nn.targets = None
+        for n in range(len(self.s)):
+            angle = 0
+            for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
+                angle += nn['solid_angle']
+            self.assertAlmostEqual(4 * np.pi, angle)
+
+    def test_nn_shell(self):
+        # First, make a SC lattice. Make my math easier
+        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
+
+        # Get the 1NN shell
+        self.nn.targets = None
+        nns = self.nn.get_nn_shell_info(s, 0, 1)
+        self.assertEqual(6, len(nns))
+
+        # Test the 2nd NN shell
+        nns = self.nn.get_nn_shell_info(s, 0, 2)
+        self.assertEqual(18, len(nns))
+        self.assertArrayAlmostEqual([1] * 6,
+                                    [x['weight'] for x in nns if
+                                     max(np.abs(x['image'])) == 2])
+        self.assertArrayAlmostEqual([2] * 12,
+                                    [x['weight'] for x in nns if
+                                     max(np.abs(x['image'])) == 1])
+
+        # Test the 3rd NN shell
+        nns = self.nn.get_nn_shell_info(s, 0, 3)
+        for nn in nns:
+            #  Check that the coordinates were set correctly
+            self.assertArrayAlmostEqual(nn['site'].frac_coords, nn['image'])
+
+        # Test with a structure that has unequal faces
+        cscl = Structure(Lattice([[4.209, 0, 0], [0, 4.209, 0], [0, 0, 4.209]]),
+            ["Cl1-", "Cs1+"], [[2.1045, 2.1045, 2.1045], [0, 0, 0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
+        self.nn.weight = 'area'
+        nns = self.nn.get_nn_shell_info(cscl, 0, 1)
+        self.assertEqual(14, len(nns))
+        self.assertEqual(6, np.isclose([x['weight'] for x in nns],
+                                       0.125/0.32476).sum())  # Square faces
+        self.assertEqual(8, np.isclose([x['weight'] for x in nns], 1).sum())
+
+        nns = self.nn.get_nn_shell_info(cscl, 0, 2)
+        # Weight of getting back on to own site
+        #  Square-square hop: 6*5 options times (0.125/0.32476)^2 weight each
+        #  Hex-hex hop: 8*7 options times 1 weight each
+        self.assertAlmostEqual(60.4444,
+                               np.sum([x['weight'] for x in nns if x['site_index'] == 0]),
+                               places=3)
 
     def tearDown(self):
         del self.s
@@ -157,25 +220,25 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(MinimumVIRENN(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
-        self.assertAlmostEqual(BrunnerNN(tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
             self.diamond, 0), 4)
-        self.assertAlmostEqual(BrunnerNN(tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
             self.nacl, 0), 6)
-        self.assertAlmostEqual(BrunnerNN(tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_reciprocal(tol=0.01).get_cn(
             self.cscl, 0), 14)
 
-        self.assertAlmostEqual(BrunnerNN(mode="real", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
             self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN(mode="real", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
             self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN(mode="real", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_relative(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
-        self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
             self.diamond, 0), 16)
-        self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
             self.nacl, 0), 18)
-        self.assertAlmostEqual(BrunnerNN(mode="relative", tol=0.01).get_cn(
+        self.assertAlmostEqual(BrunnerNN_real(tol=0.01).get_cn(
             self.cscl, 0), 8)
 
         self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
@@ -322,7 +385,7 @@ class NearNeighborTest(PymatgenTest):
     def tearDown(self):
         del self.diamond
 
-class LocalStructOrderParasTest(PymatgenTest):
+class LocalStructOrderParamsTest(PymatgenTest):
     def setUp(self):
         self.single_bond = Structure(
             Lattice.from_lengths_and_angles(
@@ -512,7 +575,7 @@ class LocalStructOrderParasTest(PymatgenTest):
 
     def test_init(self):
         self.assertIsNotNone(
-            LocalStructOrderParas(["cn"], parameters=None, cutoff=0.99))
+            LocalStructOrderParams(["cn"], parameters=None, cutoff=0.99))
 
     def test_get_order_parameters(self):
         # Set up everything.
@@ -526,13 +589,13 @@ class LocalStructOrderParasTest(PymatgenTest):
         op_params[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
         op_params[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
         op_params[33] = {'TA': 0.6081734479693927, 'IGW_TA': 18.33, "fac_AA": 1.5, "exp_cos_AA": 2}
-        ops_044 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.44)
-        ops_071 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.71)
-        ops_087 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.87)
-        ops_099 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=0.99)
-        ops_101 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=1.01)
-        ops_501 = LocalStructOrderParas(op_types, parameters=op_params, cutoff=5.01)
-        ops_voro = LocalStructOrderParas(op_types, parameters=op_params)
+        ops_044 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.44)
+        ops_071 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.71)
+        ops_087 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.87)
+        ops_099 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=0.99)
+        ops_101 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=1.01)
+        ops_501 = LocalStructOrderParams(op_types, parameters=op_params, cutoff=5.01)
+        ops_voro = LocalStructOrderParams(op_types, parameters=op_params)
 
         # Single bond.
         op_vals = ops_101.get_order_parameters(self.single_bond, 0)
@@ -730,6 +793,61 @@ class LocalStructOrderParasTest(PymatgenTest):
         del self.T_shape
         del self.cuboctahedron
         del self.see_saw_rect
+
+
+class CrystalNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.lifepo4 = self.get_structure('LiFePO4')
+        self.lifepo4.add_oxidation_state_by_guess()
+
+    def test_sanity(self):
+        with self.assertRaises(ValueError):
+            cnn = CrystalNN()
+            cnn.get_cn(self.lifepo4, 0, use_weights=True)
+
+        with self.assertRaises(ValueError):
+            cnn = CrystalNN(weighted_cn=True)
+            cnn.get_cn(self.lifepo4, 0, use_weights=False)
+
+    def test_discrete_cn(self):
+        cnn = CrystalNN()
+        cn_array = []
+        expected_array = [6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+                          4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        for idx, _ in enumerate(self.lifepo4):
+            cn_array.append(cnn.get_cn(self.lifepo4, idx))
+
+        self.assertSequenceEqual(cn_array, expected_array)
+
+    def test_weighted_cn(self):
+        cnn = CrystalNN(weighted_cn=True)
+        cn_array = []
+        expected_array = [6.0194, 6.0176, 6.0194, 6.0176, 5.5919, 5.5909,
+                          5.5914, 5.5914, 3.9504, 3.9504, 3.9504, 3.9504,
+                          3.7935, 3.5778, 3.5731, 3.6358, 3.6358, 3.5731,
+                          3.5778, 3.7935, 3.7935, 3.5778, 3.5721, 3.6368,
+                          3.6368, 3.5721, 3.5778, 3.7935]
+        for idx, _ in enumerate(self.lifepo4):
+            cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
+
+        self.assertArrayAlmostEqual(expected_array, cn_array, 2)
+
+    def test_fixed_length(self):
+        cnn = CrystalNN(fingerprint_length=30)
+        nndata = cnn.get_nn_data(self.lifepo4, 0)
+        self.assertEqual(len(nndata.cn_weights), 30)
+        self.assertEqual(len(nndata.cn_nninfo), 30)
+
+    def test_cation_anion(self):
+        cnn = CrystalNN(weighted_cn=True, cation_anion=True)
+        self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
+                               5.93283, 2)
+
+    def test_x_diff_weight(self):
+        cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
+        self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
+                               6.072855, 2)
 
 
 if __name__ == '__main__':
