@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 
 import os
 import unittest
-import numpy as np
 
 from monty.serialization import loadfn, dumpfn
 from pymatgen.io.qchem_io.outputs import QCOutput

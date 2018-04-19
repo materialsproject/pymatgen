@@ -260,7 +260,7 @@ class QCInput(MSONable):
     @staticmethod
     def read_rem(string):
         header = r"^\s*\$rem"
-        row = r"\s*([a-zA-Z\_]+)\s+=?\s+(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         rem = {key: val for key, val in rem_table[0]}
@@ -307,7 +307,7 @@ class QCInput(MSONable):
     @staticmethod
     def read_pcm(string):
         header = r"^\s*\$pcm"
-        row = r"\s*([a-zA-Z\_]+)\s+=?\s+(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         pcm = {key: val for key, val in pcm_table[0]}
@@ -316,7 +316,7 @@ class QCInput(MSONable):
     @staticmethod
     def read_solvent(string):
         header = r"^\s*\$solvent"
-        row = r"\s*([a-zA-Z\_]+)\s+=?\s+(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         solvent = {key: val for key, val in solvent_table[0]}
