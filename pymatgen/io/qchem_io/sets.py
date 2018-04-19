@@ -3,20 +3,16 @@
 # Distributed under the terms of the MIT License.
 
 import logging
-
 from pymatgen.core import Molecule
 from pymatgen.io.qchem_io.inputs import QCInput
 
-"""
-Classes for reading/manipulating/writing QChem ouput files.
-"""
+# Classes for reading/manipulating/writing QChem ouput files.
 
 __author__ = "Samuel Blau, Brandon Woods, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
 logger = logging.getLogger(__name__)
-
 
 class QChemDictSet(QCInput):
     """
@@ -73,7 +69,6 @@ class QChemDictSet(QCInput):
             print("Need PCM input implementation!")
 
         super(QChemDictSet, self).__init__(self.molecule, myrem)
-        
 
 class OptSet(QChemDictSet):
     """
@@ -89,8 +84,6 @@ class OptSet(QChemDictSet):
         self.geom_opt_max_cycles = defaults.get("geom_opt_max_cycles")
         super(OptSet, self).__init__(molecule=molecule, job_type="opt", DFT_rung=DFT_rung, PCM_solvent=PCM_solvent, basis_set=self.basis_set, SCF_algorithm=self.SCF_algorithm, max_scf_cycles=self.max_scf_cycles, geom_opt_max_cycles=self.geom_opt_max_cycles)
 
-
-
 class SinglePointSet(QChemDictSet):
     """
     QChemDictSet for a single point calculation
@@ -103,8 +96,6 @@ class SinglePointSet(QChemDictSet):
         self.SCF_algorithm = defaults.get("SCF_algorithm")
         self.max_scf_cycles = defaults.get("max_scf_cycles")
         super(SinglePointSet, self).__init__(molecule=molecule, job_type="sp", DFT_rung=DFT_rung, PCM_solvent=PCM_solvent, basis_set=self.basis_set, SCF_algorithm=self.SCF_algorithm, max_scf_cycles=self.max_scf_cycles)
-
-
 
 class FreqSet(QChemDictSet):
     """
