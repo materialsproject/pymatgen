@@ -43,7 +43,7 @@ $end"""
 
     def test_rem_template(self):
         rem_params = {
-            "jobtype": "opt",
+            "job_type": "opt",
             "method": "wB97M-V",
             "basis": "def2-QZVPPD",
             "max_scf_cycles": 300,
@@ -51,7 +51,7 @@ $end"""
         }
         rem_test = QCInput.rem_template(rem_params)
         rem_actual = """$rem
-   jobtype = opt
+   job_type = opt
    method = wB97M-V
    basis = def2-QZVPPD
    max_scf_cycles = 300
@@ -127,7 +127,7 @@ $end
 
 
 $rem
-              jobtype = opt
+             job_type = opt
                method = wb97m-v
                 basis = def2-tzvppd
            gen_scfman = true
@@ -168,7 +168,7 @@ $end"""
         str_rem = """Trying to break you!
 
 $rem
-   jobtype  opt
+   job_type  opt
   method  wB97M-V
    basis  def2-QZVPPD
    max_scf_cycles  300
@@ -176,7 +176,44 @@ $rem
 $end"""
         rem_test = QCInput.read_rem(str_rem)
         rem_actual = {
-            "jobtype": "opt",
+            "job_type": "opt",
+            "method": "wB97M-V",
+            "basis": "def2-QZVPPD",
+            "max_scf_cycles": "300",
+            "gen_scfman": "true"
+        }
+        self.assertDictEqual(rem_actual, rem_test)
+
+
+    def test_read_only_rem(self):
+        str_rem = """Trying to break you!
+
+$rem
+   job_type  opt
+  method  wB97M-V
+   basis  def2-QZVPPD
+   max_scf_cycles  300
+  gen_scfman = true
+$end
+
+$pcm
+heavypoints   194
+hpoints   194
+radii   uff
+theory   cpcm
+vdwscale   1.1
+$end
+
+
+$solvent
+dielectric   10.0
+$end
+
+
+"""
+        rem_test = QCInput.read_rem(str_rem)
+        rem_actual = {
+            "job_type": "opt",
             "method": "wB97M-V",
             "basis": "def2-QZVPPD",
             "max_scf_cycles": "300",
@@ -232,7 +269,7 @@ $end"""
 $end
 
 $rem
-   jobtype = opt
+   job_type = opt
    method = wB97M-V
    basis = def2-QZVPPD
    max_scf_cycles = 300
@@ -305,7 +342,7 @@ $end
         molecule_actual = Molecule(species, coords)
         self.assertEqual(molecule_actual, qcinput_test.molecule)
         rem_actual = {
-            "jobtype": "opt",
+            "job_type": "opt",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
             "gen_scfman": "true",
@@ -393,7 +430,7 @@ $end
 $end
 
 $rem
-   jobtype = opt
+   job_type = opt
    method = wb97m-v
    basis = def2-tzvppd
    gen_scfman = true
@@ -419,7 +456,7 @@ $molecule
 $end
 
 $rem
-   jobtype = sp
+   job_type = sp
    method = wb97m-v
    basis = def2-tzvppd
    gen_scfman = true
@@ -455,7 +492,7 @@ $end
                   [-2.81590978, -0.00516172, -1.58990580]]
         molecule_1_actual = Molecule(species, coords)
         rem_1_actual = {
-            "jobtype": "opt",
+            "job_type": "opt",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
             "gen_scfman": "true",
@@ -474,7 +511,7 @@ $end
 
         molecule_2_actual = "read"
         rem_2_actual = {
-            "jobtype": "sp",
+            "job_type": "sp",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
             "gen_scfman": "true",
