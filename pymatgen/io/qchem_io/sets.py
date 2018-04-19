@@ -2,17 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import re
 import logging
-import os
 
-from monty.io import zopen
-from monty.json import MSONable
-from monty.serialization import loadfn
 from pymatgen.core import Molecule
 from pymatgen.io.qchem_io.inputs import QCInput
 
-from .utils import read_table_pattern, read_pattern
 """
 Classes for reading/manipulating/writing QChem ouput files.
 """
@@ -26,9 +20,8 @@ logger = logging.getLogger(__name__)
 
 class QChemDictSet(QCInput):
     """
-    Build a QCInput given all the various input parameters. Can be extended by standard implementations below. 
+    Build a QCInput given all the various input parameters. Can be extended by standard implementations below.
     """
-
     def __init__(self, molecule, job_type, basis_set, SCF_algorithm, DFT_rung=4, PCM_solvent=None, max_scf_cycles=200, geom_opt_max_cycles=200):
 
         """
@@ -41,9 +34,11 @@ class QChemDictSet(QCInput):
             PCM_solvent (str)
             max_scf_cycles (int)
             geom_opt_max_cycles (int)
-
         """
-        self.molecule = molecule
+        if isinstance(molecule, Molecule):
+            self.molecule = molecule
+        else:
+            raise ValueError('molecule must be a Pymatgen Molecule object!')
         self.job_type = job_type
         self.basis_set = basis_set
         self.SCF_algorithm = SCF_algorithm
@@ -78,9 +73,7 @@ class QChemDictSet(QCInput):
             print("Need PCM input implementation!")
 
         super(QChemDictSet, self).__init__(self.molecule, myrem)
-
         
-
 
 class OptSet(QChemDictSet):
     """
@@ -90,10 +83,6 @@ class OptSet(QChemDictSet):
     defaults = {"basis": "6-311++G*", "SCF_algorithm": "diis", "max_scf_cycles": 200, "geom_opt_max_cycles": 200}
 
     def __init__(self, molecule, DFT_rung=4, PCM_solvent=None):
-        """
-        Args:
-
-        """
         self.basis_set = defaults.get("basis")
         self.SCF_algorithm = defaults.get("SCF_algorithm")
         self.max_scf_cycles = defaults.get("max_scf_cycles")
