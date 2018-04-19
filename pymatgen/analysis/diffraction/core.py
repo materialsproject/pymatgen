@@ -26,7 +26,7 @@ __date__ = "5/22/14"
 
 class DiffractionPattern(Spectrum):
     """
-    A representation of an XRDPattern
+    A representation of a diffraction pattern
     """
 
     XLABEL = "$2\\Theta$"
@@ -49,57 +49,7 @@ class DiffractionPattern(Spectrum):
 
 class DiffractionPatternCalculator(abc.ABC):
     """
-    Computes the XRD pattern of a crystal structure.
-
-    This code is implemented by Shyue Ping Ong as part of UCSD's NANO106 -
-    Crystallography of Materials. The formalism for this code is based on
-    that given in Chapters 11 and 12 of Structure of Materials by Marc De
-    Graef and Michael E. McHenry. This takes into account the atomic
-    scattering factors and the Lorentz polarization factor, but not
-    the Debye-Waller (temperature) factor (for which data is typically not
-    available). Note that the multiplicity correction is not needed since
-    this code simply goes through all reciprocal points within the limiting
-    sphere, which includes all symmetrically equivalent facets. The algorithm
-    is as follows
-
-    1. Calculate reciprocal lattice of structure. Find all reciprocal points
-       within the limiting sphere given by :math:`\\frac{2}{\\lambda}`.
-
-    2. For each reciprocal point :math:`\\mathbf{g_{hkl}}` corresponding to
-       lattice plane :math:`(hkl)`, compute the Bragg condition
-       :math:`\\sin(\\theta) = \\frac{\\lambda}{2d_{hkl}}`
-
-    3. Compute the structure factor as the sum of the atomic scattering
-       factors. The atomic scattering factors are given by
-
-       .. math::
-
-           f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \
-           \\exp(-b_is^2)
-
-       where :math:`s = \\frac{\\sin(\\theta)}{\\lambda}` and :math:`a_i`
-       and :math:`b_i` are the fitted parameters for each element. The
-       structure factor is then given by
-
-       .. math::
-
-           F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}}
-           \\cdot \\mathbf{r})
-
-    4. The intensity is then given by the modulus square of the structure
-       factor.
-
-       .. math::
-
-           I_{hkl} = F_{hkl}F_{hkl}^*
-
-    5. Finally, the Lorentz polarization correction factor is applied. This
-       factor is given by:
-
-       .. math::
-
-           P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}
-           {\\sin^2(\\theta)\\cos(\\theta)}
+    Abstract base class for computing the diffraction pattern of a crystal.
     """
     # Tolerance in which to treat two peaks as having the same two theta.
     TWO_THETA_TOL = 1e-5
@@ -132,8 +82,8 @@ class DiffractionPatternCalculator(abc.ABC):
         pass
 
     def get_plot(self, structure, two_theta_range=(0, 90),
-                     annotate_peaks=True, ax=None, with_labels=True,
-                     fontsize=16):
+                 annotate_peaks=True, ax=None, with_labels=True,
+                 fontsize=16):
         """
         Returns the XRD plot as a matplotlib.pyplot.
 
@@ -180,8 +130,7 @@ class DiffractionPatternCalculator(abc.ABC):
 
         return plt
 
-    def show_plot(self, structure, two_theta_range=(0, 90),
-                      annotate_peaks=True):
+    def show_plot(self, structure, **kwargs):
         """
         Shows the XRD plot.
 
@@ -194,12 +143,10 @@ class DiffractionPatternCalculator(abc.ABC):
             annotate_peaks (bool): Whether to annotate the peaks with plane
                 information.
         """
-        self.get_plot(structure, two_theta_range=two_theta_range,
-                          annotate_peaks=annotate_peaks).show()
+        self.get_plot(structure, **kwargs).show()
 
     @add_fig_kwargs
-    def plot_structures(self, structures, two_theta_range=(0, 90),
-                       annotate_peaks=True, fontsize=6, **kwargs):
+    def plot_structures(self, structures, fontsize=6, **kwargs):
         """
         Plot XRD for multiple structures on the same figure.
 
@@ -215,12 +162,13 @@ class DiffractionPatternCalculator(abc.ABC):
         """
         import matplotlib.pyplot as plt
         nrows = len(structures)
-        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
+        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True,
+                                 squeeze=False)
 
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
-            self.get_plot(structure, two_theta_range=two_theta_range,
-                          annotate_peaks=annotate_peaks,
-                          fontsize=fontsize, ax=ax, with_labels=i == nrows - 1)
+            self.get_plot(structure,
+                          fontsize=fontsize, ax=ax, with_labels=i == nrows - 1,
+                          **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
             ax.set_title("{} {} ({}) ".format(structure.formula, spg_symbol,
                                               spg_number))
