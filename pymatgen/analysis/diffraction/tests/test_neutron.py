@@ -4,7 +4,7 @@
 
 from __future__ import division, unicode_literals
 import unittest
-from pymatgen.analysis.diffraction.neutron import NMRPatternCalculator
+from pymatgen.analysis.diffraction.neutron import NDCalculator
 from pymatgen.util.testing import PymatgenTest
 import matplotlib as mpl
 mpl.use("pdf")
@@ -24,10 +24,10 @@ __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
 
-class NMRPatternCalculatorTest(PymatgenTest):
+class NDCalculatorTest(PymatgenTest):
     def test_get_nd_data(self):
         s = self.get_structure("CsCl")
-        c = NMRPatternCalculator(wavelength=1.54184)  # CuKa radiation
+        c = NDCalculator(wavelength=1.54184)  # CuKa radiation
         nd = c.get_pattern(s, two_theta_range=(0, 90))
         # Check the first two peaks
         self.assertAlmostEqual(nd.x[0], 21.107738329639844)
@@ -60,8 +60,7 @@ class NMRPatternCalculatorTest(PymatgenTest):
 
         # Test with Debye-Waller factor
         s = self.get_structure("Graphite")
-        c = NMRPatternCalculator(wavelength=1.54184,
-                                 debye_waller_factors={'C': 1})
+        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C': 1})
         nd = c.get_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[0], 26.21057350859598)
         self.assertAlmostEqual(nd.y[0], 100)

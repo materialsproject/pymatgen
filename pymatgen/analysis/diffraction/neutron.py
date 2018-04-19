@@ -32,7 +32,7 @@ with open(os.path.join(os.path.dirname(__file__),
     ATOMIC_SCATTERING_LEN = json.load(f)
 
 
-class NMRPatternCalculator(DiffractionPatternCalculator):
+class NDCalculator(DiffractionPatternCalculator):
     """
     Computes the powder neutron diffraction pattern of a crystal structure.
     This code is a slight modification of XRDCalculator in
