@@ -233,7 +233,7 @@ class QCOutput(MSONable):
         """
         coords = []
         species = []
-        for ii, entry in enumerate(geometry):
+        for entry in enumerate(geometry):
             temp_coords = []
             species += [entry[0]]
             for jj in range(3):
@@ -320,7 +320,6 @@ class QCOutput(MSONable):
         elif read_pattern(self.text, {"key": r"UNABLE TO DETERMINE Lamda IN FormD"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["unable_to_determine_lamda"]
         elif read_pattern(self.text, {"key": r"Inconsistent size for SCF MO coefficient file"}, terminate_on_match=True).get('key') == [[]]:
-            assert read_pattern(self.text, {"key": r"Linear dependence detected in AO basis"}, terminate_on_match=True).get('key') == [[]]
             self.data["errors"] += ["linear_dependent_basis"]
 
     def _check_completion_errors(self):

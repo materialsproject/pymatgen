@@ -29,18 +29,26 @@ class QChemDictSet(QCInput):
     Build a QCInput given all the various input parameters. Can be extended by standard implementations below. 
     """
 
-    def __init__(self, molecule, job_type, DFT_rung=4, PCM_solvent=None, basis_set, SCF_algorithm, max_scf_cycles=200, geom_opt_max_cycles=200):
+    def __init__(self, molecule, job_type, basis_set, SCF_algorithm, DFT_rung=4, PCM_solvent=None, max_scf_cycles=200, geom_opt_max_cycles=200):
 
         """
         Args:
+            molecule (Pymatgen molecule)
+            job_type (str)
+            basis_set (str)
+            SCF_algorithm (str)
+            DFT_rung (int)
+            PCM_solvent (str)
+            max_scf_cycles (int)
+            geom_opt_max_cycles (int)
 
         """
         self.molecule = molecule
         self.job_type = job_type
-        self.DFT_rung = DFT_rung
-        self.PCM_solvent = PCM_solvent
         self.basis_set = basis_set
         self.SCF_algorithm = SCF_algorithm
+        self.DFT_rung = DFT_rung
+        self.PCM_solvent = PCM_solvent
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
 
