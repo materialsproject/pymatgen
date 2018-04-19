@@ -44,12 +44,10 @@ class QCInput(MSONable):
 
     def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None):
         self.molecule = molecule
-        print(rem)
         self.rem = lower_and_check_unique(rem)
         self.opt = opt
-        if pcm != None:
-            self.pcm = lower_and_check_unique(pcm)
-            self.solvent = lower_and_check_unique(solvent)
+        self.pcm = lower_and_check_unique(pcm)
+        self.solvent = lower_and_check_unique(solvent)
 
         # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
 
