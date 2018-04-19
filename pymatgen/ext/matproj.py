@@ -543,18 +543,21 @@ class MPRester(object):
         data = self.get_data(material_id, prop="dos")
         return data[0]["dos"]
 
-    def get_bandstructure_by_material_id(self, material_id):
+    def get_bandstructure_by_material_id(self, material_id, line_mode=True):
         """
         Get a BandStructure corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (an int).
+            line_mode (bool): If True, fetch a BandStructureSymmLine object
+                (default). If False, return the uniform band structure.
 
         Returns:
             A BandStructure object.
         """
-        data = self.get_data(material_id, prop="bandstructure")
-        return data[0]["bandstructure"]
+        prop = "bandstructure" if line_mode else "bandstructure_uniform"
+        data = self.get_data(material_id, prop=prop)
+        return data[0][prop]
 
     def get_entries_in_chemsys(self, elements, compatible_only=True,
                                inc_structure=None, property_data=None,
