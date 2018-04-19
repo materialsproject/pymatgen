@@ -4,9 +4,7 @@
 
 from __future__ import division, unicode_literals
 import unittest
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.neutron import NDCalculator
+from pymatgen.analysis.diffraction.neutron import NMRPatternCalculator
 from pymatgen.util.testing import PymatgenTest
 import matplotlib as mpl
 mpl.use("pdf")
@@ -26,11 +24,11 @@ __email__ = "resnant@outlook.jp"
 __date__ = "4/19/18"
 
 
-class NDCalculatorTest(PymatgenTest):
+class NMRPatternCalculatorTest(PymatgenTest):
     def test_get_nd_data(self):
         s = self.get_structure("CsCl")
-        c = NDCalculator(wavelength=1.54184)  # CuKa radiation
-        nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
+        c = NMRPatternCalculator(wavelength=1.54184)  # CuKa radiation
+        nd = c.get_pattern(s, two_theta_range=(0, 90))
         # Check the first two peaks
         self.assertAlmostEqual(nd.x[0], 21.107738329639844)
         # self.assertAlmostEqual(nd.y[0], 36.483184003748946)
@@ -42,18 +40,18 @@ class NDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(nd.d_hkls[1], 2.976212442014178)
 
         s = self.get_structure("LiFePO4")
-        nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
+        nd = c.get_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[1], 17.03504233621785)
         self.assertAlmostEqual(nd.y[1], 46.2985965)
 
         s = self.get_structure("Li10GeP2S12")
-        nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
+        nd = c.get_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[1], 14.058274883353876)
         self.assertAlmostEqual(nd.y[1], 3.60588013)
 
         # Test a hexagonal structure.
         s = self.get_structure("Graphite")
-        nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
+        nd = c.get_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[0], 26.21057350859598)
         self.assertAlmostEqual(nd.y[0], 100)
         self.assertAlmostEqual(nd.x[2], 44.39599754)
@@ -62,8 +60,9 @@ class NDCalculatorTest(PymatgenTest):
 
         # Test with Debye-Waller factor
         s = self.get_structure("Graphite")
-        c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C':1})
-        nd = c.get_nd_pattern(s, two_theta_range=(0, 90))
+        c = NMRPatternCalculator(wavelength=1.54184,
+                                 debye_waller_factors={'C': 1})
+        nd = c.get_pattern(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(nd.x[0], 26.21057350859598)
         self.assertAlmostEqual(nd.y[0], 100)
         self.assertAlmostEqual(nd.x[2], 44.39599754)
