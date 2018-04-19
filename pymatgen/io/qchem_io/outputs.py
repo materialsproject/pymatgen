@@ -104,16 +104,16 @@ class QCOutput(MSONable):
         if self.data.get('optimization', []):
             self.data["energy_trajectory"] = read_pattern(self.text, {"key": r"\sEnergy\sis\s+([\d\-\.]+)"}).get('key')
             self._read_optimized_geometry()
-            # Then, if no optimized geometry or z-matrix is found, and no errors have been previously 
+            # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
             # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-            # to be determined. Also, if there is an energy trajectory, read the last geometry in the 
-            # optimization trajectory for use in the next input file. 
+            # to be determined. Also, if there is an energy trajectory, read the last geometry in the
+            # optimization trajectory for use in the next input file.
             if self.data.get("errors") == [] and self.data.get('optimized_geometry') == [] and self.data.get('optimized_zmat') == []:
                 self._check_optimization_errors()
                 if self.data.get('energy_trajectory') != None:
                     self._read_last_geometry()
 
-        # Check if the calculation contains a constraint in an $opt section. 
+        # Check if the calculation contains a constraint in an $opt section.
         self.data["opt_constraint"] = read_pattern(self.text, {"key": r"\$opt\s+CONSTRAINT"}).get('key')
         if self.data.get('opt_constraint'):
             self.data["dihedral_constraint"] = read_pattern(
@@ -182,7 +182,7 @@ class QCOutput(MSONable):
 
     def _read_GEN_SCFMAN(self):
         """
-        Parses all GEN_SCFMANs. 
+        Parses all GEN_SCFMANs.
         """
         if "SCF_failed_to_converge" in self.data.get("errors"):
             footer_pattern = r"^\s*gen_scfman_exception: SCF failed to converge"
@@ -195,7 +195,7 @@ class QCOutput(MSONable):
 
     def _read_SCF(self):
         """
-        Parses all old-style SCFs. 
+        Parses all old-style SCFs.
         """
         if "SCF_failed_to_converge" in self.data.get("errors"):
             footer_pattern = r"^\s*\d+\s*[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
@@ -229,15 +229,15 @@ class QCOutput(MSONable):
     def _make_geometry_into_molecule(self, geometry):
         """
         Takes a parsed geometry and makes it into a pymatgen Molecule object for storage.
-        Makes it easier to use a geometry simply from other modules. 
+        Makes it easier to use a geometry simply from other modules.
         """
         coords = []
         species = []
-        for ii in range(len(geometry)):
+        for ii, entry in enumerate(geometry):
             temp_coords = []
-            species += [geometry[ii][0]]
+            species += [entry[0]]
             for jj in range(3):
-                temp_coords += [float(geometry[ii][jj+1])]
+                temp_coords += [float(entry[jj+1])]
             coords += [temp_coords]
         return Molecule(species=species, coords=coords, charge=self.data.get('charge'), spin_multiplicity=self.data.get('multiplicity'))
 
@@ -287,13 +287,14 @@ class QCOutput(MSONable):
         table_pattern = r"\s*([a-zA-Z][a-zA-Z\s])\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
         footer_pattern = r"TransDip\s+[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*(?:[\d\-\.]+\s*[\d\-\.]+\s*[\d\-\.]+\s*)*"
         self.data["frequency_mode_vectors"] = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)
-        if float(self.data.get('frequencies')[0][0]) < 0.0:
-            all_vecs = self.data.get('frequency_mode_vectors')
-            temp_vecs = np.zeros(shape=(len(all_vecs[0]),3),dtype=float)
-            for ii in range(len(all_vecs[0])):
-                for jj in range(1,4):
-                    temp_vecs[ii,jj-1] = float(all_vecs[0][ii][jj])
-            self.data["negative_freq_vecs"] = temp_vecs
+        if self.data.get('frequencies') != None:
+            if float(self.data.get('frequencies')[0][0]) < 0.0:
+                all_vecs = self.data.get('frequency_mode_vectors')
+                temp_vecs = np.zeros(shape=(len(all_vecs[0]),3),dtype=float)
+                for ii, entry in enumerate(all_vecs[0]):
+                    for jj in range(1,4):
+                        temp_vecs[ii,jj-1] = float(entry[jj])
+                self.data["negative_freq_vecs"] = temp_vecs
 
         header_pattern = r"Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
         table_pattern = r"\s*\d+\s+([a-zA-Z]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
@@ -301,16 +302,16 @@ class QCOutput(MSONable):
         tmp_freq_geom = read_table_pattern(self.text, header_pattern, table_pattern, footer_pattern)[0]
         freq_species = []
         freq_geometry = np.zeros(shape=(len(tmp_freq_geom),3),dtype=float)
-        for ii in range(len(tmp_freq_geom)):
-            freq_species += [tmp_freq_geom[ii][0]]
+        for ii, entry in enumerate(tmp_freq_geom):
+            freq_species += [entry[0]]
             for jj in range(3):
-                freq_geometry[ii,jj] = float(tmp_freq_geom[ii][jj+1])
+                freq_geometry[ii,jj] = float(entry[jj+1])
         self.data["freq_species"] = freq_species
         self.data["freq_geometry"] = freq_geometry
 
     def _check_optimization_errors(self):
         """
-        Parses three potential optimization errors: failing to converge within the allowed number 
+        Parses three potential optimization errors: failing to converge within the allowed number
         of optimization cycles, failure to determine the lamda needed to continue, and inconsistent
         size of MO files due to a linear dependence in the AO basis.
         """
@@ -324,9 +325,9 @@ class QCOutput(MSONable):
 
     def _check_completion_errors(self):
         """
-        Parses four potential errors that can cause jobs to crash: inability to transform 
+        Parses four potential errors that can cause jobs to crash: inability to transform
         coordinates due to a bad symmetric specification, an input file that fails to pass
-        inspection, and errors reading and writing files. 
+        inspection, and errors reading and writing files.
         """
         if read_pattern(self.text, {"key": r"Coordinates do not transform within specified threshold"}, terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["failed_to_transform_coords"]

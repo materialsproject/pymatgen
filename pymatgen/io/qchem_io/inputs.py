@@ -51,7 +51,7 @@ class QCInput(MSONable):
 
         # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
 
-        if type(self.molecule) is str:
+        if isinstance(self.molecule,str):
             self.molecule = self.molecule.lower()
             if self.molecule != "read":
                 raise ValueError('The only acceptable text value for molecule is "read"')

@@ -58,7 +58,7 @@ class QChemDictSet(QCInput):
             myrem["method"] = "B97M-rV"
         elif self.DFT_rung == 4:
             myrem["method"] = "wB97X-V"
-        elif self.DFT_rung = 5:
+        elif self.DFT_rung == 5:
             myrem["method"] = "wB97M-V"
         else:
             print("DFT_rung should be between 1 and 5!")

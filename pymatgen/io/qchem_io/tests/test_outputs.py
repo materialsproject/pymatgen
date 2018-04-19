@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import os
 import unittest
+import numpy as np
 
 from monty.serialization import loadfn, dumpfn
 from pymatgen.io.qchem_io.outputs import QCOutput
@@ -22,7 +23,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 property_list = {'GEN_SCFMAN', 'SCF', 'restricted_Mulliken', 'unrestricted_Mulliken', 'optimized_geometry', 'optimized_zmat', 'unrestricted', 'errors',
                  'completion', 'using_GEN_SCFMAN', 'final_energy', 'optimization', 'energy_trajectory', 'frequency_job', 'frequencies', 'last_geom',
-                 'enthalpy', 'entropy', 'molecule_from_last_geometry', 'molecule_from_optimized_geometry', 'charge', 'multiplicity'}
+                 'enthalpy', 'entropy', 'molecule_from_last_geometry', 'molecule_from_optimized_geometry', 'charge', 'multiplicity', 'freq_species',
+                 'frequency_mode_vectors', 'freq_geometry'}
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",
@@ -107,11 +109,17 @@ class TestQCOutput(PymatgenTest):
 
     def _test_property(self, key):
         for file in single_job_out_names:
-            self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key))
+            try:
+                self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key))
+            except ValueError:
+                self.assertEqual(np.array_equal(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key)),True)
         for file in multi_job_out_names:
             outputs = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
             for i, sub_output in enumerate(outputs):
-                self.assertEqual(sub_output.data.get(key), multi_job_dict[file][i].get(key))
+                try:
+                    self.assertEqual(sub_output.data.get(key), multi_job_dict[file][i].get(key))
+                except ValueError:
+                    self.assertEqual(np.array_equal(sub_output.data.get(key), multi_job_dict[file][i].get(key)), True)
 
     def test_all(self):
         for key in property_list:
