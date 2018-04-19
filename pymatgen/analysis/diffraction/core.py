@@ -4,12 +4,10 @@
 
 from __future__ import division, unicode_literals
 
-import os
 import collections
 import abc
 
 import numpy as np
-import json
 
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs
@@ -24,11 +22,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
-
-
-with open(os.path.join(os.path.dirname(__file__),
-                       "atomic_scattering_params.json")) as f:
-    ATOMIC_SCATTERING_PARAMS = json.load(f)
 
 
 class DiffractionPattern(Spectrum):
