@@ -118,16 +118,6 @@ class XRDCalculator(DiffractionPatternCalculator):
     # Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
-    # Tolerance in which to treat two peaks as having the same two theta.
-    TWO_THETA_TOL = 1e-5
-
-    # Tolerance in which to treat a peak as effectively 0 if the scaled
-    # intensity is less than this number. Since the max intensity is 100,
-    # this means the peak must be less than 1e-5 of the peak intensity to be
-    # considered as zero. This deals with numerical issues where systematic
-    # absences do not cancel exactly to zero.
-    SCALED_INTENSITY_TOL = 1e-3
-
     def __init__(self, wavelength="CuKa", symprec=0, debye_waller_factors=None):
         """
         Initializes the XRD calculator with a given radiation.
