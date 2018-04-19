@@ -9,11 +9,13 @@ import numpy as np
 import itertools
 import re
 from copy import deepcopy
-from functools import cmp_to_key
+from functools import cmp_to_key, partial
 from monty.json import MSONable
 from six.moves import zip
+from multiprocessing import Pool
 
 from scipy.spatial import ConvexHull, HalfspaceIntersection
+from scipy.misc import comb
 from pymatgen.util.coord import Simplex
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
@@ -395,9 +397,12 @@ class PourbaixDiagram(object):
             stability on the compositional phase diagram.  This
             breaks some of the functionality of the analysis, though,
             so use with caution.
+        nproc (int): number of processes to generate multientries with
+            in parallel.  Defaults to None (serial processing)
     """
     def __init__(self, entries, comp_dict=None, conc_dict=None,
-                 filter_solids=False, filter_multielement=True):
+                 filter_solids=False, filter_multielement=True,
+                 nproc=None):
 
         # Get non-OH elements
         pbx_elts = set(itertools.chain.from_iterable(
@@ -438,17 +443,16 @@ class PourbaixDiagram(object):
             solid_pd = PhaseDiagram(solid_entries + entries_HO)
             solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
 
-
         # Find the stable entries in each unary pourbaix diagram
-        if filter_multielement:
+        if filter_multielement and len(comp_dict) > 1:
             stable_unary_entries = []
             for elt in self._elt_comp:
                 unary_elt_entries = [e for e in entries
-                                 if tuple(e.non_oh_elts) == (elt,)]
+                                     if tuple(e.non_oh_elts) == (Element(elt),)]
                 stable_unary_entries.extend(
                     PourbaixDiagram(unary_elt_entries).stable_entries)
-            self._analysis_entries = stable_unary_entries \
-                + [e for e in entries if len(e.non_oh_elts) > 1])
+            self._analysis_entries = stable_unary_entries + ion_entries\
+                + [e for e in entries if len(e.non_oh_elts) > 1]
         else:
             self._analysis_entries = solid_entries + ion_entries
 
@@ -456,17 +460,18 @@ class PourbaixDiagram(object):
         if len(comp_dict) > 1:
             self._multielement = True
             self._processed_entries = self._generate_multielement_entries(
-                    self._analysis_entries)
+                    self._analysis_entries, nproc=nproc)
         else:
             self._multielement = False
             self._analysis_entries = entries
             self._processed_entries = entries
 
         self._stable_domains, self._stable_domain_vertices = \
-            self.get_pourbaix_domains(self._processed_entries)
+            self.get_pourbaix_domains(self._analysis_entries)
 
 
-    def _generate_multielement_entries(self, entries, forced_include=None):
+    def _generate_multielement_entries(self, entries, forced_include=None,
+                                       nproc=None):
         """
         Create entries for multi-element Pourbaix construction.
 
@@ -479,25 +484,45 @@ class PourbaixDiagram(object):
                 to process into MultiEntries
             forced_include ([PourbaixEntries]) list of pourbaix entries
                 that must be included in multielement entries
+            nproc (int): number of processes to be used in parallel
+                treatment of entry combos
         """
         N = len(self._elt_comp) # No. of elements
         total_comp = Composition(self._elt_comp)
         forced_include = forced_include or []
 
         # generate all possible combinations of compounds that have all elts
+        import nose; nose.tools.set_trace()
         entry_combos = [itertools.combinations(
             entries, j + 1 - len(forced_include)) for j in range(N)]
+        import nose; nose.tools.set_trace()
         entry_combos = itertools.chain.from_iterable(entry_combos)
-        entry_combos = [forced_include + list(ec) for ec in entry_combos]
+        if forced_include:
+            entry_combos = [forced_include + list(ec) for ec in entry_combos]
         entry_combos = filter(lambda x: total_comp < MultiEntry(x).composition,
                               entry_combos)
+        import nose; nose.tools.set_trace()
 
         # Generate and filter entries
         processed_entries = []
-        for entry_combo in entry_combos:
-            processed_entry = self.process_multientry(entry_combo, total_comp)
-            if processed_entry is not None:
-                processed_entries.append(processed_entry)
+        # Serial processing
+        if nproc is not None:
+            import tqdm
+            # pool = Pool(nproc)
+            total = sum([comb(len(entries), j + 1 - len(forced_include))
+                         for j in range(N)])
+            f = partial(self.process_multientry, prod_comp=total_comp)
+            # entry_combos = list(entry_combos)
+            with Pool(nproc) as p:
+                processed_entries = list(tqdm.tqdm(p.imap(f, entry_combos),
+                                                   total=total))
+            # processed_entries = p.imap(f, entry_combos)
+            processed_entries = filter(bool, processed_entries)
+        else:
+            for entry_combo in entry_combos:
+                processed_entry = self.process_multientry(entry_combo, total_comp)
+                if processed_entry is not None:
+                    processed_entries.append(processed_entry)
 
         return processed_entries
 
@@ -651,7 +676,7 @@ class PourbaixDiagram(object):
         # Find representative multientry
         if self._multielement and not isinstance(entry, MultiEntry):
             possible_entries = self._generate_multielement_entries(
-               self._preprocessed_entries, forced_include=[entry])
+               self._analysis_entries, forced_include=[entry])
 
             # Filter to only include materials where the entry is only solid
             if entry.phase_type == "solid":
