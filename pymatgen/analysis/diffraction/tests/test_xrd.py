@@ -25,7 +25,7 @@ __date__ = "5/22/14"
 
 
 class XRDCalculatorTest(PymatgenTest):
-    def test_get_xrd_data(self):
+    def test_get_pattern(self):
         s = self.get_structure("CsCl")
         c = XRDCalculator()
         xrd = c.get_pattern(s, two_theta_range=(0, 90))

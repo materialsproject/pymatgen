@@ -25,7 +25,7 @@ __date__ = "4/19/18"
 
 
 class NDCalculatorTest(PymatgenTest):
-    def test_get_nd_data(self):
+    def test_get_pattern(self):
         s = self.get_structure("CsCl")
         c = NDCalculator(wavelength=1.54184)  # CuKa radiation
         nd = c.get_pattern(s, two_theta_range=(0, 90))
