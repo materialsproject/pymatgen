@@ -13,7 +13,7 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs
 
 """
-This module implements an diffraction pattern calculator.
+This module implements core classes for calculation of diffraction patterns.
 """
 
 __author__ = "Shyue Ping Ong"
@@ -85,7 +85,7 @@ class DiffractionPatternCalculator(abc.ABC):
                  annotate_peaks=True, ax=None, with_labels=True,
                  fontsize=16):
         """
-        Returns the XRD plot as a matplotlib.pyplot.
+        Returns the diffraction plot as a matplotlib.pyplot.
 
         Args:
             structure: Input structure
@@ -132,7 +132,7 @@ class DiffractionPatternCalculator(abc.ABC):
 
     def show_plot(self, structure, **kwargs):
         """
-        Shows the XRD plot.
+        Shows the diffraction plot.
 
         Args:
             structure (Structure): Input structure
@@ -148,7 +148,7 @@ class DiffractionPatternCalculator(abc.ABC):
     @add_fig_kwargs
     def plot_structures(self, structures, fontsize=6, **kwargs):
         """
-        Plot XRD for multiple structures on the same figure.
+        Plot diffraction patterns for multiple structures on the same figure.
 
         Args:
             structures (Structure): List of structures
