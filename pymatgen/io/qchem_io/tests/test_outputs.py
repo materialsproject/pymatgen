@@ -112,14 +112,14 @@ class TestQCOutput(PymatgenTest):
             try:
                 self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key))
             except ValueError:
-                self.assertEqual(np.array_equal(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key)),True)
+                self.assertArrayEqual(QCOutput(os.path.join(test_dir, file)).data.get(key), single_job_dict[file].get(key))
         for file in multi_job_out_names:
             outputs = QCOutput.multiple_outputs_from_file(QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
             for i, sub_output in enumerate(outputs):
                 try:
                     self.assertEqual(sub_output.data.get(key), multi_job_dict[file][i].get(key))
                 except ValueError:
-                    self.assertEqual(np.array_equal(sub_output.data.get(key), multi_job_dict[file][i].get(key)), True)
+                    self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[file][i].get(key))
 
     def test_all(self):
         for key in property_list:

@@ -235,9 +235,9 @@ class QCOutput(MSONable):
         species = []
         for entry in enumerate(geometry):
             temp_coords = []
-            species += [entry[0]]
+            species += [entry[1][0]]
             for jj in range(3):
-                temp_coords += [float(entry[jj+1])]
+                temp_coords += [float(entry[1][jj+1])]
             coords += [temp_coords]
         return Molecule(species=species, coords=coords, charge=self.data.get('charge'), spin_multiplicity=self.data.get('multiplicity'))
 
