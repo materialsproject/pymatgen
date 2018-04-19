@@ -100,3 +100,16 @@ def read_table_pattern(text_str,
         data[attribute_name] = retained_data
         return data
     return retained_data
+
+
+def lower_and_check_unique(dict_to_check):
+    to_return = {}
+    for key in dict_to_check:
+        new_key = key.lower()
+        if new_key == "jobtype":
+            new_key = "job_type"
+        if new_key in to_return:
+            raise Exception("Multiple instances of key " + new_key + " found!")
+        else:
+            to_return[new_key] = dict_to_check.get(key)
+    return to_return
