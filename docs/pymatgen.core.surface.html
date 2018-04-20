@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.surface module &#8212; pymatgen 2018.4.6 documentation</title>
+    <title>pymatgen.core.surface module &#8212; pymatgen 2018.4.20 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -93,47 +93,49 @@ following keys and items to ensure compatibility with the
 ReconstructionGenerator:</p>
 <blockquote>
 <div><dl class="docutils">
-<dt>”name” (str): A descriptive name for the type of reconstruction.</dt>
-<dd>Typically the name will have the type of structure the
-reconstruction is for, the Miller index, and Wood’s notation
-along with anything to describe the reconstruction: e.g.:
+<dt>”name” (str): A descriptive name for the type of</dt>
+<dd>reconstruction. Typically the name will have the type
+of structure the reconstruction is for, the Miller
+index, and Wood’s notation along with anything to
+describe the reconstruction: e.g.:
 “fcc_110_missing_row_1x2”</dd>
-<dt>”description” (str): A longer description of your reconstruction.</dt>
-<dd>This is to help future contributors who want to add other
-types of reconstructions to the archive on pymatgen to check
-if the reconstruction already exists. Please read the
-descriptions carefully before adding a new type of
-reconstruction to ensure it is not in the archive yet.</dd>
-<dt>”reference” (str): Optional reference to where the reconstruction</dt>
-<dd>was taken from or first observed.</dd>
+<dt>”description” (str): A longer description of your</dt>
+<dd>reconstruction. This is to help future contributors who
+want to add other types of reconstructions to the
+archive on pymatgen to check if the reconstruction
+already exists. Please read the descriptions carefully
+before adding a new type of reconstruction to ensure it
+is not in the archive yet.</dd>
+<dt>”reference” (str): Optional reference to where the</dt>
+<dd>reconstruction was taken from or first observed.</dd>
 <dt>”spacegroup” (dict): e.g. {“symbol”: “Fm-3m”, “number”: 225}</dt>
 <dd>Indicates what kind of structure is this reconstruction.</dd>
 </dl>
 <p>”miller_index” ([h,k,l]): Miller index of your reconstruction
-“Woods_notation” (str): For a reconstruction, the a and b lattice</p>
+“Woods_notation” (str): For a reconstruction, the a and b</p>
 <blockquote>
-<div>may change to accomodate the symmetry of the reconstruction.
-This notation indicates the change in the vectors relative to
-the primitive (p) or conventional (c) slab cell. E.g. p(2x1):<dl class="docutils">
-<dt>Wood, E. A. (1964). Vocabulary of surface crystallography.</dt>
-<dd>Journal of Applied Physics, 35(4), 1306–1312.</dd>
-</dl>
+<div>lattice may change to accomodate the symmetry of the
+reconstruction. This notation indicates the change in
+the vectors relative to the primitive (p) or
+conventional (c) slab cell. E.g. p(2x1):<p>Wood, E. A. (1964). Vocabulary of surface
+crystallography. Journal of Applied Physics, 35(4),
+1306–1312.</p>
 </div></blockquote>
 <dl class="docutils">
-<dt>”transformation_matrix” (numpy array): A 3x3 matrix to transform</dt>
-<dd>the slab. Only the a and b lattice vectors should change while
-the c vector remains the same.</dd>
-<dt>”SlabGenerator_parameters” (dict): A dictionary containing the</dt>
-<dd>parameters for the SlabGenerator class excluding the
-miller_index, min_slab_size and min_vac_size as the Miller
-index is already specified and the min_slab_size and
-min_vac_size can be changed regardless of what type of
-reconstruction is used. Having a consistent set of
-SlabGenerator parameters allows for the instructions to be
-reused to consistently build a reconstructed slab.</dd>
-<dt>”points_to_remove” (list of coords): A list of sites to remove</dt>
-<dd>where the first two indices are fraction (in a an b) and
-the third index is in units of 1/d (in c).</dd>
+<dt>”transformation_matrix” (numpy array): A 3x3 matrix to</dt>
+<dd>transform the slab. Only the a and b lattice vectors
+should change while the c vector remains the same.</dd>
+<dt>”SlabGenerator_parameters” (dict): A dictionary containing</dt>
+<dd>the parameters for the SlabGenerator class excluding the
+miller_index, min_slab_size and min_vac_size as the
+Miller index is already specified and the min_slab_size
+and min_vac_size can be changed regardless of what type
+of reconstruction is used. Having a consistent set of
+SlabGenerator parameters allows for the instructions to
+be reused to consistently build a reconstructed slab.</dd>
+<dt>”points_to_remove” (list of coords): A list of sites to</dt>
+<dd>remove where the first two indices are fraction (in a
+and b) and the third index is in units of 1/d (in c).</dd>
 <dt>”points_to_add” (list of frac_coords): A list of sites to add</dt>
 <dd>where the first two indices are fraction (in a an b) and
 the third index is in units of 1/d (in c).</dd>
@@ -518,16 +520,14 @@ for analysis involving broken bonds and for finding adsorption sites.</p>
 <div><dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
-<dt>tag (bool): Option to adds site attribute “is_surfsite” (bool) to</dt>
-<dd>all sites of slab. Defaults to False</dd>
+<dt>tag (bool): Option to adds site attribute “is_surfsite” (bool)</dt>
+<dd>to all sites of slab. Defaults to False</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>A dictionary grouping sites on top and bottom of the slab together.</dt>
-<dd>{“top”: [sites with indices], “bottom”: [sites with indices}</dd>
-</dl>
-</dd>
+<dd>A dictionary grouping sites on top and bottom of the slab
+together.
+{“top”: [sites with indices], “bottom”: [sites with indices}</dd>
 </dl>
 </div></blockquote>
 </dd></dl>
@@ -726,12 +726,13 @@ you should supply the conventional structure.</li>
 eventual structure.</li>
 <li><strong>center_slab</strong> (<em>bool</em>) – Whether to center the slab in the cell with
 equal vacuum spacing from the top and bottom.</li>
-<li><strong>in_unit_planes</strong> (<em>bool</em>) – Whether to set min_slab_size and min_vac_size in
-units of hkl planes (True) or Angstrom (False/default). Setting in
-units of planes is useful for ensuring some slabs have a certain
-nlayer of atoms. e.g. for Cs (100), a 10 Ang slab will result in a
-slab with only 2 layer of atoms, whereas Fe (100) will have more layer
-of atoms. By using units of hkl planes instead, we ensure both slabs
+<li><strong>in_unit_planes</strong> (<em>bool</em>) – Whether to set min_slab_size and min_vac_size
+in units of hkl planes (True) or Angstrom (False/default).
+Setting in units of planes is useful for ensuring some slabs
+have a certain nlayer of atoms. e.g. for Cs (100), a 10 Ang
+slab will result in a slab with only 2 layer of atoms, whereas
+Fe (100) will have more layer of atoms. By using units of hkl
+planes instead, we ensure both slabs
 have the same number of atoms. The slab thickness will be in
 min_slab_size/math.ceil(self._proj_height/dhkl)
 multiples of oriented unit cells.</li>
@@ -1082,7 +1083,7 @@ in the corresponding cell</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
       </ul>
     </div>
 
