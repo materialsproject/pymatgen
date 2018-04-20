@@ -2489,8 +2489,8 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(1.25, 2), x_diff_weight=True,
-                 search_cutoff=6, fingerprint_length=None):
+                 distance_cutoffs=(1.25, 2), x_diff_weight=1.0,
+                 search_cutoff=6.0, fingerprint_length=None):
         """
         Initialize CrystalNN with desired paramters.
 
