@@ -11,7 +11,7 @@ from pymatgen import Molecule
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.qchem_io.inputs import QCInput
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __email__ = "b.wood@berkeley.edu"
@@ -43,7 +43,7 @@ $end"""
 
     def test_rem_template(self):
         rem_params = {
-            "jobtype": "opt",
+            "job_type": "opt",
             "method": "wB97M-V",
             "basis": "def2-QZVPPD",
             "max_scf_cycles": 300,
@@ -51,7 +51,7 @@ $end"""
         }
         rem_test = QCInput.rem_template(rem_params)
         rem_actual = """$rem
-   jobtype = opt
+   job_type = opt
    method = wB97M-V
    basis = def2-QZVPPD
    max_scf_cycles = 300
@@ -88,6 +88,22 @@ ENDCONNECT
 $end"""
         self.assertEqual(opt_actual, opt_test)
 
+    def test_pcm_template(self):
+        pcm_params = {"theory": "cpcm"}
+        pcm_test = QCInput.pcm_template(pcm_params)
+        pcm_actual = """$pcm
+   theory = cpcm
+$end"""
+        self.assertEqual(pcm_actual, pcm_test)
+
+    def test_solvent_template(self):
+        solvent_params = {"dielectric": "5.0"}
+        solvent_test = QCInput.solvent_template(solvent_params)
+        solvent_actual = """$solvent
+   dielectric = 5.0
+$end"""
+        self.assertEqual(solvent_actual, solvent_test)
+
     def test_find_sections(self):
         str_single_job_input = """$molecule
  0  1
@@ -111,7 +127,7 @@ $end
 
 
 $rem
-              jobtype = opt
+             job_type = opt
                method = wb97m-v
                 basis = def2-tzvppd
            gen_scfman = true
@@ -152,7 +168,7 @@ $end"""
         str_rem = """Trying to break you!
 
 $rem
-   jobtype  opt
+   job_type  opt
   method  wB97M-V
    basis  def2-QZVPPD
    max_scf_cycles  300
@@ -160,7 +176,44 @@ $rem
 $end"""
         rem_test = QCInput.read_rem(str_rem)
         rem_actual = {
-            "jobtype": "opt",
+            "job_type": "opt",
+            "method": "wB97M-V",
+            "basis": "def2-QZVPPD",
+            "max_scf_cycles": "300",
+            "gen_scfman": "true"
+        }
+        self.assertDictEqual(rem_actual, rem_test)
+
+
+    def test_read_only_rem(self):
+        str_rem = """Trying to break you!
+
+$rem
+   job_type  opt
+  method  wB97M-V
+   basis  def2-QZVPPD
+   max_scf_cycles  300
+  gen_scfman = true
+$end
+
+$pcm
+heavypoints   194
+hpoints   194
+radii   uff
+theory   cpcm
+vdwscale   1.1
+$end
+
+
+$solvent
+dielectric   10.0
+$end
+
+
+"""
+        rem_test = QCInput.read_rem(str_rem)
+        rem_actual = {
+            "job_type": "opt",
             "method": "wB97M-V",
             "basis": "def2-QZVPPD",
             "max_scf_cycles": "300",
@@ -216,7 +269,7 @@ $end"""
 $end
 
 $rem
-   jobtype = opt
+   job_type = opt
    method = wB97M-V
    basis = def2-QZVPPD
    max_scf_cycles = 300
@@ -289,7 +342,7 @@ $end
         molecule_actual = Molecule(species, coords)
         self.assertEqual(molecule_actual, qcinput_test.molecule)
         rem_actual = {
-            "jobtype": "opt",
+            "job_type": "opt",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
             "gen_scfman": "true",
@@ -377,7 +430,7 @@ $end
 $end
 
 $rem
-   jobtype = opt
+   job_type = opt
    method = wb97m-v
    basis = def2-tzvppd
    gen_scfman = true
@@ -403,7 +456,7 @@ $molecule
 $end
 
 $rem
-   jobtype = sp
+   job_type = sp
    method = wb97m-v
    basis = def2-tzvppd
    gen_scfman = true
@@ -439,7 +492,7 @@ $end
                   [-2.81590978, -0.00516172, -1.58990580]]
         molecule_1_actual = Molecule(species, coords)
         rem_1_actual = {
-            "jobtype": "opt",
+            "job_type": "opt",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
             "gen_scfman": "true",
@@ -458,7 +511,7 @@ $end
 
         molecule_2_actual = "read"
         rem_2_actual = {
-            "jobtype": "sp",
+            "job_type": "sp",
             "method": "wb97m-v",
             "basis": "def2-tzvppd",
             "gen_scfman": "true",
@@ -473,6 +526,33 @@ $end
         self.assertEqual(molecule_2_actual, job_list_test[1].molecule)
         self.assertEqual(rem_2_actual, job_list_test[1].rem)
 
+    def test_read_pcm(self):
+        str_pcm = """I'm once again trying to break you!
+
+$pcm
+   theory = cpcm
+   radii = uff
+   vdwscale = 1.1
+$end"""
+        pcm_test = QCInput.read_pcm(str_pcm)
+        pcm_actual = {
+             "theory": "cpcm",
+             "radii": "uff",
+             "vdwscale": "1.1"
+        }
+        self.assertDictEqual(pcm_actual, pcm_test)
+
+    def test_read_solvent(self):
+        str_solvent = """Once again, I'm trying to break you!
+
+$solvent
+   dielectric = 5.0
+$end"""
+        solvent_test = QCInput.read_solvent(str_solvent)
+        solvent_actual = {
+             "dielectric": "5.0",
+        }
+        self.assertDictEqual(solvent_actual, solvent_test)
 
 if __name__ == "__main__":
     unittest.main()
