@@ -2066,7 +2066,7 @@ class VoronoiPolyhedron(object):
         return "Voronoi polyhedron %s" % self.name
 
 
-class ChgDenAnalyzer:
+class ChargeDensityAnalyzer(object):
     """
     Analyzer to find potential interstitial sites based on charge density. The
     `total` charge density is used.
@@ -2101,7 +2101,7 @@ class ChgDenAnalyzer:
     @property
     def extrema_df(self):
         if self.extrema_type is None:
-            logger.warning("Please run ChgDenAnalyzer.get_local_extrema first!")
+            logger.warning("Please run ChargeDensityAnalyzer.get_local_extrema first!")
         return self._extrema_df
 
     def _get_charge_distribution_df(self):
@@ -2251,7 +2251,7 @@ class ChgDenAnalyzer:
         if len(vf_coords) == 0:
             if self.extrema_type is None:
                 logger.warning(
-                    "Please run ChgDenAnalyzer.get_local_extrema first!")
+                    "Please run ChargeDensityAnalyzer.get_local_extrema first!")
                 return
             new_f_coords = []
             self._update_extrema(new_f_coords, self.extrema_type)
@@ -2301,7 +2301,7 @@ class ChgDenAnalyzer:
         if len(f_coords) == 0:
             if self.extrema_type is None:
                 logger.warning(
-                    "Please run ChgDenAnalyzer.get_local_extrema first!")
+                    "Please run ChargeDensityAnalyzer.get_local_extrema first!")
                 return
             new_f_coords = []
             self._update_extrema(new_f_coords, self.extrema_type)

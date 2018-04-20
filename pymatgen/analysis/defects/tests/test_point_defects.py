@@ -626,12 +626,12 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         chg_FePO4 = Chgcar.from_file(chgcar_path)
         self.chgcar_path = chgcar_path
         self.chg_FePO4 = chg_FePO4
-        self.ca_FePO4 = ChgDenAnalyzer(chg_FePO4)
+        self.ca_FePO4 = ChargeDensityAnalyzer(chg_FePO4)
         self.s_LiFePO4 = Structure.from_file(
             os.path.join(test_dir, "LiFePO4.cif"))
 
     def test_get_local_extrema(self):
-        ca = ChgDenAnalyzer.from_file(self.chgcar_path)
+        ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
         threshold_frac = random.random()
         threshold_abs_min = random.randrange(2, 14)
         threshold_abs_max = random.randrange(27e2, 28e4)
@@ -672,7 +672,7 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         self.assertEqual(len(frac_list_max_abs), len(df_expected))
 
     def test_remove_collisions(self):
-        ca = ChgDenAnalyzer(self.chg_FePO4)
+        ca = ChargeDensityAnalyzer(self.chg_FePO4)
         ca.get_local_extrema(threshold_frac=0)
         ca.remove_collisions()  # should not trigger error
         self.assertEqual(len(ca.extrema_df), 0)
@@ -683,7 +683,7 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         self.assertEqual(len(self.ca_FePO4.extrema_df), 0)
 
     def test_cluster_nodes(self):
-        ca = ChgDenAnalyzer(self.chg_FePO4)
+        ca = ChargeDensityAnalyzer(self.chg_FePO4)
         ca.get_local_extrema()
         ca.cluster_nodes(tol=20)
         self.assertEqual(len(ca.extrema_df), 1)
@@ -703,8 +703,8 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         self.assertEqual(len(distances), len(sites_predicted))
 
     def test_from_file(self):
-        ca = ChgDenAnalyzer.from_file(self.chgcar_path)
-        assert isinstance(ca, ChgDenAnalyzer)
+        ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
+        assert isinstance(ca, ChargeDensityAnalyzer)
 
 
 if __name__ == "__main__":
