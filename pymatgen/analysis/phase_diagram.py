@@ -667,6 +667,25 @@ class PhaseDiagram(MSONable):
         facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
+    def get_all_chempots(self, comp):
+        #note the top part takes from format of _get_facet_and_simplex,
+        #   but wants to return all facets rather than the first one that meets this criteria
+        c = self.pd_coords(comp)
+        allfacets = []
+        for f, s in zip(self.facets, self.simplexes):
+            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
+                allfacets.append(f)
+
+        if not len(allfacets):
+            raise RuntimeError("No facets found for comp = {}".format(comp))
+        else:
+            chempots = {}
+            for facet in allfacets:
+                facet_elt_list = [self.qhull_entries[j].name for j in facet]
+                facet_name = '-'.join(facet_elt_list)
+                chempots[facet_name] = self._get_facet_chempots(facet)
+            return chempots
+
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase

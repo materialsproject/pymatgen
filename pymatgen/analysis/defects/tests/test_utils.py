@@ -27,6 +27,10 @@ class DefectsUtilsTest(PymatgenTest):
     def test_eV_to_k(self):
         self.assertAlmostEqual(eV_to_k(1.), 0.9681404248678961)
 
+    def test_genrecip(self):
+        #TODO
+        pass
+
     def test_generate_reciprocal_vectors_squared(self):
         #test cubic case
         a = 6.
