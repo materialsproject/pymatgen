@@ -19,7 +19,6 @@ __date__ = "Nov 28, 2016"
 import abc
 import itertools
 import numpy as np
-import warnings
 import logging
 import six
 import pandas as pd
