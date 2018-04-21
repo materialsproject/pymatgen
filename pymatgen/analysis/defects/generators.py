@@ -21,10 +21,11 @@ from abc import ABCMeta, abstractmethod
 
 from monty.json import MSONable
 
+from pymatgen.core import PeriodicSite
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.defects.point_defects import StructureMotifInterstitial
+from pymatgen.analysis.defects.point_defects import StructureMotifInterstitial, TopographyAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,13 @@ class InterstitialGenerator(DefectGenerator):
         interstitial_finder = StructureMotifInterstitial(self.structure, self.element)
         self.defect_sites = list(interstitial_finder.enumerate_defectsites())
 
+        #for multiplicity, neccessary to get prim_structure
+        spa = SpacegroupAnalyzer(self.structure, symprec=1e-2)
+        prim_struct = spa.get_primitive_standard_structure()
+        conv_prim_rat = int(self.structure.num_sites/prim_struct.num_sites)
+        self.multiplicities = [int(interstitial_finder.get_defectsite_multiplicity(def_ind) / conv_prim_rat)
+                               for def_ind in range(len(self.defect_sites))]
+
     def __next__(self):
         """
         Returns the next interstitial or
@@ -123,7 +131,55 @@ class InterstitialGenerator(DefectGenerator):
         """
         if len(self.defect_sites) > 0:
             int_site = self.defect_sites.pop(0)
+            mult = self.multiplicities.pop(0)
 
-            return Interstitial(self.structure, int_site, multiplicity=1)
+            return Interstitial(self.structure, int_site, multiplicity=mult)
+        else:
+            raise StopIteration
+
+
+class VoronoiInterstitialGenerator(DefectGenerator):
+    """
+    Generator for interstitials based on a simple Voronoi analysis
+    """
+
+    def __init__(self, structure, element):
+        """
+        Initializes an Interstitial generator using Voronoi sites
+        Args:
+            structure (Structure): pymatgen structure object
+            element (str or Element or Specie): element for the interstitial
+        """
+        self.structure = structure
+        self.element = element
+
+        framework = list(self.structure.symbol_set)
+        get_voronoi = TopographyAnalyzer(self.structure, framework, [], check_volume=False)
+        get_voronoi.cluster_nodes()
+        get_voronoi.remove_collisions()
+
+        #trim equivalent nodes with symmetry analysis
+        struct_to_trim = self.structure.copy()
+        for poss_inter in get_voronoi.vnodes:
+            struct_to_trim.append( self.element, poss_inter.frac_coords, coords_are_cartesian=False)
+
+        symmetry_finder = SpacegroupAnalyzer(struct_to_trim, symprec=1e-1)
+        equiv_sites_list = symmetry_finder.get_symmetrized_struct().equivalent_sites
+
+        self.equiv_site_seq = []
+        for poss_site_list in equiv_sites_list:
+            if poss_site_list[0] not in self.structure:
+                self.equiv_site_seq.append(poss_site_list)
+
+
+    def __next__(self):
+        """
+        Returns the next interstitial or
+        raises StopIteration
+        """
+        if len(self.equiv_site_seq) > 0:
+            inter_site_list = self.equiv_site_seq.pop(0)
+
+            return Interstitial(self.structure, inter_site_list[0], multiplicity=len(inter_site_list))
         else:
             raise StopIteration
