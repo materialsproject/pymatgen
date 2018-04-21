@@ -159,21 +159,26 @@ class NwTask(MSONable):
                 theory_spec.append(" {} {}".format(
                     k2, self.alternate_directives[k][k2]))
             theory_spec.append("end")
+
         t = Template("""title "$title"
 charge $charge
 basis $basis_set_option
-$bset_spec
+  $bset_spec
 end
 $theory_spec
-task $theory $operation""")
+""")
 
-        return t.substitute(
+        output = t.substitute(
             title=self.title, charge=self.charge,
             spinmult=self.spin_multiplicity,
             basis_set_option=self.basis_set_option,
             bset_spec="\n".join(bset_spec),
             theory_spec="\n".join(theory_spec),
-            theory=self.theory, operation=self.operation)
+            theory=self.theory)
+
+        if self.operation != "":
+            output += "\ntask %s %s" % (self.theory, self.operation)
+        return output
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
