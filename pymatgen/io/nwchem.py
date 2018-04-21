@@ -527,7 +527,7 @@ class NwOutput(object):
         return self.data[ind]
 
     def __len__(self):
-        return len(self.ddata)
+        return len(self.data)
 
     def _parse_job(self, output):
         energy_patt = re.compile(r'Total \w+ energy\s+=\s+([\.\-\d]+)')
