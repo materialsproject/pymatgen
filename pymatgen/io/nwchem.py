@@ -66,7 +66,8 @@ class NwTask(MSONable):
                 "pspw": "Pseudopotential plane-wave DFT for molecules and "
                         "insulating solids using NWPW",
                 "band": "Pseudopotential plane-wave DFT for solids using NWPW",
-                "tce": "Tensor Contraction Engine"}
+                "tce": "Tensor Contraction Engine",
+                "tddft": "Time Dependent DFT"}
 
     operations = {"energy": "Evaluate the single point energy.",
                   "gradient": "Evaluate the derivative of the energy with "

@@ -4,10 +4,17 @@
 
 from __future__ import division, unicode_literals
 
-"""
-TODO: Modify module doc.
-"""
+import unittest
+import os
+import json
 
+from pymatgen.core.structure import Molecule
+from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
+
+"""
+This module supports the generation and parsing of input and output file for
+nwchem.
+"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -15,13 +22,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/6/13"
-
-import unittest
-import os
-import json
-
-from pymatgen.core.structure import Molecule
-from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
