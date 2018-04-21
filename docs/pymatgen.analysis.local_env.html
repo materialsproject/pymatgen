@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2018.4.6 documentation</title>
+    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2018.4.20 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,24 +46,18 @@
   <div class="section" id="module-pymatgen.analysis.local_env">
 <span id="pymatgen-analysis-local-env-module"></span><h1>pymatgen.analysis.local_env module<a class="headerlink" href="#module-pymatgen.analysis.local_env" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pymatgen.analysis.local_env.BrunnerNN">
-<em class="property">class </em><code class="descname">BrunnerNN</code><span class="sig-paren">(</span><em>mode='reciprocal'</em>, <em>tol=0.0001</em>, <em>cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.local_env.BrunnerNN_real">
+<em class="property">class </em><code class="descname">BrunnerNN_real</code><span class="sig-paren">(</span><em>tol=0.0001</em>, <em>cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_real"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine coordination number using Brunner’s algorithm which counts the
 atoms that are within the largest gap in differences in real space
-interatomic distances.</p>
-<p>Note: Might be highly inaccurate in certain cases.</p>
+interatomic distances. This algorithm uses Brunner’s method of
+largest gap in interatomic distances.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mode</strong> (<em>str</em>) – type of neighbor-finding approach, where “reciprocal”
-will use Brunner’s method of largest reciprocal gap in
-interatomic distances, “relative” will use Brunner’s method of largest
-relative gap in interatomic distances, and “real” will use Brunner’s
-method of largest gap in interatomic distances.
-Defaults to “reciprocal” method.</li>
 <li><strong>tol</strong> (<em>float</em>) – tolerance parameter for bond determination
 (default: 1E-4).</li>
 <li><strong>cutoff</strong> (<em>float</em>) – cutoff radius in Angstrom to look for near-neighbor
@@ -74,8 +68,8 @@ atoms. Defaults to 8.0.</li>
 </tbody>
 </table>
 <dl class="method">
-<dt id="pymatgen.analysis.local_env.BrunnerNN.get_nn_info">
-<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info">
+<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_real.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -105,6 +99,286 @@ the original structure.</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">siw (list of dicts)</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal">
+<em class="property">class </em><code class="descname">BrunnerNN_reciprocal</code><span class="sig-paren">(</span><em>tol=0.0001</em>, <em>cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<p>Determine coordination number using Brunner’s algorithm which counts the
+atoms that are within the largest gap in differences in real space
+interatomic distances. This algorithm uses Brunner’s method of
+largest reciprocal gap in interatomic distances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tol</strong> (<em>float</em>) – tolerance parameter for bond determination
+(default: 1E-4).</li>
+<li><strong>cutoff</strong> (<em>float</em>) – cutoff radius in Angstrom to look for near-neighbor
+atoms. Defaults to 8.0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info">
+<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_reciprocal.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all near-neighbor sites as well as the associated image locations
+and weights of the site with index n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
+information.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>each dictionary provides information</dt>
+<dd><p class="first last">about a single near neighbor, where key ‘site’ gives
+access to the corresponding Site object, ‘image’ gives
+the image location, and ‘weight’ provides the weight
+that a given near-neighbor site contributes
+to the coordination number (1 or smaller), ‘site_index’
+gives index of the corresponding site in
+the original structure.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">siw (list of dicts)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_relative">
+<em class="property">class </em><code class="descname">BrunnerNN_relative</code><span class="sig-paren">(</span><em>tol=0.0001</em>, <em>cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_relative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<p>Determine coordination number using Brunner’s algorithm which counts the
+atoms that are within the largest gap in differences in real space
+interatomic distances. This algorithm uses Brunner’s method of
+of largest relative gap in interatomic distances.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tol</strong> (<em>float</em>) – tolerance parameter for bond determination
+(default: 1E-4).</li>
+<li><strong>cutoff</strong> (<em>float</em>) – cutoff radius in Angstrom to look for near-neighbor
+atoms. Defaults to 8.0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info">
+<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_relative.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all near-neighbor sites as well as the associated image locations
+and weights of the site with index n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
+information.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>each dictionary provides information</dt>
+<dd><p class="first last">about a single near neighbor, where key ‘site’ gives
+access to the corresponding Site object, ‘image’ gives
+the image location, and ‘weight’ provides the weight
+that a given near-neighbor site contributes
+to the coordination number (1 or smaller), ‘site_index’
+gives index of the corresponding site in
+the original structure.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">siw (list of dicts)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.local_env.CrystalNN">
+<em class="property">class </em><code class="descname">CrystalNN</code><span class="sig-paren">(</span><em>weighted_cn=False</em>, <em>cation_anion=False</em>, <em>distance_cutoffs=(1.25</em>, <em>2.5)</em>, <em>x_diff_weight=1.0</em>, <em>search_cutoff=6.0</em>, <em>fingerprint_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CrystalNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<p>This is custom near neighbor method intended for use in all kinds of
+periodic structures (metals, minerals, porous structures, etc). It is based
+on a Voronoi algorithm and uses the solid angle weights to determine the
+probability of various coordination environments. The algorithm can also
+modify probability using smooth distance cutoffs as well as Pauling
+electronegativity differences. The output can either be the most probable
+coordination environment or a weighted list of coordination environments.</p>
+<p>Initialize CrystalNN with desired paramters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>weighted_cn</strong> – (bool) if set to True, will return fractional weights
+for each potential near neighbor.</li>
+<li><strong>cation_anion</strong> – (bool) if set True, will restrict bonding targets to
+sites with opposite or zero charge. Requires an oxidation states
+on all sites in the structure.</li>
+<li><strong>distance_cutoffs</strong> – ([float, float]) - min and max cutoff for smooth
+distance filtering. Set to None to turn off.</li>
+<li><strong>x_diff_weight</strong> – (float) - if multiple types of neighbor elements are
+possible, this sets preferences for targets with higher
+electronegativity difference.</li>
+<li><strong>search_cutoff</strong> – (float) cutoff in Angstroms for initial neighbor
+search</li>
+<li><strong>fingerprint_length</strong> – (int) if a fixed_length CN “fingerprint” is
+desired from get_nn_data(), set this parameter</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.analysis.local_env.CrystalNN.NNData">
+<code class="descname">NNData</code><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.NNData" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">nn_data</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CrystalNN.get_cn">
+<code class="descname">get_cn</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em>, <em>use_weights=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CrystalNN.get_cn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_cn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get coordination number, CN, of site with index n in structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine CN.</li>
+<li><strong>use_weights</strong> (<em>boolean</em>) – flag indicating whether (True)
+to use weights for computing the coordination number
+or not (False, default: each coordinated site has equal
+weight).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">coordination number.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">cn (integer or float)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CrystalNN.get_cn_dict">
+<code class="descname">get_cn_dict</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em>, <em>use_weights=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CrystalNN.get_cn_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_cn_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get coordination number, CN, of each element bonded to site with index n in structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine CN.</li>
+<li><strong>use_weights</strong> (<em>boolean</em>) – flag indicating whether (True)
+to use weights for computing the coordination number
+or not (False, default: each coordinated site has equal
+weight).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary of CN of each element bonded to site</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">cn (dict)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CrystalNN.get_nn_data">
+<code class="descname">get_nn_data</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em>, <em>length=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CrystalNN.get_nn_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_nn_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main logic of the method to compute near neighbor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> – (Structure) enclosing structure object</li>
+<li><strong>n</strong> – (int) index of target site to get NN info for</li>
+<li><strong>length</strong> – (int) if set, will return a fixed range of CN numbers</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li>all near neighbor sites with weights</li>
+<li>a dict of CN -&gt; weight</li>
+<li>a dict of CN -&gt; associated near neighbor sites</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">a namedtuple (NNData) object that contains</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CrystalNN.get_nn_info">
+<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CrystalNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all near-neighbor information.
+:param structure: (Structure) pymatgen Structure
+:param n: (int) index of target site</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>each dictionary provides information</dt>
+<dd>about a single near neighbor, where key ‘site’ gives
+access to the corresponding Site object, ‘image’ gives
+the image location, and ‘weight’ provides the weight
+that a given near-neighbor site contributes
+to the coordination number (1 or smaller), ‘site_index’
+gives index of the corresponding site in
+the original structure.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">siw (list of dicts)</td>
 </tr>
 </tbody>
 </table>
@@ -1486,7 +1760,7 @@ vt2, vt3 and vt4.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
       </ul>
     </div>
 

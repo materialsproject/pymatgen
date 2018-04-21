@@ -5,7 +5,7 @@
 import logging
 from monty.json import MSONable
 from pymatgen.core import Molecule
-from .utils import read_table_pattern, read_pattern
+from .utils import read_table_pattern, read_pattern, lower_and_check_unique
 """
 Classes for reading/manipulating/writing QChem ouput files.
 """
@@ -44,10 +44,43 @@ class QCInput(MSONable):
 
     def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None):
         self.molecule = molecule
-        self.rem = rem
+        self.rem = lower_and_check_unique(rem)
         self.opt = opt
-        self.pcm = pcm
-        self.solvent = solvent
+        self.pcm = lower_and_check_unique(pcm)
+        self.solvent = lower_and_check_unique(solvent)
+
+        # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
+
+        if isinstance(self.molecule,str):
+            self.molecule = self.molecule.lower()
+            if self.molecule != "read":
+                raise ValueError('The only acceptable text value for molecule is "read"')
+        elif not isinstance(self.molecule, Molecule):
+            raise ValueError("The molecule must either be the string 'read' or be a pymatgen Molecule object")
+
+        # Make sure rem is valid:
+        #   - Has a basis
+        #   - Has a method or DFT exchange functional
+        #   - Has a valid job_type or jobtype
+
+        valid_job_types = ["opt","optimization","sp","freq","frequency","nmr"]
+
+        if "basis" not in self.rem:
+            raise ValueError("The rem dictionary must contain a 'basis' entry")
+        if "method" not in self.rem:
+            if "exchange" not in self.rem:
+                raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
+        if "job_type" not in self.rem:
+            raise ValueError("The rem dictionary must contain a 'job_type' entry")
+        if self.rem.get("job_type").lower() not in valid_job_types:
+            raise ValueError("The rem dictionary must contain a valid 'job_type' entry")
+
+        # Still to do:
+        #   - Check that the method or functional is valid
+        #   - Check that basis is valid
+        #   - Check that basis is defined for all species in the molecule
+        #   - Validity checks specific to job type?
+        #   - Check OPT and PCM sections?
 
     def __str__(self):
         combined_list = []
@@ -216,7 +249,7 @@ class QCInput(MSONable):
         if "spin_mult" in matches.keys():
             spin_mult = int(matches["spin_mult"][0][0])
         header = r"^\s*\$molecule\n\s*\d\s*\d"
-        row = r"\s*((?i)[a-z])\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer = r"^\$end"
         mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         species = [val[0] for val in mol_table[0]]
@@ -227,7 +260,7 @@ class QCInput(MSONable):
     @staticmethod
     def read_rem(string):
         header = r"^\s*\$rem"
-        row = r"\s*(\S+)\s+=?\s+(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         rem = {key: val for key, val in rem_table[0]}
@@ -274,7 +307,7 @@ class QCInput(MSONable):
     @staticmethod
     def read_pcm(string):
         header = r"^\s*\$pcm"
-        row = r"\s*(\S+)\s+=?\s+(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         pcm = {key: val for key, val in pcm_table[0]}
@@ -283,8 +316,15 @@ class QCInput(MSONable):
     @staticmethod
     def read_solvent(string):
         header = r"^\s*\$solvent"
-        row = r"\s*(\S+)\s+=?\s+(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         solvent = {key: val for key, val in solvent_table[0]}
         return solvent
+
+
+
+
+
+
+

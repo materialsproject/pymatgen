@@ -66,7 +66,8 @@ class NwTask(MSONable):
                 "pspw": "Pseudopotential plane-wave DFT for molecules and "
                         "insulating solids using NWPW",
                 "band": "Pseudopotential plane-wave DFT for solids using NWPW",
-                "tce": "Tensor Contraction Engine"}
+                "tce": "Tensor Contraction Engine",
+                "tddft": "Time Dependent DFT"}
 
     operations = {"energy": "Evaluate the single point energy.",
                   "gradient": "Evaluate the derivative of the energy with "
@@ -121,7 +122,7 @@ class NwTask(MSONable):
                 example, to perform cosmo calculations and dielectric
                 constant of 78, you'd supply {'cosmo': {"dielectric": 78}}.
         """
-        #Basic checks.
+        # Basic checks.
         if theory.lower() not in NwTask.theories.keys():
             raise NwInputError("Invalid theory {}".format(theory))
 
@@ -158,21 +159,26 @@ class NwTask(MSONable):
                 theory_spec.append(" {} {}".format(
                     k2, self.alternate_directives[k][k2]))
             theory_spec.append("end")
+
         t = Template("""title "$title"
 charge $charge
 basis $basis_set_option
 $bset_spec
 end
 $theory_spec
-task $theory $operation""")
+""")
 
-        return t.substitute(
+        output = t.substitute(
             title=self.title, charge=self.charge,
             spinmult=self.spin_multiplicity,
             basis_set_option=self.basis_set_option,
             bset_spec="\n".join(bset_spec),
             theory_spec="\n".join(theory_spec),
-            theory=self.theory, operation=self.operation)
+            theory=self.theory)
+
+        if self.operation is not None:
+            output += "task %s %s" % (self.theory, self.operation)
+        return output
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
@@ -197,8 +203,8 @@ task $theory $operation""")
 
     @classmethod
     def from_molecule(cls, mol, theory, charge=None, spin_multiplicity=None,
-                      basis_set="6-31g", basis_set_option="cartesian", title=None,
-                      operation="optimize", theory_directives=None,
+                      basis_set="6-31g", basis_set_option="cartesian",
+                      title=None, operation="optimize", theory_directives=None,
                       alternate_directives=None):
         """
         Very flexible arguments to support many types of potential setups.
@@ -253,7 +259,8 @@ task $theory $operation""")
 
         basis_set_option = basis_set_option
 
-        return NwTask(charge, spin_multiplicity, basis_set, basis_set_option=basis_set_option,
+        return NwTask(charge, spin_multiplicity, basis_set,
+                      basis_set_option=basis_set_option,
                       title=title, theory=theory, operation=operation,
                       theory_directives=theory_directives,
                       alternate_directives=alternate_directives)
@@ -411,7 +418,7 @@ class NwInput(MSONable):
                 if toks[0].lower() == "symmetry":
                     symmetry_options = toks[1:]
                     l = lines.pop(0).strip()
-                #Parse geometry
+                # Parse geometry
                 species = []
                 coords = []
                 while l.lower() != "end":
@@ -425,7 +432,7 @@ class NwInput(MSONable):
             elif toks[0].lower() == "title":
                 title = l[5:].strip().strip("\"")
             elif toks[0].lower() == "basis":
-                #Parse basis sets
+                # Parse basis sets
                 l = lines.pop(0).strip()
                 basis_set = {}
                 while l.lower() != "end":
@@ -433,10 +440,10 @@ class NwInput(MSONable):
                     basis_set[toks[0]] = toks[-1].strip("\"")
                     l = lines.pop(0).strip()
             elif toks[0].lower() in NwTask.theories:
-                #read the basis_set_option
+                # read the basis_set_option
                 if len(toks) > 1:
                     basis_set_option = toks[1]
-                #Parse theory directives.
+                # Parse theory directives.
                 theory = toks[0].lower()
                 l = lines.pop(0).strip()
                 theory_directives[theory] = {}
@@ -519,6 +526,15 @@ class NwOutput(object):
                 info[toks[0].strip()] = toks[-1].strip()
         return info
 
+    def __iter__(self):
+        return self.data.__iter__()
+
+    def __getitem__(self, ind):
+        return self.data[ind]
+
+    def __len__(self):
+        return len(self.data)
+
     def _parse_job(self, output):
         energy_patt = re.compile(r'Total \w+ energy\s+=\s+([\.\-\d]+)')
         energy_gas_patt = re.compile(r'gas phase energy\s+=\s+([\.\-\d]+)')
@@ -586,7 +602,7 @@ class NwOutput(object):
                 if l.strip() == "Atomic Mass":
                     if lattice:
                         structures.append(Structure(lattice, species, coords,
-                                                     coords_are_cartesian=True))
+                                                    coords_are_cartesian=True))
                     else:
                         molecules.append(Molecule(species, coords))
                     species = []
@@ -643,7 +659,7 @@ class NwOutput(object):
                     parse_bset = False
                 else:
                     toks = l.split()
-                    if toks[0] != "Tag" and not re.match(r"\-+", toks[0]):
+                    if toks[0] != "Tag" and not re.match(r"-+", toks[0]):
                         basis_set[toks[0]] = dict(zip(bset_header[1:],
                                                       toks[1:]))
                     elif toks[0] == "Tag":
@@ -661,7 +677,7 @@ class NwOutput(object):
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
-                    except Exception as e:
+                    except Exception:
                         continue
                     if isfloatstring(toks[1]):
                         continue
@@ -705,7 +721,6 @@ class NwOutput(object):
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
                     energies[-1].update({"gas phase":
                                          Energy(m.group(1), "Ha").to("eV")})
-
 
                 m = energy_sol_patt.search(l)
                 if m:
