@@ -394,6 +394,7 @@ class NwOutputTest(unittest.TestCase):
 
         self.assertEqual(0, nwo[0]["charge"])
         self.assertEqual(-1, nwo[-1]["charge"])
+        self.assertEqual(len(nwo), 5)
         self.assertAlmostEqual(-1102.6224491715582, nwo[0]["energies"][-1], 2)
         self.assertAlmostEqual(-1102.9986291578023, nwo[2]["energies"][-1])
         self.assertAlmostEqual(-11156.354030653656,
