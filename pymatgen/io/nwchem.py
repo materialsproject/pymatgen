@@ -88,6 +88,7 @@ class NwTask(MSONable):
                   "thermodynamics": "Perform multi-configuration "
                                     "thermodynamic integration using "
                                     "classical MD.",
+                  " ": "dummy",
                   "": "dummy"}
 
     def __init__(self, charge, spin_multiplicity, basis_set,
@@ -163,7 +164,7 @@ class NwTask(MSONable):
         t = Template("""title "$title"
 charge $charge
 basis $basis_set_option
-  $bset_spec
+$bset_spec
 end
 $theory_spec
 """)
@@ -177,7 +178,7 @@ $theory_spec
             theory=self.theory)
 
         if self.operation != "":
-            output += "\ntask %s %s" % (self.theory, self.operation)
+            output += "task %s %s" % (self.theory, self.operation)
         return output
 
     def as_dict(self):
