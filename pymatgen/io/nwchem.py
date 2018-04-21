@@ -88,7 +88,6 @@ class NwTask(MSONable):
                   "thermodynamics": "Perform multi-configuration "
                                     "thermodynamic integration using "
                                     "classical MD.",
-                  " ": "dummy",
                   "": "dummy"}
 
     def __init__(self, charge, spin_multiplicity, basis_set,
@@ -177,7 +176,7 @@ $theory_spec
             theory_spec="\n".join(theory_spec),
             theory=self.theory)
 
-        if self.operation != "":
+        if self.operation is not None:
             output += "task %s %s" % (self.theory, self.operation)
         return output
 
