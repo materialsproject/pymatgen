@@ -65,7 +65,6 @@ class NDCalculatorTest(PymatgenTest):
         with self.assertRaises(ValueError):
             nd = c.get_pattern(something, two_theta_range=(0, 90))
 
-
         # Test with Debye-Waller factor
         s = self.get_structure("Graphite")
         c = NDCalculator(wavelength=1.54184, debye_waller_factors={'C': 1})
@@ -74,7 +73,6 @@ class NDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(nd.y[0], 100)
         self.assertAlmostEqual(nd.x[2], 44.39599754)
         self.assertAlmostEqual(nd.y[2], 39.471514740)
-        
 
 
 if __name__ == '__main__':
