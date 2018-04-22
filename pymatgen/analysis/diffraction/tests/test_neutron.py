@@ -5,6 +5,8 @@
 from __future__ import division, unicode_literals
 import unittest
 from pymatgen.analysis.diffraction.neutron import NDCalculator
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 from pymatgen.util.testing import PymatgenTest
 import matplotlib as mpl
 mpl.use("pdf")
@@ -31,11 +33,9 @@ class NDCalculatorTest(PymatgenTest):
         nd = c.get_pattern(s, two_theta_range=(0, 90))
         # Check the first two peaks
         self.assertAlmostEqual(nd.x[0], 21.107738329639844)
-        # self.assertAlmostEqual(nd.y[0], 36.483184003748946)
         self.assertEqual(nd.hkls[0], {(1, 0, 0): 6})
         self.assertAlmostEqual(nd.d_hkls[0], 4.2089999999999996)
         self.assertAlmostEqual(nd.x[1], 30.024695921112777)
-        # self.assertAlmostEqual(nd.y[1], 100)
         self.assertEqual(nd.hkls[1], {(1, 1, 0): 12})
         self.assertAlmostEqual(nd.d_hkls[1], 2.976212442014178)
 
@@ -57,6 +57,13 @@ class NDCalculatorTest(PymatgenTest):
         self.assertAlmostEqual(nd.x[2], 44.39599754)
         self.assertAlmostEqual(nd.y[2], 42.62382267)
         self.assertAlmostEqual(len(list(nd.hkls[0].keys())[0]), 4)
+
+        # Test an exception in case of the input element is
+        # not in scattering length table.
+        # This curium structure is just for test, not the actual structure.
+        something = Structure(Lattice.cubic(a=1), ["Cm"], [[0, 0, 0]])
+        with self.assertRaises(ValueError):
+            nd = c.get_pattern(something, two_theta_range=(0, 90))
 
         # Test with Debye-Waller factor
         s = self.get_structure("Graphite")
