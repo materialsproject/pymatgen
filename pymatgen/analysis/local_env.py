@@ -560,7 +560,7 @@ class VoronoiNN(NearNeighbors):
 
         # Run the Voronoi tessellation
         qvoronoi_input = [s.coords for s in neighbors]
-        voro = Voronoi(qvoronoi_input)
+        voro = Voronoi(qvoronoi_input) # can give a seg fault if cutoff is too small
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
@@ -2490,7 +2490,7 @@ class CrystalNN(NearNeighbors):
 
     def __init__(self, weighted_cn=False, cation_anion=False,
                  distance_cutoffs=(1.25, 2.5), x_diff_weight=1.0,
-                 search_cutoff=6.0, fingerprint_length=None):
+                 search_cutoff=10.0, fingerprint_length=None):
         """
         Initialize CrystalNN with desired paramters.
 
@@ -2587,7 +2587,7 @@ class CrystalNN(NearNeighbors):
                     "No valid targets for site within cation_anion constraint!")
 
         # get base VoronoiNN targets
-        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=6)
+        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=self.search_cutoff)
         nn = vnn.get_nn_info(structure, n)
 
         # adjust solid angle weights based on distance
