@@ -2587,7 +2587,8 @@ class CrystalNN(NearNeighbors):
                     "No valid targets for site within cation_anion constraint!")
 
         # get base VoronoiNN targets
-        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=6)
+        vnn = VoronoiNN(weight="solid_angle", targets=target,
+                        cutoff=self.search_cutoff)
         nn = vnn.get_nn_info(structure, n)
 
         # adjust solid angle weights based on distance
