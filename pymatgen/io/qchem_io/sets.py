@@ -18,7 +18,7 @@ class QChemDictSet(QCInput):
     """
     Build a QCInput given all the various input parameters. Can be extended by standard implementations below.
     """
-    def __init__(self, molecule, job_type, basis_set, SCF_algorithm, DFT_rung=4, PCM_solvent=None, max_scf_cycles=200, geom_opt_max_cycles=200):
+    def __init__(self, molecule, job_type, basis_set, SCF_algorithm, DFT_rung=4, PCM_dielectric=None, max_scf_cycles=200, geom_opt_max_cycles=200):
 
         """
         Args:
@@ -27,7 +27,7 @@ class QChemDictSet(QCInput):
             basis_set (str)
             SCF_algorithm (str)
             DFT_rung (int)
-            PCM_solvent (str)
+            PCM_dielectric (str)
             max_scf_cycles (int)
             geom_opt_max_cycles (int)
         """
@@ -39,10 +39,14 @@ class QChemDictSet(QCInput):
         self.basis_set = basis_set
         self.SCF_algorithm = SCF_algorithm
         self.DFT_rung = DFT_rung
-        self.PCM_solvent = PCM_solvent
+        self.PCM_dielectric = PCM_dielectric
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
 
+        pcm_defaults = {"heavypoints": "194", "hpoints": "194", "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
+
+        mypcm = {}
+        mysolvent = {}
         myrem = {}
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
@@ -60,15 +64,16 @@ class QChemDictSet(QCInput):
         elif self.DFT_rung == 5:
             myrem["method"] = "wB97M-V"
         else:
-            print("DFT_rung should be between 1 and 5!")
+            raise ValueError("DFT_rung should be between 1 and 5!")
 
         if self.job_type.lower() == "opt":
             myrem["geom_opt_max_cycles"] = self.geom_opt_max_cycles
 
-        if self.PCM_solvent != None:
-            print("Need PCM input implementation!")
+        if self.PCM_dielectric != None:
+            mypcm = pcm_defaults
+            mysolvent["dielectric"] = self.PCM_dielectric
 
-        super(QChemDictSet, self).__init__(self.molecule, myrem)
+        super(QChemDictSet, self).__init__(self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent)
 
 class OptSet(QChemDictSet):
     """
