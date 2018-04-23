@@ -2490,7 +2490,7 @@ class CrystalNN(NearNeighbors):
 
     def __init__(self, weighted_cn=False, cation_anion=False,
                  distance_cutoffs=(1.25, 2.5), x_diff_weight=1.0,
-                 search_cutoff=6.0, fingerprint_length=None):
+                 search_cutoff=8.0, fingerprint_length=None):
         """
         Initialize CrystalNN with desired paramters.
 
