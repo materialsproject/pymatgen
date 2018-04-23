@@ -168,7 +168,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         from pymatgen import MPRester
         mpr = MPRester()
         entries = mpr.get_pourbaix_entries(["Fe", "C", "F", "Bi"])
-        pd = PourbaixDiagram(entries, nproc=7)
+        pd = PourbaixDiagram(entries, nproc=7, filter_solids=True)
 
     @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
                      "PMG_MAPI_KEY environment variable not set.")

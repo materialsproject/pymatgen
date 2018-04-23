@@ -401,7 +401,7 @@ class PourbaixDiagram(object):
             in parallel.  Defaults to None (serial processing)
     """
     def __init__(self, entries, comp_dict=None, conc_dict=None,
-                 filter_solids=False, filter_multielement=True,
+                 filter_solids=False, filter_multielement=False,
                  nproc=None):
 
         # Get non-OH elements
@@ -451,7 +451,7 @@ class PourbaixDiagram(object):
                                      if tuple(e.non_oh_elts) == (Element(elt),)]
                 stable_unary_entries.extend(
                     PourbaixDiagram(unary_elt_entries).stable_entries)
-            self._analysis_entries = stable_unary_entries + ion_entries\
+            self._analysis_entries = stable_unary_entries\
                 + [e for e in entries if len(e.non_oh_elts) > 1]
         else:
             self._analysis_entries = solid_entries + ion_entries
