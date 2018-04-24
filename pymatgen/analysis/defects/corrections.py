@@ -17,16 +17,18 @@ norm = np.linalg.norm
 from scipy import stats  #for statistical uncertainties of pot alignment
 from monty.json import MSONable
 from pymatgen.util.coord import pbc_shortest_vectors
-# from pymatgen.analysis.defects.core import DefectCorrection
 from core import DefectCorrection
-# from pymatgen.entries import CompatibilityError
-
 from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+
+#TODO: Better doc on entry parameters with detailed explanation of what they are 
+#TODO: Use module level logger for logging: 
+
+logger = logging.getLogger(__name__)
 
 class FreysoldtCorrection(DefectCorrection):
     """
@@ -40,17 +42,18 @@ class FreysoldtCorrection(DefectCorrection):
         defect_planar_averages
 
 
+        axis: The axis to calculate on, if none, averages over all three.  #TODO: Actually implement this
     axis_grid, pureavg, defavg, lattice, dielectricconst, q, defect_position, axis,
                           q_model=QModel(), madetol=0.0001, title=None, widthsample=1.0
 
     """
 
-    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001):
+    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001, axis=None):
         self.dielectric_const = dielectric_const
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
         self.madelung_energy_tolerance = madelung_energy_tolerance
-        self.metadata = {}
+
 
         if isinstance(dielectric_const, int) or \
                 isinstance(dielectric_const, float):
@@ -80,6 +83,8 @@ class FreysoldtCorrection(DefectCorrection):
             madetol=self.madelung_energy_tolerance)
 
         pot_corr_tracker = []
+        self.metadata = {'pot_plot_data': {}, 'pot_corr_uncertainty_md': {}}
+
         for x, pureavg, defavg, axis in zip(list_axis_grid,
                                             list_bulk_plnr_avg_esp,
                                             list_defect_plnr_avg_esp,
@@ -100,6 +105,8 @@ class FreysoldtCorrection(DefectCorrection):
             pot_corr_tracker.append(tmp_pot_corr)
 
         pot_corr = np.mean(pot_corr_tracker)
+
+        entry.parameters["freysoldt_meta"] = dict(self.metadata)
 
         return {"freysoldt_electrostatic": es_corr,
                 "freysoldt_potential_alignment": pot_corr}
@@ -264,23 +271,18 @@ class FreysoldtCorrection(DefectCorrection):
         logger.info('Potentital alignment energy correction (-q*delta V):  %f (eV)', -q * C)
         self.pot_corr = -q * C
 
+        #TODO: Where ot put this metadata?
         #log plotting data:
-        if 'pot_plot_data' not in self.metadata:   #x, v_R, dft_diff, final_shift, check,
-            self.metadata['pot_plot_data'] = {axis: {'Vr':v_R, 'x': axis_grid, 'dft_diff': defavg - pureavg,
-                                                     'final_shift':final_shift, 'check': [mid - checkdis, mid + checkdis + 1]}}
-        else:
-            self.metadata['pot_plot_data'][axis] = {'Vr':v_R, 'x': axis_grid, 'dft_diff': defavg - pureavg,
+        self.metadata['pot_plot_data'][axis] = {'Vr':v_R, 'x': axis_grid, 'dft_diff': defavg - pureavg,
                                                     'final_shift':final_shift, 'check': [mid - checkdis, mid + checkdis + 1]}
 
         #log uncertainty:
-        if 'pot_corr_uncertainty_md' not in self.metadata:
-            self.metadata['pot_corr_uncertainty_md'] = {axis: {'stats': stats.describe(tmppot), 'potcorr': -q * C}}
-        else:
-            self.metadata['pot_corr_uncertainty_md'][axis] = {'stats': stats.describe(tmppot), 'potcorr': -q * C}
+        self.metadata['pot_corr_uncertainty_md'][axis] = {'stats': stats.describe(tmppot), 'potcorr': -q * C}
 
         return self.pot_corr
 
 
+# TODO: Make this a part of above
 def freysoldt_plotter(x, v_R, dft_diff, final_shift, check, title = None, saved=False):
     """
     planar average electrostatic potential plotter for Freysoldt
@@ -788,10 +790,6 @@ def kumagai_plotter(r, Vqb, Vpc, eltnames, samplerad=None, title = None, saved=F
     else:
         return plt
 
-
-"""
-Below Here is for other corrections
-"""
 
 class BandFillingCorrection(DefectCorrection):
     """
