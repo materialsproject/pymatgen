@@ -161,7 +161,7 @@ class DefectPhaseDiagram(MSONable):
             list of dictionaries of defect concentrations
         """
         concentrations = []
-        for dfct in self.dentries:
+        for dfct in self.all_stable_entries:
             concentrations.append({
                 'conc': dfct.defect_concentration(chemical_potentials=chemical_potentials,
                                                   temperature=temperature,
