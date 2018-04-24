@@ -8,8 +8,7 @@ import unittest
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.sites import Site
-from pymatgen.analysis.defects.generators import VacancyGenerator, InterstitialGenerator
-
+from pymatgen.analysis.defects.generators import VacancyGenerator, InterstitialGenerator, VoronoiInterstitialGenerator
 
 class VacancyGeneratorTest(PymatgenTest):
     def test_vacancy_gen(self):
@@ -49,6 +48,11 @@ class InterstitialGeneratorTest(PymatgenTest):
 
         self.assertArrayAlmostEqual(ints[0].defect_site.coords, (0.9106, 0.3078, 0.3078))
         self.assertArrayAlmostEqual(ints[1].defect_site.coords, (1.5177, 0.7183, 0.7183))
+
+
+class VoronoiInterstitialGeneratorTest(PymatgenTest):
+    def test_int_gen(self):
+        pass
 
 
 if __name__ == "__main__":
