@@ -2235,7 +2235,7 @@ class Outcar(MSONable):
                  born_data])
 
             def born_section_stop(results, match):
-                results.born_index = None
+                results.born_ion = None
 
             search.append(
                 [r"-------------------------------------",

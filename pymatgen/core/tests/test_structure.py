@@ -667,6 +667,22 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.frac_coords[0],
                                     [1.00187517, 1.25665291, 1.15946374])
 
+    def test_rotate_sites(self):
+        self.structure.rotate_sites(indices=[1],
+                                    theta=2.*np.pi/3.,
+                                    anchor=self.structure.sites[0].coords,
+                                    to_unit_cell=False)
+        self.assertArrayAlmostEqual(self.structure.frac_coords[1],
+                                    [-1.25, 1.5, 0.75],
+                                    decimal=6)
+        self.structure.rotate_sites(indices=[1],
+                                    theta=2.*np.pi/3.,
+                                    anchor=self.structure.sites[0].coords,
+                                    to_unit_cell=True)
+        self.assertArrayAlmostEqual(self.structure.frac_coords[1],
+                                    [0.75, 0.5, 0.75],
+                                    decimal=6)
+
     def test_mul(self):
         self.structure *= [2, 1, 1]
         self.assertEqual(self.structure.formula, "Si4")

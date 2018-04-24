@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.4.6 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.4.20 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -52,11 +52,15 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.molecule_structure_comparator</span> <span class="k">import</span> <span class="n">CovalentRadius</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -82,8 +86,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">abs_cap</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BV_PARAMS</span>
-
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BV_PARAMS</span><span class="p">,</span> <span class="n">BVAnalyzer</span>
 
 <span class="n">default_op_params</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
@@ -2361,48 +2364,111 @@
 
         <span class="k">return</span> <span class="n">ops</span></div></div>
 
+<div class="viewcode-block" id="BrunnerNN_reciprocal"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_reciprocal">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_reciprocal</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
 
-<div class="viewcode-block" id="BrunnerNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine coordination number using Brunner&#39;s algorithm which counts the</span>
 <span class="sd">    atoms that are within the largest gap in differences in real space</span>
-<span class="sd">    interatomic distances.</span>
-
-<span class="sd">    Note: Might be highly inaccurate in certain cases.</span>
+<span class="sd">    interatomic distances. This algorithm uses Brunner&#39;s method of</span>
+<span class="sd">    largest reciprocal gap in interatomic distances.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        mode (str): type of neighbor-finding approach, where &quot;reciprocal&quot;</span>
-<span class="sd">            will use Brunner&#39;s method of largest reciprocal gap in</span>
-<span class="sd">            interatomic distances, &quot;relative&quot; will use Brunner&#39;s method of largest</span>
-<span class="sd">            relative gap in interatomic distances, and &quot;real&quot; will use Brunner&#39;s</span>
-<span class="sd">            method of largest gap in interatomic distances.</span>
-<span class="sd">            Defaults to &quot;reciprocal&quot; method.</span>
 <span class="sd">        tol (float): tolerance parameter for bond determination</span>
 <span class="sd">            (default: 1E-4).</span>
 <span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
 <span class="sd">            atoms. Defaults to 8.0.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reciprocal&quot;</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
 
-<div class="viewcode-block" id="BrunnerNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<div class="viewcode-block" id="BrunnerNN_reciprocal.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_reciprocal.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
 
         <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
         <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;reciprocal&quot;</span><span class="p">:</span>
-            <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;relative&quot;</span><span class="p">:</span>
-            <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;real&quot;</span><span class="p">:</span>
-            <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown Brunner CN mode.&quot;</span><span class="p">)</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
+        <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
+
+<div class="viewcode-block" id="BrunnerNN_relative"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_relative">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_relative</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine coordination number using Brunner&#39;s algorithm which counts the</span>
+<span class="sd">    atoms that are within the largest gap in differences in real space</span>
+<span class="sd">    interatomic distances. This algorithm uses Brunner&#39;s method of</span>
+<span class="sd">    of largest relative gap in interatomic distances.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tol (float): tolerance parameter for bond determination</span>
+<span class="sd">            (default: 1E-4).</span>
+<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">            atoms. Defaults to 8.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+
+<div class="viewcode-block" id="BrunnerNN_relative.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_relative.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+
+        <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
+        <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">d_max</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">dist</span>
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
+                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
+                            <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
+        <span class="k">return</span> <span class="n">siw</span></div></div>
+
+<div class="viewcode-block" id="BrunnerNN_real"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_real">[docs]</a><span class="k">class</span> <span class="nc">BrunnerNN_real</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine coordination number using Brunner&#39;s algorithm which counts the</span>
+<span class="sd">    atoms that are within the largest gap in differences in real space</span>
+<span class="sd">    interatomic distances. This algorithm uses Brunner&#39;s method of</span>
+<span class="sd">    largest gap in interatomic distances.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tol (float): tolerance parameter for bond determination</span>
+<span class="sd">            (default: 1E-4).</span>
+<span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">            atoms. Defaults to 8.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0e-4</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+
+<div class="viewcode-block" id="BrunnerNN_real.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.BrunnerNN_real.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+
+        <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">]</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
 
         <span class="n">d_max</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">ns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ns</span><span class="p">))]</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2457,6 +2523,284 @@
         <span class="k">return</span> <span class="n">siw</span></div></div>
 
 
+<div class="viewcode-block" id="CrystalNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN">[docs]</a><span class="k">class</span> <span class="nc">CrystalNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is custom near neighbor method intended for use in all kinds of</span>
+<span class="sd">    periodic structures (metals, minerals, porous structures, etc). It is based</span>
+<span class="sd">    on a Voronoi algorithm and uses the solid angle weights to determine the</span>
+<span class="sd">    probability of various coordination environments. The algorithm can also</span>
+<span class="sd">    modify probability using smooth distance cutoffs as well as Pauling</span>
+<span class="sd">    electronegativity differences. The output can either be the most probable</span>
+<span class="sd">    coordination environment or a weighted list of coordination environments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NNData</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;nn_data&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;all_nninfo&quot;</span><span class="p">,</span> <span class="s2">&quot;cn_weights&quot;</span><span class="p">,</span> <span class="s2">&quot;cn_nninfo&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weighted_cn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cation_anion</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">distance_cutoffs</span><span class="o">=</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span> <span class="n">x_diff_weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">search_cutoff</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span> <span class="n">fingerprint_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize CrystalNN with desired paramters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            weighted_cn: (bool) if set to True, will return fractional weights</span>
+<span class="sd">                for each potential near neighbor.</span>
+<span class="sd">            cation_anion: (bool) if set True, will restrict bonding targets to</span>
+<span class="sd">                sites with opposite or zero charge. Requires an oxidation states</span>
+<span class="sd">                on all sites in the structure.</span>
+<span class="sd">            distance_cutoffs: ([float, float]) - min and max cutoff for smooth</span>
+<span class="sd">                distance filtering. Set to None to turn off.</span>
+<span class="sd">            x_diff_weight: (float) - if multiple types of neighbor elements are</span>
+<span class="sd">                possible, this sets preferences for targets with higher</span>
+<span class="sd">                electronegativity difference.</span>
+<span class="sd">            search_cutoff: (float) cutoff in Angstroms for initial neighbor</span>
+<span class="sd">                search</span>
+<span class="sd">            fingerprint_length: (int) if a fixed_length CN &quot;fingerprint&quot; is</span>
+<span class="sd">                desired from get_nn_data(), set this parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weighted_cn</span><span class="o">=</span><span class="n">weighted_cn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cation_anion</span> <span class="o">=</span> <span class="n">cation_anion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span> <span class="o">=</span> <span class="n">distance_cutoffs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_diff_weight</span> <span class="o">=</span> <span class="n">x_diff_weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_cutoff</span> <span class="o">=</span> <span class="n">search_cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fingerprint_length</span> <span class="o">=</span> <span class="n">fingerprint_length</span>
+
+<div class="viewcode-block" id="CrystalNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor information.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: (Structure) pymatgen Structure</span>
+<span class="sd">            n: (int) index of target site</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            siw (list of dicts): each dictionary provides information</span>
+<span class="sd">                about a single near neighbor, where key &#39;site&#39; gives</span>
+<span class="sd">                access to the corresponding Site object, &#39;image&#39; gives</span>
+<span class="sd">                the image location, and &#39;weight&#39; provides the weight</span>
+<span class="sd">                that a given near-neighbor site contributes</span>
+<span class="sd">                to the coordination number (1 or smaller), &#39;site_index&#39;</span>
+<span class="sd">                gives index of the corresponding site in</span>
+<span class="sd">                the original structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nndata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn_data</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted_cn</span><span class="p">:</span>
+            <span class="n">max_key</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nndata</span><span class="o">.</span><span class="n">cn_weights</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">nndata</span><span class="o">.</span><span class="n">cn_weights</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">nn</span> <span class="o">=</span> <span class="n">nndata</span><span class="o">.</span><span class="n">cn_nninfo</span><span class="p">[</span><span class="n">max_key</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">nn</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nndata</span><span class="o">.</span><span class="n">all_nninfo</span><span class="p">:</span>
+                <span class="n">weight</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">cn</span> <span class="ow">in</span> <span class="n">nndata</span><span class="o">.</span><span class="n">cn_nninfo</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">cn_entry</span> <span class="ow">in</span> <span class="n">nndata</span><span class="o">.</span><span class="n">cn_nninfo</span><span class="p">[</span><span class="n">cn</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cn_entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">]:</span>
+                            <span class="n">weight</span> <span class="o">+=</span> <span class="n">nndata</span><span class="o">.</span><span class="n">cn_weights</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span>
+
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weight</span>
+
+            <span class="k">return</span> <span class="n">nndata</span><span class="o">.</span><span class="n">all_nninfo</span></div>
+
+<div class="viewcode-block" id="CrystalNN.get_nn_data"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_nn_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The main logic of the method to compute near neighbor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: (Structure) enclosing structure object</span>
+<span class="sd">            n: (int) index of target site to get NN info for</span>
+<span class="sd">            length: (int) if set, will return a fixed range of CN numbers</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a namedtuple (NNData) object that contains:</span>
+<span class="sd">                - all near neighbor sites with weights</span>
+<span class="sd">                - a dict of CN -&gt; weight</span>
+<span class="sd">                - a dict of CN -&gt; associated near neighbor sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">length</span> <span class="o">=</span> <span class="n">length</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">fingerprint_length</span>
+
+        <span class="c1"># determine possible bond targets</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cation_anion</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">m_oxi</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">oxi_state</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">oxi_state</span> <span class="o">*</span> <span class="n">m_oxi</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># opposite charge</span>
+                    <span class="n">target</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">target</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;No valid targets for site within cation_anion constraint!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># get base VoronoiNN targets</span>
+        <span class="n">vnn</span> <span class="o">=</span> <span class="n">VoronoiNN</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="s2">&quot;solid_angle&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="n">vnn</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># adjust solid angle weights based on distance</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span><span class="p">:</span>
+            <span class="n">r1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_radius</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+                <span class="n">r2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_radius</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">])</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+                    <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+                <span class="n">dist_ratio</span> <span class="o">=</span> <span class="n">dist</span> <span class="o">/</span> <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span><span class="p">)</span>
+                <span class="n">dist_weight</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">cutoff_low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">cutoff_high</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cutoffs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">dist_ratio</span> <span class="o">&lt;=</span> <span class="n">cutoff_low</span><span class="p">:</span>
+                    <span class="n">dist_weight</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">dist_ratio</span> <span class="o">&lt;</span> <span class="n">cutoff_high</span><span class="p">:</span>
+                    <span class="n">dist_weight</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">((</span><span class="n">dist_ratio</span> <span class="o">-</span> <span class="n">cutoff_low</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+                                <span class="n">cutoff_high</span> <span class="o">-</span> <span class="n">cutoff_low</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">dist_weight</span>
+
+        <span class="c1"># adjust solid angle weight best on electronegativity difference</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_diff_weight</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+                <span class="n">X1</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">X</span>
+                <span class="n">X2</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;site&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">X</span>
+
+                <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">X1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">X1</span><span class="p">):</span>
+                    <span class="n">chemical_weight</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">chemical_weight</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_diff_weight</span> <span class="o">*</span> \
+                                      <span class="nb">abs</span><span class="p">(</span><span class="n">X1</span> <span class="o">-</span> <span class="n">X2</span><span class="p">)</span><span class="o">/</span><span class="mf">3.3</span>  <span class="c1"># 3.3 is max deltaX</span>
+
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">chemical_weight</span>
+
+        <span class="c1"># sort nearest neighbors from highest to lowest weight</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># renormalize &amp; round weights, remove unneeded data</span>
+        <span class="n">highest_weight</span> <span class="o">=</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">highest_weight</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;poly_info&quot;</span><span class="p">]</span>  <span class="c1"># trim</span>
+
+        <span class="c1"># remove entries with no weight</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nn</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># get the transition distances, i.e. all distinct weights</span>
+        <span class="n">dist_bins</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dist_bins</span> <span class="ow">or</span> <span class="n">dist_bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]:</span>
+                <span class="n">dist_bins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span>
+        <span class="n">dist_bins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># main algorithm to determine fingerprint from bond weights</span>
+        <span class="n">cn_scores</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># CN -&gt; score for that CN</span>
+        <span class="n">cn_info</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># CN -&gt; list of nearneighbor info for that CN</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dist_bins</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">nn_info</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">val</span><span class="p">:</span>
+                        <span class="n">nn_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="n">cn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nn_info</span><span class="p">)</span>
+                <span class="n">cn_info</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn_info</span>
+                <span class="n">cn_scores</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_semicircle_integral</span><span class="p">(</span><span class="n">dist_bins</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">length</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+                <span class="n">cn</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cn_scores</span><span class="p">:</span>
+                    <span class="n">cn_scores</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">cn_info</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">NNData</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">cn_scores</span><span class="p">,</span> <span class="n">cn_info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrystalNN.get_cn"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_cn">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get coordination number, CN, of site with index n in structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure.</span>
+<span class="sd">            n (integer): index of site for which to determine CN.</span>
+<span class="sd">            use_weights (boolean): flag indicating whether (True)</span>
+<span class="sd">                to use weights for computing the coordination number</span>
+<span class="sd">                or not (False, default: each coordinated site has equal</span>
+<span class="sd">                weight).</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            cn (integer or float): coordination number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted_cn</span> <span class="o">!=</span> <span class="n">use_weights</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The weighted_cn parameter and use_weights &quot;</span>
+                             <span class="s2">&quot;parameter should match!&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CrystalNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrystalNN.get_cn_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CrystalNN.get_cn_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_cn_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get coordination number, CN, of each element bonded to site with index n in structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): input structure</span>
+<span class="sd">            n (integer): index of site for which to determine CN.</span>
+<span class="sd">            use_weights (boolean): flag indicating whether (True)</span>
+<span class="sd">                to use weights for computing the coordination number</span>
+<span class="sd">                or not (False, default: each coordinated site has equal</span>
+<span class="sd">                weight).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            cn (dict): dictionary of CN of each element bonded to site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted_cn</span> <span class="o">!=</span> <span class="n">use_weights</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The weighted_cn parameter and use_weights &quot;</span>
+                             <span class="s2">&quot;parameter should match!&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CrystalNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_cn_dict</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">use_weights</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_semicircle_integral</span><span class="p">(</span><span class="n">dist_bins</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An internal method to get an integral between two bounds of a unit</span>
+<span class="sd">        semicircle. Used in algorithm to determine bond probabilities.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            dist_bins: (float) list of all possible bond weights</span>
+<span class="sd">            idx: (float) index of starting bond weight</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) integral of portion of unit semicircle</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">dist_bins</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">x2</span> <span class="o">=</span> <span class="n">dist_bins</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">dist_bins</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">area1</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">area1</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">x1</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x1</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span>
+                        <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">(</span><span class="n">x1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x1</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))))</span>
+
+        <span class="n">area2</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">x2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x2</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span>
+                    <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">(</span><span class="n">x2</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x2</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))))</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">area1</span> <span class="o">-</span> <span class="n">area2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_radius</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An internal method to get the expected radius for a site.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            site: (Site)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Covalent radius of element on site, or Atomic radius if unavailable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">CovalentRadius</span><span class="o">.</span><span class="n">radius</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">atomic_radius</span></div>
+
+
 <div class="viewcode-block" id="calculate_weighted_avg"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.calculate_weighted_avg">[docs]</a><span class="k">def</span> <span class="nf">calculate_weighted_avg</span><span class="p">(</span><span class="n">bonds</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the weighted average bond length given by</span>
@@ -2507,7 +2851,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
