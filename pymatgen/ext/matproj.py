@@ -548,7 +548,7 @@ class MPRester(object):
         Get a BandStructure corresponding to a material_id.
 
         Args:
-            material_id (str): Materials Project material_id (an int).
+            material_id (str): Materials Project material_id.
             line_mode (bool): If True, fetch a BandStructureSymmLine object
                 (default). If False, return the uniform band structure.
 
@@ -558,6 +558,43 @@ class MPRester(object):
         prop = "bandstructure" if line_mode else "bandstructure_uniform"
         data = self.get_data(material_id, prop=prop)
         return data[0][prop]
+
+    def get_phonon_dos_by_material_id(self, material_id):
+        """
+        Get phonon density of states data corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project material_id.
+
+        Returns:
+            ﻿CompletePhononDos: A phonon DOS object.
+        """
+        return self._make_request("/materials/{}/phonondos".format(material_id))
+
+    def get_phonon_bandstructure_by_material_id(self, material_id):
+        """
+        Get phonon dispersion data corresponding to a material_id.
+
+        Args:
+            material_id (str): Materials Project material_id.
+
+        Returns:
+            PhononBandStructureSymmLine: A phonon band structure.
+        """
+        return self._make_request("/materials/{}/phononbs".format(material_id))
+
+    def get_phonon_ddb_by_material_id(self, material_id):
+        """
+        Get ABINIT Derivative Data Base (DDB) output for phonon calculations.
+
+        Args:
+            material_id (str): Materials Project material_id.
+
+        Returns:
+            str: ABINIT DDB file as a string.
+        """
+        return self._make_request("/materials/{}/abinit_ddb"
+                                  .format(material_id))
 
     def get_entries_in_chemsys(self, elements, compatible_only=True,
                                inc_structure=None, property_data=None,
