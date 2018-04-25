@@ -2513,7 +2513,7 @@ class CrystalNN(NearNeighbors):
         self.weighted_cn=weighted_cn
         self.cation_anion = cation_anion
         self.distance_cutoffs = distance_cutoffs
-        self.x_diff_weight = x_diff_weight
+        self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
         self.search_cutoff = search_cutoff
         self.fingerprint_length = fingerprint_length
 
