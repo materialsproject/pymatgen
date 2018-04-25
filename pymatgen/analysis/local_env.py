@@ -560,7 +560,7 @@ class VoronoiNN(NearNeighbors):
 
         # Run the Voronoi tessellation
         qvoronoi_input = [s.coords for s in neighbors]
-        voro = Voronoi(qvoronoi_input)
+        voro = Voronoi(qvoronoi_input) # can give a seg fault if cutoff is too small
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
@@ -2513,7 +2513,7 @@ class CrystalNN(NearNeighbors):
         self.weighted_cn=weighted_cn
         self.cation_anion = cation_anion
         self.distance_cutoffs = distance_cutoffs
-        self.x_diff_weight = x_diff_weight
+        self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
         self.search_cutoff = search_cutoff
         self.fingerprint_length = fingerprint_length
 
@@ -2616,7 +2616,7 @@ class CrystalNN(NearNeighbors):
                 X1 = structure[n].specie.X
                 X2 = entry["site"].specie.X
 
-                if math.isnan(X1) or math.isnan(X1):
+                if math.isnan(X1) or math.isnan(X2):
                     chemical_weight = 1
                 else:
                     chemical_weight = 1 + self.x_diff_weight * \
@@ -2628,21 +2628,26 @@ class CrystalNN(NearNeighbors):
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
 
         # renormalize & round weights, remove unneeded data
-        highest_weight = nn[0]["weight"]
+        highest_weight = nn[0]["weight"] if nn[0]["weight"] != 0.0 else 1
         for entry in nn:
             entry["weight"] = entry["weight"] / highest_weight
             entry["weight"] = round(entry["weight"], 3)
             del entry["poly_info"]  # trim
 
-        # remove entries with no weight
-        nn = [x for x in nn if x["weight"] > 0]
+        # remove entries with no weight, unless all weights are zero
+        if len([x for x in nn if x["weight"] == 0]) != len(nn):
+            nn = [x for x in nn if x["weight"] > 0]
+        else:
+            for x in nn:
+                x["weight"] = 1
 
         # get the transition distances, i.e. all distinct weights
         dist_bins = []
         for entry in nn:
             if not dist_bins or dist_bins[-1] != entry["weight"]:
                 dist_bins.append(entry["weight"])
-        dist_bins.append(0)
+        if dist_bins[-1] != 0:
+            dist_bins.append(0)
 
         # main algorithm to determine fingerprint from bond weights
         cn_scores = {}  # CN -> score for that CN
