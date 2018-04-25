@@ -72,6 +72,7 @@ class QChemDictSet(QCInput):
         if self.pcm_dielectric != None:
             mypcm = pcm_defaults
             mysolvent["dielectric"] = self.pcm_dielectric
+            myrem["solvent_method"] = 'pcm'
 
         super(QChemDictSet, self).__init__(self.molecule,
                                            rem=myrem, pcm=mypcm, solvent=mysolvent)
