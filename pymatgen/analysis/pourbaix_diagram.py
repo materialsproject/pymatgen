@@ -292,12 +292,13 @@ class MultiEntry(PourbaixEntry):
         return self.__repr__()
 
     def as_dict(self):
-        return {"entry_list": self.entry_list,
+        return {"entry_list": [e.as_dict() for e in self.entry_list],
                 "weights": self.weights}
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d.get("entry_list"), d.get("weights"))
+        entry_list = [PourbaixEntry.from_dict(e) for e in d.get("entry_list")]
+        return cls(entry_list, d.get("weights"))
 
 
 # TODO: this class isn't particularly useful in its current form, could be
@@ -455,7 +456,6 @@ class PourbaixDiagram(object):
                 + [e for e in entries if len(e.non_oh_elts) > 1]
         else:
             self._analysis_entries = solid_entries + ion_entries
-
 
         if len(comp_dict) > 1:
             self._multielement = True
@@ -712,8 +712,7 @@ class PourbaixDiagram(object):
         """
         Returns all unstable entries in the Pourbaix diagram
         """
-        return [e for e in self._stable_domains.keys()
-                if e not in self.stable_entries]
+        return [e for e in self.all_entries if e not in self.stable_entries]
 
     @property
     def all_entries(self):
