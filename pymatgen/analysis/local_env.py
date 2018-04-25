@@ -2489,8 +2489,8 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(1.25, 2), x_diff_weight=True,
-                 search_cutoff=6, fingerprint_length=None):
+                 distance_cutoffs=(1.25, 2.5), x_diff_weight=1.0,
+                 search_cutoff=7.0, fingerprint_length=None):
         """
         Initialize CrystalNN with desired paramters.
 
@@ -2587,7 +2587,8 @@ class CrystalNN(NearNeighbors):
                     "No valid targets for site within cation_anion constraint!")
 
         # get base VoronoiNN targets
-        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=6)
+        vnn = VoronoiNN(weight="solid_angle", targets=target,
+                        cutoff=self.search_cutoff)
         nn = vnn.get_nn_info(structure, n)
 
         # adjust solid angle weights based on distance

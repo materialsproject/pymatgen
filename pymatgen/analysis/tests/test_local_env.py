@@ -823,11 +823,11 @@ class CrystalNNTest(PymatgenTest):
     def test_weighted_cn(self):
         cnn = CrystalNN(weighted_cn=True)
         cn_array = []
-        expected_array = [6.0194, 6.0176, 6.0194, 6.0176, 5.5919, 5.5909,
-                          5.5914, 5.5914, 3.9504, 3.9504, 3.9504, 3.9504,
-                          3.7935, 3.5778, 3.5731, 3.6358, 3.6358, 3.5731,
-                          3.5778, 3.7935, 3.7935, 3.5778, 3.5721, 3.6368,
-                          3.6368, 3.5721, 3.5778, 3.7935]
+        expected_array = [6.0449, 6.0431, 6.0449, 6.0431, 5.6262, 5.6253,
+                          5.6258, 5.6258, 3.9936, 3.9936, 3.9936, 3.9936,
+                          3.9183, 3.7318, 3.7259, 3.781, 3.781, 3.7259,
+                          3.7318, 3.9183, 3.9183, 3.7318, 3.7248, 3.7819,
+                          3.7819, 3.7248, 3.7318, 3.9183]
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
 
@@ -842,12 +842,12 @@ class CrystalNNTest(PymatgenTest):
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
-                               5.93283, 2)
+                               5.95829, 2)
 
     def test_x_diff_weight(self):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
-                               6.072855, 2)
+                               6.09831, 2)
 
 
 if __name__ == '__main__':
