@@ -22,6 +22,8 @@ from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+from pymatgen.phonon.dos import CompletePhononDos
 
 """
 Created on Jun 9, 2012
@@ -174,6 +176,14 @@ class MPResterTest(unittest.TestCase):
             "mp-2254", line_mode=False)
         self.assertIsInstance(bs_unif, BandStructure)
         self.assertNotIsInstance(bs_unif, BandStructureSymmLine)
+
+    def test_get_phonon_data_by_material_id(self):
+        bs = self.rester.get_phonon_bandstructure_by_material_id("mp-661")
+        self.assertIsInstance(bs, PhononBandStructureSymmLine)
+        dos = self.rester.get_phonon_dos_by_material_id("mp-661")
+        self.assertIsInstance(dos, CompletePhononDos)
+        ddb_str = self.rester.get_phonon_ddb_by_material_id("mp-661")
+        self.assertIsInstance(ddb_str, str)
 
     def test_get_structures(self):
         structs = self.rester.get_structures("Mn3O4")
