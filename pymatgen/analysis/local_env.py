@@ -2513,7 +2513,7 @@ class CrystalNN(NearNeighbors):
         self.weighted_cn=weighted_cn
         self.cation_anion = cation_anion
         self.distance_cutoffs = distance_cutoffs
-        self.x_diff_weight = x_diff_weight
+        self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
         self.search_cutoff = search_cutoff
         self.fingerprint_length = fingerprint_length
 
@@ -2616,7 +2616,7 @@ class CrystalNN(NearNeighbors):
                 X1 = structure[n].specie.X
                 X2 = entry["site"].specie.X
 
-                if math.isnan(X1) or math.isnan(X1):
+                if math.isnan(X1) or math.isnan(X2):
                     chemical_weight = 1
                 else:
                     chemical_weight = 1 + self.x_diff_weight * \
@@ -2628,7 +2628,7 @@ class CrystalNN(NearNeighbors):
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
 
         # renormalize & round weights, remove unneeded data
-        highest_weight = nn[0]["weight"]
+        highest_weight = nn[0]["weight"] if nn[0]["weight"] != 0.0 else 1
         for entry in nn:
             entry["weight"] = entry["weight"] / highest_weight
             entry["weight"] = round(entry["weight"], 3)
