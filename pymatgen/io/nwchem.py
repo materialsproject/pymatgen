@@ -334,9 +334,6 @@ class NwInput(MSONable):
                  geometry_options=("units", "angstroms"),
                  symmetry_options=None,
                  memory_options=None):
-        """
-
-        """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
