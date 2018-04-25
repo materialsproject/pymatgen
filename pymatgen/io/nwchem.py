@@ -5,6 +5,8 @@
 from __future__ import division, unicode_literals
 
 import re
+import os
+import warnings
 from string import Template
 
 from six import string_types
@@ -42,6 +44,11 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/5/13"
+
+
+NWCHEM_BASIS_LIBRARY = None
+if os.environ.get("NWCHEM_BASIS_LIBRARY"):
+    NWCHEM_BASIS_LIBRARY = set(os.listdir(os.environ["NWCHEM_BASIS_LIBRARY"]))
 
 
 class NwTask(MSONable):
@@ -133,14 +140,19 @@ class NwTask(MSONable):
         self.title = title if title is not None else "{} {}".format(theory,
                                                                     operation)
         self.theory = theory
-        self.basis_set = basis_set
+
+        self.basis_set = basis_set or {}
+        if NWCHEM_BASIS_LIBRARY is not None:
+            for b in set(self.basis_set.values()):
+                if re.sub(r'\*', "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
+                    warnings.warn(
+                        "Basis set %s not in in NWCHEM_BASIS_LIBRARY" % b)
+
         self.basis_set_option = basis_set_option
 
         self.operation = operation
-        self.theory_directives = theory_directives \
-            if theory_directives is not None else {}
-        self.alternate_directives = alternate_directives \
-            if alternate_directives is not None else {}
+        self.theory_directives = theory_directives or {}
+        self.alternate_directives = alternate_directives or {}
 
     def __str__(self):
         bset_spec = []
@@ -322,9 +334,6 @@ class NwInput(MSONable):
                  geometry_options=("units", "angstroms"),
                  symmetry_options=None,
                  memory_options=None):
-        """
-
-        """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
