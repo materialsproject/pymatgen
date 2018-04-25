@@ -24,7 +24,7 @@ class QChemDictSet(QCInput):
 
         """
         Args:
-            molecule (Pymatgen molecule)
+            molecule (Pymatgen molecule object)
             job_type (str)
             basis_set (str)
             scf_algorithm (str)
@@ -33,10 +33,7 @@ class QChemDictSet(QCInput):
             max_scf_cycles (int)
             geom_opt_max_cycles (int)
         """
-        if isinstance(molecule, Molecule):
-            self.molecule = molecule
-        else:
-            raise ValueError('molecule must be a Pymatgen Molecule object!')
+        self.molecule = molecule
         self.job_type = job_type
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
