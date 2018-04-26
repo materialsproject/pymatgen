@@ -2610,7 +2610,7 @@ class CrystalNN(NearNeighbors):
 
                 entry["weight"] = entry["weight"] * dist_weight
 
-        # adjust solid angle weight best on electronegativity difference
+        # adjust solid angle weight based on electronegativity difference
         if self.x_diff_weight > 0:
             for entry in nn:
                 X1 = structure[n].specie.X
