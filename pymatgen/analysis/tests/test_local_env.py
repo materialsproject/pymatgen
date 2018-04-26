@@ -800,6 +800,8 @@ class CrystalNNTest(PymatgenTest):
     def setUp(self):
         self.lifepo4 = self.get_structure('LiFePO4')
         self.lifepo4.add_oxidation_state_by_guess()
+        self.he_bcc = self.get_structure('He_BCC')
+        self.he_bcc.add_oxidation_state_by_guess()
 
     def test_sanity(self):
         with self.assertRaises(ValueError):
@@ -848,6 +850,15 @@ class CrystalNNTest(PymatgenTest):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
                                6.09831, 2)
+
+    def test_noble_gas_material(self):
+        cnn = CrystalNN()
+        with self.assertRaises(RuntimeError):
+            cnn.get_cn(self.he_bcc, 0, use_weights=False)
+
+        cnn = CrystalNN(distance_cutoffs=(1.25, 5))
+        self.assertAlmostEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False),
+                               8)
 
 
 if __name__ == '__main__':

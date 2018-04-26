@@ -2634,20 +2634,17 @@ class CrystalNN(NearNeighbors):
             entry["weight"] = round(entry["weight"], 3)
             del entry["poly_info"]  # trim
 
-        # remove entries with no weight, unless all weights are zero
-        if len([x for x in nn if x["weight"] == 0]) != len(nn):
-            nn = [x for x in nn if x["weight"] > 0]
-        else:
-            for x in nn:
-                x["weight"] = 1
+        # remove entries with no weight
+        nn = [x for x in nn if x["weight"] > 0]
+        if len(nn) == 0:
+            raise RuntimeError("no neighbors found (increase search cutoff and/or distance cutoff")
 
         # get the transition distances, i.e. all distinct weights
         dist_bins = []
         for entry in nn:
             if not dist_bins or dist_bins[-1] != entry["weight"]:
                 dist_bins.append(entry["weight"])
-        if dist_bins[-1] != 0:
-            dist_bins.append(0)
+        dist_bins.append(0)
 
         # main algorithm to determine fingerprint from bond weights
         cn_scores = {}  # CN -> score for that CN
