@@ -2626,9 +2626,11 @@ class CrystalNN(NearNeighbors):
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+        if nn[0]["weight"] == 0:
+            raise RuntimeError("no neighbors with nonzero weight (increase search cutoff and/or distance cutoff)")
 
         # renormalize & round weights, remove unneeded data
-        highest_weight = nn[0]["weight"] if nn[0]["weight"] != 0.0 else 1
+        highest_weight = nn[0]["weight"]
         for entry in nn:
             entry["weight"] = entry["weight"] / highest_weight
             entry["weight"] = round(entry["weight"], 3)
@@ -2636,8 +2638,6 @@ class CrystalNN(NearNeighbors):
 
         # remove entries with no weight
         nn = [x for x in nn if x["weight"] > 0]
-        if len(nn) == 0:
-            raise RuntimeError("no neighbors found (increase search cutoff and/or distance cutoff")
 
         # get the transition distances, i.e. all distinct weights
         dist_bins = []
