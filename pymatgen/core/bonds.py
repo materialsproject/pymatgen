@@ -71,7 +71,7 @@ class CovalentBond(object):
                 (1 - tol) * the shortest bond distance is considered
                 to be the shortest possible bond length
                 Defaults to 0.2.
-            default_bl: If a particular type of bond does not exist, 
+            default_bl: If a particular type of bond does not exist,
                 use this bond length as a default value
                 (bond order = 1). If None, a ValueError will be thrown.
         Returns:
@@ -185,7 +185,7 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
         trial_bond_order += 1
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short
-    if dist < lengths_list[-1] * (1 - tol): # too short
+    if dist < lengths_list[-1] * (1 - tol):  # too short
         warnings.warn('%.2f angstrom distance is too short for %s and %s'
                       % (dist, sp1, sp2))
     # return the highest bond order
