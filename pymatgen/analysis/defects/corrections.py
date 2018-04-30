@@ -41,10 +41,7 @@ class FreysoldtCorrection(DefectCorrection):
 
         defect_planar_averages
 
-
-        axis: The axis to calculate on, if none, averages over all three.  #TODO: Actually implement this
-    axis_grid, pureavg, defavg, lattice, dielectricconst, q, defect_position, axis,
-                          q_model=QModel(), madetol=0.0001, title=None, widthsample=1.0
+        axis: The axes to calculate on, if none given, averages over all three.
 
     """
 
@@ -61,6 +58,8 @@ class FreysoldtCorrection(DefectCorrection):
         else:
             self.dielectric = float(np.mean(np.diag(dielectric_const)))
 
+        self.axis = axis
+
         self.metadata = {'pot_plot_data': {}, 'pot_corr_uncertainty_md': {}}
 
     def get_correction(self, entry):
@@ -71,7 +70,11 @@ class FreysoldtCorrection(DefectCorrection):
         list_axis_grid = np.array(entry.parameters["axis_grid"])
         list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
         list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
-        list_axes = range(len(list_axis_grid))
+
+        if not self.axis:
+            list_axes = range(len(list_axis_grid))
+        else:
+            list_axes = self.axis
 
         lattice = entry.defect.bulk_structure.lattice
         q = entry.defect.charge
@@ -112,7 +115,6 @@ class FreysoldtCorrection(DefectCorrection):
 
         return {"freysoldt_electrostatic": es_corr,
                 "freysoldt_potential_alignment": pot_corr}
-
 
     def perform_es_corr(self, lattice, dielectric, q, energy_cutoff=520, q_model=QModel(), madetol=0.0001):
         """
@@ -273,7 +275,6 @@ class FreysoldtCorrection(DefectCorrection):
         logger.info('Potentital alignment energy correction (-q*delta V):  %f (eV)', -q * C)
         self.pot_corr = -q * C
 
-        #TODO: Where ot put this metadata?
         #log plotting data:
         self.metadata['pot_plot_data'][axis] = {'Vr':v_R, 'x': axis_grid, 'dft_diff': defavg - pureavg,
                                                     'final_shift':final_shift, 'check': [mid - checkdis, mid + checkdis + 1]}
@@ -752,6 +753,7 @@ class KumagaiCorrection(DefectCorrection):
         return pot_corr
 
 
+# TODO: Make this a part of above
 def kumagai_plotter(r, Vqb, Vpc, eltnames, samplerad=None, title = None, saved=False):
     """
     atomic site  electrostatic potential plotter for Kumagai
