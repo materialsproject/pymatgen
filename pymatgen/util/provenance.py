@@ -241,7 +241,7 @@ class StructureNL(object):
         for r in self.remarks:
             if len(r) > 280:
                 raise ValueError("The remark exceeds the maximum size of"
-                                 "140 characters: {}".format(r))
+                                 "280 characters: {}".format(r))
 
         # check data limit
         self.data = data if data else {}
