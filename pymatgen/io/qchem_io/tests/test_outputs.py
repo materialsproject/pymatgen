@@ -11,7 +11,7 @@ from monty.serialization import loadfn, dumpfn
 from pymatgen.io.qchem_io.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
 
-__author__ = "Samuel Blau, Brandon Woods, Shyam Dwaraknath"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 

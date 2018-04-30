@@ -16,7 +16,7 @@ from .utils import read_table_pattern, read_pattern
 Classes for reading/manipulating/writing QChem ouput files.
 """
 
-__author__ = "Samuel Blau, Brandon Woods, Shyam Dwaraknath"
+__author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 
