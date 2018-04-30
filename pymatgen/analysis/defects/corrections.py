@@ -46,7 +46,6 @@ class FreysoldtCorrection(DefectCorrection):
     """
 
     def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001, axis=None):
-        self.dielectric_const = dielectric_const
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
         self.madelung_energy_tolerance = madelung_energy_tolerance
@@ -66,15 +65,18 @@ class FreysoldtCorrection(DefectCorrection):
         """
         Gets the Freysoldt correction for a defect entry
         """
-
-        list_axis_grid = np.array(entry.parameters["axis_grid"])
-        list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
-        list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
-
         if not self.axis:
+            list_axis_grid = np.array(entry.parameters["axis_grid"])
+            list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
+            list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
             list_axes = range(len(list_axis_grid))
         else:
-            list_axes = self.axis
+            list_axes = np.array(self.axis)
+            list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp = [], [], []
+            for ax in list_axes:
+                list_axis_grid.append( np.array(entry.parameters["axis_grid"][ax]))
+                list_bulk_plnr_avg_esp.append( np.array(entry.parameters["bulk_planar_averages"][ax]))
+                list_defect_plnr_avg_esp.append( np.array(entry.parameters["defect_planar_averages"][ax]))
 
         lattice = entry.defect.bulk_structure.lattice
         q = entry.defect.charge
@@ -111,7 +113,7 @@ class FreysoldtCorrection(DefectCorrection):
         pot_corr = np.mean(pot_corr_tracker)
 
         entry.parameters["freysoldt_meta"] = dict(self.metadata)
-        entry.parameters['potalign'] = pot_corr / (-q)
+        entry.parameters['potalign'] = pot_corr / (-q) if q else 0.
 
         return {"freysoldt_electrostatic": es_corr,
                 "freysoldt_potential_alignment": pot_corr}
@@ -531,8 +533,9 @@ class KumagaiCorrection(DefectCorrection):
                                           self.metadata['g_sum'], dim, self.metadata['gamma'],
                                           self.madelung_energy_tolerance)
 
-        entry.parameters["kumagai_meta"] = dict(self.metadata)
-        entry.parameters['potalign'] = pot_corr / (-q)
+        trim_meta = {metakey: metaval for metakey, metaval in self.metadata.items() if metakey != 'g_sum'}
+        entry.parameters["kumagai_meta"] = dict(trim_meta)
+        entry.parameters['potalign'] = pot_corr / (-q) if q else 0.
 
         return {"kumagai_electrostatic": es_corr,
                 "kumagai_potential_alignment": pot_corr}
@@ -745,7 +748,8 @@ class KumagaiCorrection(DefectCorrection):
 
         #log uncertainty stats:
         self.metadata['pot_corr_uncertainty_md'] = {'stats': stats.describe(for_correction),
-                                                    'number_sampled': len(for_correction), 'AllData': pot_dict}
+                                                    'number_sampled': len(for_correction)}
+        self.metadata['pot_plot_data'] = pot_dict
 
         logger.info('Kumagai potential alignment (site averaging): %f', pot_alignment)
         logger.info('Kumagai potential alignment correction energy: %f eV', pot_corr)
