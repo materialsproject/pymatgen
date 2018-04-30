@@ -108,6 +108,7 @@ class FreysoldtCorrection(DefectCorrection):
         pot_corr = np.mean(pot_corr_tracker)
 
         entry.parameters["freysoldt_meta"] = dict(self.metadata)
+        entry.parameters['potalign'] = pot_corr / (-q)
 
         return {"freysoldt_electrostatic": es_corr,
                 "freysoldt_potential_alignment": pot_corr}
@@ -530,6 +531,7 @@ class KumagaiCorrection(DefectCorrection):
                                           self.madelung_energy_tolerance)
 
         entry.parameters["kumagai_meta"] = dict(self.metadata)
+        entry.parameters['potalign'] = pot_corr / (-q)
 
         return {"kumagai_electrostatic": es_corr,
                 "kumagai_potential_alignment": pot_corr}
