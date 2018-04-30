@@ -207,7 +207,8 @@ class DefectsCorrectionsTest(PymatgenTest):
         bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
         self.assertAlmostEqual(bf_corr, 0.)
-        occu = [[1.6204, 0.16666668], [1.6346500000000002, 0.16666668], [1.557, 0.16666668], [1.6498000000000002, 0.08333334]]
+        occu = [[1.5569999999999999, 0.16666668000000001], [1.6346500000000002, 0.16666668000000001],
+                [1.6498000000000002, 0.083333340000000006], [1.6204000000000001, 0.16666668000000001]]
         self.assertEqual(bfc.metadata['occupied_def_levels'], occu)
         self.assertEqual(bfc.metadata['total_occupation_defect_levels'], 0.58333338)
         self.assertFalse(bfc.metadata['unoccupied_def_levels'])
@@ -220,8 +221,8 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
         self.assertAlmostEqual(bf_corr, 0.)
         self.assertFalse(bfc.metadata['occupied_def_levels'])
-        unoccu = [4.0589, 4.07565, 4.063840000000001, 4.00525, 4.013800000000001,
-                  4.0324, 4.04355, 3.9906, 3.9951499999999998]
+        unoccu = [4.0052500000000002, 4.0435499999999998, 3.9951499999999998, 3.9906000000000001,
+                  4.0589000000000004, 4.0638400000000008, 4.0138000000000007, 4.0756500000000004, 4.0324]
         self.assertEqual(bfc.metadata['unoccupied_def_levels'], unoccu)
 
 

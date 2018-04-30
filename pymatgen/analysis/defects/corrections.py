@@ -17,8 +17,8 @@ norm = np.linalg.norm
 from scipy import stats  #for statistical uncertainties of pot alignment
 from monty.json import MSONable
 from pymatgen.util.coord import pbc_shortest_vectors
-from core import DefectCorrection
-from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
+from pymatgen.analysis.defects.core import DefectCorrection
+from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
 
 import matplotlib
 matplotlib.use('Agg')
@@ -61,6 +61,8 @@ class FreysoldtCorrection(DefectCorrection):
         else:
             self.dielectric = float(np.mean(np.diag(dielectric_const)))
 
+        self.metadata = {'pot_plot_data': {}, 'pot_corr_uncertainty_md': {}}
+
     def get_correction(self, entry):
         """
         Gets the Freysoldt correction for a defect entry
@@ -83,7 +85,6 @@ class FreysoldtCorrection(DefectCorrection):
             madetol=self.madelung_energy_tolerance)
 
         pot_corr_tracker = []
-        self.metadata = {'pot_plot_data': {}, 'pot_corr_uncertainty_md': {}}
 
         for x, pureavg, defavg, axis in zip(list_axis_grid,
                                             list_bulk_plnr_avg_esp,
@@ -528,6 +529,8 @@ class KumagaiCorrection(DefectCorrection):
                                           self.metadata['g_sum'], dim, self.metadata['gamma'],
                                           self.madelung_energy_tolerance)
 
+        entry.parameters["kumagai_meta"] = dict(self.metadata)
+
         return {"kumagai_electrostatic": es_corr,
                 "kumagai_potential_alignment": pot_corr}
 
@@ -832,6 +835,8 @@ class BandFillingCorrection(DefectCorrection):
         cbm = entry.parameters["cbm"]
 
         bf_corr = self.perform_bandfill_corr( eigenvalues, kpoint_weights, potalign, vbm, cbm)
+
+        entry.parameters["bandfilling_meta"] = dict(self.metadata)
 
         return {'bandfilling': bf_corr}
 
