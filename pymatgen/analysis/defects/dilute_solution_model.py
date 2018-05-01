@@ -12,6 +12,8 @@ from six.moves import zip
 from monty.fractions import gcd
 from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
 
+from monty.dev import deprecated
+
 """
 Evaluate the defect concentration based on composition, temperature,
 and defect energies using "Dilute Solution Model"
@@ -42,7 +44,7 @@ def check_input(def_list):
             break
     return flag
 
-
+@deprecated(message="Refactoring of the defects module will eventualy remove this model")
 def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         trial_chem_pot = None, generate='plot'):
 

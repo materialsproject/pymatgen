@@ -54,6 +54,9 @@ from six.moves import zip
 logger = logging.getLogger(__name__)
 
 
+from monty.dev import deprecated
+
+@deprecated("Use Defect classes in the new defects.core module")
 class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
     [Current version in pymatgen] Abstract class for point defects
@@ -145,7 +148,7 @@ class Defect(six.with_metaclass(abc.ABCMeta, object)):
         """
         raise NotImplementedError()
 
-
+@deprecated("Use Defect classes in the new defects.core module")
 class Vacancy(Defect):
     """
     Subclass of Defect to generate vacancies and their analysis.
@@ -420,7 +423,7 @@ class VacancyFormationEnergy(object):
             print("Caution: tolerance not reached for {0} vacancy".format(n))
         return self._energies[n]
 
-
+@deprecated("Use Defect classes in the new defects.core module")
 class Interstitial(Defect):
     """
     Subclass of Defect to generate interstitial sites
@@ -1362,7 +1365,7 @@ def symmetry_reduced_voronoi_nodes(
 
         # return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
 
-
+@deprecated("This class will be moved to defects.utils as part of a module refactor")
 class StructureMotifInterstitial(Defect):
     """
     Generate interstitial sites at positions
@@ -1699,7 +1702,7 @@ class StructureMotifInterstitial(Defect):
             scs.append(sc_with_inter.copy())
         return scs
 
-
+@deprecated("This class will be moved to defects.utils as part of a module refactor")
 class TopographyAnalyzer(object):
     """
     This is a generalized module to perform topological analyses of a crystal
