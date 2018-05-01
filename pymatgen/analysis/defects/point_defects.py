@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 from monty.dev import deprecated
 
-@deprecated("Use Defect classes in the new defects.core module")
+
 class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
     [Current version in pymatgen] Abstract class for point defects
@@ -148,7 +148,6 @@ class Defect(six.with_metaclass(abc.ABCMeta, object)):
         """
         raise NotImplementedError()
 
-@deprecated("Use Defect classes in the new defects.core module")
 class Vacancy(Defect):
     """
     Subclass of Defect to generate vacancies and their analysis.
@@ -159,6 +158,7 @@ class Vacancy(Defect):
         radii: Radii of elements as a dictionary
     """
 
+    @deprecated(message="Use Defect classes in the new defects.core module")
     def __init__(self, structure, valences, radii):
         self._structure = structure
         self._valence_dict = valences
@@ -423,12 +423,13 @@ class VacancyFormationEnergy(object):
             print("Caution: tolerance not reached for {0} vacancy".format(n))
         return self._energies[n]
 
-@deprecated("Use Defect classes in the new defects.core module")
+
 class Interstitial(Defect):
     """
     Subclass of Defect to generate interstitial sites
     """
 
+    @deprecated(message="Use Defect classes in the new defects.core module")
     def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
                  accuracy='Normal', symmetry_flag=True, oxi_state=False):
         """
@@ -1365,7 +1366,7 @@ def symmetry_reduced_voronoi_nodes(
 
         # return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
 
-@deprecated("This class will be moved to defects.utils as part of a module refactor")
+
 class StructureMotifInterstitial(Defect):
     """
     Generate interstitial sites at positions
@@ -1381,6 +1382,7 @@ class StructureMotifInterstitial(Defect):
 
     __supported_types = ("tet", "oct", "bcc")
 
+    @deprecated(message="This class will be moved to defects.utils as part of a module refactor")
     def __init__(self, struct, inter_elem,
                  motif_types=("tet", "oct"),
                  op_threshs=(0.3, 0.5),
@@ -1702,7 +1704,7 @@ class StructureMotifInterstitial(Defect):
             scs.append(sc_with_inter.copy())
         return scs
 
-@deprecated("This class will be moved to defects.utils as part of a module refactor")
+
 class TopographyAnalyzer(object):
     """
     This is a generalized module to perform topological analyses of a crystal
@@ -1721,6 +1723,7 @@ class TopographyAnalyzer(object):
         a.remove_collisions()
     """
 
+    @deprecated(message="This class will be moved to defects.utils as part of a module refactor")
     def __init__(self, structure, framework_ions, cations, tol=0.0001,
                  max_cell_range=1, check_volume=True,
                  constrained_c_frac=0.5, thickness=0.5):

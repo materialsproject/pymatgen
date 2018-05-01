@@ -44,7 +44,7 @@ def check_input(def_list):
             break
     return flag
 
-@deprecated(message="Refactoring of the defects module will eventualy remove this model")
+@deprecated(message="Refactoring of the defects module will eventualy remove this function")
 def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         trial_chem_pot = None, generate='plot'):
 
