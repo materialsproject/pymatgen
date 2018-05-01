@@ -492,16 +492,13 @@ class PourbaixDiagram(object):
         forced_include = forced_include or []
 
         # generate all possible combinations of compounds that have all elts
-        import nose; nose.tools.set_trace()
         entry_combos = [itertools.combinations(
             entries, j + 1 - len(forced_include)) for j in range(N)]
-        import nose; nose.tools.set_trace()
         entry_combos = itertools.chain.from_iterable(entry_combos)
         if forced_include:
             entry_combos = [forced_include + list(ec) for ec in entry_combos]
         entry_combos = filter(lambda x: total_comp < MultiEntry(x).composition,
                               entry_combos)
-        import nose; nose.tools.set_trace()
 
         # Generate and filter entries
         processed_entries = []
