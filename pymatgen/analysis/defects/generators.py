@@ -87,7 +87,7 @@ class VacancyGenerator(DefectGenerator):
                 site_index = self.structure.get_sites_in_sphere(vac_site[0].coords, 0.1, include_index=True)[0][2]
                 charge = -1 * self.struct_valences[site_index]
 
-            return Vacancy(self.structure, vac_site[0], multiplicity=len(vac_site), charge=charge)
+            return Vacancy(self.structure, vac_site[0], charge=charge)
         else:
             raise StopIteration
 
@@ -164,7 +164,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             struct_to_trim.append( self.element, poss_inter.frac_coords, coords_are_cartesian=False)
 
         symmetry_finder = SpacegroupAnalyzer(struct_to_trim, symprec=1e-1)
-        equiv_sites_list = symmetry_finder.get_symmetrized_struct().equivalent_sites
+        equiv_sites_list = symmetry_finder.get_symmetrized_structure().equivalent_sites
 
         self.equiv_site_seq = []
         for poss_site_list in equiv_sites_list:

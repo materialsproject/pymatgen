@@ -46,7 +46,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(val['freysoldt_electrostatic'], 0.976412)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 4.4700574)
 
-        #test the freysoldt plotter
+        #test the freysoldt plotter and that plot metadata exists
         pltsaver = []
         for ax in range(3):
             x = fc.metadata['pot_plot_data'][ax]['x']
@@ -58,6 +58,45 @@ class DefectsCorrectionsTest(PymatgenTest):
             if fp: #if plot exists then append it...
                 pltsaver.append(fp)
         self.assertEqual(len(pltsaver), 3)
+
+        #check that uncertainty metadata exists
+        for ax in range(3):
+            self.assertEqual(set(fc.metadata['pot_corr_uncertainty_md'][ax].keys()), set(['potcorr', 'stats']))
+
+        #test a specified axis from entry
+        fc = FreysoldtCorrection(15, axis = [1])
+        val = fc.get_correction(de)
+        self.assertAlmostEqual(val['freysoldt_potential_alignment'], 5.2869010593283132)
+
+        #test a different charge
+        #   for electrostatic correction
+        es_corr = fc.perform_es_corr(struc.lattice, 15., 2)
+        self.assertEqual(es_corr, 0.43396099999999999)
+        #   for potential alignment method
+        pot_corr = fc.perform_pot_corr( axisdata[0], bldata[0], dldata[0], struc.lattice, 15., 2, vac.site.coords, 0)
+        self.assertEqual(pot_corr, -2.1375685936497768)
+
+        #test an input anisotropic dielectric constant
+        fc = FreysoldtCorrection([[1.,2.,3.],[0.,3.,5.],[4., 10., 8.]])
+        self.assertEqual( fc.dielectric, 4.)
+        val = fc.get_correction(de)
+        self.assertAlmostEqual(val['freysoldt_electrostatic'], 3.6615440000000001)
+        self.assertAlmostEqual(val['freysoldt_potential_alignment'], 3.3605255195745087)
+
+        #test potalign being added to defect entry
+        self.assertEqual( de.parameters['potalign'], 1.1201751731915028)
+
+        #test that metadata entries exist in defect entry
+        self.assertTrue( 'freysoldt_meta' in de.parameters.keys())
+        self.assertEqual( set(de.parameters['freysoldt_meta'].keys()), set(['pot_plot_data', 'pot_corr_uncertainty_md']))
+
+        #test a charge of zero
+        vac = Vacancy(struc, struc.sites[0], charge=0)
+        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+        val = fc.get_correction(de)
+        self.assertEqual(val['freysoldt_electrostatic'], 0.)
+        self.assertEqual(val['freysoldt_potential_alignment'], 0.)
+
 
     def test_kumagai(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -102,18 +141,17 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         #test entry full correction method
         de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
-        KC = KumagaiCorrection( epsilon, gamma=gamma, g_sum=g_sum)
-        val = KC.get_correction(de)
+        kc = KumagaiCorrection( epsilon, gamma=gamma, g_sum=g_sum)
+        val = kc.get_correction(de)
         self.assertAlmostEqual(val['kumagai_electrostatic'], 0.976413164047)
         self.assertAlmostEqual(val['kumagai_potential_alignment'], 0.2938097394999)
 
         #test wigner-seitz sampling radius method
-        self.assertAlmostEqual(KC.metadata['sampling_radius'], 4.5531438299999)
-
+        self.assertAlmostEqual(kc.metadata['sampling_radius'], 4.5531438299999)
 
         #test the kumagai plotter
         eltnames = []
-        for bsind in KC.metadata['pot_corr_uncertainty_md']['AllData'].keys():
+        for bsind in kc.metadata['pot_plot_data'].keys():
             eltnames.append( vac.bulk_structure.sites[bsind].specie.symbol)
 
         eltnames = list(set(eltnames))
@@ -123,7 +161,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         Vqbset = [[] for tmp in range(len(eltnames))]
         Vpcset = [[] for tmp in range(len(eltnames))]
 
-        for bsind, vals in KC.metadata['pot_corr_uncertainty_md']['AllData'].items():
+        for bsind, vals in kc.metadata['pot_plot_data'].items():
             elttype = vac.bulk_structure.sites[bsind].specie.symbol
             eltind = eltkey[elttype]
             rset[eltind].append(vals['dist_to_defect'])
@@ -132,6 +170,58 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         kp = kumagai_plotter(rset, Vqbset, Vpcset, eltnames, samplerad=4.5, title = 'test', saved=False)
         self.assertTrue( kp)
+
+        #check that uncertainty metadata exists
+        self.assertEqual(set(kc.metadata['pot_corr_uncertainty_md'].keys()), set(['number_sampled', 'stats']))
+        self.assertEqual(kc.metadata['pot_corr_uncertainty_md']['number_sampled'], 125)
+
+        #test a different sampling radius
+        new_sampling_radius = 8.
+        pot_corr = kc.perform_pot_corr( vac.bulk_structure, defect_structure, defect_position, site_list,
+                                        new_sampling_radius, -3, g_sum, dim, gamma,  kc.madelung_energy_tolerance)
+        self.assertEqual(pot_corr, 0.021267067525360898)
+        self.assertEqual(kc.metadata['pot_corr_uncertainty_md']['number_sampled'], 21)
+        #   also test sampling radius from entry
+        kc = KumagaiCorrection( epsilon, sampling_radius=new_sampling_radius, gamma=gamma, g_sum=g_sum)
+        val = kc.get_correction(de)
+        self.assertAlmostEqual(val['kumagai_potential_alignment'], 0.021267067525360898)
+
+        #test a different charge
+        #   for electrostatic correction
+        es_corr = kc.perform_es_corr( vac.bulk_structure, 2, g_sum, gamma, kc.madelung_energy_tolerance)
+        self.assertEqual(es_corr, 0.43396140624317336)
+        #   for potential alignment method
+        pot_corr = kc.perform_pot_corr( vac.bulk_structure, defect_structure, defect_position, site_list,
+                                        sampling_radius, 2, g_sum, dim, gamma,  kc.madelung_energy_tolerance)
+        self.assertEqual(pot_corr, -0.53065138774428844)
+
+        #test an input anisotropic dielectric constant
+        aniso_dielectric = np.array([[15.,0,3.],[0,15.,0.],[0,0,10.]])
+        aniso_gamma = 2.0068661368556668
+        aniso_g_sum = generate_g_sum( vac.bulk_structure, aniso_dielectric, dim, aniso_gamma)
+        kc = KumagaiCorrection(aniso_dielectric, gamma=aniso_gamma, g_sum=aniso_g_sum)
+        for u,v in zip(kc.dielectric.flatten(), aniso_dielectric.flatten()):
+            self.assertEqual(u, v)
+        es_corr = kc.perform_es_corr( vac.bulk_structure, -3, aniso_g_sum, aniso_gamma, kc.madelung_energy_tolerance)
+        self.assertEqual(es_corr, 1.027001049757768)
+        pot_corr = kc.perform_pot_corr( vac.bulk_structure, defect_structure, defect_position,
+                                        site_list, sampling_radius, -3, aniso_g_sum, dim, aniso_gamma,  kc.madelung_energy_tolerance)
+        self.assertEqual(pot_corr, 0.2457398743896354)
+
+        #test potalign being added to defect entry
+        self.assertEqual( de.parameters['potalign'],0.0070890225084536329)
+
+        #test that metadata entries exist in defect entry
+        self.assertTrue( 'kumagai_meta' in de.parameters.keys())
+        self.assertEqual( set(de.parameters['kumagai_meta'].keys()), set(['pot_plot_data', 'sampling_radius', 'gamma','pot_corr_uncertainty_md']))
+
+        #test a charge of zero
+        vac = Vacancy(struc, struc.sites[0], charge=0)
+        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+        val = kc.get_correction(de)
+        self.assertEqual(val['kumagai_electrostatic'], 0.)
+        self.assertEqual(val['kumagai_potential_alignment'], 0.)
+
 
     def test_bandfilling(self):
         v = Vasprun(os.path.join(test_dir, 'vasprun.xml'))
@@ -164,7 +254,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         corr = bfc.get_correction( de)
         self.assertAlmostEqual(corr['bandfilling'], 0.)
 
-
         #modify the eigenvalue list to have free holes
         hole_eigenvalues = {}
         for spinkey, spinset in eigenvalues.items():
@@ -181,7 +270,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(hole_bf_corr, -0.82276673248)
         self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 1.6250001299)
         self.assertFalse(bfc.metadata['num_elec_cbm'])
-
 
         #modify the eigenvalue list to have free electrons
         elec_eigenvalues = {}
@@ -200,30 +288,17 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(bfc.metadata['num_elec_cbm'], 1.708333469999)
         self.assertFalse(bfc.metadata['num_hole_vbm'])
 
-
         #modify the potalignment and introduce new occupied defect levels from vbm states
         potalign = 0.1
 
         bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
         self.assertAlmostEqual(bf_corr, 0.)
-        occu = [[1.6204, 0.16666668], [1.6346500000000002, 0.16666668], [1.557, 0.16666668], [1.6498000000000002, 0.08333334]]
+        occu = [[1.5569999999999999, 0.16666668000000001], [1.6346500000000002, 0.16666668000000001],
+                [1.6498000000000002, 0.083333340000000006], [1.6204000000000001, 0.16666668000000001]]
         self.assertEqual(bfc.metadata['occupied_def_levels'], occu)
         self.assertEqual(bfc.metadata['total_occupation_defect_levels'], 0.58333338)
         self.assertFalse(bfc.metadata['unoccupied_def_levels'])
-
-
-        #modify the potalignment and introduce new unoccupied defect levels from cbm states
-        potalign = -0.1
-
-        bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
-        self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
-        self.assertAlmostEqual(bf_corr, 0.)
-        self.assertFalse(bfc.metadata['occupied_def_levels'])
-        unoccu = [4.0589, 4.07565, 4.063840000000001, 4.00525, 4.013800000000001,
-                  4.0324, 4.04355, 3.9906, 3.9951499999999998]
-        self.assertEqual(bfc.metadata['unoccupied_def_levels'], unoccu)
-
 
 
 

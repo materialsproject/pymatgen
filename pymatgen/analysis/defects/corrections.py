@@ -17,8 +17,8 @@ norm = np.linalg.norm
 from scipy import stats  #for statistical uncertainties of pot alignment
 from monty.json import MSONable
 from pymatgen.util.coord import pbc_shortest_vectors
-from core import DefectCorrection
-from utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
+from pymatgen.analysis.defects.core import DefectCorrection
+from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
 
 import matplotlib
 matplotlib.use('Agg')
@@ -41,15 +41,11 @@ class FreysoldtCorrection(DefectCorrection):
 
         defect_planar_averages
 
-
-        axis: The axis to calculate on, if none, averages over all three.  #TODO: Actually implement this
-    axis_grid, pureavg, defavg, lattice, dielectricconst, q, defect_position, axis,
-                          q_model=QModel(), madetol=0.0001, title=None, widthsample=1.0
+        axis: The axes to calculate on, if none given, averages over all three.
 
     """
 
     def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001, axis=None):
-        self.dielectric_const = dielectric_const
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
         self.madelung_energy_tolerance = madelung_energy_tolerance
@@ -61,15 +57,26 @@ class FreysoldtCorrection(DefectCorrection):
         else:
             self.dielectric = float(np.mean(np.diag(dielectric_const)))
 
+        self.axis = axis
+
+        self.metadata = {'pot_plot_data': {}, 'pot_corr_uncertainty_md': {}}
+
     def get_correction(self, entry):
         """
         Gets the Freysoldt correction for a defect entry
         """
-
-        list_axis_grid = np.array(entry.parameters["axis_grid"])
-        list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
-        list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
-        list_axes = range(len(list_axis_grid))
+        if not self.axis:
+            list_axis_grid = np.array(entry.parameters["axis_grid"])
+            list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
+            list_defect_plnr_avg_esp = np.array(entry.parameters["defect_planar_averages"])
+            list_axes = range(len(list_axis_grid))
+        else:
+            list_axes = np.array(self.axis)
+            list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp = [], [], []
+            for ax in list_axes:
+                list_axis_grid.append( np.array(entry.parameters["axis_grid"][ax]))
+                list_bulk_plnr_avg_esp.append( np.array(entry.parameters["bulk_planar_averages"][ax]))
+                list_defect_plnr_avg_esp.append( np.array(entry.parameters["defect_planar_averages"][ax]))
 
         lattice = entry.defect.bulk_structure.lattice
         q = entry.defect.charge
@@ -83,7 +90,6 @@ class FreysoldtCorrection(DefectCorrection):
             madetol=self.madelung_energy_tolerance)
 
         pot_corr_tracker = []
-        self.metadata = {'pot_plot_data': {}, 'pot_corr_uncertainty_md': {}}
 
         for x, pureavg, defavg, axis in zip(list_axis_grid,
                                             list_bulk_plnr_avg_esp,
@@ -107,10 +113,10 @@ class FreysoldtCorrection(DefectCorrection):
         pot_corr = np.mean(pot_corr_tracker)
 
         entry.parameters["freysoldt_meta"] = dict(self.metadata)
+        entry.parameters['potalign'] = pot_corr / (-q) if q else 0.
 
         return {"freysoldt_electrostatic": es_corr,
                 "freysoldt_potential_alignment": pot_corr}
-
 
     def perform_es_corr(self, lattice, dielectric, q, energy_cutoff=520, q_model=QModel(), madetol=0.0001):
         """
@@ -271,7 +277,6 @@ class FreysoldtCorrection(DefectCorrection):
         logger.info('Potentital alignment energy correction (-q*delta V):  %f (eV)', -q * C)
         self.pot_corr = -q * C
 
-        #TODO: Where ot put this metadata?
         #log plotting data:
         self.metadata['pot_plot_data'][axis] = {'Vr':v_R, 'x': axis_grid, 'dft_diff': defavg - pureavg,
                                                     'final_shift':final_shift, 'check': [mid - checkdis, mid + checkdis + 1]}
@@ -528,6 +533,10 @@ class KumagaiCorrection(DefectCorrection):
                                           self.metadata['g_sum'], dim, self.metadata['gamma'],
                                           self.madelung_energy_tolerance)
 
+        trim_meta = {metakey: metaval for metakey, metaval in self.metadata.items() if metakey != 'g_sum'}
+        entry.parameters["kumagai_meta"] = dict(trim_meta)
+        entry.parameters['potalign'] = pot_corr / (-q) if q else 0.
+
         return {"kumagai_electrostatic": es_corr,
                 "kumagai_potential_alignment": pot_corr}
 
@@ -739,7 +748,8 @@ class KumagaiCorrection(DefectCorrection):
 
         #log uncertainty stats:
         self.metadata['pot_corr_uncertainty_md'] = {'stats': stats.describe(for_correction),
-                                                    'number_sampled': len(for_correction), 'AllData': pot_dict}
+                                                    'number_sampled': len(for_correction)}
+        self.metadata['pot_plot_data'] = pot_dict
 
         logger.info('Kumagai potential alignment (site averaging): %f', pot_alignment)
         logger.info('Kumagai potential alignment correction energy: %f eV', pot_corr)
@@ -747,6 +757,7 @@ class KumagaiCorrection(DefectCorrection):
         return pot_corr
 
 
+# TODO: Make this a part of above
 def kumagai_plotter(r, Vqb, Vpc, eltnames, samplerad=None, title = None, saved=False):
     """
     atomic site  electrostatic potential plotter for Kumagai
@@ -832,6 +843,8 @@ class BandFillingCorrection(DefectCorrection):
         cbm = entry.parameters["cbm"]
 
         bf_corr = self.perform_bandfill_corr( eigenvalues, kpoint_weights, potalign, vbm, cbm)
+
+        entry.parameters["bandfilling_meta"] = dict(self.metadata)
 
         return {'bandfilling': bf_corr}
 
