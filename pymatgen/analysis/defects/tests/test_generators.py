@@ -9,6 +9,7 @@ import unittest
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.defects.generators import VacancyGenerator, InterstitialGenerator, VoronoiInterstitialGenerator
 
+
 class VacancyGeneratorTest(PymatgenTest):
     def test_vacancy_gen(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -16,7 +17,6 @@ class VacancyGeneratorTest(PymatgenTest):
 
         vacs = list(vac_gen)
         self.assertEqual(len(vacs), 2)
-
 
         multiplicities = {str(v.site.specie): v.multiplicity for v in vacs}
         self.assertEqual(multiplicities, {"O": 4, "V": 2})
@@ -46,8 +46,8 @@ class InterstitialGeneratorTest(PymatgenTest):
         self.assertEqual(str(ints[0].site.specie), "Li")
         self.assertEqual(str(ints[1].site.specie), "Li")
 
-        self.assertArrayAlmostEqual(ints[0].site.coords, (0.9106, 0.3078, 0.3078))
-        self.assertArrayAlmostEqual(ints[1].site.coords, (1.5177, 0.7183, 0.7183))
+        self.assertArrayAlmostEqual(ints[0].site.coords, (0.9106, 0.3078, 0.3078), decimal=4)
+        self.assertArrayAlmostEqual(ints[1].site.coords, (1.5177, 0.7183, 0.7183), decimal=4)
 
 
 class VoronoiInterstitialGeneratorTest(PymatgenTest):
@@ -70,7 +70,6 @@ class VoronoiInterstitialGeneratorTest(PymatgenTest):
         self.assertArrayAlmostEqual(ints[1].site.coords, (1.7357692, 3.8392513, 3.8392513))
         self.assertArrayAlmostEqual(ints[2].site.coords, (1.5177146, 3.7168193, 3.7168193))
         self.assertArrayAlmostEqual(ints[3].site.coords, (2.2765713, 2.2575138, 4.5150233))
-
 
 
 if __name__ == "__main__":
