@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import unittest
 
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
+from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution, DefectEntry
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -134,6 +134,44 @@ class DefectsCoreTest(PymatgenTest):
 
         # Test composoition
         self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3})
+
+
+class DefectEntryTest(PymatgenTest):
+    def setUp(self):
+        self.struc = PymatgenTest.get_structure("VO2")
+        V_index = self.struc.indices_from_symbol("V")[0]
+        sub_site = PeriodicSite("Sr", self.struc[V_index].coords, self.struc.lattice, coords_are_cartesian=True)
+        self.substitution = Substitution(self.struc, sub_site)
+
+    def test_init(self):
+        entry = DefectEntry(self.substitution, 2.5)
+        entry_doc = entry.as_dict()
+        re_entry = DefectEntry.from_dict(entry_doc)
+
+    def test_corrections(self):
+        entry = DefectEntry(self.substitution, 2.5)
+
+        self.assertAlmostEqual(entry.energy, 2.5)
+
+        entry.corrections["pot_corr"] = -0.3
+        self.assertAlmostEqual(entry.energy, 2.2)
+
+    def test_formation_energy(self):
+        entry = DefectEntry(self.substitution, 2.5, corrections={"pot_corr": -0.3})
+
+        # Test chemical potentials on formation energy
+        self.assertAlmostEqual(entry.formation_energy(), 2.2)
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2}), 2.0)
+        self.assertAlmostEqual(entry.formation_energy({"V": 0.2}), 2.4)
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}), 2.2)
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2, "O": 2}), 2.2)
+
+        # Test Fermi level on formation energy
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.2)
+        entry.parameters["vbm"] = 0
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.2)
+        entry.defect._charge = 1
+        self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.4)
 
 
 if __name__ == "__main__":

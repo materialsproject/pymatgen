@@ -45,7 +45,7 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         self._structure = structure
         self._charge = charge
-        self._site = defect_site
+        self._defect_site = defect_site
 
     @property
     def bulk_structure(self):
@@ -66,7 +66,7 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         Returns the defect position as a site object
         """
-        return self._site
+        return self._defect_site
 
     @property
     @abstractmethod
@@ -294,7 +294,7 @@ class DefectEntry(MSONable):
 
     @property
     def bulk_structure(self):
-        return self.bulk_structure
+        return self.defect.bulk_structure
 
     @property
     def site(self):
@@ -313,7 +313,7 @@ class DefectEntry(MSONable):
         """
         Returns the *corrected* energy of the entry
         """
-        return self.uncorrected_energy + np.sum(self.correction.values())
+        return self.uncorrected_energy + np.sum(list(self.corrections.values()))
 
     @property
     def name(self):
@@ -326,11 +326,11 @@ class DefectEntry(MSONable):
         """
         Computes the formation energy for a defect taking into account a given chemical potential and fermi_level
         """
-        chemical_potentials = chemical_potentials if not chemical_potentials else {}
+        chemical_potentials = chemical_potentials if chemical_potentials else {}
         
         chempot_correction = sum([
             chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
-            for el, chem_pot in chemical_potentials
+            for el, chem_pot in chemical_potentials.items()
         ])
 
         formation_energy = self.energy + chempot_correction
