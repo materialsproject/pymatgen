@@ -1,4 +1,5 @@
 import re
+import numpy as np
 from collections import defaultdict
 
 
@@ -130,3 +131,14 @@ def lower_and_check_unique(dict_to_check):
             else:
                 to_return[new_key] = dict_to_check.get(key)
         return to_return
+
+def process_parsed_coords(coords):
+    """
+    Takes a set of parsed coordinates, which come as an array of strings, 
+    and returns a numpy array of floats.
+    """
+    geometry = np.zeros(shape=(len(coords), 3), dtype=float)
+    for ii, entry in enumerate(coords):
+        for jj in range(3):
+            geometry[ii, jj] = float(entry[jj])
+    return geometry

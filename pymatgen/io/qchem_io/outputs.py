@@ -12,7 +12,7 @@ from monty.io import zopen
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
-from .utils import read_table_pattern, read_pattern
+from .utils import read_table_pattern, read_pattern, process_parsed_coords
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -207,16 +207,6 @@ class QCOutput(MSONable):
                 os.remove(filename + '.' + str(i))
         return to_return
 
-    def _process_parsed_coords(self, coords):
-        """
-        Takes a set of parsed coordinates, which come as an array of strings, and returns a numpy array of floats.
-        """
-        geometry = np.zeros(shape=(len(coords), 3), dtype=float)
-        for ii, entry in enumerate(coords):
-            for jj in range(3):
-                geometry[ii, jj] = float(entry[jj])
-        return geometry
-
     def _read_charge_and_multiplicity(self):
         """
         Parses charge and multiplicity.
@@ -367,7 +357,7 @@ class QCOutput(MSONable):
             self.data["optimized_zmat"] = read_table_pattern(
                 self.text, header_pattern, table_pattern, footer_pattern)
         else:
-            self.data["optimized_geometry"] = self._process_parsed_coords(
+            self.data["optimized_geometry"] = process_parsed_coords(
                 parsed_optimized_geometry[0])
             if self.data.get('charge') != None:
                 self.data["molecule_from_optimized_geometry"] = Molecule(
@@ -391,7 +381,7 @@ class QCOutput(MSONable):
         if parsed_last_geometry == [] or None:
             self.data["last_geometry"] = []
         else:
-            self.data["last_geometry"] = self._process_parsed_coords(
+            self.data["last_geometry"] = process_parsed_coords(
                 parsed_last_geometry[0])
             if self.data.get('charge') != None:
                 self.data["molecule_from_last_geometry"] = Molecule(
