@@ -11,7 +11,7 @@ import json
 from monty.serialization import loadfn
 
 from pymatgen.electronic_structure.core import Spin, Orbital, OrbitalType
-from pymatgen.electronic_structure.dos import CompleteDos, DOS
+from pymatgen.electronic_structure.dos import CompleteDos, DOS, FermiDos
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -47,32 +47,33 @@ class DosTest(unittest.TestCase):
         for spin in Spin:
             self.assertAlmostEqual(sum(dens[spin]), sum(smeared[spin]))
 
-    def test_charge_densities(self):
+class FermiDosTest(unittest.TestCase):
+    def setUp(self):
+        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+            self.dos = CompleteDos.from_dict(json.load(f))
+        self.dos = FermiDos(self.dos)
 
-        dos = self.dos
-        self.assertAlmostEqual(dos.get_n_density(0.1,300),8.7986436E-17)
-        self.assertAlmostEqual(dos.get_n_density(0.5,300),4.6144748E-10)
-        self.assertAlmostEqual(dos.get_n_density(1.0,300),0.11581256)
-        self.assertAlmostEqual(dos.get_n_density(1.5,300),2.90662281407534E7)
-        self.assertAlmostEqual(dos.get_n_density(2.0,300),7.293581638304925E15)
+    def test_doping_fermi(self):
+        T = 300
+        fermi0 = self.dos.efermi
+        frange = [fermi0-0.5, fermi0, fermi0+2.0, fermi0+2.2]
+        dopings = [self.dos.get_doping(fermi=f, T=T) for f in frange]
+        ref_dopings = [3.48077e+21, 1.9235e+18, -2.6909e+16, -4.8723e+19]
+        for i, c_ref in enumerate(ref_dopings):
+            self.assertLessEqual(abs(dopings[i]/c_ref-1.0), 0.01)
 
-        self.assertAlmostEqual(dos.get_n_density(1.0,100),3.7723915236090155e-42)
-        self.assertAlmostEqual(dos.get_n_density(1.0,500),73611631.20419557)
-        self.assertAlmostEqual(dos.get_n_density(1.0,1000),534437896384801.8)
-        self.assertAlmostEqual(dos.get_n_density(1.0,1500),1.2904355751632894e+17)
+        calc_fermis = [self.dos.get_fermi(c=c, T=T) for c in ref_dopings]
+        for j, f_ref in enumerate(frange):
+            self.assertAlmostEqual(calc_fermis[j], f_ref, 4)
 
-
-        self.assertAlmostEqual(dos.get_p_density(0.1,300),3.780973340568742e+16)
-        self.assertAlmostEqual(dos.get_p_density(0.5,300),7212216464.317844)
-        self.assertAlmostEqual(dos.get_p_density(1.0,300),28.736611510279285)
-        self.assertAlmostEqual(dos.get_p_density(1.5,300),1.1449917582413169e-07)
-        self.assertAlmostEqual(dos.get_p_density(2.0,300),4.562145839538449e-16)
-
-        self.assertAlmostEqual(dos.get_p_density(1.0,100),9.138435688705244e-35)
-        self.assertAlmostEqual(dos.get_p_density(1.0,500),1296993486.5685039)
-        self.assertAlmostEqual(dos.get_p_density(1.0,1000),1066897769478645.2)
-        self.assertAlmostEqual(dos.get_p_density(1.0,1500),1.1840531097443749e+17)
-
+        sci_dos = FermiDos(self.dos, bandgap=3.0)
+        for i, c_ref in enumerate(ref_dopings):
+            if c_ref < 0:
+                self.assertAlmostEqual(
+                    sci_dos.get_fermi(c_ref, T=T) - frange[i], 0.47, places=2)
+            else:
+                self.assertAlmostEqual(
+                    sci_dos.get_fermi(c_ref, T=T) - frange[i], -0.47, places=2)
 
 
 class CompleteDosTest(unittest.TestCase):

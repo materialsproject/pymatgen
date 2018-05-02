@@ -5,10 +5,14 @@
 from __future__ import division, unicode_literals
 
 import re
+import os
+import warnings
 from string import Template
 
 from six import string_types
 from six.moves import zip
+
+import numpy as np
 
 from monty.io import zopen
 
@@ -44,6 +48,11 @@ __email__ = "shyuep@gmail.com"
 __date__ = "6/5/13"
 
 
+NWCHEM_BASIS_LIBRARY = None
+if os.environ.get("NWCHEM_BASIS_LIBRARY"):
+    NWCHEM_BASIS_LIBRARY = set(os.listdir(os.environ["NWCHEM_BASIS_LIBRARY"]))
+
+
 class NwTask(MSONable):
     """
     Base task for Nwchem.
@@ -66,7 +75,8 @@ class NwTask(MSONable):
                 "pspw": "Pseudopotential plane-wave DFT for molecules and "
                         "insulating solids using NWPW",
                 "band": "Pseudopotential plane-wave DFT for solids using NWPW",
-                "tce": "Tensor Contraction Engine"}
+                "tce": "Tensor Contraction Engine",
+                "tddft": "Time Dependent DFT"}
 
     operations = {"energy": "Evaluate the single point energy.",
                   "gradient": "Evaluate the derivative of the energy with "
@@ -121,7 +131,7 @@ class NwTask(MSONable):
                 example, to perform cosmo calculations and dielectric
                 constant of 78, you'd supply {'cosmo': {"dielectric": 78}}.
         """
-        #Basic checks.
+        # Basic checks.
         if theory.lower() not in NwTask.theories.keys():
             raise NwInputError("Invalid theory {}".format(theory))
 
@@ -132,14 +142,19 @@ class NwTask(MSONable):
         self.title = title if title is not None else "{} {}".format(theory,
                                                                     operation)
         self.theory = theory
-        self.basis_set = basis_set
+
+        self.basis_set = basis_set or {}
+        if NWCHEM_BASIS_LIBRARY is not None:
+            for b in set(self.basis_set.values()):
+                if re.sub(r'\*', "s", b.lower()) not in NWCHEM_BASIS_LIBRARY:
+                    warnings.warn(
+                        "Basis set %s not in in NWCHEM_BASIS_LIBRARY" % b)
+
         self.basis_set_option = basis_set_option
 
         self.operation = operation
-        self.theory_directives = theory_directives \
-            if theory_directives is not None else {}
-        self.alternate_directives = alternate_directives \
-            if alternate_directives is not None else {}
+        self.theory_directives = theory_directives or {}
+        self.alternate_directives = alternate_directives or {}
 
     def __str__(self):
         bset_spec = []
@@ -158,21 +173,26 @@ class NwTask(MSONable):
                 theory_spec.append(" {} {}".format(
                     k2, self.alternate_directives[k][k2]))
             theory_spec.append("end")
+
         t = Template("""title "$title"
 charge $charge
 basis $basis_set_option
 $bset_spec
 end
 $theory_spec
-task $theory $operation""")
+""")
 
-        return t.substitute(
+        output = t.substitute(
             title=self.title, charge=self.charge,
             spinmult=self.spin_multiplicity,
             basis_set_option=self.basis_set_option,
             bset_spec="\n".join(bset_spec),
             theory_spec="\n".join(theory_spec),
-            theory=self.theory, operation=self.operation)
+            theory=self.theory)
+
+        if self.operation is not None:
+            output += "task %s %s" % (self.theory, self.operation)
+        return output
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
@@ -197,8 +217,8 @@ task $theory $operation""")
 
     @classmethod
     def from_molecule(cls, mol, theory, charge=None, spin_multiplicity=None,
-                      basis_set="6-31g", basis_set_option="cartesian", title=None,
-                      operation="optimize", theory_directives=None,
+                      basis_set="6-31g", basis_set_option="cartesian",
+                      title=None, operation="optimize", theory_directives=None,
                       alternate_directives=None):
         """
         Very flexible arguments to support many types of potential setups.
@@ -253,7 +273,8 @@ task $theory $operation""")
 
         basis_set_option = basis_set_option
 
-        return NwTask(charge, spin_multiplicity, basis_set, basis_set_option=basis_set_option,
+        return NwTask(charge, spin_multiplicity, basis_set,
+                      basis_set_option=basis_set_option,
                       title=title, theory=theory, operation=operation,
                       theory_directives=theory_directives,
                       alternate_directives=alternate_directives)
@@ -315,9 +336,6 @@ class NwInput(MSONable):
                  geometry_options=("units", "angstroms"),
                  symmetry_options=None,
                  memory_options=None):
-        """
-
-        """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
@@ -411,7 +429,7 @@ class NwInput(MSONable):
                 if toks[0].lower() == "symmetry":
                     symmetry_options = toks[1:]
                     l = lines.pop(0).strip()
-                #Parse geometry
+                # Parse geometry
                 species = []
                 coords = []
                 while l.lower() != "end":
@@ -425,7 +443,7 @@ class NwInput(MSONable):
             elif toks[0].lower() == "title":
                 title = l[5:].strip().strip("\"")
             elif toks[0].lower() == "basis":
-                #Parse basis sets
+                # Parse basis sets
                 l = lines.pop(0).strip()
                 basis_set = {}
                 while l.lower() != "end":
@@ -433,10 +451,10 @@ class NwInput(MSONable):
                     basis_set[toks[0]] = toks[-1].strip("\"")
                     l = lines.pop(0).strip()
             elif toks[0].lower() in NwTask.theories:
-                #read the basis_set_option
+                # read the basis_set_option
                 if len(toks) > 1:
                     basis_set_option = toks[1]
-                #Parse theory directives.
+                # Parse theory directives.
                 theory = toks[0].lower()
                 l = lines.pop(0).strip()
                 theory_directives[theory] = {}
@@ -508,8 +526,135 @@ class NwOutput(object):
         if re.search(r"CITATION", chunks[-1]):
             chunks.pop()
         preamble = chunks.pop(0)
+
+        self.raw = data
         self.job_info = self._parse_preamble(preamble)
         self.data = [self._parse_job(c) for c in chunks]
+
+    def parse_tddft(self):
+        """
+        Parses TDDFT roots. Adapted from nw_spectrum.py script.
+
+        Returns:
+            {"singlet": nd.array, "triplet": nd.array}. The nd.array is a Nx2
+            where the first column is the energies in eV and the second is the
+            dipole oscillator strength.
+        """
+        start_tag = "Convergence criterion met"
+        end_tag = "Excited state energy"
+        singlet_tag = "singlet excited"
+        triplet_tag = "triplet excited"
+        state = "singlet"
+
+        # max number of lines after root energy to look for oscillator strength
+        max_osc_search = 10
+
+        inside = False  # true when we are inside output block
+
+        lines = self.raw.split("\n")
+
+        iline = -1
+        roots = []
+
+        while True:
+            iline = iline + 1
+            try:
+                line = lines[iline]
+            except:
+                break
+
+            # Only extract singlet state data. By default TDDFT calculations
+            # produce both singlet and triplet data, and the (possibly
+            # meaningless) triplet state data can otherwise interfere with
+            # proper parsing of singlets.
+            if start_tag in line and state == "singlet":
+                inside = True
+
+            if end_tag in line:
+                inside = False
+
+            if singlet_tag in line:
+                state = "singlet"
+
+            if triplet_tag in line:
+                state = "triplet"
+
+            if inside and "Root" in line and "eV" in line:
+                line_strip = line.strip()
+                line_split = line_strip.split()
+                try:
+                    line_start = line_split[0]  # contains "Root"
+                    line_n = line_split[1]  # contains root number (int)
+                    line_ev_tag = line_split[-1]  # contains "eV"
+                    line_e = line_split[-2]  # contains excitation energy in eV
+                except:
+                    raise Exception(
+                        "Failed to parse data line for root: {0}".format(
+                            line_strip))
+
+                if line_start == "Root" and line_ev_tag == "eV":
+                    try:
+                        n = int(line_n)
+                        energy_ev = float(line_e)
+                    except:
+                        raise Exception(
+                            "Failed to convert root values: {0}".format(
+                                line_strip))
+                else:
+                    raise Exception(
+                        "Unexpected format for root: {0}".format(
+                            line_strip))
+
+                if line_start == "Root" and line_ev_tag == "eV":
+                    try:
+                        n = int(line_n)
+                        energy_ev = float(line_e)
+                    except:
+                        raise Exception(
+                            "Failed to convert root values: {0}".format(
+                                line_strip))
+                else:
+                    raise Exception(
+                        "Unexpected format for root: {0}".format(
+                            line_strip))
+                # Now look for oscillator strength, which will be a few
+                # lines down (though the exact position may vary it seems).
+                ioscline = -1
+                while True:
+                    ioscline = ioscline + 1
+                    if ioscline >= max_osc_search:
+                        raise Exception(
+                            "Failed to find oscillator strength after looking {0} lines.".format(
+                                ioscline))
+
+                    oscline = lines[iline + ioscline].strip()
+
+                    if "Dipole Oscillator Strength" in oscline:
+                        try:
+                            osc_str = oscline.split()
+                            osc = float(osc_str[3])
+                        except:
+                            raise Exception(
+                                "Failed to convert oscillator strength: {0}".format(
+                                    oscline))
+                        break
+
+                # do some final checks, then append to data
+                if energy_ev < 0.0:
+                    raise Exception(
+                        "Invalid negative energy: {0}".format(energy_ev))
+
+                if osc < 0.0:
+                    raise Exception(
+                        "Invalid negative oscillator strength: {0}".format(
+                            osc))
+
+                roots.append([energy_ev, osc])
+
+        if len(roots) < 1:
+            raise Exception("Failed to find any TDDFT roots")
+
+        return {"singlet": np.array(roots)}
 
     def _parse_preamble(self, preamble):
         info = {}
@@ -518,6 +663,15 @@ class NwOutput(object):
             if len(toks) > 1:
                 info[toks[0].strip()] = toks[-1].strip()
         return info
+
+    def __iter__(self):
+        return self.data.__iter__()
+
+    def __getitem__(self, ind):
+        return self.data[ind]
+
+    def __len__(self):
+        return len(self.data)
 
     def _parse_job(self, output):
         energy_patt = re.compile(r'Total \w+ energy\s+=\s+([\.\-\d]+)')
@@ -586,7 +740,7 @@ class NwOutput(object):
                 if l.strip() == "Atomic Mass":
                     if lattice:
                         structures.append(Structure(lattice, species, coords,
-                                                     coords_are_cartesian=True))
+                                                    coords_are_cartesian=True))
                     else:
                         molecules.append(Molecule(species, coords))
                     species = []
@@ -643,7 +797,7 @@ class NwOutput(object):
                     parse_bset = False
                 else:
                     toks = l.split()
-                    if toks[0] != "Tag" and not re.match(r"\-+", toks[0]):
+                    if toks[0] != "Tag" and not re.match(r"-+", toks[0]):
                         basis_set[toks[0]] = dict(zip(bset_header[1:],
                                                       toks[1:]))
                     elif toks[0] == "Tag":
@@ -661,7 +815,7 @@ class NwOutput(object):
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
-                    except Exception as e:
+                    except Exception:
                         continue
                     if isfloatstring(toks[1]):
                         continue
@@ -705,7 +859,6 @@ class NwOutput(object):
                     energies[-1].update({"cosmo scf": cosmo_scf_energy})
                     energies[-1].update({"gas phase":
                                          Energy(m.group(1), "Ha").to("eV")})
-
 
                 m = energy_sol_patt.search(l)
                 if m:

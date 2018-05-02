@@ -339,6 +339,14 @@ class EnumlibAdaptor(object):
         stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
+
+        # sites retrieved from enumlib will lack site properties
+        # to ensure consistency, we keep track of what site properties
+        # are missing and set them to None
+        # TODO: improve this by mapping ordered structure to original
+        # disorded structure, and retrieving correct site properties
+        disordered_site_properties = {}
+
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
             # Need to strip sites of site_properties, which would otherwise
@@ -347,6 +355,7 @@ class EnumlibAdaptor(object):
             site_properties = {}
             for site in self.ordered_sites:
                 for k, v in site.properties.items():
+                    disordered_site_properties[k] = None
                     if k in site_properties:
                         site_properties[k].append(v)
                     else:
@@ -388,7 +397,9 @@ class EnumlibAdaptor(object):
                     if site.specie.symbol != "X":  # We exclude vacancies.
                         sites.append(PeriodicSite(site.species_and_occu,
                                                   site.frac_coords,
-                                                  super_latt).to_unit_cell)
+                                                  super_latt,
+                                                  properties=disordered_site_properties)
+                                     .to_unit_cell)
                     else:
                         warnings.warn("Skipping sites that include species X.")
                 structs.append(Structure.from_sites(sorted(sites)))

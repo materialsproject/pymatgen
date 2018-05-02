@@ -1,0 +1,112 @@
+ argument  1 = C1N1Cl1_1.nw
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.3
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2012
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = compute-0-2.local
+    program         = /share/apps/nwchem-6.3/bin/LINUX64/nwchem
+    date            = Mon Jun 17 01:14:47 2013
+
+    compiled        = Sat_May_25_13:40:38_2013
+    source          = /share/apps/nwchem-6.3
+    nwchem branch   = 6.3
+    nwchem revision = 24252
+    ga revision     = N/A
+    input           = C1N1Cl1_1.nw
+    prefix          = C1N1Cl1.
+    data base       = ./C1N1Cl1.db
+    status          = startup
+    nproc           =        8
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ ORDER OF PRIMARY AXIS IS BEING SET TO 4
+ C4V symmetry detected
+
+          ------
+          auto-z
+          ------
+  autoz: insufficient variables                     2                    3
+     1 autoz failed with cvr_scaling = 1.2 changing to 1.3
+  autoz: insufficient variables                     2                    3
+     2 autoz failed with cvr_scaling = 1.3 changing to 1.4
+  autoz: insufficient variables                     2                    3
+     3 autoz failed with cvr_scaling = 1.4 changing to 1.5
+  autoz: insufficient variables                     2                    3
+     4 autoz failed with cvr_scaling = 1.5 changing to 1.6
+  autoz: insufficient variables                     2                    3
+     5 autoz failed with cvr_scaling = 1.6 changing to 1.7
+ !! There are insufficient internal variables: expected     2 got     3
+ !! Either AUTOZ failed or your geometry has changed so much that the
+ !! coordinates should be regenerated.
+ ------------------------------------------------------------------------
+ geom_binvr: #indep variables incorrect   200003
+ ------------------------------------------------------------------------
+ There is an error related to the specified geometry
+ ------------------------------------------------------------------------
+ For more information see the NWChem manual at http://www.nwchem-sw.org/index.php/NWChem_Documentation
+
+
+ For further details see manual section:                                                                                                                                                                                                                                                                

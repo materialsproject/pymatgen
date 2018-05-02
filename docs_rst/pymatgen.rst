@@ -17,6 +17,7 @@ Subpackages
     pymatgen.ext
     pymatgen.io
     pymatgen.optimization
+    pymatgen.phonon
     pymatgen.symmetry
     pymatgen.transformations
     pymatgen.util

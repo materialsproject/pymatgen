@@ -7,20 +7,23 @@ from __future__ import division, unicode_literals
 import unittest
 import os
 import warnings
+import random
 from pymatgen import SETTINGS
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructureSymmLine, BandStructure)
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.pourbaix.entry import PourbaixEntry
-from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
+from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+from pymatgen.phonon.dos import CompletePhononDos
 
 """
 Created on Jun 9, 2012
@@ -48,7 +51,13 @@ class MPResterTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.resetwarnings()
-        
+
+    def test_get_all_materials_ids_doc(self):
+        mids = self.rester.get_materials_ids("Al2O3")
+        random.shuffle(mids)
+        doc = self.rester.get_doc(mids.pop(0))
+        self.assertEqual(doc["pretty_formula"], "Al2O3")
+
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
@@ -163,6 +172,18 @@ class MPResterTest(unittest.TestCase):
     def test_get_bandstructure_by_material_id(self):
         bs = self.rester.get_bandstructure_by_material_id("mp-2254")
         self.assertIsInstance(bs, BandStructureSymmLine)
+        bs_unif = self.rester.get_bandstructure_by_material_id(
+            "mp-2254", line_mode=False)
+        self.assertIsInstance(bs_unif, BandStructure)
+        self.assertNotIsInstance(bs_unif, BandStructureSymmLine)
+
+    def test_get_phonon_data_by_material_id(self):
+        bs = self.rester.get_phonon_bandstructure_by_material_id("mp-661")
+        self.assertIsInstance(bs, PhononBandStructureSymmLine)
+        dos = self.rester.get_phonon_dos_by_material_id("mp-661")
+        self.assertIsInstance(dos, CompletePhononDos)
+        ddb_str = self.rester.get_phonon_ddb_by_material_id("mp-661")
+        self.assertIsInstance(ddb_str, str)
 
     def test_get_structures(self):
         structs = self.rester.get_structures("Mn3O4")
@@ -174,7 +195,7 @@ class MPResterTest(unittest.TestCase):
         for e in entries:
             self.assertEqual(e.composition.reduced_formula, "TiO2")
 
-        entries = self.rester.get_entries("TiO2", inc_structure="final")
+        entries = self.rester.get_entries("TiO2", inc_structure=True)
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
@@ -191,8 +212,8 @@ class MPResterTest(unittest.TestCase):
             self.assertIsNotNone(e.data["oxide_type"])
 
         # test if it will retrieve the conventional unit cell of Ni
-        entry = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
-                                                     conventional_unit_cell=True)
+        entry = self.rester.get_entry_by_material_id(
+            "mp-23", inc_structure=True, conventional_unit_cell=True)
         Ni = entry.structure
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
@@ -201,17 +222,28 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(Ni.lattice.gamma, 90)
 
         # Ensure energy per atom is same
-        primNi = self.rester.get_entry_by_material_id("mp-23", inc_structure="Final",
-                                                      conventional_unit_cell=False)
+        primNi = self.rester.get_entry_by_material_id(
+            "mp-23", inc_structure=True, conventional_unit_cell=False)
         self.assertEqual(primNi.energy_per_atom, entry.energy_per_atom)
 
-        Ni = self.rester.get_structure_by_material_id("mp-23",
-                                                      conventional_unit_cell=True)
+        Ni = self.rester.get_structure_by_material_id(
+            "mp-23", conventional_unit_cell=True)
         self.assertEqual(Ni.lattice.a, Ni.lattice.b)
         self.assertEqual(Ni.lattice.a, Ni.lattice.c)
         self.assertEqual(Ni.lattice.alpha, 90)
         self.assertEqual(Ni.lattice.beta, 90)
         self.assertEqual(Ni.lattice.gamma, 90)
+
+        # Test case where convs are different from initial and final
+        th = self.rester.get_structure_by_material_id(
+            "mp-37", conventional_unit_cell=True)
+        th_entry = self.rester.get_entry_by_material_id(
+            "mp-37", inc_structure=True, conventional_unit_cell=True)
+        th_entry_initial = self.rester.get_entry_by_material_id(
+            "mp-37", inc_structure="initial", conventional_unit_cell=True)
+        self.assertEqual(th, th_entry.structure)
+        self.assertEqual(len(th_entry.structure), 4)
+        self.assertEqual(len(th_entry_initial.structure), 2)
 
 
     def test_get_pourbaix_entries(self):
@@ -220,9 +252,13 @@ class MPResterTest(unittest.TestCase):
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
+
         # Try binary system
         pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         pbx = PourbaixDiagram(pbx_entries)
+
+        # Test Zn-S, which has Na in reference solids
+        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
@@ -303,6 +339,10 @@ class MPResterTest(unittest.TestCase):
         kinks_open_O = self.rester.get_interface_reactions(
             "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
         self.assertTrue(len(kinks_open_O) > 0)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.filterwarnings("always", message="The reactant.+")
+            self.rester.get_interface_reactions("LiCoO2", "MnO3")
+            self.assertTrue("The reactant" in str(w[-1].message))
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")

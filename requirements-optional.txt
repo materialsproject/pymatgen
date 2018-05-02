@@ -2,9 +2,9 @@ pybtex==0.21
 nose==1.3.7
 coverage==4.5.1
 ase==3.11.0
-coveralls==1.2.0
+coveralls==1.3.0
 chemview==0.6
-netCDF4==1.2.9
+netCDF4==1.3.1
 fdint==2.0.2
 phonopy==1.11.12.121
 networkx==2.0

@@ -520,7 +520,8 @@ class IStructure(SiteCollection, MSONable):
                 "different!" % (len(species), len(coords))
             )
 
-        frac_coords = coords if not coords_are_cartesian else \
+        frac_coords = np.array(coords, dtype=np.float) \
+            if not coords_are_cartesian else \
             lattice.get_fractional_coords(coords)
 
         props = {} if site_properties is None else site_properties
@@ -2723,6 +2724,50 @@ class Structure(IStructure, collections.MutableSequence):
                                     self._lattice, to_unit_cell=to_unit_cell,
                                     coords_are_cartesian=False,
                                     properties=site.properties)
+            self._sites[i] = new_site
+
+    def rotate_sites(self, indices=None, theta=0, axis=None, anchor=None,
+                     to_unit_cell=True):
+        """
+        Rotate specific sites by some angle around vector at anchor.
+
+        Args:
+            indices (list): List of site indices on which to perform the
+                translation.
+            angle (float): Angle in radians
+            axis (3x1 array): Rotation axis vector.
+            anchor (3x1 array): Point of rotation.
+            to_unit_cell (bool): Whether new sites are transformed to unit
+                cell
+        """
+
+        from numpy.linalg import norm
+        from numpy import cross, eye
+        from scipy.linalg import expm
+
+        if indices is None:
+            indices = range(len(self))
+
+        if axis is None:
+            axis = [0, 0, 1]
+
+        if anchor is None:
+            anchor = [0, 0, 0]
+
+        anchor = np.array(anchor)
+        axis = np.array(axis)
+
+        theta %= 2 * np.pi
+
+        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
+
+        for i in indices:
+            site = self._sites[i]
+            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            new_site = PeriodicSite(site.species_and_occu, s,
+                            self._lattice, to_unit_cell=to_unit_cell,
+                            coords_are_cartesian=True,
+                            properties=site.properties)
             self._sites[i] = new_site
 
     def perturb(self, distance):
