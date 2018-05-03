@@ -560,7 +560,7 @@ class VoronoiNN(NearNeighbors):
 
         # Run the Voronoi tessellation
         qvoronoi_input = [s.coords for s in neighbors]
-        voro = Voronoi(qvoronoi_input)
+        voro = Voronoi(qvoronoi_input) # can give a seg fault if cutoff is too small
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
@@ -2513,7 +2513,7 @@ class CrystalNN(NearNeighbors):
         self.weighted_cn=weighted_cn
         self.cation_anion = cation_anion
         self.distance_cutoffs = distance_cutoffs
-        self.x_diff_weight = x_diff_weight
+        self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
         self.search_cutoff = search_cutoff
         self.fingerprint_length = fingerprint_length
 
@@ -2610,13 +2610,13 @@ class CrystalNN(NearNeighbors):
 
                 entry["weight"] = entry["weight"] * dist_weight
 
-        # adjust solid angle weight best on electronegativity difference
+        # adjust solid angle weight based on electronegativity difference
         if self.x_diff_weight > 0:
             for entry in nn:
                 X1 = structure[n].specie.X
                 X2 = entry["site"].specie.X
 
-                if math.isnan(X1) or math.isnan(X1):
+                if math.isnan(X1) or math.isnan(X2):
                     chemical_weight = 1
                 else:
                     chemical_weight = 1 + self.x_diff_weight * \
@@ -2626,6 +2626,8 @@ class CrystalNN(NearNeighbors):
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+        if nn[0]["weight"] == 0:
+            raise RuntimeError("no neighbors with nonzero weight (increase search cutoff and/or distance cutoff)")
 
         # renormalize & round weights, remove unneeded data
         highest_weight = nn[0]["weight"]
