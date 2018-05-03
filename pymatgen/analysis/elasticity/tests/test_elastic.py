@@ -3,10 +3,8 @@ from __future__ import print_function
 from __future__ import division
 
 import unittest
-import os
 
-import numpy as np
-from pymatgen.analysis.elasticity.elastic import * 
+from pymatgen.analysis.elasticity.elastic import *
 from pymatgen.analysis.elasticity.strain import Strain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
@@ -16,6 +14,7 @@ import warnings
 import json
 import random
 from six.moves import zip
+from copy import deepcopy
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -81,7 +80,7 @@ class ElasticTensorTest(PymatgenTest):
         self.assertAlmostEqual(20.67146635306, self.elastic_tensor_1.g_reuss)
         self.assertAlmostEqual(38.49111028122, self.elastic_tensor_1.k_vrh)
         self.assertAlmostEqual(21.36506650986, self.elastic_tensor_1.g_vrh)
-        
+
         # universal anisotropy
         self.assertAlmostEqual(0.33553509658699,
                                self.elastic_tensor_1.universal_anisotropy)
@@ -173,7 +172,7 @@ class ElasticTensorTest(PymatgenTest):
                        for def_matrix in self.def_stress_dict['deformations']]
         stress_list = [stress for stress in self.def_stress_dict['stresses']]
         with warnings.catch_warnings(record=True):
-            et_fl = -0.1*ElasticTensor.from_pseudoinverse(strain_list, 
+            et_fl = -0.1*ElasticTensor.from_pseudoinverse(strain_list,
                                                           stress_list).voigt
             self.assertArrayAlmostEqual(et_fl.round(2),
                                         [[59.29, 24.36, 22.46, 0, 0, 0],
@@ -230,7 +229,7 @@ class ElasticTensorExpansionTest(PymatgenTest):
         indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
                    (0, 3, 3), (0, 5, 5), (3, 4, 5)]
         values = [-1507., -965., -71., -7., -901., 45.]
-        cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu, 
+        cu_c3 = Tensor.from_values_indices(values, indices, structure=self.cu,
                                            populate=True)
         self.exp_cu = ElasticTensorExpansion([cu_c2, cu_c3])
         cu_c4 = Tensor.from_voigt(self.data_dict["Cu_fourth_order"])
@@ -280,9 +279,9 @@ class ElasticTensorExpansionTest(PymatgenTest):
 
     def test_thermal_expansion_coeff(self):
         #TODO get rid of duplicates
-        alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300, 
+        alpha_dp = self.exp_cu.thermal_expansion_coeff(self.cu, 300,
                                                        mode="dulong-petit")
-        alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300, 
+        alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300,
                                                           mode="debye")
         self.assertArrayAlmostEqual(21.4533472e-06 * np.eye(3), alpha_debye)
 
@@ -326,7 +325,7 @@ class NthOrderElasticTensorTest(PymatgenTest):
         self.pk_stresses = [Stress(d) for d in self.data_dict['pk_stresses']]
         self.c2 = NthOrderElasticTensor.from_voigt(self.data_dict["C2_raw"])
         self.c3 = NthOrderElasticTensor.from_voigt(self.data_dict["C3_raw"])
-        
+
     def test_init(self):
         c2 = NthOrderElasticTensor(self.c2.tolist())
         c3 = NthOrderElasticTensor(self.c3.tolist())
@@ -336,8 +335,8 @@ class NthOrderElasticTensorTest(PymatgenTest):
         self.assertRaises(ValueError, NthOrderElasticTensor, np.zeros([3]*5))
 
     def test_from_diff_fit(self):
-        c3 = NthOrderElasticTensor.from_diff_fit(self.strains, self.pk_stresses, 
-                                                 eq_stress = self.data_dict["eq_stress"], 
+        c3 = NthOrderElasticTensor.from_diff_fit(self.strains, self.pk_stresses,
+                                                 eq_stress = self.data_dict["eq_stress"],
                                                  order=3)
         self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"], decimal=2)
 
@@ -388,18 +387,18 @@ class DiffFitTest(PymatgenTest):
         for strain_state, data in ss_dict.items():
             # Check correspondence of strains/stresses
             for strain, stress in zip(data["strains"], data["stresses"]):
-                self.assertArrayAlmostEqual(Stress.from_voigt(stress), 
+                self.assertArrayAlmostEqual(Stress.from_voigt(stress),
                                             strain_dict[Strain.from_voigt(strain).tostring()])
 
     def test_find_eq_stress(self):
-        random_strains = [Strain.from_voigt(s) for s in np.random.uniform(0.1, 1, (20, 6))]
-        random_stresses = [Strain.from_voigt(s) for s in np.random.uniform(0.1, 1, (20, 6))]
+        test_strains = deepcopy(self.strains)
+        test_stresses = deepcopy(self.pk_stresses)
         with warnings.catch_warnings(record=True):
-            no_eq = find_eq_stress(random_strains, random_stresses)
+            no_eq = find_eq_stress(test_strains, test_stresses)
             self.assertArrayAlmostEqual(no_eq, np.zeros((3,3)))
-        random_strains[12] = Strain.from_voigt(np.zeros(6))
-        eq_stress = find_eq_stress(random_strains, random_stresses)
-        self.assertArrayAlmostEqual(random_stresses[12], eq_stress)
+        test_strains[3] = Strain.from_voigt(np.zeros(6))
+        eq_stress = find_eq_stress(test_strains, test_stresses)
+        self.assertArrayAlmostEqual(test_stresses[3], eq_stress)
 
     def test_get_diff_coeff(self):
         forward_11 = get_diff_coeff([0, 1], 1)
@@ -427,14 +426,14 @@ class DiffFitTest(PymatgenTest):
         r_strains, r_pk_stresses = zip(*reduced)
         with warnings.catch_warnings(record=True):
             c2 = diff_fit(r_strains, r_pk_stresses,
-                                  self.data_dict["eq_stress"], order=2) 
+                                  self.data_dict["eq_stress"], order=2)
             c2, c3, c4 = diff_fit(r_strains, r_pk_stresses,
-                                          self.data_dict["eq_stress"], 
-                                          order=4) 
+                                          self.data_dict["eq_stress"],
+                                          order=4)
             c2, c3 = diff_fit(self.strains, self.pk_stresses,
-                                      self.data_dict["eq_stress"], order=3) 
+                                      self.data_dict["eq_stress"], order=3)
             c2_red, c3_red = diff_fit(r_strains, r_pk_stresses,
-                                              self.data_dict["eq_stress"], 
+                                              self.data_dict["eq_stress"],
                                               order=3)
             self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
             self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"], decimal=5)
