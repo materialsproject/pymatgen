@@ -202,7 +202,7 @@ class QCInput(MSONable):
         pcm_list = []
         pcm_list.append("$pcm")
         for key, value in pcm.items():
-            pcm_list.append("   {key} = {value}".format(key=key, value=value))
+            pcm_list.append("   {key} {value}".format(key=key, value=value))
         pcm_list.append("$end")
         return '\n'.join(pcm_list)
 
@@ -211,7 +211,7 @@ class QCInput(MSONable):
         solvent_list = []
         solvent_list.append("$solvent")
         for key, value in solvent.items():
-            solvent_list.append("   {key} = {value}".format(key=key, value=value))
+            solvent_list.append("   {key} {value}".format(key=key, value=value))
         solvent_list.append("$end")
         return '\n'.join(solvent_list)
 
@@ -307,20 +307,28 @@ class QCInput(MSONable):
     @staticmethod
     def read_pcm(string):
         header = r"^\s*\$pcm"
-        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
         pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        pcm = {key: val for key, val in pcm_table[0]}
-        return pcm
+        if pcm_table == []:
+            print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
+            return {}
+        else:
+            pcm = {key: val for key, val in pcm_table[0]}
+            return pcm
 
     @staticmethod
     def read_solvent(string):
         header = r"^\s*\$solvent"
-        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
         solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        solvent = {key: val for key, val in solvent_table[0]}
-        return solvent
+        if solvent_table == []:
+            print("No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines.")
+            return {}
+        else:
+            solvent = {key: val for key, val in solvent_table[0]}
+            return solvent
 
 
 
