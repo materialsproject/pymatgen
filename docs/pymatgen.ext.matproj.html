@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj module &#8212; pymatgen 2018.4.20 documentation</title>
+    <title>pymatgen.ext.matproj module &#8212; pymatgen 2018.5.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -157,7 +157,7 @@ Materials Project substrate database</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>material_id</strong> (<em>str</em>) – Materials Project material_id (an int).</li>
+<li><strong>material_id</strong> (<em>str</em>) – Materials Project material_id.</li>
 <li><strong>line_mode</strong> (<em>bool</em>) – If True, fetch a BandStructureSymmLine object
 (default). If False, return the uniform band structure.</li>
 </ul>
@@ -475,6 +475,60 @@ or formula (e.g., Fe2O3).</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_phonon_bandstructure_by_material_id">
+<code class="descname">get_phonon_bandstructure_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_bandstructure_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_bandstructure_by_material_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get phonon dispersion data corresponding to a material_id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – Materials Project material_id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A phonon band structure.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pymatgen.phonon.bandstructure.html#pymatgen.phonon.bandstructure.PhononBandStructureSymmLine" title="pymatgen.phonon.bandstructure.PhononBandStructureSymmLine">PhononBandStructureSymmLine</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_phonon_ddb_by_material_id">
+<code class="descname">get_phonon_ddb_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_ddb_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_ddb_by_material_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get ABINIT Derivative Data Base (DDB) output for phonon calculations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – Materials Project material_id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ABINIT DDB file as a string.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_phonon_dos_by_material_id">
+<code class="descname">get_phonon_dos_by_material_id</code><span class="sig-paren">(</span><em>material_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_phonon_dos_by_material_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_phonon_dos_by_material_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get phonon density of states data corresponding to a material_id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>material_id</strong> (<em>str</em>) – Materials Project material_id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A phonon DOS object.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">﻿CompletePhononDos</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_pourbaix_entries">
 <code class="descname">get_pourbaix_entries</code><span class="sig-paren">(</span><em>chemsys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_pourbaix_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_pourbaix_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>A helper function to get all entries necessary to generate
@@ -664,7 +718,7 @@ general list of useful properties.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.ext.matproj.MPRester.parse_criteria">
-<em class="property">static </em><code class="descname">parse_criteria</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.parse_criteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.parse_criteria" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">parse_criteria</code><span class="sig-paren">(</span><em>criteria_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.parse_criteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.parse_criteria" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses a powerful and simple string criteria and generates a proper
 mongo syntax criteria.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -950,13 +1004,13 @@ assimilate. Defaults to None, which means serial.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

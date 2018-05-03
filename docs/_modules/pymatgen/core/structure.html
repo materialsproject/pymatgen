@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2018.4.20 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2018.5.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -2774,6 +2774,50 @@
                                     <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
 
+<div class="viewcode-block" id="Structure.rotate_sites"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.rotate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rotate specific sites by some angle around vector at anchor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            indices (list): List of site indices on which to perform the</span>
+<span class="sd">                translation.</span>
+<span class="sd">            angle (float): Angle in radians</span>
+<span class="sd">            axis (3x1 array): Rotation axis vector.</span>
+<span class="sd">            anchor (3x1 array): Point of rotation.</span>
+<span class="sd">            to_unit_cell (bool): Whether new sites are transformed to unit</span>
+<span class="sd">                cell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
+        <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">cross</span><span class="p">,</span> <span class="n">eye</span>
+        <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="k">import</span> <span class="n">expm</span>
+
+        <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">anchor</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">anchor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+
+        <span class="n">theta</span> <span class="o">%=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="n">rm</span> <span class="o">=</span> <span class="n">expm</span><span class="p">(</span><span class="n">cross</span><span class="p">(</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">axis</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">))</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="p">((</span><span class="n">rm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">anchor</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">anchor</span><span class="p">)</span><span class="o">.</span><span class="n">A1</span>
+            <span class="n">new_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">,</span>
+                            <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
+
 <div class="viewcode-block" id="Structure.perturb"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.perturb">[docs]</a>    <span class="k">def</span> <span class="nf">perturb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs a random perturbation of the sites in a structure to break</span>
@@ -3519,7 +3563,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -3527,7 +3571,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

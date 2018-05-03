@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.util.testing module &#8212; pymatgen 2018.4.20 documentation</title>
+    <title>pymatgen.util.testing module &#8212; pymatgen 2018.5.3 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,18 +56,18 @@ method when executed. Raises a ValueError if the instance does
 not have a method with the specified name.</p>
 <dl class="attribute">
 <dt id="pymatgen.util.testing.PymatgenTest.MODULE_DIR">
-<code class="descname">MODULE_DIR</code><em class="property"> = '/Users/shyue/repos/pymatgen/pymatgen/util'</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.MODULE_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">MODULE_DIR</code><em class="property"> = '/Users/shyuep/repos/pymatgen/pymatgen/util'</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.MODULE_DIR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.util.testing.PymatgenTest.STRUCTURES_DIR">
-<code class="descname">STRUCTURES_DIR</code><em class="property"> = '/Users/shyue/repos/pymatgen/pymatgen/util/structures'</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.STRUCTURES_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRUCTURES_DIR</code><em class="property"> = '/Users/shyuep/repos/pymatgen/pymatgen/util/structures'</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.STRUCTURES_DIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dict for test structures to aid testing.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES">
-<code class="descname">TEST_STRUCTURES</code><em class="property"> = {'BaNiO3': &lt;pymatgen.alchemy.materials.TransformedStructure object at 0x11d9d7668&gt;, 'CsCl': Structure Summary
+<code class="descname">TEST_STRUCTURES</code><em class="property"> = {'BaNiO3': &lt;pymatgen.alchemy.materials.TransformedStructure object at 0x1c18b23b38&gt;, 'CsCl': Structure Summary
 Lattice
     abc : 4.209 4.209 4.209
  angles : 90.0 90.0 90.0
@@ -87,7 +87,15 @@ Lattice
 PeriodicSite: C0+ (-1.2350, -0.7132, -5.1000) [0.6667, 0.3333, 0.7500]
 PeriodicSite: C0+ (-1.2350, 0.7132, -1.7000) [0.3333, 0.6667, 0.2500]
 PeriodicSite: C0+ (0.0000, 0.0000, -5.1000) [0.0000, 0.0000, 0.7500]
-PeriodicSite: C0+ (0.0000, 0.0000, -1.7000) [0.0000, 0.0000, 0.2500], 'K2O2': Structure Summary
+PeriodicSite: C0+ (0.0000, 0.0000, -1.7000) [0.0000, 0.0000, 0.2500], 'He_BCC': Structure Summary
+Lattice
+    abc : 2.737172073807164 2.7371720737557492 2.73717207
+ angles : 109.47122060669534 109.47122060631484 109.47122066304705
+ volume : 15.786447515629305
+      A : 2.58063058 0.0 -0.91239069
+      B : -1.29031529 2.23489164 -0.91239069
+      C : 0.0 0.0 2.73717207
+PeriodicSite: He (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000], 'K2O2': Structure Summary
 Lattice
     abc : 4.862375062662279 4.862375062662278 6.361
  angles : 90.0 90.0 91.89149308502675
@@ -345,19 +353,19 @@ PeriodicSite: Sr2+ (1.9525, 1.9525, 1.9525) [0.5000, 0.5000, 0.5000]
 PeriodicSite: Ti4+ (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
 PeriodicSite: O2- (0.0000, 0.0000, 1.9525) [0.0000, 0.0000, 0.5000]
 PeriodicSite: O2- (-0.0000, 1.9525, 0.0000) [0.0000, 0.5000, 0.0000]
-PeriodicSite: O2- (1.9525, 0.0000, 0.0000) [0.5000, 0.0000, 0.0000], 'TiO2': &lt;pymatgen.alchemy.materials.TransformedStructure object at 0x11da4d748&gt;, 'VO2': &lt;pymatgen.alchemy.materials.TransformedStructure object at 0x11da4da20&gt;}</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES" title="Permalink to this definition">¶</a></dt>
+PeriodicSite: O2- (1.9525, 0.0000, 0.0000) [0.5000, 0.0000, 0.0000], 'TiO2': &lt;pymatgen.alchemy.materials.TransformedStructure object at 0x1c18b232e8&gt;, 'VO2': &lt;pymatgen.alchemy.materials.TransformedStructure object at 0x1c18b33198&gt;}</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.TEST_STRUCTURES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.util.testing.PymatgenTest.assertArrayAlmostEqual">
-<em class="property">static </em><code class="descname">assertArrayAlmostEqual</code><span class="sig-paren">(</span><em>desired</em>, <em>decimal=7</em>, <em>err_msg=''</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/testing.html#PymatgenTest.assertArrayAlmostEqual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assertArrayAlmostEqual" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">assertArrayAlmostEqual</code><span class="sig-paren">(</span><em>actual</em>, <em>desired</em>, <em>decimal=7</em>, <em>err_msg=''</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/testing.html#PymatgenTest.assertArrayAlmostEqual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assertArrayAlmostEqual" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if two arrays are almost equal to a tolerance. The CamelCase
 naming is so that it is consistent with standard unittest methods.</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.util.testing.PymatgenTest.assertArrayEqual">
-<em class="property">static </em><code class="descname">assertArrayEqual</code><span class="sig-paren">(</span><em>desired</em>, <em>err_msg=''</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/testing.html#PymatgenTest.assertArrayEqual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assertArrayEqual" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">assertArrayEqual</code><span class="sig-paren">(</span><em>actual</em>, <em>desired</em>, <em>err_msg=''</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/testing.html#PymatgenTest.assertArrayEqual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.assertArrayEqual" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Tests if two arrays are equal. The CamelCase naming is so that it is</dt>
 <dd>consistent with standard unittest methods.</dd>
@@ -375,7 +383,7 @@ This check can be deactivated by setting test_if_subclass to False.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.util.testing.PymatgenTest.fn">
-<code class="descname">fn</code><em class="property"> = 'VO2.json'</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.fn" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fn</code><em class="property"> = 'SrTiO3.json'</em><a class="headerlink" href="#pymatgen.util.testing.PymatgenTest.fn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -464,13 +472,13 @@ file.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
