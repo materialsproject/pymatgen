@@ -120,7 +120,6 @@ class ElasticTensorTest(PymatgenTest):
         # trans_velocity
         self.assertAlmostEqual(1996.35019877,
                                self.elastic_tensor_1.trans_v(self.structure))
-
         # long_velocity
         self.assertAlmostEqual(3534.68123832,
                                self.elastic_tensor_1.long_v(self.structure))
@@ -153,6 +152,23 @@ class ElasticTensorTest(PymatgenTest):
                     self.assertAlmostEqual(getattr(self.elastic_tensor_1, k)(self.structure), v)
                 else:
                     self.assertAlmostEqual(getattr(self.elastic_tensor_1, k), v)
+
+        # Test other sprop dict modes
+        sprop_dict = self.elastic_tensor_1.get_structure_property_dict(
+            self.structure, include_base_props=False)
+        self.assertFalse("k_vrh" in sprop_dict)
+
+        # Test ValueError being raised for structure properties
+        test_et = deepcopy(self.elastic_tensor_1)
+        test_et[0][0][0][0] = -100000
+        prop_dict = test_et.property_dict
+        for attr_name in sprop_dict:
+            if not attr_name in (list(prop_dict.keys()) + ['structure']):
+                self.assertRaises(ValueError, getattr(test_et, attr_name),
+                                  self.structure)
+        self.assertRaises(ValueError, test_et.get_structure_property_dict, self.structure)
+        noval_sprop_dict = test_et.get_structure_property_dict(self.structure, ignore_errors=True)
+        self.assertIsNone(noval_sprop_dict['snyder_ac'])
 
     def test_new(self):
         self.assertArrayAlmostEqual(self.elastic_tensor_1,
