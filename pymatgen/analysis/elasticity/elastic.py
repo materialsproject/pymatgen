@@ -417,15 +417,27 @@ class ElasticTensor(NthOrderElasticTensor):
                  "universal_anisotropy", "homogeneous_poisson", "y_mod"]
         return {prop: getattr(self, prop) for prop in props}
 
-    def get_structure_property_dict(self, structure, include_base_props=True):
+    def get_structure_property_dict(self, structure, include_base_props=True,
+                                    ignore_errors=False):
         """
         returns a dictionary of properties derived from the elastic tensor
         and an associated structure
+
+        Args:
+            structure (Structure): structure object for which to calculate
+                associated properties
+            include_base_props (bool): whether to include base properties,
+                like k_vrh, etc.
+            ignore_errors (bool): if set to true, will set problem properties
+                that depend on a physical tensor to None, defaults to False
         """
         s_props = ["trans_v", "long_v", "snyder_ac", "snyder_opt",
                    "snyder_total", "clarke_thermalcond", "cahill_thermalcond",
                    "debye_temperature"]
-        sp_dict = {prop: getattr(self, prop)(structure) for prop in s_props}
+        if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
+            sp_dict = {prop: None for prop in s_props}
+        else:
+            sp_dict = {prop: getattr(self, prop)(structure) for prop in s_props}
         sp_dict["structure"] = structure
         if include_base_props:
             sp_dict.update(self.property_dict)
