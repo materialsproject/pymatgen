@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.ext.matproj &#8212; pymatgen 2018.4.20 documentation</title>
+    <title>pymatgen.ext.matproj &#8212; pymatgen 2018.5.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -596,7 +596,7 @@
 <span class="sd">        Get a BandStructure corresponding to a material_id.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            material_id (str): Materials Project material_id (an int).</span>
+<span class="sd">            material_id (str): Materials Project material_id.</span>
 <span class="sd">            line_mode (bool): If True, fetch a BandStructureSymmLine object</span>
 <span class="sd">                (default). If False, return the uniform band structure.</span>
 
@@ -606,6 +606,43 @@
         <span class="n">prop</span> <span class="o">=</span> <span class="s2">&quot;bandstructure&quot;</span> <span class="k">if</span> <span class="n">line_mode</span> <span class="k">else</span> <span class="s2">&quot;bandstructure_uniform&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">material_id</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="n">prop</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MPRester.get_phonon_dos_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_phonon_dos_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_phonon_dos_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get phonon density of states data corresponding to a material_id.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            material_id (str): Materials Project material_id.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ﻿CompletePhononDos: A phonon DOS object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/materials/</span><span class="si">{}</span><span class="s2">/phonondos&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">material_id</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MPRester.get_phonon_bandstructure_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_phonon_bandstructure_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_phonon_bandstructure_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get phonon dispersion data corresponding to a material_id.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            material_id (str): Materials Project material_id.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PhononBandStructureSymmLine: A phonon band structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/materials/</span><span class="si">{}</span><span class="s2">/phononbs&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">material_id</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MPRester.get_phonon_ddb_by_material_id"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_phonon_ddb_by_material_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_phonon_ddb_by_material_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get ABINIT Derivative Data Base (DDB) output for phonon calculations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            material_id (str): Materials Project material_id.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: ABINIT DDB file as a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_request</span><span class="p">(</span><span class="s2">&quot;/materials/</span><span class="si">{}</span><span class="s2">/abinit_ddb&quot;</span>
+                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">material_id</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="MPRester.get_entries_in_chemsys"><a class="viewcode-back" href="../../../pymatgen.ext.matproj.html#pymatgen.ext.matproj.MPRester.get_entries_in_chemsys">[docs]</a>    <span class="k">def</span> <span class="nf">get_entries_in_chemsys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">compatible_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                <span class="n">inc_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">property_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1239,7 +1276,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1247,7 +1284,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

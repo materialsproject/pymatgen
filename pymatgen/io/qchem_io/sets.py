@@ -19,9 +19,9 @@ class QChemDictSet(QCInput):
     """
     Build a QCInput given all the various input parameters. Can be extended by standard implementations below.
     """
-    def __init__(self, molecule, job_type, basis_set, scf_algorithm, dft_rung=4, pcm_solvent=None,
-                 max_scf_cycles=200, geom_opt_max_cycles=200):
 
+    def __init__(self, molecule, job_type, basis_set, scf_algorithm, dft_rung=4, pcm_dielectric=None,
+                 max_scf_cycles=200, geom_opt_max_cycles=200):
         """
         Args:
             molecule (Pymatgen molecule object)
@@ -29,7 +29,7 @@ class QChemDictSet(QCInput):
             basis_set (str)
             scf_algorithm (str)
             dft_rung (int)
-            pcm_solvent (str)
+            pcm_dielectric (str)
             max_scf_cycles (int)
             geom_opt_max_cycles (int)
         """
@@ -38,10 +38,15 @@ class QChemDictSet(QCInput):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.dft_rung = dft_rung
-        self.pcm_solvent = pcm_solvent
+        self.pcm_dielectric = pcm_dielectric
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
 
+        pcm_defaults = {"heavypoints": "194", "hpoints": "194",
+                        "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
+
+        mypcm = {}
+        mysolvent = {}
         myrem = {}
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
@@ -59,15 +64,18 @@ class QChemDictSet(QCInput):
         elif self.dft_rung == 5:
             myrem["method"] = "wB97M-V"
         else:
-            print("dft_rung should be between 1 and 5!")
+            raise ValueError("dft_rung should be between 1 and 5!")
 
         if self.job_type.lower() == "opt":
             myrem["geom_opt_max_cycles"] = self.geom_opt_max_cycles
 
-        if self.pcm_solvent != None:
-            print("Need pcm input implementation!")
+        if self.pcm_dielectric != None:
+            mypcm = pcm_defaults
+            mysolvent["dielectric"] = self.pcm_dielectric
+            myrem["solvent_method"] = 'pcm'
 
-        super(QChemDictSet, self).__init__(self.molecule, myrem)
+        super(QChemDictSet, self).__init__(self.molecule,
+                                           rem=myrem, pcm=mypcm, solvent=mysolvent)
 
 
 class OptSet(QChemDictSet):
@@ -75,13 +83,13 @@ class OptSet(QChemDictSet):
     QChemDictSet for a geometry optimization
     """
 
-    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*", pcm_solvent=None,
+    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*", pcm_dielectric=None,
                  scf_algorithm="diis", max_scf_cycles=200, geom_opt_max_cycles=200):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
-        super(OptSet, self).__init__(molecule=molecule, job_type="opt", dft_rung=dft_rung, pcm_solvent=pcm_solvent,
+        super(OptSet, self).__init__(molecule=molecule, job_type="opt", dft_rung=dft_rung, pcm_dielectric=pcm_dielectric,
                                      basis_set=self.basis_set, scf_algorithm=self.scf_algorithm,
                                      max_scf_cycles=self.max_scf_cycles, geom_opt_max_cycles=self.geom_opt_max_cycles)
 
@@ -91,13 +99,13 @@ class SinglePointSet(QChemDictSet):
     QChemDictSet for a single point calculation
     """
 
-    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*",  pcm_solvent=None, scf_algorithm="diis",
+    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*",  pcm_dielectric=None, scf_algorithm="diis",
                  max_scf_cycles=200):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
         super(SinglePointSet, self).__init__(molecule=molecule, job_type="sp", dft_rung=dft_rung,
-                                             pcm_solvent=pcm_solvent, basis_set=self.basis_set,
+                                             pcm_dielectric=pcm_dielectric, basis_set=self.basis_set,
                                              scf_algorithm=self.scf_algorithm, max_scf_cycles=self.max_scf_cycles)
 
 
@@ -106,14 +114,11 @@ class FreqSet(QChemDictSet):
     QChemDictSet for a single point calculation
     """
 
-    defaults = {"basis": "6-311++G*", "scf_algorithm": "diis", "max_scf_cycles": 200}
-
-    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*", pcm_solvent=None, scf_algorithm="diis",
+    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*", pcm_dielectric=None, scf_algorithm="diis",
                  max_scf_cycles=200):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
         super(FreqSet, self).__init__(molecule=molecule, job_type="freq", dft_rung=dft_rung,
-                                      pcm_solvent=pcm_solvent, basis_set=self.basis_set,
+                                      pcm_dielectric=pcm_dielectric, basis_set=self.basis_set,
                                       scf_algorithm=self.scf_algorithm, max_scf_cycles=self.max_scf_cycles)
-

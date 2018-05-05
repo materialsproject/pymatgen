@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.qchem_io.sets &#8212; pymatgen 2018.4.20 documentation</title>
+    <title>pymatgen.io.qchem_io.sets &#8212; pymatgen 2018.5.3 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.5.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -56,108 +56,120 @@
 
 <span class="c1"># Classes for reading/manipulating/writing QChem ouput files.</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Samuel Blau, Brandon Woods, Shyam Dwaraknath&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Samuel Blau, Brandon Wood, Shyam Dwaraknath&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="QChemDictSet"><a class="viewcode-back" href="../../../../pymatgen.io.qchem_io.sets.html#pymatgen.io.qchem_io.sets.QChemDictSet">[docs]</a><span class="k">class</span> <span class="nc">QChemDictSet</span><span class="p">(</span><span class="n">QCInput</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build a QCInput given all the various input parameters. Can be extended by standard implementations below.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">SCF_algorithm</span><span class="p">,</span> <span class="n">DFT_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">PCM_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="p">,</span> <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            molecule (Pymatgen molecule)</span>
+<span class="sd">            molecule (Pymatgen molecule object)</span>
 <span class="sd">            job_type (str)</span>
 <span class="sd">            basis_set (str)</span>
-<span class="sd">            SCF_algorithm (str)</span>
-<span class="sd">            DFT_rung (int)</span>
-<span class="sd">            PCM_solvent (str)</span>
+<span class="sd">            scf_algorithm (str)</span>
+<span class="sd">            dft_rung (int)</span>
+<span class="sd">            pcm_dielectric (str)</span>
 <span class="sd">            max_scf_cycles (int)</span>
 <span class="sd">            geom_opt_max_cycles (int)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;molecule must be a Pymatgen Molecule object!&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">job_type</span> <span class="o">=</span> <span class="n">job_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">SCF_algorithm</span> <span class="o">=</span> <span class="n">SCF_algorithm</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">DFT_rung</span> <span class="o">=</span> <span class="n">DFT_rung</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">PCM_solvent</span> <span class="o">=</span> <span class="n">PCM_solvent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">=</span> <span class="n">dft_rung</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pcm_dielectric</span> <span class="o">=</span> <span class="n">pcm_dielectric</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">geom_opt_max_cycles</span> <span class="o">=</span> <span class="n">geom_opt_max_cycles</span>
 
+        <span class="n">pcm_defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;heavypoints&quot;</span><span class="p">:</span> <span class="s2">&quot;194&quot;</span><span class="p">,</span> <span class="s2">&quot;hpoints&quot;</span><span class="p">:</span> <span class="s2">&quot;194&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;radii&quot;</span><span class="p">:</span> <span class="s2">&quot;uff&quot;</span><span class="p">,</span> <span class="s2">&quot;theory&quot;</span><span class="p">:</span> <span class="s2">&quot;cpcm&quot;</span><span class="p">,</span> <span class="s2">&quot;vdwscale&quot;</span><span class="p">:</span> <span class="s2">&quot;1.1&quot;</span><span class="p">}</span>
+
+        <span class="n">mypcm</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mysolvent</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">myrem</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;job_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">job_type</span>
         <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;basis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span>
         <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DFT_rung</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;exchange&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">DFT_rung</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;B97-D3&quot;</span>
-            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;DFT_D&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;D3_BJ&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">DFT_rung</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;dft_D&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;D3_BJ&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;B97M-rV&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">DFT_rung</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wB97X-V&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">DFT_rung</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft_rung</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wB97M-V&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DFT_rung should be between 1 and 5!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dft_rung should be between 1 and 5!&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;opt&quot;</span><span class="p">:</span>
             <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;geom_opt_max_cycles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom_opt_max_cycles</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">PCM_solvent</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Need PCM input implementation!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcm_dielectric</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mypcm</span> <span class="o">=</span> <span class="n">pcm_defaults</span>
+            <span class="n">mysolvent</span><span class="p">[</span><span class="s2">&quot;dielectric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcm_dielectric</span>
+            <span class="n">myrem</span><span class="p">[</span><span class="s2">&quot;solvent_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;pcm&#39;</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">QChemDictSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span> <span class="n">myrem</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">QChemDictSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span>
+                                           <span class="n">rem</span><span class="o">=</span><span class="n">myrem</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="n">mypcm</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">mysolvent</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="OptSet"><a class="viewcode-back" href="../../../../pymatgen.io.qchem_io.sets.html#pymatgen.io.qchem_io.sets.OptSet">[docs]</a><span class="k">class</span> <span class="nc">OptSet</span><span class="p">(</span><span class="n">QChemDictSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    QChemDictSet for a geometry optimization</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basis&quot;</span><span class="p">:</span> <span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;diis&quot;</span><span class="p">,</span> <span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;geom_opt_max_cycles&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">}</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span> <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span> <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geom_opt_max_cycles</span> <span class="o">=</span> <span class="n">geom_opt_max_cycles</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OptSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">molecule</span><span class="o">=</span><span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;opt&quot;</span><span class="p">,</span> <span class="n">dft_rung</span><span class="o">=</span><span class="n">dft_rung</span><span class="p">,</span> <span class="n">pcm_dielectric</span><span class="o">=</span><span class="n">pcm_dielectric</span><span class="p">,</span>
+                                     <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span><span class="p">,</span>
+                                     <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">,</span> <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geom_opt_max_cycles</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">DFT_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">PCM_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">SCF_algorithm</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SCF_algorithm&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geom_opt_max_cycles</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;geom_opt_max_cycles&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">OptSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">molecule</span><span class="o">=</span><span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;opt&quot;</span><span class="p">,</span> <span class="n">DFT_rung</span><span class="o">=</span><span class="n">DFT_rung</span><span class="p">,</span> <span class="n">PCM_solvent</span><span class="o">=</span><span class="n">PCM_solvent</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">SCF_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SCF_algorithm</span><span class="p">,</span> <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">,</span> <span class="n">geom_opt_max_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geom_opt_max_cycles</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SinglePointSet"><a class="viewcode-back" href="../../../../pymatgen.io.qchem_io.sets.html#pymatgen.io.qchem_io.sets.SinglePointSet">[docs]</a><span class="k">class</span> <span class="nc">SinglePointSet</span><span class="p">(</span><span class="n">QChemDictSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    QChemDictSet for a single point calculation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basis&quot;</span><span class="p">:</span> <span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;diis&quot;</span><span class="p">,</span> <span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">}</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span>  <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
+                 <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SinglePointSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">molecule</span><span class="o">=</span><span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;sp&quot;</span><span class="p">,</span> <span class="n">dft_rung</span><span class="o">=</span><span class="n">dft_rung</span><span class="p">,</span>
+                                             <span class="n">pcm_dielectric</span><span class="o">=</span><span class="n">pcm_dielectric</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
+                                             <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span><span class="p">,</span> <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">DFT_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">PCM_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">SCF_algorithm</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SCF_algorithm&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SinglePointSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">molecule</span><span class="o">=</span><span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;sp&quot;</span><span class="p">,</span> <span class="n">DFT_rung</span><span class="o">=</span><span class="n">DFT_rung</span><span class="p">,</span> <span class="n">PCM_solvent</span><span class="o">=</span><span class="n">PCM_solvent</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">SCF_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SCF_algorithm</span><span class="p">,</span> <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FreqSet"><a class="viewcode-back" href="../../../../pymatgen.io.qchem_io.sets.html#pymatgen.io.qchem_io.sets.FreqSet">[docs]</a><span class="k">class</span> <span class="nc">FreqSet</span><span class="p">(</span><span class="n">QChemDictSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    QChemDictSet for a single point calculation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;basis&quot;</span><span class="p">:</span> <span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span> <span class="s2">&quot;SCF_algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;diis&quot;</span><span class="p">,</span> <span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">DFT_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">PCM_solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">SCF_algorithm</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SCF_algorithm&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_scf_cycles&quot;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">FreqSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">molecule</span><span class="o">=</span><span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="n">DFT_rung</span><span class="o">=</span><span class="n">DFT_rung</span><span class="p">,</span> <span class="n">PCM_solvent</span><span class="o">=</span><span class="n">PCM_solvent</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">SCF_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SCF_algorithm</span><span class="p">,</span> <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">)</span></div>
-
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">dft_rung</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s2">&quot;6-311++G*&quot;</span><span class="p">,</span> <span class="n">pcm_dielectric</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="s2">&quot;diis&quot;</span><span class="p">,</span>
+                 <span class="n">max_scf_cycles</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span> <span class="o">=</span> <span class="n">max_scf_cycles</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FreqSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">molecule</span><span class="o">=</span><span class="n">molecule</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="n">dft_rung</span><span class="o">=</span><span class="n">dft_rung</span><span class="p">,</span>
+                                      <span class="n">pcm_dielectric</span><span class="o">=</span><span class="n">pcm_dielectric</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
+                                      <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_algorithm</span><span class="p">,</span> <span class="n">max_scf_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_scf_cycles</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -190,7 +202,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.4.20 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.5.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -198,7 +210,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
