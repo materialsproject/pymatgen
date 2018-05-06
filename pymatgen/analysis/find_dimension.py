@@ -19,9 +19,9 @@ import copy
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.local_env import JMolNN
+from pymatgen.core.periodic_table import Specie
 
-
-def find_connected_atoms(struct, tolerance=0.45, ldict=JMolNN().el_radius, standardize=True):
+def find_connected_atoms(struct, tolerance=0.45, ldict=JMolNN().el_radius):
 	"""
 	Finds the list of bonded atoms.
 
@@ -37,11 +37,13 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JMolNN().el_radius, stand
 		If any image of atomj is bonded to atomi with periodic boundary conditions, [atomi, atomj] is included in the list.
 		If atomi is bonded to multiple images of atomj, it is only counted once.
 	"""
-	if standardize:
-		struct = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
 	n_atoms = len(struct.species)
 	fc = np.array(struct.frac_coords)
 	species = list(map(str, struct.species))
+	#in case of charged species
+	for i,item in enumerate(species):
+		if not item in ldict.keys():
+			species[i]=str(Specie.from_string(item).element)
 	latmat = struct.lattice.matrix
 	connected_list = []
 
@@ -112,7 +114,7 @@ def find_clusters(struct, connected_list):
 	return [max_cluster, min_cluster, clusters]
 
 
-def find_dimension(structure, tolerance=0.45, ldict=JMolNN().el_radius, standardize=True):
+def find_dimension(structure_raw, tolerance=0.45, ldict=JMolNN().el_radius, standardize=True):
 	"""
 	Algorithm for finding the dimensions of connected subunits in a crystal structure.
 	This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.
@@ -127,16 +129,14 @@ def find_dimension(structure, tolerance=0.45, ldict=JMolNN().el_radius, standard
 	Returns:
 		dim: dimension of the largest cluster as a string. If there are ions or molecules it returns 'intercalated ion/molecule'
 	"""
-	structure_raw = copy.copy(structure)
 	if standardize:
-		structure_conv = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
-	else:
-		structure_conv = copy.copy(structure_raw)
-	connected_list1 = find_connected_atoms(structure_conv, tolerance=tolerance, ldict=ldict, standardize=standardize)
-	max1, min1, clusters1 = find_clusters(structure_conv, connected_list1)
-	structure_conv.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
-	connected_list2 = find_connected_atoms(structure_conv, tolerance=tolerance, ldict=ldict, standardize=standardize)
-	max2, min2, clusters2 = find_clusters(structure_conv, connected_list2)
+		structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
+	structure_save = copy.copy(structure_raw)
+	connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
+	max1, min1, clusters1 = find_clusters(structure, connected_list1)
+	structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
+	connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
+	max2, min2, clusters2 = find_clusters(structure, connected_list2)
 	if min2 == 1:
 		dim = 'intercalated ion'
 	elif min2 == min1:
@@ -149,13 +149,10 @@ def find_dimension(structure, tolerance=0.45, ldict=JMolNN().el_radius, standard
 		if dim == int(dim):
 			dim = str(int(dim)) + 'D'
 		else:
-			if standardize:
-				structure_conv = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
-			else:
-				structure_conv = copy.copy(structure_raw)
-			structure_conv.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
-			connected_list3 = find_connected_atoms(structure_conv, tolerance=tolerance, ldict=ldict, standardize=standardize)
-			max3, min3, clusters3 = find_clusters(structure_conv, connected_list3)
+			structure=copy.copy(structure_save)
+			structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
+			connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
+			max3, min3, clusters3 = find_clusters(structure, connected_list3)
 			if min3 == min2:
 				if max3 == max2:
 					dim = '0D'
