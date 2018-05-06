@@ -112,7 +112,7 @@ def find_clusters(struct, connected_list):
 	return [max_cluster, min_cluster, clusters]
 
 
-def find_dimensionality(structure, tolerance=0.45, ldict=JMolNN().el_radius, standardize=True):
+def find_dimension(structure, tolerance=0.45, ldict=JMolNN().el_radius, standardize=True):
 	"""
 	Algorithm for finding the dimensions of connected subunits in a crystal structure.
 	This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.
