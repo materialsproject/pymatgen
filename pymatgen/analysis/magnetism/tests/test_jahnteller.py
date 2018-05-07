@@ -123,7 +123,7 @@ class JahnTellerTest(unittest.TestCase):
         self.assertDictEqual(LiFePO4_analysis, self.jt.get_analysis(LiFePO4))
         
     def test_mu_so(self):
-        SpeciesCo=Specie(symbol='Co', oxidation_state=4, properties=None)
+        SpeciesCo=Specie(symbol='Co', oxidation_state=4)
         self.assertAlmostEqual(np.sqrt(3),JahnTellerAnalyzer.mu_so(SpeciesCo,'oct','low'))
         self.assertAlmostEqual(np.sqrt(35),JahnTellerAnalyzer.mu_so(SpeciesCo,'oct','high'))
    
