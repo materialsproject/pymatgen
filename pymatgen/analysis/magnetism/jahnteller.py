@@ -127,7 +127,7 @@ class JahnTellerAnalyzer:
                     motif_order_parameter = None
 
                 if motif == "oct" or motif == "tet":
-
+                    
                     # guess spin of metal ion
                     if guesstimate_spin and 'magmom' in site.properties:
                         # estimate if high spin or low spin
@@ -202,7 +202,7 @@ class JahnTellerAnalyzer:
                      guesstimate_spin=False):
         return self.get_analysis_and_structure(structure,
                                                calculate_valences=True,
-                                               guesstimate_spin=False)[0]
+                                               guesstimate_spin=guesstimate_spin)[0]
 
     def is_jahn_teller_active(self, structure, calculate_valences=True):
 
@@ -357,5 +357,5 @@ class JahnTellerAnalyzer:
             n = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
             # calculation spin-only magnetic moment for this number of unpaired spins
             return np.sqrt(n*(n+2))
-        except:
+        except AttributeError:
             return None
