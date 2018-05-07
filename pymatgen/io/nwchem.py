@@ -288,7 +288,6 @@ $theory_spec
         Args:
             mol: Input molecule
             xc: Exchange correlation to use.
-            dielectric: Using water dielectric
             \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
@@ -674,21 +673,22 @@ class NwOutput(object):
         return len(self.data)
 
     def _parse_job(self, output):
-        energy_patt = re.compile(r'Total \w+ energy\s+=\s+([\.\-\d]+)')
-        energy_gas_patt = re.compile(r'gas phase energy\s+=\s+([\.\-\d]+)')
-        energy_sol_patt = re.compile(r'sol phase energy\s+=\s+([\.\-\d]+)')
-        coord_patt = re.compile(r'\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+'
-                                r'([\.\-\d]+)\s+([\.\-\d]+)')
-        lat_vector_patt = re.compile(r'a[123]=<\s+([\.\-\d]+)\s+'
-                                     r'([\.\-\d]+)\s+([\.\-\d]+)\s+>')
+        energy_patt = re.compile(r'Total \w+ energy\s+=\s+([.\-\d]+)')
+        energy_gas_patt = re.compile(r'gas phase energy\s+=\s+([.\-\d]+)')
+        energy_sol_patt = re.compile(r'sol phase energy\s+=\s+([.\-\d]+)')
+        coord_patt = re.compile(r'\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+'
+                                r'([.\-\d]+)\s+([.\-\d]+)')
+        lat_vector_patt = re.compile(r'a[123]=<\s+([.\-\d]+)\s+'
+                                     r'([.\-\d]+)\s+([.\-\d]+)\s+>')
         corrections_patt = re.compile(r'([\w\-]+ correction to \w+)\s+='
-                                      r'\s+([\.\-\d]+)')
+                                      r'\s+([.\-\d]+)')
         preamble_patt = re.compile(r'(No. of atoms|No. of electrons'
                                    r'|SCF calculation type|Charge|Spin '
                                    r'multiplicity)\s*:\s*(\S+)')
         force_patt = re.compile(r'\s+(\d+)\s+(\w+)' + 6 * r'\s+([0-9\.\-]+)')
 
-        time_patt = re.compile(r'\s+ Task \s+ times \s+ cpu: \s+   ([\.\d]+)s .+ ', re.VERBOSE)
+        time_patt = re.compile(
+            r'\s+ Task \s+ times \s+ cpu: \s+   ([.\d]+)s .+ ', re.VERBOSE)
 
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
@@ -696,8 +696,8 @@ class NwOutput(object):
             "geom_binvr: #indep variables incorrect": "autoz error",
             "dft optimize failed": "Geometry optimization failed"}
 
-        fort2py = lambda x : x.replace("D", "e")
-        isfloatstring = lambda s : s.find(".") == -1
+        fort2py = lambda x: x.replace("D", "e")
+        isfloatstring = lambda s: s.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False
@@ -833,7 +833,7 @@ class NwOutput(object):
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
-                    except Exception as e:
+                    except Exception:
                         continue
                     if isfloatstring(toks[1]):
                         continue
