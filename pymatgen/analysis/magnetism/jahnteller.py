@@ -356,6 +356,6 @@ class JahnTellerAnalyzer:
             sp = get_el_sp(species)
             n = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
             # calculation spin-only magnetic moment for this number of unpaired spins
-            return np.sqrt(n(n+2))
+            return np.sqrt(n*(n+2))
         except:
             return None
