@@ -68,6 +68,20 @@ class QCOutput(MSONable):
             },
             terminate_on_match=True).get('key')
 
+        # If the calculation finished, parse the job time.
+        if self.data.get('completion', []):
+            temp_timings = read_pattern(
+                self.text, {
+                    "key":
+                    r"Total job time\:\s*([\d\-\.]+)s\(wall\)\,\s*([\d\-\.]+)s\(cpu\)"
+                }).get('key')
+            if temp_timings != None:
+                self.data["walltime"] = float(temp_timings[0][0])
+                self.data["cputime"] = float(temp_timings[0][1])
+            else:
+                self.data["walltime"] = 'nan'
+                self.data["cputime"] = 'nan'
+
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
             self.text, {

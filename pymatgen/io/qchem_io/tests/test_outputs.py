@@ -44,7 +44,9 @@ property_list = {"errors",
                  "molecule_from_optimized_geometry",
                  "last_geometry",
                  "molecule_from_last_geometry",
-                 "frequency_mode_vectors"}
+                 "frequency_mode_vectors",
+                 "walltime",
+                 "cputime"}
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",
@@ -111,7 +113,6 @@ class TestQCOutput(PymatgenTest):
         """
         single_job_dict = {}
         for file in single_job_out_names:
-            print(file)
             single_job_dict[file] = QCOutput(os.path.join(test_dir, file)).data
         dumpfn(single_job_dict, "single_job.json")
 
