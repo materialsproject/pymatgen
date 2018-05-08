@@ -2588,14 +2588,16 @@ class CrystalNN(NearNeighbors):
 
         # get base VoronoiNN targets
         cutoff = self.search_cutoff
-        while cutoff <= self.search_cutoff or cutoff <= \
-                max(structure.lattice.lengths_and_angles[0]):
+        max_cutoff = np.linalg.norm(structure.lattice.lengths_and_angles[0])
+        while True:
             try:
                 vnn = VoronoiNN(weight="solid_angle", targets=target,
                                 cutoff=cutoff)
                 nn = vnn.get_nn_info(structure, n)
                 break
             except RuntimeError:
+                if cutoff > max_cutoff:
+                    raise RuntimeError("CrystalNN error in Voronoi finding.")
                 cutoff = cutoff * 2
 
         # adjust solid angle weights based on distance
