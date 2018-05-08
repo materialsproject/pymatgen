@@ -126,7 +126,8 @@ class JahnTellerTest(unittest.TestCase):
         SpeciesCo=Specie(symbol='Co', oxidation_state=4)
         self.assertAlmostEqual(np.sqrt(3),JahnTellerAnalyzer.mu_so(SpeciesCo,'oct','low'))
         self.assertAlmostEqual(np.sqrt(35),JahnTellerAnalyzer.mu_so(SpeciesCo,'oct','high'))
-   
+        SpeciesNa=Specie(symbol='Na',oxidation_state=1)
+        self.assertEqual(None,JahnTellerAnalyzer.mu_so(SpeciesNa,'oct','high')) 
     
 
 if __name__ == '__main__':
