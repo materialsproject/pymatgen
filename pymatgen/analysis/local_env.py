@@ -2587,14 +2587,16 @@ class CrystalNN(NearNeighbors):
                     "No valid targets for site within cation_anion constraint!")
 
         # get base VoronoiNN targets
-        try:
-            vnn = VoronoiNN(weight="solid_angle", targets=target,
-                            cutoff=self.search_cutoff)
-            nn = vnn.get_nn_info(structure, n)
-        except RuntimeError:
-            vnn = VoronoiNN(weight="solid_angle", targets=target,
-                            cutoff=max(structure.lattice.lengths_and_angles[0]))
-            nn = vnn.get_nn_info(structure, n)
+        cutoff = self.search_cutoff
+        while cutoff <= self.search_cutoff or cutoff <= \
+                max(structure.lattice.lengths_and_angles[0]):
+            try:
+                vnn = VoronoiNN(weight="solid_angle", targets=target,
+                                cutoff=cutoff)
+                nn = vnn.get_nn_info(structure, n)
+                break
+            except RuntimeError:
+                cutoff = cutoff * 2
 
         # adjust solid angle weights based on distance
         if self.distance_cutoffs:
@@ -2632,7 +2634,9 @@ class CrystalNN(NearNeighbors):
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
         if nn[0]["weight"] == 0:
-            raise RuntimeError("no neighbors with nonzero weight (increase search cutoff and/or distance cutoff)")
+            raise RuntimeError("no neighbors with nonzero weight "
+                               "(increase distance cutoff and/or "
+                               "search cutoff)")
 
         # renormalize & round weights, remove unneeded data
         highest_weight = nn[0]["weight"]
