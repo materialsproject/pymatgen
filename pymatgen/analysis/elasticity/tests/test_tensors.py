@@ -239,6 +239,38 @@ class TensorTest(PymatgenTest):
             self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
                                         err_msg=err_msg, decimal=3)
 
+    def test_structure_transform(self):
+        # Test trivial case
+        trivial = self.fit_r4.structure_transform(self.structure,
+                                                  self.structure.copy())
+        self.assertArrayAlmostEqual(trivial, self.fit_r4)
+
+        # Test simple rotation
+        rot_symm_op = SymmOp.from_axis_angle_and_translation([1, 1, 1], 55.5)
+        rot_struct = self.structure.copy()
+        rot_struct.apply_operation(rot_symm_op)
+        rot_tensor = self.fit_r4.rotate(rot_symm_op.rotation_matrix)
+        trans_tensor = self.fit_r4.structure_transform(self.structure, rot_struct)
+        self.assertArrayAlmostEqual(rot_tensor, trans_tensor)
+
+        # Test supercell
+        bigcell = self.structure.copy()
+        bigcell.make_supercell([2, 2, 3])
+        trans_tensor = self.fit_r4.structure_transform(self.structure, bigcell)
+        self.assertArrayAlmostEqual(self.fit_r4, trans_tensor)
+
+        # Test primitive to conventional for fcc structure
+        rot_mat = SymmOp.from_axis_angle_and_translation(
+            [0, 0, 1], 45).rotation_matrix
+        rot_mat = np.dot(SymmOp.from_axis_angle_and_translation(
+            [0, 1, 0], -45).rotation_matrix, rot_mat)
+        ni_conv = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5), ["Ni"],
+                                            [[0, 0, 0]])
+        ni_prim = SpacegroupAnalyzer(ni_conv).get_primitive_standard_structure()
+        rotated = self.fit_r4.rotate(rot_mat)
+        transformed = self.fit_r4.structure_transform(ni_conv, ni_prim)
+        self.assertArrayAlmostEqual(rotated, transformed)
+
     def test_from_voigt(self):
         with self.assertRaises(ValueError):
             Tensor.from_voigt([[59.33, 28.08, 28.08, 0],
