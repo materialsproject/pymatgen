@@ -2492,7 +2492,7 @@ class CrystalNN(NearNeighbors):
                  distance_cutoffs=(1.25, 2.5), x_diff_weight=1.0,
                  search_cutoff=7.0, fingerprint_length=None):
         """
-        Initialize CrystalNN with desired paramters.
+        Initialize CrystalNN with desired parameters.
 
         Args:
             weighted_cn: (bool) if set to True, will return fractional weights
