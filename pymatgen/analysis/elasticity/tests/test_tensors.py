@@ -236,8 +236,13 @@ class TensorTest(PymatgenTest):
             diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
             err_msg = "{} IEEE conversion failed with max diff {}. "\
                       "Numpy version: {}".format(xtal, diff, np.__version__)
-            self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
-                                        err_msg=err_msg, decimal=3)
+            converted = orig.convert_to_ieee(struct, refine_rotation=False)
+            self.assertArrayAlmostEqual(ieee, converted, err_msg=err_msg, decimal=3)
+            converted_refined = orig.convert_to_ieee(struct, refine_rotation=True)
+            err_msg = "{} IEEE conversion with refinement failed with max diff {}. "\
+                      "Numpy version: {}".format(xtal, diff, np.__version__)
+            self.assertArrayAlmostEqual(ieee, converted_refined, err_msg=err_msg,
+                                        decimal=2)
 
     def test_structure_transform(self):
         # Test trivial case
@@ -259,16 +264,12 @@ class TensorTest(PymatgenTest):
         trans_tensor = self.fit_r4.structure_transform(self.structure, bigcell)
         self.assertArrayAlmostEqual(self.fit_r4, trans_tensor)
 
-        # Test primitive to conventional for fcc structure
-        rot_mat = SymmOp.from_axis_angle_and_translation(
-            [0, 0, 1], 45).rotation_matrix
-        rot_mat = np.dot(SymmOp.from_axis_angle_and_translation(
-            [0, 1, 0], -45).rotation_matrix, rot_mat)
-        ni_conv = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.5), ["Ni"],
-                                            [[0, 0, 0]])
-        ni_prim = SpacegroupAnalyzer(ni_conv).get_primitive_standard_structure()
-        rotated = self.fit_r4.rotate(rot_mat)
-        transformed = self.fit_r4.structure_transform(ni_conv, ni_prim)
+        # Test rotated primitive to conventional for fcc structure
+        sn = self.get_structure("Sn")
+        sn_prim = SpacegroupAnalyzer(sn).get_primitive_standard_structure()
+        sn_prim.apply_operation(rot_symm_op)
+        rotated = self.fit_r4.rotate(rot_symm_op.rotation_matrix)
+        transformed = self.fit_r4.structure_transform(sn, sn_prim)
         self.assertArrayAlmostEqual(rotated, transformed)
 
     def test_from_voigt(self):
