@@ -795,6 +795,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
         del self.see_saw_rect
 
 
+@unittest.skip("CrystalNN is under rework / development. -AJ")
 class CrystalNNTest(PymatgenTest):
 
     def setUp(self):

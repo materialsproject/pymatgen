@@ -2489,8 +2489,8 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(1.2, 1.5), x_diff_weight=1.0,
-                 search_cutoff=6.5, fingerprint_length=None):
+                 distance_cutoffs=(1.2, 2.0), x_diff_weight=1.0,
+                 search_cutoff=6, fingerprint_length=None):
         """
         Initialize CrystalNN with desired parameters.
 
@@ -2592,13 +2592,16 @@ class CrystalNN(NearNeighbors):
         while True:
             try:
                 vnn = VoronoiNN(weight="solid_angle", targets=target,
-                                cutoff=cutoff, allow_pathological=True)
+                                cutoff=cutoff)
                 nn = vnn.get_nn_info(structure, n)
                 break
             except RuntimeError:
                 if cutoff > max_cutoff:
                     raise RuntimeError("CrystalNN error in Voronoi finding.")
                 cutoff = cutoff * 2
+
+        for x in nn:
+            x["weight"] = x["weight"] * (x["poly_info"]["solid_angle"] / x["poly_info"]["area"])**(0)
 
         # adjust solid angle weight based on electronegativity difference
         if self.x_diff_weight > 0:
@@ -2635,12 +2638,16 @@ class CrystalNN(NearNeighbors):
                 dist = np.linalg.norm(
                     structure[n].coords - entry["site"].coords)
                 dist_weight = 0
-                cutoff_low = r1 + r2 + ((self.distance_cutoffs[0] - 1) * ((r1 + r2)/math.sqrt(r1 + r2)))
-                cutoff_high = r1 + r2 + ((self.distance_cutoffs[1] - 1) * ((r1 + r2)/math.sqrt(r1 + r2)))
+                # cutoff_low = r1 + r2 + ((self.distance_cutoffs[0] - 1) * ((r1 + r2)/math.sqrt(r1 + r2)))
+                # cutoff_high = r1 + r2 + ((self.distance_cutoffs[1] - 1) * ((r1 + r2)/math.sqrt(r1 + r2)))
+
+                cutoff_low = (r1 + r2) * self.distance_cutoffs[0] + 0.2
+                cutoff_high = (r1 + r2) * self.distance_cutoffs[1] + 0.2
+
                 if dist <= cutoff_low:
                     dist_weight = 1
                 elif dist < cutoff_high:
-                    # dist_weight = 1 - (dist_ratio - cutoff_low) / (cutoff_high - cutoff_low)
+                    # dist_weight = 1 - (dist - cutoff_low) / (cutoff_high - cutoff_low)
                     dist_weight = (math.cos((dist - cutoff_low) / (
                                 cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
 
