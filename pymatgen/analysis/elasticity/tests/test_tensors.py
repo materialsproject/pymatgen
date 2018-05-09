@@ -534,6 +534,15 @@ class SquareTensorTest(PymatgenTest):
         self.assertTrue(self.low_val_2.is_rotation())
         self.assertFalse(self.low_val_2.is_rotation(tol=1e-8))
 
+    def test_refine_rotation(self):
+        self.assertArrayAlmostEqual(self.rotation, self.rotation.refine_rotation())
+        new = np.copy(self.rotation)
+        new[3, 3] += 0.02
+        self.assertFalse(new.is_rotation())
+        self.assertArrayAlmostEqual(self.rotation, new.refine_rotation())
+        new[2, 3] += 0.05
+        self.assertArrayAlmostEqual(self.rotation, new.refine_rotation())
+
     def test_get_scaled(self):
         self.assertArrayEqual(self.non_symm.get_scaled(10.),
                               SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
