@@ -2592,7 +2592,7 @@ class CrystalNN(NearNeighbors):
         while True:
             try:
                 vnn = VoronoiNN(weight="solid_angle", targets=target,
-                                cutoff=cutoff)
+                                cutoff=cutoff, allow_pathological=True)
                 nn = vnn.get_nn_info(structure, n)
                 break
             except RuntimeError:
