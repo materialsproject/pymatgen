@@ -664,6 +664,25 @@ class SquareTensor(Tensor):
         return (np.abs(self.inv - self.trans) < tol).all() \
             and (np.abs(det - 1.) < tol)
 
+    def refine_rotation(self):
+        """
+        Helper method for refining rotation matrix by ensuring
+        that second and third rows are perpindicular to the first.
+        Gets new y vector from an orthogonal projection of x onto y
+        and the new z vector from a cross product of the new x and y
+
+        Args:
+            tol to test for rotation
+
+        Returns:
+            new rotation matrix
+        """
+        new_x, y = get_uvec(self[0]), get_uvec(self[1])
+        # Get a projection on y
+        new_y = y - np.dot(new_x, y) * new_x
+        new_z = np.cross(new_x, new_y)
+        return SquareTensor([new_x, new_y, new_z])
+
     def get_scaled(self, scale_factor):
         """
         Scales the tensor by a certain multiplicative scale factor
