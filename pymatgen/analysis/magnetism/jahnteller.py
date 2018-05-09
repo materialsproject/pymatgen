@@ -33,7 +33,7 @@ class JahnTellerAnalyzer:
 
         self.spin_configs = {
             "oct":
-                {   # key is number of d electrons
+                {  # key is number of d electrons
                     0: {"high": {"e_g": 0, "t_2g": 0}, "default": "high"},
                     1: {"high": {"e_g": 0, "t_2g": 1}, "default": "high"},  # weak J-T
                     2: {"high": {"e_g": 0, "t_2g": 2}, "default": "high"},  # weak
@@ -51,7 +51,7 @@ class JahnTellerAnalyzer:
                     10: {"high": {"e_g": 4, "t_2g": 6}, "default": "high"}
                 },
             "tet":
-                {   # no low spin observed experimentally in tetrahedral, all weak J-T
+                {  # no low spin observed experimentally in tetrahedral, all weak J-T
                     0: {"high": {"e": 0, "t_2": 0}, "default": "high"},
                     1: {"high": {"e": 1, "t_2": 0}, "default": "high"},
                     2: {"high": {"e": 2, "t_2": 0}, "default": "high"},
@@ -130,6 +130,7 @@ class JahnTellerAnalyzer:
 
                     # guess spin of metal ion
                     if guesstimate_spin and 'magmom' in site.properties:
+
                         # estimate if high spin or low spin
                         magmom = site.properties['magmom']
                         spin_state = self._estimate_spin_state(site.specie, motif, magmom)
@@ -157,7 +158,6 @@ class JahnTellerAnalyzer:
 
                         # to be Jahn-Teller active, all ligands have to be the same
                         if len(ligands_species) == 1:
-
                             jt_sites.append({'strength': magnitude,
                                              'motif': motif,
                                              'motif_order_parameter': trim(motif_order_parameter),
@@ -170,7 +170,7 @@ class JahnTellerAnalyzer:
                                                  trim(ligand_bond_length_spread),
                                              'site_indices': indices})
 
-            # store reasons for not being J-T active
+                    # store reasons for not being J-T active
                     else:
                         non_jt_sites.append({'site_indices': indices,
                                              'strength': "none",
@@ -201,8 +201,8 @@ class JahnTellerAnalyzer:
                      calculate_valences=True,
                      guesstimate_spin=False):
         return self.get_analysis_and_structure(structure,
-                                               calculate_valences=True,
-                                               guesstimate_spin=False)[0]
+                                               calculate_valences=calculate_valences,
+                                               guesstimate_spin=guesstimate_spin)[0]
 
     def is_jahn_teller_active(self, structure, calculate_valences=True):
 
@@ -220,7 +220,7 @@ class JahnTellerAnalyzer:
     def tag_structure(self, structure):
         try:
             analysis, structure = self.get_analysis_and_structure(structure)
-            jt_sites = [False]*len(structure)
+            jt_sites = [False] * len(structure)
             if analysis['active']:
                 for site in analysis['sites']:
                     for index in site['site_indices']:
@@ -330,13 +330,13 @@ class JahnTellerAnalyzer:
         elif mu_so_low is None:
             return "high"
         else:
-            diff = mu_so_high-mu_so_low
+            diff = mu_so_high - mu_so_low
             # WARNING! this heuristic has not been robustly tested or benchmarked
             # using 'diff*0.25' as arbitrary measure, if known magmom is
             # too far away from expected value, we don't try to classify it
-            if known_magmom > mu_so_high or abs(mu_so_high-known_magmom) < diff*0.25:
+            if known_magmom > mu_so_high or abs(mu_so_high - known_magmom) < diff * 0.25:
                 return "high"
-            elif known_magmom < mu_so_low or abs(mu_so_low-known_magmom) < diff*0.25:
+            elif known_magmom < mu_so_low or abs(mu_so_low - known_magmom) < diff * 0.25:
                 return "low"
             else:
                 return "unknown"
@@ -356,6 +356,6 @@ class JahnTellerAnalyzer:
             sp = get_el_sp(species)
             n = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
             # calculation spin-only magnetic moment for this number of unpaired spins
-            return np.sqrt(n(n+2))
-        except:
+            return np.sqrt(n * (n + 2))
+        except AttributeError:
             return None
