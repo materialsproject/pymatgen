@@ -2489,8 +2489,8 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(1.25, 2.5), x_diff_weight=1.0,
-                 search_cutoff=7.0, fingerprint_length=None):
+                 distance_cutoffs=(1.2, 1.5), x_diff_weight=1.0,
+                 search_cutoff=6.5, fingerprint_length=None):
         """
         Initialize CrystalNN with desired parameters.
 
@@ -2600,25 +2600,6 @@ class CrystalNN(NearNeighbors):
                     raise RuntimeError("CrystalNN error in Voronoi finding.")
                 cutoff = cutoff * 2
 
-        # adjust solid angle weights based on distance
-        if self.distance_cutoffs:
-            r1 = self._get_radius(structure[n])
-            for entry in nn:
-                r2 = self._get_radius(entry["site"])
-                dist = np.linalg.norm(
-                    structure[n].coords - entry["site"].coords)
-                dist_ratio = dist / (r1 + r2)
-                dist_weight = 0
-                cutoff_low = self.distance_cutoffs[0]
-                cutoff_high = self.distance_cutoffs[1]
-                if dist_ratio <= cutoff_low:
-                    dist_weight = 1
-                elif dist_ratio < cutoff_high:
-                    dist_weight = (math.cos((dist_ratio - cutoff_low) / (
-                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
-
-                entry["weight"] = entry["weight"] * dist_weight
-
         # adjust solid angle weight based on electronegativity difference
         if self.x_diff_weight > 0:
             for entry in nn:
@@ -2637,15 +2618,46 @@ class CrystalNN(NearNeighbors):
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
         if nn[0]["weight"] == 0:
             raise RuntimeError("no neighbors with nonzero weight "
-                               "(increase distance cutoff and/or "
-                               "search cutoff)")
+                               "(increase search cutoff)")
 
-        # renormalize & round weights, remove unneeded data
+        # renormalize weights
         highest_weight = nn[0]["weight"]
         for entry in nn:
             entry["weight"] = entry["weight"] / highest_weight
+
+        # print([(x["site_index"], x["weight"]) for x in nn if x["weight"] > 0.01], '*')
+
+        # adjust solid angle weights based on distance
+        if self.distance_cutoffs:
+            r1 = self._get_radius(structure[n])
+            for entry in nn:
+                r2 = self._get_radius(entry["site"])
+                dist = np.linalg.norm(
+                    structure[n].coords - entry["site"].coords)
+                dist_weight = 0
+                cutoff_low = r1 + r2 + ((self.distance_cutoffs[0] - 1) * ((r1 + r2)/math.sqrt(r1 + r2)))
+                cutoff_high = r1 + r2 + ((self.distance_cutoffs[1] - 1) * ((r1 + r2)/math.sqrt(r1 + r2)))
+                if dist <= cutoff_low:
+                    dist_weight = 1
+                elif dist < cutoff_high:
+                    # dist_weight = 1 - (dist_ratio - cutoff_low) / (cutoff_high - cutoff_low)
+                    dist_weight = (math.cos((dist - cutoff_low) / (
+                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
+
+                entry["weight"] = entry["weight"] * dist_weight
+
+        # sort nearest neighbors from highest to lowest weight
+        nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+        if nn[0]["weight"] == 0:
+            raise RuntimeError("no neighbors with nonzero weight "
+                               "(increase distance cutoffs)")
+        for entry in nn:
             entry["weight"] = round(entry["weight"], 3)
             del entry["poly_info"]  # trim
+
+        # print(
+        #     [(x["site_index"], x["weight"]) for x in nn if x["weight"] > 0.01],
+        #     '**')
 
         # remove entries with no weight
         nn = [x for x in nn if x["weight"] > 0]
