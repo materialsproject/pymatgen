@@ -535,125 +535,55 @@ class NwOutput(object):
         Parses TDDFT roots. Adapted from nw_spectrum.py script.
 
         Returns:
-            {"singlet": nd.array, "triplet": nd.array}. The nd.array is a Nx2
-            where the first column is the energies in eV and the second is the
-            dipole oscillator strength.
+            {
+                "singlet": [
+                    {
+                        "energy": float,
+                        "osc_strength: float
+                    }
+                ],
+                "triplet": [
+                    {
+                        "energy": float
+                    }
+                ]
+            }
         """
         start_tag = "Convergence criterion met"
         end_tag = "Excited state energy"
         singlet_tag = "singlet excited"
         triplet_tag = "triplet excited"
         state = "singlet"
-
-        # max number of lines after root energy to look for oscillator strength
-        max_osc_search = 10
-
         inside = False  # true when we are inside output block
 
         lines = self.raw.split("\n")
 
-        iline = -1
-        roots = []
+        roots = {"singlet": [], "triplet": []}
 
-        while True:
-            iline = iline + 1
-            try:
-                line = lines[iline]
-            except:
-                break
+        while lines:
+            line = lines.pop(0).strip()
 
-            # Only extract singlet state data. By default TDDFT calculations
-            # produce both singlet and triplet data, and the (possibly
-            # meaningless) triplet state data can otherwise interfere with
-            # proper parsing of singlets.
-            if start_tag in line and state == "singlet":
+            if start_tag in line:
                 inside = True
 
-            if end_tag in line:
+            elif end_tag in line:
                 inside = False
 
-            if singlet_tag in line:
+            elif singlet_tag in line:
                 state = "singlet"
 
-            if triplet_tag in line:
+            elif triplet_tag in line:
                 state = "triplet"
 
-            if inside and "Root" in line and "eV" in line:
-                line_strip = line.strip()
-                line_split = line_strip.split()
-                try:
-                    line_start = line_split[0]  # contains "Root"
-                    line_n = line_split[1]  # contains root number (int)
-                    line_ev_tag = line_split[-1]  # contains "eV"
-                    line_e = line_split[-2]  # contains excitation energy in eV
-                except:
-                    raise Exception(
-                        "Failed to parse data line for root: {0}".format(
-                            line_strip))
+            elif inside and "Root" in line and "eV" in line:
+                toks = line.split()
+                roots[state].append({"energy": float(toks[-2])})
 
-                if line_start == "Root" and line_ev_tag == "eV":
-                    try:
-                        n = int(line_n)
-                        energy_ev = float(line_e)
-                    except:
-                        raise Exception(
-                            "Failed to convert root values: {0}".format(
-                                line_strip))
-                else:
-                    raise Exception(
-                        "Unexpected format for root: {0}".format(
-                            line_strip))
+            elif inside and "Dipole Oscillator Strength" in line:
+                osc = float(line.split()[-1])
+                roots[state][-1]["osc_strength"] = osc
 
-                if line_start == "Root" and line_ev_tag == "eV":
-                    try:
-                        n = int(line_n)
-                        energy_ev = float(line_e)
-                    except:
-                        raise Exception(
-                            "Failed to convert root values: {0}".format(
-                                line_strip))
-                else:
-                    raise Exception(
-                        "Unexpected format for root: {0}".format(
-                            line_strip))
-                # Now look for oscillator strength, which will be a few
-                # lines down (though the exact position may vary it seems).
-                ioscline = -1
-                while True:
-                    ioscline = ioscline + 1
-                    if ioscline >= max_osc_search:
-                        raise Exception(
-                            "Failed to find oscillator strength after looking {0} lines.".format(
-                                ioscline))
-
-                    oscline = lines[iline + ioscline].strip()
-
-                    if "Dipole Oscillator Strength" in oscline:
-                        try:
-                            osc_str = oscline.split()
-                            osc = float(osc_str[3])
-                        except:
-                            raise Exception(
-                                "Failed to convert oscillator strength: {0}".format(
-                                    oscline))
-                        break
-
-                # do some final checks, then append to data
-                if energy_ev < 0.0:
-                    raise Exception(
-                        "Invalid negative energy: {0}".format(energy_ev))
-
-                if osc < 0.0:
-                    raise Exception(
-                        "Invalid negative oscillator strength: {0}".format(
-                            osc))
-
-                roots.append([energy_ev, osc])
-
-        if len(roots) < 1:
-            raise Exception("Failed to find any TDDFT roots")
-
-        return {"singlet": np.array(roots)}
+        return roots
 
     def _parse_preamble(self, preamble):
         info = {}

@@ -470,10 +470,11 @@ class NwOutputTest(unittest.TestCase):
     def test_parse_tddft(self):
         nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
         roots = nwo.parse_tddft()
-        self.assertEqual(roots["singlet"].shape, (20, 2))
-        self.assertAlmostEqual(roots["singlet"][0, 0], 3.9291)
-        self.assertAlmostEqual(roots["singlet"][0, 1], 0.0)
-        self.assertAlmostEqual(roots["singlet"][1, 1], 0.00177)
+        self.assertEqual(len(roots["singlet"]), 20)
+        self.assertAlmostEqual(roots["singlet"][0]["energy"], 3.9291)
+        self.assertAlmostEqual(roots["singlet"][0]["osc_strength"], 0.0)
+        self.assertAlmostEqual(roots["singlet"][1]["osc_strength"], 0.00177)
+
 
 if __name__ == "__main__":
     unittest.main()
