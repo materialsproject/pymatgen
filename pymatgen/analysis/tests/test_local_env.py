@@ -795,7 +795,6 @@ class LocalStructOrderParamsTest(PymatgenTest):
         del self.see_saw_rect
 
 
-@unittest.skip("CrystalNN is under rework / development. -AJ")
 class CrystalNNTest(PymatgenTest):
 
     def setUp(self):
@@ -824,13 +823,12 @@ class CrystalNNTest(PymatgenTest):
         self.assertSequenceEqual(cn_array, expected_array)
 
     def test_weighted_cn(self):
-        cnn = CrystalNN(weighted_cn=True)
+        cnn = CrystalNN(weighted_cn=True, distance_cutoffs=None)
         cn_array = []
-        expected_array = [6.0449, 6.0431, 6.0449, 6.0431, 5.6262, 5.6253,
-                          5.6258, 5.6258, 3.9936, 3.9936, 3.9936, 3.9936,
-                          3.9183, 3.7318, 3.7259, 3.781, 3.781, 3.7259,
-                          3.7318, 3.9183, 3.9183, 3.7318, 3.7248, 3.7819,
-                          3.7819, 3.7248, 3.7318, 3.9183]
+        expected_array = [5.942, 5.9404, 5.942, 5.9404, 5.7946, 5.7946, 5.7953,
+                          5.7945, 4.0635, 4.0635, 4.0635, 4.0632, 3.685, 3.595,
+                          3.4579, 3.516, 3.5173, 3.4579, 3.595, 3.685, 3.685,
+                          3.595, 3.4555, 3.5183, 3.5174, 3.4542, 3.5959, 3.685]
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
 
@@ -845,21 +843,20 @@ class CrystalNNTest(PymatgenTest):
     def test_cation_anion(self):
         cnn = CrystalNN(weighted_cn=True, cation_anion=True)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
-                               5.95829, 2)
+                               5.8630, 2)
 
     def test_x_diff_weight(self):
         cnn = CrystalNN(weighted_cn=True, x_diff_weight=0)
         self.assertAlmostEqual(cnn.get_cn(self.lifepo4, 0, use_weights=True),
-                               6.09831, 2)
+                               5.9522, 2)
 
     def test_noble_gas_material(self):
         cnn = CrystalNN()
-        with self.assertRaises(RuntimeError):
-            cnn.get_cn(self.he_bcc, 0, use_weights=False)
+
+        self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 0)
 
         cnn = CrystalNN(distance_cutoffs=(1.25, 5))
-        self.assertAlmostEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False),
-                               8)
+        self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 8)
 
 
 if __name__ == '__main__':
