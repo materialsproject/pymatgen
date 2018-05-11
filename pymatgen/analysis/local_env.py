@@ -2788,7 +2788,7 @@ class CrystalNN(NearNeighbors):
             length: (int) desired length of NNData
         """
 
-        if length == None:
+        if length is None:
             return nndata
 
         if length:
