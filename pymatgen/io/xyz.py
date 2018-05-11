@@ -73,7 +73,10 @@ class XYZ(object):
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
                 # this is 0-indexed
-                coords.append([float(j) for j in m.groups()[1:4]])
+                # in case of 0.0D+00 or 0.00d+01 old double precision writing
+                # replace d or D by e for ten power exponent
+                xyz = [val.lower().replace("d", "e") for val in m.groups()[1:4]]
+                coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
     @staticmethod
