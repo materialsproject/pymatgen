@@ -3,10 +3,9 @@
 # Distributed under the terms of the MIT License.
 
 from pymatgen.core.spectrum import Spectrum
-import numpy as np
 
 """
-This module defines classes to represent all xas
+This module defines an excitation spectrum class.
 """
 
 __author__ = "Shyue Ping Ong"
@@ -32,7 +31,7 @@ class ExcitationSpectrum(Spectrum):
         The sequence of mu(E)
 
     """
-    XLABEL = 'Energy'
+    XLABEL = 'Energy (eV)'
     YLABEL = 'Intensity'
 
     def __init__(self, x, y):

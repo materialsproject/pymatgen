@@ -588,7 +588,7 @@ class NwOutput(object):
 
     def get_excitation_spectrum(self, width=0.1, npoints=2000):
         """
-        Generate an excitation spectra from the singlet roots from TDDFT
+        Generate an excitation spectra from the singlet roots of TDDFT
         calculations.
 
         Args:
@@ -602,10 +602,12 @@ class NwOutput(object):
         """
         roots = self.parse_tddft()
         data = roots["singlet"]
+        en = np.array([d["energy"] for d in data])
+        osc = np.array([d["osc_strength"] for d in data])
 
         epad = 20.0 * width
-        emin = data[0]["energy"] - epad
-        emax = data[-1]["energy"] + epad
+        emin = en[0] - epad
+        emax = en[-1] + epad
         de = (emax - emin) / npoints
 
         # Use width of at least two grid points
@@ -624,15 +626,11 @@ class NwOutput(object):
         x = []
         y = []
         for energy in energies:
-            stot = 0.0
-            for root in data:
-                xx0 = energy - root["energy"]
-
-                if abs(xx0) <= cutoff:
-                    # Lorentzian
-                    stot += root["osc_strength"] / (xx0 * xx0 + gamma_sqrd)
+            xx0 = energy - en
+            stot = osc / (xx0 * xx0 + gamma_sqrd)
+            t = np.sum(stot[np.abs(xx0) <= cutoff])
             x.append(energy)
-            y.append(stot * prefac)
+            y.append(t * prefac)
         return ExcitationSpectrum(x, y)
 
     def _parse_preamble(self, preamble):
