@@ -35,7 +35,7 @@ class Trajectory(MSONable):
         else:
             return self.displacements
 
-
+    @classmethod
     def from_structures(cls, structures):
         """
         Convenience constructor to make a Trajectory from a list of Structures
@@ -55,6 +55,7 @@ class Trajectory(MSONable):
         d["site_properties"] = self.site_properties
         return d
 
+    @classmethod
     def from_dict(cls, d):
         structure = Structure.from_dict(d["structure"])
         return cls(structure, d["displacements"], d["site_properties"])
