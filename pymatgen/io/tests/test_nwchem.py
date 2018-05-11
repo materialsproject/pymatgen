@@ -475,6 +475,14 @@ class NwOutputTest(unittest.TestCase):
         self.assertAlmostEqual(roots["singlet"][0]["osc_strength"], 0.0)
         self.assertAlmostEqual(roots["singlet"][1]["osc_strength"], 0.00177)
 
+    def test_get_excitation_spectrum(self):
+        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        spectrum = nwo.get_excitation_spectrum()
+        self.assertEqual(len(spectrum.x), 2000)
+        self.assertAlmostEqual(spectrum.x[0], 1.9291)
+        self.assertAlmostEqual(spectrum.y[0], 0.0)
+        self.assertAlmostEqual(spectrum.y[1000], 0.0007423569947114812)
+
 
 if __name__ == "__main__":
     unittest.main()
