@@ -1,62 +1,80 @@
 from pymatgen.core.structure import Structure
 from monty.json import MSONable
+from monty.functools import lru_cache
 import numpy as np
 
 
 class Trajectory(MSONable):
-    def __init__(self, structure, displacements, site_properties):
-        self.structure = structure
+    def __init__(self, base_structure, displacements, site_properties):
+        self.base_structure = base_structure
         self.displacements = displacements
-        self.sequential_displacements = None
         self.site_properties = site_properties
-        self.__structure = structure
+        self.index = 0
+        self.structure = base_structure
 
     def __getattr__(self, attr):
 
-        if hasaatr(self.__structure, attr):
-            return self.__structure.__getattr__(attr)
+        if hasattr(self.structure, attr):
+            return self.structure.__getattr__(attr)
         else:
             raise Exception("Neither Trajectory nor structure has attribute: {}".format(attr))
 
     def change_index(self, index):
-        if index > len(self.xyz_trajectory):
+        if index > len(self.displacements):
             raise Exception
         else:
-            coords = self.structure.frac_coords + self.displacements[index]
-            self.__structure = Structure(self.structure.lattice, self.structure.species,
-                                         coords, site_properties=self.site_properties[index])
+            coords = self.base_structure.frac_coords + self.displacements[index]
+            self.structure = Structure(self.base_structure.lattice, self.base_structure.species,
+                                       coords, site_properties=self.site_properties[index])
+            self.index = index
 
-    def get_diplacements(self, sequential=True):
-        if sequential:
-            if not self.sequential_displacements:
-                seq_displacements = np.subtract(self.displacements, self.structure.frac_coords)
-                self.sequential_displacements = seq_displacements
-            return self.sequential_displacements
+    def change_next(self):
+        if self.index + 1 < len(self.displacements):
+            self.change_index(self.index+1)
         else:
-            return self.displacements
+            raise Exception
+
+    def change_previous(self):
+        if self.index > 0:
+            self.change_index(self.index+1)
+        else:
+            raise Exception
+
+    def combine(self, trajectory):
+        if trajectory.base_structure.lattice != self.base_structure.lattice:
+            raise Exception("Lattices are incompatible")
+        if trajectory.base_structure.species != self.base_structure.species:
+            raise Exception("Elements are not consistent between both trajectories")
+
+        _coords = np.add(trajectory.displacements, trajectory.base_structure.frac_coords)
+        _displacements = np.subtract(_coords, self.base_structure.frac_coords)
+        self.displacements.extend(_displacements)
+        self.site_properties.extend(trajectory.site_properties)
+
+    @lru_cache()
+    def as_structures(self):
+        structures = [0]*len(self.displacements)
+        for i in range(len(self.displacements)):
+            self.change_index(i)
+            structures[i] = self.structure.copy()
+        return structures
+
+    @lru_cache()
+    @property
+    def sequential_displacements(self):
+        seq_displacements = np.subtract(self.displacements,
+                                        np.roll(self.displacements, 1, axis = 0))
+        return seq_displacements
 
     @classmethod
     def from_structures(cls, structures):
         """
         Convenience constructor to make a Trajectory from a list of Structures
         """
-        displacements = [[] * len(structures)]
-        site_properties = [[] * len(structures)]
+        displacements = [0]*len(structures)
+        site_properties = [0]*len(structures)
         for i, structure in enumerate(structures):
             displacements[i] = structure.frac_coords - structures[0].frac_coords
             site_properties[i] = structure.site_properties
         return cls(structures[0], displacements, site_properties)
-
-    def as_dict(self):
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__}
-        d["structure"] = self.structure.as_dict()
-        d["displacements"] = self.displacements
-        d["site_properties"] = self.site_properties
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        structure = Structure.from_dict(d["structure"])
-        return cls(structure, d["displacements"], d["site_properties"])
 
