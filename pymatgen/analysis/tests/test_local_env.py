@@ -823,12 +823,14 @@ class CrystalNNTest(PymatgenTest):
         self.assertSequenceEqual(cn_array, expected_array)
 
     def test_weighted_cn(self):
-        cnn = CrystalNN(weighted_cn=True, distance_cutoffs=None)
+        cnn = CrystalNN(weighted_cn=True)
         cn_array = []
-        expected_array = [5.942, 5.9404, 5.942, 5.9404, 5.7946, 5.7946, 5.7953,
-                          5.7945, 4.0635, 4.0635, 4.0635, 4.0632, 3.685, 3.595,
-                          3.4579, 3.516, 3.5173, 3.4579, 3.595, 3.685, 3.685,
-                          3.595, 3.4555, 3.5183, 3.5174, 3.4542, 3.5959, 3.685]
+
+        expected_array = [5.8962, 5.8996, 5.8962, 5.8996, 5.7195, 5.7195,
+                          5.7202, 5.7194, 4.0012, 4.0012, 4.0012, 4.0009,
+                          3.3897, 3.2589, 3.1218, 3.1914, 3.1914, 3.1218,
+                          3.2589, 3.3897, 3.3897, 3.2589, 3.1207, 3.1924,
+                          3.1915, 3.1207, 3.2598, 3.3897]
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx, use_weights=True))
 
