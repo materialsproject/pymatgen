@@ -78,13 +78,13 @@ class XSF(object):
 
         for i in range(len(lines)):
             if "PRIMVEC" in lines[i]:
-                for j in range(i+1, i+4):
+                for j in range(i + 1, i + 4):
                     lattice.append([float(c) for c in lines[j].split()])
 
             if "PRIMCOORD" in lines[i]:
-                num_sites = int(lines[i+1].split()[0])
+                num_sites = int(lines[i + 1].split()[0])
 
-                for j in range(i+2, i+2+num_sites):
+                for j in range(i + 2, i + 2 + num_sites):
                     tokens = lines[j].split()
                     species.append(int(tokens[0]))
                     coords.append([float(j) for j in tokens[1:]])
@@ -98,3 +98,74 @@ class XSF(object):
 
         s = cls(lattice, species, coords, coords_are_cartesian=True)
         return XSF(s)
+
+
+class BXSF(object):
+    '''
+    Class for parsing XCrysden fermi-surface files.
+    inspared by https://github.com/MTD-group/Fermi-Surface
+    '''
+
+    def __init__(self, efermi, eigenvalues, kpts, lattice_rec):
+        self.efermi = efermi
+        self.eigenvalues = eigenvalues
+        self.kpts = kpts
+        self.lattice_rec = lattice_rec
+
+    def to_string(self):
+        n_bands = self.eigenvalues[Spin.up].shape[1]
+        lines = []
+        app = lines.append
+        app('BEGIN_INFO')
+        app('   #')
+        app('   # Case:  unknown system')
+        app('   #')
+        app('   # Launch as: xcrysden --bxsf example.bxsf')
+        app('   #')
+        app('   Fermi Energy: {}'.format(self.efermi))
+        app(' END_INFO')
+        app('')
+        app(' BEGIN_BLOCK_BANDGRID_3D')
+        app(' Num_bands_are_sum_of_spin_up/down._Change_reci_dimension_based_on_your_unit_cell'
+            )
+        app('   BEGIN_BANDGRID_3D')
+        app('       {}'.format(n_bands))
+        app('     {} {} {}'.format(*self.kpts))
+        app('     0.0000 0.0000 0.0000')
+        for i in range(3):
+            app('     {:.4f} {:.4f} {:.4f}'.format(
+                *self.lattice_rec.matrix[i] / (2 * np.pi)))
+        app('')
+        bands_start = {Spin.up: 0, Spin.down: n_bands}
+        for spin, v in self.eigenvalues.items():
+            for i in range(n_bands):
+                app('   BAND:  {}'.format(1 + i + bands_start[spin]))
+                band_eigenvalues = np.reshape(
+                    v[:, i, 0], (np.prod(self.kpts[:-1]), self.kpts[-1]))
+                for j in range(self.kpts[-1]):
+                    app('       {}'.format('  '.join(
+                        map(str, band_eigenvalues[:, j]))))
+                app('')
+        app('   END_BANDGRID_3D')
+        app(' END_BLOCK_BANDGRID_3D')
+        return '\n'.join(lines)
+
+    def write_file(self, filename='Xcrysden.bxsf'):
+        with open(filename, 'w') as f:
+            f.write(self.to_string())
+
+    def __str__(self):
+        return self.to_string()
+
+    @classmethod
+    def from_vasprun(cls, vasprun):
+        kpts = [
+            len(set(np.array(vasprun.kpoints.kpts)[:, i])) for i in range(3)
+        ]
+        return cls(vasprun.efermi, vasprun.eigenvalues, kpts,
+                   vasprun.lattice_rec)
+
+    @classmethod
+    def from_path(cls, path):
+        vasprun, outcar = get_vasprun_outcar(path)
+        return cls.from_vasprun(vasprun)
