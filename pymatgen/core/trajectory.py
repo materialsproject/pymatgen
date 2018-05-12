@@ -59,8 +59,8 @@ class Trajectory(MSONable):
             structures[i] = self.structure.copy()
         return structures
 
-    @lru_cache()
     @property
+    @lru_cache()
     def sequential_displacements(self):
         seq_displacements = np.subtract(self.displacements,
                                         np.roll(self.displacements, 1, axis = 0))
