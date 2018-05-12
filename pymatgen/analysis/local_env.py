@@ -2489,10 +2489,16 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(1.25, 2.5), x_diff_weight=1.0,
-                 search_cutoff=7.0, fingerprint_length=None):
+                 distance_cutoffs=(0.5, 1.0), x_diff_weight=3.0,
+                 porous_adjustment=True, search_cutoff=7,
+                 fingerprint_length=None):
         """
-        Initialize CrystalNN with desired paramters.
+        Initialize CrystalNN with desired parameters. Default parameters assume
+        "chemical bond" type behavior is desired. For geometric neighbor
+        finding (e.g., structural framework), set (i) distance_cutoffs=None,
+        (ii) x_diff_weight=0.0 and (optionally) (iii) porous_adjustment=False
+        which will disregard the atomic identities and perform best for a purely
+        geometric match.
 
         Args:
             weighted_cn: (bool) if set to True, will return fractional weights
@@ -2500,13 +2506,17 @@ class CrystalNN(NearNeighbors):
             cation_anion: (bool) if set True, will restrict bonding targets to
                 sites with opposite or zero charge. Requires an oxidation states
                 on all sites in the structure.
-            distance_cutoffs: ([float, float]) - min and max cutoff for smooth
-                distance filtering. Set to None to turn off.
+            distance_cutoffs: ([float, float]) - if not None, penalizes neighbor
+                distances greater than sum of covalent radii plus
+                distance_cutoffs[0]. Distances greater than covalent radii sum
+                plus distance_cutoffs[1] are enforced to have zero weight.
             x_diff_weight: (float) - if multiple types of neighbor elements are
                 possible, this sets preferences for targets with higher
                 electronegativity difference.
+            porous_adjustment: (bool) - if True, readjusts Voronoi weights to
+                better describe layered / porous structures
             search_cutoff: (float) cutoff in Angstroms for initial neighbor
-                search
+                search; this will be adjusted if needed internally
             fingerprint_length: (int) if a fixed_length CN "fingerprint" is
                 desired from get_nn_data(), set this parameter
         """
@@ -2515,6 +2525,7 @@ class CrystalNN(NearNeighbors):
         self.distance_cutoffs = distance_cutoffs
         self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
         self.search_cutoff = search_cutoff
+        self.porous_adjustment = porous_adjustment
         self.fingerprint_length = fingerprint_length
 
     def get_nn_info(self, structure, n):
@@ -2587,28 +2598,25 @@ class CrystalNN(NearNeighbors):
                     "No valid targets for site within cation_anion constraint!")
 
         # get base VoronoiNN targets
-        vnn = VoronoiNN(weight="solid_angle", targets=target,
-                        cutoff=self.search_cutoff)
-        nn = vnn.get_nn_info(structure, n)
+        cutoff = self.search_cutoff
+        max_cutoff = np.linalg.norm(structure.lattice.lengths_and_angles[0])
+        while True:
+            try:
+                vnn = VoronoiNN(weight="solid_angle", targets=target,
+                                cutoff=cutoff)
+                nn = vnn.get_nn_info(structure, n)
+                break
+            except RuntimeError:
+                if cutoff > max_cutoff:
+                    raise RuntimeError("CrystalNN error in Voronoi finding.")
+                cutoff = cutoff * 2
 
-        # adjust solid angle weights based on distance
-        if self.distance_cutoffs:
-            r1 = self._get_radius(structure[n])
-            for entry in nn:
-                r2 = self._get_radius(entry["site"])
-                dist = np.linalg.norm(
-                    structure[n].coords - entry["site"].coords)
-                dist_ratio = dist / (r1 + r2)
-                dist_weight = 0
-                cutoff_low = self.distance_cutoffs[0]
-                cutoff_high = self.distance_cutoffs[1]
-                if dist_ratio <= cutoff_low:
-                    dist_weight = 1
-                elif dist_ratio < cutoff_high:
-                    dist_weight = (math.cos((dist_ratio - cutoff_low) / (
-                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
-
-                entry["weight"] = entry["weight"] * dist_weight
+        # solid angle weights can be misleading in open / porous structures
+        # adjust weights to correct for this behavior
+        if self.porous_adjustment:
+            for x in nn:
+                x["weight"] *= x["poly_info"][
+                                   "solid_angle"]/x["poly_info"]["area"]
 
         # adjust solid angle weight based on electronegativity difference
         if self.x_diff_weight > 0:
@@ -2619,20 +2627,49 @@ class CrystalNN(NearNeighbors):
                 if math.isnan(X1) or math.isnan(X2):
                     chemical_weight = 1
                 else:
+                    # note: 3.3 is max deltaX between 2 elements
                     chemical_weight = 1 + self.x_diff_weight * \
-                                      abs(X1 - X2)/3.3  # 3.3 is max deltaX
+                                      math.sqrt(abs(X1 - X2)/3.3)
 
                 entry["weight"] = entry["weight"] * chemical_weight
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
         if nn[0]["weight"] == 0:
-            raise RuntimeError("no neighbors with nonzero weight (increase search cutoff and/or distance cutoff)")
+            return self.transform_to_length(self.NNData([], {0: 1.0}, {0: []}),
+                                            length)
 
-        # renormalize & round weights, remove unneeded data
+        # renormalize weights so the highest weight is 1.0
         highest_weight = nn[0]["weight"]
         for entry in nn:
             entry["weight"] = entry["weight"] / highest_weight
+
+        # adjust solid angle weights based on distance
+        if self.distance_cutoffs:
+            r1 = self._get_radius(structure[n])
+            for entry in nn:
+                r2 = self._get_radius(entry["site"])
+                dist = np.linalg.norm(
+                    structure[n].coords - entry["site"].coords)
+                dist_weight = 0
+
+                cutoff_low = (r1 + r2) + self.distance_cutoffs[0]
+                cutoff_high = (r1 + r2) + self.distance_cutoffs[1]
+
+                if dist <= cutoff_low:
+                    dist_weight = 1
+                elif dist < cutoff_high:
+                    dist_weight = (math.cos((dist - cutoff_low) / (
+                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
+                entry["weight"] = entry["weight"] * dist_weight
+
+        # sort nearest neighbors from highest to lowest weight
+        nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+        if nn[0]["weight"] == 0:
+            return self.transform_to_length(self.NNData([], {0: 1.0}, {0: []}),
+                                            length)
+
+        for entry in nn:
             entry["weight"] = round(entry["weight"], 3)
             del entry["poly_info"]  # trim
 
@@ -2647,8 +2684,8 @@ class CrystalNN(NearNeighbors):
         dist_bins.append(0)
 
         # main algorithm to determine fingerprint from bond weights
-        cn_scores = {}  # CN -> score for that CN
-        cn_info = {}  # CN -> list of nearneighbor info for that CN
+        cn_weights = {}  # CN -> score for that CN
+        cn_nninfo = {}  # CN -> list of nearneighbor info for that CN
         for idx, val in enumerate(dist_bins):
             if val != 0:
                 nn_info = []
@@ -2656,17 +2693,17 @@ class CrystalNN(NearNeighbors):
                     if entry["weight"] >= val:
                         nn_info.append(entry)
                 cn = len(nn_info)
-                cn_info[cn] = nn_info
-                cn_scores[cn] = self._semicircle_integral(dist_bins, idx)
+                cn_nninfo[cn] = nn_info
+                cn_weights[cn] = self._semicircle_integral(dist_bins, idx)
 
-        if length:
-            for i in range(length):
-                cn = i+1
-                if cn not in cn_scores:
-                    cn_scores[cn] = 0
-                    cn_info[cn] = []
+        # add zero coord
+        cn0_weight = 1.0 - sum(cn_weights.values())
+        if cn0_weight > 0:
+            cn_nninfo[0] = []
+            cn_weights[0] = cn0_weight
 
-        return self.NNData(nn, cn_scores, cn_info)
+        return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo),
+                                        length)
 
     def get_cn(self, structure, n, use_weights=False):
         """
@@ -2754,6 +2791,26 @@ class CrystalNN(NearNeighbors):
             return CovalentRadius.radius[site.specie.symbol]
         except:
             return site.specie.atomic_radius
+
+    @staticmethod
+    def transform_to_length(nndata, length):
+        """
+        Given NNData, transforms data to the specified fingerprint length
+        Args:
+            nndata: (NNData)
+            length: (int) desired length of NNData
+        """
+
+        if length is None:
+            return nndata
+
+        if length:
+            for cn in range(length):
+                if cn not in nndata.cn_weights:
+                    nndata.cn_weights[cn] = 0
+                    nndata.cn_nninfo[cn] = []
+
+        return nndata
 
 
 def calculate_weighted_avg(bonds):
