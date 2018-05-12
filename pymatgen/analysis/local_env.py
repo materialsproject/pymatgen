@@ -2490,12 +2490,15 @@ class CrystalNN(NearNeighbors):
 
     def __init__(self, weighted_cn=False, cation_anion=False,
                  distance_cutoffs=(0.5, 1.0), x_diff_weight=3.0,
-                 search_cutoff=7, fingerprint_length=None):
+                 porous_adjustment=True, search_cutoff=7,
+                 fingerprint_length=None):
         """
         Initialize CrystalNN with desired parameters. Default parameters assume
         "chemical bond" type behavior is desired. For geometric neighbor
-        finding (e.g., structural framework), set distance_cutoffs=None and
-        x_diff_weight=0.0 which will disregard the atomic identities.
+        finding (e.g., structural framework), set (i) distance_cutoffs=None,
+        (ii) x_diff_weight=0.0 and (optionally) (iii) porous_adjustment=False
+        which will disregard the atomic identities and perform best for a purely
+        geometric match.
 
         Args:
             weighted_cn: (bool) if set to True, will return fractional weights
@@ -2510,6 +2513,8 @@ class CrystalNN(NearNeighbors):
             x_diff_weight: (float) - if multiple types of neighbor elements are
                 possible, this sets preferences for targets with higher
                 electronegativity difference.
+            porous_adjustment: (bool) - if True, readjusts Voronoi weights to
+                better describe layered / porous structures
             search_cutoff: (float) cutoff in Angstroms for initial neighbor
                 search; this will be adjusted if needed internally
             fingerprint_length: (int) if a fixed_length CN "fingerprint" is
@@ -2520,6 +2525,7 @@ class CrystalNN(NearNeighbors):
         self.distance_cutoffs = distance_cutoffs
         self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
         self.search_cutoff = search_cutoff
+        self.porous_adjustment = porous_adjustment
         self.fingerprint_length = fingerprint_length
 
     def get_nn_info(self, structure, n):
@@ -2607,9 +2613,10 @@ class CrystalNN(NearNeighbors):
 
         # solid angle weights can be misleading in open / porous structures
         # adjust weights to correct for this behavior
-        for x in nn:
-            x["weight"] = x["weight"] * \
-                          x["poly_info"]["solid_angle"]/x["poly_info"]["area"]
+        if self.porous_adjustment:
+            for x in nn:
+                x["weight"] *= x["poly_info"][
+                                   "solid_angle"]/x["poly_info"]["area"]
 
         # adjust solid angle weight based on electronegativity difference
         if self.x_diff_weight > 0:
@@ -2688,6 +2695,12 @@ class CrystalNN(NearNeighbors):
                 cn = len(nn_info)
                 cn_nninfo[cn] = nn_info
                 cn_weights[cn] = self._semicircle_integral(dist_bins, idx)
+
+        # add zero coord
+        cn0_weight = 1.0 - sum(cn_weights.values())
+        if cn0_weight > 0:
+            cn_nninfo[0] = []
+            cn_weights[0] = cn0_weight
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo),
                                         length)
