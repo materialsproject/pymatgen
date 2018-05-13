@@ -136,10 +136,10 @@ class BXSF(object):
             app('     {:.4f} {:.4f} {:.4f}'.format(
                 *self.lattice_rec.matrix[i] / (2 * np.pi)))
         app('')
-        bands_start = {Spin.up: 0, Spin.down: n_bands}
+        bands_start = {Spin.up: 1, Spin.down: 1 + n_bands}
         for spin, v in self.eigenvalues.items():
             for i in range(n_bands):
-                app('   BAND:  {}'.format(1 + i + bands_start[spin]))
+                app('   BAND:  {}'.format(i + bands_start[spin]))
                 band_eigenvalues = np.reshape(
                     v[:, i, 0], (np.prod(self.kpts[:-1]), self.kpts[-1]))
                 for j in range(self.kpts[-1]):
