@@ -148,6 +148,7 @@ class BXSF(object):
                 app('')
         app('   END_BANDGRID_3D')
         app(' END_BLOCK_BANDGRID_3D')
+        app('')
         return '\n'.join(lines)
 
     def write_file(self, filename='Xcrysden.bxsf'):
