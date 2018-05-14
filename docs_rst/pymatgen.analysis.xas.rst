@@ -1,5 +1,5 @@
-pymatgen.analysis.xas package
-=============================
+pymatgen\.analysis\.xas package
+===============================
 
 Subpackages
 -----------

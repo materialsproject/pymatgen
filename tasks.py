@@ -72,12 +72,16 @@ def make_doc(ctx):
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
         ctx.run("rm -r _sources")
+        ctx.run("rm -r _build", warn=True)
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > CNAME")
         # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
 
+    ctx.run('doc2dash docs -n "pymatgen %s" -i docs/_images/pymatgen.png -u https://pymatgen.org/' % NEW_VER)
+    ctx.run('tar -zcvf "docs/_static/pymatgen.docset.tar.gz" "pymatgen %s.docset"' % NEW_VER)
+    ctx.run('rm -r "pymatgen %s.docset"' % NEW_VER)
 
 @task
 def update_doc(ctx):

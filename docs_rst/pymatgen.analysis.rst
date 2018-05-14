@@ -1,5 +1,5 @@
-pymatgen.analysis package
-=========================
+pymatgen\.analysis package
+==========================
 
 Subpackages
 -----------
@@ -28,6 +28,8 @@ Submodules
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
+   pymatgen.analysis.excitation
+   pymatgen.analysis.find_dimension
    pymatgen.analysis.graphs
    pymatgen.analysis.interface_reactions
    pymatgen.analysis.local_env
