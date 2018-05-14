@@ -94,7 +94,7 @@ def make_dash(ctx):
             else:
                 xml.append(l)
     with open("docs/pymatgen.xml", "wt") as f:
-        f.write("".join(xml))
+        f.write("\n".join(xml))
     ctx.run('rm -r pymatgen.docset')
 
 
