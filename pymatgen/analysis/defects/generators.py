@@ -92,6 +92,49 @@ class VacancyGenerator(DefectGenerator):
             raise StopIteration
 
 
+
+class SubstitutionGenerator(DefectGenerator):
+    """
+    Simple generator for substitution based on periodically
+    equivalent sites
+    """
+
+    def __init__(self, structure, element):
+        """
+        Initializes a Substitution Generator
+        note: an Antisite is considered a type of substitution
+        Args:
+            structure(Structure): pymatgen structure object
+            element (str or Element or Specie): element for the substitution
+        """
+        self.structure = structure
+        self.element = element
+
+        # Find equivalent site list
+        sga = SpacegroupAnalyzer(self.structure)
+        self.symm_structure = sga.get_symmetrized_structure()
+
+        self.equiv_sub = []
+        for equiv_site_set in list(self.symm_structure.equivalent_sites):
+            vac_site = equiv_site_set[0]
+            vac_specie = vac_site.specie
+            if element != vac_specie:
+                defect_site = PeriodicSite( element, vac_site.coords, structure.lattice, coords_are_cartesian=True)
+                sub = Substitution( structure, defect_site)
+                self.equiv_sub.append( sub)
+
+    def __next__(self):
+        """
+        Returns the next Substitution in the sequence or
+        raises StopIteration
+        """
+        if len(self.equiv_sub) > 0:
+            return self.equiv_sub.pop(0)
+        else:
+            raise StopIteration
+
+
+
 class InterstitialGenerator(DefectGenerator):
     """
     Generator for interstitials at positions
