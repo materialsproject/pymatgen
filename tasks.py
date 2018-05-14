@@ -83,9 +83,19 @@ def make_doc(ctx):
 @task
 def make_dash(ctx):
     ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
-    ctx.run('doc2dash docs -n "pymatgen %s" -i docs/_images/pymatgen.png -u https://pymatgen.org/' % NEW_VER)
-    ctx.run('tar --exclude=".DS_Store" -cvzf docs/_static/pymatgen.docset.tgz "pymatgen %s.docset"' % NEW_VER)
-    ctx.run('rm -r "pymatgen %s.docset"' % NEW_VER)
+    ctx.run('doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/')
+    ctx.run('tar --exclude=".DS_Store" -cvzf docs/_static/pymatgen.docset.tgz pymatgen.docset')
+    xml = []
+    with open("docs/pymatgen.xml") as f:
+        for l in f:
+            l = l.strip()
+            if l.startswith("<version>"):
+                xml.append("<version>%s</version>" % NEW_VER)
+            else:
+                xml.append(l)
+    with open("docs/pymatgen.xml", "wt") as f:
+        f.write("".join(xml))
+    ctx.run('rm -r pymatgen.docset')
 
 
 @task
