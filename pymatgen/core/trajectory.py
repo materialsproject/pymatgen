@@ -7,7 +7,7 @@ import numpy as np
 class Trajectory(MSONable):
     def __init__(self, base_structure, displacements, site_properties):
         self.base_structure = base_structure
-        self.displacements = displacements
+        self.displacements = np.array(displacements)
         self.site_properties = site_properties
         self.index = 0
         self.structure = base_structure
