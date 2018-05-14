@@ -79,6 +79,8 @@ def make_doc(ctx):
         # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
 
+
+def make_dash(ctx):
     ctx.run('rm docs/_static/pymatgen.tgz', warn=True)
     ctx.run('doc2dash docs -n "pymatgen %s" -i docs/_images/pymatgen.png -u https://pymatgen.org/' % NEW_VER)
     ctx.run('tar --exclude=".DS_Store" -cvzf docs/_static/pymatgen.tgz "pymatgen %s.docset"' % NEW_VER)
@@ -88,6 +90,7 @@ def make_doc(ctx):
 @task
 def update_doc(ctx):
     make_doc(ctx)
+    make_dash(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")

@@ -49,7 +49,7 @@ If you would like to have an offline version of the docs for reference, there
 are two options:
 
 1. Clone the Github repo and the latest html docs are in the "docs" folder.
-2. The Dash docs are available at `here </_static/pymatgen.docset.tar.gz>`_. 
+2. Subscribe to the latest Dash docs are available at `dash-feed://http%3A%2F%2Fpymatgen.org%2Fpymatgen.xml <dash-feed://http%3A%2F%2Fpymatgen.org%2Fpymatgen.xml>`_. 
 
 Development News
 ================
