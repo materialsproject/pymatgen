@@ -83,6 +83,7 @@ def make_doc(ctx):
     ctx.run('tar -zcvf "docs/_static/pymatgen.docset.tar.gz" "pymatgen %s.docset"' % NEW_VER)
     ctx.run('rm -r "pymatgen %s.docset"' % NEW_VER)
 
+
 @task
 def update_doc(ctx):
     make_doc(ctx)
