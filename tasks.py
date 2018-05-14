@@ -80,10 +80,11 @@ def make_doc(ctx):
         ctx.run("touch .nojekyll")
 
 
+@task
 def make_dash(ctx):
-    ctx.run('rm docs/_static/pymatgen.tgz', warn=True)
+    ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
     ctx.run('doc2dash docs -n "pymatgen %s" -i docs/_images/pymatgen.png -u https://pymatgen.org/' % NEW_VER)
-    ctx.run('tar --exclude=".DS_Store" -cvzf docs/_static/pymatgen.tgz "pymatgen %s.docset"' % NEW_VER)
+    ctx.run('tar --exclude=".DS_Store" -cvzf docs/_static/pymatgen.docset.tgz "pymatgen %s.docset"' % NEW_VER)
     ctx.run('rm -r "pymatgen %s.docset"' % NEW_VER)
 
 
