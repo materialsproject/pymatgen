@@ -61,9 +61,9 @@ class Trajectory(MSONable):
 
     @property
     @lru_cache()
-    def sequential_displacements(self):
-        seq_displacements = np.subtract(self.displacements,
-                                        np.roll(self.displacements, 1, axis = 0))
+    def sequential_displacements(self, skip=1):
+        seq_displacements = np.subtract(self.displacements[::skip],
+                                        np.roll(self.displacements[::skip], 1, axis=0))
         return seq_displacements
 
     @classmethod
@@ -99,3 +99,17 @@ class Trajectory(MSONable):
             # TODO: Add site properties from ionic_steps
 
         return cls(structure, displacements, site_properties)
+
+    def as_dict(self):
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        d["structure"] = self.structure.as_dict()
+        d["displacements"] = self.displacements.tolist()
+        d["site_properties"] = self.site_properties
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        structure = Structure.from_dict(d["structure"])
+        return cls(structure, np.array(d["displacements"]), d["site_properties"])
+
