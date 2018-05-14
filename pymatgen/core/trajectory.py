@@ -48,7 +48,7 @@ class Trajectory(MSONable):
 
         _coords = np.add(trajectory.displacements, trajectory.base_structure.frac_coords)
         _displacements = np.subtract(_coords, self.base_structure.frac_coords)
-        self.displacements.extend(_displacements)
+        self.displacements = np.concatenate((self.displacements, _displacements), axis=0)
         self.site_properties.extend(trajectory.site_properties)
 
     @lru_cache()
