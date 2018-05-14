@@ -762,7 +762,7 @@ class ChargedCellTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         structure.set_charge(self, new_charge=self.charge)
-        return structure * self.scaling_matrix
+        return structure
 
     def __str__(self):
         return "Structure with charge " + \
