@@ -78,3 +78,24 @@ class Trajectory(MSONable):
             site_properties[i] = structure.site_properties
         return cls(structures[0], displacements, site_properties)
 
+    @classmethod
+    def from_ionic_steps(cls, ionic_steps_dict):
+        """
+        Convenience constructor to make a Trajectory from a list of Structures
+        :param ionic_steps_dict:
+        :return:
+        """
+
+        structure = Structure.from_dict(ionic_steps_dict[0]["structure"])
+        positions = [0] * len(ionic_steps_dict)
+        for i, step in enumerate(ionic_steps_dict):
+            _step = [atom['abc'] for atom in step["structure"]["sites"]]
+            positions[i] = _step
+
+        displacements = [[]] * len(ionic_steps_dict)
+        site_properties = [{}] * len(ionic_steps_dict)
+        for i, step in enumerate(positions):
+            displacements[i] = np.subtract(positions[i], positions[0])
+            # TODO: Add site properties from ionic_steps
+
+        return cls(structure, displacements, site_properties)
