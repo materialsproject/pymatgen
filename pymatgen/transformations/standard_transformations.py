@@ -746,3 +746,35 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     @property
     def is_one_to_many(self):
         return False
+
+
+class ChargedCellTransformation(AbstractTransformation):
+    """
+    The ChargedCellTransformation applies a charge to a structure.
+
+    Args:
+        charge: A integer charge to apply to the structure.
+            Defaults to zero. Has to be a single integer. e.g. 2
+    """
+
+    def __init__(self, charge = 0):
+        self.charge = charge
+
+    def apply_transformation(self, structure):
+        structure.set_charge(self, new_charge=self.charge)
+        return structure * self.scaling_matrix
+
+    def __str__(self):
+        return "Structure with charge " + \
+            "{}".format(self.charge)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        raise NotImplementedError()
+
+    @property
+    def is_one_to_many(self):
+        return False
