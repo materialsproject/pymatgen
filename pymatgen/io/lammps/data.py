@@ -75,30 +75,63 @@ ATOMS_HEADERS = {"angle": ["molecule-ID", "type", "x", "y", "z"],
 
 
 class LammpsBox(MSONable):
+    """
+    Object for representing a simulation box in LAMMPS settings.
 
-    def __init__(self, box_bounds, box_tilt=None):
-        self.box_bounds = box_bounds
-        self.box_tilt = box_tilt
+    """
+
+    def __init__(self, bounds, tilt=None):
+        """
+
+        Args:
+            bounds: A (3, 2) array/list of floats setting the
+                boundaries of simulation box.
+            tilt: A (3,) array/list of floats setting the tilt of
+                simulation box. Default to None, i.e., use an
+                orthogonal box.
+
+        """
+        self.bounds = np.array(bounds).tolist()
+        self.tilt = np.array(tilt).tolist()
 
     def __str__(self):
         return self.get_string()
 
     def get_string(self, significant_figures=6):
+        """
+        Returns the string representation of simulation box in LAMMPS
+        data file format.
+
+        Args:
+            significant_figures (int): No. of significant figures to
+                output for box settings. Default to 6.
+
+        Returns:
+            String representation
+
+        """
         ph = "{:.%df}" % significant_figures
         lines = []
-        for bound, d in zip(self.box_bounds, "xyz"):
+        for bound, d in zip(self.bounds, "xyz"):
             fillers = bound + [d] * 2
             bound_format = " ".join([ph] * 2 + [" {}lo {}hi"])
             lines.append(bound_format.format(*fillers))
-        if self.box_tilt:
+        if self.tilt:
             tilt_format = " ".join([ph] * 3 + [" xy xz yz"])
-            lines.append(tilt_format.format(*self.box_tilt))
+            lines.append(tilt_format.format(*self.tilt))
         return "\n".join(lines)
 
     def to_lattice(self):
-        box_bounds = np.array(self.box_bounds)
-        box_tilt = self.box_tilt if self.box_tilt else [0.0] * 3
-        matrix = np.diag(box_bounds[:, 1] - box_bounds[:, 0])
+        """
+        Converts the simulation box to a more powerful Lattice backend.
+
+        Returns:
+            Lattice
+
+        """
+        bounds = np.array(self.bounds)
+        box_tilt = self.tilt if self.tilt else [0.0] * 3
+        matrix = np.diag(bounds[:, 1] - bounds[:, 0])
         matrix[1, 0] = box_tilt[0]
         matrix[2, 0] = box_tilt[1]
         matrix[2, 1] = box_tilt[2]
@@ -106,6 +139,19 @@ class LammpsBox(MSONable):
 
 
 def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
+    """
+    Converts a lattice object to LammpsBox, and calculates the symmetry
+    operation used.
+
+    Args:
+        lattice (Lattice): Input lattice.
+        origin: A (3,) array/list of floats setting lower bounds of
+            simulation box. Default to (0, 0, 0).
+
+    Returns:
+        LammpsBox, SymmOp
+
+    """
     a, b, c = lattice.abc
     m = lattice.matrix
     xlo, ylo, zlo = origin
@@ -115,14 +161,14 @@ def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
     xz = np.dot(m[2], m[0] / a)
     yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
     zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
-    box_bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
-    box_tilt = [xy, xz, yz]
-    box_tilt = None if not any(box_tilt) else box_tilt
+    bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
+    tilt = [xy, xz, yz]
+    tilt = None if not any(tilt) else tilt
     rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0],
                                   [xy, yhi - ylo, 0],
                                   [xz, yz, zhi - zlo]], m)
     symmop = SymmOp.from_rotation_and_translation(rot_matrix, origin)
-    return LammpsBox(box_bounds, box_tilt), symmop
+    return LammpsBox(bounds, tilt), symmop
 
 
 class LammpsData(MSONable):

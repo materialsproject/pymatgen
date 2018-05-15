@@ -17,11 +17,47 @@ import pandas as pd
 from ruamel.yaml import YAML
 from pymatgen import Molecule, Element, Lattice, Structure
 
-from pymatgen.io.lammps.data import LammpsData, Topology, ForceField, \
-    structure_2_lmpdata
+from pymatgen.io.lammps.data import LammpsBox, LammpsData, Topology,\
+    ForceField, lattice_2_lmpbox, structure_2_lmpdata
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
+
+
+class LammpsBoxTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.peptide = LammpsBox(bounds=[[36.840194, 64.211560],
+                                        [41.013691, 68.385058],
+                                        [29.768095, 57.139462]])
+        cls.quartz = LammpsBox(bounds=[[0, 4.913400],
+                                       [0, 4.255129],
+                                       [0, 5.405200]],
+                               tilt=[-2.456700, 0.0, 0.0])
+
+    def test_get_string(self):
+        peptide = self.peptide.get_string(5)
+        peptide_5 = """36.84019 64.21156  xlo xhi
+41.01369 68.38506  ylo yhi
+29.76809 57.13946  zlo zhi"""
+        self.assertEqual(peptide, peptide_5)
+        quartz = self.quartz.get_string(4)
+        quartz_4 = """0.0000 4.9134  xlo xhi
+0.0000 4.2551  ylo yhi
+0.0000 5.4052  zlo zhi
+-2.4567 0.0000 0.0000  xy xz yz"""
+        self.assertEqual(quartz, quartz_4)
+
+    def test_to_lattice(self):
+        peptide = self.peptide.to_lattice()
+        np.testing.assert_array_almost_equal(peptide.abc, [27.371367] * 3)
+        self.assertTrue(peptide.is_orthogonal)
+        quartz = self.quartz.to_lattice()
+        np.testing.assert_array_almost_equal(quartz.matrix,
+                                             [[4.913400, 0, 0],
+                                              [-2.456700, 4.255129, 0],
+                                              [0, 0, 5.405200]])
 
 
 class LammpsDataTest(unittest.TestCase):
@@ -629,6 +665,23 @@ class ForceFieldTest(unittest.TestCase):
 
 
 class FuncTest(unittest.TestCase):
+
+    @staticmethod
+    def test_lattice_2_lmpbox():
+        matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
+                 + np.random.rand(3, 3) * 0.2 - 0.1
+        init_latt = Lattice(matrix)
+        frac_coords = np.random.rand(10, 3)
+        init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
+        origin = np.random.rand(3) * 10 - 5
+        box, symmop = lattice_2_lmpbox(lattice=init_latt, origin=origin)
+        boxed_lattice = box.to_lattice()
+        cart_coords = symmop.operate_multi(init_structure.cart_coords) \
+                      - origin
+        boxed_structure = Structure(boxed_lattice, ["H"] * 10, cart_coords,
+                                    coords_are_cartesian=True)
+        np.testing.assert_array_almost_equal(boxed_structure.frac_coords,
+                                             frac_coords)
 
     def test_structure_2_lmpdata(self):
         matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
