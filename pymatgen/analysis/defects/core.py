@@ -207,7 +207,7 @@ class Substitution(Defect):
         poss_deflist = sorted(
             self.bulk_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
-        return "{}_{}_{}".format(self.bulk_structure[defindex].specie,self.site.specie,self.multiplicity)
+        return "Sub_{}_on_{}_{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
 
 
 class Interstitial(Defect):
@@ -260,6 +260,7 @@ class Interstitial(Defect):
         Returns a name for this defect
         """
         return "Int_{}_{}".format(self.site.specie,self.multiplicity)
+
 
 class DefectEntry(MSONable):
     """
