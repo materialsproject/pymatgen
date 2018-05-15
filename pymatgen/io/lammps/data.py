@@ -18,8 +18,7 @@ from ruamel.yaml import YAML
 from six import string_types
 
 from pymatgen.util.io_utils import clean_lines
-from pymatgen.core.structure import SiteCollection
-from pymatgen import Molecule, Element, Lattice, Structure
+from pymatgen import Molecule, Element, Lattice, Structure, SymmOp
 
 """
 This module implements a core class LammpsData for generating/parsing 
@@ -73,6 +72,57 @@ ATOMS_HEADERS = {"angle": ["molecule-ID", "type", "x", "y", "z"],
                  "charge": ["type", "q", "x", "y", "z"],
                  "full": ["molecule-ID", "type", "q", "x", "y", "z"],
                  "molecular": ["molecule-ID", "type", "x", "y", "z"]}
+
+
+class LammpsBox(MSONable):
+
+    def __init__(self, box_bounds, box_tilt=None):
+        self.box_bounds = box_bounds
+        self.box_tilt = box_tilt
+
+    def __str__(self):
+        return self.get_string()
+
+    def get_string(self, significant_figures=6):
+        ph = "{:.%df}" % significant_figures
+        lines = []
+        for bound, d in zip(self.box_bounds, "xyz"):
+            fillers = bound + [d] * 2
+            bound_format = " ".join([ph] * 2 + [" {}lo {}hi"])
+            lines.append(bound_format.format(*fillers))
+        if self.box_tilt:
+            tilt_format = " ".join([ph] * 3 + [" xy xz yz"])
+            lines.append(tilt_format.format(*self.box_tilt))
+        return "\n".join(lines)
+
+    def to_lattice(self):
+        box_bounds = np.array(self.box_bounds)
+        box_tilt = self.box_tilt if self.box_tilt else [0.0] * 3
+        matrix = np.diag(box_bounds[:, 1] - box_bounds[:, 0])
+        matrix[1, 0] = box_tilt[0]
+        matrix[2, 0] = box_tilt[1]
+        matrix[2, 1] = box_tilt[2]
+        return Lattice(matrix)
+
+
+def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
+    a, b, c = lattice.abc
+    m = lattice.matrix
+    xlo, ylo, zlo = origin
+    xhi = a + xlo
+    xy = np.dot(m[1], m[0] / a)
+    yhi = np.sqrt(b ** 2 - xy ** 2) + ylo
+    xz = np.dot(m[2], m[0] / a)
+    yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
+    zhi = np.sqrt(c ** 2 - xz ** 2 - yz ** 2) + zlo
+    box_bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
+    box_tilt = [xy, xz, yz]
+    box_tilt = None if not any(box_tilt) else box_tilt
+    rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0],
+                                  [xy, yhi - ylo, 0],
+                                  [xz, yz, zhi - zlo]], m)
+    symmop = SymmOp.from_rotation_and_translation(rot_matrix, origin)
+    return LammpsBox(box_bounds, box_tilt), symmop
 
 
 class LammpsData(MSONable):
@@ -164,6 +214,8 @@ class LammpsData(MSONable):
         """
         masses = self.masses
         atoms = self.atoms.copy()
+        if "nx" in atoms.columns:
+            atoms[["nx", "ny", "nz"]] = 0
         atoms["molecule-ID"] = 1
         box_bounds = np.array(self.box_bounds)
         box_tilt = self.box_tilt if self.box_tilt else [0.0] * 3
@@ -721,13 +773,13 @@ class Topology(MSONable):
                 }
 
         """
-        if not isinstance(sites, SiteCollection):
+        if not isinstance(sites, (Molecule, Structure)):
             sites = Molecule.from_sites(sites)
 
         if ff_label:
             type_by_sites = sites.site_properties.get(ff_label)
         else:
-            type_by_sites = [site.species_string for site in sites]
+            type_by_sites = [site.specie.symbol for site in sites]
         # search for site property if not override
         if charges is None:
             charges = sites.site_properties.get("charge")
