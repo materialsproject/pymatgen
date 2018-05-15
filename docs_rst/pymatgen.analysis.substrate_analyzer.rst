@@ -1,5 +1,5 @@
-pymatgen.analysis.substrate\_analyzer module
-============================================
+pymatgen\.analysis\.substrate\_analyzer module
+==============================================
 
 .. automodule:: pymatgen.analysis.substrate_analyzer
     :members:

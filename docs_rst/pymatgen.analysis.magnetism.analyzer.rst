@@ -1,5 +1,5 @@
-pymatgen.analysis.magnetism.analyzer module
-===========================================
+pymatgen\.analysis\.magnetism\.analyzer module
+==============================================
 
 .. automodule:: pymatgen.analysis.magnetism.analyzer
     :members:

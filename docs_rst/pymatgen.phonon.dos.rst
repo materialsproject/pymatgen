@@ -1,5 +1,5 @@
-pymatgen.phonon.dos module
-==========================
+pymatgen\.phonon\.dos module
+============================
 
 .. automodule:: pymatgen.phonon.dos
     :members:

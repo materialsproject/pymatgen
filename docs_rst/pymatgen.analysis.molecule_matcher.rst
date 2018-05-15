@@ -1,5 +1,5 @@
-pymatgen.analysis.molecule\_matcher module
-==========================================
+pymatgen\.analysis\.molecule\_matcher module
+============================================
 
 .. automodule:: pymatgen.analysis.molecule_matcher
     :members:
