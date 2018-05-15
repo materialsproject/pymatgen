@@ -91,6 +91,20 @@ class LammpsBox(MSONable):
                 orthogonal box.
 
         """
+        bounds_arr = np.array(bounds)
+        bounds_shape = bounds_arr.shape
+        assert bounds_shape == (3, 2), \
+            "Expecting a (3, 2) array for bounds," \
+            " got {}".format(bounds_shape)
+        bounds = bounds_arr.tolist()
+
+        if tilt is not None:
+            tilt_arr = np.array(tilt)
+            tilt_shape = tilt_arr.shape
+            assert tilt_shape == (3,),\
+                "Expecting a (3,) array for box_tilt," \
+                " got {}".format(tilt_shape)
+            tilt = tilt_arr.tolist()
         self.bounds = np.array(bounds).tolist()
         self.tilt = np.array(tilt).tolist()
 
@@ -177,24 +191,19 @@ class LammpsData(MSONable):
 
     """
 
-    def __init__(self, masses, atoms, box_bounds, box_tilt=None,
-                 velocities=None, force_field=None, topology=None,
-                 atom_style="full"):
+    def __init__(self, box, masses, atoms, velocities=None, force_field=None,
+                 topology=None, atom_style="full"):
         """
         This is a low level constructor designed to work with parsed
         data or other bridging objects (ForceField and Topology). Not
         recommended to use directly.
 
         Args:
+            box (LammpsBox): Simulation box.
             masses (pandas.DataFrame): DataFrame with one column
                 ["mass"] for Masses section.
             atoms (pandas.DataFrame): DataFrame with multiple columns
                 for Atoms section. Column names vary with atom_style.
-            box_bounds: A (3, 2) array/list of floats setting the
-                boundaries of simulation box.
-            box_tilt: A (3,) array/list of floats setting the tilt of
-                simulation box. Default to None, i.e., use an
-                orthogonal box.
             velocities (pandas.DataFrame): DataFrame with three columns
                 ["vx", "vy", "vz"] for Velocities section. Optional
                 with default to None. If not None, its index should be
@@ -209,20 +218,6 @@ class LammpsData(MSONable):
             atom_style (str): Output atom_style. Default to "full".
 
         """
-        bounds_arr = np.array(box_bounds)
-        bounds_shape = bounds_arr.shape
-        assert bounds_shape == (3, 2), \
-            "Expecting a (3, 2) array for box_bounds," \
-            " got {}".format(bounds_shape)
-        box_bounds = bounds_arr.tolist()
-
-        if box_tilt is not None:
-            tilt_arr = np.array(box_tilt)
-            tilt_shape = tilt_arr.shape
-            assert tilt_shape == (3,),\
-                "Expecting a (3,) array for box_tilt," \
-                " got {}".format(tilt_shape)
-            box_tilt = tilt_arr.tolist()
 
         if velocities is not None:
             assert len(velocities) == len(atoms),\
@@ -237,10 +232,9 @@ class LammpsData(MSONable):
             topology = {k: v for k, v in topology.items()
                         if k in SECTION_KEYWORDS["topology"]}
 
+        self.box = box
         self.masses = masses
         self.atoms = atoms
-        self.box_bounds = box_bounds
-        self.box_tilt = box_tilt
         self.velocities = velocities
         self.force_field = force_field
         self.topology = topology
@@ -263,23 +257,14 @@ class LammpsData(MSONable):
         if "nx" in atoms.columns:
             atoms[["nx", "ny", "nz"]] = 0
         atoms["molecule-ID"] = 1
-        box_bounds = np.array(self.box_bounds)
-        box_tilt = self.box_tilt if self.box_tilt else [0.0] * 3
-        ld_copy = self.__class__(masses, atoms, box_bounds, box_tilt)
-        _, topologies = ld_copy.disassemble()
+        ld_copy = self.__class__(self.box, masses, atoms)
+        topologies = ld_copy.disassemble()[-1]
         molecule = topologies[0].sites
-        coords = molecule.cart_coords - box_bounds[:, 0]
+        coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
         species = molecule.species
-
-        matrix = np.diag(box_bounds[:, 1] - box_bounds[:, 0])
-        matrix[1, 0] = box_tilt[0]
-        matrix[2, 0] = box_tilt[1]
-        matrix[2, 1] = box_tilt[2]
-        latt = Lattice(matrix)
-
+        latt = self.box.to_lattice()
         site_properties = None if self.velocities is None \
             else {"velocities": self.velocities.values}
-
         return Structure(latt, species, coords, coords_are_cartesian=True,
                          site_properties=site_properties)
 
@@ -309,16 +294,7 @@ class LammpsData(MSONable):
 
 {body}
 """
-        box_ph = "{:.%df}" % distance
-        box_lines = []
-        for bound, d in zip(self.box_bounds, "xyz"):
-            fillers = bound + [d] * 2
-            bound_format = " ".join([box_ph] * 2 + [" {}lo {}hi"])
-            box_lines.append(bound_format.format(*fillers))
-        if self.box_tilt:
-            tilt_format = " ".join([box_ph] * 3 + [" xy xz yz"])
-            box_lines.append(tilt_format.format(*self.box_tilt))
-        box = "\n".join(box_lines)
+        box = self.box.get_string(distance)
 
         body_dict = OrderedDict()
         body_dict["Masses"] = self.masses
@@ -389,7 +365,8 @@ class LammpsData(MSONable):
     def disassemble(self, atom_labels=None, guess_element=True,
                     ff_label="ff_map"):
         """
-        Breaks down LammpsData to ForceField and a series of Topology.
+        Breaks down LammpsData to building blocks
+        (LammpsBox, ForceField and a series of Topology).
         RESTRICTIONS APPLIED:
 
         1. No complex force field defined not just on atom
@@ -415,12 +392,13 @@ class LammpsData(MSONable):
                 different types. Default to "ff_map".
 
         Returns:
-            ForceField, [Topology]
+            LammpsBox, ForceField, [Topology]
 
         """
         atoms_df = self.atoms.copy()
+        # TODO: this part is buggy for non-orthogonal box
         if "nx" in atoms_df.columns:
-            box_dim = np.ptp(self.box_bounds, axis=1)
+            box_dim = np.ptp(self.box.bounds, axis=1)
             atoms_df[["x", "y", "z"]] += atoms_df[["nx", "ny", "nz"]].values \
                                          * box_dim
         atoms_df = pd.concat([atoms_df, self.velocities], axis=1)
@@ -532,7 +510,7 @@ class LammpsData(MSONable):
                                       charges=charges, velocities=velocities,
                                       topologies=topologies))
 
-        return ff, topo_list
+        return self.box, ff, topo_list
 
     @classmethod
     def from_file(cls, filename, atom_style="full", sort_id=False):
@@ -580,6 +558,7 @@ class LammpsData(MSONable):
             elif match and k == "tilt":
                 header["tilt"] = [float(i) for i in match.groups()]
         header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
+        box = LammpsBox(header["bounds"], header.get("tilt"))
 
         def parse_section(sec_lines):
             title_info = sec_lines[0].split("#", 1)
@@ -644,8 +623,6 @@ class LammpsData(MSONable):
                     err_msg.format(s.lower(), s)
 
         items = {k.lower(): body[k] for k in ["Masses", "Atoms"]}
-        items["box_bounds"] = header["bounds"]
-        items["box_tilt"] = header.get("tilt")
         items["velocities"] = body.get("Velocities")
         ff_kws = [k for k in body if k
                   in SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]]
@@ -655,11 +632,11 @@ class LammpsData(MSONable):
         items["topology"] = {k: body[k] for k in topo_kws} \
             if topo_kws else None
         items["atom_style"] = atom_style
+        items["box"] = box
         return cls(**items)
 
     @classmethod
-    def from_ff_and_topologies(cls, ff, topologies, box_bounds, box_tilt=None,
-                               atom_style="full"):
+    def from_ff_and_topologies(cls, box, ff, topologies, atom_style="full"):
         """
         Constructor building LammpsData from a ForceField object and a
         list of Topology objects. Do not support intermolecular
@@ -667,15 +644,11 @@ class LammpsData(MSONable):
         molecule or structure only.
 
         Args:
+            box (LammpsBox): Simulation box.
             ff (ForceField): ForceField object with data for Masses and
                 force field sections.
             topologies ([Topology]): List of Topology objects with data
                 for Atoms, Velocities and topology sections.
-            box_bounds: A (3, 2) array/list of floats setting the
-                boundaries of simulation box.
-            box_tilt: A (3,) array/list of floats setting the tilt of
-                simulation box. Default to None, i.e., use an
-                orthogonal box.
             atom_style (str): Output atom_style. Default to "full".
 
         """
@@ -683,8 +656,7 @@ class LammpsData(MSONable):
         assert atom_types.issubset(ff.maps["Atoms"].keys()),\
             "Unknown atom type found in topologies"
 
-        items = dict(box_bounds=box_bounds, box_tilt=box_tilt,
-                     atom_style=atom_style, masses=ff.masses,
+        items = dict(box=box, atom_style=atom_style, masses=ff.masses,
                      force_field=ff.force_field)
 
         mol_ids, charges, coords, labels = [], [], [], []
@@ -742,10 +714,9 @@ class LammpsData(MSONable):
     def from_dict(cls, d):
         decode_df = lambda s: pd.read_json(s, orient="split")
         items = dict()
+        items["box"] = LammpsBox.from_dict(d["box"])
         items["masses"] = decode_df(d["masses"])
         items["atoms"] = decode_df(d["atoms"])
-        items["box_bounds"] = d["box_bounds"]
-        items["box_tilt"] = d["box_tilt"]
         items["atom_style"] = d["atom_style"]
 
         velocities = d["velocities"]
@@ -767,10 +738,9 @@ class LammpsData(MSONable):
         d = dict()
         d["@module"] = self.__class__.__module__
         d["class"] = self.__class__.__name__
+        d["box"] = self.box.as_dict()
         d["masses"] = encode_df(self.masses)
         d["atoms"] = encode_df(self.atoms)
-        d["box_bounds"] = self.box_bounds
-        d["box_tilt"] = self.box_tilt
         d["atom_style"] = self.atom_style
 
         d["velocities"] = None if self.velocities is None \

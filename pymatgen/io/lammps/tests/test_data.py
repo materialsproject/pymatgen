@@ -76,20 +76,20 @@ class LammpsDataTest(unittest.TestCase):
                       atom_style="angle")
 
     def test_structure(self):
-        quartz_box = self.quartz.structure
-        np.testing.assert_array_equal(quartz_box.lattice.matrix,
+        quartz = self.quartz.structure
+        np.testing.assert_array_equal(quartz.lattice.matrix,
                                       [[4.913400, 0, 0],
                                        [-2.456700, 4.255129, 0],
                                        [0, 0, 5.405200]])
-        self.assertEqual(quartz_box.formula, "Si3 O6")
+        self.assertEqual(quartz.formula, "Si3 O6")
         self.assertNotIn("molecule-ID", self.quartz.atoms.columns)
 
-        ethane_box = self.ethane.structure
-        np.testing.assert_array_equal(ethane_box.lattice.matrix,
+        ethane = self.ethane.structure
+        np.testing.assert_array_equal(ethane.lattice.matrix,
                                       np.diag([10.0] * 3))
-        box_lbounds = np.array(self.ethane.box_bounds)[:, 0]
-        coords = self.ethane.atoms[["x", "y", "z"]].values - box_lbounds
-        np.testing.assert_array_equal(ethane_box.cart_coords, coords)
+        lbounds = np.array(self.ethane.box.bounds)[:, 0]
+        coords = self.ethane.atoms[["x", "y", "z"]].values - lbounds
+        np.testing.assert_array_equal(ethane.cart_coords, coords)
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
@@ -226,7 +226,7 @@ class LammpsDataTest(unittest.TestCase):
     def test_disassemble(self):
         # general tests
         c = LammpsData.from_file(os.path.join(test_dir, "crambin.data"))
-        c_ff, topos = c.disassemble()
+        _, c_ff, topos = c.disassemble()
         mass_info = [('N1', 14.0067), ('H1', 1.00797), ('C1', 12.01115),
                      ('H2', 1.00797), ('C2', 12.01115), ('O1', 15.9994),
                      ('C3', 12.01115), ('O2', 15.9994), ('H3', 1.00797),
@@ -273,7 +273,7 @@ class LammpsDataTest(unittest.TestCase):
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs
         v = self.virus
-        v_ff, _ = v.disassemble(guess_element=False)
+        _, v_ff, _ = v.disassemble(guess_element=False)
         self.assertDictEqual(v_ff.maps["Atoms"],
                              dict(Qa1=1, Qb1=2, Qc1=3, Qa2=4))
         pairij_coeffs = v.force_field["PairIJ Coeffs"].drop(["id1", "id2"],
@@ -281,7 +281,7 @@ class LammpsDataTest(unittest.TestCase):
         np.testing.assert_array_equal(v_ff.nonbond_coeffs,
                                       pairij_coeffs.values)
         # test class2 ff
-        e_ff, _ = self.ethane.disassemble()
+        _, e_ff, _ = self.ethane.disassemble()
         e_topo_coeffs = e_ff.topo_coeffs
         for k in ["BondBond Coeffs", "BondAngle Coeffs"]:
             self.assertIn(k, e_topo_coeffs["Angle Coeffs"][0], k)
@@ -313,7 +313,7 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(ff["Dihedral Coeffs"].shape, (21, 4))
         self.assertEqual(ff["Improper Coeffs"].shape, (2, 2))
         # header box
-        np.testing.assert_array_equal(pep.box_bounds,
+        np.testing.assert_array_equal(pep.box.bounds,
                                       [[36.840194, 64.211560],
                                        [41.013691, 68.385058],
                                        [29.768095, 57.139462]])
@@ -367,9 +367,9 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(class2["BondBond13 Coeffs"].at[1, "coeff3"], 1.1010)
         self.assertEqual(class2["AngleTorsion Coeffs"].at[1, "coeff8"],
                          110.7700)
-        # box_tilt and another atom_style
+        # tilt box and another atom_style
         quartz = self.quartz
-        np.testing.assert_array_equal(quartz.box_tilt, [-2.456700, 0.0, 0.0])
+        np.testing.assert_array_equal(quartz.box.tilt, [-2.456700, 0.0, 0.0])
         self.assertListEqual(list(quartz.atoms.columns),
                              ["type", "x", "y", "z"])
         self.assertAlmostEqual(quartz.atoms.at[7, "x"], 0.299963)
@@ -399,11 +399,11 @@ class LammpsDataTest(unittest.TestCase):
         with gzip.open(os.path.join(test_dir, "topologies_ice.json.gz")) as f:
             topo_dicts = json.load(f)
         topologies = [Topology.from_dict(d) for d in topo_dicts]
-        box_bounds = [[-0.75694412, 44.165558],
-                      [0.38127473, 47.066074],
-                      [0.17900842, 44.193867]]
-        ice = LammpsData.from_ff_and_topologies(ff=ff, topologies=topologies,
-                                                box_bounds=box_bounds)
+        box = LammpsBox([[-0.75694412, 44.165558],
+                         [0.38127473, 47.066074],
+                         [0.17900842, 44.193867]])
+        ice = LammpsData.from_ff_and_topologies(box=box, ff=ff,
+                                                topologies=topologies)
         atoms = ice.atoms
         bonds = ice.topology["Bonds"]
         angles = ice.topology["Angles"]
@@ -429,9 +429,8 @@ class LammpsDataTest(unittest.TestCase):
                                                 "types": [("H", "H", "H")]}]}
         broken_ff = ForceField(mass.items(), nonbond_coeffs,
                                broken_topo_coeffs)
-        ld_woangles = LammpsData.from_ff_and_topologies(ff=broken_ff,
-                                                        topologies=[sample],
-                                                        box_bounds=box_bounds)
+        ld_woangles = LammpsData.from_ff_and_topologies(box=box, ff=broken_ff,
+                                                        topologies=[sample])
         self.assertNotIn("Angles", ld_woangles.topology)
 
     def test_json_dict(self):
@@ -712,6 +711,7 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(len(ld_elements.masses), 2)
         np.testing.assert_array_almost_equal(ld_elements.masses["mass"],
                                              [1.00794, 12.01070])
+
 
 if __name__ == "__main__":
     unittest.main()
