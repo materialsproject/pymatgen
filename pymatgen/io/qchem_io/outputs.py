@@ -175,11 +175,18 @@ class QCOutput(MSONable):
             "key": r"\$opt\s+CONSTRAINT"
         }).get('key')
         if self.data.get('opt_constraint'):
-            self.data["dihedral_constraint"] = read_pattern(
+            temp_constraint = read_pattern(
                 self.text, {
                     "key":
-                    r"Constraints and their Current Values\s+Value\s+Constraint\s+Dihedral\:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+                    r"Constraints and their Current Values\s+Value\s+Constraint\s+(\w+)\:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 }).get('key')
+            if temp_constraint != None:
+                self.data["opt_constraint"] = temp_constraint[0]
+                if float(self.data.get('opt_constraint')[5]) != float(self.data.get('opt_constraint')[6]):
+                    if abs(float(self.data.get('opt_constraint')[5])) != abs(float(self.data.get('opt_constraint')[6])):
+                        raise ValueError("ERROR: Opt section value and constraint should be the same!")
+                    elif abs(float(self.data.get('opt_constraint')[5])) not in [0.0, 180.0]:
+                        raise ValueError("ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!")
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
