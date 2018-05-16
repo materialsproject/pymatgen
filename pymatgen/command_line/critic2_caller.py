@@ -399,8 +399,10 @@ class Critic2Output(MSONable):
                 from_lvec = edge['from_lvec']
                 to_lvec = edge['to_lvec']
 
+                relative_lvec = np.subtract(to_lvec, from_lvec)
+
                 if edge_weight == "bond_length":
-                    weight = self.structure.get_distance(from_idx, to_idx)
+                    weight = self.structure.get_distance(from_idx, to_idx, jimage=relative_lvec)
                 else:
                     weight = getattr(self.critical_points[unique_idx],
                                      edge_weight, None)
