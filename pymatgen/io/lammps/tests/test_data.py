@@ -433,6 +433,26 @@ class LammpsDataTest(unittest.TestCase):
                                                         topologies=[sample])
         self.assertNotIn("Angles", ld_woangles.topology)
 
+    def test_from_structure(self):
+        latt = Lattice.monoclinic(9.78746, 4.75058, 8.95892, 115.9693)
+        structure = Structure.from_spacegroup(15, latt, ["Os", "O", "O"],
+                                              [[0, 0.25583, 0.75],
+                                               [0.11146, 0.46611, 0.91631],
+                                               [0.11445, 0.04564, 0.69518]])
+        velocities = np.random.randn(20, 3) * 0.1
+        structure.add_site_property("velocities", velocities)
+        ld = LammpsData.from_structure(structure=structure,
+                                       ff_elements=["O", "Os", "Na"])
+        i = random.randint(0, 19)
+        a = latt.matrix[0]
+        va = velocities[i].dot(a) / np.linalg.norm(a)
+        self.assertAlmostEqual(va, ld.velocities.loc[i + 1, "vx"])
+        self.assertAlmostEqual(velocities[i, 1],
+                               ld.velocities.loc[i + 1, "vy"])
+        np.testing.assert_array_almost_equal(ld.masses["mass"],
+                                             [22.989769, 190.23, 15.9994])
+        np.testing.assert_array_equal(ld.atoms["type"], [2] * 4 + [3] * 16)
+
     def test_json_dict(self):
         encoded = json.dumps(self.ethane.as_dict())
         decoded = json.loads(encoded)
@@ -674,14 +694,18 @@ class FuncTest(unittest.TestCase):
         init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
         origin = np.random.rand(3) * 10 - 5
         box, symmop = lattice_2_lmpbox(lattice=init_latt, origin=origin)
-        boxed_lattice = box.to_lattice()
+        boxed_latt = box.to_lattice()
+        np.testing.assert_array_almost_equal(init_latt.abc, boxed_latt.abc)
+        np.testing.assert_array_almost_equal(init_latt.angles,
+                                             boxed_latt.angles)
         cart_coords = symmop.operate_multi(init_structure.cart_coords) \
                       - origin
-        boxed_structure = Structure(boxed_lattice, ["H"] * 10, cart_coords,
+        boxed_structure = Structure(boxed_latt, ["H"] * 10, cart_coords,
                                     coords_are_cartesian=True)
         np.testing.assert_array_almost_equal(boxed_structure.frac_coords,
                                              frac_coords)
 
+    @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
         matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
                  + np.random.rand(3, 3) * 0.2 - 0.1

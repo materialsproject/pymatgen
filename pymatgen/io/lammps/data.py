@@ -14,6 +14,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from monty.json import MSONable
+from monty.dev import deprecated
 from ruamel.yaml import YAML
 from six import string_types
 
@@ -144,11 +145,11 @@ class LammpsBox(MSONable):
 
         """
         bounds = np.array(self.bounds)
-        box_tilt = self.tilt if self.tilt else [0.0] * 3
+        tilt = self.tilt if self.tilt else [0.0] * 3
         matrix = np.diag(bounds[:, 1] - bounds[:, 0])
-        matrix[1, 0] = box_tilt[0]
-        matrix[2, 0] = box_tilt[1]
-        matrix[2, 1] = box_tilt[2]
+        matrix[1, 0] = tilt[0]
+        matrix[2, 0] = tilt[1]
+        matrix[2, 1] = tilt[2]
         return Lattice(matrix)
 
 
@@ -711,6 +712,44 @@ class LammpsData(MSONable):
         return cls(**items)
 
     @classmethod
+    def from_structure(cls, structure, ff_elements=None, atom_style="charge"):
+        """
+        Simple constructor building LammpsData from a structure without
+        force field parameters and topologies.
+
+        Args:
+            structure (Structure): Input structure.
+            ff_elements ([str]): List of strings of elements that must
+                be present due to force field settings but not
+                necessarily in the structure. Default to None.
+            atom_style (str): Choose between "atomic" (neutral) and
+            "charge" (charged). Default to "charge".
+
+        """
+        s = structure.get_sorted_structure()
+        box, symmop = lattice_2_lmpbox(s.lattice)
+        coords = symmop.operate_multi(s.cart_coords)
+        site_properties = s.site_properties
+        if "velocities" in site_properties:
+            velos = np.array(s.site_properties["velocities"])
+            rot = SymmOp.from_rotation_and_translation(symmop.rotation_matrix)
+            rot_velos = rot.operate_multi(velos)
+            site_properties.update({"velocities": rot_velos})
+        boxed_s = Structure(box.to_lattice(), s.species, coords,
+                            site_properties=site_properties,
+                            coords_are_cartesian=True)
+
+        symbols = list(s.symbol_set)
+        if ff_elements:
+            symbols.extend(ff_elements)
+        elements = sorted(Element(el) for el in set(symbols))
+        mass_info = [tuple([i.symbol] * 2) for i in elements]
+        ff = ForceField(mass_info)
+        topo = Topology(boxed_s)
+        return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo],
+                                          atom_style=atom_style)
+
+    @classmethod
     def from_dict(cls, d):
         decode_df = lambda s: pd.read_json(s, orient="split")
         items = dict()
@@ -827,7 +866,7 @@ class Topology(MSONable):
 
     @classmethod
     def from_bonding(cls, molecule, bond=True, angle=True, dihedral=True,
-                     ff_label=None, charges=None, velocities=None, tol=0.1):
+                     tol=0.1, **kwargs):
         """
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
@@ -840,18 +879,9 @@ class Topology(MSONable):
                 dihedral searching will be skipped. Default to True.
             angle (bool): Whether find angles. Default to True.
             dihedral (bool): Whether find dihedrals. Default to True.
-            ff_label (str): Site property key for labeling atoms of
-                different types. Default to None, i.e., use
-                site.species_string.
-            charges ([q, ...]): Charge of each site in a (n,)
-                array/list, where n is the No. of sites. Default to
-                None, i.e., search site property for charges.
-            velocities ([[vx, vy, vz], ...]): Velocity of each site in
-                a (n, 3) array/list, where n is the No. of sites.
-                Default to None, i.e., search site property for
-                velocities.
             tol (float): Bond distance tolerance. Default to 0.1.
                 Not recommended to alter.
+            **kwargs: Other kwargs supported by Topology.
 
         """
         real_bonds = molecule.get_covalent_bonds(tol=tol)
@@ -859,8 +889,7 @@ class Topology(MSONable):
                      for b in real_bonds]
         if not all((bond, bond_list)):
             # do not search for others if not searching for bonds or no bonds
-            return cls(sites=molecule, ff_label=ff_label, charges=charges,
-                       velocities=velocities)
+            return cls(sites=molecule, **kwargs)
         else:
             angle_list, dihedral_list = [], []
             dests, freq = np.unique(bond_list, return_counts=True)
@@ -896,8 +925,7 @@ class Topology(MSONable):
                                  [bond_list, angle_list, dihedral_list])
                           if len(v) > 0}
             topologies = None if len(topologies) == 0 else topologies
-            return cls(sites=molecule, ff_label=ff_label, charges=charges,
-                       velocities=velocities, topologies=topologies)
+            return cls(sites=molecule, topologies=topologies, **kwargs)
 
 
 class ForceField(MSONable):
@@ -1098,6 +1126,9 @@ class ForceField(MSONable):
         return cls(d["mass_info"], d["nonbond_coeffs"], d["topo_coeffs"])
 
 
+@deprecated(LammpsData.from_structure,
+            "structure_2_lmpdata has been deprecated "
+            "in favor of LammpsData.from_structure")
 def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     """
     Converts a structure to a LammpsData object with no force field
@@ -1128,6 +1159,7 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     box_bounds = [[0.0, xhi], [0.0, yhi], [0.0, zhi]]
     box_tilt = [xy, xz, yz]
     box_tilt = None if not any(box_tilt) else box_tilt
+    box = LammpsBox(box_bounds, box_tilt)
     new_latt = Lattice([[xhi, 0, 0], [xy, yhi, 0], [xz, yz, zhi]])
     s.modify_lattice(new_latt)
 
@@ -1138,7 +1170,5 @@ def structure_2_lmpdata(structure, ff_elements=None, atom_style="charge"):
     mass_info = [tuple([i.symbol] * 2) for i in elements]
     ff = ForceField(mass_info)
     topo = Topology(s)
-    return LammpsData.from_ff_and_topologies(ff=ff, topologies=[topo],
-                                             box_bounds=box_bounds,
-                                             box_tilt=box_tilt,
+    return LammpsData.from_ff_and_topologies(box=box, ff=ff, topologies=[topo],
                                              atom_style=atom_style)
