@@ -139,6 +139,8 @@ class LammpsBox(MSONable):
     def to_lattice(self):
         """
         Converts the simulation box to a more powerful Lattice backend.
+        Note that Lattice is always periodic in 3D space while a
+        simulation box is not necessarily periodic in all dimensions. 
 
         Returns:
             Lattice
@@ -247,10 +249,11 @@ class LammpsData(MSONable):
     @property
     def structure(self):
         """
-        Export a periodic structure object representing the simulation box.
+        Exports a periodic structure object representing the simulation
+        box.
 
         Return:
-            A pymatgen structure object
+            Structure
 
         """
         masses = self.masses
@@ -264,8 +267,11 @@ class LammpsData(MSONable):
         coords = molecule.cart_coords - np.array(self.box.bounds)[:, 0]
         species = molecule.species
         latt = self.box.to_lattice()
-        site_properties = None if self.velocities is None \
-            else {"velocities": self.velocities.values}
+        site_properties = {}
+        if "q" in atoms:
+            site_properties["charge"] = atoms["q"].values
+        if self.velocities is not None:
+            site_properties["velocities"] = self.velocities.values
         return Structure(latt, species, coords, coords_are_cartesian=True,
                          site_properties=site_properties)
 

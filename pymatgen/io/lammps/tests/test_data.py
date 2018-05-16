@@ -90,6 +90,8 @@ class LammpsDataTest(unittest.TestCase):
         lbounds = np.array(self.ethane.box.bounds)[:, 0]
         coords = self.ethane.atoms[["x", "y", "z"]].values - lbounds
         np.testing.assert_array_equal(ethane.cart_coords, coords)
+        np.testing.assert_array_equal(ethane.site_properties["charge"],
+                                      self.ethane.atoms["q"])
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
