@@ -9,6 +9,7 @@ import numpy as np
 import math
 
 from monty.io import zopen
+from monty.json import jsanitize
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
@@ -524,3 +525,11 @@ class QCOutput(MSONable):
             self.data["errors"] += ["IO_error"]
         else:
             self.data["errors"] += ["unknown_error"]
+
+    def as_dict(self):
+        d = {}
+        d["data"] = self.data
+        d["text"] = self.text
+        d["filename"] = self.filename
+        return jsanitize(d, strict=True)
+
