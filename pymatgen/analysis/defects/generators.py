@@ -247,10 +247,13 @@ class SimpleChargeGenerator(DefectGenerator):
         """
         self.defect = defect
 
-        bv = BVAnalyzer()
-        struct_valences = bv.get_valences(self.defect.bulk_structure)
-        site_index = self.defect.structure.get_sites_in_sphere(self.defect.site.coords, 0.1, include_index=True)[0][2]
-        def_site_valence = struct_valences[site_index]
+        try:
+            bv = BVAnalyzer()
+            struct_valences = bv.get_valences(self.defect.bulk_structure)
+            site_index = self.defect.bulk_structure.get_sites_in_sphere(self.defect.site.coords, 0.1, include_index=True)[0][2]
+            def_site_valence = struct_valences[site_index]
+        except: #sometimes valences cant be assigned
+            def_site_valence = 0
 
         if type(defect) == Vacancy:
             self.charges = [-1 * def_site_valence]
