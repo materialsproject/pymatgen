@@ -617,6 +617,31 @@ class Slab(Structure):
 
         return site2
 
+    def symmetrically_add_atom(self, specie, point, coords_are_cartesian=False):
+
+        """
+        Class method for adding a site at a specified point in a slab.
+            Will add the corresponding site on the other side of the
+            slab to maintain equivalent surfaces.
+
+        Arg:
+            specie (str): The specie to add
+            point (coords): The coordinate of the site in the slab to add.
+            coords_are_cartesian (bool): Is the point in cartesian coordinates
+
+        Returns:
+            (Slab): The modified slab
+        """
+
+        # For now just use the species of the
+        # surface atom as the element to add
+
+        # Get the index of the corresponding site at the bottom
+        point2 = self.get_symmetric_site(point, cartesian=coords_are_cartesian)
+
+        self.append(specie, point, coords_are_cartesian=coords_are_cartesian)
+        self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
+
 
 class SlabGenerator(object):
 
@@ -1469,7 +1494,6 @@ class ReconstructionGenerator(object):
             slab to maintain equivalent surfaces.
 
         Arg:
-            slab (Slab): The slab to modify
             point (frac coord): The fractional coordinate of the site
                 in the slab to add.
 
