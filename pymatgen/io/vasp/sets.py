@@ -19,6 +19,7 @@ import numpy as np
 from monty.serialization import loadfn
 from monty.io import zopen
 
+from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
@@ -636,7 +637,7 @@ class MPStaticSet(MPRelaxSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
-        return MPStaticSet(
+        return cls(
             structure=prev_structure, prev_incar=prev_incar,
             prev_kpoints=prev_kpoints,
             reciprocal_density=reciprocal_density, **kwargs)
@@ -773,7 +774,7 @@ class MPHSEBSSet(MPHSERelaxSet):
             if chgcars:
                 files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
-        return MPHSEBSSet(
+        return cls(
             structure=prev_structure,
             added_kpoints=added_kpoints, reciprocal_density=reciprocal_density,
             mode=mode, files_to_transfer=files_to_transfer, **kwargs)
@@ -940,7 +941,7 @@ class MPNonSCFSet(MPRelaxSet):
                 kpoints_line_density = kpoints_line_density * \
                                        small_gap_multiply[1]
 
-        return MPNonSCFSet(structure=structure, prev_incar=incar,
+        return cls(structure=structure, prev_incar=incar,
                            reciprocal_density=reciprocal_density,
                            kpoints_line_density=kpoints_line_density,
                            files_to_transfer=files_to_transfer, **kwargs)
@@ -1055,9 +1056,66 @@ class MPSOCSet(MPStaticSet):
             if gap <= small_gap_multiply[0]:
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
-        return MPSOCSet(structure, prev_incar=incar,
+        return cls(structure, prev_incar=incar,
                         files_to_transfer=files_to_transfer,
                         reciprocal_density=reciprocal_density, **kwargs)
+
+class MPNMRSet(MPStaticSet):
+
+    def __init__(self, structure, mode="cs", isotopes=None,
+                 prev_incar=None, reciprocal_density=100, **kwargs):
+        """
+        Init a MPNMRSet.
+
+        Args:
+            structure (Structure): Structure to compute
+            mode (str): The NMR calculation to run
+                            "cs": for Chemical Shift
+                            "efg" for Electric Field Gradient
+            isotopes (list): list of Isotopes for quadrupole moments
+            prev_incar (Incar): Incar file from previous run.
+            reciprocal_density (int): density of k-mesh by reciprocal
+                                    volume (defaults to 100)
+            \\*\\*kwargs: kwargs supported by MPStaticSet.
+        """
+        self.mode = mode
+        self.isotopes = isotopes if isotopes else []
+        super(MPNMRSet, self).__init__(
+            structure, prev_incar=prev_incar,
+            reciprocal_density=reciprocal_density, **kwargs)
+
+    @property
+    def incar(self):
+        incar = super(MPNMRSet, self).incar
+
+        if self.mode.lower() == "cs":
+            incar.update({"LCHIMAG": True,
+                          "EDIFF": -1.0e-10,
+                          "ISYM": 0,
+                          "LCHARG": False,
+                          "LNMR_SYM_RED": True,
+                          "NELMIN": 10,
+                          "NSLPLINE": True,
+                          "PREC": "ACCURATE",
+                          "SIGMA": 0.01})
+        elif self.mode.lower() == "efg":
+
+            isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
+
+            quad_efg = [Specie(p).get_nmr_quadrupole_moment(isotopes.get(p, None)) for p in self.poscar.site_symbols]
+
+            incar.update({"ALGO": "FAST",
+                          "EDIFF": -1.0e-10,
+                          "ISYM": 0,
+                          "LCHARG": False,
+                          "LEFG": True,
+                          "QUAD_EFG": quad_efg,
+                          "NELMIN": 10,
+                          "PREC": "ACCURATE",
+                          "SIGMA": 0.01})
+        incar.update(self.kwargs.get("user_incar_settings", {}))
+
+        return incar
 
 
 class MVLElasticSet(MPRelaxSet):
@@ -1236,7 +1294,7 @@ class MVLGWSet(DictSet):
                     else:
                         files_to_transfer[fname] = str(w[-1])
 
-        return MVLGWSet(structure=structure, prev_incar=prev_incar,
+        return cls(structure=structure, prev_incar=prev_incar,
                         nbands=nbands, mode=mode,
                         files_to_transfer=files_to_transfer, **kwargs)
 

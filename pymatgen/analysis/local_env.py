@@ -4,11 +4,15 @@
 
 from __future__ import division, unicode_literals
 
+import math
+from collections import namedtuple
+
 import six
 import ruamel.yaml as yaml
 import os
 import json
 
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.sites import PeriodicSite
 
 """
@@ -34,10 +38,7 @@ from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.core.structure import Structure
 from pymatgen.util.num import abs_cap
-from pymatgen.analysis.bond_valence import BV_PARAMS
-
-from copy import deepcopy
-
+from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
@@ -210,8 +211,13 @@ class NearNeighbors(object):
     neighbors and others that are within some tolerable distance.
     """
 
-    def __init__(self):
-        pass
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return self.__dict__ == other.__dict__
+        return False
+
+    def __hash__(self):
+        return len(self.__dict__.items())
 
     def get_cn(self, structure, n, use_weights=False):
         """
@@ -372,13 +378,27 @@ class NearNeighbors(object):
         """
 
         all_nn_info = self.get_all_nn_info(structure)
-        return self._get_nn_shell_info(all_nn_info, site_idx, shell)
+        sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
 
-    def _get_nn_shell_info(self, all_nn_info, site_idx, shell,
+        # Update the site positions
+        #   Did not do this during NN options because that can be slower
+        output = []
+        for info in sites:
+            orig_site = structure[info['site_index']]
+            info['site'] = PeriodicSite(orig_site.species_and_occu,
+                                        np.add(orig_site._fcoords,
+                                               info['image']),
+                                        structure.lattice,
+                                        properties=orig_site.properties)
+            output.append(info)
+        return output
+
+    def _get_nn_shell_info(self, structure, all_nn_info, site_idx, shell,
                            _previous_steps=frozenset(), _cur_image=(0,0,0)):
         """Private method for computing the neighbor shell information
 
         Args:
+            structure (Structure) - Structure being assessed
             all_nn_info ([[dict]]) - Results from `get_all_nn_info`
             site_idx (int) - index of site for which to determine neighbor
                 information.
@@ -389,7 +409,7 @@ class NearNeighbors(object):
         Returns:
             list of dictionaries. Each entry in the list is information about
                 a certain neighbor in the structure, in the same format as
-                `get_nn_info`
+                `get_nn_info`. Does not update the site positions
         """
 
         if shell <= 0:
@@ -402,12 +422,9 @@ class NearNeighbors(object):
         possible_steps = list(all_nn_info[site_idx])
         for i, step in enumerate(possible_steps):
             # Update the image information
-            step = deepcopy(step)
-            step['site'] = PeriodicSite(step['site'].species_and_occu,
-                                        np.add(step['site']._fcoords, _cur_image),
-                                        step['site'].lattice,
-                                        properties=step['site'].properties
-                                        )
+            #  Note: We do not update the site position yet, as making a
+            #    PeriodicSite for each intermediate step is too costly
+            step = dict(step)
             step['image'] = tuple(np.add(step['image'], _cur_image).tolist())
             possible_steps[i] = step
 
@@ -417,38 +434,39 @@ class NearNeighbors(object):
 
         # If we are the last step (i.e., shell == 1), done!
         if shell == 1:
+            # No further work needed, just package these results
             return allowed_steps
+        else:
+            # If not, Get the N-1 NNs of these allowed steps
+            terminal_neighbors = [self._get_nn_shell_info(structure,
+                                                          all_nn_info,
+                                                          x['site_index'],
+                                                          shell - 1,
+                                                          _previous_steps,
+                                                          x['image'])
+                                  for x in allowed_steps]
 
-        # If not, Get the N-1 NNs of these allowed steps
-        terminal_neighbors = [self._get_nn_shell_info(all_nn_info,
-                                                      x['site_index'],
-                                                      shell - 1,
-                                                      _previous_steps,
-                                                      x['image'])
-                              for x in allowed_steps]
+            # Each allowed step results in many terminal neighbors
+            #  And, different first steps might results in the same neighbor
+            #  Now, we condense those neighbors into a single entry per neighbor
+            all_sites = dict()
+            for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
+                for term_site in term_sites:
+                    key = (term_site['site_index'], tuple(term_site['image']))
 
-        # Each allowed step results in many terminal neighbors
-        #  And, different first steps might results in the same neighbor
-        #  Now, we condense those neighbors into a single entry per neighbor
-        all_sites = dict()
-        for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
-            for term_site in term_sites:
-                key = (term_site['site_index'], tuple(term_site['image']))
+                    # The weight for this site is equal to the weight of the
+                    #  first step multiplied by the weight of the terminal neighbor
+                    term_site['weight'] *= first_site['weight']
 
-                # The weight for this site is equal to the weight of the
-                #  first step multiplied by the weight of the terminal neighbor
-                term_site['weight'] *= first_site['weight']
-
-                # Check if this site is already known
-                value = all_sites.get(key)
-                if value is not None:
-                    # If so, add to its weight
-                    value['weight'] += term_site['weight']
-                else:
-                    # If not, prepare to add it
-                    value = term_site
-                all_sites[key] = value
-
+                    # Check if this site is already known
+                    value = all_sites.get(key)
+                    if value is not None:
+                        # If so, add to its weight
+                        value['weight'] += term_site['weight']
+                    else:
+                        # If not, prepare to add it
+                        value = term_site
+                    all_sites[key] = value
         return list(all_sites.values())
 
     @staticmethod
@@ -469,8 +487,10 @@ class NearNeighbors(object):
     def _get_original_site(structure, site):
         """Private convenience method for get_nn_info,
         gives original site index from ProvidedPeriodicSite."""
-        is_periodic_image = [site.is_periodic_image(s) for s in structure]
-        return is_periodic_image.index(True)
+        for i, s in enumerate(structure):
+            if site.is_periodic_image(s):
+                return i
+        raise Exception('Site not found!')
 
 
 class VoronoiNN(NearNeighbors):
@@ -488,21 +508,24 @@ class VoronoiNN(NearNeighbors):
             determination of Voronoi coordination.
         weight (string) - Statistic used to weigh neighbors (see the statistics
             available in get_voronoi_polyhedra)
+        extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
     """
 
     def __init__(self, tol=0, targets=None, cutoff=10.0,
-                 allow_pathological=False, weight='solid_angle'):
+                 allow_pathological=False, weight='solid_angle',
+                 extra_nn_info=True):
+        super(VoronoiNN, self).__init__()
         self.tol = tol
         self.cutoff = cutoff
         self.allow_pathological = allow_pathological
         self.targets = targets
         self.weight = weight
-        self._cns = {}
+        self.extra_nn_info = extra_nn_info
 
     def get_voronoi_polyhedra(self, structure, n):
         """
-        Gives a weighted polyhedra around a site. This uses the Voronoi
-        construction with solid angle weights.
+        Gives a weighted polyhedra around a site.
+
         See ref: A Proposed Rigorous Definition of Coordination Number,
         M. O'Keeffe, Acta Cryst. (1979). A35, 772-775
 
@@ -537,14 +560,45 @@ class VoronoiNN(NearNeighbors):
 
         # Run the Voronoi tessellation
         qvoronoi_input = [s.coords for s in neighbors]
-        voro = Voronoi(qvoronoi_input)
+        voro = Voronoi(qvoronoi_input) # can give a seg fault if cutoff is too small
+
+        # Extract data about the site in question
+        return self._extract_cell_info(structure, 0, neighbors, targets, voro)
+
+    def _extract_cell_info(self, structure, site_idx, sites, targets, voro):
+        """Get the information about a certain atom from the results of a tessellation
+
+        Args:
+            structure (Structure) - Structure being assessed
+            site_idx (int) - Index of the atom in question
+            sites ([Site]) - List of all sites in the tessellation
+            targets ([Element]) - Target elements
+            voro - Output of qvoronoi
+        Returns:
+            A dict of sites sharing a common Voronoi facet. Key is facet id
+             (not useful) and values are dictionaries containing statistics
+             about the facet:
+                - site: Pymatgen site
+                - solid_angle - Solid angle subtended by face
+                - angle_normalized - Solid angle normalized such that the
+                    faces with the largest
+                - area - Area of the facet
+                - face_dist - Distance between site n and the facet
+                - volume - Volume of Voronoi cell for this face
+                - n_verts - Number of vertices on the facet
+        """
+        # Get the coordinates of every vertex
         all_vertices = voro.vertices
+
+        # Get the coordinates of the central site
+        center_coords = sites[site_idx].coords
 
         # Iterate through all the faces in the tessellation
         results = {}
         for nn, vind in voro.ridge_dict.items():
             # Get only those that include the cite in question
-            if 0 in nn:
+            if site_idx in nn:
+                other_site = nn[0] if nn[1] == site_idx else nn[1]
                 if -1 in vind:
                     # -1 indices correspond to the Voronoi cell
                     #  missing a face
@@ -554,9 +608,10 @@ class VoronoiNN(NearNeighbors):
                         raise RuntimeError("This structure is pathological,"
                                            " infinite vertex in the voronoi "
                                            "construction")
+
                 # Get the solid angle of the face
                 facets = [all_vertices[i] for i in vind]
-                angle = solid_angle(center.coords, facets)
+                angle = solid_angle(center_coords, facets)
 
                 # Compute the volume of associated with this face
                 volume = 0
@@ -564,18 +619,21 @@ class VoronoiNN(NearNeighbors):
                 #   the face up in to segments (0,1,2), (0,2,3), ... to compute
                 #   its area where each number is a vertex size
                 for j, k in zip(vind[1:], vind[2:]):
-                    volume += vol_tetra(center.coords,
+                    volume += vol_tetra(center_coords,
                                         all_vertices[vind[0]],
                                         all_vertices[j],
                                         all_vertices[k])
 
                 # Compute the distance of the site to the face
-                face_dist = np.linalg.norm(center.coords - qvoronoi_input[max(nn)]) / 2
+                face_dist = np.linalg.norm(
+                    center_coords - sites[other_site].coords) / 2
 
                 # Compute the area of the face (knowing V=Ad/3)
                 face_area = 3 * volume / face_dist
 
-                results[neighbors[max(nn)]] = {
+                # Store by face index
+                results[other_site] = {
+                    'site': sites[other_site],
                     'solid_angle': angle,
                     'volume': volume,
                     'face_dist': face_dist,
@@ -585,17 +643,16 @@ class VoronoiNN(NearNeighbors):
 
         # Get only target elements
         resultweighted = {}
-        for nn, nstats in results.items():
-
+        for nn_index, nstats in results.items():
             # Check if this is a target site
+            nn = nstats['site']
             if nn.is_ordered:
                 if nn.specie in targets:
-                    resultweighted[nn] = nstats
+                    resultweighted[nn_index] = nstats
             else:  # is nn site is disordered
                 for disordered_sp in nn.species_and_occu.keys():
                     if disordered_sp in targets:
-                        resultweighted[nn] = nstats
-
+                        resultweighted[nn_index] = nstats
         return resultweighted
 
     def get_nn_info(self, structure, n):
@@ -626,13 +683,22 @@ class VoronoiNN(NearNeighbors):
 
         # Determine the maximum weight
         max_weight = max(nn[self.weight] for nn in nns.values())
-        for site, nstats in nns.items():
+        for nstats in nns.values():
+            site = nstats['site']
             if nstats[self.weight] > self.tol * max_weight \
                     and site.specie in targets:
-                siw.append({'site': site,
-                            'image': self._get_image(site.frac_coords),
-                            'weight': nstats[self.weight] / max_weight,
-                            'site_index': self._get_original_site(structure, site)})
+                nn_info = {'site': site,
+                           'image': self._get_image(site.frac_coords),
+                           'weight': nstats[self.weight] / max_weight,
+                           'site_index': self._get_original_site(
+                               structure, site)}
+
+                if self.extra_nn_info:
+                    # Add all the information about the site
+                    poly_info = nstats
+                    del poly_info['site']
+                    nn_info['poly_info'] = poly_info
+                siw.append(nn_info)
         return siw
 
 
@@ -663,9 +729,7 @@ class JMolNN(NearNeighbors):
     """
 
     def __init__(self, tol=1E-3, el_radius_updates=None):
-
         self.tol = tol
-        self._cns = {}
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -747,10 +811,8 @@ class MinimumDistanceNN(NearNeighbors):
     """
 
     def __init__(self, tol=0.1, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -800,10 +862,8 @@ class MinimumOKeeffeNN(NearNeighbors):
     """
 
     def __init__(self, tol=0.1, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -867,10 +927,8 @@ class MinimumVIRENN(NearNeighbors):
     """
 
     def __init__(self, tol=0.1, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
         """
@@ -924,18 +982,27 @@ def solid_angle(center, coords):
     Returns:
         The solid angle.
     """
-    o = np.array(center)
-    r = [np.array(c) - o for c in coords]
-    r.append(r[0])
-    n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
-    n.append(np.cross(r[1], r[0]))
-    vals = []
-    for i in range(len(n) - 1):
-        v = -np.dot(n[i], n[i + 1]) \
-            / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-        vals.append(acos(abs_cap(v)))
-    phi = sum(vals)
-    return phi + (3 - len(r)) * pi
+
+    # Compute the displacement from the center
+    r = [np.subtract(c, center) for c in coords]
+
+    # Compute the magnitude of each vector
+    r_norm = [np.linalg.norm(i) for i in r]
+
+    # Compute the solid angle for each tetrahedron that makes up the facet
+    #  Following: https://en.wikipedia.org/wiki/Solid_angle#Tetrahedron
+    angle = 0
+    for i in range(1, len(r)-1):
+        j = i + 1
+        tp = np.abs(np.dot(r[0], np.cross(r[i], r[j])))
+        de = r_norm[0] * r_norm[i] * r_norm[j] + \
+            r_norm[j] * np.dot(r[0], r[i]) + \
+            r_norm[i] * np.dot(r[0], r[j]) + \
+            r_norm[0] * np.dot(r[i], r[j])
+        my_angle = np.arctan(tp / de)
+        angle += (my_angle if my_angle > 0 else my_angle + np.pi) * 2
+
+    return angle
 
 
 def vol_tetra(vt1, vt2, vt3, vt4):
@@ -2249,33 +2316,24 @@ class LocalStructOrderParams(object):
 
         return ops
 
+class BrunnerNN_reciprocal(NearNeighbors):
 
-class BrunnerNN(NearNeighbors):
     """
     Determine coordination number using Brunner's algorithm which counts the
     atoms that are within the largest gap in differences in real space
-    interatomic distances.
-
-    Note: Might be highly inaccurate in certain cases.
+    interatomic distances. This algorithm uses Brunner's method of
+    largest reciprocal gap in interatomic distances.
 
     Args:
-        mode (str): type of neighbor-finding approach, where "reciprocal"
-            will use Brunner's method of largest reciprocal gap in
-            interatomic distances, "relative" will use Brunner's method of largest
-            relative gap in interatomic distances, and "real" will use Brunner's
-            method of largest gap in interatomic distances.
-            Defaults to "reciprocal" method.
         tol (float): tolerance parameter for bond determination
             (default: 1E-4).
         cutoff (float): cutoff radius in Angstrom to look for near-neighbor
             atoms. Defaults to 8.0.
     """
 
-    def __init__(self, mode="reciprocal", tol=1.0e-4, cutoff=8.0):
-        self.mode = mode
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2284,14 +2342,85 @@ class BrunnerNN(NearNeighbors):
         ds = [i[-1] for i in neighs_dists]
         ds.sort()
 
-        if self.mode == "reciprocal":
-            ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
-        elif self.mode == "relative":
-            ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
-        elif self.mode == "real":
-            ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
-        else:
-            raise ValueError("Unknown Brunner CN mode.")
+        ns = [1.0 / ds[i] - 1.0 / ds[i + 1] for i in range(len(ds) - 1)]
+
+        d_max = ds[ns.index(max(ns))]
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < d_max + self.tol:
+                w = ds[0] / dist
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
+        return siw
+
+class BrunnerNN_relative(NearNeighbors):
+
+    """
+    Determine coordination number using Brunner's algorithm which counts the
+    atoms that are within the largest gap in differences in real space
+    interatomic distances. This algorithm uses Brunner's method of
+    of largest relative gap in interatomic distances.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1E-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 8.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
+        self.tol = tol
+        self.cutoff = cutoff
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        ds = [i[-1] for i in neighs_dists]
+        ds.sort()
+
+        ns = [ds[i] / ds[i + 1] for i in range(len(ds) - 1)]
+
+        d_max = ds[ns.index(max(ns))]
+        siw = []
+        for s, dist in neighs_dists:
+            if dist < d_max + self.tol:
+                w = ds[0] / dist
+                siw.append({'site': s,
+                            'image': self._get_image(s.frac_coords),
+                            'weight': w,
+                            'site_index': self._get_original_site(structure, s)})
+        return siw
+
+class BrunnerNN_real(NearNeighbors):
+
+    """
+    Determine coordination number using Brunner's algorithm which counts the
+    atoms that are within the largest gap in differences in real space
+    interatomic distances. This algorithm uses Brunner's method of
+    largest gap in interatomic distances.
+
+    Args:
+        tol (float): tolerance parameter for bond determination
+            (default: 1E-4).
+        cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+            atoms. Defaults to 8.0.
+    """
+
+    def __init__(self, tol=1.0e-4, cutoff=8.0):
+        self.tol = tol
+        self.cutoff = cutoff
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+        neighs_dists = structure.get_neighbors(site, self.cutoff)
+        ds = [i[-1] for i in neighs_dists]
+        ds.sort()
+
+        ns = [ds[i] - ds[i + 1] for i in range(len(ds) - 1)]
 
         d_max = ds[ns.index(max(ns))]
         siw = []
@@ -2324,10 +2453,8 @@ class EconNN(NearNeighbors):
     """
 
     def __init__(self, tol=1.0e-4, cutoff=10.0):
-
         self.tol = tol
         self.cutoff = cutoff
-        self._cns = {}
 
     def get_nn_info(self, structure, n):
 
@@ -2346,6 +2473,344 @@ class EconNN(NearNeighbors):
                                 'weight': w,
                                 'site_index': self._get_original_site(structure, s)})
         return siw
+
+
+class CrystalNN(NearNeighbors):
+    """
+    This is custom near neighbor method intended for use in all kinds of
+    periodic structures (metals, minerals, porous structures, etc). It is based
+    on a Voronoi algorithm and uses the solid angle weights to determine the
+    probability of various coordination environments. The algorithm can also
+    modify probability using smooth distance cutoffs as well as Pauling
+    electronegativity differences. The output can either be the most probable
+    coordination environment or a weighted list of coordination environments.
+    """
+
+    NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
+
+    def __init__(self, weighted_cn=False, cation_anion=False,
+                 distance_cutoffs=(0.5, 1.0), x_diff_weight=3.0,
+                 porous_adjustment=True, search_cutoff=7,
+                 fingerprint_length=None):
+        """
+        Initialize CrystalNN with desired parameters. Default parameters assume
+        "chemical bond" type behavior is desired. For geometric neighbor
+        finding (e.g., structural framework), set (i) distance_cutoffs=None,
+        (ii) x_diff_weight=0.0 and (optionally) (iii) porous_adjustment=False
+        which will disregard the atomic identities and perform best for a purely
+        geometric match.
+
+        Args:
+            weighted_cn: (bool) if set to True, will return fractional weights
+                for each potential near neighbor.
+            cation_anion: (bool) if set True, will restrict bonding targets to
+                sites with opposite or zero charge. Requires an oxidation states
+                on all sites in the structure.
+            distance_cutoffs: ([float, float]) - if not None, penalizes neighbor
+                distances greater than sum of covalent radii plus
+                distance_cutoffs[0]. Distances greater than covalent radii sum
+                plus distance_cutoffs[1] are enforced to have zero weight.
+            x_diff_weight: (float) - if multiple types of neighbor elements are
+                possible, this sets preferences for targets with higher
+                electronegativity difference.
+            porous_adjustment: (bool) - if True, readjusts Voronoi weights to
+                better describe layered / porous structures
+            search_cutoff: (float) cutoff in Angstroms for initial neighbor
+                search; this will be adjusted if needed internally
+            fingerprint_length: (int) if a fixed_length CN "fingerprint" is
+                desired from get_nn_data(), set this parameter
+        """
+        self.weighted_cn=weighted_cn
+        self.cation_anion = cation_anion
+        self.distance_cutoffs = distance_cutoffs
+        self.x_diff_weight = x_diff_weight if x_diff_weight is not None else 0
+        self.search_cutoff = search_cutoff
+        self.porous_adjustment = porous_adjustment
+        self.fingerprint_length = fingerprint_length
+
+    def get_nn_info(self, structure, n):
+        """
+        Get all near-neighbor information.
+        Args:
+            structure: (Structure) pymatgen Structure
+            n: (int) index of target site
+
+        Returns:
+            siw (list of dicts): each dictionary provides information
+                about a single near neighbor, where key 'site' gives
+                access to the corresponding Site object, 'image' gives
+                the image location, and 'weight' provides the weight
+                that a given near-neighbor site contributes
+                to the coordination number (1 or smaller), 'site_index'
+                gives index of the corresponding site in
+                the original structure.
+        """
+
+        nndata = self.get_nn_data(structure, n)
+
+        if not self.weighted_cn:
+            max_key = max(nndata.cn_weights, key=lambda k: nndata.cn_weights[k])
+            nn = nndata.cn_nninfo[max_key]
+            for entry in nn:
+                entry["weight"] = 1
+            return nn
+
+        else:
+            for entry in nndata.all_nninfo:
+                weight = 0
+                for cn in nndata.cn_nninfo:
+                    for cn_entry in nndata.cn_nninfo[cn]:
+                        if entry["site"] == cn_entry["site"]:
+                            weight += nndata.cn_weights[cn]
+
+                entry["weight"] = weight
+
+            return nndata.all_nninfo
+
+    def get_nn_data(self, structure, n, length=None):
+        """
+        The main logic of the method to compute near neighbor.
+
+        Args:
+            structure: (Structure) enclosing structure object
+            n: (int) index of target site to get NN info for
+            length: (int) if set, will return a fixed range of CN numbers
+
+        Returns:
+            a namedtuple (NNData) object that contains:
+                - all near neighbor sites with weights
+                - a dict of CN -> weight
+                - a dict of CN -> associated near neighbor sites
+        """
+
+        length = length or self.fingerprint_length
+
+        # determine possible bond targets
+        target = None
+        if self.cation_anion:
+            target = []
+            m_oxi = structure[n].specie.oxi_state
+            for site in structure:
+                if site.specie.oxi_state * m_oxi <= 0:  # opposite charge
+                    target.append(site.specie)
+            if not target:
+                raise ValueError(
+                    "No valid targets for site within cation_anion constraint!")
+
+        # get base VoronoiNN targets
+        cutoff = self.search_cutoff
+        max_cutoff = np.linalg.norm(structure.lattice.lengths_and_angles[0])
+        while True:
+            try:
+                vnn = VoronoiNN(weight="solid_angle", targets=target,
+                                cutoff=cutoff)
+                nn = vnn.get_nn_info(structure, n)
+                break
+            except RuntimeError:
+                if cutoff > max_cutoff:
+                    raise RuntimeError("CrystalNN error in Voronoi finding.")
+                cutoff = cutoff * 2
+
+        # solid angle weights can be misleading in open / porous structures
+        # adjust weights to correct for this behavior
+        if self.porous_adjustment:
+            for x in nn:
+                x["weight"] *= x["poly_info"][
+                                   "solid_angle"]/x["poly_info"]["area"]
+
+        # adjust solid angle weight based on electronegativity difference
+        if self.x_diff_weight > 0:
+            for entry in nn:
+                X1 = structure[n].specie.X
+                X2 = entry["site"].specie.X
+
+                if math.isnan(X1) or math.isnan(X2):
+                    chemical_weight = 1
+                else:
+                    # note: 3.3 is max deltaX between 2 elements
+                    chemical_weight = 1 + self.x_diff_weight * \
+                                      math.sqrt(abs(X1 - X2)/3.3)
+
+                entry["weight"] = entry["weight"] * chemical_weight
+
+        # sort nearest neighbors from highest to lowest weight
+        nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+        if nn[0]["weight"] == 0:
+            return self.transform_to_length(self.NNData([], {0: 1.0}, {0: []}),
+                                            length)
+
+        # renormalize weights so the highest weight is 1.0
+        highest_weight = nn[0]["weight"]
+        for entry in nn:
+            entry["weight"] = entry["weight"] / highest_weight
+
+        # adjust solid angle weights based on distance
+        if self.distance_cutoffs:
+            r1 = self._get_radius(structure[n])
+            for entry in nn:
+                r2 = self._get_radius(entry["site"])
+                dist = np.linalg.norm(
+                    structure[n].coords - entry["site"].coords)
+                dist_weight = 0
+
+                cutoff_low = (r1 + r2) + self.distance_cutoffs[0]
+                cutoff_high = (r1 + r2) + self.distance_cutoffs[1]
+
+                if dist <= cutoff_low:
+                    dist_weight = 1
+                elif dist < cutoff_high:
+                    dist_weight = (math.cos((dist - cutoff_low) / (
+                                cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
+                entry["weight"] = entry["weight"] * dist_weight
+
+        # sort nearest neighbors from highest to lowest weight
+        nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
+        if nn[0]["weight"] == 0:
+            return self.transform_to_length(self.NNData([], {0: 1.0}, {0: []}),
+                                            length)
+
+        for entry in nn:
+            entry["weight"] = round(entry["weight"], 3)
+            del entry["poly_info"]  # trim
+
+        # remove entries with no weight
+        nn = [x for x in nn if x["weight"] > 0]
+
+        # get the transition distances, i.e. all distinct weights
+        dist_bins = []
+        for entry in nn:
+            if not dist_bins or dist_bins[-1] != entry["weight"]:
+                dist_bins.append(entry["weight"])
+        dist_bins.append(0)
+
+        # main algorithm to determine fingerprint from bond weights
+        cn_weights = {}  # CN -> score for that CN
+        cn_nninfo = {}  # CN -> list of nearneighbor info for that CN
+        for idx, val in enumerate(dist_bins):
+            if val != 0:
+                nn_info = []
+                for entry in nn:
+                    if entry["weight"] >= val:
+                        nn_info.append(entry)
+                cn = len(nn_info)
+                cn_nninfo[cn] = nn_info
+                cn_weights[cn] = self._semicircle_integral(dist_bins, idx)
+
+        # add zero coord
+        cn0_weight = 1.0 - sum(cn_weights.values())
+        if cn0_weight > 0:
+            cn_nninfo[0] = []
+            cn_weights[0] = cn0_weight
+
+        return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo),
+                                        length)
+
+    def get_cn(self, structure, n, use_weights=False):
+        """
+        Get coordination number, CN, of site with index n in structure.
+
+        Args:
+            structure (Structure): input structure.
+            n (integer): index of site for which to determine CN.
+            use_weights (boolean): flag indicating whether (True)
+                to use weights for computing the coordination number
+                or not (False, default: each coordinated site has equal
+                weight).
+        Returns:
+            cn (integer or float): coordination number.
+        """
+        if self.weighted_cn != use_weights:
+            raise ValueError("The weighted_cn parameter and use_weights "
+                             "parameter should match!")
+
+        return super(CrystalNN, self).get_cn(structure, n, use_weights)
+
+    def get_cn_dict(self, structure, n, use_weights=False):
+        """
+        Get coordination number, CN, of each element bonded to site with index n in structure
+
+        Args:
+            structure (Structure): input structure
+            n (integer): index of site for which to determine CN.
+            use_weights (boolean): flag indicating whether (True)
+                to use weights for computing the coordination number
+                or not (False, default: each coordinated site has equal
+                weight).
+
+        Returns:
+            cn (dict): dictionary of CN of each element bonded to site
+        """
+        if self.weighted_cn != use_weights:
+            raise ValueError("The weighted_cn parameter and use_weights "
+                             "parameter should match!")
+
+        return super(CrystalNN, self).get_cn_dict(structure, n, use_weights)
+
+
+    @staticmethod
+    def _semicircle_integral(dist_bins, idx):
+        """
+        An internal method to get an integral between two bounds of a unit
+        semicircle. Used in algorithm to determine bond probabilities.
+        Args:
+            dist_bins: (float) list of all possible bond weights
+            idx: (float) index of starting bond weight
+
+        Returns:
+            (float) integral of portion of unit semicircle
+
+        """
+        r = 1
+
+        x1 = dist_bins[idx]
+        x2 = dist_bins[idx + 1]
+
+        if dist_bins[idx] == 1:
+            area1 = 0.25 * math.pi * r ** 2
+        else:
+            area1 = 0.5 * ((x1 * math.sqrt(r ** 2 - x1 ** 2)) + (
+                        r ** 2 * math.atan(x1 / math.sqrt(r ** 2 - x1 ** 2))))
+
+        area2 = 0.5 * ((x2 * math.sqrt(r ** 2 - x2 ** 2)) + (
+                    r ** 2 * math.atan(x2 / math.sqrt(r ** 2 - x2 ** 2))))
+
+        return (area1 - area2) / (0.25 * math.pi * r ** 2)
+
+
+    @staticmethod
+    def _get_radius(site):
+        """
+        An internal method to get the expected radius for a site.
+        Args:
+            site: (Site)
+
+        Returns:
+            Covalent radius of element on site, or Atomic radius if unavailable
+        """
+        try:
+            return CovalentRadius.radius[site.specie.symbol]
+        except:
+            return site.specie.atomic_radius
+
+    @staticmethod
+    def transform_to_length(nndata, length):
+        """
+        Given NNData, transforms data to the specified fingerprint length
+        Args:
+            nndata: (NNData)
+            length: (int) desired length of NNData
+        """
+
+        if length is None:
+            return nndata
+
+        if length:
+            for cn in range(length):
+                if cn not in nndata.cn_weights:
+                    nndata.cn_weights[cn] = 0
+                    nndata.cn_nninfo[cn] = []
+
+        return nndata
 
 
 def calculate_weighted_avg(bonds):

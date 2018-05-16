@@ -335,9 +335,9 @@ class IStructure(SiteCollection, MSONable):
     structure is equivalent to going through the sites in sequence.
     """
 
-    def __init__(self, lattice, species, coords, charge=None, validate_proximity=False,
-                 to_unit_cell=False, coords_are_cartesian=False,
-                 site_properties=None):
+    def __init__(self, lattice, species, coords, charge=None,
+                 validate_proximity=False, to_unit_cell=False,
+                 coords_are_cartesian=False, site_properties=None):
         """
         Create a periodic structure.
 
@@ -543,106 +543,105 @@ class IStructure(SiteCollection, MSONable):
     def from_magnetic_spacegroup(
             cls, msg, lattice, species, coords, site_properties,
             transform_setting=None, coords_are_cartesian=False, tol=1e-5):
-         """
-         Generate a structure using a magnetic spacegroup. Note that only
-         symmetrically distinct species, coords and magmoms should be provided.]
-         All equivalent sites are generated from the spacegroup operations.
+        """
+        Generate a structure using a magnetic spacegroup. Note that only
+        symmetrically distinct species, coords and magmoms should be provided.]
+        All equivalent sites are generated from the spacegroup operations.
 
-         Args:
-             msg (str/list/:class:`pymatgen.symmetry.maggroups.MagneticSpaceGroup`):
-                 The magnetic spacegroup.
-                 If a string, it will be interpreted as one of the notations
-                 supported by MagneticSymmetryGroup, e.g., "R-3'c" or "Fm'-3'm".
-                 If a list of two ints, it will be interpreted as the number of
-                 the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
-             lattice (Lattice/3x3 array): The lattice, either as a
-                 :class:`pymatgen.core.lattice.Lattice` or
-                 simply as any 2D array. Each row should correspond to a lattice
-                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
-                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-                 Note that no attempt is made to check that the lattice is
-                 compatible with the spacegroup specified. This may be
-                 introduced in a future version.
-             species ([Specie]): Sequence of species on each site. Can take in
-                 flexible input, including:
+        Args:
+            msg (str/list/:class:`pymatgen.symmetry.maggroups.MagneticSpaceGroup`):
+                The magnetic spacegroup.
+                If a string, it will be interpreted as one of the notations
+                supported by MagneticSymmetryGroup, e.g., "R-3'c" or "Fm'-3'm".
+                If a list of two ints, it will be interpreted as the number of
+                the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
+            lattice (Lattice/3x3 array): The lattice, either as a
+                :class:`pymatgen.core.lattice.Lattice` or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+                Note that no attempt is made to check that the lattice is
+                compatible with the spacegroup specified. This may be
+                introduced in a future version.
+            species ([Specie]): Sequence of species on each site. Can take in
+                flexible input, including:
+                i.  A sequence of element / specie specified either as string
+                symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                e.g., (3, 56, ...) or actual Element or Specie objects.
 
-                 i.  A sequence of element / specie specified either as string
-                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                     e.g., (3, 56, ...) or actual Element or Specie objects.
-
-                 ii. List of dict of elements/species and occupancies, e.g.,
-                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
-                     disordered structures.
-             coords (Nx3 array): list of fractional/cartesian coordinates of
-                 each species.
-             site_properties (dict): Properties associated with the sites as a
-                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
-                 have to be the same length as the atomic species and
-                 fractional_coords. Unlike Structure.from_spacegroup(),
-                 this argument is mandatory, since magnetic moment information
-                 has to be included. Note that the *direction* of the supplied
-                 magnetic moment relative to the crystal is important, even if
-                 the resulting structure is used for collinear calculations.
-             coords_are_cartesian (bool): Set to True if you are providing
-                 coordinates in cartesian coordinates. Defaults to False.
-             tol (float): A fractional tolerance to deal with numerical
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            coords (Nx3 array): list of fractional/cartesian coordinates of
+                each species.
+            site_properties (dict): Properties associated with the sites as a
+                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                have to be the same length as the atomic species and
+                fractional_coords. Unlike Structure.from_spacegroup(),
+                this argument is mandatory, since magnetic moment information
+                has to be included. Note that the *direction* of the supplied
+                magnetic moment relative to the crystal is important, even if
+                the resulting structure is used for collinear calculations.
+            coords_are_cartesian (bool): Set to True if you are providing
+                coordinates in cartesian coordinates. Defaults to False.
+            tol (float): A fractional tolerance to deal with numerical
                 precision issues in determining if orbits are the same.
-         """
-         from pymatgen.electronic_structure.core import Magmom
-         from pymatgen.symmetry.maggroups import MagneticSpaceGroup
+        """
+        from pymatgen.electronic_structure.core import Magmom
+        from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 
-         if 'magmom' not in site_properties:
-             raise ValueError('Magnetic moments have to be defined.')
-         else:
-             magmoms = [Magmom(m) for m in site_properties['magmom']]
+        if 'magmom' not in site_properties:
+            raise ValueError('Magnetic moments have to be defined.')
+        else:
+            magmoms = [Magmom(m) for m in site_properties['magmom']]
 
-         if not isinstance(msg, MagneticSpaceGroup):
-             msg = MagneticSpaceGroup(msg)
+        if not isinstance(msg, MagneticSpaceGroup):
+            msg = MagneticSpaceGroup(msg)
 
-         if isinstance(lattice, Lattice):
-             latt = lattice
-         else:
-             latt = Lattice(lattice)
+        if isinstance(lattice, Lattice):
+            latt = lattice
+        else:
+            latt = Lattice(lattice)
 
-         if not msg.is_compatible(latt):
-             raise ValueError(
-                 "Supplied lattice with parameters %s is incompatible with "
-                 "supplied spacegroup %s!" % (latt.lengths_and_angles,
-                                              msg.symbol)
-             )
+        if not msg.is_compatible(latt):
+            raise ValueError(
+                "Supplied lattice with parameters %s is incompatible with "
+                "supplied spacegroup %s!" % (latt.lengths_and_angles,
+                                             msg.symbol)
+            )
 
-         if len(species) != len(coords):
-             raise ValueError(
-                 "Supplied species and coords lengths (%d vs %d) are "
-                 "different!" % (len(species), len(coords))
-             )
+        if len(species) != len(coords):
+            raise ValueError(
+                "Supplied species and coords lengths (%d vs %d) are "
+                "different!" % (len(species), len(coords))
+            )
 
-         if len(species) != len(magmoms):
-             raise ValueError(
-                 "Supplied species and magmom lengths (%d vs %d) are "
-                 "different!" % (len(species), len(magmoms))
-             )
+        if len(species) != len(magmoms):
+            raise ValueError(
+                "Supplied species and magmom lengths (%d vs %d) are "
+                "different!" % (len(species), len(magmoms))
+            )
 
-         frac_coords = coords if not coords_are_cartesian else \
-             lattice.get_fractional_coords(coords)
+        frac_coords = coords if not coords_are_cartesian else \
+            lattice.get_fractional_coords(coords)
 
-         all_sp = []
-         all_coords = []
-         all_magmoms = []
-         all_site_properties = collections.defaultdict(list)
-         for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):
-             cc, mm = msg.get_orbit(c, m, tol=tol)
-             all_sp.extend([sp] * len(cc))
-             all_coords.extend(cc)
-             all_magmoms.extend(mm)
-             for k, v in site_properties.items():
-                 if k != 'magmom':
-                     all_site_properties[k].extend([v[i]] * len(cc))
+        all_sp = []
+        all_coords = []
+        all_magmoms = []
+        all_site_properties = collections.defaultdict(list)
+        for i, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):
+            cc, mm = msg.get_orbit(c, m, tol=tol)
+            all_sp.extend([sp] * len(cc))
+            all_coords.extend(cc)
+            all_magmoms.extend(mm)
+            for k, v in site_properties.items():
+                if k != 'magmom':
+                    all_site_properties[k].extend([v[i]] * len(cc))
 
-         all_site_properties['magmom'] = all_magmoms
+        all_site_properties['magmom'] = all_magmoms
 
-         return cls(latt, all_sp, all_coords,
-                    site_properties=all_site_properties)
+        return cls(latt, all_sp, all_coords,
+                   site_properties=all_site_properties)
 
     @property
     def charge(self):
@@ -922,7 +921,7 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
 
         latt = self._lattice
-        neighbors = [list() for i in range(len(self._sites))]
+        neighbors = [list() for _ in range(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = latt.get_cartesian_coords(all_fcoords)
         site_coords = self.cart_coords
@@ -1035,8 +1034,8 @@ class IStructure(SiteCollection, MSONable):
             # the site_properties or sanitizing, initializing an empty
             # structure and setting _sites to be sites is much faster (~100x)
             # than doing the full initialization.
-            s_copy = self.__class__(lattice=self._lattice, species=[], charge=self._charge,
-                                    coords=[])
+            s_copy = self.__class__(lattice=self._lattice, species=[],
+                                    charge=self._charge, coords=[])
             s_copy._sites = list(self._sites)
             return s_copy
         props = self.site_properties
@@ -1167,7 +1166,8 @@ class IStructure(SiteCollection, MSONable):
         return structs
 
     def get_primitive_structure(self, tolerance=0.25, use_site_props=False,
-                                constrain_latt=[False, False, False, False, False, False]):
+                                constrain_latt=[False, False, False, False,
+                                                False, False]):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
@@ -2026,7 +2026,8 @@ class IMolecule(SiteCollection, MSONable):
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
-                            random_rotation=False, min_dist=1, cls=None, offset=None, no_cross=False):
+                            random_rotation=False, min_dist=1, cls=None,
+                            offset=None, no_cross=False):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -2056,7 +2057,7 @@ class IMolecule(SiteCollection, MSONable):
             Structure containing molecule in a box.
         """
         if offset is None:
-            offset = np.array([0,0,0])
+            offset = np.array([0, 0, 0])
 
         coords = np.array(self.cart_coords)
         x_range = max(coords[:, 0]) - min(coords[:, 0])
@@ -2084,7 +2085,7 @@ class IMolecule(SiteCollection, MSONable):
                         angle=random.uniform(-180, 180))
                     m = op.rotation_matrix
                     new_coords = np.dot(m, centered_coords.T).T + box_center
-                    if no_cross == True:
+                    if no_cross:
                         x_max, x_min = max(new_coords[:, 0]), min(new_coords[:, 0])
                         y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
                         z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
@@ -2099,7 +2100,7 @@ class IMolecule(SiteCollection, MSONable):
                         break
             else:
                 new_coords = centered_coords + box_center
-                if no_cross == True:
+                if no_cross:
                     x_max, x_min = max(new_coords[:, 0]), min(new_coords[:, 0])
                     y_max, y_min = max(new_coords[:, 1]), min(new_coords[:, 1])
                     z_max, z_min = max(new_coords[:, 2]), min(new_coords[:, 2])
@@ -2329,12 +2330,11 @@ class Structure(IStructure, collections.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
-        super(Structure, self).__init__(lattice, species, coords,
-                                        charge=charge,
-                                        validate_proximity=validate_proximity,
-                                        to_unit_cell=to_unit_cell,
-                                        coords_are_cartesian=coords_are_cartesian,
-                                        site_properties=site_properties)
+        super(Structure, self).__init__(
+            lattice, species, coords, charge=charge,
+            validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
+            coords_are_cartesian=coords_are_cartesian,
+            site_properties=site_properties)
 
         self._sites = list(self._sites)
 
@@ -2726,6 +2726,50 @@ class Structure(IStructure, collections.MutableSequence):
                                     properties=site.properties)
             self._sites[i] = new_site
 
+    def rotate_sites(self, indices=None, theta=0, axis=None, anchor=None,
+                     to_unit_cell=True):
+        """
+        Rotate specific sites by some angle around vector at anchor.
+
+        Args:
+            indices (list): List of site indices on which to perform the
+                translation.
+            theta (float): Angle in radians
+            axis (3x1 array): Rotation axis vector.
+            anchor (3x1 array): Point of rotation.
+            to_unit_cell (bool): Whether new sites are transformed to unit
+                cell
+        """
+
+        from numpy.linalg import norm
+        from numpy import cross, eye
+        from scipy.linalg import expm
+
+        if indices is None:
+            indices = range(len(self))
+
+        if axis is None:
+            axis = [0, 0, 1]
+
+        if anchor is None:
+            anchor = [0, 0, 0]
+
+        anchor = np.array(anchor)
+        axis = np.array(axis)
+
+        theta %= 2 * np.pi
+
+        rm = expm(cross(eye(3), axis / norm(axis)) * theta)
+
+        for i in indices:
+            site = self._sites[i]
+            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            new_site = PeriodicSite(
+                site.species_and_occu, s, self._lattice,
+                to_unit_cell=to_unit_cell, coords_are_cartesian=True,
+                properties=site.properties)
+            self._sites[i] = new_site
+
     def perturb(self, distance):
         """
         Performs a random perturbation of the sites in a structure to break
@@ -3044,8 +3088,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         """
         self._sites.__delitem__(i)
 
-    def append(self, species, coords, validate_proximity=True,
-               properties=None):
+    def append(self, species, coords, validate_proximity=True, properties=None):
         """
         Appends a site to the molecule.
 
@@ -3164,8 +3207,6 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         Args:
             property_name (str): The name of the property to add.
-            values (list): A sequence of values. Must be same length as
-                number of sites.
         """
         for i in range(len(self._sites)):
             site = self._sites[i]
@@ -3256,7 +3297,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         Args:
             indices (list): List of site indices on which to perform the
                 translation.
-            angle (float): Angle in radians
+            theta (float): Angle in radians
             axis (3x1 array): Rotation axis vector.
             anchor (3x1 array): Point of rotation.
         """
@@ -3434,6 +3475,7 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
+
 
 with open(os.path.join(os.path.dirname(__file__),
                        "func_groups.json"), "rt") as f:

@@ -1,8 +1,10 @@
 import re
+import numpy as np
 from collections import defaultdict
 
 
-def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
+def read_pattern(text_str, patterns, terminate_on_match=False,
+                 postprocess=str):
     """
         General pattern reading on an input string
 
@@ -23,7 +25,10 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
             are lists of lists, because you can grep multiple items on one line.
     """
 
-    compiled = {key: re.compile(pattern, re.MULTILINE | re.DOTALL) for key, pattern in patterns.items()}
+    compiled = {
+        key: re.compile(pattern, re.MULTILINE | re.DOTALL)
+        for key, pattern in patterns.items()
+    }
     matches = defaultdict(list)
     for key, pattern in compiled.items():
         for match in pattern.finditer(text_str):
@@ -75,7 +80,8 @@ def read_table_pattern(text_str,
         row_pattern.
     """
 
-    table_pattern_text = header_pattern + r"\s*(?P<table_body>(?:" + row_pattern + r")+)\s*" + footer_pattern
+    table_pattern_text = header_pattern + \
+        r"\s*(?P<table_body>(?:" + row_pattern + r")+)\s*" + footer_pattern
     table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
     rp = re.compile(row_pattern)
     data = {}
@@ -99,3 +105,46 @@ def read_table_pattern(text_str,
         data[attribute_name] = retained_data
         return data
     return retained_data
+
+
+def lower_and_check_unique(dict_to_check):
+    """
+    Takes a dictionary and makes all the keys lower case. Also replaces
+    "jobtype" with "job_type" just so that key specifically can be called
+    elsewhere without ambiguity. Finally, ensures that multiple identical
+    keys, that differed only due to different capitalizations, are not
+    present. If there are multiple equivalent keys, an Exception is raised.
+
+    Args:
+        dict_to_check (dict): The dictionary to check and standardize
+
+    Returns:
+        to_return (dict): An identical dictionary but with all keys made
+            lower case and no identical keys present.
+    """
+    if dict_to_check == None:
+        return None
+    else:
+        to_return = {}
+        for key in dict_to_check:
+            new_key = key.lower()
+            if new_key == "jobtype":
+                new_key = "job_type"
+            if new_key in to_return:
+                raise Exception(
+                    "Multiple instances of key " + new_key + " found!")
+            else:
+                to_return[new_key] = dict_to_check.get(key)
+        return to_return
+
+
+def process_parsed_coords(coords):
+    """
+    Takes a set of parsed coordinates, which come as an array of strings,
+    and returns a numpy array of floats.
+    """
+    geometry = np.zeros(shape=(len(coords), 3), dtype=float)
+    for ii, entry in enumerate(coords):
+        for jj in range(3):
+            geometry[ii, jj] = float(entry[jj])
+    return geometry

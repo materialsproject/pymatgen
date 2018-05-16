@@ -15,11 +15,9 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class JahnTellerTest(unittest.TestCase):
 
     def setUp(self):
-
         self.jt = JahnTellerAnalyzer()
 
     def test_jahn_teller_species_analysis(self):
-
         # 1 d-shell electron
         m = self.jt.get_magnitude_of_effect_from_species('Ti3+', '', 'oct')
         self.assertEqual(m, "weak")
@@ -87,7 +85,6 @@ class JahnTellerTest(unittest.TestCase):
         self.assertEqual(m, "none")
 
     def test_jahn_teller_structure_analysis(self):
-
         parser = CifParser(os.path.join(test_dir, 'LiFePO4.cif'))
         LiFePO4 = parser.get_structures()[0]
 
@@ -121,6 +118,13 @@ class JahnTellerTest(unittest.TestCase):
         }
 
         self.assertDictEqual(LiFePO4_analysis, self.jt.get_analysis(LiFePO4))
+
+    def test_mu_so(self):
+        SpeciesCo = Specie(symbol='Co', oxidation_state=4)
+        self.assertAlmostEqual(np.sqrt(3), JahnTellerAnalyzer.mu_so(SpeciesCo, 'oct', 'low'))
+        self.assertAlmostEqual(np.sqrt(35), JahnTellerAnalyzer.mu_so(SpeciesCo, 'oct', 'high'))
+        SpeciesNa = Specie(symbol='Na', oxidation_state=1)
+        self.assertEqual(None, JahnTellerAnalyzer.mu_so(SpeciesNa, 'oct', 'high'))
 
 
 if __name__ == '__main__':

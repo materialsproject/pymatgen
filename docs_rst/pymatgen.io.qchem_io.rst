@@ -1,5 +1,5 @@
-pymatgen.io.qchem\_io package
-=============================
+pymatgen\.io\.qchem\_io package
+===============================
 
 Subpackages
 -----------
@@ -14,6 +14,7 @@ Submodules
 
    pymatgen.io.qchem_io.inputs
    pymatgen.io.qchem_io.outputs
+   pymatgen.io.qchem_io.sets
    pymatgen.io.qchem_io.utils
 
 Module contents

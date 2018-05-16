@@ -1,6 +1,9 @@
 Change log
 ==========
 
-v2018.3.22
+v2018.5.14
 ----------
-* Bug fixes to phase diagram module, enumlib adaptor, local env analysis.
+* Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
+  for details.
+* Better CrystalNN. (Anubhav Jain)
+* Fixes for elastic module. (Joseph Montoya)

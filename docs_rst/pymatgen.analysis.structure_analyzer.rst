@@ -1,5 +1,5 @@
-pymatgen.analysis.structure\_analyzer module
-============================================
+pymatgen\.analysis\.structure\_analyzer module
+==============================================
 
 .. automodule:: pymatgen.analysis.structure_analyzer
     :members:

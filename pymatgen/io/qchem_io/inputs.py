@@ -2,16 +2,15 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-from collections import OrderedDict
 import logging
 from monty.json import MSONable
 from pymatgen.core import Molecule
-from .utils import read_table_pattern, read_pattern
+from .utils import read_table_pattern, read_pattern, lower_and_check_unique
 """
 Classes for reading/manipulating/writing QChem ouput files.
 """
 
-__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath"
+__author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "0.1"
 __email__ = "b.wood@berkeley.edu"
@@ -35,20 +34,53 @@ class QCInput(MSONable):
             previous calculation.
         rem (dict):
             A dictionary of all the input parameters for the rem section of QChem input file.
-            If for some reason the order matters use an OrderedDict from collections.
             Ex. rem = {'method': 'rimp2', 'basis': '6-31*G++' ... }
         opt (dict of lists):
             A dictionary of opt sections, where each opt section is a key and the corresponding
-            values are a list of strings. Stings must be formatted as instructed by the QChem manual. Again if order
-            matters use an OrderedDict.
+            values are a list of strings. Stings must be formatted as instructed by the QChem manual.
             The different opt sections are: CONSTRAINT, FIXED, DUMMY, and CONNECT
-            Ex. opt = OrderedDict({"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]})
+            Ex. opt = {"CONSTRAINT": ["tors 2 3 4 5 25.0", "tors 2 5 7 9 80.0"], "FIXED": ["2 XY"]}
     """
 
-    def __init__(self, molecule, rem, opt=None):
+    def __init__(self, molecule, rem, opt=None, pcm=None, solvent=None):
         self.molecule = molecule
-        self.rem = rem
+        self.rem = lower_and_check_unique(rem)
         self.opt = opt
+        self.pcm = lower_and_check_unique(pcm)
+        self.solvent = lower_and_check_unique(solvent)
+
+        # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
+
+        if isinstance(self.molecule,str):
+            self.molecule = self.molecule.lower()
+            if self.molecule != "read":
+                raise ValueError('The only acceptable text value for molecule is "read"')
+        elif not isinstance(self.molecule, Molecule):
+            raise ValueError("The molecule must either be the string 'read' or be a pymatgen Molecule object")
+
+        # Make sure rem is valid:
+        #   - Has a basis
+        #   - Has a method or DFT exchange functional
+        #   - Has a valid job_type or jobtype
+
+        valid_job_types = ["opt","optimization","sp","freq","frequency","nmr"]
+
+        if "basis" not in self.rem:
+            raise ValueError("The rem dictionary must contain a 'basis' entry")
+        if "method" not in self.rem:
+            if "exchange" not in self.rem:
+                raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
+        if "job_type" not in self.rem:
+            raise ValueError("The rem dictionary must contain a 'job_type' entry")
+        if self.rem.get("job_type").lower() not in valid_job_types:
+            raise ValueError("The rem dictionary must contain a valid 'job_type' entry")
+
+        # Still to do:
+        #   - Check that the method or functional is valid
+        #   - Check that basis is valid
+        #   - Check that basis is defined for all species in the molecule
+        #   - Validity checks specific to job type?
+        #   - Check OPT and PCM sections?
 
     def __str__(self):
         combined_list = []
@@ -61,6 +93,14 @@ class QCInput(MSONable):
         # opt section
         if self.opt:
             combined_list.append(self.opt_template(self.opt))
+            combined_list.append("")
+        # pcm section
+        if self.pcm:
+            combined_list.append(self.pcm_template(self.pcm))
+            combined_list.append("")
+        # solvent section
+        if self.solvent:
+            combined_list.append(self.solvent_template(self.solvent))
             combined_list.append("")
         return '\n'.join(combined_list)
 
@@ -81,9 +121,15 @@ class QCInput(MSONable):
         rem = cls.read_rem(string)
         # only molecule and rem are necessary everything else is checked
         opt = None
+        pcm = None
+        solvent = None
         if "opt" in sections:
             opt = cls.read_opt(string)
-        return cls(molecule, rem, opt=opt)
+        if "pcm" in sections:
+            pcm = cls.read_pcm(string)
+        if "solvent" in sections:
+            solvent = cls.read_solvent(string)
+        return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent)
 
     def write_file(self, filename):
         with open(filename, 'w') as f:
@@ -152,6 +198,24 @@ class QCInput(MSONable):
         return '\n'.join(opt_list)
 
     @staticmethod
+    def pcm_template(pcm):
+        pcm_list = []
+        pcm_list.append("$pcm")
+        for key, value in pcm.items():
+            pcm_list.append("   {key} {value}".format(key=key, value=value))
+        pcm_list.append("$end")
+        return '\n'.join(pcm_list)
+
+    @staticmethod
+    def solvent_template(solvent):
+        solvent_list = []
+        solvent_list.append("$solvent")
+        for key, value in solvent.items():
+            solvent_list.append("   {key} {value}".format(key=key, value=value))
+        solvent_list.append("$end")
+        return '\n'.join(solvent_list)
+
+    @staticmethod
     def find_sections(string):
         patterns = {"sections": r"^\s*?\$([a-z]+)", "multiple_jobs": r"(@@@)"}
         matches = read_pattern(string, patterns)
@@ -185,7 +249,7 @@ class QCInput(MSONable):
         if "spin_mult" in matches.keys():
             spin_mult = int(matches["spin_mult"][0][0])
         header = r"^\s*\$molecule\n\s*\d\s*\d"
-        row = r"\s*((?i)[a-z])\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+        row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer = r"^\$end"
         mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
         species = [val[0] for val in mol_table[0]]
@@ -196,10 +260,10 @@ class QCInput(MSONable):
     @staticmethod
     def read_rem(string):
         header = r"^\s*\$rem"
-        row = r"\s*(\S+)\s+=?\s+(\S+)"
+        row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
         rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        rem = OrderedDict({key: val for key, val in rem_table[0]})
+        rem = {key: val for key, val in rem_table[0]}
         return rem
 
     @staticmethod
@@ -212,30 +276,63 @@ class QCInput(MSONable):
         }
         opt_matches = read_pattern(string, patterns)
         opt_sections = [key for key in opt_matches.keys()]
-        opt = OrderedDict({})
+        opt = {}
         if "CONSTRAINT" in opt_sections:
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
             c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer)
-            opt.update({"CONSTRAINT": [val[0] for val in c_table[0]]})
+            opt["CONSTRAINT"] = [val[0] for val in c_table[0]]
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"
             f_row = r"(\w.*)\n"
             f_footer = r"^\s*ENDFIXED\n"
             f_table = read_table_pattern(string, header_pattern=f_header, row_pattern=f_row, footer_pattern=f_footer)
-            opt.update({"FIXED": [val[0] for val in f_table[0]]})
+            opt["FIXED"] = [val[0] for val in f_table[0]]
         if "DUMMY" in opt_sections:
             d_header = r"^\s*DUMMY\n"
             d_row = r"(\w.*)\n"
             d_footer = r"^\s*ENDDUMMY\n"
             d_table = read_table_pattern(string, header_pattern=d_header, row_pattern=d_row, footer_pattern=d_footer)
-            opt.update({"DUMMY": [val[0] for val in d_table[0]]})
+            opt["DUMMY"] = [val[0] for val in d_table[0]]
         if "CONNECT" in opt_sections:
             cc_header = r"^\s*CONNECT\n"
             cc_row = r"(\w.*)\n"
             cc_footer = r"^\s*ENDCONNECT\n"
             cc_table = read_table_pattern(
                 string, header_pattern=cc_header, row_pattern=cc_row, footer_pattern=cc_footer)
-            opt.update({"CONNECT": [val[0] for val in cc_table[0]]})
+            opt["CONNECT"] = [val[0] for val in cc_table[0]]
         return opt
+
+    @staticmethod
+    def read_pcm(string):
+        header = r"^\s*\$pcm"
+        row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
+        footer = r"^\s*\$end"
+        pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if pcm_table == []:
+            print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
+            return {}
+        else:
+            pcm = {key: val for key, val in pcm_table[0]}
+            return pcm
+
+    @staticmethod
+    def read_solvent(string):
+        header = r"^\s*\$solvent"
+        row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
+        footer = r"^\s*\$end"
+        solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        if solvent_table == []:
+            print("No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines.")
+            return {}
+        else:
+            solvent = {key: val for key, val in solvent_table[0]}
+            return solvent
+
+
+
+
+
+
+

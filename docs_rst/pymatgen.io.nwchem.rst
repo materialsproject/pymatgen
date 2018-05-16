@@ -1,5 +1,5 @@
-pymatgen.io.nwchem module
-=========================
+pymatgen\.io\.nwchem module
+===========================
 
 .. automodule:: pymatgen.io.nwchem
     :members:

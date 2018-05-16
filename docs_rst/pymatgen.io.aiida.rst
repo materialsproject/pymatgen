@@ -1,5 +1,5 @@
-pymatgen.io.aiida module
-========================
+pymatgen\.io\.aiida module
+==========================
 
 .. automodule:: pymatgen.io.aiida
     :members:

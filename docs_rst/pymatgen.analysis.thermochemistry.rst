@@ -1,5 +1,5 @@
-pymatgen.analysis.thermochemistry module
-========================================
+pymatgen\.analysis\.thermochemistry module
+==========================================
 
 .. automodule:: pymatgen.analysis.thermochemistry
     :members:
