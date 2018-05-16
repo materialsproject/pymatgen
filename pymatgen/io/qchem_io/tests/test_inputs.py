@@ -92,7 +92,7 @@ $end"""
         pcm_params = {"theory": "cpcm"}
         pcm_test = QCInput.pcm_template(pcm_params)
         pcm_actual = """$pcm
-   theory = cpcm
+   theory cpcm
 $end"""
         self.assertEqual(pcm_actual, pcm_test)
 
@@ -100,7 +100,7 @@ $end"""
         solvent_params = {"dielectric": "5.0"}
         solvent_test = QCInput.solvent_template(solvent_params)
         solvent_actual = """$solvent
-   dielectric = 5.0
+   dielectric 5.0
 $end"""
         self.assertEqual(solvent_actual, solvent_test)
 
@@ -530,9 +530,9 @@ $end
         str_pcm = """I'm once again trying to break you!
 
 $pcm
-   theory = cpcm
-   radii = uff
-   vdwscale = 1.1
+   theory cpcm
+   radii uff
+   vdwscale 1.1
 $end"""
         pcm_test = QCInput.read_pcm(str_pcm)
         pcm_actual = {
@@ -542,16 +542,38 @@ $end"""
         }
         self.assertDictEqual(pcm_actual, pcm_test)
 
+    def test_read_bad_pcm(self):
+        str_pcm = """I'm once again trying to break you!
+
+$pcm
+   theory = cpcm
+   radii = uff
+   vdwscale = 1.1
+$end"""
+        pcm_test = QCInput.read_pcm(str_pcm)
+        pcm_actual = {}
+        self.assertDictEqual(pcm_actual, pcm_test)
+
     def test_read_solvent(self):
+        str_solvent = """Once again, I'm trying to break you!
+
+$solvent
+   dielectric 5.0
+$end"""
+        solvent_test = QCInput.read_solvent(str_solvent)
+        solvent_actual = {
+             "dielectric": "5.0",
+        }
+        self.assertDictEqual(solvent_actual, solvent_test)
+
+    def test_read_bad_solvent(self):
         str_solvent = """Once again, I'm trying to break you!
 
 $solvent
    dielectric = 5.0
 $end"""
         solvent_test = QCInput.read_solvent(str_solvent)
-        solvent_actual = {
-             "dielectric": "5.0",
-        }
+        solvent_actual = {}
         self.assertDictEqual(solvent_actual, solvent_test)
 
 if __name__ == "__main__":

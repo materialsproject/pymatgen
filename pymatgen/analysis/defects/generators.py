@@ -226,3 +226,52 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             return Interstitial(self.structure, inter_site_list[0], multiplicity=len(inter_site_list))
         else:
             raise StopIteration
+
+
+class SimpleChargeGenerator(DefectGenerator):
+    """
+    Does an extremely simple/limited charge generation scheme (only one charge generated)
+
+    for vacancies: use bond valence method to assign oxidation states and consider
+                    negative of the vacant site's oxidation state as single charge to try
+    for antisites and subs: use bond valence method to assign oxidation states and consider
+                    negative of the vacant site's oxidation state as single charge to try +
+                    added to likely charge of substitutional site (closest to zero)
+    for interstitial: charge zero
+    """
+
+    def __init__(self, defect):
+        """
+        Args:
+            defect(Defect): pymatgen Defect object
+        """
+        self.defect = defect
+
+        bv = BVAnalyzer()
+        struct_valences = bv.get_valences(self.defect.bulk_structure)
+        site_index = self.defect.structure.get_sites_in_sphere(self.defect.site.coords, 0.1, include_index=True)[0][2]
+        def_site_valence = struct_valences[site_index]
+
+        if type(defect) == Vacancy:
+            self.charges = [-1 * def_site_valence]
+        elif type(defect) == Substitution:
+            #(minimize difference with host site specie)
+            probable_chgs = [ox - def_site_valence for ox in self.defect.site.specie.oxidation_states]
+            self.charges = [min(probable_chgs, key=abs)]
+        elif type(defect) == Interstitial:
+            self.charges = [0]
+        else:
+            raise ValueError("Defect Type not recognized.")
+
+    def __next__(self):
+        """
+        Returns the next defect type with the correct charge appended
+        raises StopIteration
+        """
+        if len(self.charges) > 0:
+            charge = self.charges.pop(0)
+            defect = self.defect
+            defect.set_charge(charge)
+            return defect
+        else:
+            raise StopIteration

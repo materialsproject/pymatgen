@@ -72,6 +72,7 @@ def make_doc(ctx):
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
         ctx.run("rm -r _sources")
+        ctx.run("rm -r _build", warn=True)
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > CNAME")
@@ -80,8 +81,27 @@ def make_doc(ctx):
 
 
 @task
+def make_dash(ctx):
+    ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
+    ctx.run('doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/')
+    ctx.run('tar --exclude=".DS_Store" -cvzf docs/_static/pymatgen.docset.tgz pymatgen.docset')
+    xml = []
+    with open("docs/pymatgen.xml") as f:
+        for l in f:
+            l = l.strip()
+            if l.startswith("<version>"):
+                xml.append("<version>%s</version>" % NEW_VER)
+            else:
+                xml.append(l)
+    with open("docs/pymatgen.xml", "wt") as f:
+        f.write("\n".join(xml))
+    ctx.run('rm -r pymatgen.docset')
+
+
+@task
 def update_doc(ctx):
     make_doc(ctx)
+    make_dash(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")

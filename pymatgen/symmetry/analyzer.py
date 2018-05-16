@@ -54,7 +54,7 @@ class SpacegroupAnalyzer(object):
 
     Args:
         structure (Structure/IStructure): Structure to find symmetry
-        symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
+        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
             which is fairly strict and works well for properly refined
             structures with atoms in the proper symmetry coordinates. For
             structures with slight deviations from their proper atomic

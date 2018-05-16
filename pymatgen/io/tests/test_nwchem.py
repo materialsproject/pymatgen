@@ -470,10 +470,19 @@ class NwOutputTest(unittest.TestCase):
     def test_parse_tddft(self):
         nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
         roots = nwo.parse_tddft()
-        self.assertEqual(roots["singlet"].shape, (20, 2))
-        self.assertAlmostEqual(roots["singlet"][0, 0], 3.9291)
-        self.assertAlmostEqual(roots["singlet"][0, 1], 0.0)
-        self.assertAlmostEqual(roots["singlet"][1, 1], 0.00177)
+        self.assertEqual(len(roots["singlet"]), 20)
+        self.assertAlmostEqual(roots["singlet"][0]["energy"], 3.9291)
+        self.assertAlmostEqual(roots["singlet"][0]["osc_strength"], 0.0)
+        self.assertAlmostEqual(roots["singlet"][1]["osc_strength"], 0.00177)
+
+    def test_get_excitation_spectrum(self):
+        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        spectrum = nwo.get_excitation_spectrum()
+        self.assertEqual(len(spectrum.x), 2000)
+        self.assertAlmostEqual(spectrum.x[0], 1.9291)
+        self.assertAlmostEqual(spectrum.y[0], 0.0)
+        self.assertAlmostEqual(spectrum.y[1000], 0.0007423569947114812)
+
 
 if __name__ == "__main__":
     unittest.main()
