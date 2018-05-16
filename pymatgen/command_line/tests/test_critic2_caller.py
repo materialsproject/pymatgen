@@ -5,7 +5,6 @@
 from __future__ import division, unicode_literals
 import unittest
 
-from pymatgen import Structure
 from pymatgen.command_line.critic2_caller import *
 from monty.os.path import which
 
