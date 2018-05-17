@@ -1,5 +1,5 @@
-pymatgen.phonon package
-=======================
+pymatgen\.phonon package
+========================
 
 Subpackages
 -----------

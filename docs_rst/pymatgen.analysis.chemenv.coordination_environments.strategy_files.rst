@@ -1,5 +1,5 @@
-pymatgen.analysis.chemenv.coordination\_environments.strategy\_files package
-============================================================================
+pymatgen\.analysis\.chemenv\.coordination\_environments\.strategy\_files package
+================================================================================
 
 Module contents
 ---------------

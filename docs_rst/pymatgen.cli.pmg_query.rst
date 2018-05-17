@@ -1,5 +1,5 @@
-pymatgen.cli.pmg\_query module
-==============================
+pymatgen\.cli\.pmg\_query module
+================================
 
 .. automodule:: pymatgen.cli.pmg_query
     :members:

@@ -1,5 +1,5 @@
-pymatgen.util.serialization module
-==================================
+pymatgen\.util\.serialization module
+====================================
 
 .. automodule:: pymatgen.util.serialization
     :members:

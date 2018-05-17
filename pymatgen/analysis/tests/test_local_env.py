@@ -8,15 +8,17 @@ import numpy as np
 import unittest
 import os
 
+from monty.os.path import which
+
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
     VoronoiNN, VoronoiNN_modified, JMolNN, \
     MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
-    BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN
+    BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
+    Critic2NN
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.cif import CifParser
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -255,6 +257,15 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(VoronoiNN_modified().get_cn(
             self.cscl, 0), 8)
 
+    def test_get_local_order_params(self):
+
+        nn = MinimumDistanceNN()
+        ops = nn.get_local_order_parameters(self.diamond, 0)
+        self.assertAlmostEqual(ops['tetrahedral'], 0.9999934389036574)
+
+        ops = nn.get_local_order_parameters(self.nacl, 0)
+        self.assertAlmostEqual(ops['octahedral'], 0.9999995266669)
+
     def tearDown(self):
         del self.diamond
         del self.nacl
@@ -378,9 +389,11 @@ class NearNeighborTest(PymatgenTest):
         # can't there are probably bigger problems
         subclasses = NearNeighbors.__subclasses__()
         for subclass in subclasses:
-            nn_info = subclass().get_nn_info(self.diamond, 0)
-            self.assertEqual(nn_info[0]['site_index'], 1)
-            self.assertEqual(nn_info[0]['image'][0], 1)
+            # Critic2NN has external dependency, is tested separately
+            if 'Critic2' not in str(subclass):
+                nn_info = subclass().get_nn_info(self.diamond, 0)
+                self.assertEqual(nn_info[0]['site_index'], 1)
+                self.assertEqual(nn_info[0]['image'][0], 1)
 
     def tearDown(self):
         del self.diamond
@@ -859,6 +872,40 @@ class CrystalNNTest(PymatgenTest):
 
         cnn = CrystalNN(distance_cutoffs=(1.25, 5))
         self.assertEqual(cnn.get_cn(self.he_bcc, 0, use_weights=False), 8)
+
+
+class CutOffDictNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.diamond = Structure(
+            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
+            ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
+            coords_are_cartesian=True
+        )
+
+    def test_cn(self):
+
+        nn = CutOffDictNN({('C', 'C'): 2})
+        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
+
+        nn_null = CutOffDictNN()
+        self.assertEqual(nn_null.get_cn(self.diamond, 0), 0)
+
+
+@unittest.skipIf(not which('critic2'), "critic2 executable not present")
+class Critic2NNTest(PymatgenTest):
+
+    def setUp(self):
+        self.diamond = Structure(
+            Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264], [0, 0, 2.528]]),
+            ["C", "C"], [[2.554, 1.806, 4.423], [0.365, 0.258, 0.632]],
+            coords_are_cartesian=True
+        )
+
+    def test_cn(self):
+
+        nn = Critic2NN()
+        self.assertEqual(nn.get_cn(self.diamond, 0), 4)
 
 
 if __name__ == '__main__':
