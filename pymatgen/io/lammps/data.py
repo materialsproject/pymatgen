@@ -140,7 +140,7 @@ class LammpsBox(MSONable):
         """
         Converts the simulation box to a more powerful Lattice backend.
         Note that Lattice is always periodic in 3D space while a
-        simulation box is not necessarily periodic in all dimensions. 
+        simulation box is not necessarily periodic in all dimensions.
 
         Returns:
             Lattice
