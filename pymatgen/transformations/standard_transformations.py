@@ -761,8 +761,9 @@ class ChargedCellTransformation(AbstractTransformation):
         self.charge = charge
 
     def apply_transformation(self, structure):
-        structure.set_charge(self.charge)
-        return structure
+        s = structure.copy()
+        s.set_charge(self.charge)
+        return s
 
     def __str__(self):
         return "Structure with charge " + \
