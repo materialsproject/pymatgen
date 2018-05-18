@@ -186,8 +186,35 @@ class LammpsLog(MSONable):
 
 
 class LammpsDump(MSONable):
+    """
+    Dump file parser.
+
+    .. attribute:: steps
+
+        All steps in the dump as a list of
+        {"timestep": current timestep,
+         "natoms": no. of atoms,
+         "box": simulation box (optional),
+         "atoms_data": dumped data for atoms as 2D np.array}
+
+    .. attribute:: timesteps
+
+        List of timesteps in sequence.
+
+    """
 
     def __init__(self, filename, parse_box=True, dtype=float):
+        """
+
+        Args:
+            filename (str): Filename to parse. The timestep wildcard
+                ('*') is supported and the files are parsed in the
+                sequence of timestep.
+            parse_box (bool): Whether parse box info for each step.
+                Default to True.
+            dtype: np.dtype for atoms data array.
+
+        """
         self.filename = filename
         self.parse_box = parse_box
         self.dtype = dtype
@@ -199,11 +226,15 @@ class LammpsDump(MSONable):
                             key=lambda f: int(re.match(pattern, f).group(1)))
         steps = []
         for fname in fnames:
-            with zopen(fname) as f:
+            with zopen(fname, "rt") as f:
                 run = f.read()
             dumps = run.split("ITEM: TIMESTEP")[1:]
             steps.extend([self._parse_timestep(d) for d in dumps])
         self.steps = steps
+        self.timesteps = [s["timestep"] for s in self.steps]
+
+    def __len__(self):
+        return len(self.timesteps)
 
     def _parse_timestep(self, dump):
         step = {}
