@@ -93,24 +93,35 @@ class LammpsBox(MSONable):
 
         """
         bounds_arr = np.array(bounds)
-        bounds_shape = bounds_arr.shape
-        assert bounds_shape == (3, 2), \
+        assert bounds_arr.shape == (3, 2), \
             "Expecting a (3, 2) array for bounds," \
-            " got {}".format(bounds_shape)
-        bounds = bounds_arr.tolist()
+            " got {}".format(bounds_arr.shape)
+        self.bounds = bounds_arr.tolist()
+        matrix = np.diag(bounds_arr[:, 1] - bounds_arr[:, 0])
 
+        self.tilt = None
         if tilt is not None:
             tilt_arr = np.array(tilt)
-            tilt_shape = tilt_arr.shape
-            assert tilt_shape == (3,),\
+            assert tilt_arr.shape == (3,),\
                 "Expecting a (3,) array for box_tilt," \
-                " got {}".format(tilt_shape)
-            tilt = tilt_arr.tolist()
-        self.bounds = np.array(bounds).tolist()
-        self.tilt = np.array(tilt).tolist()
+                " got {}".format(tilt_arr.shape)
+            self.tilt = tilt_arr.tolist()
+            matrix[1, 0] = tilt_arr[0]
+            matrix[2, 0] = tilt_arr[1]
+            matrix[2, 1] = tilt_arr[2]
+        self._matrix = matrix
 
     def __str__(self):
         return self.get_string()
+
+    @property
+    def volume(self):
+        """
+        Volume of simulation box.
+
+        """
+        m = self._matrix
+        return np.dot(np.cross(m[0], m[1]), m[2])
 
     def get_string(self, significant_figures=6):
         """
@@ -136,6 +147,20 @@ class LammpsBox(MSONable):
             lines.append(tilt_format.format(*self.tilt))
         return "\n".join(lines)
 
+    def get_box_shift(self, i):
+        """
+        Calculates the coordinate shift due to PBC.
+
+        Args:
+            i: A (n, 3) integer array containing the labels for box
+            images of n entries.
+
+        Returns:
+            Coorindate shift array with the same shape of i
+
+        """
+        return np.inner(i, self._matrix)
+
     def to_lattice(self):
         """
         Converts the simulation box to a more powerful Lattice backend.
@@ -146,13 +171,7 @@ class LammpsBox(MSONable):
             Lattice
 
         """
-        bounds = np.array(self.bounds)
-        tilt = self.tilt if self.tilt else [0.0] * 3
-        matrix = np.diag(bounds[:, 1] - bounds[:, 0])
-        matrix[1, 0] = tilt[0]
-        matrix[2, 0] = tilt[1]
-        matrix[2, 1] = tilt[2]
-        return Lattice(matrix)
+        return Lattice(self._matrix)
 
 
 def lattice_2_lmpbox(lattice, origin=(0, 0, 0)):
@@ -259,7 +278,7 @@ class LammpsData(MSONable):
         masses = self.masses
         atoms = self.atoms.copy()
         if "nx" in atoms.columns:
-            atoms[["nx", "ny", "nz"]] = 0
+            atoms.drop(["nx", "ny", "nz"], axis=1, inplace=True)
         atoms["molecule-ID"] = 1
         ld_copy = self.__class__(self.box, masses, atoms)
         topologies = ld_copy.disassemble()[-1]
@@ -403,11 +422,9 @@ class LammpsData(MSONable):
 
         """
         atoms_df = self.atoms.copy()
-        # TODO: this part is buggy for non-orthogonal box
         if "nx" in atoms_df.columns:
-            box_dim = np.ptp(self.box.bounds, axis=1)
-            atoms_df[["x", "y", "z"]] += atoms_df[["nx", "ny", "nz"]].values \
-                                         * box_dim
+            atoms_df[["x", "y", "z"]] += \
+                self.box.get_box_shift(atoms_df[["nx", "ny", "nz"]].values)
         atoms_df = pd.concat([atoms_df, self.velocities], axis=1)
 
         mids = atoms_df.get("molecule-ID")
