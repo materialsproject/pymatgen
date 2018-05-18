@@ -16,6 +16,7 @@ __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
 import six
+import copy
 import logging
 import numpy as np
 
@@ -101,6 +102,18 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         return
 
+    def copy(self):
+        """
+        Convenience method to get a copy of the defect.
+
+        Returns:
+            A copy of the Defect.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        return Defect(struc, def_site, charge=charge)
+
     def set_charge(self,new_charge=0.):
         """
         Sets the overall charge
@@ -155,6 +168,18 @@ class Vacancy(Defect):
         Returns a name for this defect
         """
         return "Vac_{}_{}".format(self.site.specie,self.multiplicity)
+
+    def copy(self):
+        """
+        Convenience method to get a copy of the Vacancy.
+
+        Returns:
+            A copy of the Vacancy.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        return Vacancy(struc, def_site, charge=charge)
 
 
 class Substitution(Defect):
@@ -216,6 +241,17 @@ class Substitution(Defect):
         defindex = poss_deflist[0][2]
         return "Sub_{}_on_{}_{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
 
+    def copy(self):
+        """
+        Convenience method to get a copy of the Substitution.
+
+        Returns:
+            A copy of the Substitution.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        return Substitution(struc, def_site, charge=charge)
 
 class Interstitial(Defect):
     """
@@ -267,6 +303,19 @@ class Interstitial(Defect):
         Returns a name for this defect
         """
         return "Int_{}_{}".format(self.site.specie,self.multiplicity)
+
+    def copy(self):
+        """
+        Convenience method to get a copy of the Interstitial.
+
+        Returns:
+            A copy of the Interstitial.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        multiplicity = copy.copy(self._multiplicity)
+        return Interstitial(struc, def_site, charge=charge, multiplicity=multiplicity)
 
 
 class DefectEntry(MSONable):
