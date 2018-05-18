@@ -6,7 +6,8 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
-import warnings
+import matplotlib
+matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.analysis.graphs import *
@@ -279,7 +280,7 @@ from    to  to_image
     def test_from_local_env_and_equality_and_diff(self):
         nn = MinimumDistanceNN()
         sg = StructureGraph.with_local_env_strategy(self.structure, nn)
-        
+
         self.assertEqual(sg.graph.number_of_edges(), 6)
 
         nn2 = MinimumOKeeffeNN()
