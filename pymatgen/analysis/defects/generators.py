@@ -273,7 +273,7 @@ class SimpleChargeGenerator(DefectGenerator):
         """
         if len(self.charges) > 0:
             charge = self.charges.pop(0)
-            defect = self.defect
+            defect = self.defect.copy()
             defect.set_charge(charge)
             return defect
         else:
