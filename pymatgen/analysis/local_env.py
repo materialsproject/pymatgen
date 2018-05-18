@@ -5,7 +5,7 @@
 from __future__ import division, unicode_literals
 
 import math
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 import six
 import ruamel.yaml as yaml
@@ -37,13 +37,20 @@ from bisect import bisect_left
 from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.core.structure import Structure
-from pymatgen.util.num import abs_cap
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
+
+from pymatgen.command_line.critic2_caller import Critic2Caller
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
         __file__), 'op_params.yaml'), "rt") as f:
     default_op_params = yaml.safe_load(f)
+    f.close()
+
+cn_opt_params = {}
+with open(os.path.join(os.path.dirname(
+        __file__), 'cn_opt_params.yaml'), 'r') as f:
+    cn_opt_params = yaml.safe_load(f)
     f.close()
 
 file_dir = os.path.dirname(__file__)
@@ -91,7 +98,6 @@ class ValenceIonicRadiusEvaluator(object):
         Returns oxidation state decorated structure.
         """
         return self._structure.copy()
-
 
     def _get_ionic_radii(self):
         """
@@ -491,6 +497,77 @@ class NearNeighbors(object):
             if site.is_periodic_image(s):
                 return i
         raise Exception('Site not found!')
+
+    def get_bonded_structure(self, structure, decorate=False):
+        """
+        Obtain a StructureGraph object using this NearNeighbor
+        class. Requires the optional dependency networkx
+        (pip install networkx).
+
+        Args:
+            structure: Structure object.
+            decorate (bool): whether to annotate site properties
+            with order parameters using neighbors determined by
+            this NearNeighbor class
+
+        Returns: a pymatgen.analysis.graphs.BondedStructure object
+        """
+
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import StructureGraph
+
+        if decorate:
+            # Decorate all sites in the underlying structure
+            # with site properties that provides information on the
+            # coordination number and coordination pattern based
+            # on the (current) structure of this graph.
+            order_parameters = [self.get_local_order_parameters(structure, n)
+                                for n in range(len(structure))]
+            structure.add_site_property('order_parameters', order_parameters)
+
+        sg = StructureGraph.with_local_env_strategy(structure, self)
+
+        return sg
+
+    def get_local_order_parameters(self, structure, n):
+        """
+        Calculate those local structure order parameters for
+        the given site whose ideal CN corresponds to the
+        underlying motif (e.g., CN=4, then calculate the
+        square planar, tetrahedral, see-saw-like,
+        rectangular see-saw-like order paramters).
+
+        Args:
+            structure: Structure object
+            n (int): site index.
+
+        Returns (Dict[str, float]):
+            A dict of order parameters (values) and the
+            underlying motif type (keys; for example, tetrahedral).
+
+        """
+        # code from @nisse3000, moved here from graphs to avoid circular
+        # import, also makes sense to have this as a general NN method
+        cn = self.get_cn(structure, n)
+        if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
+            names = [k for k in cn_opt_params[cn].keys()]
+            types = []
+            params = []
+            for name in names:
+                types.append(cn_opt_params[cn][name][0])
+                tmp = cn_opt_params[cn][name][1] \
+                    if len(cn_opt_params[cn][name]) > 1 else None
+                params.append(tmp)
+            lostops = LocalStructOrderParams(types, parameters=params)
+            sites = [structure[n]] + self.get_nn(structure, n)
+            lostop_vals = lostops.get_order_parameters(
+                    sites, 0, indices_neighs=[i for i in range(1, cn+1)])
+            d = {}
+            for i, lostop in enumerate(lostop_vals):
+                d[names[i]] = lostop
+            return d
+        else:
+            return None
 
 
 class VoronoiNN(NearNeighbors):
@@ -2831,3 +2908,108 @@ def calculate_weighted_avg(bonds):
         total_sum += exp(1-(entry/minimum_bond)**6)
     return weighted_sum/total_sum
 
+
+class CutOffDictNN(NearNeighbors):
+    """
+    A very basic NN class using a dictionary of fixed
+    cut-off distances. Can also be used with no dictionary
+    defined for a Null/Empty NN class.
+    """
+
+    def __init__(self, cut_off_dict=None):
+        """
+        Args:
+            cut_off_dict (Dict[str, float]): a dictionary
+            of cut-off distances, e.g. {('Fe','O'): 2.0} for
+            a maximum Fe-O bond length of 2.0 Angstroms.
+            Note that if your structure is oxidation state
+            decorated, the cut-off distances will have to
+            explicitly include the oxidation state, e.g.
+            {('Fe2+', 'O2-'): 2.0}
+        """
+
+        self.cut_off_dict = cut_off_dict or {}
+
+        # for convenience
+        self._max_dist = 0.0
+        lookup_dict = defaultdict(dict)
+        for (sp1, sp2), dist in self.cut_off_dict.items():
+            lookup_dict[sp1][sp2] = dist
+            lookup_dict[sp2][sp1] = dist
+            if dist > self._max_dist:
+                self._max_dist = dist
+        self._lookup_dict = lookup_dict
+
+    def get_nn_info(self, structure, n):
+
+        site = structure[n]
+
+        neighs_dists = structure.get_neighbors(site, self._max_dist)
+
+        nn_info = []
+        for n_site, dist in neighs_dists:
+
+            neigh_cut_off_dist = self._lookup_dict\
+                .get(site.species_string, {})\
+                .get(n_site.species_string, 0.0)
+
+            if dist < neigh_cut_off_dist:
+
+                nn_info.append({
+                    'site': n_site,
+                    'image': self._get_image(n_site.frac_coords),
+                    'weight': dist,
+                    'site_index': self._get_original_site(structure, n_site)
+                })
+
+        return nn_info
+
+
+class Critic2NN(NearNeighbors):
+    """
+    Performs a topological analysis using critic2 to obtain
+    neighbor information, using a sum of atomic charge
+    densities. If an actual charge density is available
+    (e.g. from a VASP CHGCAR), see Critic2Caller directly
+    instead.
+    """
+
+    def __init__(self):
+
+        # we cache the last-used structure, in case user
+        # calls get_nn_info() repeatedly for different
+        # sites in the same structure to save redundant
+        # computations
+        self.__last_structure = None
+        self.__last_bonded_structure = None
+
+    def get_bonded_structure(self, structure, decorate=False):
+
+        if structure == self.__last_structure:
+            sg = self.__last_bonded_structure
+        else:
+            c2_output = Critic2Caller(structure).output
+            sg = c2_output.structure_graph()
+
+            self.__last_structure = structure
+            self.__last_bonded_structure = sg
+
+        if decorate:
+            order_parameters = [self.get_local_order_parameters(structure, n)
+                                for n in range(len(structure))]
+            sg.structure.add_site_property('order_parameters', order_parameters)
+
+        return sg
+
+    def get_nn_info(self, structure, n):
+
+        sg = self.get_bonded_structure(structure)
+
+        return [
+            {
+                'site': connected_site.site,
+                'image': connected_site.jimage,
+                'weight': connected_site.weight,
+                'site_index': connected_site.index
+            } for connected_site in sg.get_connected_sites(n)
+        ]
