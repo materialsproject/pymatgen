@@ -133,58 +133,6 @@ class LammpsLog(MSONable):
         return cls(log_file=d["log_file"])
 
 
-# # TODO: @wood-b parse binary dump files(*.dcd)
-# class LammpsDump(MSONable):
-#     """
-#     Parse lammps dump file.
-#     """
-#
-#     def __init__(self, timesteps, natoms, box_bounds, atoms_data):
-#         self.timesteps = timesteps
-#         self.natoms = natoms
-#         self.box_bounds = box_bounds
-#         self.atoms_data = atoms_data
-#
-#     @classmethod
-#     def from_file(cls, dump_file):
-#         timesteps = []
-#         atoms_data = []
-#         natoms = 0
-#         box_bounds = []
-#         bb_flag = 0
-#         parse_timestep, parse_natoms, parse_bb, parse_atoms = False, False, False, False
-#         with open(dump_file) as tf:
-#             for line in tf:
-#                 if "ITEM: TIMESTEP" in line:
-#                     parse_timestep = True
-#                     continue
-#                 if parse_timestep:
-#                     timesteps.append(float(line))
-#                     parse_timestep = False
-#                 if "ITEM: NUMBER OF ATOMS" in line:
-#                     parse_natoms = True
-#                     continue
-#                 if parse_natoms:
-#                     natoms = int(line)
-#                     parse_natoms = False
-#                 if "ITEM: BOX BOUNDS" in line:
-#                     parse_bb = True
-#                     continue
-#                 if parse_bb:
-#                     box_bounds.append([float(x) for x in line.split()])
-#                     bb_flag += 1
-#                     parse_bb = False if bb_flag >= 3 else True
-#                 if "ITEM: ATOMS" in line:
-#                     parse_atoms = True
-#                     continue
-#                 if parse_atoms:
-#                     line_data = [float(x) for x in line.split()]
-#                     atoms_data.append(line_data)
-#                     parse_atoms = False if len(atoms_data) == len(timesteps)*natoms else True
-#
-#         return cls(timesteps, natoms, box_bounds, atoms_data)
-
-
 class LammpsDump(MSONable):
     """
     Dump file parser.
@@ -235,6 +183,9 @@ class LammpsDump(MSONable):
 
     def __len__(self):
         return len(self.timesteps)
+
+    def __getitem__(self, ind):
+        return self.steps[ind]
 
     def _parse_timestep(self, dump):
         step = {}
@@ -518,7 +469,7 @@ class LammpsRun(MSONable):
 
     @property
     def box_lengths(self):
-        return [l[1] - l[0] for l in self.lammps_data.box_bounds]
+        return [l[1] - l[0] for l in self.lammps_data.box.bounds]
 
     @property
     def traj_timesteps(self):
