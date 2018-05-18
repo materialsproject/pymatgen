@@ -99,9 +99,9 @@ setup(
     packages=find_packages(),
     version="2018.5.14",
     cmdclass={'build_ext': build_ext},
-    setup_requires=['numpy>=1.14', 'setuptools>=18.0'],
-    install_requires=["numpy>=1.14", "six", "requests", "ruamel.yaml>=0.15.6",
-                      "monty>=0.9.6", "scipy>=1.0.0", "pydispatcher>=2.0.5",
+    setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
+    install_requires=["numpy>=1.14.3", "six", "requests", "ruamel.yaml>=0.15.6",
+                      "monty>=0.9.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
                       "tabulate", "spglib>=1.9.9.44",
                       "matplotlib>=1.5", "palettable>=2.1.1", "sympy", "pandas"],
     extras_require={

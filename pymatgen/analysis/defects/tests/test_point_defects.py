@@ -6,7 +6,8 @@ from __future__ import unicode_literals
 import os
 import unittest
 import random
-
+import matplotlib
+matplotlib.use("pdf")
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator
 from pymatgen.analysis.defects.point_defects import *
