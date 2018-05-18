@@ -159,7 +159,7 @@ class LammpsBox(MSONable):
             Coorindate shift array with the same shape of i
 
         """
-        return np.inner(i, self._matrix)
+        return np.inner(i, self._matrix.T)
 
     def to_lattice(self):
         """

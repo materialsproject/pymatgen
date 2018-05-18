@@ -36,6 +36,12 @@ class LammpsBoxTest(unittest.TestCase):
                                        [0, 5.405200]],
                                tilt=[-2.456700, 0.0, 0.0])
 
+    def test_volume(self):
+        obounds = np.array(self.peptide.bounds)
+        ov = np.prod(obounds[:, 1] - obounds[:, 0])
+        self.assertEqual(self.peptide.volume, ov)
+        self.assertAlmostEqual(self.quartz.volume, 113.00733165874873)
+
     def test_get_string(self):
         peptide = self.peptide.get_string(5)
         peptide_5 = """36.84019 64.21156  xlo xhi
@@ -48,6 +54,20 @@ class LammpsBoxTest(unittest.TestCase):
 0.0000 5.4052  zlo zhi
 -2.4567 0.0000 0.0000  xy xz yz"""
         self.assertEqual(quartz, quartz_4)
+
+    def test_get_box_shift(self):
+        peptide = self.peptide
+        self.assertEqual(peptide.get_box_shift([1, 0, 0])[0],
+                         64.211560 - 36.840194)
+        self.assertEqual(peptide.get_box_shift([0, 0, -1])[-1],
+                         29.768095 - 57.139462)
+        quartz = self.quartz
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 0, 1]),
+                                      [0, 0, 5.4052], 4)
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 1, -1]),
+                                             [-2.4567, 4.2551, -5.4052], 4)
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([1, -1, 0]),
+                                             [4.9134 + 2.4567, -4.2551, 0], 4)
 
     def test_to_lattice(self):
         peptide = self.peptide.to_lattice()
@@ -74,6 +94,9 @@ class LammpsDataTest(unittest.TestCase):
         cls.virus = LammpsData.\
             from_file(filename=os.path.join(test_dir, "virus.data"),
                       atom_style="angle")
+        cls.tatb = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "tatb.data"),
+                      atom_style="charge", sort_id=True)
 
     def test_structure(self):
         quartz = self.quartz.structure
@@ -92,6 +115,13 @@ class LammpsDataTest(unittest.TestCase):
         np.testing.assert_array_equal(ethane.cart_coords, coords)
         np.testing.assert_array_equal(ethane.site_properties["charge"],
                                       self.ethane.atoms["q"])
+        tatb = self.tatb.structure
+        frac_coords = tatb.frac_coords[381]
+        real_frac_coords = frac_coords - np.floor(frac_coords)
+        np.testing.assert_array_almost_equal(real_frac_coords,
+                                             [0.01553397,
+                                              0.71487872,
+                                              0.14134139])
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
@@ -382,11 +412,8 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(pairij.at[7, "id2"], 3)
         self.assertEqual(pairij.at[7, "coeff2"], 2.1)
         # sort_id
-        nvt = LammpsData.from_file(filename=os.path.join(test_dir,
-                                                         "nvt.data"),
-                                   sort_id=True)
-        atom_id = random.randint(1, 648)
-        self.assertEqual(nvt.atoms.loc[atom_id].name, atom_id)
+        atom_id = random.randint(1, 384)
+        self.assertEqual(self.tatb.atoms.loc[atom_id].name, atom_id)
 
     def test_from_ff_and_topologies(self):
         mass = OrderedDict()
