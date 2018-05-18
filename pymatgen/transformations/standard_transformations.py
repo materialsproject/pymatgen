@@ -757,7 +757,7 @@ class ChargedCellTransformation(AbstractTransformation):
             Defaults to zero. Has to be a single integer. e.g. 2
     """
 
-    def __init__(self, charge = 0):
+    def __init__(self, charge=0):
         self.charge = charge
 
     def apply_transformation(self, structure):
