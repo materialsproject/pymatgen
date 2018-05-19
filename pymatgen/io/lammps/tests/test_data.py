@@ -714,8 +714,7 @@ class ForceFieldTest(unittest.TestCase):
 
 class FuncTest(unittest.TestCase):
 
-    @staticmethod
-    def test_lattice_2_lmpbox():
+    def test_lattice_2_lmpbox(self):
         matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
                  + np.random.rand(3, 3) * 0.2 - 0.1
         init_latt = Lattice(matrix)
@@ -733,6 +732,12 @@ class FuncTest(unittest.TestCase):
                                     coords_are_cartesian=True)
         np.testing.assert_array_almost_equal(boxed_structure.frac_coords,
                                              frac_coords)
+        tetra_latt = Lattice.tetragonal(5, 5)
+        tetra_box, _ = lattice_2_lmpbox(tetra_latt)
+        self.assertIsNone(tetra_box.tilt)
+        orthorhombic_latt = Lattice.orthorhombic(5, 5, 5)
+        orthorhombic_box, _ = lattice_2_lmpbox(orthorhombic_latt)
+        self.assertIsNone(orthorhombic_box.tilt)
 
     @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
