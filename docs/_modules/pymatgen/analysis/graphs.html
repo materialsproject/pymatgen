@@ -1,0 +1,1188 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.graphs &#8212; pymatgen 2018.5.14 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2018.5.14',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.graphs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
+<span class="kn">from</span> <span class="nn">pymatgen.vis.structure_vtk</span> <span class="k">import</span> <span class="n">EL_COLORS</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="k">import</span> <span class="n">itemgetter</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">KDTree</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+    <span class="kn">from</span> <span class="nn">networkx.readwrite</span> <span class="k">import</span> <span class="n">json_graph</span>
+    <span class="kn">from</span> <span class="nn">networkx.drawing.nx_agraph</span> <span class="k">import</span> <span class="n">write_dot</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;This module requires the NetworkX &quot;</span>
+                      <span class="s2">&quot;graph library to be installed.&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;mkhorton@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;August 2017&quot;</span>
+
+<span class="n">ConnectedSite</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;ConnectedSite&#39;</span><span class="p">,</span> <span class="s1">&#39;site, jimage, index, weight, dist&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># TODO: split into separate class for Molecules</span>
+<div class="viewcode-block" id="StructureGraph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph">[docs]</a><span class="k">class</span> <span class="nc">StructureGraph</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a class for annotating a Structure (or Molecule) with</span>
+<span class="sd">    bond information, stored in the form of a graph. A &quot;bond&quot; does</span>
+<span class="sd">    not necessarily have to be a chemical bond, but can store any</span>
+<span class="sd">    kind of information that connects two Sites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If constructing this class manually, use the `with_empty_graph`</span>
+<span class="sd">        method or `with_local_env_strategy` method (using an algorithm</span>
+<span class="sd">        provided by the `local_env` module, such as O&#39;Keeffe).</span>
+
+<span class="sd">        This class that contains connection information:</span>
+<span class="sd">        relationships between sites represented by a Graph structure,</span>
+<span class="sd">        and an associated structure object.</span>
+
+<span class="sd">        This class uses the NetworkX package to store and operate</span>
+<span class="sd">        on the graph itself, but contains a lot of helper methods</span>
+<span class="sd">        to make associating a graph with a given crystallographic</span>
+<span class="sd">        structure easier.</span>
+
+<span class="sd">        Use cases for this include storing bonding information,</span>
+<span class="sd">        NMR J-couplings, Heisenberg exchange parameters, etc.</span>
+
+<span class="sd">        For periodic graphs, class stores information on the graph</span>
+<span class="sd">        edges of what lattice image the edge belongs to.</span>
+
+<span class="sd">        :param structure_or_molecule: a Structure object or a</span>
+<span class="sd">        Molecule object (molecules are supported, but some</span>
+<span class="sd">        methods are for structures only, such as __mul__, in</span>
+<span class="sd">        future this may be broken into two separate classes)</span>
+
+<span class="sd">        :param graph_data: dict containing graph information in</span>
+<span class="sd">        dict format (not intended to be constructed manually,</span>
+<span class="sd">        see as_dict method for format)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
+            <span class="c1"># just make a copy from input</span>
+            <span class="n">graph_data</span> <span class="o">=</span> <span class="n">structure_or_molecule</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;graphs&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure_or_molecule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">readwrite</span><span class="o">.</span><span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_graph</span><span class="p">(</span><span class="n">graph_data</span><span class="p">)</span>
+
+        <span class="c1"># tidy up edge attr dicts, reading to/from json duplicates</span>
+        <span class="c1"># information</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;key&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+            <span class="c1"># ensure images are tuples (conversion to lists happens</span>
+            <span class="c1"># when serializing back from json), it&#39;s important images</span>
+            <span class="c1"># are hashable/immutable</span>
+            <span class="k">if</span> <span class="s1">&#39;to_jimage&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s1">&#39;from_jimage&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="StructureGraph.with_empty_graph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.with_empty_graph">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">with_empty_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+                         <span class="n">edge_weight_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">edge_weight_units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for StructureGraph, returns a StructureGraph</span>
+<span class="sd">        object with an empty graph (no edges, only nodes defined</span>
+<span class="sd">        that correspond to Sites in Structure).</span>
+
+<span class="sd">        :param structure_or_molecule (Structure):</span>
+<span class="sd">        :param name (str): name of graph, e.g. &quot;bonds&quot;</span>
+<span class="sd">        :param edge_weight_name (str): name of edge weights,</span>
+<span class="sd">        e.g. &quot;bond_length&quot; or &quot;exchange_constant&quot;</span>
+<span class="sd">        :param edge_weight_units (str): name of edge weight units</span>
+<span class="sd">        e.g. &quot;Å&quot; or &quot;eV&quot;</span>
+<span class="sd">        :return (StructureGraph):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">edge_weight_name</span> <span class="ow">and</span> <span class="p">(</span><span class="n">edge_weight_units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify units associated &quot;</span>
+                             <span class="s2">&quot;with your edge weights. Can be &quot;</span>
+                             <span class="s2">&quot;empty string if arbitrary or &quot;</span>
+                             <span class="s2">&quot;dimensionless.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># construct graph with one node per site</span>
+        <span class="c1"># graph attributes don&#39;t change behavior of graph,</span>
+        <span class="c1"># they&#39;re just for book-keeping</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">(</span><span class="n">edge_weight_name</span><span class="o">=</span><span class="n">edge_weight_name</span><span class="p">,</span>
+                                <span class="n">edge_weight_units</span><span class="o">=</span><span class="n">edge_weight_units</span><span class="p">,</span>
+                                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">)))</span>
+
+        <span class="n">graph_data</span> <span class="o">=</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_data</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructureGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for StructureGraph, using a strategy</span>
+<span class="sd">        from :Class: `pymatgen.analysis.local_env`.</span>
+
+<span class="sd">        Molecules will be put into a large artificial box for calculation</span>
+<span class="sd">        of bonds using a NearNeighbor strategy, since some strategies</span>
+<span class="sd">        assume periodic boundary conditions.</span>
+
+<span class="sd">        :param structure_or_molecule: Structure object</span>
+<span class="sd">        :param strategy: an instance of a</span>
+<span class="sd">            :Class: `pymatgen.analysis.local_env.NearNeighbors` object</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">is_molecule</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">)</span>
+
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+                                             <span class="n">edge_weight_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span>
+                                             <span class="n">edge_weight_units</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_molecule</span><span class="p">:</span>
+            <span class="c1"># NearNeighbor classes only (generally) work with structures</span>
+            <span class="c1"># molecules have to be boxed first</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">structure_or_molecule</span><span class="o">.</span><span class="n">cart_coords</span>
+
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+
+            <span class="n">structure_or_molecule</span> <span class="o">=</span> <span class="n">structure_or_molecule</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span>
+                                                                              <span class="n">no_cross</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">)):</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+
+                <span class="c1"># all bonds in molecules should not cross</span>
+                <span class="c1"># (artificial) periodic boundaries</span>
+                <span class="k">if</span> <span class="n">is_molecule</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># local_env will always try to add two edges</span>
+                <span class="c1"># for any one bond, one from site u to site v</span>
+                <span class="c1"># and another form site v to site u: this is</span>
+                <span class="c1"># harmless, so warn_duplicates=False</span>
+                <span class="n">sg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+                            <span class="n">from_jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="n">to_index</span><span class="o">=</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;site_index&#39;</span><span class="p">],</span>
+                            <span class="n">to_jimage</span><span class="o">=</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">],</span>
+                            <span class="n">weight</span><span class="o">=</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span>
+                            <span class="n">warn_duplicates</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sg</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Name of graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edge_weight_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Name of the edge weight property of graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;edge_weight_name&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edge_weight_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Units of the edge weight property of graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;edge_weight_units&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="StructureGraph.add_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+                 <span class="n">from_jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">to_jimage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">warn_duplicates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">edge_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add edge to graph.</span>
+
+<span class="sd">        Since physically a &#39;bond&#39; (or other connection</span>
+<span class="sd">        between sites) doesn&#39;t have a direction, from_index,</span>
+<span class="sd">        from_jimage can be swapped with to_index, to_jimage.</span>
+
+<span class="sd">        However, images will always always be shifted so that</span>
+<span class="sd">        from_index &lt; to_index and from_jimage becomes (0, 0, 0).</span>
+
+<span class="sd">        :param from_index: index of site connecting from</span>
+<span class="sd">        :param to_index: index of site connecting to</span>
+<span class="sd">        :param from_jimage (tuple of ints): lattice vector of periodic</span>
+<span class="sd">        image, e.g. (1, 0, 0) for periodic image in +x direction</span>
+<span class="sd">        :param to_jimage (tuple of ints): lattice vector of image</span>
+<span class="sd">        :param weight (float): e.g. bond length</span>
+<span class="sd">        :param warn_duplicates (bool): if True, will warn if</span>
+<span class="sd">        trying to add duplicate edges (duplicate edges will not</span>
+<span class="sd">        be added in either case)</span>
+<span class="sd">        :param edge_properties (dict): any other information to</span>
+<span class="sd">        store on graph edges, similar to Structure&#39;s site_properties</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># this is not necessary for the class to work, but</span>
+        <span class="c1"># just makes it neater</span>
+        <span class="k">if</span> <span class="n">to_index</span> <span class="o">&lt;</span> <span class="n">from_index</span><span class="p">:</span>
+            <span class="n">to_index</span><span class="p">,</span> <span class="n">from_index</span> <span class="o">=</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span>
+            <span class="n">to_jimage</span><span class="p">,</span> <span class="n">from_jimage</span> <span class="o">=</span> <span class="n">from_jimage</span><span class="p">,</span> <span class="n">to_jimage</span>
+
+        <span class="c1"># constrain all from_jimages to be (0, 0, 0),</span>
+        <span class="c1"># initial version of this class worked even if</span>
+        <span class="c1"># from_jimage != (0, 0, 0), but making this</span>
+        <span class="c1"># assumption simplifies logic later</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">from_jimage</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+            <span class="n">shift</span> <span class="o">=</span> <span class="n">from_jimage</span>
+            <span class="n">from_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">from_jimage</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>
+            <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>
+
+        <span class="c1"># automatic detection of to_jimage if user doesn&#39;t specify</span>
+        <span class="c1"># will try and detect all equivalent images and add multiple</span>
+        <span class="c1"># edges if appropriate</span>
+        <span class="k">if</span> <span class="n">to_jimage</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="c1"># assume we want the closest site</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Please specify to_jimage to be unambiguous, &quot;</span>
+                          <span class="s2">&quot;trying to automatically detect.&quot;</span><span class="p">)</span>
+            <span class="n">dist</span><span class="p">,</span> <span class="n">to_jimage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">from_index</span><span class="p">]</span>\
+                <span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">to_index</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># this will happen when from_index == to_index,</span>
+                <span class="c1"># typically in primitive single-atom lattices</span>
+                <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">dists</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+                    <span class="n">dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">from_index</span><span class="p">]</span>
+                                 <span class="o">.</span><span class="n">distance_and_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">from_index</span><span class="p">],</span>
+                                                                               <span class="n">jimage</span><span class="o">=</span><span class="n">image</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
+            <span class="n">equiv_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors_in_shell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">from_index</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                                                <span class="n">dist</span><span class="p">,</span>
+                                                                <span class="n">dist</span><span class="o">*</span><span class="mf">0.01</span><span class="p">,</span>
+                                                                <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">to_index</span> <span class="ow">in</span> <span class="n">equiv_sites</span><span class="p">:</span>
+                <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">from_index</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">to_jimage</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="o">=</span><span class="n">from_index</span><span class="p">,</span> <span class="n">from_jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                              <span class="n">to_jimage</span><span class="o">=</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">to_index</span><span class="o">=</span><span class="n">to_index</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># sanitize types</span>
+        <span class="n">from_jimage</span><span class="p">,</span> <span class="n">to_jimage</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">from_jimage</span><span class="p">)),</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">to_jimage</span><span class="p">))</span>
+        <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">from_index</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">to_index</span><span class="p">)</span>
+
+        <span class="c1"># check we&#39;re not trying to add a duplicate edge</span>
+        <span class="c1"># there should only ever be at most one edge</span>
+        <span class="c1"># between a given (site, jimage) pair and another</span>
+        <span class="c1"># (site, jimage) pair</span>
+        <span class="n">existing_edge_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">existing_edge_data</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">existing_edge_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">to_jimage</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">warn_duplicates</span><span class="p">:</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Trying to add an edge that already exists from &quot;</span>
+                                      <span class="s2">&quot;site </span><span class="si">{}</span><span class="s2"> to site </span><span class="si">{}</span><span class="s2"> in </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span>
+                                                                         <span class="n">to_index</span><span class="p">,</span>
+                                                                         <span class="n">to_jimage</span><span class="p">))</span>
+                    <span class="k">return</span>
+
+        <span class="c1"># generic container for additional edge properties,</span>
+        <span class="c1"># similar to site properties</span>
+        <span class="n">edge_properties</span> <span class="o">=</span> <span class="n">edge_properties</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">weight</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+                                <span class="n">to_jimage</span><span class="o">=</span><span class="n">to_jimage</span><span class="p">,</span>
+                                <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+                                <span class="o">**</span><span class="n">edge_properties</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+                                <span class="n">to_jimage</span><span class="o">=</span><span class="n">to_jimage</span><span class="p">,</span>
+                                <span class="o">**</span><span class="n">edge_properties</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructureGraph.get_connected_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.get_connected_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a named tuple of neighbors of site n:</span>
+<span class="sd">        periodic_site, jimage, index, weight.</span>
+<span class="sd">        Index is the index of the corresponding site</span>
+<span class="sd">        in the original structure, weight can be</span>
+<span class="sd">        None if not defined.</span>
+<span class="sd">        :param n: index of Site in Structure</span>
+<span class="sd">        :param jimage: lattice vector of site</span>
+<span class="sd">        :return: list of ConnectedSite tuples,</span>
+<span class="sd">        sorted by closest first</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">connected_sites</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="n">out_edges</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+        <span class="n">in_edges</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">out_edges</span> <span class="o">+</span> <span class="n">in_edges</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+
+                <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span>
+                    <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span>
+                    <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">to_jimage</span><span class="p">)</span>
+
+                <span class="n">site_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">site_d</span><span class="p">[</span><span class="s1">&#39;abc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">site_d</span><span class="p">[</span><span class="s1">&#39;abc&#39;</span><span class="p">],</span> <span class="n">to_jimage</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">to_jimage</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)))</span>
+                <span class="n">site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">site_d</span><span class="p">)</span>
+
+                <span class="c1"># from_site if jimage arg != (0, 0, 0)</span>
+                <span class="n">relative_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">jimage</span><span class="o">=</span><span class="n">relative_jimage</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># simpler case for molecules</span>
+                <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+                <span class="n">to_jimage</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="n">connected_site</span> <span class="o">=</span> <span class="n">ConnectedSite</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">,</span>
+                                           <span class="n">jimage</span><span class="o">=</span><span class="n">to_jimage</span><span class="p">,</span>
+                                           <span class="n">index</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+                                           <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+                                           <span class="n">dist</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+
+            <span class="n">connected_sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">connected_site</span><span class="p">)</span>
+
+        <span class="c1"># return list sorted by closest sites first</span>
+        <span class="n">connected_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">connected_sites</span><span class="p">)</span>
+        <span class="n">connected_sites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">dist</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">connected_sites</span></div>
+
+<div class="viewcode-block" id="StructureGraph.get_coordination_of_site"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.get_coordination_of_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_of_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of neighbors of site n.</span>
+<span class="sd">        In graph terms, simply returns degree</span>
+<span class="sd">        of node corresponding to site n.</span>
+<span class="sd">        :param n: index of site</span>
+<span class="sd">        :return (int):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">number_of_self_loops</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">v</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="n">number_of_self_loops</span></div>
+
+<div class="viewcode-block" id="StructureGraph.draw_graph_to_file"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">draw_graph_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
+                           <span class="n">diff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">hide_unconnected_nodes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">hide_image_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">edge_colors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">node_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">weight_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">image_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">color_scheme</span><span class="o">=</span><span class="s2">&quot;VESTA&quot;</span><span class="p">,</span>
+                           <span class="n">keep_dot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">algo</span><span class="o">=</span><span class="s2">&quot;fdp&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draws graph using GraphViz.</span>
+
+<span class="sd">        The networkx graph object itself can also be drawn</span>
+<span class="sd">        with networkx&#39;s in-built graph drawing methods, but</span>
+<span class="sd">        note that this might give misleading results for</span>
+<span class="sd">        multigraphs (edges are super-imposed on each other).</span>
+
+<span class="sd">        If visualization is difficult to interpret,</span>
+<span class="sd">        `hide_image_edges` can help, especially in larger</span>
+<span class="sd">        graphs.</span>
+
+<span class="sd">        :param filename: filename to output, will detect filetype</span>
+<span class="sd">        from extension (any graphviz filetype supported, such as</span>
+<span class="sd">        pdf or png)</span>
+<span class="sd">        :param diff (StructureGraph): an additional graph to</span>
+<span class="sd">        compare with, will color edges red that do not exist in diff</span>
+<span class="sd">        and edges green that are in diff graph but not in the</span>
+<span class="sd">        reference graph</span>
+<span class="sd">        :param hide_unconnected_nodes: if True, hide unconnected</span>
+<span class="sd">        nodes</span>
+<span class="sd">        :param hide_image_edges: if True, do not draw edges that</span>
+<span class="sd">        go through periodic boundaries</span>
+<span class="sd">        :param edge_colors (bool): if True, use node colors to</span>
+<span class="sd">        color edges</span>
+<span class="sd">        :param node_labels (bool): if True, label nodes with</span>
+<span class="sd">        species and site index</span>
+<span class="sd">        :param weight_labels (bool): if True, label edges with</span>
+<span class="sd">        weights</span>
+<span class="sd">        :param image_labels (bool): if True, label edges with</span>
+<span class="sd">        their periodic images (usually only used for debugging,</span>
+<span class="sd">        edges to periodic images always appear as dashed lines)</span>
+<span class="sd">        :param color_scheme (str): &quot;VESTA&quot; or &quot;JMOL&quot;</span>
+<span class="sd">        :param keep_dot (bool): keep GraphViz .dot file for later</span>
+<span class="sd">        visualization</span>
+<span class="sd">        :param algo: any graphviz algo, &quot;neato&quot; (for simple graphs)</span>
+<span class="sd">        or &quot;fdp&quot; (for more crowded graphs) usually give good outputs</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">which</span><span class="p">(</span><span class="n">algo</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;StructureGraph graph drawing requires &quot;</span>
+                               <span class="s2">&quot;GraphViz binaries to be in the path.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Developer note: NetworkX also has methods for drawing</span>
+        <span class="c1"># graphs using matplotlib, these also work here. However,</span>
+        <span class="c1"># a dedicated tool like GraphViz allows for much easier</span>
+        <span class="c1"># control over graph appearance and also correctly displays</span>
+        <span class="c1"># mutli-graphs (matplotlib can superimpose multiple edges).</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">g</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nodesep&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s1">&#39;dpi&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span> <span class="s1">&#39;overlap&#39;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">}</span>
+
+        <span class="c1"># add display options for nodes</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+
+            <span class="c1"># get label by species name</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">node_labels</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="c1"># use standard color scheme for nodes</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">EL_COLORS</span><span class="p">[</span><span class="n">color_scheme</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># get contrasting font color</span>
+            <span class="c1"># magic numbers account for perceived luminescence</span>
+            <span class="c1"># https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color</span>
+            <span class="n">fontcolor</span> <span class="o">=</span> <span class="s1">&#39;#000000&#39;</span> <span class="k">if</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.299</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.587</span>
+                                          <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.114</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="s1">&#39;#ffffff&#39;</span>
+
+            <span class="c1"># convert color to hex string</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{:02x}{:02x}{:02x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fontcolor</span><span class="o">=</span><span class="n">fontcolor</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                       <span class="n">fontname</span><span class="o">=</span><span class="s2">&quot;Helvetica-bold&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;filled&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;circle&quot;</span><span class="p">)</span>
+
+        <span class="n">edges_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># add display options for edges</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+            <span class="c1"># retrieve from/to images, set as origin if not defined</span>
+            <span class="n">to_image</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span>
+
+            <span class="c1"># set edge style</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span>
+            <span class="k">if</span> <span class="n">to_image</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dashed&quot;</span>
+                <span class="k">if</span> <span class="n">hide_image_edges</span><span class="p">:</span>
+                    <span class="n">edges_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+
+            <span class="c1"># don&#39;t show edge directions</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;arrowhead&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+
+            <span class="c1"># only add labels for images that are not the origin</span>
+            <span class="k">if</span> <span class="n">image_labels</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;headlabel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">to_image</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">to_image</span><span class="p">))</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;arrowhead&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;headlabel&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span>
+
+            <span class="c1"># optionally color edges using node colors</span>
+            <span class="n">color_u</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;fillcolor&#39;</span><span class="p">]</span>
+            <span class="n">color_v</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;fillcolor&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;color_uv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">;0.5:</span><span class="si">{}</span><span class="s2">;0.5&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">color_u</span><span class="p">,</span> <span class="n">color_v</span><span class="p">)</span> <span class="k">if</span> <span class="n">edge_colors</span> <span class="k">else</span> <span class="s2">&quot;#000000&quot;</span>
+
+            <span class="c1"># optionally add weights to graph</span>
+            <span class="k">if</span> <span class="n">weight_labels</span><span class="p">:</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;edge_weight_units&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">):</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">units</span><span class="p">)</span>
+
+            <span class="c1"># update edge with our new style attributes</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="c1"># optionally remove periodic image edges,</span>
+        <span class="c1"># these can be confusing due to periodic boundaries</span>
+        <span class="k">if</span> <span class="n">hide_image_edges</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">edge_to_delete</span> <span class="ow">in</span> <span class="n">edges_to_delete</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge_to_delete</span><span class="p">)</span>
+
+        <span class="c1"># optionally hide unconnected nodes,</span>
+        <span class="c1"># these can appear when removing periodic edges</span>
+        <span class="k">if</span> <span class="n">hide_unconnected_nodes</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">subgraph</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">degree</span><span class="p">()[</span><span class="n">n</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># optionally highlight differences with another graph</span>
+        <span class="k">if</span> <span class="n">diff</span><span class="p">:</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">green_edges</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">red_edges</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">diff</span><span class="p">[</span><span class="s1">&#39;self&#39;</span><span class="p">]:</span>
+                    <span class="c1"># edge has been deleted</span>
+                    <span class="n">red_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">diff</span><span class="p">[</span><span class="s1">&#39;other&#39;</span><span class="p">]:</span>
+                    <span class="c1"># edge has been added</span>
+                    <span class="n">green_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">green_edges</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;color_uv&#39;</span><span class="p">:</span> <span class="s1">&#39;#00ff00&#39;</span><span class="p">})</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">red_edges</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;color_uv&#39;</span><span class="p">:</span> <span class="s1">&#39;#ff0000&#39;</span><span class="p">})</span>
+
+        <span class="n">basename</span><span class="p">,</span> <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">extension</span> <span class="o">=</span> <span class="n">extension</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="n">write_dot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">basename</span><span class="o">+</span><span class="s2">&quot;.dot&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">algo</span><span class="p">,</span> <span class="s2">&quot;-T&quot;</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">basename</span><span class="o">+</span><span class="s2">&quot;.dot&quot;</span><span class="p">]</span>
+            <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span>
+                                  <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="p">,</span>
+                                  <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rs</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> exited with return code </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">algo</span><span class="p">,</span> <span class="n">rs</span><span class="o">.</span><span class="n">returncode</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_dot</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">basename</span><span class="o">+</span><span class="s2">&quot;.dot&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructureGraph.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As in :Class: `pymatgen.core.Structure` except</span>
+<span class="sd">        with using `to_dict_of_dicts` from NetworkX</span>
+<span class="sd">        to store graph information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+             <span class="s2">&quot;graphs&quot;</span><span class="p">:</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)}</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="StructureGraph.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As in :Class: `pymatgen.core.Structure` except</span>
+<span class="sd">        restoring graphs using `from_dict_of_dicts`</span>
+<span class="sd">        from NetworkX to restore graph information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;graphs&#39;</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replicates the graph, creating a supercell,</span>
+<span class="sd">        intelligently joining together</span>
+<span class="sd">        edges that lie on periodic boundaries.</span>
+<span class="sd">        In principle, any operations on the expanded</span>
+<span class="sd">        graph could also be done on the original</span>
+<span class="sd">        graph, but a larger graph can be easier to</span>
+<span class="sd">        visualize and reason about.</span>
+<span class="sd">        :param scaling_matrix: same as Structure.__mul__</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Developer note: a different approach was also trialed, using</span>
+        <span class="c1"># a simple Graph (instead of MultiDiGraph), with node indices</span>
+        <span class="c1"># representing both site index and periodic image. Here, the</span>
+        <span class="c1"># number of nodes != number of sites in the Structure. This</span>
+        <span class="c1"># approach has many benefits, but made it more difficult to</span>
+        <span class="c1"># keep the graph in sync with its corresponding Structure.</span>
+
+        <span class="c1"># Broadly, it would be easier to multiply the Structure</span>
+        <span class="c1"># *before* generating the StructureGraph, but this isn&#39;t</span>
+        <span class="c1"># possible when generating the graph using critic2 from</span>
+        <span class="c1"># charge density.</span>
+
+        <span class="c1"># Multiplication works by looking for the expected position</span>
+        <span class="c1"># of an image node, and seeing if that node exists in the</span>
+        <span class="c1"># supercell. If it does, the edge is updated. This is more</span>
+        <span class="c1"># computationally expensive than just keeping track of the</span>
+        <span class="c1"># which new lattice images present, but should hopefully be</span>
+        <span class="c1"># easier to extend to a general 3x3 scaling matrix.</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multiplying graphs is only-welled defined for &quot;</span>
+                             <span class="s2">&quot;structures not molecules or other objects without &quot;</span>
+                             <span class="s2">&quot;a well-defined periodic lattice.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># code adapted from Structure.__mul__</span>
+        <span class="n">scale_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scale_matrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="n">scale_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scale_matrix</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># TODO: test __mul__ with full 3x3 scaling matrices</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Not tested with 3x3 scaling matrices yet.&#39;</span><span class="p">)</span>
+        <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">))</span>
+
+        <span class="n">f_lat</span> <span class="o">=</span> <span class="n">lattice_points_in_supercell</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">)</span>
+        <span class="n">c_lat</span> <span class="o">=</span> <span class="n">new_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">f_lat</span><span class="p">)</span>
+
+        <span class="n">new_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_graphs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">c_lat</span><span class="p">:</span>
+
+            <span class="c1"># create a map of nodes from original graph to its image</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="n">n</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">))}</span>
+
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">):</span>
+
+                <span class="n">s</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span> <span class="o">+</span> <span class="n">v</span><span class="p">,</span>
+                                 <span class="n">new_lattice</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
+                                 <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+            <span class="n">new_graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="n">new_structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
+
+        <span class="c1"># merge all graphs into one big graph</span>
+        <span class="n">new_g</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">new_graph</span> <span class="ow">in</span> <span class="n">new_graphs</span><span class="p">:</span>
+            <span class="n">new_g</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">new_g</span><span class="p">,</span> <span class="n">new_graph</span><span class="p">)</span>
+
+        <span class="n">edges_to_remove</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># tuple of (u, v, k)</span>
+        <span class="n">edges_to_add</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># tuple of (u, v, attr_dict)</span>
+
+        <span class="c1"># list of new edges inside supercell</span>
+        <span class="c1"># for duplicate checking</span>
+        <span class="n">edges_inside_supercell</span> <span class="o">=</span> <span class="p">[{</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">}</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">new_g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                  <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+        <span class="n">new_periodic_images</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">orig_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="c1"># use k-d tree to match given position to an</span>
+        <span class="c1"># existing Site in Structure</span>
+        <span class="n">kd_tree</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">new_structure</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">)</span>
+
+        <span class="c1"># tolerance in Å for sites to be considered equal</span>
+        <span class="c1"># this could probably be a lot smaller</span>
+        <span class="n">tol</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">new_g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+            <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span>  <span class="c1"># for node v</span>
+
+            <span class="c1"># reduce unnecessary checking</span>
+            <span class="k">if</span> <span class="n">to_jimage</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+
+                <span class="c1"># get index in original site</span>
+                <span class="n">n_u</span> <span class="o">=</span> <span class="n">u</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+                <span class="n">n_v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+
+                <span class="c1"># get fractional co-ordinates of where atoms defined</span>
+                <span class="c1"># by edge are expected to be, relative to original</span>
+                <span class="c1"># lattice (keeping original lattice has</span>
+                <span class="c1"># significant benefits)</span>
+                <span class="n">v_image_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n_v</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">to_jimage</span><span class="p">)</span>
+                <span class="n">u_frac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n_u</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
+
+                <span class="c1"># using the position of node u as a reference,</span>
+                <span class="c1"># get relative Cartesian co-ordinates of where</span>
+                <span class="c1"># atoms defined by edge are expected to be</span>
+                <span class="n">v_image_cart</span> <span class="o">=</span> <span class="n">orig_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">v_image_frac</span><span class="p">)</span>
+                <span class="n">u_cart</span> <span class="o">=</span> <span class="n">orig_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">u_frac</span><span class="p">)</span>
+                <span class="n">v_rel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">v_image_cart</span><span class="p">,</span> <span class="n">u_cart</span><span class="p">)</span>
+
+                <span class="c1"># now retrieve position of node v in</span>
+                <span class="c1"># new supercell, and get asgolute Cartesian</span>
+                <span class="c1"># co-ordinates of where atoms defined by edge</span>
+                <span class="c1"># are expected to be</span>
+                <span class="n">v_expec</span> <span class="o">=</span> <span class="n">new_structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">+</span> <span class="n">v_rel</span>
+
+                <span class="c1"># now search in new structure for these atoms</span>
+                <span class="c1"># query returns (distance, index)</span>
+                <span class="n">v_present</span> <span class="o">=</span> <span class="n">kd_tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">v_expec</span><span class="p">)</span>
+                <span class="n">v_present</span> <span class="o">=</span> <span class="n">v_present</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">v_present</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tol</span> <span class="k">else</span> <span class="kc">None</span>
+
+                <span class="c1"># check if image sites now present in supercell</span>
+                <span class="c1"># and if so, delete old edge that went through</span>
+                <span class="c1"># periodic boundary</span>
+                <span class="k">if</span> <span class="n">v_present</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="n">new_u</span> <span class="o">=</span> <span class="n">u</span>
+                    <span class="n">new_v</span> <span class="o">=</span> <span class="n">v_present</span>
+                    <span class="n">new_d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                    <span class="c1"># node now inside supercell</span>
+                    <span class="n">new_d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+                    <span class="n">edges_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+
+                    <span class="c1"># make sure we don&#39;t try to add duplicate edges</span>
+                    <span class="c1"># will remove two edges for everyone one we add</span>
+                    <span class="k">if</span> <span class="p">{</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">}</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">edges_inside_supercell</span><span class="p">:</span>
+
+                        <span class="c1"># normalize direction</span>
+                        <span class="k">if</span> <span class="n">new_v</span> <span class="o">&lt;</span> <span class="n">new_u</span><span class="p">:</span>
+                            <span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span> <span class="o">=</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_u</span>
+
+                        <span class="n">edges_inside_supercell</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">})</span>
+                        <span class="n">edges_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_d</span><span class="p">))</span>
+
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="c1"># want to find new_v such that we have</span>
+                    <span class="c1"># full periodic boundary conditions</span>
+                    <span class="c1"># so that nodes on one side of supercell</span>
+                    <span class="c1"># are connected to nodes on opposite side</span>
+
+                    <span class="n">v_expec_frac</span> <span class="o">=</span> <span class="n">new_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">v_expec</span><span class="p">)</span>
+
+                    <span class="c1"># find new to_jimage</span>
+                    <span class="c1"># use np.around to fix issues with finite precision leading to incorrect image</span>
+                    <span class="n">v_expec_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">v_expec_frac</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">v_expec_image</span> <span class="o">=</span> <span class="n">v_expec_image</span> <span class="o">-</span> <span class="n">v_expec_image</span><span class="o">%</span><span class="mi">1</span>
+
+                    <span class="n">v_expec_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">v_expec_frac</span><span class="p">,</span> <span class="n">v_expec_image</span><span class="p">)</span>
+                    <span class="n">v_expec</span> <span class="o">=</span> <span class="n">new_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">v_expec_frac</span><span class="p">)</span>
+                    <span class="n">v_present</span> <span class="o">=</span> <span class="n">kd_tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">v_expec</span><span class="p">)</span>
+                    <span class="n">v_present</span> <span class="o">=</span> <span class="n">v_present</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">v_present</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tol</span> <span class="k">else</span> <span class="kc">None</span>
+
+                    <span class="k">if</span> <span class="n">v_present</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                        <span class="n">new_u</span> <span class="o">=</span> <span class="n">u</span>
+                        <span class="n">new_v</span> <span class="o">=</span> <span class="n">v_present</span>
+                        <span class="n">new_d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="n">new_to_jimage</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">v_expec_image</span><span class="p">))</span>
+
+                        <span class="c1"># normalize direction</span>
+                        <span class="k">if</span> <span class="n">new_v</span> <span class="o">&lt;</span> <span class="n">new_u</span><span class="p">:</span>
+                            <span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span> <span class="o">=</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_u</span>
+                            <span class="n">new_to_jimage</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+                        <span class="n">new_d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_to_jimage</span>
+
+                        <span class="n">edges_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+
+                        <span class="k">if</span> <span class="p">(</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_to_jimage</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_periodic_images</span><span class="p">:</span>
+                            <span class="n">edges_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_d</span><span class="p">))</span>
+                            <span class="n">new_periodic_images</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_to_jimage</span><span class="p">))</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Removing </span><span class="si">{}</span><span class="s2"> edges, adding </span><span class="si">{}</span><span class="s2"> new edges.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edges_to_remove</span><span class="p">),</span>
+                                                                      <span class="nb">len</span><span class="p">(</span><span class="n">edges_to_add</span><span class="p">)))</span>
+
+        <span class="c1"># add/delete marked edges</span>
+        <span class="k">for</span> <span class="n">edges_to_remove</span> <span class="ow">in</span> <span class="n">edges_to_remove</span><span class="p">:</span>
+            <span class="n">new_g</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edges_to_remove</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edges_to_add</span><span class="p">:</span>
+            <span class="n">new_g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="c1"># return new instance of StructureGraph with supercell</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;structure&quot;</span><span class="p">:</span> <span class="n">new_structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+             <span class="s2">&quot;graphs&quot;</span><span class="p">:</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_data</span><span class="p">(</span><span class="n">new_g</span><span class="p">)}</span>
+
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sg</span>
+
+    <span class="k">def</span> <span class="nf">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__mul__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_edges_to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;from    to  to_image    &quot;</span>
+        <span class="n">header_line</span> <span class="o">=</span> <span class="s2">&quot;----  ----  ------------&quot;</span>
+        <span class="n">edge_weight_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;edge_weight_name&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">edge_weight_name</span><span class="p">:</span>
+            <span class="n">print_weights</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+            <span class="n">edge_label</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;edge_weight_name&quot;</span><span class="p">]</span>
+            <span class="n">edge_weight_units</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;edge_weight_units&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">edge_weight_units</span><span class="p">:</span>
+                <span class="n">edge_label</span> <span class="o">+=</span> <span class="s2">&quot; (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">edge_weight_units</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">edge_label</span><span class="p">)</span>
+            <span class="n">header_line</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="nb">max</span><span class="p">([</span><span class="mi">18</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge_label</span><span class="p">)]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">print_weights</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header_line</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="c1"># sort edges for consistent ordering</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">print_weights</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:12}</span><span class="s2">  </span><span class="si">{:.3e}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))),</span>
+                                                           <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:12}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span>
+                                                  <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))))</span>
+
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Structure Graph&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Structure: </span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Graph: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Structure Graph&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Structure: </span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Graph: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: length of Structure / number of nodes in graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StructureGraph.sort"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Same as Structure.sort(), also remaps nodes in graph.</span>
+<span class="sd">        :param key:</span>
+<span class="sd">        :param reverse:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">old_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># sort Structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">_sites</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+
+        <span class="c1"># apply Structure ordering to graph</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="n">idx</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">old_structure</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># normalize directions of edges</span>
+        <span class="n">edges_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">edges_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">u</span><span class="p">:</span>
+                <span class="n">new_v</span><span class="p">,</span> <span class="n">new_u</span><span class="p">,</span> <span class="n">new_d</span> <span class="o">=</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">new_d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+                <span class="n">edges_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="n">edges_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_d</span><span class="p">))</span>
+
+        <span class="c1"># add/delete marked edges</span>
+        <span class="k">for</span> <span class="n">edges_to_remove</span> <span class="ow">in</span> <span class="n">edges_to_remove</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edges_to_remove</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edges_to_add</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Two StructureGraphs are equal if they have equal Structures,</span>
+<span class="sd">        and have the same edges between Sites. Edge weights can be</span>
+<span class="sd">        different and StructureGraphs can still be considered equal.</span>
+
+<span class="sd">        :param other: StructureGraph</span>
+<span class="sd">        :return (bool):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># sort for consistent node indices</span>
+        <span class="c1"># PeriodicSite should have a proper __hash__() value,</span>
+        <span class="c1"># using its frac_coords as a convenient key</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">):</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">}</span>
+        <span class="n">other_sorted</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span>
+        <span class="n">other_sorted</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">mapping</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)])</span>
+
+        <span class="n">edges</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span>
+                 <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="n">edges_other</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span>
+                       <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">edges</span> <span class="o">==</span> <span class="n">edges_other</span><span class="p">)</span> <span class="ow">and</span> \
+               <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">==</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StructureGraph.diff"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compares two StructureGraphs. Returns dict with</span>
+<span class="sd">        keys &#39;self&#39;, &#39;other&#39;, &#39;both&#39; with edges that are</span>
+<span class="sd">        present in only one StructureGraph (&#39;self&#39; and</span>
+<span class="sd">        &#39;other&#39;), and edges that are present in both.</span>
+
+<span class="sd">        The Jaccard distance is a simple measure of the</span>
+<span class="sd">        dissimilarity between two StructureGraphs (ignoring</span>
+<span class="sd">        edge weights), and is defined by 1 - (size of the</span>
+<span class="sd">        intersection / size of the union) of the sets of</span>
+<span class="sd">        edges. This is returned with key &#39;dist&#39;.</span>
+
+<span class="sd">        Important note: all node indices are in terms</span>
+<span class="sd">        of the StructureGraph this method is called</span>
+<span class="sd">        from, not the &#39;other&#39; StructureGraph: there</span>
+<span class="sd">        is no guarantee the node indices will be the</span>
+<span class="sd">        same if the underlying Structures are ordered</span>
+<span class="sd">        differently.</span>
+
+<span class="sd">        :param other: StructureGraph</span>
+<span class="sd">        :param strict: if False, will compare bonds</span>
+<span class="sd">        from different Structures, with node indices</span>
+<span class="sd">        replaced by Specie strings, will not count</span>
+<span class="sd">        number of occurrences of bonds</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">structure</span> <span class="ow">and</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meaningless to compare StructureGraphs if &quot;</span>
+                              <span class="s2">&quot;corresponding Structures are different.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+
+            <span class="c1"># sort for consistent node indices</span>
+            <span class="c1"># PeriodicSite should have a proper __hash__() value,</span>
+            <span class="c1"># using its frac_coords as a convenient key</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">):</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">}</span>
+            <span class="n">other_sorted</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span>
+            <span class="n">other_sorted</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">mapping</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)])</span>
+
+            <span class="n">edges</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span>
+                     <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+            <span class="n">edges_other</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span>
+                           <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">edges</span> <span class="o">=</span> <span class="p">{(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span>
+                      <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">))</span>
+                     <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+            <span class="n">edges_other</span> <span class="o">=</span> <span class="p">{(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">))</span>
+                           <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges_other</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">jaccard_dist</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># by definition</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jaccard_dist</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">edges_other</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">edges_other</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;self&#39;</span><span class="p">:</span> <span class="n">edges</span> <span class="o">-</span> <span class="n">edges_other</span><span class="p">,</span>
+            <span class="s1">&#39;other&#39;</span><span class="p">:</span> <span class="n">edges_other</span> <span class="o">-</span> <span class="n">edges</span><span class="p">,</span>
+            <span class="s1">&#39;both&#39;</span><span class="p">:</span> <span class="n">edges</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">edges_other</span><span class="p">),</span>
+            <span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="n">jaccard_dist</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="StructureGraph.get_subgraphs_as_molecules"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.get_subgraphs_as_molecules">[docs]</a>    <span class="k">def</span> <span class="nf">get_subgraphs_as_molecules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve subgraphs as molecules, useful for extracting</span>
+<span class="sd">        molecules from periodic crystals.</span>
+
+<span class="sd">        Will only return unique molecules, not any duplicates</span>
+<span class="sd">        present in the crystal (a duplicate defined as an</span>
+<span class="sd">        isomorphic subgraph).</span>
+
+<span class="sd">        :param use_weights (bool): If True, only treat subgraphs</span>
+<span class="sd">        as isomorphic if edges have the same weights. Typically,</span>
+<span class="sd">        this means molecules will need to have the same bond</span>
+<span class="sd">        lengths to be defined as duplicates, otherwise bond</span>
+<span class="sd">        lengths can differ. This is a fairly robust approach,</span>
+<span class="sd">        but will treat e.g. enantiomers as being duplicates.</span>
+
+<span class="sd">        :return: list of unique Molecules in Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># creating a supercell is an easy way to extract</span>
+        <span class="c1"># molecules (and not, e.g., layers of a 2D crystal)</span>
+        <span class="c1"># without adding extra logic</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_supercell_sg&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_supercell_sg</span> <span class="o">=</span> <span class="n">supercell_sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># make undirected to find connected subgraphs</span>
+        <span class="n">supercell_sg</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">supercell_sg</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+
+        <span class="c1"># find subgraphs</span>
+        <span class="n">all_subgraphs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">connected_component_subgraphs</span><span class="p">(</span><span class="n">supercell_sg</span><span class="o">.</span><span class="n">graph</span><span class="p">))</span>
+
+        <span class="c1"># discount subgraphs that lie across *supercell* boundaries</span>
+        <span class="c1"># these will subgraphs representing crystals</span>
+        <span class="n">molecule_subgraphs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">subgraph</span> <span class="ow">in</span> <span class="n">all_subgraphs</span><span class="p">:</span>
+            <span class="n">intersects_boundary</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                                      <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">subgraph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">intersects_boundary</span><span class="p">:</span>
+                <span class="n">molecule_subgraphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subgraph</span><span class="p">)</span>
+
+        <span class="c1"># add specie names to graph to be able to test for isomorphism</span>
+        <span class="k">for</span> <span class="n">subgraph</span> <span class="ow">in</span> <span class="n">molecule_subgraphs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">subgraph</span><span class="p">:</span>
+                <span class="n">subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">specie</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">supercell_sg</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">))</span>
+
+        <span class="c1"># now define how we test for isomorphism</span>
+        <span class="k">def</span> <span class="nf">node_match</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">n1</span><span class="p">[</span><span class="s1">&#39;specie&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">n2</span><span class="p">[</span><span class="s1">&#39;specie&#39;</span><span class="p">]</span>
+        <span class="k">def</span> <span class="nf">edge_match</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">use_weights</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">e1</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">e2</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># prune duplicate subgraphs</span>
+        <span class="n">unique_subgraphs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">subgraph</span> <span class="ow">in</span> <span class="n">molecule_subgraphs</span><span class="p">:</span>
+
+            <span class="n">already_present</span> <span class="o">=</span> <span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">is_isomorphic</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span>
+                                                <span class="n">node_match</span><span class="o">=</span><span class="n">node_match</span><span class="p">,</span>
+                                                <span class="n">edge_match</span><span class="o">=</span><span class="n">edge_match</span><span class="p">)</span>
+                               <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">unique_subgraphs</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">already_present</span><span class="p">):</span>
+                <span class="n">unique_subgraphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subgraph</span><span class="p">)</span>
+
+        <span class="c1"># get Molecule objects for each subgraph</span>
+        <span class="n">molecules</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">subgraph</span> <span class="ow">in</span> <span class="n">unique_subgraphs</span><span class="p">:</span>
+
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">supercell_sg</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">n</span>
+                      <span class="ow">in</span> <span class="n">subgraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()]</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">supercell_sg</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">n</span>
+                      <span class="ow">in</span> <span class="n">subgraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()]</span>
+
+            <span class="n">molecule</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+
+            <span class="c1"># shift so origin is at center of mass</span>
+            <span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">get_centered_molecule</span><span class="p">()</span>
+
+            <span class="n">molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">molecules</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
