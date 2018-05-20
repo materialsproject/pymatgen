@@ -6,6 +6,7 @@ from pymatgen import SETTINGS_FILE, _load_pmg_settings, get_structure_from_mp, \
     SETTINGS
 import warnings
 
+
 class SettingsTestCase(unittest.TestCase):
 
     def test_something(self):
@@ -26,6 +27,7 @@ class SettingsTestCase(unittest.TestCase):
             warnings.simplefilter("ignore")
             self.assertEqual(get_structure_from_mp("Li2O").formula, "Li2 O1")
             self.assertRaises(ValueError, get_structure_from_mp, "LiNaKCs")
+
 
 if __name__ == '__main__':
     unittest.main()
