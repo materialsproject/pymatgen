@@ -1,5 +1,5 @@
-pymatgen\.analysis\.diffraction\.neutron module
-===============================================
+pymatgen.analysis.diffraction.neutron module
+============================================
 
 .. automodule:: pymatgen.analysis.diffraction.neutron
     :members:

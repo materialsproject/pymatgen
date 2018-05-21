@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2018.5.14 documentation</title>
-    
+    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2018.5.21 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.5.14',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.21 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,354 +43,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-pymatgen.analysis.graphs">
-<span id="pymatgen-analysis-graphs-module"></span><h1>pymatgen.analysis.graphs module<a class="headerlink" href="#module-pymatgen.analysis.graphs" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="pymatgen.analysis.graphs.ConnectedSite">
-<em class="property">class </em><code class="descname">ConnectedSite</code><span class="sig-paren">(</span><em>site</em>, <em>jimage</em>, <em>index</em>, <em>weight</em>, <em>dist</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
-<p>Create new instance of ConnectedSite(site, jimage, index, weight, dist)</p>
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.ConnectedSite.dist">
-<code class="descname">dist</code><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.dist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 4</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.ConnectedSite.index">
-<code class="descname">index</code><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 2</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.ConnectedSite.jimage">
-<code class="descname">jimage</code><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.jimage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 1</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.ConnectedSite.site">
-<code class="descname">site</code><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.site" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.ConnectedSite.weight">
-<code class="descname">weight</code><a class="headerlink" href="#pymatgen.analysis.graphs.ConnectedSite.weight" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 3</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pymatgen.analysis.graphs.StructureGraph">
-<em class="property">class </em><code class="descname">StructureGraph</code><span class="sig-paren">(</span><em>structure_or_molecule</em>, <em>graph_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
-<p>This is a class for annotating a Structure (or Molecule) with
-bond information, stored in the form of a graph. A “bond” does
-not necessarily have to be a chemical bond, but can store any
-kind of information that connects two Sites.</p>
-<p>If constructing this class manually, use the <cite>with_empty_graph</cite>
-method or <cite>with_local_env_strategy</cite> method (using an algorithm
-provided by the <cite>local_env</cite> module, such as O’Keeffe).</p>
-<p>This class that contains connection information:
-relationships between sites represented by a Graph structure,
-and an associated structure object.</p>
-<p>This class uses the NetworkX package to store and operate
-on the graph itself, but contains a lot of helper methods
-to make associating a graph with a given crystallographic
-structure easier.</p>
-<p>Use cases for this include storing bonding information,
-NMR J-couplings, Heisenberg exchange parameters, etc.</p>
-<p>For periodic graphs, class stores information on the graph
-edges of what lattice image the edge belongs to.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure_or_molecule</strong> – a Structure object or a</td>
-</tr>
-</tbody>
-</table>
-<p>Molecule object (molecules are supported, but some
-methods are for structures only, such as __mul__, in
-future this may be broken into two separate classes)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>graph_data</strong> – dict containing graph information in</td>
-</tr>
-</tbody>
-</table>
-<p>dict format (not intended to be constructed manually,
-see as_dict method for format)</p>
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.add_edge">
-<code class="descname">add_edge</code><span class="sig-paren">(</span><em>from_index</em>, <em>to_index</em>, <em>from_jimage=(0</em>, <em>0</em>, <em>0)</em>, <em>to_jimage=None</em>, <em>weight=None</em>, <em>warn_duplicates=True</em>, <em>edge_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.add_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.add_edge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add edge to graph.</p>
-<p>Since physically a ‘bond’ (or other connection
-between sites) doesn’t have a direction, from_index,
-from_jimage can be swapped with to_index, to_jimage.</p>
-<p>However, images will always always be shifted so that
-from_index &lt; to_index and from_jimage becomes (0, 0, 0).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>from_index</strong> – index of site connecting from</li>
-<li><strong>to_index</strong> – index of site connecting to</li>
-<li><strong>(</strong><strong>tuple of ints</strong><strong>)</strong> (<em>from_jimage</em>) – lattice vector of periodic</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>image, e.g. (1, 0, 0) for periodic image in +x direction
-:param to_jimage (tuple of ints): lattice vector of image
-:param weight (float): e.g. bond length
-:param warn_duplicates (bool): if True, will warn if
-trying to add duplicate edges (duplicate edges will not
-be added in either case)
-:param edge_properties (dict): any other information to
-store on graph edges, similar to Structure’s site_properties
-:return:</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>As in :Class: <cite>pymatgen.core.Structure</cite> except
-with using <cite>to_dict_of_dicts</cite> from NetworkX
-to store graph information.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.diff">
-<code class="descname">diff</code><span class="sig-paren">(</span><em>other</em>, <em>strict=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compares two StructureGraphs. Returns dict with
-keys ‘self’, ‘other’, ‘both’ with edges that are
-present in only one StructureGraph (‘self’ and
-‘other’), and edges that are present in both.</p>
-<p>The Jaccard distance is a simple measure of the
-dissimilarity between two StructureGraphs (ignoring
-edge weights), and is defined by 1 - (size of the
-intersection / size of the union) of the sets of
-edges. This is returned with key ‘dist’.</p>
-<p>Important note: all node indices are in terms
-of the StructureGraph this method is called
-from, not the ‘other’ StructureGraph: there
-is no guarantee the node indices will be the
-same if the underlying Structures are ordered
-differently.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>other</strong> – StructureGraph</li>
-<li><strong>strict</strong> – if False, will compare bonds</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>from different Structures, with node indices
-replaced by Specie strings, will not count
-number of occurrences of bonds
-:return:</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file">
-<code class="descname">draw_graph_to_file</code><span class="sig-paren">(</span><em>filename=’graph’</em>, <em>diff=None</em>, <em>hide_unconnected_nodes=False</em>, <em>hide_image_edges=True</em>, <em>edge_colors=False</em>, <em>node_labels=False</em>, <em>weight_labels=False</em>, <em>image_labels=False</em>, <em>color_scheme=’VESTA’</em>, <em>keep_dot=False</em>, <em>algo=’fdp’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.draw_graph_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draws graph using GraphViz.</p>
-<p>The networkx graph object itself can also be drawn
-with networkx’s in-built graph drawing methods, but
-note that this might give misleading results for
-multigraphs (edges are super-imposed on each other).</p>
-<p>If visualization is difficult to interpret,
-<cite>hide_image_edges</cite> can help, especially in larger
-graphs.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – filename to output, will detect filetype</td>
-</tr>
-</tbody>
-</table>
-<p>from extension (any graphviz filetype supported, such as
-pdf or png)
-:param diff (StructureGraph): an additional graph to
-compare with, will color edges red that do not exist in diff
-and edges green that are in diff graph but not in the
-reference graph
-:param hide_unconnected_nodes: if True, hide unconnected
-nodes
-:param hide_image_edges: if True, do not draw edges that
-go through periodic boundaries
-:param edge_colors (bool): if True, use node colors to
-color edges
-:param node_labels (bool): if True, label nodes with
-species and site index
-:param weight_labels (bool): if True, label edges with
-weights
-:param image_labels (bool): if True, label edges with
-their periodic images (usually only used for debugging,
-edges to periodic images always appear as dashed lines)
-:param color_scheme (str): “VESTA” or “JMOL”
-:param keep_dot (bool): keep GraphViz .dot file for later
-visualization
-:param algo: any graphviz algo, “neato” (for simple graphs)
-or “fdp” (for more crowded graphs) usually give good outputs
-:return:</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.StructureGraph.edge_weight_name">
-<code class="descname">edge_weight_name</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_name" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>return</em> – Name of the edge weight property of graph</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.StructureGraph.edge_weight_unit">
-<code class="descname">edge_weight_unit</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_unit" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>return</em> – Units of the edge weight property of graph</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="pymatgen.analysis.graphs.StructureGraph.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>As in :Class: <cite>pymatgen.core.Structure</cite> except
-restoring graphs using <cite>from_dict_of_dicts</cite>
-from NetworkX to restore graph information.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.get_connected_sites">
-<code class="descname">get_connected_sites</code><span class="sig-paren">(</span><em>n</em>, <em>jimage=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.get_connected_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_connected_sites" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a named tuple of neighbors of site n:
-periodic_site, jimage, index, weight.
-Index is the index of the corresponding site
-in the original structure, weight can be
-None if not defined.
-:param n: index of Site in Structure
-:param jimage: lattice vector of site
-:return: list of ConnectedSite tuples,
-sorted by closest first</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.get_coordination_of_site">
-<code class="descname">get_coordination_of_site</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.get_coordination_of_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_coordination_of_site" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the number of neighbors of site n.
-In graph terms, simply returns degree
-of node corresponding to site n.
-:param n: index of site
-:return (int):</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.get_subgraphs_as_molecules">
-<code class="descname">get_subgraphs_as_molecules</code><span class="sig-paren">(</span><em>use_weights=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.get_subgraphs_as_molecules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.get_subgraphs_as_molecules" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve subgraphs as molecules, useful for extracting
-molecules from periodic crystals.</p>
-<p>Will only return unique molecules, not any duplicates
-present in the crystal (a duplicate defined as an
-isomorphic subgraph).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>use_weights</em>) – If True, only treat subgraphs</td>
-</tr>
-</tbody>
-</table>
-<p>as isomorphic if edges have the same weights. Typically,
-this means molecules will need to have the same bond
-lengths to be defined as duplicates, otherwise bond
-lengths can differ. This is a fairly robust approach,
-but will treat e.g. enantiomers as being duplicates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of unique Molecules in Structure</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.analysis.graphs.StructureGraph.name">
-<code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.name" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>return</em> – Name of graph</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.graphs.StructureGraph.sort">
-<code class="descname">sort</code><span class="sig-paren">(</span><em>key=None</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.sort" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as Structure.sort(), also remaps nodes in graph.
-:param key:
-:param reverse:
-:return:</p>
-</dd></dl>
-
-<dl class="classmethod">
-<dt id="pymatgen.analysis.graphs.StructureGraph.with_empty_graph">
-<em class="property">classmethod </em><code class="descname">with_empty_graph</code><span class="sig-paren">(</span><em>structure_or_molecule</em>, <em>name=’bonds’</em>, <em>edge_weight_name=None</em>, <em>edge_weight_units=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_empty_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructor for StructureGraph, returns a StructureGraph
-object with an empty graph (no edges, only nodes defined
-that correspond to Sites in Structure).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>(</strong><strong>Structure</strong><strong>)</strong> (<em>structure_or_molecule</em>) – </li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> (<a class="reference internal" href="#pymatgen.analysis.graphs.StructureGraph.edge_weight_name" title="pymatgen.analysis.graphs.StructureGraph.edge_weight_name"><em>edge_weight_name</em></a>) – name of graph, e.g. “bonds”</li>
-<li><strong>(</strong><strong>str</strong><strong>)</strong> – name of edge weights,</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>e.g. “bond_length” or “exchange_constant”
-:param edge_weight_units (str): name of edge weight units
-e.g. “Å” or “eV”
-:return (StructureGraph):</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy">
-<em class="property">static </em><code class="descname">with_local_env_strategy</code><span class="sig-paren">(</span><em>structure_or_molecule</em>, <em>strategy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_local_env_strategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructor for StructureGraph, using a strategy
-from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
-<p>Molecules will be put into a large artificial box for calculation
-of bonds using a NearNeighbor strategy, since some strategies
-assume periodic boundary conditions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>structure_or_molecule</strong> – Structure object</li>
-<li><strong>strategy</strong> – an instance of a
-:Class: <cite>pymatgen.analysis.local_env.NearNeighbors</cite> object</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="pymatgen-analysis-graphs-module">
+<h1>pymatgen.analysis.graphs module<a class="headerlink" href="#pymatgen-analysis-graphs-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -420,12 +62,14 @@ assume periodic boundary conditions.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -441,13 +85,13 @@ assume periodic boundary conditions.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.21 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
