@@ -65,7 +65,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
@@ -97,13 +97,20 @@
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Voronoi</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">abs_cap</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BV_PARAMS</span><span class="p">,</span> <span class="n">BVAnalyzer</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.command_line.critic2_caller</span> <span class="k">import</span> <span class="n">Critic2Caller</span>
 
 <span class="n">default_op_params</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
         <span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;op_params.yaml&#39;</span><span class="p">),</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">default_op_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">cn_opt_params</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+        <span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;cn_opt_params.yaml&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">cn_opt_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <span class="n">file_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
@@ -151,7 +158,6 @@
 <span class="sd">        Returns oxidation state decorated structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
 
     <span class="k">def</span> <span class="nf">_get_ionic_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -550,7 +556,78 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">i</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Site not found!&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Site not found!&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NearNeighbors.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a StructureGraph object using this NearNeighbor</span>
+<span class="sd">        class. Requires the optional dependency networkx</span>
+<span class="sd">        (pip install networkx).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Structure object.</span>
+<span class="sd">            decorate (bool): whether to annotate site properties</span>
+<span class="sd">            with order parameters using neighbors determined by</span>
+<span class="sd">            this NearNeighbor class</span>
+
+<span class="sd">        Returns: a pymatgen.analysis.graphs.BondedStructure object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># requires optional dependency which is why it&#39;s not a top-level import</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">StructureGraph</span>
+
+        <span class="k">if</span> <span class="n">decorate</span><span class="p">:</span>
+            <span class="c1"># Decorate all sites in the underlying structure</span>
+            <span class="c1"># with site properties that provides information on the</span>
+            <span class="c1"># coordination number and coordination pattern based</span>
+            <span class="c1"># on the (current) structure of this graph.</span>
+            <span class="n">order_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_local_order_parameters</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;order_parameters&#39;</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">)</span>
+
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sg</span></div>
+
+<div class="viewcode-block" id="NearNeighbors.get_local_order_parameters"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.NearNeighbors.get_local_order_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_local_order_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate those local structure order parameters for</span>
+<span class="sd">        the given site whose ideal CN corresponds to the</span>
+<span class="sd">        underlying motif (e.g., CN=4, then calculate the</span>
+<span class="sd">        square planar, tetrahedral, see-saw-like,</span>
+<span class="sd">        rectangular see-saw-like order paramters).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Structure object</span>
+<span class="sd">            n (int): site index.</span>
+
+<span class="sd">        Returns (Dict[str, float]):</span>
+<span class="sd">            A dict of order parameters (values) and the</span>
+<span class="sd">            underlying motif type (keys; for example, tetrahedral).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># code from @nisse3000, moved here from graphs to avoid circular</span>
+        <span class="c1"># import, also makes sense to have this as a general NN method</span>
+        <span class="n">cn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cn</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cn</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">k_cn</span><span class="p">)</span> <span class="k">for</span> <span class="n">k_cn</span> <span class="ow">in</span> <span class="n">cn_opt_params</span><span class="o">.</span><span class="n">keys</span><span class="p">()]:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cn_opt_params</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn_opt_params</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">cn_opt_params</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> \
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn_opt_params</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">name</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+            <span class="n">lostops</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nn</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+            <span class="n">lostop_vals</span> <span class="o">=</span> <span class="n">lostops</span><span class="o">.</span><span class="n">get_order_parameters</span><span class="p">(</span>
+                    <span class="n">sites</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">indices_neighs</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cn</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">lostop</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lostop_vals</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">lostop</span>
+            <span class="k">return</span> <span class="n">d</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
 <div class="viewcode-block" id="VoronoiNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN">[docs]</a><span class="k">class</span> <span class="nc">VoronoiNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -2891,6 +2968,111 @@
         <span class="n">total_sum</span> <span class="o">+=</span> <span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">entry</span><span class="o">/</span><span class="n">minimum_bond</span><span class="p">)</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">weighted_sum</span><span class="o">/</span><span class="n">total_sum</span></div>
 
+
+<div class="viewcode-block" id="CutOffDictNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN">[docs]</a><span class="k">class</span> <span class="nc">CutOffDictNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A very basic NN class using a dictionary of fixed</span>
+<span class="sd">    cut-off distances. Can also be used with no dictionary</span>
+<span class="sd">    defined for a Null/Empty NN class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_off_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            cut_off_dict (Dict[str, float]): a dictionary</span>
+<span class="sd">            of cut-off distances, e.g. {(&#39;Fe&#39;,&#39;O&#39;): 2.0} for</span>
+<span class="sd">            a maximum Fe-O bond length of 2.0 Angstroms.</span>
+<span class="sd">            Note that if your structure is oxidation state</span>
+<span class="sd">            decorated, the cut-off distances will have to</span>
+<span class="sd">            explicitly include the oxidation state, e.g.</span>
+<span class="sd">            {(&#39;Fe2+&#39;, &#39;O2-&#39;): 2.0}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cut_off_dict</span> <span class="o">=</span> <span class="n">cut_off_dict</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="c1"># for convenience</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">lookup_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">sp1</span><span class="p">,</span> <span class="n">sp2</span><span class="p">),</span> <span class="n">dist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_off_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">lookup_dict</span><span class="p">[</span><span class="n">sp1</span><span class="p">][</span><span class="n">sp2</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+            <span class="n">lookup_dict</span><span class="p">[</span><span class="n">sp2</span><span class="p">][</span><span class="n">sp1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span> <span class="o">=</span> <span class="n">dist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_dict</span> <span class="o">=</span> <span class="n">lookup_dict</span>
+
+<div class="viewcode-block" id="CutOffDictNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CutOffDictNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+
+        <span class="n">site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+
+        <span class="n">neighs_dists</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span><span class="p">)</span>
+
+        <span class="n">nn_info</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n_site</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">neighs_dists</span><span class="p">:</span>
+
+            <span class="n">neigh_cut_off_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_dict</span>\
+                <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="p">{})</span>\
+                <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">n_site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">neigh_cut_off_dist</span><span class="p">:</span>
+
+                <span class="n">nn_info</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">n_site</span><span class="p">,</span>
+                    <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">n_site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
+                    <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="p">,</span>
+                    <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n_site</span><span class="p">)</span>
+                <span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">nn_info</span></div></div>
+
+
+<div class="viewcode-block" id="Critic2NN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN">[docs]</a><span class="k">class</span> <span class="nc">Critic2NN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a topological analysis using critic2 to obtain</span>
+<span class="sd">    neighbor information, using a sum of atomic charge</span>
+<span class="sd">    densities. If an actual charge density is available</span>
+<span class="sd">    (e.g. from a VASP CHGCAR), see Critic2Caller directly</span>
+<span class="sd">    instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># we cache the last-used structure, in case user</span>
+        <span class="c1"># calls get_nn_info() repeatedly for different</span>
+        <span class="c1"># sites in the same structure to save redundant</span>
+        <span class="c1"># computations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__last_structure</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__last_bonded_structure</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Critic2NN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">structure</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__last_structure</span><span class="p">:</span>
+            <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__last_bonded_structure</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c2_output</span> <span class="o">=</span> <span class="n">Critic2Caller</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">output</span>
+            <span class="n">sg</span> <span class="o">=</span> <span class="n">c2_output</span><span class="o">.</span><span class="n">structure_graph</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__last_structure</span> <span class="o">=</span> <span class="n">structure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__last_bonded_structure</span> <span class="o">=</span> <span class="n">sg</span>
+
+        <span class="k">if</span> <span class="n">decorate</span><span class="p">:</span>
+            <span class="n">order_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_local_order_parameters</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span>
+            <span class="n">sg</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;order_parameters&#39;</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sg</span></div>
+
+<div class="viewcode-block" id="Critic2NN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.Critic2NN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+
+        <span class="n">sg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bonded_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">connected_site</span><span class="o">.</span><span class="n">site</span><span class="p">,</span>
+                <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">connected_site</span><span class="o">.</span><span class="n">jimage</span><span class="p">,</span>
+                <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">connected_site</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span>
+                <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="n">connected_site</span><span class="o">.</span><span class="n">index</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">connected_site</span> <span class="ow">in</span> <span class="n">sg</span><span class="o">.</span><span class="n">get_connected_sites</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="p">]</span></div></div>
 </pre></div>
 
           </div>
