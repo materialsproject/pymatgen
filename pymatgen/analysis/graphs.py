@@ -18,7 +18,6 @@ from monty.os.path import which
 from operator import itemgetter
 from collections import namedtuple
 from scipy.spatial import KDTree
-import yaml
 
 try:
     import networkx as nx
