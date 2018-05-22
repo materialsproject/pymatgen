@@ -99,6 +99,18 @@ def make_dash(ctx):
 
 
 @task
+def contribute_dash(ctx):
+    ctx.run('cp rm docs/_static/pymatgen.docset.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
+    with cd("../Dash-User-Contributions/docsets/pymatgen"):
+        with open("docset.json", "rt") as f:
+            data = json.load(f)
+            data["version"] = NEW_VER
+        with open("docset.json", "wt") as f:
+            json.dump(data, f, indent=4)
+        ctx.run('git commit -a -m "Update to v%s"' % NEW_VER)
+
+
+@task
 def update_doc(ctx):
     make_doc(ctx)
     make_dash(ctx)
