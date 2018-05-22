@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v2018.5.21
+v2018.5.22
 ----------
-* Bug-fix for missing HHI data file.
 * Misc bug fixes.
