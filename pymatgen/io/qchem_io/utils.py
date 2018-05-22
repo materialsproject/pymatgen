@@ -134,7 +134,7 @@ def lower_and_check_unique(dict_to_check):
                 raise Exception(
                     "Multiple instances of key " + new_key + " found!")
             else:
-                to_return[new_key] = dict_to_check.get(key)
+                to_return[new_key] = dict_to_check.get(key).lower()
         return to_return
 
 
