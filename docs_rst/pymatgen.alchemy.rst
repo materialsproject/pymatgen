@@ -1,5 +1,5 @@
-pymatgen\.alchemy package
-=========================
+pymatgen.alchemy package
+========================
 
 Subpackages
 -----------

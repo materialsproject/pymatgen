@@ -1,5 +1,5 @@
-pymatgen\.analysis\.chemenv\.utils\.func\_utils module
-======================================================
+pymatgen.analysis.chemenv.utils.func\_utils module
+==================================================
 
 .. automodule:: pymatgen.analysis.chemenv.utils.func_utils
     :members:

@@ -1,0 +1,682 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.command_line.critic2_caller &#8212; pymatgen 2018.5.14 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2018.5.14',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.command_line.critic2_caller</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">KDTree</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Chgcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">StructureGraph</span>
+<span class="kn">from</span> <span class="nn">monty.os.path</span> <span class="k">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.tempfile</span> <span class="k">import</span> <span class="n">ScratchDir</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements an interface to the critic2 Bader analysis code.</span>
+
+<span class="sd">For most Bader analysis purposes, users are referred to</span>
+<span class="sd">pymatgen.command_line.bader_caller instead, this module is for advanced</span>
+<span class="sd">usage requiring identification of critical points in the charge density.</span>
+
+<span class="sd">This module depends on a compiled critic2 executable available in the path.</span>
+<span class="sd">Please follow the instructions at https://github.com/aoterodelaroza/critic2</span>
+<span class="sd">to compile or, if using macOS and homebrew, use `brew tap homebrew/science`</span>
+<span class="sd">followed by `brew install critic2`.</span>
+
+<span class="sd">New users are *strongly* recommended to read the critic2 manual first.</span>
+
+<span class="sd">In brief,</span>
+<span class="sd">* critic2 searches for critical points in charge density</span>
+<span class="sd">* a critical point can be one of four types: nucleus, bond, ring</span>
+<span class="sd">or cage</span>
+<span class="sd">* it does this by seeding locations for likely critical points</span>
+<span class="sd">and then searching in these regions</span>
+<span class="sd">* there are two lists of critical points in the output, a list</span>
+<span class="sd">of non-equivalent points (with in-depth information about the</span>
+<span class="sd">field at those points), and a full list of points generated</span>
+<span class="sd">by the appropriate symmetry operations</span>
+<span class="sd">* connectivity between these points is also provided when</span>
+<span class="sd">appropriate (e.g. the two nucleus critical points linked to</span>
+<span class="sd"> a bond critical point)</span>
+<span class="sd">* critic2 can do many other things besides</span>
+
+<span class="sd">If you use this module, please cite the following:</span>
+
+<span class="sd">A. Otero-de-la-Roza, E. R. Johnson and V. Luaña,</span>
+<span class="sd">Comput. Phys. Commun. 185, 1007-1018 (2014)</span>
+<span class="sd">(http://dx.doi.org/10.1016/j.cpc.2013.10.026)</span>
+
+<span class="sd">A. Otero-de-la-Roza, M. A. Blanco, A. Martín Pendás and</span>
+<span class="sd">V. Luaña, Comput. Phys. Commun. 180, 157–166 (2009)</span>
+<span class="sd">(http://dx.doi.org/10.1016/j.cpc.2008.07.018)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;mkhorton@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;July 2017&quot;</span>
+
+
+<div class="viewcode-block" id="Critic2Caller"><a class="viewcode-back" href="../../../pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller">[docs]</a><span class="k">class</span> <span class="nc">Critic2Caller</span><span class="p">:</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;critic2&quot;</span><span class="p">),</span> <span class="s2">&quot;Critic2Caller requires the executable critic to be in the path. &quot;</span>
+                                <span class="s2">&quot;Please follow the instructions at https://github.com/aoterodelaroza/critic2.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">chgcar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chgcar_ref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">user_input_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">write_cml</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run Critic2 in automatic mode on a supplied structure, charge</span>
+<span class="sd">        density (chgcar) and reference charge density (chgcar_ref).</span>
+
+<span class="sd">        The reason for a separate reference field is that in</span>
+<span class="sd">        VASP, the CHGCAR charge density only contains valence</span>
+<span class="sd">        electrons and may be missing substantial charge at</span>
+<span class="sd">        nuclei leading to misleading results. Thus, a reference</span>
+<span class="sd">        field is commonly constructed from the sum of AECCAR0</span>
+<span class="sd">        and AECCAR2 which is the total charge density, but then</span>
+<span class="sd">        the valence charge density is used for the final analysis.</span>
+
+<span class="sd">        If chgcar_ref is not supplied, chgcar will be used as the</span>
+<span class="sd">        reference field. If chgcar is not supplied, the promolecular</span>
+<span class="sd">        charge density will be used as the reference field -- this can</span>
+<span class="sd">        often still give useful results if only topological information</span>
+<span class="sd">        is wanted.</span>
+
+<span class="sd">        User settings is a dictionary that can contain:</span>
+<span class="sd">        * GRADEPS, float (field units), gradient norm threshold</span>
+<span class="sd">        * CPEPS, float (Bohr units in crystals), minimum distance between</span>
+<span class="sd">          critical points for them to be equivalent</span>
+<span class="sd">        * NUCEPS, same as CPEPS but specifically for nucleus critical</span>
+<span class="sd">          points (critic2 default is depedent on grid dimensions)</span>
+<span class="sd">        * NUCEPSH, same as NUCEPS but specifically for hydrogen nuclei</span>
+<span class="sd">          since associated charge density can be significantly displaced</span>
+<span class="sd">          from hydrogen nucleus</span>
+<span class="sd">        * EPSDEGEN, float (field units), discard critical point if any</span>
+<span class="sd">          element of the diagonal of the Hessian is below this value,</span>
+<span class="sd">          useful for discarding points in vacuum regions</span>
+<span class="sd">        * DISCARD, float (field units), discard critical points with field</span>
+<span class="sd">          value below this value, useful for discarding points in vacuum</span>
+<span class="sd">          regions</span>
+<span class="sd">        * SEED, list of strings, strategies for seeding points, default</span>
+<span class="sd">          is [&#39;WS 1&#39;, &#39;PAIR 10&#39;] which seeds critical points by</span>
+<span class="sd">          sub-dividing the Wigner-Seitz cell and between every atom pair</span>
+<span class="sd">          closer than 10 Bohr, see critic2 manual for more options</span>
+
+<span class="sd">        :param structure: Structure to analyze</span>
+<span class="sd">        :param chgcar: Charge density to use for analysis. If None, will</span>
+<span class="sd">        use promolecular density.</span>
+<span class="sd">        :param chgcar_ref: Reference charge density. If None, will use</span>
+<span class="sd">        chgcar as reference.</span>
+<span class="sd">        :param user_input_settings (dict):</span>
+<span class="sd">        :param write_cml (bool): Useful for debug, if True will write all</span>
+<span class="sd">        critical points to a file &#39;table.cml&#39; in the working directory</span>
+<span class="sd">        useful for visualization</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;CPEPS&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;SEED&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;WS&quot;</span><span class="p">,</span> <span class="s2">&quot;PAIR DIST 10&quot;</span><span class="p">]}</span>
+        <span class="k">if</span> <span class="n">user_input_settings</span><span class="p">:</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_input_settings</span><span class="p">)</span>
+
+        <span class="c1"># Load crystal structure</span>
+        <span class="n">input_script</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;crystal POSCAR&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Load data to use as reference field</span>
+        <span class="k">if</span> <span class="n">chgcar_ref</span><span class="p">:</span>
+            <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;load VASPCHG CHGCAR_ref id chgcar_ref&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;reference chgcar_ref&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Load data to use for analysis</span>
+        <span class="k">if</span> <span class="n">chgcar</span><span class="p">:</span>
+            <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;load VASPCHG CHGCAR_int id chgcar&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;integrable chgcar&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Command to run automatic analysis</span>
+        <span class="n">auto</span> <span class="o">=</span> <span class="s2">&quot;auto &quot;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                    <span class="n">auto</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">auto</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="n">auto</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">write_cml</span><span class="p">:</span>
+            <span class="n">input_script</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;cpreport ../table.cml cell border graph&quot;</span><span class="p">]</span>
+
+        <span class="n">input_script</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_script</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">ScratchDir</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;input_script.cri&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">input_script</span><span class="p">)</span>
+
+            <span class="n">structure</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;POSCAR&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">chgcar</span><span class="p">:</span>
+                <span class="n">chgcar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;CHGCAR_int&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">chgcar_ref</span><span class="p">:</span>
+                <span class="n">chgcar_ref</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s1">&#39;CHGCAR_ref&#39;</span><span class="p">)</span>
+
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;critic2&quot;</span><span class="p">,</span> <span class="s2">&quot;input_script.cri&quot;</span><span class="p">]</span>
+            <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span>
+                                  <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                  <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">stderr</span><span class="p">:</span>
+                <span class="n">stderr</span> <span class="o">=</span> <span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">stderr</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;critic2 exited with return code </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rs</span><span class="o">.</span><span class="n">returncode</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stdout</span> <span class="o">=</span> <span class="n">stdout</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stderr</span> <span class="o">=</span> <span class="n">stderr</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">Critic2Output</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">stdout</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Critic2Caller.from_path"><a class="viewcode-back" href="../../../pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller.from_path">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method to run critic2 analysis on a folder containing</span>
+<span class="sd">        typical VASP output files.</span>
+<span class="sd">        This method will:</span>
+<span class="sd">        1. Look for files CHGCAR, AECAR0, AECAR2, POTCAR or their gzipped</span>
+<span class="sd">        counterparts.</span>
+<span class="sd">        2. If AECCAR* files are present, constructs a temporary reference</span>
+<span class="sd">        file as AECCAR0 + AECCAR2</span>
+<span class="sd">        3. Runs critic2 analysis twice: once for charge, and a second time</span>
+<span class="sd">        for the charge difference (magnetization density).</span>
+<span class="sd">        :param path: path to folder to search in</span>
+<span class="sd">        :param suffix: specific suffix to look for (e.g. &#39;.relax1&#39; for</span>
+<span class="sd">        &#39;CHGCAR.relax1.gz&#39;)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_get_filepath</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">):</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># using reverse=True because, if multiple files are present,</span>
+                <span class="c1"># they likely have suffixes &#39;static&#39;, &#39;relax&#39;, &#39;relax2&#39;, etc.</span>
+                <span class="c1"># and this would give &#39;static&#39; over &#39;relax2&#39; over &#39;relax&#39;</span>
+                <span class="c1"># however, better to use &#39;suffix&#39; kwarg to avoid this!</span>
+                <span class="n">paths</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Multiple files detected, using </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">path</span>
+
+        <span class="n">chgcar_path</span> <span class="o">=</span> <span class="n">_get_filepath</span><span class="p">(</span><span class="s1">&#39;CHGCAR&#39;</span><span class="p">,</span> <span class="s1">&#39;Could not find CHGCAR!&#39;</span><span class="p">)</span>
+        <span class="n">chgcar</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">chgcar_path</span><span class="p">)</span>
+
+        <span class="n">aeccar0_path</span> <span class="o">=</span> <span class="n">_get_filepath</span><span class="p">(</span><span class="s1">&#39;AECCAR0&#39;</span><span class="p">,</span> <span class="s1">&#39;Could not find AECCAR0, interpret Bader results with caution.&#39;</span><span class="p">)</span>
+        <span class="n">aeccar0</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">aeccar0_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">aeccar0_path</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">aeccar2_path</span> <span class="o">=</span> <span class="n">_get_filepath</span><span class="p">(</span><span class="s1">&#39;AECCAR2&#39;</span><span class="p">,</span> <span class="s1">&#39;Could not find AECCAR2, interpret Bader results with caution.&#39;</span><span class="p">)</span>
+        <span class="n">aeccar2</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">aeccar2_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">aeccar2_path</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">chgcar_ref</span> <span class="o">=</span> <span class="n">aeccar0</span><span class="o">.</span><span class="n">linear_add</span><span class="p">(</span><span class="n">aeccar2</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">aeccar0</span> <span class="ow">and</span> <span class="n">aeccar2</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">chgcar</span><span class="p">,</span> <span class="n">chgcar_ref</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CriticalPointType"><a class="viewcode-back" href="../../../pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType">[docs]</a><span class="k">class</span> <span class="nc">CriticalPointType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+
+    <span class="n">nucleus</span> <span class="o">=</span> <span class="s2">&quot;nucleus&quot;</span>  <span class="c1"># (3, -3)</span>
+    <span class="n">bond</span> <span class="o">=</span> <span class="s2">&quot;bond&quot;</span>  <span class="c1"># (3, -1)</span>
+    <span class="n">ring</span> <span class="o">=</span> <span class="s2">&quot;ring&quot;</span>  <span class="c1"># (3, 1)</span>
+    <span class="n">cage</span> <span class="o">=</span> <span class="s2">&quot;cage&quot;</span>  <span class="c1"># (3, 3)</span></div>
+
+
+<div class="viewcode-block" id="CriticalPoint"><a class="viewcode-back" href="../../../pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPoint">[docs]</a><span class="k">class</span> <span class="nc">CriticalPoint</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">point_group</span><span class="p">,</span>
+                 <span class="n">multiplicity</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_gradient</span><span class="p">,</span>
+                 <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">field_hessian</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class to characterise a critical point from a topological</span>
+<span class="sd">        analysis of electron charge density.</span>
+
+<span class="sd">        Note this class is usually associated with a Structure, so</span>
+<span class="sd">        has information on multiplicity/point group symmetry.</span>
+
+<span class="sd">        :param index: index of point</span>
+<span class="sd">        :param type: type of point, given as a string</span>
+<span class="sd">        :param coords: Cartesian co-ordinates in Angstroms</span>
+<span class="sd">        :param frac_coords: fractional co-ordinates</span>
+<span class="sd">        :param point_group: point group associated with critical point</span>
+<span class="sd">        :param multiplicity: number of equivalent critical points</span>
+<span class="sd">        :param field: value of field at point (f)</span>
+<span class="sd">        :param field_gradient: gradient of field at point (grad f)</span>
+<span class="sd">        :param field_hessian: hessian of field at point (del^2 f)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">frac_coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_group</span> <span class="o">=</span> <span class="n">point_group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">=</span> <span class="n">multiplicity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_gradient</span> <span class="o">=</span> <span class="n">field_gradient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_hessian</span> <span class="o">=</span> <span class="n">field_hessian</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">CriticalPointType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Critical Point: </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">laplacian</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_hessian</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ellipticity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Most meaningful for bond critical points,</span>
+<span class="sd">        can be physically interpreted as e.g. degree</span>
+<span class="sd">        of pi-bonding in organic molecules. Consult</span>
+<span class="sd">        literature for more information.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">eig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_hessian</span><span class="p">)</span>
+        <span class="n">eig</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Critic2Output"><a class="viewcode-back" href="../../../pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Output">[docs]</a><span class="k">class</span> <span class="nc">Critic2Output</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">critic2_stdout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class is used to store results from the Critic2Caller.</span>
+
+<span class="sd">        To explore the bond graph, use the &quot;structure_graph&quot;</span>
+<span class="sd">        method, which returns a user-friendly StructureGraph</span>
+<span class="sd">        class with bonding information. By default, this returns</span>
+<span class="sd">        a StructureGraph with edge weights as bond lengths, but</span>
+<span class="sd">        can optionally return a graph with edge weights as any</span>
+<span class="sd">        property supported by the `CriticalPoint` class, such as</span>
+<span class="sd">        bond ellipticity.</span>
+
+<span class="sd">        This class also provides an interface to explore just the</span>
+<span class="sd">        non-symmetrically-equivalent critical points via the</span>
+<span class="sd">        `critical_points` attribute, and also all critical</span>
+<span class="sd">        points (via nodes dict) and connections between them</span>
+<span class="sd">        (via edges dict). The user should be familiar with critic2</span>
+<span class="sd">        before trying to understand these.</span>
+
+<span class="sd">        Indexes of nucleus critical points in the nodes dict are the</span>
+<span class="sd">        same as the corresponding sites in structure, with indices of</span>
+<span class="sd">        other critical points arbitrarily assigned.</span>
+
+<span class="sd">        :param structure: associated Structure</span>
+<span class="sd">        :param critic2_stdout: stdout from running critic2 in automatic</span>
+<span class="sd">        mode</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_critic2_stdout</span> <span class="o">=</span> <span class="n">critic2_stdout</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_stdout</span><span class="p">(</span><span class="n">critic2_stdout</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Critic2Output.structure_graph"><a class="viewcode-back" href="../../../pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Output.structure_graph">[docs]</a>    <span class="k">def</span> <span class="nf">structure_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_weight</span><span class="o">=</span><span class="s2">&quot;bond_length&quot;</span><span class="p">,</span> <span class="n">edge_weight_units</span><span class="o">=</span><span class="s2">&quot;Å&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A StructureGraph object describing bonding information</span>
+<span class="sd">        in the crystal. Lazily constructed.</span>
+
+<span class="sd">        :param edge_weight: a value to store on the Graph edges,</span>
+<span class="sd">        by default this is &quot;bond_length&quot; but other supported</span>
+<span class="sd">        values are any of the attributes of CriticalPoint</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+                                             <span class="n">edge_weight_name</span><span class="o">=</span><span class="n">edge_weight</span><span class="p">,</span>
+                                             <span class="n">edge_weight_units</span><span class="o">=</span><span class="n">edge_weight_units</span><span class="p">)</span>
+
+        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">idx_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># check for duplicate bonds</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">unique_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;unique_idx&#39;</span><span class="p">]</span>
+            <span class="c1"># only check edges representing bonds, not rings</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">critical_points</span><span class="p">[</span><span class="n">unique_idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CriticalPointType</span><span class="o">.</span><span class="n">bond</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idx_to_delete</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">edge2</span> <span class="ow">in</span> <span class="n">edges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="n">idx2</span> <span class="ow">and</span> <span class="n">edge</span> <span class="o">==</span> <span class="n">edge2</span><span class="p">:</span>
+                            <span class="n">idx_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx2</span><span class="p">)</span>
+                            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Duplicate edge detected, try re-running &quot;</span>
+                                          <span class="s2">&quot;critic2 with custom parameters to fix this. &quot;</span>
+                                          <span class="s2">&quot;Mostly harmless unless user is also &quot;</span>
+                                          <span class="s2">&quot;interested in rings/cages.&quot;</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Duplicate edge between points </span><span class="si">{}</span><span class="s2"> (unique point </span><span class="si">{}</span><span class="s2">)&quot;</span>
+                                         <span class="s2">&quot;and </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;unique_idx&#39;</span><span class="p">],</span>
+                                                               <span class="n">idx2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx2</span><span class="p">][</span><span class="s1">&#39;unique_idx&#39;</span><span class="p">]))</span>
+        <span class="c1"># and remove any duplicate bonds present</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idx_to_delete</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">edges</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">unique_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;unique_idx&#39;</span><span class="p">]</span>
+            <span class="c1"># only add edges representing bonds, not rings</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">critical_points</span><span class="p">[</span><span class="n">unique_idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CriticalPointType</span><span class="o">.</span><span class="n">bond</span><span class="p">:</span>
+
+                <span class="n">from_idx</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;from_idx&#39;</span><span class="p">]</span>
+                <span class="n">to_idx</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;to_idx&#39;</span><span class="p">]</span>
+
+                <span class="n">from_lvec</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;from_lvec&#39;</span><span class="p">]</span>
+                <span class="n">to_lvec</span> <span class="o">=</span> <span class="n">edge</span><span class="p">[</span><span class="s1">&#39;to_lvec&#39;</span><span class="p">]</span>
+
+                <span class="n">relative_lvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">to_lvec</span><span class="p">,</span> <span class="n">from_lvec</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">edge_weight</span> <span class="o">==</span> <span class="s2">&quot;bond_length&quot;</span><span class="p">:</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">from_idx</span><span class="p">,</span> <span class="n">to_idx</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="n">relative_lvec</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">critical_points</span><span class="p">[</span><span class="n">unique_idx</span><span class="p">],</span>
+                                     <span class="n">edge_weight</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                <span class="n">sg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_idx</span><span class="p">,</span> <span class="n">to_idx</span><span class="p">,</span>
+                            <span class="n">from_jimage</span><span class="o">=</span><span class="n">from_lvec</span><span class="p">,</span> <span class="n">to_jimage</span><span class="o">=</span><span class="n">to_lvec</span><span class="p">,</span>
+                            <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sg</span></div>
+
+<div class="viewcode-block" id="Critic2Output.get_critical_point_for_site"><a class="viewcode-back" href="../../../pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Output.get_critical_point_for_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_critical_point_for_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">critical_points</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;unique_idx&#39;</span><span class="p">]]</span></div>
+
+    <span class="k">def</span> <span class="nf">_parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stdout</span><span class="p">):</span>
+
+        <span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># NOTE WE ARE USING 0-BASED INDEXING:</span>
+        <span class="c1"># This is different from critic2 which</span>
+        <span class="c1"># uses 1-based indexing, so all parsed</span>
+        <span class="c1"># indices have 1 subtracted.</span>
+
+        <span class="c1"># Parsing happens in two stages:</span>
+
+        <span class="c1"># 1. We construct a list of unique critical points</span>
+        <span class="c1">#    (i.e. non-equivalent by the symmetry of the crystal)</span>
+        <span class="c1">#   and the properties of the field at those points</span>
+
+        <span class="c1"># 2. We construct a list of nodes and edges describing</span>
+        <span class="c1">#    all critical points in the crystal</span>
+
+        <span class="c1"># Steps 1. and 2. are essentially indepdendent, except</span>
+        <span class="c1"># that the critical points in 2. have a pointer to their</span>
+        <span class="c1"># associated unique critical point in 1. so that more</span>
+        <span class="c1"># information on that point can be retrieved if necessary.</span>
+
+        <span class="n">unique_critical_points</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># parse unique critical points</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stdout</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;* Critical point list, final report (non-equivalent cps)&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">start_i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">4</span>
+            <span class="k">elif</span> <span class="s2">&quot;* Analysis of system bonds&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">end_i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="c1"># if start_i and end_i haven&#39;t been found, we</span>
+        <span class="c1"># need to re-evaluate assumptions in this parser!</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stdout</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">start_i</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">end_i</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+                <span class="n">unique_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">point_group</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="c1"># type = l[2]  # type from definition of critical point e.g. (3, -3)</span>
+                <span class="nb">type</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># type from name, e.g. nucleus</span>
+                <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">6</span><span class="p">])]</span>
+                <span class="n">multiplicity</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span>
+                <span class="c1"># name = float(l[8])</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>
+                <span class="n">field_gradient</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">10</span><span class="p">])</span>
+                <span class="c1"># laplacian = float(l[11])</span>
+
+                <span class="n">point</span> <span class="o">=</span> <span class="n">CriticalPoint</span><span class="p">(</span><span class="n">unique_idx</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">point_group</span><span class="p">,</span>
+                                      <span class="n">multiplicity</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_gradient</span><span class="p">)</span>
+                <span class="n">unique_critical_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+        <span class="c1"># TODO: may be other useful information to parse here too</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stdout</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;+ Critical point no.&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">unique_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">4</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="s2">&quot;Hessian:&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">l1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">stdout</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+                <span class="n">l2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">stdout</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+                <span class="n">l3</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">stdout</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+                <span class="n">hessian</span> <span class="o">=</span> <span class="p">[[</span><span class="n">l1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">l1</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
+                           <span class="p">[</span><span class="n">l2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">l2</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
+                           <span class="p">[</span><span class="n">l3</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">l3</span><span class="p">[</span><span class="mi">2</span><span class="p">]]]</span>
+                <span class="n">unique_critical_points</span><span class="p">[</span><span class="n">unique_idx</span><span class="p">]</span><span class="o">.</span><span class="n">field_hessian</span> <span class="o">=</span> <span class="n">hessian</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">critical_points</span> <span class="o">=</span> <span class="n">unique_critical_points</span>
+
+        <span class="c1"># parse graph connecting critical points</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stdout</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;* Complete CP list, bcp and rcp connectivity table&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">start_i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">3</span>
+            <span class="k">elif</span> <span class="s2">&quot;* Attractor connectivity matrix&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">end_i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="c1"># if start_i and end_i haven&#39;t been found, we</span>
+        <span class="c1"># need to re-evaluate assumptions in this parser!</span>
+
+        <span class="c1"># Order of nuclei provided by critic2 doesn&#39;t</span>
+        <span class="c1"># necessarily match order of sites in Structure.</span>
+        <span class="c1"># We perform a mapping from one to the other,</span>
+        <span class="c1"># and re-index all nodes accordingly.</span>
+        <span class="n">node_mapping</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># critic2_index:structure_index</span>
+        <span class="c1"># ensure frac coords are in [0,1] range</span>
+        <span class="n">frac_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span>
+        <span class="n">kd</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stdout</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">start_i</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">end_i</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span>
+                    <span class="n">critic2_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="n">frac_coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">5</span><span class="p">])])</span> <span class="o">%</span> <span class="mi">1</span>
+                    <span class="n">node_mapping</span><span class="p">[</span><span class="n">critic2_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">kd</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">frac_coord</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_mapping</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Check that all sites in input structure have &quot;</span>
+                          <span class="s2">&quot;been detected by critic2.&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_remap</span><span class="p">(</span><span class="n">critic2_idx</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">node_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">critic2_idx</span><span class="p">,</span> <span class="n">critic2_idx</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stdout</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">start_i</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">end_i</span><span class="p">:</span>
+
+                <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">_remap</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">unique_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">5</span><span class="p">])]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_node</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">unique_idx</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                    <span class="n">from_idx</span> <span class="o">=</span> <span class="n">_remap</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">to_idx</span> <span class="o">=</span> <span class="n">_remap</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">10</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_edge</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">from_idx</span><span class="o">=</span><span class="n">from_idx</span><span class="p">,</span> <span class="n">from_lvec</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">7</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">8</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">9</span><span class="p">])),</span>
+                                  <span class="n">to_idx</span><span class="o">=</span><span class="n">to_idx</span><span class="p">,</span> <span class="n">to_lvec</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">11</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">12</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">13</span><span class="p">])))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map</span> <span class="o">=</span> <span class="n">node_mapping</span>
+
+    <span class="k">def</span> <span class="nf">_add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">unique_idx</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add information about a node describing a critical point.</span>
+
+<span class="sd">        :param idx: unique index</span>
+<span class="sd">        :param unique_idx: index of unique CriticalPoint,</span>
+<span class="sd">        used to look up more information of point (field etc.)</span>
+<span class="sd">        :param frac_coord: fractional co-ordinates of point</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;unique_idx&#39;</span><span class="p">:</span> <span class="n">unique_idx</span><span class="p">,</span> <span class="s1">&#39;frac_coords&#39;</span><span class="p">:</span> <span class="n">frac_coords</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">from_idx</span><span class="p">,</span> <span class="n">from_lvec</span><span class="p">,</span> <span class="n">to_idx</span><span class="p">,</span> <span class="n">to_lvec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add information about an edge linking two critical points.</span>
+
+<span class="sd">        This actually describes two edges:</span>
+
+<span class="sd">        from_idx ------ idx ------ to_idx</span>
+
+<span class="sd">        However, in practice, from_idx and to_idx will typically be</span>
+<span class="sd">        atom nuclei, with the center node (idx) referring to a bond</span>
+<span class="sd">        critical point. Thus, it will be more convenient to model</span>
+<span class="sd">        this as a single edge linking nuclei with the properties</span>
+<span class="sd">        of the bond critical point stored as an edge attribute.</span>
+
+<span class="sd">        :param idx: index of node</span>
+<span class="sd">        :param from_idx: from index of node</span>
+<span class="sd">        :param from_lvec: vector of lattice image the from node is in</span>
+<span class="sd">        as tuple of ints</span>
+<span class="sd">        :param to_idx: to index of node</span>
+<span class="sd">        :param to_lvec:  vector of lattice image the to node is in as</span>
+<span class="sd">        tuple of ints</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;from_idx&#39;</span><span class="p">:</span> <span class="n">from_idx</span><span class="p">,</span> <span class="s1">&#39;from_lvec&#39;</span><span class="p">:</span> <span class="n">from_lvec</span><span class="p">,</span>
+                           <span class="s1">&#39;to_idx&#39;</span><span class="p">:</span> <span class="n">to_idx</span><span class="p">,</span> <span class="s1">&#39;to_lvec&#39;</span><span class="p">:</span> <span class="n">to_lvec</span><span class="p">}</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
