@@ -84,7 +84,7 @@ def make_doc(ctx):
 def make_dash(ctx):
     ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
     ctx.run('doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/')
-    ctx.run('tar --exclude=".DS_Store" -cvzf docs/_static/pymatgen.docset.tgz pymatgen.docset')
+    ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
     xml = []
     with open("docs/pymatgen.xml") as f:
         for l in f:
@@ -100,7 +100,8 @@ def make_dash(ctx):
 
 @task
 def contribute_dash(ctx):
-    ctx.run('cp docs/_static/pymatgen.docset.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
+    make_dash(ctx)
+    ctx.run('cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
         with open("docset.json", "rt") as f:
             data = json.load(f)
@@ -108,6 +109,8 @@ def contribute_dash(ctx):
         with open("docset.json", "wt") as f:
             json.dump(data, f, indent=4)
         ctx.run('git commit -a -m "Update to v%s"' % NEW_VER)
+        ctx.run('git push')
+    ctx.run("rm pymatgen.tgz")
 
 
 @task
