@@ -170,6 +170,7 @@ class LammpsDump(MSONable):
         fnames = glob.glob(self.filename)
         if len(fnames) > 1:
             pattern = r"%s" % filename.replace("*", "([0-9]+)")
+            pattern = pattern.replace("\\", "\\\\")
             fnames = sorted(fnames,
                             key=lambda f: int(re.match(pattern, f).group(1)))
         steps = []
