@@ -1,5 +1,5 @@
-pymatgen\.io\.lobster module
-============================
+pymatgen.io.lobster module
+==========================
 
 .. automodule:: pymatgen.io.lobster
     :members:

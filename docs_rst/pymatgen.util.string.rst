@@ -1,5 +1,5 @@
-pymatgen\.util\.string module
-=============================
+pymatgen.util.string module
+===========================
 
 .. automodule:: pymatgen.util.string
     :members:
