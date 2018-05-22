@@ -100,7 +100,7 @@ def make_dash(ctx):
 
 @task
 def contribute_dash(ctx):
-    ctx.run('cp rm docs/_static/pymatgen.docset.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
+    ctx.run('cp docs/_static/pymatgen.docset.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
     with cd("../Dash-User-Contributions/docsets/pymatgen"):
         with open("docset.json", "rt") as f:
             data = json.load(f)
