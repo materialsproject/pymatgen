@@ -515,7 +515,7 @@ class KumagaiCorrection(DefectCorrection):
                                        self.madelung_energy_tolerance)
 
         #create defective structure with entry
-        defect_sc_structure = entry.defect.defect_sc_structure
+        defect_sc_structure = entry.defect_sc_structure
         defect_position = entry.defect.site
 
         # if no sampling radius specified, then assuming Wigner-Seitz radius:
