@@ -60,13 +60,14 @@ class DefectPhaseDiagram(MSONable):
         the Pourbaix Diagram
         """
 
-        def similar_defect(a, b):
-            """
-            Used to filter out similar defects of different charges which
-            are defined by the same type and location
-            """
-            return a.name == b.name and a.site == b.site
-
+        # def similar_defect(a, b):
+        #     """
+        #     Used to filter out similar defects of different charges which
+        #     are defined by the same type and location
+        #     """
+        #     return a.name == b.name and a.site == b.site
+        def similar_defect(a):
+            return a.name + str(a.site)
         # Limits for search
         # E_fermi = { -1 eV to band gap+1}
         # the 1 eV padding provides
@@ -78,7 +79,7 @@ class DefectPhaseDiagram(MSONable):
         transition_level_map = {}
 
         # Grouping by defect types
-        for _, defects in groupby(sorted(self.entries), similar_defect):
+        for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
             defects = list(defects)
 
             # prepping coefficient matrix for half-space intersection
