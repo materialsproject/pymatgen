@@ -17,7 +17,7 @@ import numpy as np
 from monty.json import MSONable
 from scipy import integrate
 
-from utils import kb
+from pymatgen.analysis.defects.utils import kb
 
 # from pymatgen.analysis.defects.corrections import ChargeCorrection, OtherCorrection
 # from pymatgen.analysis.defects.chemical_potentials import ChemPotAnalyzer, MPChemPotAnalyzer
