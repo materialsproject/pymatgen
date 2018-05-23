@@ -69,6 +69,9 @@ class BandstructureLoader:
         self.nelect = nelect
         self.UCvol = self.structure.volume * units.Angstrom**3
         
+        self.vbm_idx = list(bs_obj.get_vbm()['band_index'].values())[0][-1]
+        self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
+        
     def get_lattvec(self):
         try:
             self.lattvec
@@ -358,65 +361,95 @@ class BztInterpolator(object):
         return CompleteDos(self.data.structure, total_dos=tdos, pdoss=pdoss)
 
     
-    def pockets_finder(self,bands,vbm_idx):
+    def find_extrema(self,method='all',nvb=1,ncb=1,kpoint_start=None):
         
         
         def get_energy(kpt,bnd,cbm,equivalences,lattvec,coeffs):
             sign = -1 if cbm == False else 1
             return sign*fite.getBands(kpt[np.newaxis,:], 
                                       equivalences, lattvec, coeffs)[0][bnd]
-            
-        R = []
-        for i in it.combinations_with_replacement([0,0.05,-0.05],3):
-            for j in it.permutations(i):
-                if j not in R:
-                    R.append(j)
-        R=R[1:]
-        out = []
-        print('okk')
         
-        for bnd in bands:
-            out.append([])
-            bnd -= self.nemin
-            vbm_idx -= self.nemin
-            cbm = True if bnd > vbm_idx else False
+        if method == 'all':
+            
+            
+            R = []
+            for i in it.combinations_with_replacement([0,0.05,-0.05],3):
+                for j in it.permutations(i):
+                    if j not in R:
+                        R.append(j)
+            R=R[1:]
+            out = []
+            #print('okk')
+            
+            bands = list(range(self.data.vbm_idx - nvb +1,self.data.cbm_idx + ncb -1))
+            
+            for bnd in bands:
+                out.append([])
+                bnd -= self.nemin
+                vbm_idx = self.data.vbm_idx - self.nemin
+                cbm = True if bnd > vbm_idx else False
 
-            cnt=0
-            for i in np.linspace(0,1,7):
-                for j in np.linspace(0,1,7):
-                    for k in np.linspace(0,1,7):
-                        sys.stdout.flush()
-                        xkpt = np.array([i,j,k]) + (np.random.rand(3)*0.05-0.025)
-                        suc=False
-                        nit=0
-                        while suc == False:
-                            res=minimize(get_energy,xkpt[np.newaxis,:],
-                                            args=(bnd,cbm,self.equivalences,
-                                                  self.data.lattvec, self.coeffs),
-                                            method='BFGS',tol=1e-06)
-                            suc=res.success
-                            xkpt=res.x
-                            ene = res.fun
-                            nit+=res.nit
+                cnt=0
+                for i in np.linspace(0,1,7):
+                    for j in np.linspace(0,1,7):
+                        for k in np.linspace(0,1,7):
+                            sys.stdout.flush()
+                            xkpt = np.array([i,j,k]) + (np.random.rand(3)*0.05-0.025)
+                            suc=False
+                            nit=0
+                            while suc == False:
+                                res=minimize(get_energy,xkpt[np.newaxis,:],
+                                                args=(bnd,cbm,self.equivalences,
+                                                    self.data.lattvec, self.coeffs),
+                                                method='BFGS',tol=1e-06)
+                                suc=res.success
+                                xkpt=res.x
+                                ene = res.fun
+                                nit+=res.nit
 
-                        found = True
-                        
-                        for r in R:
-                            if ene > get_energy(xkpt,bnd,cbm,self.equivalences,
-                                                  self.data.lattvec, self.coeffs):
-                                found = False
-                                break
-                        
-                        cnt+=1
-                        if found:
-                            out[-1].append( ' '.join(["step "+str(cnt), str(nit), str(np.array([i,j,k])), str(res.x), 
-                            str(res.fun) if cbm else str(-res.fun)]))
-                            #sys.stdout.flush()
+                            found = True
+                            
+                            for r in R:
+                                if ene > get_energy(xkpt,bnd,cbm,self.equivalences,
+                                                    self.data.lattvec, self.coeffs):
+                                    found = False
+                                    break
+                            
+                            cnt+=1
+                            if found:
+                                out[-1].append( ' '.join(["step "+str(cnt), str(nit), str(np.array([i,j,k])), str(res.x), 
+                                str(res.fun) if cbm else str(-res.fun)]))
+                                #sys.stdout.flush()
+                            break
                         break
                     break
-                break
+        
+        elif method == 'one':
+            out = []
+            bands = range(self.data.vbm_idx - nvb +1,self.data.cbm_idx + ncb)
+            if len(bands) == 1:
+                bnd = bands[0] - self.nemin
+                vbm_idx = self.data.vbm_idx - self.nemin
+                cbm = True if bnd > vbm_idx else False
+                suc=False
+                nit=0
+                cnt = 0
+                while suc == False:
+                    res=minimize(get_energy,kpoint_start[np.newaxis,:],
+                                                args=(bnd,cbm,self.equivalences,
+                                                    self.data.lattvec, self.coeffs),
+                                                method='BFGS',tol=1e-06)
+                    suc=res.success
+                    xkpt=res.x
+                    ene = res.fun
+                    nit+=res.nit
+                found = True
+                if found:
+                    ene = res.fun if cbm else -res.fun
+                    ene = Energy(ene - self.efermi,'Ha').to('eV')
+                    out.append([cbm,cnt,nit, kpoint_start,res.x,ene])
+        
         return out
-    
     
     def save(self):
         pass
