@@ -78,7 +78,7 @@ class FreysoldtCorrection(DefectCorrection):
                 list_bulk_plnr_avg_esp.append(np.array(entry.parameters["bulk_planar_averages"][ax]))
                 list_defect_plnr_avg_esp.append(np.array(entry.parameters["defect_planar_averages"][ax]))
 
-        lattice = entry.defect.bulk_structure.lattice
+        lattice = entry.defect.bulk_sc_structure.lattice
         q = entry.defect.charge
 
         es_corr = self.perform_es_corr(
@@ -494,7 +494,7 @@ class KumagaiCorrection(DefectCorrection):
         bulk_atomic_site_averages = entry.parameters["bulk_atomic_site_averages"]
         defect_atomic_site_averages = entry.parameters["defect_atomic_site_averages"]
         site_matching_indices = entry.parameters["site_matching_indices"]
-        bulk_structure = entry.defect.bulk_structure
+        bulk_sc_structure = entry.defect.bulk_sc_structure
         q = entry.defect.charge
 
 
@@ -502,25 +502,25 @@ class KumagaiCorrection(DefectCorrection):
             if "gamma" in entry.parameters.keys():
                 self.metadata['gamma'] = entry.parameters["gamma"]
             else:
-                self.metadata['gamma'] = find_optimal_gamma(bulk_structure, self.dielectric,
+                self.metadata['gamma'] = find_optimal_gamma(bulk_sc_structure, self.dielectric,
                                                             self.madelung_energy_tolerance)
 
         if not len(self.metadata['g_sum']):
             if "g_sum" in entry.parameters.keys():
                 self.metadata['g_sum'] = entry.parameters["g_sum"]
             else:
-                self.metadata['g_sum'] = generate_g_sum(bulk_structure, self.dielectric, dim, self.metadata['gamma'])
+                self.metadata['g_sum'] = generate_g_sum(bulk_sc_structure, self.dielectric, dim, self.metadata['gamma'])
 
-        es_corr = self.perform_es_corr(bulk_structure, q, self.metadata['g_sum'], self.metadata['gamma'],
+        es_corr = self.perform_es_corr(bulk_sc_structure, q, self.metadata['g_sum'], self.metadata['gamma'],
                                        self.madelung_energy_tolerance)
 
         #create defective structure with entry
-        defect_structure = entry.defect.generate_defect_structure()
+        defect_sc_structure = entry.defect.defect_sc_structure
         defect_position = entry.defect.site
 
         # if no sampling radius specified, then assuming Wigner-Seitz radius:
         if not self.metadata['sampling_radius']:
-            wz = bulk_structure.lattice.get_wigner_seitz_cell()
+            wz = bulk_sc_structure.lattice.get_wigner_seitz_cell()
             dist = []
             for facet in wz:
                 midpt = np.mean(np.array(facet), axis=0)
@@ -531,9 +531,9 @@ class KumagaiCorrection(DefectCorrection):
         site_list = []
         for bs_ind, ds_ind in site_matching_indices:
             Vqb = -(defect_atomic_site_averages[ds_ind] - bulk_atomic_site_averages[bs_ind])
-            site_list.append([bulk_structure[bs_ind], defect_structure[ds_ind], Vqb])
+            site_list.append([bulk_sc_structure[bs_ind], defect_sc_structure[ds_ind], Vqb])
 
-        pot_corr = self.perform_pot_corr(bulk_structure, defect_structure, defect_position, site_list,
+        pot_corr = self.perform_pot_corr(bulk_sc_structure, defect_sc_structure, defect_position, site_list,
                                          self.metadata['sampling_radius'], q, self.metadata['g_sum'], dim,
                                          self.metadata['gamma'], self.madelung_energy_tolerance)
 

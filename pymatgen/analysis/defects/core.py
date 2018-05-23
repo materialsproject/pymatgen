@@ -354,12 +354,34 @@ class DefectEntry(MSONable):
         return self.defect.bulk_structure
 
     @property
+    def bulk_sc_structure(self):
+        bulk_sc = self.defect.bulk_structure.copy()
+        if 'scaling_matrix' in self.parameters:
+            bulk_sc.make_supercell( self.parameters['scaling_matrix'])
+        return bulk_sc
+
+    @property
+    def defect_sc_structure(self):
+        if 'scaling_matrix' in self.parameters:
+            scaling_matrix = self.parameters['scaling_matrix']
+        else:
+            scaling_matrix = (1,1,1)
+        defect_sc = self.defect.generate_defect_structure(scaling_matrix)
+        return defect_sc
+
+    @property
     def site(self):
         return self.defect.site
 
     @property
     def multiplicty(self):
-        return self.defect.multiplicty
+        sc_multiplier = 1.
+        if 'scaling_matrix' in self.parameters:
+            for val in np.array(self.parameters['scaling_matrix']).flatten()
+                if val:
+                    #scale with non-zero scaling matrix entries
+                    sc_multiplier *= val
+        return self.defect.multiplicty * sc_multiplier
 
     @property
     def charge(self):
