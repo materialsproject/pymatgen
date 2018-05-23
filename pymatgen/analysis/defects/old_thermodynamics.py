@@ -40,13 +40,10 @@ class DefectPhaseDiagram(MSONable):
         dentries ([DefectEntry]): A list of DefectEntry objects
     """
     def __init__(self, dentries, vbm, band_gap):
-        print('start')
         self.dentries = dentries
         self.vbm = vbm
         self.band_gap = band_gap
-        print('load')
         self._set_dpd_nochempots()
-        print('all init')
 
     def _set_dpd_nochempots(self):
         """
@@ -60,9 +57,7 @@ class DefectPhaseDiagram(MSONable):
         x = np.arange(xlim[0], xlim[1], (xlim[1]-xlim[0])/nb_steps)
         list_elts = [elt  for dfct in self.dentries  for elt in dfct.defect_sc_structure.composition.elements]
         no_chempots = {elt: 0. for elt in set(list_elts)} #zerod chemical potentials for calculating stable defects
-        print('primed')
         for t in self._get_all_defect_types():
-            print(t)
             trans_level = []
             chg_type = []
             prev_min_q, cur_min_q = None, None
