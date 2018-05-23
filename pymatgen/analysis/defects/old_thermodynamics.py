@@ -62,7 +62,6 @@ class DefectPhaseDiagram(MSONable):
             chg_type = []
             prev_min_q, cur_min_q = None, None
             for x_step in x:
-                print('\tx=',x_step)
                 miny = 10000
                 for dfct in self.dentries:
                     if dfct.name == t:
@@ -178,6 +177,9 @@ class DefectPhaseDiagram(MSONable):
         (to make sure possibilities for charge states have been exhausted)
         """
         fullrecommendset = {}
+        print('finchgs = ',self.finished_charges)
+        print('stabchgs = ',self.stable_charges)
+
         for t in self._get_all_defect_types():
             print('Consider recommendations for ',t)
             reccomendset = []
