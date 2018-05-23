@@ -77,9 +77,9 @@ class DefectPhaseDiagram(MSONable):
                         chg_type.append(cur_min_q)
                 prev_min_q = cur_min_q
 
-            self.stable_charges[dfct.name] = chg_type[:]
-            self.finished_charges[dfct.name] = [e.charge for e in self.dentries if e.name == t]
-            self.transition_levels[dfct.name] = trans_level[:]
+            self.stable_charges[t] = chg_type[:]
+            self.finished_charges[t] = [e.charge for e in self.dentries if e.name == t]
+            self.transition_levels[t] = trans_level[:]
 
     def add_defect_entry(self, defect):
         """
