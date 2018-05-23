@@ -31,42 +31,40 @@ except ImportError:
 
 #print a progress bar of a loop
 import sys
-def progress(counter,lenght,step=0):
-    if step == 0:
-        step = np.ceil(lenght/10).astype('int')
+def progress3(counter,lenght,perc_step=10,bar_step=10):
     counter +=1
-    perc = int(counter * 100. / lenght)
-    l = range(step,100+step,step)
+    perc = counter * 100. / lenght
+    l = range(perc_step,100+perc_step,perc_step)
     if perc in l:
-        s='|' + '#' * int(perc / step) + " " * int((100-perc) / step)+'| '
+        s='|' + '#' * int(perc / bar_step) + " " * int((100-perc) / bar_step)+'| '
         s += str(counter) + "/" + str(lenght)
-        print('\r'+str(perc)+'%\t'+s,end='')
+        print('\r'+str(int(perc))+'%\t'+s,end='')
         sys.stdout.flush()
 
 
 
-class PMG_BS_Loader:
-    def __init__(self, pmg_bs_obj,structure=None,nelect=None):
-        self.kpoints = np.array([kp.frac_coords for kp in pmg_bs_obj.kpoints])
+class BandstructureLoader:
+    def __init__(self, bs_obj,structure=None,nelect=None):
+        self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
         
         if structure is None:
             try:
-                self.structure = pmg_bs_obj.structure
+                self.structure = bs_obj.structure
             except:
                 BaseException('No structure found in the bs obj.')
         
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         
-        if len(pmg_bs_obj.bands) == 1:
-            e = list(pmg_bs_obj.bands.values())[0]
+        if len(bs_obj.bands) == 1:
+            e = list(bs_obj.bands.values())[0]
             self.ebands = e * units.eV
             self.dosweight = 2.0
-        elif len(pmg_bs_obj.bands) == 2:
+        elif len(bs_obj.bands) == 2:
             raise BaseException("spin bs case not implemented")
         
-        self.lattvec = self.structure.lattice.matrix * units.Angstrom
+        self.lattvec = self.atoms.get_cell().T* units.Angstrom
         self.mommat = None
-        self.fermi = pmg_bs_obj.efermi * units.eV
+        self.fermi = bs_obj.efermi * units.eV
         
         self.nelect = nelect
         self.UCvol = self.structure.volume * units.Angstrom**3
@@ -105,30 +103,35 @@ class PMG_BS_Loader:
             self.UCvol = np.abs(np.linalg.det(lattvec))
         return self.UCvol
 
-class PMG_Vasprun_Loader:
-    def __init__(self, vasprun_file):
-        vrun = Vasprun(vasprun_file,parse_projected_eigen=True)
-        self.kpoints = np.array(vrun.actual_kpoints)
-        self.structure = vrun.final_structure
-        self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
-        self.proj = []
-        if len(vrun.eigenvalues) == 1:
-            e = list(vrun.eigenvalues.values())[0]
-            self.ebands = e[:,:,0].transpose() * units.eV
-            self.dosweight = 2.0
-            self.proj = list(vrun.projected_eigenvalues.values())[0]
+class VasprunLoader:
+    def __init__(self, vrun_obj=None):
+        if vrun_obj:
+            self.kpoints = np.array(vrun_obj.actual_kpoints)
+            self.structure = vrun_obj.final_structure
+            self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
+            self.proj = []
+            if len(vrun_obj.eigenvalues) == 1:
+                e = list(vrun_obj.eigenvalues.values())[0]
+                self.ebands = e[:,:,0].transpose() * units.eV
+                self.dosweight = 2.0
+                if vrun_obj.projected_eigenvalues:
+                    self.proj = list(vrun_obj.projected_eigenvalues.values())[0]
+                
+            elif len(vrun_obj.eigenvalues) == 2:
+                raise BoltztrapError("spin bs case not implemented")
             
-        elif len(vrun.eigenvalues) == 2:
-            raise BoltztrapError("spin bs case not implemented")
-        
-        self.lattvec = self.structure.lattice.matrix * units.Angstrom
-        
-        #TODO: read mommat from vasprun
-        self.mommat = None
-        self.fermi = vrun.efermi * units.eV
-        self.nelect = vrun.parameters['NELECT']
-        self.UCvol = self.structure.volume * units.Angstrom**3
-        
+            self.lattvec = self.atoms.get_cell().T * units.Angstrom
+            
+            #TODO: read mommat from vasprun
+            self.mommat = None
+            self.fermi = vrun_obj.efermi * units.eV
+            self.nelect = vrun_obj.parameters['NELECT']
+            self.UCvol = self.structure.volume * units.Angstrom**3
+    
+    def from_file(self,vasprun_file):
+        vrun_obj = Vasprun(vasprun_file,parse_projected_eigen=True)
+        return VasprunLoader(vrun_obj)
+    
     def get_lattvec(self):
         try:
             self.lattvec
@@ -166,7 +169,7 @@ class PMG_Vasprun_Loader:
         return self.UCvol
 
 
-class MockDFTData:
+class ParabolicBandsData:
     """Mock DFTData emulation class for the parabolic band example."""
 
     def __init__(self,nb = 1,de = [0.5], effm=[1], nelect=0,efermi=0.0):
@@ -191,8 +194,9 @@ class MockDFTData:
         rmax = rlattvec[0, 0] / 2.
         rmin = .8 * rmax
         bump = self.create_bump(rmin, rmax)
-        weight = (bump(cartesian[0, :]) * bump(cartesian[1, :]) *
-                bump(cartesian[2, :]))
+        weight = (bump(cartesian[0, :]) *
+                  bump(cartesian[1, :]) *
+                  bump(cartesian[2, :]))
         
         self.ebands = np.zeros((nb,kpoints.shape[1]))
         for inb in range(nb):
@@ -259,19 +263,12 @@ class MockDFTData:
 
 
 
-class BZT_Interpolator(object):
+class BztInterpolator(object):
     """
         Interpolate the dft band structures
     """
-    #def __init__(self,vasp_dir, lpfac=5, bnd_energy_range=None):
-        #self.data = BTP.DFTData(vasp_dir)
-        #self.nemin, self.nemax = self.data.bandana(emin=self.data.fermi - .2, emax=self.data.fermi + .2)
-        #self.equivalences = sphere.get_equivalences(self.data.atoms, len(self.data.kpoints) * lpfac)
-        #self.coeffs = fite.fitde3D(self.data, self.equivalences)
-        #self.efermi = self.data.fermi / units.eV
         
     def __init__(self, data, lpfac=10, energy_range=1.5,nelect=None):
-        #self.data = PMG_Vasprun_Loader(vasprun_file)
         self.data = data
         num_kpts = self.data.kpoints.shape[0]
         self.efermi = self.data.fermi
@@ -323,7 +320,10 @@ class BZT_Interpolator(object):
     
     
     def get_partial_doses(self, tdos, npts_mu, T):
-
+        
+        if self.data.proj == []:
+            raise BoltztrapError("No projections loaded.")
+        
         bkp_data_ebands = np.copy(self.data.ebands)
         
         pdoss = {}
@@ -339,7 +339,7 @@ class BZT_Interpolator(object):
                 if orb not in pdoss[site]: pdoss[site][orb] = {}
                 
                 cnt+=1
-                progress(cnt,tot_cnt)
+                progress3(cnt,tot_cnt)
                 
                 self.data.ebands = self.data.proj[:,:,isite,iorb].T
                 coeffs = fite.fitde3D(self.data, self.equivalences)
@@ -421,21 +421,21 @@ class BZT_Interpolator(object):
     def save(self):
         pass
     
-class BZT_TransportProperties(object):
+class BztTransportProperties(object):
     """
         Compute Seebeck, Conductivity, Electrical part of thermal conductivity 
         and Hall tensor from dft band structure via interpolation.
     """
-    def __init__(self, BZT_Interpolator, temp_r = np.arange(100,1300,100),
+    def __init__(self, BztInterpolator, temp_r = np.arange(100,1300,100),
                  doping=10.**np.arange(16,23), npts_mu=4000, CRTA=1e-14, margin=None ):
         
         self.CRTA = CRTA
         self.temp_r = temp_r
         self.doping = doping
-        self.dosweight = BZT_Interpolator.data.dosweight
-        lattvec = BZT_Interpolator.data.get_lattvec()
+        self.dosweight = BztInterpolator.data.dosweight
+        lattvec = BztInterpolator.data.get_lattvec()
 
-        self.epsilon, self.dos, self.vvdos, self.cdos = BL.BTPDOS(BZT_Interpolator.eband, BZT_Interpolator.vvband, npts=npts_mu)
+        self.epsilon, self.dos, self.vvdos, self.cdos = BL.BTPDOS(BztInterpolator.eband, BztInterpolator.vvband, npts=npts_mu)
         
         if margin == None:
             margin = 9. * units.BOLTZMANN * temp_r.max()
@@ -448,10 +448,10 @@ class BZT_TransportProperties(object):
         N, L0, L1, L2, Lm11 = BL.fermiintegrals(
             self.epsilon, self.dos, self.vvdos, mur=self.mu_r, Tr=temp_r, dosweight=self.dosweight)
 
-        self.efermi = BZT_Interpolator.data.fermi / units.eV
+        self.efermi = BztInterpolator.data.fermi / units.eV
         self.mu_r_eV = self.mu_r /units.eV - self.efermi
-        self.nelect = BZT_Interpolator.data.nelect
-        self.volume = BZT_Interpolator.data.get_volume()
+        self.nelect = BztInterpolator.data.nelect
+        self.volume = BztInterpolator.data.get_volume()
         
         # Compute the Onsager coefficients from those Fermi integrals
         self.Conductivity_mu, self.Seebeck_mu, self.Kappa_mu, self.Hall_mu = BL.calc_Onsager_coefficients(L0, L1, L2, self.mu_r, temp_r, self.volume, Lm11)
@@ -565,7 +565,7 @@ class BZT_TransportProperties(object):
         dumpfn(self.props_dict,fname)
     
 
-class BZT_Plotter(object):
+class BztPlotter(object):
     """
         Plotter to plot transport properties, interpolated bands along some KPath,
         and fermisurface
@@ -575,7 +575,8 @@ class BZT_Plotter(object):
         self.bzt_interp = bzt_interp
         
     def plot_props(self, prop_y, prop_x, prop_z, 
-                   output='avg_eigs', dop_type='n', doping=None, temps=None,xlim=(-2,2)):
+                   output='avg_eigs', dop_type='n', doping=None, 
+                   temps=None,xlim=(-2,2),ax=None):
         
         
         props = ("Conductivity","Seebeck","Kappa")#,"Hall"
@@ -595,7 +596,9 @@ class BZT_Plotter(object):
             p_array = eval("self.bzt_transP." + props[idx_prop]+'_'+prop_x)
         mu = self.bzt_transP.mu_r_eV
         
-        fig = plt.figure(figsize=(10,8))
+        if ax == None:
+            fig = plt.figure(figsize=(10,8))
+            
         temps_all = self.bzt_transP.temp_r.tolist()
         if temps == None:
             temps = self.bzt_transP.temp_r.tolist()
@@ -657,7 +660,7 @@ class BZT_Plotter(object):
     
     def plot_bands(self):
         if self.bzt_interp == None:
-            raise BoltztrapError("BZT_Interpolator not present")
+            raise BoltztrapError("BztInterpolator not present")
         
         sbs = self.bzt_interp.get_band_structure()
         
@@ -665,7 +668,7 @@ class BZT_Plotter(object):
 
     def plot_dos(self,T=None):
         if self.bzt_interp == None:
-            raise BoltztrapError("BZT_Interpolator not present")
+            raise BoltztrapError("BztInterpolator not present")
         
         tdos = self.bzt_interp.get_dos(T=T)
         
