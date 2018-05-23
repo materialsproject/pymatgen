@@ -82,8 +82,20 @@ def make_doc(ctx):
 
 @task
 def make_dash(ctx):
+    ctx.run("cp docs_rst/conf-docset.py docs_rst/conf.py")
+    make_doc(ctx)
     ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
     ctx.run('doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/')
+    plist = "pymatgen.docset/Contents/Info.plist"
+    xml = []
+    with open(plist, "rt") as f:
+        for l in f:
+            xml.append(l.strip())
+            if l.strip() == "<dict>":
+                xml.append("<key>dashIndexFilePath</key>")
+                xml.append("<string>index.html</string>")
+    with open(plist, "wt") as f:
+        f.write("\n".join(xml))
     ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
     xml = []
     with open("docs/pymatgen.xml") as f:
@@ -96,6 +108,8 @@ def make_dash(ctx):
     with open("docs/pymatgen.xml", "wt") as f:
         f.write("\n".join(xml))
     ctx.run('rm -r pymatgen.docset')
+    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
+    make_doc(ctx)
 
 
 @task
