@@ -78,8 +78,7 @@ class DefectPhaseDiagram(MSONable):
         transition_level_map = {}
 
         # Grouping by defect types
-        # for _, defects in groupby(sorted(self.entries), similar_defect):
-        for _, defects in groupby(self.entries, similar_defect):
+        for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
             defects = list(defects)
 
             # prepping coefficient matrix for half-space intersection
