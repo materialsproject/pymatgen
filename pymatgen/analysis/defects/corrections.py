@@ -78,7 +78,7 @@ class FreysoldtCorrection(DefectCorrection):
                 list_bulk_plnr_avg_esp.append(np.array(entry.parameters["bulk_planar_averages"][ax]))
                 list_defect_plnr_avg_esp.append(np.array(entry.parameters["defect_planar_averages"][ax]))
 
-        lattice = entry.defect.bulk_sc_structure.lattice
+        lattice = entry.bulk_sc_structure.lattice
         q = entry.defect.charge
 
         es_corr = self.perform_es_corr(
@@ -494,7 +494,7 @@ class KumagaiCorrection(DefectCorrection):
         bulk_atomic_site_averages = entry.parameters["bulk_atomic_site_averages"]
         defect_atomic_site_averages = entry.parameters["defect_atomic_site_averages"]
         site_matching_indices = entry.parameters["site_matching_indices"]
-        bulk_sc_structure = entry.defect.bulk_sc_structure
+        bulk_sc_structure = entry.bulk_sc_structure
         q = entry.defect.charge
 
 
