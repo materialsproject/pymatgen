@@ -496,9 +496,6 @@ class KumagaiCorrection(DefectCorrection):
         site_matching_indices = entry.parameters["site_matching_indices"]
         bulk_structure = entry.defect.bulk_structure
         q = entry.defect.charge
-        print('Danny Debug = ',len(bulk_atomic_site_averages))
-        print('Danny Debug = ',len(defect_atomic_site_averages))
-        print('Danny Debug = ',len(site_matching_indices))
 
 
         if not self.metadata['gamma']:
@@ -516,7 +513,6 @@ class KumagaiCorrection(DefectCorrection):
 
         es_corr = self.perform_es_corr(bulk_structure, q, self.metadata['g_sum'], self.metadata['gamma'],
                                        self.madelung_energy_tolerance)
-        print('Kumagai Electrostatic Correction = ',es_corr)
 
         #create defective structure with entry
         defect_structure = entry.defect.generate_defect_structure()
