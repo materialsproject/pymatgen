@@ -584,14 +584,14 @@ class KumagaiCorrection(DefectCorrection):
             r_sums.append([N, realpre * real_part])
 
             if N == Nmaxlength - 1:
-                logging.getLogger(__name__).warning('Direct part could not converge with real space translation '
+                logger.warning('Direct part could not converge with real space translation '
                                                     'tolerance of {} for gamma {}'.format(Nmaxlength - 1, gamma))
                 return
             elif len(r_sums) > 3:
                 if abs(abs(r_sums[-1][1]) - abs(r_sums[-2][1])) * hart_to_ev < madetol:  #converging in eV
                     real_part = r_sums[-1][1]
-                    logging.debug("gamma is {}".format(gamma))
-                    logging.getLogger(__name__).debug("convergence for real summation term occurs at step {} "
+                    logger.debug("gamma is {}".format(gamma))
+                    logger.debug("convergence for real summation term occurs at step {} "
                                                       "where real sum is {}".format(N, real_part * hart_to_ev))
                     break
 
@@ -683,7 +683,6 @@ class KumagaiCorrection(DefectCorrection):
                 x_rprojection_delta_abs = np.absolute(x - relvec_in_fraccoord[i])
                 ind = np.argmin(x_rprojection_delta_abs)
                 if x_rprojection_delta_abs[ind] > dx * 1.1:  #to avoid numerical errors
-                    logger = logging.getLogger(__name__)
                     logger.error("Input position not within the g_sum grid")
                     logger.error("%d, %d, %f", i, ind, relvec_in_fraccoord)
                     logger.error("%f", x_rprojection_delta_abs)
@@ -712,14 +711,14 @@ class KumagaiCorrection(DefectCorrection):
                 r_sums.append([N, realpre * real_part])
 
                 if N == Nmaxlength - 1:
-                    logging.getLogger(__name__).warning('Direct part could not converge with real space translation '
+                    logger.warning('Direct part could not converge with real space translation '
                                                         'tolerance of {} for gamma {}'.format(Nmaxlength - 1, gamma))
                     return
                 elif len(r_sums) > 3:
                     if abs(abs(r_sums[-1][1]) - abs(r_sums[-2][1])) * hart_to_ev < madetol:  #converge in eV
                         real_part = r_sums[-1][1]
-                        logging.debug("gamma is {}".format(gamma))
-                        logging.getLogger(__name__).debug("convergence for real summatin term occurs at step {} "
+                        logger.debug("gamma is {}".format(gamma))
+                        logger.debug("convergence for real summatin term occurs at step {} "
                                                           "where real sum is {}".format(N, real_part * hart_to_ev))
                         break
 
@@ -913,3 +912,22 @@ class BandFillingCorrection(DefectCorrection):
                 self.metadata['unoccupied_def_levels'].append(np.mean(unoccupied_midgap[en]))
 
         return bf_corr
+
+
+
+class ContainerCorrection(DefectCorrection):
+    """
+    A container for DefectCorrections, which allows returning of
+    correction without actually running the correction again...
+    """
+    def __init__(self, output_from_get_correction, name, metadata={}):
+        self.correction_output = output_from_get_correction
+        self.name = name
+        self.metadata = metadata
+
+    def get_correction(self, entry):
+        """
+        Returns correction
+        """
+        return self.correction_output
+
