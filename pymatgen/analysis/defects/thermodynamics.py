@@ -15,7 +15,7 @@ from scipy import integrate
 from scipy.spatial import HalfspaceIntersection
 from itertools import groupby, chain
 
-from utils import kb
+from pymatgen.analysis.defects.utils import kb
 
 
 class DefectPhaseDiagram(MSONable):
