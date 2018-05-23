@@ -377,7 +377,7 @@ class DefectEntry(MSONable):
     def multiplicty(self):
         sc_multiplier = 1.
         if 'scaling_matrix' in self.parameters:
-            for val in np.array(self.parameters['scaling_matrix']).flatten()
+            for val in np.array(self.parameters['scaling_matrix']).flatten():
                 if val:
                     #scale with non-zero scaling matrix entries
                     sc_multiplier *= val
