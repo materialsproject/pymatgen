@@ -443,7 +443,7 @@ class DefectEntry(MSONable):
             #TODO: add defect.name abilities... maybe with composition?
             # "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
             "DefectEntry {} - {}".format(self.entry_id, "DEFECT"), "Energy = {:.4f}".format(self.energy),
-            "Correction = {:.4f}".format(np.sum(self.corrections.values())), "Parameters:"
+            "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))), "Parameters:"
         ]
         for k, v in self.parameters.items():
             output.append("\t{} = {}".format(k, v))
