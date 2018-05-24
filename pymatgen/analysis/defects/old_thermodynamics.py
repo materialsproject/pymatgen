@@ -58,6 +58,7 @@ class DefectPhaseDiagram(MSONable):
         list_elts = [elt  for dfct in self.dentries  for elt in dfct.defect_sc_structure.composition.elements]
         no_chempots = {elt: 0. for elt in set(list_elts)} #zerod chemical potentials for calculating stable defects
         for t in self._get_all_defect_types():
+            print('Analyzing {}'.format(t))
             trans_level = []
             chg_type = []
             prev_min_q, cur_min_q = None, None
