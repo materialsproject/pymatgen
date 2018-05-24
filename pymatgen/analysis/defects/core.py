@@ -401,6 +401,19 @@ class DefectEntry(MSONable):
         """
         return self.defect.name
 
+    def copy(self):
+        """
+        Convenience method to get a copy of the DefectEntry.
+
+        Returns:
+            A copy of the DefectEntry.
+        """
+        defect = self._structure.copy()
+        corrections = self.corrections.copy()
+        parameters = self.parameters.copy()
+        return DefectEntry(defect, self.uncorrected_energy, corrections=corrections,
+                           parameters=parameters, entry_id=self.entry_id)
+
     def formation_energy(self, chemical_potentials = None, fermi_level=0):
         """
         Computes the formation energy for a defect taking into account a given chemical potential and fermi_level
