@@ -408,7 +408,7 @@ class DefectEntry(MSONable):
         Returns:
             A copy of the DefectEntry.
         """
-        defect = self._structure.copy()
+        defect = self.defect.copy()
         corrections = self.corrections.copy()
         parameters = self.parameters.copy()
         return DefectEntry(defect, self.uncorrected_energy, corrections=corrections,
