@@ -584,10 +584,6 @@ class MPStaticSet(MPRelaxSet):
             self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
 
-        #if lepsilon run, force gamma centering
-        if self.lepsilon:
-            kpoints.style = Kpoints.supported_modes.Gamma
-
         # Prefer to use k-point scheme from previous run
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
             if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
