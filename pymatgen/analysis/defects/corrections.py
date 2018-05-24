@@ -916,19 +916,63 @@ class BandFillingCorrection(DefectCorrection):
 
 
 
-class ContainerCorrection(DefectCorrection):
+class BandEdgeCorrection(DefectCorrection):
     """
-    A container for DefectCorrections, which allows returning of
-    correction without actually running the correction again...
+    A class for BandEdgeCorrection class. Largely adapted from PyCDT code
+
+    Requires some parameters in the DefectEntry to properly function:
+        hybrid_cbm
+            CBM of HYBRID bulk calculation
+
+        hybrid_vbm
+            VBM of HYBRID bulk calculation
+
+        cbm
+            CBM of bulk calculation (or band structure calculation of bulk);
+            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA cbm
+
+        vbm
+            VBM of bulk calculation (or band structure calculation of bulk);
+            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA vbm
+
+        num_hole_vbm
+            number of free holes that were found in valence band for the defect calculation
+            calculated in the metadata of the BandFilling Correction
+
+        num_elec_cbm
+            number of free electrons that were found in the conduction band for the defect calculation
+            calculated in the metadata of the BandFilling Correction
+
     """
-    def __init__(self, output_from_get_correction, name, metadata={}):
-        self.correction_output = output_from_get_correction
-        self.name = name
-        self.metadata = metadata
+    def __init__(self):
+        self.metadata = {
+            "vbmshift": 0.,
+            "cbmshift": 0.,
+        }
 
     def get_correction(self, entry):
         """
-        Returns correction
+        Gets the BandEdge correction for a defect entry
         """
-        return self.correction_output
+        #TODO: in future will perform a defect level shift with projection method from kyle
+        hybrid_cbm = entry.parameters["hybrid_cbm"]
+        hybrid_vbm = entry.parameters["hybrid_vbm"]
+        vbm = entry.parameters["vbm"]
+        cbm = entry.parameters["cbm"]
+        num_hole_vbm = entry.parameters["num_hole_vbm"]
+        num_elec_cbm = entry.parameters["num_elec_cbm"]
+
+        self.metadata["vbmshift"] = hybrid_vbm - vbm #note vbmshift has UPWARD as positive convention
+        self.metadata["cbmshift"] = hybrid_cbm - cbm #note cbmshift has UPWARD as positive convention
+
+        charge = entry.charge
+        vbm_shift_correction = charge * self.metadata["vbmshift"]
+        hole_vbm_shift_correction = -1. * num_hole_vbm * self.metadata["vbmshift"] #negative sign has to do with fact that these are holes
+        elec_cbm_shift_correction = num_elec_cbm * self.metadata["cbmshift"]
+
+        entry.parameters["bandshift_meta"] = dict(self.metadata)
+
+        return {'vbm_shift_correction': vbm_shift_correction,
+                "hole_vbm_shift_correction": hole_vbm_shift_correction,
+                "elec_cbm_shift_correction": elec_cbm_shift_correction}
 
