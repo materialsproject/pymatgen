@@ -444,7 +444,7 @@ class DeformStructureTransformationTest(unittest.TestCase):
         self.assertAlmostEqual(transformed_s.lattice.b, 3.84379750)
         self.assertAlmostEqual(transformed_s.lattice.c, 3.75022981)
 
-        d = t.as_dict()
+        d = json.loads(json.dumps(t.as_dict()))
         self.assertEqual(type(DeformStructureTransformation.from_dict(d)),
                          DeformStructureTransformation)
 
