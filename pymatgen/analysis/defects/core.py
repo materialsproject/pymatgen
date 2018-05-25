@@ -167,7 +167,7 @@ class Vacancy(Defect):
         """
         Returns a name for this defect
         """
-        return "Vac_{}_{}".format(self.site.specie,self.multiplicity)
+        return "Vac_{}_mult{}".format(self.site.specie,self.multiplicity)
 
     def copy(self):
         """
@@ -239,7 +239,7 @@ class Substitution(Defect):
         poss_deflist = sorted(
             self.bulk_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
-        return "Sub_{}_on_{}_{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
+        return "Sub_{}_on_{}_mult{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
 
     def copy(self):
         """
@@ -308,9 +308,9 @@ class Interstitial(Defect):
         Returns a name for this defect
         """
         if self._name:
-            return "Int_{}_{}_{}".format(self.site.specie,self._name,self.multiplicity)
+            return "Int_{}_{}_mult{}".format(self.site.specie,self._name,self.multiplicity)
         else:
-            return "Int_{}_{}".format(self.site.specie,self.multiplicity)
+            return "Int_{}_mult{}".format(self.site.specie,self.multiplicity)
 
     def copy(self):
         """
