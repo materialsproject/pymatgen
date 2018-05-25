@@ -258,19 +258,24 @@ class Interstitial(Defect):
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0.,multiplicity=1):
+    def __init__(self, structure, defect_site, charge=0., name='', multiplicity=1):
         """
         Initializes an interstial defect. 
         User must specify multiplity. Default is 1
         Args:
             structure: Pymatgen Structure without any defects
+            defect_site (Site): the site for the interstial
             charge: (int or float) defect charge
                 default is zero, meaning no change to NELECT after defect is created in the structure
-            defect_site (Site): the site for the interstial
+            name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity is
+                    insufficient to categorize the defect type
+                default is no name.
             multiplicity (int): multiplicity
+                default is 1,
         """
         super().__init__(structure=structure,defect_site=defect_site,charge=charge)
         self._multiplicity = multiplicity
+        self._name = name
 
     @property
     def defect_composition(self):
@@ -302,7 +307,10 @@ class Interstitial(Defect):
         """
         Returns a name for this defect
         """
-        return "Int_{}_{}".format(self.site.specie,self.multiplicity)
+        if self._name:
+            return "Int_{}_{}_{}".format(self.site.specie,self._name,self.multiplicity)
+        else:
+            return "Int_{}_{}".format(self.site.specie,self.multiplicity)
 
     def copy(self):
         """
@@ -315,7 +323,7 @@ class Interstitial(Defect):
         def_site = copy.copy(self._defect_site)
         charge = copy.copy(self.charge)
         multiplicity = copy.copy(self._multiplicity)
-        return Interstitial(struc, def_site, charge=charge, multiplicity=multiplicity)
+        return Interstitial(struc, def_site, charge=charge, name='', multiplicity=multiplicity)
 
 
 class DefectEntry(MSONable):
