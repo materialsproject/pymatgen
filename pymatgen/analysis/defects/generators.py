@@ -166,6 +166,7 @@ class InterstitialGenerator(DefectGenerator):
         conv_prim_rat = int(self.structure.num_sites/prim_struct.num_sites)
         self.multiplicities = [int(interstitial_finder.get_defectsite_multiplicity(def_ind) / conv_prim_rat)
                                for def_ind in range(len(self.defect_sites))]
+        self.count_def = 0 #for counting the index of the generated defect
 
     def __next__(self):
         """
@@ -175,8 +176,9 @@ class InterstitialGenerator(DefectGenerator):
         if len(self.defect_sites) > 0:
             int_site = self.defect_sites.pop(0)
             mult = self.multiplicities.pop(0)
-
-            return Interstitial(self.structure, int_site, multiplicity=mult)
+            self.count_def += 1
+            name = 'InFiT'+str(self.count_def)
+            return Interstitial(self.structure, int_site, name=name, multiplicity=mult)
         else:
             raise StopIteration
 
@@ -214,6 +216,8 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             if poss_site_list[0] not in self.structure:
                 self.equiv_site_seq.append(poss_site_list)
 
+        self.count_def = 0 #for counting the index of the generated defect
+
 
     def __next__(self):
         """
@@ -222,8 +226,10 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         """
         if len(self.equiv_site_seq) > 0:
             inter_site_list = self.equiv_site_seq.pop(0)
-
-            return Interstitial(self.structure, inter_site_list[0], multiplicity=len(inter_site_list))
+            self.count_def += 1
+            name = 'Voronoi'+str(self.count_def)
+            return Interstitial(self.structure, inter_site_list[0], name=name,
+                                multiplicity=len(inter_site_list))
         else:
             raise StopIteration
 
