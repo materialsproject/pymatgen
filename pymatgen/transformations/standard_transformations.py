@@ -654,22 +654,23 @@ class DeformStructureTransformation(AbstractTransformation):
         deformation (array): deformation gradient for the transformation
     """
 
-    def __init__(self, deformation):
-        self.deformation = Deformation(deformation)
+    def __init__(self, deformation=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
+        self._deform = Deformation(deformation)
+        self.deformation = self._deform.tolist()
 
     def apply_transformation(self, structure):
-        return self.deformation.apply_to_structure(structure)
+        return self._deform.apply_to_structure(structure)
 
     def __str__(self):
         return "DeformStructureTransformation : " + \
-            "Deformation = {}".format(str(self.deformation.tolist()))
+            "Deformation = {}".format(str(self.deformation))
 
     def __repr__(self):
         return self.__str__()
 
     @property
     def inverse(self):
-        return DeformStructureTransformation(self.deformation.inv())
+        return DeformStructureTransformation(self._deform.inv())
 
     @property
     def is_one_to_many(self):
