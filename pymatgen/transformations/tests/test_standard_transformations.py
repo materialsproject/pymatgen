@@ -307,6 +307,18 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
             type(OrderDisorderedStructureTransformation.from_dict(d)),
             OrderDisorderedStructureTransformation)
 
+    def test_no_oxidation(self):
+        specie = {"Cu1+": 0.5, "Au2+": 0.5}
+        cuau = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.677),
+                                         [specie], [[0, 0, 0]])
+        trans = OrderDisorderedStructureTransformation()
+        ss = trans.apply_transformation(cuau, return_ranked_list=100)
+        self.assertEqual(ss[0]["structure"].composition["Cu+"], 2)
+        trans = OrderDisorderedStructureTransformation(no_oxi_states=True)
+        ss = trans.apply_transformation(cuau, return_ranked_list=100)
+        self.assertEqual(ss[0]["structure"].composition["Cu+"], 0)
+        self.assertEqual(ss[0]["structure"].composition["Cu"], 2)
+
     def test_symmetrized_structure(self):
         t = OrderDisorderedStructureTransformation(symmetrized_structures=True)
         c = []

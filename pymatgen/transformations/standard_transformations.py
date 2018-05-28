@@ -426,9 +426,11 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False):
+    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False,
+                 no_oxi_states=False):
         self.algo = algo
         self._all_structures = []
+        self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 
     def apply_transformation(self, structure, return_ranked_list=False):
@@ -464,6 +466,12 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         num_to_return = max(1, num_to_return)
 
+        if self.no_oxi_states:
+            structure = Structure.from_sites(structure)
+            for i, site in enumerate(structure):
+                structure[i] = {"%s0+" % k.symbol: v
+                                for k, v in site.species_and_occu.items()}
+
         equivalent_sites = []
         exemplars = []
         # generate list of equivalent sites to order
@@ -490,6 +498,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         # generate the list of manipulations and input structure
         s = Structure.from_sites(structure)
+
         m_list = []
         for g in equivalent_sites:
             total_occupancy = sum([structure[i].species_and_occu for i in g],
@@ -537,6 +546,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     s_copy[manipulation[0]] = manipulation[1]
             s_copy.remove_sites(del_indices)
+
+            if self.no_oxi_states:
+                s_copy.remove_oxidation_states()
+
             self._all_structures.append(
                 {"energy": output[0],
                  "energy_above_minimum":
