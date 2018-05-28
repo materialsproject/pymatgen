@@ -213,7 +213,6 @@ class SlabEntry(ComputedStructureEntry):
                 break
         refEperA = (gbulk - gbulk_eqn) / ucell_reduced_comp.as_dict()[ref_el]
         bulk_energy += self.composition.as_dict()[ref_el] * refEperA
-
         se = gamma.subs({Symbol("E_surf"): self.energy, Symbol("Ebulk"): bulk_energy,
                          Symbol("A"): self.surface_area})
 
@@ -487,7 +486,10 @@ class SurfaceEnergyPlotter(object):
                                                  ref_entries=self.ref_entries)
                 if not no_doped:
                     all_entries.append(ads_entry)
-                    all_gamma.append(gamma.subs(all_u_dict))
+                    if type(gamma).__name__ == "float":
+                        all_gamma.append(gamma)
+                    else:
+                        all_gamma.append(gamma.subs(all_u_dict))
 
         return all_entries[all_gamma.index(min(all_gamma))], float(min(all_gamma))
 
@@ -1554,9 +1556,9 @@ class NanoscaleStability(object):
             gform_list.append(gform)
             r_list.append(r)
 
-        ru = "nm" if r_units == "nanometers" else "\AA"
+        ru = "nm" if r_units == "nanometers" else "$\AA$"
         plt.xlabel(r"Particle radius ($%s$)" %(ru))
-        eu = "$%s/%s^3$" %(e_units, ru)
+        eu = "$%s/nm^3$" %(e_units) if r_units == "nanometers" else "$%s/\AA^3$" %(e_units)
         plt.ylabel(r"$G_{form}$ (%s)" %(eu))
 
         plt.plot(r_list, gform_list, label=label)
