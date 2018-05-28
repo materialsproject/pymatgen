@@ -663,7 +663,7 @@ class Slab(Structure):
             site1 = dist.index(min(dist))
 
             # Get the index of the corresponding site at the bottom
-            pt2 = slab.get_symmetric_site(pt)
+            pt2 = self.get_symmetric_site(pt)
             cart_point = self.lattice.get_cartesian_coords(pt2)
             dist = [site.distance_from_point(cart_point) for site in self]
             site2 = dist.index(min(dist))
