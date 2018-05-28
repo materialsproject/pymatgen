@@ -655,22 +655,33 @@ class Slab(Structure):
                 in the slab to remove.
         """
 
-        points = [self[i].frac_coords for i in indices]
+        slabcopy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
+        points = [slabcopy[i].frac_coords for i in indices]
+
         for pt in points:
             # Get the index of the original site on top
-            cart_point = self.lattice.get_cartesian_coords(pt)
-            dist = [site.distance_from_point(cart_point) for site in self]
+            cart_point = slabcopy.lattice.get_cartesian_coords(pt)
+            dist = [site.distance_from_point(cart_point) for site in slabcopy]
             site1 = dist.index(min(dist))
 
             # Get the index of the corresponding site at the bottom
-            pt2 = self.get_symmetric_site(pt)
-            cart_point = self.lattice.get_cartesian_coords(pt2)
-            dist = [site.distance_from_point(cart_point) for site in self]
-            site2 = dist.index(min(dist))
+            for i, eq_sites in enumerate(slabcopy.equivalent_sites):
+                if slabcopy[site1] in eq_sites:
+                    eq_indices = slabcopy.equivalent_indices[i]
+                    break
+            i1 = eq_indices[eq_sites.index(slabcopy[site1])]
+            for i2 in eq_indices:
+                if i2 == i1:
+                    continue
 
-            slab.remove_sites([site1, site2])
-
-        return slab
+                # Test site remove to see if it results in symmetric slab
+                s = self.copy()
+                s.remove_sites([i1, i2])
+                if s.is_symmetric():
+                    self.remove_sites([i1, i2])
+                    break
+                if eq_indices.index(i2) == len(eq_indices) - 1:
+                    warnings.warn("Equivalent site could not be found for removal")
 
 
 class SlabGenerator(object):
