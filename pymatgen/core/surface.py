@@ -642,7 +642,7 @@ class Slab(Structure):
         self.append(specie, point, coords_are_cartesian=coords_are_cartesian)
         self.append(specie, point2, coords_are_cartesian=coords_are_cartesian)
 
-    def symmetrically_remove_atom(self, index):
+    def symmetrically_remove_atoms(self, indices):
 
         """
         Class method for removing a site at a specified point in a slab.
@@ -658,15 +658,18 @@ class Slab(Structure):
         """
 
         # Get the index of the original site on top
-        site1 = self[index]
+        all_sites = [self[i] for i in indices]
 
         # Get the index of the corresponding site at the bottom
-        point2 = slab.get_symmetric_site(point)
-        cart_point = slab.lattice.get_cartesian_coords(point2)
-        dist = [site.distance_from_point(cart_point) for site in slab]
-        site2 = dist.index(min(dist))
+        sites2 = []
+        for site in all_sites:
+            point2 = slab.get_symmetric_site(site.frac_coords)
+            cart_point = slab.lattice.get_cartesian_coords(point2)
+            dist = [site.distance_from_point(cart_point) for site in slab]
+            sites2.append(dist.index(min(dist)))
 
-        self.remove_sites([site1, site2])
+        all_sites.extend(sites2)
+        self.remove_sites(all_sites)
 
 
 class SlabGenerator(object):
