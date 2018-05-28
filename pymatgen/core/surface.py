@@ -663,9 +663,9 @@ class Slab(Structure):
         # Get the index of the corresponding site at the bottom
         sites2 = []
         for site in all_sites:
-            point2 = slab.get_symmetric_site(site.frac_coords)
-            cart_point = slab.lattice.get_cartesian_coords(point2)
-            dist = [site.distance_from_point(cart_point) for site in slab]
+            point2 = self.get_symmetric_site(site.frac_coords)
+            cart_point = self.lattice.get_cartesian_coords(point2)
+            dist = [site.distance_from_point(cart_point) for site in self]
             sites2.append(dist.index(min(dist)))
 
         all_sites.extend(sites2)
