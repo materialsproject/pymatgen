@@ -677,8 +677,8 @@ class MVLSlabSetTest(PymatgenTest):
         # No volume relaxation during slab calculations
         self.assertEqual(incar_slab["ISIF"], 2)
         self.assertEqual(potcar_slab.functional, 'PBE')
-        self.assertEqual(potcar_slab.symbols[1], u'Li_sv')
-        self.assertEqual(potcar_slab.symbols[0], u'O')
+        self.assertEqual(potcar_slab.symbols[1], u'O')
+        self.assertEqual(potcar_slab.symbols[0], u'Li_sv')
         self.assertEqual(poscar_slab.structure.formula,
                          self.slab.formula)
         # Test auto-dipole

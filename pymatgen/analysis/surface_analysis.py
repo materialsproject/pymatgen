@@ -1556,9 +1556,9 @@ class NanoscaleStability(object):
             gform_list.append(gform)
             r_list.append(r)
 
-        ru = "nm" if r_units == "nanometers" else "$\AA$"
+        ru = "nm" if r_units == "nanometers" else "\AA"
         plt.xlabel(r"Particle radius ($%s$)" %(ru))
-        eu = "$%s/nm^3$" %(e_units) if r_units == "nanometers" else "$%s/\AA^3$" %(e_units)
+        eu = "$%s/%s^3$" %(e_units, ru)
         plt.ylabel(r"$G_{form}$ (%s)" %(eu))
 
         plt.plot(r_list, gform_list, label=label)
