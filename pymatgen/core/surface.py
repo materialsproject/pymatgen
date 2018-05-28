@@ -1604,7 +1604,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-3, max_broken_bonds=0,
                        lll_reduce=False, center_slab=False, primitive=True,
                        max_normal_search=None, symmetrize=False, repair=False,
-                       include_reconstructions=False):
+                       include_reconstructions=False, in_unit_planes=False):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -1666,7 +1666,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
                             center_slab=center_slab, primitive=primitive,
-                            max_normal_search=max_normal_search)
+                            max_normal_search=max_normal_search,
+                            in_unit_planes=in_unit_planes)
         slabs = gen.get_slabs(bonds=bonds, tol=tol, symmetrize=symmetrize,
                               max_broken_bonds=max_broken_bonds, repair=repair)
 
