@@ -606,6 +606,7 @@ class Slab(Structure):
             # Add dummy site to check the overall structure is symmetric
             slab.append("O", point, coords_are_cartesian=cartesian)
             slab.append("O", site2, coords_are_cartesian=cartesian)
+            slab.to("cif", "slab.cif")
             sg = SpacegroupAnalyzer(slab)
             if sg.is_laue():
                 break
@@ -650,26 +651,26 @@ class Slab(Structure):
             slab to maintain equivalent surfaces.
 
         Arg:
-            index (frac coord): The index of the coordinate of the site
+            indices ([indices]): The indices of the sites
                 in the slab to remove.
-
-        Returns:
-            (Slab): The modified slab
         """
 
-        # Get the index of the original site on top
-        all_sites = [self[i] for i in indices]
-
-        # Get the index of the corresponding site at the bottom
-        sites2 = []
-        for site in all_sites:
-            point2 = self.get_symmetric_site(site.frac_coords)
-            cart_point = self.lattice.get_cartesian_coords(point2)
+        points = [self[i].frac_coords for i in indices]
+        for pt in points:
+            # Get the index of the original site on top
+            cart_point = self.lattice.get_cartesian_coords(pt)
             dist = [site.distance_from_point(cart_point) for site in self]
-            sites2.append(dist.index(min(dist)))
+            site1 = dist.index(min(dist))
 
-        all_sites.extend(sites2)
-        self.remove_sites(all_sites)
+            # Get the index of the corresponding site at the bottom
+            pt2 = slab.get_symmetric_site(pt)
+            cart_point = self.lattice.get_cartesian_coords(pt2)
+            dist = [site.distance_from_point(cart_point) for site in self]
+            site2 = dist.index(min(dist))
+
+            slab.remove_sites([site1, site2])
+
+        return slab
 
 
 class SlabGenerator(object):
