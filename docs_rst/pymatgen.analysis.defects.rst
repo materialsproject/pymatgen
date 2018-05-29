@@ -1,5 +1,5 @@
-pymatgen\.analysis\.defects package
-===================================
+pymatgen.analysis.defects package
+=================================
 
 Subpackages
 -----------

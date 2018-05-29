@@ -1,6 +1,15 @@
 Change log
 ==========
 
+v2018.5.22
+----------
+* Misc bug fixes.
+
+v2018.5.21
+----------
+* Bug-fix for missing HHI data file.
+* Misc bug fixes.
+
 v2018.5.14
 ----------
 * Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
