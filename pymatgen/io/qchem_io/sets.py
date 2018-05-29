@@ -51,6 +51,8 @@ class QChemDictSet(QCInput):
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = self.max_scf_cycles
+        myrem["gen_scfman"] = "true"
+        myrem["scf_algorithm"] = self.scf_algorithm
 
         if self.dft_rung == 1:
             myrem["exchange"] = "B3LYP"

@@ -44,16 +44,16 @@ $end"""
     def test_rem_template(self):
         rem_params = {
             "job_type": "opt",
-            "method": "wB97M-V",
-            "basis": "def2-QZVPPD",
+            "method": "wb97m-v",
+            "basis": "def2-qzvppd",
             "max_scf_cycles": 300,
             "gen_scfman": "true"
         }
         rem_test = QCInput.rem_template(rem_params)
         rem_actual = """$rem
    job_type = opt
-   method = wB97M-V
-   basis = def2-QZVPPD
+   method = wb97m-v
+   basis = def2-qzvppd
    max_scf_cycles = 300
    gen_scfman = true
 $end"""
@@ -169,16 +169,16 @@ $end"""
 
 $rem
    job_type  opt
-  method  wB97M-V
-   basis  def2-QZVPPD
+  method  wb97m-v
+   basis  def2-qzvppd
    max_scf_cycles  300
   gen_scfman = true
 $end"""
         rem_test = QCInput.read_rem(str_rem)
         rem_actual = {
             "job_type": "opt",
-            "method": "wB97M-V",
-            "basis": "def2-QZVPPD",
+            "method": "wb97m-v",
+            "basis": "def2-qzvppd",
             "max_scf_cycles": "300",
             "gen_scfman": "true"
         }
@@ -190,8 +190,8 @@ $end"""
 
 $rem
    job_type  opt
-  method  wB97M-V
-   basis  def2-QZVPPD
+  method  wb97m-v
+   basis  def2-qzvppd
    max_scf_cycles  300
   gen_scfman = true
 $end
@@ -214,8 +214,8 @@ $end
         rem_test = QCInput.read_rem(str_rem)
         rem_actual = {
             "job_type": "opt",
-            "method": "wB97M-V",
-            "basis": "def2-QZVPPD",
+            "method": "wb97m-v",
+            "basis": "def2-qzvppd",
             "max_scf_cycles": "300",
             "gen_scfman": "true"
         }
@@ -256,8 +256,8 @@ $end"""
         molecule = Molecule(species=species, coords=coords)
         rem = {
             "jobtype": "opt",
-            "method": "wB97M-V",
-            "basis": "def2-QZVPPD",
+            "method": "wb97m-v",
+            "basis": "def2-qzvppd",
             "max_scf_cycles": "300",
             "gen_scfman": "true"
         }
@@ -270,8 +270,8 @@ $end
 
 $rem
    job_type = opt
-   method = wB97M-V
-   basis = def2-QZVPPD
+   method = wb97m-v
+   basis = def2-qzvppd
    max_scf_cycles = 300
    gen_scfman = true
 $end
