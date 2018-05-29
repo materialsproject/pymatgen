@@ -1,5 +1,5 @@
-pymatgen\.analysis\.eos module
-==============================
+pymatgen.analysis.eos module
+============================
 
 .. automodule:: pymatgen.analysis.eos
     :members:

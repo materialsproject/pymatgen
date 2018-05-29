@@ -49,9 +49,8 @@ If you would like to have an offline version of the docs for reference, there
 are two options:
 
 1. Clone the Github repo and the latest html docs are in the "docs" folder.
-2. Subscribe to the latest Dash/Zeal docs by clicking  `dash-feed://http%3A%2F%2Fpymatgen.org%2Fpymatgen.xml <dash-feed://http%3A%2F%2Fpymatgen.org%2Fpymatgen.xml>`_. You should have the MacOS
-`Dash app <https://kapeli.com/dash>`_ or Windows `Zeal app <https://zealdocs.org/>`_
-installed.
+2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to 
+   "User Contributed Docsets", search for pymatgen and install.
 
 Development News
 ================

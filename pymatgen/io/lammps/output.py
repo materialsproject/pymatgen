@@ -21,17 +21,19 @@ This module implements classes for processing Lammps output files:
 
 import re
 import os
-from io import open
+import glob
+from io import open, StringIO
 
 import numpy as np
 
 from monty.json import MSONable
+from monty.io import zopen
 
 from pymatgen.core.periodic_table import _pt_data
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen.io.lammps.data import LammpsData
+from pymatgen.io.lammps.data import LammpsBox, LammpsData
 
 __author__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"
@@ -131,56 +133,93 @@ class LammpsLog(MSONable):
         return cls(log_file=d["log_file"])
 
 
-# TODO: @wood-b parse binary dump files(*.dcd)
 class LammpsDump(MSONable):
     """
-    Parse lammps dump file.
+    Dump file parser.
+
+    .. attribute:: steps
+
+        All steps in the dump as a list of
+        {"timestep": current timestep,
+         "natoms": no. of atoms,
+         "box": simulation box (optional),
+         "atoms_data": dumped data for atoms as 2D np.array}
+
+    .. attribute:: timesteps
+
+        List of timesteps in sequence.
+
     """
 
-    def __init__(self, timesteps, natoms, box_bounds, atoms_data):
-        self.timesteps = timesteps
-        self.natoms = natoms
-        self.box_bounds = box_bounds
-        self.atoms_data = atoms_data
+    def __init__(self, filename, parse_box=True, dtype=float):
+        """
 
-    @classmethod
-    def from_file(cls, dump_file):
-        timesteps = []
-        atoms_data = []
-        natoms = 0
-        box_bounds = []
-        bb_flag = 0
-        parse_timestep, parse_natoms, parse_bb, parse_atoms = False, False, False, False
-        with open(dump_file) as tf:
-            for line in tf:
-                if "ITEM: TIMESTEP" in line:
-                    parse_timestep = True
-                    continue
-                if parse_timestep:
-                    timesteps.append(float(line))
-                    parse_timestep = False
-                if "ITEM: NUMBER OF ATOMS" in line:
-                    parse_natoms = True
-                    continue
-                if parse_natoms:
-                    natoms = int(line)
-                    parse_natoms = False
-                if "ITEM: BOX BOUNDS" in line:
-                    parse_bb = True
-                    continue
-                if parse_bb:
-                    box_bounds.append([float(x) for x in line.split()])
-                    bb_flag += 1
-                    parse_bb = False if bb_flag >= 3 else True
-                if "ITEM: ATOMS" in line:
-                    parse_atoms = True
-                    continue
-                if parse_atoms:
-                    line_data = [float(x) for x in line.split()]
-                    atoms_data.append(line_data)
-                    parse_atoms = False if len(atoms_data) == len(timesteps)*natoms else True
+        Args:
+            filename (str): Filename to parse. The timestep wildcard
+                ('*') is supported and the files are parsed in the
+                sequence of timestep.
+            parse_box (bool): Whether parse box info for each step.
+                Default to True.
+            dtype: np.dtype for atoms data array.
 
-        return cls(timesteps, natoms, box_bounds, atoms_data)
+        """
+        self.filename = filename
+        self.parse_box = parse_box
+        self.dtype = dtype
+
+        fnames = glob.glob(self.filename)
+        if len(fnames) > 1:
+            pattern = r"%s" % filename.replace("*", "([0-9]+)")
+            pattern = pattern.replace("\\", "\\\\")
+            fnames = sorted(fnames,
+                            key=lambda f: int(re.match(pattern, f).group(1)))
+        steps = []
+        for fname in fnames:
+            with zopen(fname, "rt") as f:
+                run = f.read()
+            dumps = run.split("ITEM: TIMESTEP")[1:]
+            steps.extend([self._parse_timestep(d) for d in dumps])
+        self.steps = steps
+        self.timesteps = [s["timestep"] for s in self.steps]
+
+    def __len__(self):
+        return len(self.timesteps)
+
+    def __getitem__(self, ind):
+        return self.steps[ind]
+
+    def _parse_timestep(self, dump):
+        step = {}
+        lines = dump.split("\n")
+        step["timestep"] = int(lines[1])
+        step["natoms"] = int(lines[3])
+        step["atoms_data"] = np.loadtxt(StringIO("\n".join(lines[9:])),
+                                        dtype=self.dtype)
+        if self.parse_box:
+            box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
+            bounds = box_arr[:, :2]
+            tilt = None
+            if "xy xz yz" in lines[4]:
+                tilt = box_arr[:, 2]
+                x = (0, tilt[0], tilt[1], tilt[0] + tilt[1])
+                y = (0, tilt[2])
+                bounds -= np.array([[min(x), max(x)], [min(y), max(y)],
+                                    [0, 0]])
+            step["box"] = LammpsBox(bounds, tilt)
+        return step
+
+    def as_dict(self):
+        d = {"filename": self.filename}
+        json_steps = []
+        for step in self.steps:
+            json_step = {"timestep": step["timestep"],
+                         "natoms": step["natoms"]}
+            json_step["atoms_data"] = step["atoms_data"].tolist()
+            if self.parse_box:
+                json_step["box"] = step["box"].as_dict()
+            json_steps.append(json_step)
+        d["steps"] = json_steps
+        return d
 
 
 # TODO: @wood-b simplify this, use LammpsDump to parse + use mdanalysis to process.
@@ -431,7 +470,7 @@ class LammpsRun(MSONable):
 
     @property
     def box_lengths(self):
-        return [l[1] - l[0] for l in self.lammps_data.box_bounds]
+        return [l[1] - l[0] for l in self.lammps_data.box.bounds]
 
     @property
     def traj_timesteps(self):

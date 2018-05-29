@@ -9,7 +9,6 @@ import subprocess
 import numpy as np
 import os.path
 
-from pymatgen.analysis.local_env import LocalStructOrderParams
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
@@ -19,7 +18,6 @@ from monty.os.path import which
 from operator import itemgetter
 from collections import namedtuple
 from scipy.spatial import KDTree
-import yaml
 
 try:
     import networkx as nx
@@ -40,17 +38,19 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
-ConnectedSite = namedtuple('ConnectedSite', 'periodic_site, jimage, index, weight, dist')
+ConnectedSite = namedtuple('ConnectedSite', 'site, jimage, index, weight, dist')
 
-cn_opt_params = {}
-with open(os.path.join(os.path.dirname(
-        __file__), 'cn_opt_params.yaml'), 'r') as f:
-    cn_opt_params = yaml.safe_load(f)
-    f.close()
 
+# TODO: split into separate class for Molecules
 class StructureGraph(MSONable):
+    """
+    This is a class for annotating a Structure (or Molecule) with
+    bond information, stored in the form of a graph. A "bond" does
+    not necessarily have to be a chemical bond, but can store any
+    kind of information that connects two Sites.
+    """
 
-    def __init__(self, structure, graph_data):
+    def __init__(self, structure_or_molecule, graph_data=None):
         """
         If constructing this class manually, use the `with_empty_graph`
         method or `with_local_env_strategy` method (using an algorithm
@@ -71,12 +71,21 @@ class StructureGraph(MSONable):
         For periodic graphs, class stores information on the graph
         edges of what lattice image the edge belongs to.
 
-        :param *args: same as in :class: `pymatgen.core.Structure`
+        :param structure_or_molecule: a Structure object or a
+        Molecule object (molecules are supported, but some
+        methods are for structures only, such as __mul__, in
+        future this may be broken into two separate classes)
+
         :param graph_data: dict containing graph information in
-        dict format, not intended to be constructed manually
+        dict format (not intended to be constructed manually,
+        see as_dict method for format)
         """
 
-        self.structure = structure
+        if isinstance(structure_or_molecule, StructureGraph):
+            # just make a copy from input
+            graph_data = structure_or_molecule.as_dict()['graphs']
+
+        self.structure = structure_or_molecule
         self.graph = nx.readwrite.json_graph.adjacency_graph(graph_data)
 
         # tidy up edge attr dicts, reading to/from json duplicates
@@ -95,15 +104,15 @@ class StructureGraph(MSONable):
                 d['from_jimage'] = tuple(d['from_jimage'])
 
     @classmethod
-    def with_empty_graph(cls, structure, name="bonds",
-                        edge_weight_name=None,
+    def with_empty_graph(cls, structure_or_molecule, name="bonds",
+                         edge_weight_name=None,
                          edge_weight_units=None):
         """
         Constructor for StructureGraph, returns a StructureGraph
         object with an empty graph (no edges, only nodes defined
         that correspond to Sites in Structure).
 
-        :param structure (Structure):
+        :param structure_or_molecule (Structure):
         :param name (str): name of graph, e.g. "bonds"
         :param edge_weight_name (str): name of edge weights,
         e.g. "bond_length" or "exchange_constant"
@@ -124,34 +133,54 @@ class StructureGraph(MSONable):
         graph = nx.MultiDiGraph(edge_weight_name=edge_weight_name,
                                 edge_weight_units=edge_weight_units,
                                 name=name)
-        graph.add_nodes_from(range(len(structure)))
+        graph.add_nodes_from(range(len(structure_or_molecule)))
 
         graph_data = json_graph.adjacency_data(graph)
 
-        return cls(structure, graph_data=graph_data)
+        return cls(structure_or_molecule, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(structure, strategy, decorate=True):
+    def with_local_env_strategy(structure_or_molecule, strategy):
         """
         Constructor for StructureGraph, using a strategy
-        from  :Class: `pymatgen.analysis.local_env`.
+        from :Class: `pymatgen.analysis.local_env`.
 
-        :param structure: Structure object
+        Molecules will be put into a large artificial box for calculation
+        of bonds using a NearNeighbor strategy, since some strategies
+        assume periodic boundary conditions.
+
+        :param structure_or_molecule: Structure object
         :param strategy: an instance of a
-         :Class: `pymatgen.analysis.local_env.NearNeighbors`
-         object
-        :param decorate: flag to indicate whether or not to decorate
-         all sites with coordination environment information.
+            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
         :return:
         """
 
-        sg = StructureGraph.with_empty_graph(structure, name="bonds",
+        is_molecule = isinstance(structure_or_molecule, Molecule)
+
+        sg = StructureGraph.with_empty_graph(structure_or_molecule, name="bonds",
                                              edge_weight_name="weight",
                                              edge_weight_units="")
 
-        for n in range(len(structure)):
-            neighbors = strategy.get_nn_info(structure, n)
+        if is_molecule:
+            # NearNeighbor classes only (generally) work with structures
+            # molecules have to be boxed first
+            coords = structure_or_molecule.cart_coords
+
+            a = max(coords[:, 0]) - min(coords[:, 0]) + 100
+            b = max(coords[:, 1]) - min(coords[:, 1]) + 100
+            c = max(coords[:, 2]) - min(coords[:, 2]) + 100
+
+            structure_or_molecule = structure_or_molecule.get_boxed_structure(a, b, c,
+                                                                              no_cross=True)
+
+        for n in range(len(structure_or_molecule)):
+            neighbors = strategy.get_nn_info(structure_or_molecule, n)
             for neighbor in neighbors:
+
+                # all bonds in molecules should not cross
+                # (artificial) periodic boundaries
+                if is_molecule and not np.array_equal(neighbor['image'], [0, 0, 0]):
+                    continue
 
                 # local_env will always try to add two edges
                 # for any one bond, one from site u to site v
@@ -163,8 +192,6 @@ class StructureGraph(MSONable):
                             to_jimage=neighbor['image'],
                             weight=neighbor['weight'],
                             warn_duplicates=False)
-        if decorate:
-            sg.decorate_structure_with_ce_info()
 
         return sg
 
@@ -191,7 +218,8 @@ class StructureGraph(MSONable):
 
     def add_edge(self, from_index, to_index,
                  from_jimage=(0, 0, 0), to_jimage=None,
-                 weight=None, warn_duplicates=True):
+                 weight=None, warn_duplicates=True,
+                 edge_properties=None):
         """
         Add edge to graph.
 
@@ -211,6 +239,8 @@ class StructureGraph(MSONable):
         :param warn_duplicates (bool): if True, will warn if
         trying to add duplicate edges (duplicate edges will not
         be added in either case)
+        :param edge_properties (dict): any other information to
+        store on graph edges, similar to Structure's site_properties
         :return:
         """
 
@@ -232,18 +262,20 @@ class StructureGraph(MSONable):
         # automatic detection of to_jimage if user doesn't specify
         # will try and detect all equivalent images and add multiple
         # edges if appropriate
-        if to_jimage is None:
+        if to_jimage is None and not isinstance(self.structure, Molecule):
             # assume we want the closest site
             warnings.warn("Please specify to_jimage to be unambiguous, "
                           "trying to automatically detect.")
-            dist, to_jimage = self.structure[from_index].distance_and_image(self.structure[to_index])
+            dist, to_jimage = self.structure[from_index]\
+                .distance_and_image(self.structure[to_index])
             if dist == 0:
                 # this will happen when from_index == to_index,
                 # typically in primitive single-atom lattices
                 images = [1, 0, 0], [0, 1, 0], [0, 0, 1]
                 dists = []
                 for image in images:
-                    dists.append(self.structure[from_index].distance_and_image(self.structure[from_index],
+                    dists.append(self.structure[from_index]
+                                 .distance_and_image(self.structure[from_index],
                                                                                jimage=image)[0])
                 dist = min(dists)
             equiv_sites = self.structure.get_neighbors_in_shell(self.structure[from_index].coords,
@@ -257,7 +289,9 @@ class StructureGraph(MSONable):
                               to_jimage=to_jimage, to_index=to_index)
             return
 
-        from_jimage, to_jimage = tuple(from_jimage), tuple(to_jimage)
+        # sanitize types
+        from_jimage, to_jimage = tuple(map(int, from_jimage)), tuple(map(int, to_jimage))
+        from_index, to_index = int(from_index), int(to_index)
 
         # check we're not trying to add a duplicate edge
         # there should only ever be at most one edge
@@ -274,13 +308,19 @@ class StructureGraph(MSONable):
                                                                          to_jimage))
                     return
 
+        # generic container for additional edge properties,
+        # similar to site properties
+        edge_properties = edge_properties or {}
+
         if weight:
             self.graph.add_edge(from_index, to_index,
                                 to_jimage=to_jimage,
-                                weight=weight)
+                                weight=weight,
+                                **edge_properties)
         else:
             self.graph.add_edge(from_index, to_index,
-                                to_jimage=to_jimage)
+                                to_jimage=to_jimage,
+                                **edge_properties)
 
     def get_connected_sites(self, n, jimage=(0, 0, 0)):
         """
@@ -302,24 +342,33 @@ class StructureGraph(MSONable):
 
         for u, v, d, dir in out_edges + in_edges:
 
-            to_jimage = d['to_jimage']
+            if not isinstance(self.structure, Molecule):
 
-            if dir == 'in':
-                u, v = v, u
-                to_jimage = np.multiply(-1, to_jimage)
+                to_jimage = d['to_jimage']
 
-            site_d = self.structure[v].as_dict()
-            site_d['abc'] = np.add(site_d['abc'], to_jimage).tolist()
-            to_jimage = tuple(map(int, np.add(to_jimage, jimage)))
-            periodic_site = PeriodicSite.from_dict(site_d)
+                if dir == 'in':
+                    u, v = v, u
+                    to_jimage = np.multiply(-1, to_jimage)
+
+                site_d = self.structure[v].as_dict()
+                site_d['abc'] = np.add(site_d['abc'], to_jimage).tolist()
+                to_jimage = tuple(map(int, np.add(to_jimage, jimage)))
+                site = PeriodicSite.from_dict(site_d)
+
+                # from_site if jimage arg != (0, 0, 0)
+                relative_jimage = np.subtract(to_jimage, jimage)
+                dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
+
+            else:
+
+                # simpler case for molecules
+                site = self.structure[v]
+                dist = self.structure[u].distance(self.structure[v])
+                to_jimage = (0, 0, 0)
 
             weight = d.get('weight', None)
 
-            # from_site if jimage arg != (0, 0, 0)
-            relative_jimage = np.subtract(to_jimage, jimage)
-            dist = self.structure[u].distance(self.structure[v], jimage=relative_jimage)
-
-            connected_site = ConnectedSite(periodic_site=periodic_site,
+            connected_site = ConnectedSite(site=site,
                                            jimage=to_jimage,
                                            index=v,
                                            weight=weight,
@@ -343,57 +392,6 @@ class StructureGraph(MSONable):
         """
         number_of_self_loops = sum([1 for n, v in self.graph.edges(n) if n == v])
         return self.graph.degree(n) - number_of_self_loops
-
-    def get_local_order_parameters(self, n):
-        """
-        Calculate those local structure order parameters for 
-        the given site whose ideal CN corresponds to the
-        underlying motif (e.g., CN=4, then calculate the
-        square planar, tetrahedral, see-saw-like,
-        rectangular see-saw-like order paramters).
-
-        Args:
-            n (integer): site index.
-
-        Returns:
-            A dict of order parameters (values) and the
-            underlying motif type (keys; for example, tetrahedral).
-
-        """
-        cn = self.get_coordination_of_site(n)
-        if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
-            names = [k for k in cn_opt_params[cn].keys()]
-            types = []
-            params = []
-            for name in names:
-                types.append(cn_opt_params[cn][name][0])
-                tmp = cn_opt_params[cn][name][1] \
-                    if len(cn_opt_params[cn][name]) > 1 else None
-                params.append(tmp)
-            lostops = LocalStructOrderParams(types, parameters=params)
-            sites = [self.structure[n]]
-            for s in self.get_connected_sites(n):
-                sites.append(s.periodic_site)
-            lostop_vals = lostops.get_order_parameters(
-                    sites, 0, indices_neighs=[i for i in range(1, cn+1)])
-            d = {}
-            for i, lostop in enumerate(lostop_vals):
-                d[names[i]] = lostop
-            return d
-        else:
-            return None
-
-    def decorate_structure_with_ce_info(self):
-        """
-        Decorate all sites in the underlying structure
-        with site properties that provides information on the
-        coordination number and coordination pattern based
-        on the (current) structure of this graph.
-        """
-        l = []
-        for i in range(len(self.structure.sites)):
-            l.append(self.get_local_order_parameters(i))
-        self.structure.add_site_property('ce_info', l)
 
     def draw_graph_to_file(self, filename="graph",
                            diff=None,
@@ -620,6 +618,11 @@ class StructureGraph(MSONable):
         # which new lattice images present, but should hopefully be
         # easier to extend to a general 3x3 scaling matrix.
 
+        if isinstance(self.structure, Molecule):
+            raise ValueError("Multiplying graphs is only-welled defined for "
+                             "structures not molecules or other objects without "
+                             "a well-defined periodic lattice.")
+
         # code adapted from Structure.__mul__
         scale_matrix = np.array(scaling_matrix, np.int16)
         if scale_matrix.shape != (3, 3):
@@ -702,7 +705,7 @@ class StructureGraph(MSONable):
                 v_rel = np.subtract(v_image_cart, u_cart)
 
                 # now retrieve position of node v in
-                # new supercell, and get absolute Cartesian
+                # new supercell, and get asgolute Cartesian
                 # co-ordinates of where atoms defined by edge
                 # are expected to be
                 v_expec = new_structure[u].coords + v_rel
@@ -823,7 +826,7 @@ class StructureGraph(MSONable):
 
         if print_weights:
             for u, v, data in edges:
-                s += "{:4}  {:4}  {:12}  {:.12E}\n".format(u, v, str(data.get("to_jimage", (0, 0, 0))),
+                s += "{:4}  {:4}  {:12}  {:.3e}\n".format(u, v, str(data.get("to_jimage", (0, 0, 0))),
                                                            data.get("weight", 0))
         else:
             for u, v, data in edges:
@@ -876,7 +879,7 @@ class StructureGraph(MSONable):
             if v < u:
                 new_v, new_u, new_d = u, v, d.copy()
                 new_d['to_jimage'] = tuple(np.multiply(-1, d['to_jimage']).astype(int))
-                edges_to_remove.append((u,v,k))
+                edges_to_remove.append((u, v, k))
                 edges_to_add.append((new_u, new_v, new_d))
 
         # add/delete marked edges
