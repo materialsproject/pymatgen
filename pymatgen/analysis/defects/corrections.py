@@ -268,7 +268,7 @@ class FreysoldtCorrection(DefectCorrection):
         C = -np.mean(tmppot)
         logger.debug('C = %f', C)
         final_shift = [short[j] + C for j in range(len(v_R))]
-        v_R = [elmnt - C for elmnt in v_R]
+        # v_R = [elmnt - C for elmnt in v_R]
 
         logger.info('C value is averaged to be %f eV ', C)
         logger.info('Potentital alignment energy correction (-q*delta V):  %f (eV)', -q * C)
@@ -343,12 +343,10 @@ def find_optimal_gamma(structure, epsilon, tolerance=0.0001, max_encut=510):
 
     def brute_force_recip_summation(tencut):
         recippart = 0.0
-        cnt = 0
         for rec in genrecip(a1, a2, a3, tencut):
             Gdotdiel = np.dot(rec, np.dot(epsilon, rec))
             summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
             recippart += summand
-            cnt += 1
         recippart *= 4 * np.pi / vol
         return recippart
 
@@ -378,6 +376,8 @@ def find_optimal_gamma(structure, epsilon, tolerance=0.0001, max_encut=510):
         if abs(converge[1]) * hart_to_ev < 0.75:
             logger.warning('Reciprocal summation value is less than 0.75 eV.')
             logger.warning('Might lead to errors')
+            #reduce multiplier for optimal gamma at larger values of gamma,
+            # because larger gamma values require more time
             multiplier = 1.5 if gamma > 15. else 3.
             gamma *= multiplier
             logger.warning('Changing gamma to %f', gamma)
