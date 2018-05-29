@@ -91,7 +91,11 @@ class VacancyGenerator(DefectGenerator):
         else:
             raise StopIteration
 
-
+# from pymatgen.io.vasp import Poscar
+# s = Poscar.from_file('POSCAR.gz').structure
+# from pymatgen.analysis.defects.generators import VacancyGenerator, SubstitutionGenerator
+# SG = SubstitutionGenerator(s, 'Cu')
+# sg = list(SG)
 
 class SubstitutionGenerator(DefectGenerator):
     """
@@ -117,7 +121,10 @@ class SubstitutionGenerator(DefectGenerator):
         self.equiv_sub = []
         for equiv_site_set in list(self.symm_structure.equivalent_sites):
             vac_site = equiv_site_set[0]
-            vac_specie = vac_site.specie
+            if type(element) == str: #make sure you compare with specie symbol or Element type
+                vac_specie = vac_site.specie.symbol
+            else:
+                vac_specie = vac_site.specie
             if element != vac_specie:
                 defect_site = PeriodicSite( element, vac_site.coords, structure.lattice, coords_are_cartesian=True)
                 sub = Substitution( structure, defect_site)
