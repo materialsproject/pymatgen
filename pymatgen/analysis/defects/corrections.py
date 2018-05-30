@@ -268,7 +268,7 @@ class FreysoldtCorrection(DefectCorrection):
         C = -np.mean(tmppot)
         logger.debug('C = %f', C)
         final_shift = [short[j] + C for j in range(len(v_R))]
-        # v_R = [elmnt - C for elmnt in v_R]
+        v_R = [elmnt - C for elmnt in v_R]
 
         logger.info('C value is averaged to be %f eV ', C)
         logger.info('Potentital alignment energy correction (-q*delta V):  %f (eV)', -q * C)
@@ -284,7 +284,7 @@ class FreysoldtCorrection(DefectCorrection):
         }
 
         #log uncertainty:
-        self.metadata['pot_corr_uncertainty_md'][axis] = {'stats': stats.describe(tmppot), 'potcorr': -q * C}
+        self.metadata['pot_corr_uncertainty_md'][axis] = {'stats': stats.describe(tmppot)._asdict(), 'potcorr': -q * C}
 
         return self.pot_corr
 
@@ -740,12 +740,15 @@ class KumagaiCorrection(DefectCorrection):
                              sampling_radius)
                 for_correction.append(Vqb - Vpc)
 
-        pot_alignment = np.mean(for_correction)
+        if len(for_correction):
+            pot_alignment = np.mean(for_correction)
+        else:
+            pot_alignment = 0.
         pot_corr = -q * pot_alignment
 
         #log uncertainty stats:
         self.metadata['pot_corr_uncertainty_md'] = {
-            'stats': stats.describe(for_correction),
+            'stats': stats.describe(for_correction)._asdict(),
             'number_sampled': len(for_correction)
         }
         self.metadata['pot_plot_data'] = pot_dict
