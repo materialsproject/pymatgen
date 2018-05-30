@@ -919,9 +919,9 @@ class BandFillingCorrection(DefectCorrection):
 
 
 
-class BandEdgeCorrection(DefectCorrection):
+class BandEdgeShiftingCorrection(DefectCorrection):
     """
-    A class for BandEdgeCorrection class. Largely adapted from PyCDT code
+    A class for BandEdgeShiftingCorrection class. Largely adapted from PyCDT code
 
     Requires some parameters in the DefectEntry to properly function:
         hybrid_cbm
