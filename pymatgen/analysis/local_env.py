@@ -39,8 +39,6 @@ from pymatgen import Element
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
-from pymatgen.command_line.critic2_caller import Critic2Caller
-
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
         __file__), 'op_params.yaml'), "rt") as f:
@@ -2984,6 +2982,11 @@ class Critic2NN(NearNeighbors):
         self.__last_bonded_structure = None
 
     def get_bonded_structure(self, structure, decorate=False):
+        
+        # not a top-level import because critic2 is an optional
+        # dependency, only want to raise an import error if
+        # Critic2NN() is used
+        from pymatgen.command_line.critic2_caller import Critic2Caller
 
         if structure == self.__last_structure:
             sg = self.__last_bonded_structure
