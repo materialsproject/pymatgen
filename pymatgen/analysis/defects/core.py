@@ -16,6 +16,7 @@ __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
 import six
+import copy
 import logging
 import numpy as np
 
@@ -101,6 +102,18 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         return
 
+    def copy(self):
+        """
+        Convenience method to get a copy of the defect.
+
+        Returns:
+            A copy of the Defect.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        return Defect(struc, def_site, charge=charge)
+
     def set_charge(self,new_charge=0.):
         """
         Sets the overall charge
@@ -154,7 +167,19 @@ class Vacancy(Defect):
         """
         Returns a name for this defect
         """
-        return "Vac_{}_{}".format(self.site.specie,self.multiplicity)
+        return "Vac_{}_mult{}".format(self.site.specie,self.multiplicity)
+
+    def copy(self):
+        """
+        Convenience method to get a copy of the Vacancy.
+
+        Returns:
+            A copy of the Vacancy.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        return Vacancy(struc, def_site, charge=charge)
 
 
 class Substitution(Defect):
@@ -214,27 +239,43 @@ class Substitution(Defect):
         poss_deflist = sorted(
             self.bulk_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
-        return "Sub_{}_on_{}_{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
+        return "Sub_{}_on_{}_mult{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
 
+    def copy(self):
+        """
+        Convenience method to get a copy of the Substitution.
+
+        Returns:
+            A copy of the Substitution.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        return Substitution(struc, def_site, charge=charge)
 
 class Interstitial(Defect):
     """
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0.,multiplicity=1):
+    def __init__(self, structure, defect_site, charge=0., name='', multiplicity=1):
         """
         Initializes an interstial defect. 
         User must specify multiplity. Default is 1
         Args:
             structure: Pymatgen Structure without any defects
+            defect_site (Site): the site for the interstial
             charge: (int or float) defect charge
                 default is zero, meaning no change to NELECT after defect is created in the structure
-            defect_site (Site): the site for the interstial
+            name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity is
+                    insufficient to categorize the defect type
+                default is no name.
             multiplicity (int): multiplicity
+                default is 1,
         """
         super().__init__(structure=structure,defect_site=defect_site,charge=charge)
         self._multiplicity = multiplicity
+        self._name = name
 
     @property
     def defect_composition(self):
@@ -266,7 +307,23 @@ class Interstitial(Defect):
         """
         Returns a name for this defect
         """
-        return "Int_{}_{}".format(self.site.specie,self.multiplicity)
+        if self._name:
+            return "Int_{}_{}_mult{}".format(self.site.specie,self._name,self.multiplicity)
+        else:
+            return "Int_{}_mult{}".format(self.site.specie,self.multiplicity)
+
+    def copy(self):
+        """
+        Convenience method to get a copy of the Interstitial.
+
+        Returns:
+            A copy of the Interstitial.
+        """
+        struc = self._structure.copy()
+        def_site = copy.copy(self._defect_site)
+        charge = copy.copy(self.charge)
+        multiplicity = copy.copy(self._multiplicity)
+        return Interstitial(struc, def_site, charge=charge, name=self._name, multiplicity=multiplicity)
 
 
 class DefectEntry(MSONable):
@@ -305,12 +362,34 @@ class DefectEntry(MSONable):
         return self.defect.bulk_structure
 
     @property
+    def bulk_sc_structure(self):
+        bulk_sc = self.defect.bulk_structure.copy()
+        if 'scaling_matrix' in self.parameters:
+            bulk_sc.make_supercell( self.parameters['scaling_matrix'])
+        return bulk_sc
+
+    @property
+    def defect_sc_structure(self):
+        if 'scaling_matrix' in self.parameters:
+            scaling_matrix = self.parameters['scaling_matrix']
+        else:
+            scaling_matrix = (1,1,1)
+        defect_sc = self.defect.generate_defect_structure(scaling_matrix)
+        return defect_sc
+
+    @property
     def site(self):
         return self.defect.site
 
     @property
     def multiplicty(self):
-        return self.defect.multiplicty
+        sc_multiplier = 1.
+        if 'scaling_matrix' in self.parameters:
+            for val in np.array(self.parameters['scaling_matrix']).flatten():
+                if val:
+                    #scale with non-zero scaling matrix entries
+                    sc_multiplier *= val
+        return self.defect.multiplicty * sc_multiplier
 
     @property
     def charge(self):
@@ -329,6 +408,19 @@ class DefectEntry(MSONable):
         Returms the defect name
         """
         return self.defect.name
+
+    def copy(self):
+        """
+        Convenience method to get a copy of the DefectEntry.
+
+        Returns:
+            A copy of the DefectEntry.
+        """
+        defect = self.defect.copy()
+        corrections = self.corrections.copy()
+        parameters = self.parameters.copy()
+        return DefectEntry(defect, self.uncorrected_energy, corrections=corrections,
+                           parameters=parameters, entry_id=self.entry_id)
 
     def formation_energy(self, chemical_potentials = None, fermi_level=0):
         """
@@ -372,7 +464,7 @@ class DefectEntry(MSONable):
             #TODO: add defect.name abilities... maybe with composition?
             # "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
             "DefectEntry {} - {}".format(self.entry_id, "DEFECT"), "Energy = {:.4f}".format(self.energy),
-            "Correction = {:.4f}".format(np.sum(self.correction.values())), "Parameters:"
+            "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))), "Parameters:"
         ]
         for k, v in self.parameters.items():
             output.append("\t{} = {}".format(k, v))

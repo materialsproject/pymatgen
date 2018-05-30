@@ -92,7 +92,6 @@ class VacancyGenerator(DefectGenerator):
             raise StopIteration
 
 
-
 class SubstitutionGenerator(DefectGenerator):
     """
     Simple generator for substitution based on periodically
@@ -117,7 +116,10 @@ class SubstitutionGenerator(DefectGenerator):
         self.equiv_sub = []
         for equiv_site_set in list(self.symm_structure.equivalent_sites):
             vac_site = equiv_site_set[0]
-            vac_specie = vac_site.specie
+            if type(element) == str: #make sure you compare with specie symbol or Element type
+                vac_specie = vac_site.specie.symbol
+            else:
+                vac_specie = vac_site.specie
             if element != vac_specie:
                 defect_site = PeriodicSite( element, vac_site.coords, structure.lattice, coords_are_cartesian=True)
                 sub = Substitution( structure, defect_site)
@@ -166,6 +168,7 @@ class InterstitialGenerator(DefectGenerator):
         conv_prim_rat = int(self.structure.num_sites/prim_struct.num_sites)
         self.multiplicities = [int(interstitial_finder.get_defectsite_multiplicity(def_ind) / conv_prim_rat)
                                for def_ind in range(len(self.defect_sites))]
+        self.count_def = 0 #for counting the index of the generated defect
 
     def __next__(self):
         """
@@ -175,8 +178,9 @@ class InterstitialGenerator(DefectGenerator):
         if len(self.defect_sites) > 0:
             int_site = self.defect_sites.pop(0)
             mult = self.multiplicities.pop(0)
-
-            return Interstitial(self.structure, int_site, multiplicity=mult)
+            self.count_def += 1
+            name = 'InFiT'+str(self.count_def)
+            return Interstitial(self.structure, int_site, name=name, multiplicity=mult)
         else:
             raise StopIteration
 
@@ -214,6 +218,8 @@ class VoronoiInterstitialGenerator(DefectGenerator):
             if poss_site_list[0] not in self.structure:
                 self.equiv_site_seq.append(poss_site_list)
 
+        self.count_def = 0 #for counting the index of the generated defect
+
 
     def __next__(self):
         """
@@ -222,8 +228,10 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         """
         if len(self.equiv_site_seq) > 0:
             inter_site_list = self.equiv_site_seq.pop(0)
-
-            return Interstitial(self.structure, inter_site_list[0], multiplicity=len(inter_site_list))
+            self.count_def += 1
+            name = 'Voronoi'+str(self.count_def)
+            return Interstitial(self.structure, inter_site_list[0], name=name,
+                                multiplicity=len(inter_site_list))
         else:
             raise StopIteration
 
@@ -273,7 +281,7 @@ class SimpleChargeGenerator(DefectGenerator):
         """
         if len(self.charges) > 0:
             charge = self.charges.pop(0)
-            defect = self.defect
+            defect = self.defect.copy()
             defect.set_charge(charge)
             return defect
         else:

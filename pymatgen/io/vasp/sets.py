@@ -334,7 +334,7 @@ class DictSet(VaspInputSet):
                                     if isinstance(v.get(sym, 0), (float, int))
                                     else 0 for sym in poscar.site_symbols]
             elif k.startswith("EDIFF") and k != "EDIFFG":
-                if "EDIFF" not in settings and k == " EDIFF_PER_ATOM":
+                if "EDIFF" not in settings and k == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(v) * structure.num_sites
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
@@ -583,9 +583,12 @@ class MPStaticSet(MPRelaxSet):
         self._config_dict["KPOINTS"]["reciprocal_density"] = \
             self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
+
         # Prefer to use k-point scheme from previous run
+        # except for when lepsilon = True is specified
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
-            if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
+            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) \
+                    and (not self.lepsilon):
                 k_div = [kp + 1 if kp % 2 == 1 else kp
                          for kp in kpoints.kpts[0]]
                 kpoints = Kpoints.monkhorst_automatic(k_div)
