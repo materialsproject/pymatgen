@@ -1,5 +1,5 @@
-pymatgen\.phonon\.plotter module
-================================
+pymatgen.phonon.plotter module
+==============================
 
 .. automodule:: pymatgen.phonon.plotter
     :members:

@@ -8,8 +8,8 @@ be available on `PyPI <http://pypi.python.org>`_.
 1. Python 2.7-3.x supported. **It is highly recommended that you use latest
    Python 3.x unless you know you need other dependencies that works with
    Python 2.x only.**
-2. numpy>=1.10
-3. scipy>0.14
+2. numpy>=1.14
+3. scipy>=1.0.1
 4. matplotlib>=1.5+
 5. monty>=0.9.6
 6. requests>=2.0+

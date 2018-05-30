@@ -21,40 +21,28 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 class TestLammpsDump(unittest.TestCase):
 
-    def setUp(self):
-        dump_file_1 = os.path.join(test_dir, "dump_1")
-        dump_file_2 = os.path.join(test_dir, "dump_2")
-        self.dump1 = LammpsDump.from_file(dump_file_1)
-        self.dump2 = LammpsDump.from_file(dump_file_2)
-        dump_file_nvt = os.path.join(test_dir, "nvt.dump")
-        self.dump_nvt = LammpsDump.from_file(dump_file_nvt)
-
-    def test_non_atoms_data(self):
-        self.assertEqual(self.dump1.box_bounds, [[0.0, 25.0],
-                                                 [0.0, 25.0],
-                                                 [0.0, 25.0]])
-        self.assertEqual(self.dump1.natoms, 123)
-        self.assertEqual(self.dump1.timesteps, [0.0])
-        self.assertEqual(self.dump1.box_bounds, self.dump2.box_bounds)
-        self.assertEqual(self.dump1.natoms, self.dump2.natoms)
-        self.assertEqual(self.dump1.timesteps, self.dump2.timesteps)
-
-    def test_atoms_data(self):
-        self.assertEqual(self.dump1.natoms, len(self.dump1.atoms_data))
-        self.assertEqual(self.dump2.natoms, len(self.dump2.atoms_data))
-
-        ans1 = [float(x) for x in "1 2 1 3 3 2 4 1 3 5 4 3 5 2 4 6 1 3 5 7 5 4 " \
-                                  "6 3 5 7 2 4 6 1 3 5 7 6 5 7 4 6 3 5 7 2 4 6 " \
-                                  "1 3 5 7 7 6 5 7 4 6 3 5 7 2 4 6 1 3 5 7".split()]
-        np.testing.assert_almost_equal(self.dump1.atoms_data[115], ans1,
-                                       decimal=6)
-        np.testing.assert_almost_equal(self.dump2.atoms_data[57],
-                                       [99, 2, 0.909816, 0.883438, 0.314853],
-                                       decimal=6)
-
-    def test_timesteps_and_atoms_data(self):
-        self.assertEqual(self.dump_nvt.natoms * len(self.dump_nvt.timesteps),
-                         len(self.dump_nvt.atoms_data))
+    def test_init(self):
+        # general tests + gzipped
+        rdx_10 = LammpsDump(filename=os.path.join(test_dir, "dump.rdx.gz"))
+        np.testing.assert_array_equal(rdx_10.timesteps, np.arange(0, 101, 10))
+        obox = rdx_10[0]["box"]
+        np.testing.assert_array_equal(obox.bounds, np.array([(35, 48)] * 3))
+        atom = rdx_10[-1]["atoms_data"][-1]
+        np.testing.assert_array_equal(atom,
+                                      [19, 2, 0.42369, 0.47347, 0.555425])
+        # timestep wildcard
+        rdx_25 = LammpsDump(filename=os.path.join(test_dir, "dump.rdx_wc.*"),
+                            parse_box=False)
+        self.assertEqual(len(rdx_25), 5)
+        np.testing.assert_array_equal(rdx_25.timesteps, np.arange(0, 101, 25))
+        self.assertNotIn("box", rdx_25[0])
+        # tilted box
+        tatb = LammpsDump(filename=os.path.join(test_dir, "dump.tatb"))
+        tbox = tatb[0]["box"]
+        bounds = [[0, 13.624], [0, 17.1149153805], [0, 15.1826391451]]
+        tilt = [-5.75315630927, -6.325466, 7.4257288]
+        np.testing.assert_array_almost_equal(tbox.bounds, bounds)
+        np.testing.assert_array_almost_equal(tbox.tilt, tilt)
 
 
 class TestLammpsRun(unittest.TestCase):

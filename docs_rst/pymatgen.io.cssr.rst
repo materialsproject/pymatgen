@@ -1,5 +1,5 @@
-pymatgen\.io\.cssr module
-=========================
+pymatgen.io.cssr module
+=======================
 
 .. automodule:: pymatgen.io.cssr
     :members:
