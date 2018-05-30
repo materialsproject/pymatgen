@@ -91,11 +91,6 @@ class VacancyGenerator(DefectGenerator):
         else:
             raise StopIteration
 
-# from pymatgen.io.vasp import Poscar
-# s = Poscar.from_file('POSCAR.gz').structure
-# from pymatgen.analysis.defects.generators import VacancyGenerator, SubstitutionGenerator
-# SG = SubstitutionGenerator(s, 'Cu')
-# sg = list(SG)
 
 class SubstitutionGenerator(DefectGenerator):
     """

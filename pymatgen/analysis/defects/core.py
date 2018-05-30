@@ -323,7 +323,7 @@ class Interstitial(Defect):
         def_site = copy.copy(self._defect_site)
         charge = copy.copy(self.charge)
         multiplicity = copy.copy(self._multiplicity)
-        return Interstitial(struc, def_site, charge=charge, name='', multiplicity=multiplicity)
+        return Interstitial(struc, def_site, charge=charge, name=self._name, multiplicity=multiplicity)
 
 
 class DefectEntry(MSONable):
