@@ -78,7 +78,11 @@ class FreysoldtCorrection(DefectCorrection):
                 list_bulk_plnr_avg_esp.append(np.array(entry.parameters["bulk_planar_averages"][ax]))
                 list_defect_plnr_avg_esp.append(np.array(entry.parameters["defect_planar_averages"][ax]))
 
-        lattice = entry.bulk_sc_structure.lattice
+        bulk_struct = entry.defect.bulk_structure.copy()
+        if 'scaling_matrix' in entry.parameters.keys():
+            bulk_struct.make_supercell( entry.parameters['scaling_matrix'])
+
+        lattice = entry.defect.bulk_struct.lattice
         q = entry.defect.charge
 
         es_corr = self.perform_es_corr(
@@ -324,14 +328,14 @@ Below Here is for kumagai correction
 """
 
 
-def find_optimal_gamma(structure, epsilon, tolerance=0.0001, max_encut=510):
+def find_optimal_gamma(lattice, epsilon, tolerance=0.0001, max_encut=510):
     """
     Find optimal gamma by evaluating the brute force reciprocal
     summation and seeing when the values are on the order of 0.75,
     This calculation is the anisotropic Madelung potential at r = (0,0,0).
     """
     logger = logging.getLogger(__name__)
-    angset = structure.lattice.get_cartesian_coords(1)
+    angset = lattice.get_cartesian_coords(1)
     [a1, a2, a3] = ang_to_bohr * angset  # convert to bohr
     vol = np.dot(a1, np.cross(a2, a3))
 
@@ -392,7 +396,7 @@ def find_optimal_gamma(structure, epsilon, tolerance=0.0001, max_encut=510):
     return gamma
 
 
-def generate_g_sum(structure, epsilon, dim, gamma):
+def generate_g_sum(lattice, epsilon, dim, gamma):
     """
     Compute the reciprocal summation in the anisotropic Madelung
     potential.
@@ -401,10 +405,9 @@ def generate_g_sum(structure, epsilon, dim, gamma):
     """
     logger = logging.getLogger(__name__)
     logger.debug('Reciprocal summation in Madelung potential')
-    latt = structure.lattice
-    vol = latt.volume * ang_to_bohr**3  # in Bohr^3
+    vol = lattice.volume * ang_to_bohr**3  # in Bohr^3
 
-    reci_latt = latt.reciprocal_lattice
+    reci_latt = lattice.reciprocal_lattice
     [b1, b2, b3] = reci_latt.get_cartesian_coords(1)
     b1 = np.array(b1) / ang_to_bohr  # In 1/Bohr
     b2 = np.array(b2) / ang_to_bohr
@@ -494,29 +497,33 @@ class KumagaiCorrection(DefectCorrection):
         bulk_atomic_site_averages = entry.parameters["bulk_atomic_site_averages"]
         defect_atomic_site_averages = entry.parameters["defect_atomic_site_averages"]
         site_matching_indices = entry.parameters["site_matching_indices"]
-        bulk_sc_structure = entry.bulk_sc_structure
-        q = entry.defect.charge
 
+
+        bulk_sc_structure = entry.defect.bulk_structure.copy()
+        if 'scaling_matrix' in entry.parameters.keys():
+            bulk_sc_structure.make_supercell( entry.parameters['scaling_matrix'])
+            defect_sc_structure = entry.defect.generate_defect_structure( entry.parameters['scaling_matrix'])
+        else:
+            defect_sc_structure = entry.defect.generate_defect_structure()
+
+        bulk_lattice = bulk_sc_structure.lattice
+        q = entry.defect.charge
 
         if not self.metadata['gamma']:
             if "gamma" in entry.parameters.keys():
                 self.metadata['gamma'] = entry.parameters["gamma"]
             else:
-                self.metadata['gamma'] = find_optimal_gamma(bulk_sc_structure, self.dielectric,
+                self.metadata['gamma'] = find_optimal_gamma(bulk_lattice, self.dielectric,
                                                             self.madelung_energy_tolerance)
 
         if not len(self.metadata['g_sum']):
             if "g_sum" in entry.parameters.keys():
                 self.metadata['g_sum'] = entry.parameters["g_sum"]
             else:
-                self.metadata['g_sum'] = generate_g_sum(bulk_sc_structure, self.dielectric, dim, self.metadata['gamma'])
+                self.metadata['g_sum'] = generate_g_sum(bulk_lattice, self.dielectric, dim, self.metadata['gamma'])
 
-        es_corr = self.perform_es_corr(bulk_sc_structure, q, self.metadata['g_sum'], self.metadata['gamma'],
+        es_corr = self.perform_es_corr(bulk_lattice, q, self.metadata['g_sum'], self.metadata['gamma'],
                                        self.madelung_energy_tolerance)
-
-        #create defective structure with entry
-        defect_sc_structure = entry.defect_sc_structure
-        defect_position = entry.defect.site
 
         # if no sampling radius specified, then assuming Wigner-Seitz radius:
         if not self.metadata['sampling_radius']:
@@ -533,6 +540,7 @@ class KumagaiCorrection(DefectCorrection):
             Vqb = -(defect_atomic_site_averages[ds_ind] - bulk_atomic_site_averages[bs_ind])
             site_list.append([bulk_sc_structure[bs_ind], defect_sc_structure[ds_ind], Vqb])
 
+        defect_position = entry.defect.site
         pot_corr = self.perform_pot_corr(bulk_sc_structure, defect_sc_structure, defect_position, site_list,
                                          self.metadata['sampling_radius'], q, self.metadata['g_sum'], dim,
                                          self.metadata['gamma'], self.madelung_energy_tolerance)
@@ -543,11 +551,11 @@ class KumagaiCorrection(DefectCorrection):
 
         return {"kumagai_electrostatic": es_corr, "kumagai_potential_alignment": pot_corr}
 
-    def perform_es_corr(self, structure, q, g_sum, gamma, madetol):
+    def perform_es_corr(self, lattice, q, g_sum, gamma, madetol):
         """
         Peform Electrostatic Kumagai Correction
         Args:
-            structure: Bulk pymatgen structure type
+            latice: Bulk pymatgen lattice type
             dielectric: dielectric tensor
             q: Point charge (in units of e+)
             g_sum : comes from KumagaiBulkInit class
@@ -555,7 +563,7 @@ class KumagaiCorrection(DefectCorrection):
             madetol: convergence for real sum term in eV
         """
         logger = logging.getLogger(__name__)
-        angset = structure.lattice.get_cartesian_coords(1)
+        angset = lattice.get_cartesian_coords(1)
         [a1, a2, a3] = ang_to_bohr * angset  # convert to bohr
         vol = np.dot(a1, np.cross(a2, a3))
         determ = np.linalg.det(self.dielectric)
@@ -656,6 +664,7 @@ class KumagaiCorrection(DefectCorrection):
             )  #shoudl include a raise value error if the site_list contains sites not in the structure being analyzed...
 
             #calculate distance from defect's position to closest periodic image of current defect_cell site object
+            #TODO: frac coords here is probably a bad idea since site object might not reflect correct sc_scaling... REPLACE
             relative_vector = pbc_shortest_vectors(bulk_structure.lattice, defect_position.frac_coords,
                                                    defect_cell_site.frac_coords)[0][0]  #this is angstrom vector
             dist_to_defect = norm(relative_vector)  #in angstroms
