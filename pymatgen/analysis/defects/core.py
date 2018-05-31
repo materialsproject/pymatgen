@@ -341,6 +341,12 @@ class DefectEntry(MSONable):
                 defect_planar_averages )
             entry_id (obj): An id to uniquely identify this defect, can be any MSONable
                 type
+
+        Optional:
+            note that if you intend to use this defect entry with Charge Corrections
+            but the bulk_structure stored in defect is not the final supercell,
+            then 'scaling_matrix' must be stored in parameters
+                for example: parameters = {'scaling_matrix': [3,3,3]}
         """
         self.defect = defect
         self.uncorrected_energy = uncorrected_energy
