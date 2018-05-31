@@ -19,6 +19,7 @@ test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", 'test_files',
     "molecules")
 
+
 class QChemDictSetTest(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(
@@ -74,6 +75,37 @@ class QChemDictSetTest(PymatgenTest):
             })
         self.assertEqual(test_DictSet.solvent, {'dielectric': 10.0})
         self.assertEqual(test_DictSet.molecule, test_molecule)
+
+    def test_overwrite_input_addition(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        overwrite_inputs = {"rem": {'thresh': 14}}
+        test_OptSet = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
+        act_rem = {'job_type': 'opt',
+                   'gen_scfman': 'true',
+                   'basis': '6-311++g*',
+                   'max_scf_cycles': 200,
+                   'method': 'wb97x-v',
+                   'scf_algorithm': 'diis',
+                   'geom_opt_max_cycles': 200,
+                   'thresh': 14}
+        self.assertDictEqual(act_rem, test_OptSet.rem)
+
+    def test_overwrite_input(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        overwrite_inputs = {"rem": {'method': 'b3lyp', 'basis': '6-31g*', 'thresh': 14}}
+        test_OptSet = OptSet(molecule=test_molecule, overwrite_inputs=overwrite_inputs)
+        act_rem = {'job_type': 'opt',
+                   'gen_scfman': 'true',
+                   'basis': '6-31g*',
+                   'max_scf_cycles': 200,
+                   'method': 'b3lyp',
+                   'scf_algorithm': 'diis',
+                   'geom_opt_max_cycles': 200,
+                   'thresh': 14}
+        print(test_OptSet.rem)
+        self.assertDictEqual(act_rem, test_OptSet.rem)
 
 
 class OptSetTest(PymatgenTest):
