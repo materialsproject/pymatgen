@@ -104,7 +104,6 @@ class QChemDictSetTest(PymatgenTest):
                    'scf_algorithm': 'diis',
                    'geom_opt_max_cycles': 200,
                    'thresh': 14}
-        print(test_OptSet.rem)
         self.assertDictEqual(act_rem, test_OptSet.rem)
 
 
