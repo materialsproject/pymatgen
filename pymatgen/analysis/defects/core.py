@@ -109,10 +109,7 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         Returns:
             A copy of the Defect.
         """
-        struc = self._structure.copy()
-        def_site = copy.copy(self._defect_site)
-        charge = copy.copy(self.charge)
-        return Defect(struc, def_site, charge=charge)
+        return self.from_dict(self.as_dict())
 
     def set_charge(self,new_charge=0.):
         """
@@ -168,19 +165,6 @@ class Vacancy(Defect):
         Returns a name for this defect
         """
         return "Vac_{}_mult{}".format(self.site.specie,self.multiplicity)
-
-    def copy(self):
-        """
-        Convenience method to get a copy of the Vacancy.
-
-        Returns:
-            A copy of the Vacancy.
-        """
-        struc = self._structure.copy()
-        def_site = copy.copy(self._defect_site)
-        charge = copy.copy(self.charge)
-        return Vacancy(struc, def_site, charge=charge)
-
 
 class Substitution(Defect):
     """
@@ -241,24 +225,12 @@ class Substitution(Defect):
         defindex = poss_deflist[0][2]
         return "Sub_{}_on_{}_mult{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
 
-    def copy(self):
-        """
-        Convenience method to get a copy of the Substitution.
-
-        Returns:
-            A copy of the Substitution.
-        """
-        struc = self._structure.copy()
-        def_site = copy.copy(self._defect_site)
-        charge = copy.copy(self.charge)
-        return Substitution(struc, def_site, charge=charge)
-
 class Interstitial(Defect):
     """
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0., name='', multiplicity=1):
+    def __init__(self, structure, defect_site, charge=0., site_name='', multiplicity=1):
         """
         Initializes an interstial defect. 
         User must specify multiplity. Default is 1
@@ -267,7 +239,7 @@ class Interstitial(Defect):
             defect_site (Site): the site for the interstial
             charge: (int or float) defect charge
                 default is zero, meaning no change to NELECT after defect is created in the structure
-            name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity is
+            site_name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity is
                     insufficient to categorize the defect type
                 default is no name.
             multiplicity (int): multiplicity
@@ -275,7 +247,7 @@ class Interstitial(Defect):
         """
         super().__init__(structure=structure,defect_site=defect_site,charge=charge)
         self._multiplicity = multiplicity
-        self._name = name
+        self.site_name = site_name
 
     @property
     def defect_composition(self):
@@ -307,24 +279,10 @@ class Interstitial(Defect):
         """
         Returns a name for this defect
         """
-        if self._name:
-            return "Int_{}_{}_mult{}".format(self.site.specie,self._name,self.multiplicity)
+        if self.site_name:
+            return "Int_{}_{}_mult{}".format(self.site.specie,self.site_name,self.multiplicity)
         else:
             return "Int_{}_mult{}".format(self.site.specie,self.multiplicity)
-
-    def copy(self):
-        """
-        Convenience method to get a copy of the Interstitial.
-
-        Returns:
-            A copy of the Interstitial.
-        """
-        struc = self._structure.copy()
-        def_site = copy.copy(self._defect_site)
-        charge = copy.copy(self.charge)
-        multiplicity = copy.copy(self._multiplicity)
-        return Interstitial(struc, def_site, charge=charge, name=self._name, multiplicity=multiplicity)
-
 
 class DefectEntry(MSONable):
     """
@@ -360,22 +318,6 @@ class DefectEntry(MSONable):
     @property
     def bulk_structure(self):
         return self.defect.bulk_structure
-
-    @property
-    def bulk_sc_structure(self):
-        bulk_sc = self.defect.bulk_structure.copy()
-        if 'scaling_matrix' in self.parameters:
-            bulk_sc.make_supercell( self.parameters['scaling_matrix'])
-        return bulk_sc
-
-    @property
-    def defect_sc_structure(self):
-        if 'scaling_matrix' in self.parameters:
-            scaling_matrix = self.parameters['scaling_matrix']
-        else:
-            scaling_matrix = (1,1,1)
-        defect_sc = self.defect.generate_defect_structure(scaling_matrix)
-        return defect_sc
 
     @property
     def site(self):
