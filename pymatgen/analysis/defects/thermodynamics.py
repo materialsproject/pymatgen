@@ -13,6 +13,7 @@ import numpy as np
 from monty.json import MSONable
 from scipy import integrate
 from scipy.spatial import HalfspaceIntersection
+from scipy.optimize import bisect
 from itertools import groupby, chain
 
 from pymatgen.analysis.defects.utils import kb
@@ -35,10 +36,15 @@ class DefectPhaseDiagram(MSONable):
         dentries ([DefectEntry]): A list of DefectEntry objects
     """
 
-    def __init__(self, entries, vbm, band_gap):
-        self.entries = entries
+    def __init__(self, entries, vbm, band_gap, filter_compatible=True):
         self.vbm = vbm
         self.band_gap = band_gap
+        self.filter_compatible = filter_compatible
+
+        if filter_compatible:
+            self.entries = [e for e in entries if e.parameters.get("is_compatible", True)]
+        else:
+            self.entries = entries
 
         self.find_stable_charges()
 
@@ -46,8 +52,8 @@ class DefectPhaseDiagram(MSONable):
         """
         Sets the stable charges and transition states for a series of
         defect entries. This function uses scipy's HalfspaceInterection
-        to oncstruct the polygons corresponding to defect stability as 
-        a function of the Fermi-level. The Halfspace Intersection 
+        to oncstruct the polygons corresponding to defect stability as
+        a function of the Fermi-level. The Halfspace Intersection
         constructs N-dimensional hyperplanes, in this case N=2,  based
         on the equation of defect formation energy with considering chemical
         potentials:
@@ -60,53 +66,54 @@ class DefectPhaseDiagram(MSONable):
         the Pourbaix Diagram
         """
 
-        def similar_defect(a, b):
+        def similar_defect(a):
             """
             Used to filter out similar defects of different charges which
             are defined by the same type and location
             """
-            return a.name == b.name and a.site == b.site
+            return (a.name, a.site)
 
         # Limits for search
         # E_fermi = { -1 eV to band gap+1}
         # the 1 eV padding provides
-        # E_formation. = { -1 eV to 20 eV}
-        limits = [[-1, self.band_gap + 1], [-1, 20]]
+        # E_formation. = { -21 eV to 20 eV}
+        limits = [[-1, self.band_gap + 1], [-21, 20]]
 
         stable_entries = {}
         stable_charges = {}
+        finished_charges = {}
         transition_level_map = {}
 
         # Grouping by defect types
         for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
             defects = list(defects)
 
-            # prepping coefficient matrix for half-space intersection
-            hyperplanes = np.array([
-                np.array([-1.0 * entry.charge, 1, -1.0 * (entry.energy + entry.charge * self.vbm)])
-                for entry in defects
-            ])
+            # prepping coefficient matrix forx half-space intersection
+            # [-Q, 1, -1*(E_form+Q*VBM)] -> -Q*E_fermi+E+-1*(E_form+Q*VBM) <= 0  where E_fermi and E are the variables in the hyperplanes
+            hyperplanes = np.array(
+                [[-1.0 * entry.charge, 1, -1.0 * (entry.energy + entry.charge * self.vbm)] for entry in defects])
 
-            border_hyperplanes = [[-1, 0, limits[0][0]],
-                                  [1, 0, -limits[0][1]],
-                                  [0, -1, limits[1][0]],
-                                  [0, 1, -limits[1][1]]]
+            border_hyperplanes = [[-1, 0, limits[0][0]], [1, 0, -1 * limits[0][1]], [0, -1, limits[1][0]],
+                                  [0, 1, -1 * limits[1][1]]]
             hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
-            interior_point = np.array([self.band_gap / 2, 0])
 
-            hs_ints = HalfspaceIntersection(halfspaces, np.array([0.0, 0.0]))
+            interior_point = [self.band_gap / 2, -20]
+
+            hs_ints = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
             # Group the intersections and coresponding facets
-            ints_and_facets = zip(hs_int.intersections, hs_int.dual_facets)
+            ints_and_facets = zip(hs_ints.intersections, hs_ints.dual_facets)
             # Only inlcude the facets corresponding to entries, not the boundaries
-            ints_and_facets = filter(ints_and_facets, lambda _, facet: all(facet < len(self.entries)))
+            total_entries = len(defects)
+            ints_and_facets = filter(lambda int_and_facet: all(np.array(int_and_facet[1]) < total_entries),
+                                     ints_and_facets)
             # sort based on transition level
-            ints_and_facets = sorted(ints_and_facets, key=lambda intersection, _: intersection[0])
+            ints_and_facets = list(sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0]))
             # Unpack into lists
             intersections, facets = zip(*ints_and_facets)
-
             # Map of transition level: charge states
-            transition_levels_map[defects[0].name] = {
+
+            transition_level_map[defects[0].name] = {
                 intersection[0]: [defects[i].charge for i in facet]
                 for intersection, facet in ints_and_facets
             }
@@ -115,10 +122,10 @@ class DefectPhaseDiagram(MSONable):
 
             finished_charges[defects[0].name] = [defect.charge for defect in defects]
 
-        self.transition_levels_map = transition_levels_map
+        self.transition_level_map = transition_level_map
         self.transition_levels = {
             defect_name: list(defect_tls.keys())
-            for defect_name, defect_tls in transition_levels_map.items()
+            for defect_name, defect_tls in transition_level_map.items()
         }
         self.stable_entries = stable_entries
         self.finished_charges = finished_charges
@@ -126,6 +133,55 @@ class DefectPhaseDiagram(MSONable):
             defect_name: [entry.charge for entry in entries]
             for defect_name, entries in stable_entries.items()
         }
+
+    def OLDfind_stable_charges(self):
+        """
+        Set the DefectPhaseDiagram attributes (which dont depend on chemical potential)
+
+        THIS is a wrapper since find_stable_charges does not currently exist...will switch over when able
+        """
+        def similar_defect(a, b):
+            """
+            Used to filter out similar defects of different charges which
+            are defined by the same type and location
+            """
+            return a.name == b.name and a.site == b.site
+
+        self.stable_charges = {} #keys are defect names, items are list of charge states that are stable
+        self.finished_charges = {} #keys are defect names, items are list of charge states that are included in the phase diagram
+        self.transition_levels = {} #keys are defect names, items are list of [fermi level for transition, previous q, next q] sets
+        xlim = (-0.1, self.band_gap+.1)
+        nb_steps = 20 #SUPER bare bones because it is so slow...
+        x = np.arange(xlim[0], xlim[1], (xlim[1]-xlim[0])/nb_steps)
+        list_elts = [elt  for dfct in self.dentries  for elt in dfct.defect_sc_structure.composition.elements]
+        no_chempots = {elt: 0. for elt in set(list_elts)} #zerod chemical potentials for calculating stable defects
+
+        # Grouping by defect types
+        for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
+            defects = list(defects)
+            t = defects[0].name
+            print('Analyzing {}'.format(t))
+            trans_level = []
+            chg_type = []
+            prev_min_q, cur_min_q = None, None
+            for x_step in x:
+                miny = 10000
+                for dfct in defects:
+                    val = dfct.formation_energy(chemical_potentials = no_chempots, fermi_level=x_step)
+                    if val < miny:
+                        miny = val
+                        cur_min_q = dfct.charge
+
+                if prev_min_q is not None:
+                    if cur_min_q != prev_min_q:
+                        trans_level.append((x_step, prev_min_q, cur_min_q))
+                    if cur_min_q not in chg_type:
+                        chg_type.append(cur_min_q)
+                prev_min_q = cur_min_q
+
+            self.stable_charges[t] = chg_type[:]
+            self.finished_charges[t] = [e.charge for e in self.dentries if e.name == t]
+            self.transition_levels[t] = trans_level[:]
 
     @property
     def defect_types(self):
@@ -163,11 +219,13 @@ class DefectPhaseDiagram(MSONable):
         concentrations = []
         for dfct in self.all_stable_entries:
             concentrations.append({
-                'conc': dfct.defect_concentration(chemical_potentials=chemical_potentials,
-                                                  temperature=temperature,
-                                                  fermi_level=fermi_level),
-                'name': dfct.name,
-                'charge': dfct.charge
+                'conc':
+                dfct.defect_concentration(
+                    chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=fermi_level),
+                'name':
+                dfct.name,
+                'charge':
+                dfct.charge
             })
 
             # TODO: Should be this entry: concentration?
@@ -192,114 +250,23 @@ class DefectPhaseDiagram(MSONable):
 
             # More positive charges will shift the minimum transition level down
             # Max charge is limited by this if its transition level is close to VBM
+            min_tl = min(self.transition_level_map[def_type].keys())
             if min_tl < tolerance:
-                min_tl = min(self.transition_levels_map.keys())
-                max_charge = max(self.transition_levels_map[min_tl])
+                max_charge = max(self.transition_level_map[def_type][min_tl])
                 test_charges = [charge for charge in test_charges if charge < max_charge]
 
             # More negative charges will shift the maximum transition level up
             # Minimum charge is limited by this if transition level is near CBM
+            max_tl = max(self.transition_level_map[def_type].keys())
             if max_tl > (self.band_gap - tolerance):
-                max_tl = max(self.transition_levels_map.keys())
-                min_charge = min(self.transition_levels_map[max_tl])
+                min_charge = min(self.transition_level_map[def_type][max_tl])
                 test_charges = [charge for charge in test_charges if charge > min_charge]
 
             recommendations[def_type] = test_charges
 
         return recommendations
 
-
-class GrandCanonicalDefectPhaseDiagram(DefectPhaseDiagram):
-    """
-    Adapts the DefectPhaseDiagram class to a grand canonical approach
-    This allows for self consistently determining fermi levels,
-    defect concentrations, and free carrier concentrations as a function
-    of temperature.
-
-    Args:
-        mu_elts: {Element: float} is dictionary of chemical potentials, determined from a phase diagram
-        T: Temperature (Kelvin)
-        kwargs: Arguments to DefectsAnalyzer as keyword pair
-    """
-
-    def __init__(self, mu_elts, T=298.15, **kwargs):
-        super(self.__class__, self).__init__(**kwargs)
-        self.mu_elts = mu_elts
-        self.T = T
-        self._ef = None
-        self._all_possible_mu_elts = None
-
-    @staticmethod
-    def generate_gcdpd_from_pda(dentries, pda, T=298.15):
-        """
-        A static method for instantiating a GrandCanonicalDefectPhaseDiagram from a DefectEntry list
-        and a PhaseDiagramAnalyzer object from MaterialsProject
-        """
-        # use bulk_entry object from first dentry to find the composition
-        #    that one requires chemical potentials from...
-        CPA = ChemPotAnalyzer(bulk_ce=dentries[0].bulk)
-        all_possible_mu_elts = CPA.get_chempots_from_pda(pda)
-        print('Generated following possible regions for defining ' 'chemical potentials: ', all_possible_mu_elts.keys())
-        mu_region, mu_elts = all_possible_mu_elts.items()[0]
-        print('Proceeding with chemical potentials from ', mu_region, '\n', mu_elts)
-
-        gcdpd = GrandCanonicalDefectPhaseDiagram(mu_elts, T=T, dentries=dentries)
-        gcdpd.all_possible_mu_elts = all_possible_mu_elts
-
-        return gcdpd
-
-    @staticmethod
-    def generate_gcdpd_from_MP(dentries, mpid=None, composition=None, T=298.15, mapi_key=None):
-        """
-        A static method for instantiating a GrandCanonicalDefectPhaseDiagram
-        from either a mpid string or a pymatgen Composition object
-            [If both are provided, defaults to use of mpid]
-            [If neither are provided, uses bulk_entry of first DefectEntry to generate the composition objectt]
-
-        Uses the MaterialsProject database to create a phase diagram
-        """
-        all_species = set([elt for dfct in dentries for elt in dfct._structure.composition.elements])
-        bulk_species = set(dentries[0].bulk.composition.elements)
-        sub_species = all_species - bulk_species
-
-        if mpid:
-            MPcpa = MPChemPotAnalyzer(sub_species=sub_species, mpid=mpid, mapi_key=mapi_key)
-            all_possible_mu_elts = MPcpa.analyze_GGA_chempots()
-        else:
-            if not composition:
-                composition = dentries[0].bulk.composition
-            MPcpa = MPChemPotAnalyzer(sub_species=sub_species, mapi_key=mapi_key)
-            all_possible_mu_elts = MPcpa.get_chempots_from_composition(composition)
-
-        print('Generated following possible regions for defining ' 'chemical potentials: ', all_possible_mu_elts.keys())
-        mu_region, mu_elts = all_possible_mu_elts.items()[0]
-        print('Proceeding with chemical potentials from ', mu_region, '\n', mu_elts)
-
-        gcdpd = GrandCanonicalDefectPhaseDiagram(mu_elts, T=T, dentries=dentries)
-        gcdpd.all_possible_mu_elts = all_possible_mu_elts
-
-        return gcdpd
-
-    def set_T(self, T):
-        self.T = T
-
-    @property
-    def fermi_energy(self):
-        return self._ef
-
-    def _get_total_q(self, ef, gap, bulk_dos):
-        qd_tot = 0
-        for d in self.list_defect_concentrations(self.mu_elts, temp=self.T, ef=ef):
-            qd_tot += d['charge'] * d['conc']
-
-        q_h_cont = IntrinsicCarrier(bulk_dos, exp_gap=gap)
-        ef_ref_cbm = ef - gap
-        nden = q_h_cont.get_n_density(ef_ref_cbm, self.T, ref='CBM', unitcell=False)
-        pden = q_h_cont.get_p_density(ef, self.T, unitcell=False)
-        qd_tot += pden - nden
-        return qd_tot
-
-    def solve_for_fermi_energy(self, bulk_dos):
+    def solve_for_fermi_energy(self, temperature, chemical_potentials, bulk_dos):
         """
         Solve for the Fermi energy self-consistently as a function of T
         and p_O2
@@ -312,8 +279,20 @@ class GrandCanonicalDefectPhaseDiagram(DefectPhaseDiagram):
         Returns:
             Fermi energy
         """
-        from scipy.optimize import bisect
-        self._ef = bisect(lambda e: self._get_total_q(e, self.band_gap, bulk_dos), -1., self.band_gap + 1.)
+
+        fdos = FermiDos(bulk_dos, bandgap=self.band_gap)
+
+        def _get_total_q(ef):
+
+            qd_tot = sum([
+                d['charge'] * d['conc']
+                for d in self.list_defect_concentrations(
+                    chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=ef)
+            ])
+            qd_tot += fdos.get_doping(fermi=ef, T=temperature)
+            return qd_tot
+
+        return bisect(_get_total_q, -1., self.band_gap + 1.)
 
     def solve_non_eq_fermilevel(self, lowT, highT, bulk_dos, show_carriers=True, hold_htemp_ef=True):
         """
@@ -370,3 +349,5 @@ class GrandCanonicalDefectPhaseDiagram(DefectPhaseDiagram):
             return non_eq_ef, nden, pden
         else:
             return non_eq_ef
+
+
