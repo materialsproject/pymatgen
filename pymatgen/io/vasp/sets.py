@@ -379,12 +379,10 @@ class DictSet(VaspInputSet):
         """
         if not self.sort_structure:
             reduced_elts = list(set(self.poscar.site_symbols))
-            print(' this is reduced_elts {}'.format(reduced_elts))
             nelect = 0.
             for ps in self.potcar:
                 if ps.element in reduced_elts:
                     reduced_elts.remove(ps.element)
-                    print(' now reduced_elts is {}'.format(reduced_elts))
                     nelect += self.structure.composition.element_composition[ps.element]
             return int(round(nelect))
         else:
