@@ -394,39 +394,3 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
 
-    def analyze_structure(self, entry):
-        """
-        Process structural quantities for a single given
-        Checks:
-            a) how far defect has migrated
-            b) how much structure has changed
-            c) check if bulk_structure is identical to
-
-        Args:
-            entry: A single DefectEntry.
-
-        """
-        return
-
-    def get_corrections_dict(self, entry):
-        """
-        Returns an entry with corrections dict updated based on parameter values.
-        Application of corrections relies on the qualifiers specified
-
-        Args:
-            entry: A ComputedEntry object.
-
-        Returns:
-            entry with corrections dictionary updated.
-        """
-        corrections = {}
-
-
-
-
-        for c in self.corrections:
-            val = c.get_correction(entry)
-            if val != 0:
-                corrections[str(c)] = val
-        return corrections
-
