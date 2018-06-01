@@ -4,6 +4,7 @@
 
 import logging
 from monty.json import MSONable
+from monty.io import zopen
 from pymatgen.core import Molecule
 from .utils import read_table_pattern, read_pattern, lower_and_check_unique
 """
@@ -132,23 +133,23 @@ class QCInput(MSONable):
         return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent)
 
     def write_file(self, filename):
-        with open(filename, 'w') as f:
+        with zopen(filename, 'w') as f:
             f.write(self.__str__())
 
     @staticmethod
     def write_multi_job_file(job_list, filename):
-        with open(filename, 'w') as f:
+        with zopen(filename, 'w') as f:
             f.write(QCInput.multi_job_string(job_list))
 
     @staticmethod
     def from_file(filename):
-        with open(filename, 'r') as f:
+        with zopen(filename, 'rt') as f:
             return QCInput.from_string(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename):
         # returns a list of QCInput objects
-        with open(filename, 'r') as f:
+        with zopen(filename, 'rt') as f:
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
