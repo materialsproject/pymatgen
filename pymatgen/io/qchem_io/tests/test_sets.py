@@ -35,7 +35,7 @@ class QChemDictSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-31g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97x-v',
+                'method': 'wb97xd',
                 'scf_algorithm': 'diis',
                 'geom_opt_max_cycles': 200
             })
@@ -85,7 +85,7 @@ class QChemDictSetTest(PymatgenTest):
                    'gen_scfman': 'true',
                    'basis': '6-311++g*',
                    'max_scf_cycles': 200,
-                   'method': 'wb97x-v',
+                   'method': 'wb97xd',
                    'scf_algorithm': 'diis',
                    'geom_opt_max_cycles': 200,
                    'thresh': 14}
@@ -118,7 +118,7 @@ class OptSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97x-v',
+                'method': 'wb97xd',
                 'scf_algorithm': 'diis',
                 'geom_opt_max_cycles': 200
             })
@@ -136,7 +136,7 @@ class OptSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97x-v',
+                'method': 'wb97xd',
                 'geom_opt_max_cycles': 200,
                 'scf_algorithm': 'diis',
                 'solvent_method': 'pcm'
@@ -164,7 +164,7 @@ class SinglePointSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97x-v',
+                'method': 'wb97xd',
                 'scf_algorithm': 'diis'
             })
         self.assertEqual(test_SPSet.pcm, {})
@@ -182,7 +182,7 @@ class SinglePointSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97x-v',
+                'method': 'wb97xd',
                 'scf_algorithm': 'diis',
                 'solvent_method': 'pcm'
             })
@@ -209,7 +209,7 @@ class FreqSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97x-v',
+                'method': 'wb97xd',
                 'scf_algorithm': 'diis'
             })
         self.assertEqual(test_FreqSet.pcm, {})
@@ -226,7 +226,7 @@ class FreqSetTest(PymatgenTest):
                 'gen_scfman': 'true',
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wb97x-v',
+                'method': 'wb97xd',
                 'scf_algorithm': 'diis',
                 'solvent_method': 'pcm'
             })
