@@ -364,7 +364,7 @@ class DictSet(VaspInputSet):
             incar['NUPDOWN'] = nupdown
 
         if self.structure._charge:
-            incar["NELECT"] = self.nelect - self.structure._charge
+            incar["NELECT"] = self.nelect
 
         return incar
 
@@ -385,7 +385,7 @@ class DictSet(VaspInputSet):
             if ps.element in site_symbols:
                 site_symbols.remove(ps.element)
                 nelect += self.structure.composition.element_composition[ps.element] * ps.ZVAL
-        return int(round(nelect))
+        return int(round(nelect)) - self.structure._charge
 
     @property
     def kpoints(self):
