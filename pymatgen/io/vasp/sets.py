@@ -377,10 +377,19 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        return int(round(
-            sum([self.structure.composition.element_composition[ps.element]
-                 * ps.ZVAL
-                 for ps in self.potcar])))
+        if not self.sort_structure:
+            reduced_elts = list(set(self.poscar.site_symbols))
+            nelect = 0.
+            for ps in self.potcar:
+                if ps.element in reduced_elts:
+                    reduced_elts.remove(ps.element)
+                    nelect += self.structure.composition.element_composition[ps.element]
+            return int(round(nelect))
+        else:
+            return int(round(
+                sum([self.structure.composition.element_composition[ps.element]
+                     * ps.ZVAL
+                     for ps in self.potcar])))
 
     @property
     def kpoints(self):
