@@ -52,10 +52,11 @@ class DefectCompatibility(MSONable):
 
     required settings for defect_entry.parameters:
         freysoldt: ["axis_grid", "bulk_planar_averages", "defect_planar_averages", "dielectric"]
-        kumagai: ["dim", "bulk_atomic_site_averages", "defect_atomic_site_averages", "site_matching_indices"]
+        kumagai: ["dim", "bulk_atomic_site_averages", "defect_atomic_site_averages", "site_matching_indices",
+                    "dielectric]
         bandfilling: ["eigenvalues", "kpoint_weights", "potalign", "vbm", "cbm"]
         bandshifting: ["hybrid_cbm", "hybrid_vbm", "num_hole_vbm", "num_elec_cbm", "vbm", "cbm"]
-        defect relaxation/structure analysis: ["final_structure"]
+        defect relaxation/structure analysis: ["final_defect_structure"]
 
     """
     def __init__(self, plnr_avg_var_tol= 0.1, plnr_avg_minmax_tol= 0.1, atomic_site_var_tol= 0.1,
@@ -167,11 +168,11 @@ class DefectCompatibility(MSONable):
 
             if not gamma:
                 defect_struct_sc = defect_entry.defect_sc_structure.copy()
-                gamma = find_optimal_gamma(defect_struct_sc, defect_entry.parameters["dielectric"])
+                gamma = find_optimal_gamma(defect_struct_sc.lattice, defect_entry.parameters["dielectric"])
 
             if not g_sum:
                 defect_struct_sc = defect_entry.defect_sc_structure.copy()
-                g_sum = generate_g_sum(defect_struct_sc, defect_entry.parameters["dielectric"],
+                g_sum = generate_g_sum(defect_struct_sc.lattice, defect_entry.parameters["dielectric"],
                                        defect_entry.parameters['dim'], gamma)
 
             KC = KumagaiCorrection( defect_entry.parameters['dielectric'], gamma=gamma, g_sum=g_sum)
@@ -301,7 +302,7 @@ class DefectCompatibility(MSONable):
                   'Cannot perform atomic site averaged electrostatic potential compatibility analysis.')
 
 
-        if 'final_structure' in defect_entry.parameters.keys():
+        if 'final_defect_structure' in defect_entry.parameters.keys():
             structure_relax_analyze_meta = {}
             sc_scale = defect_entry.parameters['scaling_matrix'] if 'scaling_matrix' in defect_entry.parameters.keys() else 1
             initial_defect_structure = defect_entry.defect.generate_defect_structure( sc_scale)

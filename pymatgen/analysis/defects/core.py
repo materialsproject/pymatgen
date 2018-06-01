@@ -493,6 +493,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer
 
 
+
 def create_saturated_interstitial_structure(interstitial_def):
     """
     this takes a Interstitial defect object and finds multiplicity for it by decorating the defect structure with sites
