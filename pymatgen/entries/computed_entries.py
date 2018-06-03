@@ -182,6 +182,8 @@ class ComputedStructureEntry(ComputedEntry):
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["structure"]),
                    d["energy"], d["correction"],
-                   dec.process_decoded(d.get("parameters", {})),
-                   dec.process_decoded(d.get("data", {})),
+                   parameters={k: dec.process_decoded(v)
+                               for k, v in d.get("parameters", {}).items()},
+                   data={k: dec.process_decoded(v)
+                         for k, v in d.get("data", {}).items()},
                    entry_id=d.get("entry_id", None))
