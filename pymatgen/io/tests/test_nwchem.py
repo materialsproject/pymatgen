@@ -25,7 +25,7 @@ __date__ = "6/6/13"
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files', "molecules")
+                        'test_files', "nwchem")
 
 
 coords = [[0.000000, 0.000000, 0.000000],
@@ -308,7 +308,7 @@ task dft energy
         d = self.nwi.as_dict()
         nwi = NwInput.from_dict(d)
         self.assertIsInstance(nwi, NwInput)
-        #Ensure it is json-serializable.
+        # Ensure it is json-serializable.
         json.dumps(d)
         d = self.nwi_symm.as_dict()
         nwi_symm = NwInput.from_dict(d)
@@ -466,6 +466,22 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(nwo[1]["normal_frequencies"][3][0], -61.92)
         self.assertEqual(nwo[1]["normal_frequencies"][1][1][-1],
                          (0.00056, 0.00042, 0.06781))
+
+    def test_parse_tddft(self):
+        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        roots = nwo.parse_tddft()
+        self.assertEqual(len(roots["singlet"]), 20)
+        self.assertAlmostEqual(roots["singlet"][0]["energy"], 3.9291)
+        self.assertAlmostEqual(roots["singlet"][0]["osc_strength"], 0.0)
+        self.assertAlmostEqual(roots["singlet"][1]["osc_strength"], 0.00177)
+
+    def test_get_excitation_spectrum(self):
+        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        spectrum = nwo.get_excitation_spectrum()
+        self.assertEqual(len(spectrum.x), 2000)
+        self.assertAlmostEqual(spectrum.x[0], 1.9291)
+        self.assertAlmostEqual(spectrum.y[0], 0.0)
+        self.assertAlmostEqual(spectrum.y[1000], 0.0007423569947114812)
 
 
 if __name__ == "__main__":

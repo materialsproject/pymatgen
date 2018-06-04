@@ -96,6 +96,19 @@ class NthOrderElasticTensor(Tensor):
         return cls(diff_fit(strains, stresses, eq_stress, order, tol)[order-2])
 
 
+def raise_error_if_unphysical(f):
+    """
+    Wrapper for functions or properties that should raise an error
+    if tensor is unphysical.
+    """
+    def wrapper(self, *args, **kwargs):
+        if self.k_vrh < 0 or self.g_vrh < 0:
+            raise ValueError("Bulk or shear modulus is negative, property "
+                             "cannot be determined")
+        return f(self, *args, **kwargs)
+    return wrapper
+
+
 class ElasticTensor(NthOrderElasticTensor):
     """
     This class extends Tensor to describe the 3x3x3x3
@@ -212,6 +225,7 @@ class ElasticTensor(NthOrderElasticTensor):
         n = get_uvec(n)
         return self.einsum_sequence([n]*4)
 
+    @raise_error_if_unphysical
     def trans_v(self, structure):
         """
         Calculates transverse sound velocity (in SI units) using the
@@ -226,10 +240,14 @@ class ElasticTensor(NthOrderElasticTensor):
         nsites = structure.num_sites
         volume = structure.volume
         natoms = structure.composition.num_atoms
-        weight = structure.composition.weight
+        weight = float(structure.composition.weight)
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        if self.g_vrh < 0:
+            raise ValueError("k_vrh or g_vrh is negative, "
+                             "sound velocity is undefined")
         return (1e9 * self.g_vrh / mass_density) ** 0.5
 
+    @raise_error_if_unphysical
     def long_v(self, structure):
         """
         Calculates longitudinal sound velocity (in SI units)
@@ -244,10 +262,14 @@ class ElasticTensor(NthOrderElasticTensor):
         nsites = structure.num_sites
         volume = structure.volume
         natoms = structure.composition.num_atoms
-        weight = structure.composition.weight
+        weight = float(structure.composition.weight)
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
+        if self.g_vrh < 0:
+            raise ValueError("k_vrh or g_vrh is negative, "
+                             "sound velocity is undefined")
         return (1e9 * (self.k_vrh + 4./3. * self.g_vrh) / mass_density) ** 0.5
 
+    @raise_error_if_unphysical
     def snyder_ac(self, structure):
         """
         Calculates Snyder's acoustic sound velocity (in SI units)
@@ -268,6 +290,7 @@ class ElasticTensor(NthOrderElasticTensor):
             ((self.long_v(structure) + 2.*self.trans_v(structure))/3.) ** 3.\
             / (300.*num_density ** (-2./3.) * nsites ** (1./3.))
 
+    @raise_error_if_unphysical
     def snyder_opt(self, structure):
         """
         Calculates Snyder's optical sound velocity (in SI units)
@@ -285,6 +308,7 @@ class ElasticTensor(NthOrderElasticTensor):
             (self.long_v(structure) + 2.*self.trans_v(structure))/3. \
             / num_density ** (-2./3.) * (1 - nsites ** (-1./3.))
 
+    @raise_error_if_unphysical
     def snyder_total(self, structure):
         """
         Calculates Snyder's total sound velocity (in SI units)
@@ -297,6 +321,7 @@ class ElasticTensor(NthOrderElasticTensor):
         """
         return self.snyder_ac(structure) + self.snyder_opt(structure)
 
+    @raise_error_if_unphysical
     def clarke_thermalcond(self, structure):
         """
         Calculates Clarke's thermal conductivity (in SI units)
@@ -311,12 +336,13 @@ class ElasticTensor(NthOrderElasticTensor):
         volume = structure.volume
         tot_mass = sum([e.atomic_mass for e in structure.species])
         natoms = structure.composition.num_atoms
-        weight = structure.composition.weight
+        weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) \
             * mass_density**(1./6.) * self.y_mod**0.5
 
+    @raise_error_if_unphysical
     def cahill_thermalcond(self, structure):
         """
         Calculates Cahill's thermal conductivity (in SI units)
@@ -333,6 +359,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return 1.3806e-23 / 2.48 * num_density**(2./3.) \
             * (self.long_v(structure) + 2 * self.trans_v(structure))
 
+    @raise_error_if_unphysical
     def debye_temperature(self, structure):
         """
         Estimates the debye temperature from longitudinal and
@@ -352,6 +379,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @deprecated("debye_temperature_from_sound_velocities is now the default"
                 "debye_temperature function, this one will be removed.")
+    @raise_error_if_unphysical
     def debye_temperature_from_sound_velocities(self, structure):
         """
         Estimates Debye temperature from sound velocities
@@ -389,15 +417,27 @@ class ElasticTensor(NthOrderElasticTensor):
                  "universal_anisotropy", "homogeneous_poisson", "y_mod"]
         return {prop: getattr(self, prop) for prop in props}
 
-    def get_structure_property_dict(self, structure, include_base_props=True):
+    def get_structure_property_dict(self, structure, include_base_props=True,
+                                    ignore_errors=False):
         """
         returns a dictionary of properties derived from the elastic tensor
         and an associated structure
+
+        Args:
+            structure (Structure): structure object for which to calculate
+                associated properties
+            include_base_props (bool): whether to include base properties,
+                like k_vrh, etc.
+            ignore_errors (bool): if set to true, will set problem properties
+                that depend on a physical tensor to None, defaults to False
         """
         s_props = ["trans_v", "long_v", "snyder_ac", "snyder_opt",
                    "snyder_total", "clarke_thermalcond", "cahill_thermalcond",
                    "debye_temperature"]
-        sp_dict = {prop: getattr(self, prop)(structure) for prop in s_props}
+        if ignore_errors and (self.k_vrh < 0 or self.g_vrh < 0):
+            sp_dict = {prop: None for prop in s_props}
+        else:
+            sp_dict = {prop: getattr(self, prop)(structure) for prop in s_props}
         sp_dict["structure"] = structure
         if include_base_props:
             sp_dict.update(self.property_dict)
@@ -640,7 +680,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         l0 = np.dot(np.sum(structure.lattice.matrix, axis=0), n)
         l0 *= 1e-10 # in A
-        weight = structure.composition.weight * 1.66054e-27 # in kg
+        weight = float(structure.composition.weight) * 1.66054e-27 # in kg
         vol = structure.volume * 1e-30 # in m^3
         vel = (1e9 * self[0].einsum_sequence([n, u, n, u])
                / (weight / vol)) ** 0.5

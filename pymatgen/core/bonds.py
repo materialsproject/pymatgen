@@ -87,30 +87,35 @@ class CovalentBond(object):
     def is_bonded(site1, site2, tol=0.2, bond_order=None, default_bl=None):
         """
         Test if two sites are bonded, up to a certain limit.
-
         Args:
             site1 (Site): First site
             site2 (Site): Second site
             tol (float): Relative tolerance to test. Basically, the code
-                checks if the distance between the sites is larger than
-                (1 + tol) * the longest bond distance or smaller than
-                (1 - tol) * the shortest bond distance to determine if
-                they are bonded or the distance is too short.
-                Defaults to 0.2.
+                checks if the distance between the sites is less than (1 +
+                tol) * typical bond distances. Defaults to 0.2, i.e.,
+                20% longer.
             bond_order: Bond order to test. If None, the code simply checks
                 against all possible bond data. Defaults to None.
             default_bl: If a particular type of bond does not exist, use this
                 bond length. If None, a ValueError will be thrown.
-
         Returns:
             Boolean indicating whether two sites are bonded.
         """
-        bond = CovalentBond(site1, site2)
-        estimate_bond_order = bond.get_bond_order(tol, default_bl)
-        if bond_order:
-            return estimate_bond_order < (1 + tol) * bond_order
-        else:
-            return bool(estimate_bond_order)
+        sp1 = list(site1.species_and_occu.keys())[0]
+        sp2 = list(site2.species_and_occu.keys())[0]
+        dist = site1.distance(site2)
+        syms = tuple(sorted([sp1.symbol, sp2.symbol]))
+        if syms in bond_lengths:
+            all_lengths = bond_lengths[syms]
+            if bond_order:
+                return dist < (1 + tol) * all_lengths[bond_order]
+            for v in all_lengths.values():
+                if dist < (1 + tol) * v:
+                    return True
+            return False
+        elif default_bl:
+            return dist < (1 + tol) * default_bl
+        raise ValueError("No bond data for elements {} - {}".format(*syms))
 
     def __repr__(self):
         return "Covalent bond between {} and {}".format(self.site1,
@@ -171,8 +176,8 @@ def get_bond_order(sp1, sp2, dist, tol=0.2, default_bl=None):
     all_lengths = obtain_all_bond_lengths(sp1, sp2, default_bl)
     # Transform bond lengths dict to list assuming bond data is successive
     # and add an imaginary bond 0 length
-    lengths_list = [all_lengths[1] * (1 + tol)] \
-                   + [all_lengths[idx+1] for idx in range(len(all_lengths))]
+    lengths_list = [all_lengths[1] * (1 + tol)] + \
+                   [all_lengths[idx+1] for idx in range(len(all_lengths))]
     trial_bond_order = 0
     while trial_bond_order < len(lengths_list):
         if lengths_list[trial_bond_order] < dist:

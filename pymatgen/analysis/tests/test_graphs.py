@@ -6,7 +6,8 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
-import warnings
+import matplotlib
+matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.analysis.graphs import *
@@ -23,6 +24,7 @@ __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
+
 
 class StructureGraphTest(unittest.TestCase):
 
@@ -89,7 +91,6 @@ class StructureGraphTest(unittest.TestCase):
     def tearDown(self):
         warnings.resetwarnings()
 
-
     def test_properties(self):
 
         self.assertEqual(self.mos2_sg.name, "bonds")
@@ -97,8 +98,8 @@ class StructureGraphTest(unittest.TestCase):
         self.assertEqual(self.mos2_sg.edge_weight_unit, "Å")
         self.assertEqual(self.mos2_sg.get_coordination_of_site(0), 6)
         self.assertEqual(len(self.mos2_sg.get_connected_sites(0)), 6)
-        self.assertTrue(isinstance(self.mos2_sg.get_connected_sites(0)[0].periodic_site, PeriodicSite))
-        self.assertEqual(str(self.mos2_sg.get_connected_sites(0)[0].periodic_site.specie), 'S')
+        self.assertTrue(isinstance(self.mos2_sg.get_connected_sites(0)[0].site, PeriodicSite))
+        self.assertEqual(str(self.mos2_sg.get_connected_sites(0)[0].site.specie), 'S')
 
         # these two graphs should be equivalent
         for n in range(len(self.bc_square_sg)):
@@ -154,12 +155,12 @@ Sites (3)
 Graph: bonds
 from    to  to_image      bond_length (A)
 ----  ----  ------------  ------------------
-   0     1  (-1, 0, 0)    2.416930006299E+00
-   0     1  (0, 0, 0)     2.416930006299E+00
-   0     1  (0, 1, 0)     2.416930006299E+00
-   0     2  (0, 1, 0)     2.416941297830E+00
-   0     2  (-1, 0, 0)    2.416941297830E+00
-   0     2  (0, 0, 0)     2.416941297830E+00
+   0     1  (-1, 0, 0)    2.417e+00
+   0     1  (0, 0, 0)     2.417e+00
+   0     1  (0, 1, 0)     2.417e+00
+   0     2  (0, 1, 0)     2.417e+00
+   0     2  (-1, 0, 0)    2.417e+00
+   0     2  (0, 0, 0)     2.417e+00
 """
 
         # don't care about testing Py 2.7 unicode support,
@@ -215,45 +216,25 @@ from    to  to_image
         for idx in mos2_sg_mul.structure.indices_from_symbol("Mo"):
             self.assertEqual(mos2_sg_mul.get_coordination_of_site(idx), 6)
 
-        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1), MinimumDistanceNN(), decorate=False)
+        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1),
+                                                                MinimumDistanceNN())
         self.assertTrue(mos2_sg_mul == mos2_sg_premul)
 
         # test 3D Structure
 
-        nio_sg = StructureGraph.with_local_env_strategy(self.NiO, MinimumDistanceNN(), decorate=False)
+        nio_sg = StructureGraph.with_local_env_strategy(self.NiO, MinimumDistanceNN())
         nio_sg = nio_sg*3
 
         for n in range(len(nio_sg)):
             self.assertEqual(nio_sg.get_coordination_of_site(n), 6)
-            ops = nio_sg.get_local_order_parameters(n)
 
-        # BCC
-        bcc_sg = StructureGraph.with_local_env_strategy(
-                self.bcc, MinimumDistanceNN(), decorate=False)
-        bcc_sg_dec = StructureGraph.with_local_env_strategy(
-                self.bcc, MinimumDistanceNN())
-        for n in range(len(bcc_sg)):
-            self.assertEqual(bcc_sg.get_coordination_of_site(n), 8)
-            self.assertEqual(bcc_sg.get_coordination_of_site(n), \
-                             bcc_sg_dec.get_coordination_of_site(n))
-            ops = bcc_sg.get_local_order_parameters(n)
-            self.assertTrue(any(t in list(ops.keys()) for t in (
-                    'body-centered cubic', 'hexagonal bipyramidal')))
-            sprops = bcc_sg_dec.structure.sites[n].properties['ce_info']
-            self.assertTrue(any(t in list(sprops) \
-                    for t in ('body-centered cubic', 'hexagonal bipyramidal')))
-            self.assertAlmostEqual(ops['body-centered cubic'], 1)
-            self.assertAlmostEqual(sprops['body-centered cubic'], 1)
-            self.assertAlmostEqual(ops['hexagonal bipyramidal'], \
-                    0.43331263572418355)
-            self.assertAlmostEqual(sprops['hexagonal bipyramidal'], \
-                    0.43331263572418355)
 
     @unittest.skipIf(not (which('neato') and which('fdp')), "graphviz executables not present")
     def test_draw(self):
 
         # draw MoS2 graph
-        self.mos2_sg.draw_graph_to_file('MoS2_single.pdf', image_labels=True, hide_image_edges=False)
+        self.mos2_sg.draw_graph_to_file('MoS2_single.pdf', image_labels=True,
+                                        hide_image_edges=False)
         mos2_sg = self.mos2_sg * (9, 9, 1)
         mos2_sg.draw_graph_to_file('MoS2.pdf', algo='neato')
 
@@ -263,13 +244,15 @@ from    to  to_image
         mos2_sg_2.draw_graph_to_file('MoS2_twice_mul.pdf', algo='neato', hide_image_edges=True)
 
         # draw MoS2 graph that's generated from a pre-multiplied Structure
-        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1), MinimumDistanceNN(), decorate=False)
+        mos2_sg_premul = StructureGraph.with_local_env_strategy(self.structure*(3, 3, 1),
+                                                                MinimumDistanceNN())
         mos2_sg_premul.draw_graph_to_file('MoS2_premul.pdf', algo='neato', hide_image_edges=True)
 
         # draw graph for a square lattice
         self.square_sg.draw_graph_to_file('square_single.pdf', hide_image_edges=False)
         square_sg = self.square_sg * (5, 5, 1)
-        square_sg.draw_graph_to_file('square.pdf', algo='neato', image_labels=True, node_labels=False)
+        square_sg.draw_graph_to_file('square.pdf', algo='neato', image_labels=True,
+                                     node_labels=False)
 
         # draw graph for a body-centered square lattice
         self.bc_square_sg.draw_graph_to_file('bc_square_single.pdf', hide_image_edges=False)
@@ -281,6 +264,13 @@ from    to  to_image
         bc_square_sg_r = self.bc_square_sg_r * (9, 9, 1)
         bc_square_sg_r.draw_graph_to_file('bc_square_r.pdf', algo='neato', image_labels=False)
 
+        # delete generated test files
+        test_files = ('bc_square_r_single.pdf', 'bc_square_r.pdf', 'bc_square_single.pdf',
+                      'bc_square.pdf', 'MoS2_premul.pdf', 'MOS2_single.pdf', 'MoS2_twice_mul.pdf',
+                      'MoS2.pdf', 'square_single.pdf', 'square.pdf')
+        for test_file in test_files:
+            os.remove(test_file)
+
     def test_to_from_dict(self):
         d = self.mos2_sg.as_dict()
         sg = StructureGraph.from_dict(d)
@@ -289,12 +279,12 @@ from    to  to_image
 
     def test_from_local_env_and_equality_and_diff(self):
         nn = MinimumDistanceNN()
-        sg = StructureGraph.with_local_env_strategy(self.structure, nn, decorate=False)
-        
+        sg = StructureGraph.with_local_env_strategy(self.structure, nn)
+
         self.assertEqual(sg.graph.number_of_edges(), 6)
 
         nn2 = MinimumOKeeffeNN()
-        sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2, decorate=False)
+        sg2 = StructureGraph.with_local_env_strategy(self.structure, nn2)
 
         self.assertTrue(sg == sg2)
         self.assertTrue(sg == self.mos2_sg)
@@ -313,7 +303,7 @@ from    to  to_image
         s = Structure.from_file(structure_file)
 
         nn = MinimumOKeeffeNN()
-        sg = StructureGraph.with_local_env_strategy(s, nn, decorate=False)
+        sg = StructureGraph.with_local_env_strategy(s, nn)
 
         molecules = sg.get_subgraphs_as_molecules()
 
@@ -322,6 +312,16 @@ from    to  to_image
 
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
         self.assertEqual(len(molecules), 0)
+
+    def test_from_molecule(self):
+
+        molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
+
+        sg = StructureGraph.with_empty_graph(molecule)
+        self.assertEqual(sg.get_coordination_of_site(0), 0)
+
+        sg = StructureGraph.with_local_env_strategy(molecule, MinimumDistanceNN())
+        self.assertEqual(sg.get_coordination_of_site(0), 1)
 
 
 if __name__ == "__main__":

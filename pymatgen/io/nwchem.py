@@ -12,12 +12,15 @@ from string import Template
 from six import string_types
 from six.moves import zip
 
+import numpy as np
+
 from monty.io import zopen
 
 from pymatgen.core.structure import Molecule, Structure
 from monty.json import MSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
+from pymatgen.analysis.excitation import ExcitationSpectrum
 
 """
 This module implements input and output processing from Nwchem.
@@ -286,7 +289,6 @@ $theory_spec
         Args:
             mol: Input molecule
             xc: Exchange correlation to use.
-            dielectric: Using water dielectric
             \\*\\*kwargs: Any of the other kwargs supported by NwTask. Note the
                 theory is always "dft" for a dft task.
         """
@@ -524,8 +526,112 @@ class NwOutput(object):
         if re.search(r"CITATION", chunks[-1]):
             chunks.pop()
         preamble = chunks.pop(0)
+
+        self.raw = data
         self.job_info = self._parse_preamble(preamble)
         self.data = [self._parse_job(c) for c in chunks]
+
+    def parse_tddft(self):
+        """
+        Parses TDDFT roots. Adapted from nw_spectrum.py script.
+
+        Returns:
+            {
+                "singlet": [
+                    {
+                        "energy": float,
+                        "osc_strength: float
+                    }
+                ],
+                "triplet": [
+                    {
+                        "energy": float
+                    }
+                ]
+            }
+        """
+        start_tag = "Convergence criterion met"
+        end_tag = "Excited state energy"
+        singlet_tag = "singlet excited"
+        triplet_tag = "triplet excited"
+        state = "singlet"
+        inside = False  # true when we are inside output block
+
+        lines = self.raw.split("\n")
+
+        roots = {"singlet": [], "triplet": []}
+
+        while lines:
+            line = lines.pop(0).strip()
+
+            if start_tag in line:
+                inside = True
+
+            elif end_tag in line:
+                inside = False
+
+            elif singlet_tag in line:
+                state = "singlet"
+
+            elif triplet_tag in line:
+                state = "triplet"
+
+            elif inside and "Root" in line and "eV" in line:
+                toks = line.split()
+                roots[state].append({"energy": float(toks[-2])})
+
+            elif inside and "Dipole Oscillator Strength" in line:
+                osc = float(line.split()[-1])
+                roots[state][-1]["osc_strength"] = osc
+
+        return roots
+
+    def get_excitation_spectrum(self, width=0.1, npoints=2000):
+        """
+        Generate an excitation spectra from the singlet roots of TDDFT
+        calculations.
+
+        Args:
+            width (float): Width for Gaussian smearing.
+            npoints (int): Number of energy points. More points => smoother
+                curve.
+
+        Returns:
+            (ExcitationSpectrum) which can be plotted using
+                pymatgen.vis.plotters.SpectrumPlotter.
+        """
+        roots = self.parse_tddft()
+        data = roots["singlet"]
+        en = np.array([d["energy"] for d in data])
+        osc = np.array([d["osc_strength"] for d in data])
+
+        epad = 20.0 * width
+        emin = en[0] - epad
+        emax = en[-1] + epad
+        de = (emax - emin) / npoints
+
+        # Use width of at least two grid points
+        if width < 2 * de:
+            width = 2 * de
+
+        energies = [emin + ie * de for ie in range(npoints)]
+
+        cutoff = 20.0 * width
+        gamma = 0.5 * width
+        gamma_sqrd = gamma * gamma
+
+        de = (energies[-1] - energies[0]) / (len(energies) - 1)
+        prefac = gamma / np.pi * de
+
+        x = []
+        y = []
+        for energy in energies:
+            xx0 = energy - en
+            stot = osc / (xx0 * xx0 + gamma_sqrd)
+            t = np.sum(stot[np.abs(xx0) <= cutoff])
+            x.append(energy)
+            y.append(t * prefac)
+        return ExcitationSpectrum(x, y)
 
     def _parse_preamble(self, preamble):
         info = {}
@@ -545,21 +651,22 @@ class NwOutput(object):
         return len(self.data)
 
     def _parse_job(self, output):
-        energy_patt = re.compile(r'Total \w+ energy\s+=\s+([\.\-\d]+)')
-        energy_gas_patt = re.compile(r'gas phase energy\s+=\s+([\.\-\d]+)')
-        energy_sol_patt = re.compile(r'sol phase energy\s+=\s+([\.\-\d]+)')
-        coord_patt = re.compile(r'\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+'
-                                r'([\.\-\d]+)\s+([\.\-\d]+)')
-        lat_vector_patt = re.compile(r'a[123]=<\s+([\.\-\d]+)\s+'
-                                     r'([\.\-\d]+)\s+([\.\-\d]+)\s+>')
+        energy_patt = re.compile(r'Total \w+ energy\s+=\s+([.\-\d]+)')
+        energy_gas_patt = re.compile(r'gas phase energy\s+=\s+([.\-\d]+)')
+        energy_sol_patt = re.compile(r'sol phase energy\s+=\s+([.\-\d]+)')
+        coord_patt = re.compile(r'\d+\s+(\w+)\s+[.\-\d]+\s+([.\-\d]+)\s+'
+                                r'([.\-\d]+)\s+([.\-\d]+)')
+        lat_vector_patt = re.compile(r'a[123]=<\s+([.\-\d]+)\s+'
+                                     r'([.\-\d]+)\s+([.\-\d]+)\s+>')
         corrections_patt = re.compile(r'([\w\-]+ correction to \w+)\s+='
-                                      r'\s+([\.\-\d]+)')
+                                      r'\s+([.\-\d]+)')
         preamble_patt = re.compile(r'(No. of atoms|No. of electrons'
                                    r'|SCF calculation type|Charge|Spin '
                                    r'multiplicity)\s*:\s*(\S+)')
         force_patt = re.compile(r'\s+(\d+)\s+(\w+)' + 6 * r'\s+([0-9\.\-]+)')
 
-        time_patt = re.compile(r'\s+ Task \s+ times \s+ cpu: \s+   ([\.\d]+)s .+ ', re.VERBOSE)
+        time_patt = re.compile(
+            r'\s+ Task \s+ times \s+ cpu: \s+   ([.\d]+)s .+ ', re.VERBOSE)
 
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
@@ -567,8 +674,8 @@ class NwOutput(object):
             "geom_binvr: #indep variables incorrect": "autoz error",
             "dft optimize failed": "Geometry optimization failed"}
 
-        fort2py = lambda x : x.replace("D", "e")
-        isfloatstring = lambda s : s.find(".") == -1
+        fort2py = lambda x: x.replace("D", "e")
+        isfloatstring = lambda s: s.find(".") == -1
 
         parse_hess = False
         parse_proj_hess = False
@@ -704,7 +811,7 @@ class NwOutput(object):
                 if len(toks) > 1:
                     try:
                         row = int(toks[0])
-                    except Exception as e:
+                    except Exception:
                         continue
                     if isfloatstring(toks[1]):
                         continue

@@ -14,6 +14,7 @@ import string
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 """
 This module provides a base class for tensor-like objects and methods for
@@ -293,7 +294,7 @@ class Tensor(np.ndarray):
         return cls(t)
 
     @staticmethod
-    def get_ieee_rotation(structure):
+    def get_ieee_rotation(structure, refine_rotation=True):
         """
         Given a structure associated with a tensor, determines
         the rotation matrix for IEEE conversion according to
@@ -302,8 +303,9 @@ class Tensor(np.ndarray):
         Args:
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
+            refine_rotation (bool): whether to refine the rotation
+                using SquareTensor.refine_rotation
         """
-
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
         dataset = sga.get_symmetry_dataset()
@@ -364,9 +366,14 @@ class Tensor(np.ndarray):
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
+        rotation = SquareTensor(rotation)
+        if refine_rotation:
+            rotation = rotation.refine_rotation()
+
         return rotation
 
-    def convert_to_ieee(self, structure, initial_fit=True):
+    def convert_to_ieee(self, structure, initial_fit=True,
+                        refine_rotation=True):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -381,12 +388,43 @@ class Tensor(np.ndarray):
                 results may be obtained due to symmetrically
                 equivalent, but distinct transformations
                 being used in different versions of spglib.
+            refine_rotation (bool): whether to refine the rotation
+                produced by the ieee transform generator, default True
         """
-        rotation = self.get_ieee_rotation(structure)
+        rotation = self.get_ieee_rotation(structure, refine_rotation)
         result = self.copy()
         if initial_fit:
             result = result.fit_to_structure(structure)
         return result.rotate(rotation, tol=1e-2)
+
+    def structure_transform(self, original_structure, new_structure,
+                            refine_rotation=True):
+        """
+        Transforms a tensor from one basis for an original structure
+        into a new basis defined by a new structure.
+
+        Args:
+            original_structure (Structure): structure corresponding
+                to the basis of the current tensor
+            new_structure (Structure): structure corresponding to the
+                desired basis
+            refine_rotation (bool): whether to refine the rotations
+                generated in get_ieee_rotation
+
+        Returns:
+            Tensor that has been transformed such that its basis
+            corresponds to the new_structure's basis
+        """
+        sm = StructureMatcher()
+        if not sm.fit(original_structure, new_structure):
+            warnings.warn("original and new structures do not match!")
+        trans_1 = self.get_ieee_rotation(original_structure, refine_rotation)
+        trans_2 = self.get_ieee_rotation(new_structure, refine_rotation)
+        # Get the ieee format tensor
+        new = self.rotate(trans_1)
+        # Reverse the ieee format rotation for the second structure
+        new = new.rotate(np.transpose(trans_2))
+        return new
 
     @classmethod
     def from_values_indices(cls, values, indices, populate=False,
@@ -565,8 +603,11 @@ class TensorCollection(collections.Sequence):
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
         return cls([base_class.from_voigt(v) for v in voigt_input_list])
 
-    def convert_to_ieee(self, structure):
-        return self.__class__([t.convert_to_ieee(structure) for t in self])
+    def convert_to_ieee(self, structure, initial_fit=True,
+                        refine_rotation=True):
+        return self.__class__(
+            [t.convert_to_ieee(structure, initial_fit, refine_rotation)
+             for t in self])
 
 
 class SquareTensor(Tensor):
@@ -635,6 +676,25 @@ class SquareTensor(Tensor):
             det = np.abs(det)
         return (np.abs(self.inv - self.trans) < tol).all() \
             and (np.abs(det - 1.) < tol)
+
+    def refine_rotation(self):
+        """
+        Helper method for refining rotation matrix by ensuring
+        that second and third rows are perpindicular to the first.
+        Gets new y vector from an orthogonal projection of x onto y
+        and the new z vector from a cross product of the new x and y
+
+        Args:
+            tol to test for rotation
+
+        Returns:
+            new rotation matrix
+        """
+        new_x, y = get_uvec(self[0]), get_uvec(self[1])
+        # Get a projection on y
+        new_y = y - np.dot(new_x, y) * new_x
+        new_z = np.cross(new_x, new_y)
+        return SquareTensor([new_x, new_y, new_z])
 
     def get_scaled(self, scale_factor):
         """

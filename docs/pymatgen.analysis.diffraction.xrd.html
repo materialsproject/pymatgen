@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2018.4.20 documentation</title>
+    <title>pymatgen.analysis.diffraction.xrd module &#8212; pymatgen 2018.5.22 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.22 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,31 +62,31 @@ sphere, which includes all symmetrically equivalent facets. The algorithm
 is as follows</p>
 <ol class="arabic">
 <li><p class="first">Calculate reciprocal lattice of structure. Find all reciprocal points
-within the limiting sphere given by <span class="math notranslate">\(\frac{2}{\lambda}\)</span>.</p>
+within the limiting sphere given by <span class="math notranslate nohighlight">\(\frac{2}{\lambda}\)</span>.</p>
 </li>
-<li><p class="first">For each reciprocal point <span class="math notranslate">\(\mathbf{g_{hkl}}\)</span> corresponding to
-lattice plane <span class="math notranslate">\((hkl)\)</span>, compute the Bragg condition
-<span class="math notranslate">\(\sin(\theta) = \frac{\lambda}{2d_{hkl}}\)</span></p>
+<li><p class="first">For each reciprocal point <span class="math notranslate nohighlight">\(\mathbf{g_{hkl}}\)</span> corresponding to
+lattice plane <span class="math notranslate nohighlight">\((hkl)\)</span>, compute the Bragg condition
+<span class="math notranslate nohighlight">\(\sin(\theta) = \frac{\lambda}{2d_{hkl}}\)</span></p>
 </li>
 <li><p class="first">Compute the structure factor as the sum of the atomic scattering
 factors. The atomic scattering factors are given by</p>
-<div class="math notranslate">
+<div class="math notranslate nohighlight">
 \[f(s) = Z - 41.78214 \times s^2 \times \sum\limits_{i=1}^n a_i            \exp(-b_is^2)\]</div>
-<p>where <span class="math notranslate">\(s = \frac{\sin(\theta)}{\lambda}\)</span> and <span class="math notranslate">\(a_i\)</span>
-and <span class="math notranslate">\(b_i\)</span> are the fitted parameters for each element. The
+<p>where <span class="math notranslate nohighlight">\(s = \frac{\sin(\theta)}{\lambda}\)</span> and <span class="math notranslate nohighlight">\(a_i\)</span>
+and <span class="math notranslate nohighlight">\(b_i\)</span> are the fitted parameters for each element. The
 structure factor is then given by</p>
-<div class="math notranslate">
+<div class="math notranslate nohighlight">
 \[F_{hkl} = \sum\limits_{j=1}^N f_j \exp(2\pi i \mathbf{g_{hkl}}
 \cdot \mathbf{r})\]</div>
 </li>
 <li><p class="first">The intensity is then given by the modulus square of the structure
 factor.</p>
-<div class="math notranslate">
+<div class="math notranslate nohighlight">
 \[I_{hkl} = F_{hkl}F_{hkl}^*\]</div>
 </li>
 <li><p class="first">Finally, the Lorentz polarization correction factor is applied. This
 factor is given by:</p>
-<div class="math notranslate">
+<div class="math notranslate nohighlight">
 \[P(\theta) = \frac{1 + \cos^2(2\theta)}
 {\sin^2(\theta)\cos(\theta)}\]</div>
 </li>
@@ -188,13 +188,13 @@ sphere of radius 2 / wavelength.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.4.20 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.22 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -72,6 +72,7 @@ def make_doc(ctx):
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
         ctx.run("rm -r _sources")
+        ctx.run("rm -r _build", warn=True)
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > CNAME")
@@ -80,8 +81,56 @@ def make_doc(ctx):
 
 
 @task
+def make_dash(ctx):
+    ctx.run("cp docs_rst/conf-docset.py docs_rst/conf.py")
+    make_doc(ctx)
+    ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
+    ctx.run('doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/')
+    plist = "pymatgen.docset/Contents/Info.plist"
+    xml = []
+    with open(plist, "rt") as f:
+        for l in f:
+            xml.append(l.strip())
+            if l.strip() == "<dict>":
+                xml.append("<key>dashIndexFilePath</key>")
+                xml.append("<string>index.html</string>")
+    with open(plist, "wt") as f:
+        f.write("\n".join(xml))
+    ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
+    xml = []
+    with open("docs/pymatgen.xml") as f:
+        for l in f:
+            l = l.strip()
+            if l.startswith("<version>"):
+                xml.append("<version>%s</version>" % NEW_VER)
+            else:
+                xml.append(l)
+    with open("docs/pymatgen.xml", "wt") as f:
+        f.write("\n".join(xml))
+    ctx.run('rm -r pymatgen.docset')
+    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
+    make_doc(ctx)
+
+
+@task
+def contribute_dash(ctx):
+    make_dash(ctx)
+    ctx.run('cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
+    with cd("../Dash-User-Contributions/docsets/pymatgen"):
+        with open("docset.json", "rt") as f:
+            data = json.load(f)
+            data["version"] = NEW_VER
+        with open("docset.json", "wt") as f:
+            json.dump(data, f, indent=4)
+        ctx.run('git commit -a -m "Update to v%s"' % NEW_VER)
+        ctx.run('git push')
+    ctx.run("rm pymatgen.tgz")
+
+
+@task
 def update_doc(ctx):
     make_doc(ctx)
+    make_dash(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")

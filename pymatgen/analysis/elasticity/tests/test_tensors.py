@@ -108,7 +108,7 @@ class TensorTest(PymatgenTest):
                                    [[29.4, 0., 0.],
                                     [0., 29.4, 0.],
                                     [0., 0., 207.6]]]])
-        
+
         self.unfit4 = Tensor([[[[161.26, 0., 0.],
                                     [0., 62.76, 0.],
                                     [0., 0., 30.18]],
@@ -184,7 +184,7 @@ class TensorTest(PymatgenTest):
                                       [9.268, 38.321, 29.919],
                                       [8.285, 33.651, 26.000]]], 3)
 
-    
+
     def test_rotate(self):
         self.assertArrayEqual(self.vec.rotate([[0, -1, 0],
                                                [1, 0, 0],
@@ -195,7 +195,7 @@ class TensorTest(PymatgenTest):
                                                   [0.700, 0.5, 0.172],
                                                   [0.171, 0.233, 0.068]]),
                                     decimal=3)
-        self.assertRaises(ValueError, self.non_symm.rotate, 
+        self.assertRaises(ValueError, self.non_symm.rotate,
                           self.symm_rank2)
 
     def test_einsum_sequence(self):
@@ -209,7 +209,7 @@ class TensorTest(PymatgenTest):
         self.assertTrue(self.rand_rank2.symmetrized.is_symmetric())
         self.assertTrue(self.rand_rank3.symmetrized.is_symmetric())
         self.assertTrue(self.rand_rank4.symmetrized.is_symmetric())
-    
+
     def test_is_symmetric(self):
         self.assertTrue(self.symm_rank2.is_symmetric())
         self.assertTrue(self.symm_rank3.is_symmetric())
@@ -236,8 +236,41 @@ class TensorTest(PymatgenTest):
             diff = np.max(abs(ieee - orig.convert_to_ieee(struct)))
             err_msg = "{} IEEE conversion failed with max diff {}. "\
                       "Numpy version: {}".format(xtal, diff, np.__version__)
-            self.assertArrayAlmostEqual(ieee, orig.convert_to_ieee(struct),
-                                        err_msg=err_msg, decimal=3)
+            converted = orig.convert_to_ieee(struct, refine_rotation=False)
+            self.assertArrayAlmostEqual(ieee, converted, err_msg=err_msg, decimal=3)
+            converted_refined = orig.convert_to_ieee(struct, refine_rotation=True)
+            err_msg = "{} IEEE conversion with refinement failed with max diff {}. "\
+                      "Numpy version: {}".format(xtal, diff, np.__version__)
+            self.assertArrayAlmostEqual(ieee, converted_refined, err_msg=err_msg,
+                                        decimal=2)
+
+    def test_structure_transform(self):
+        # Test trivial case
+        trivial = self.fit_r4.structure_transform(self.structure,
+                                                  self.structure.copy())
+        self.assertArrayAlmostEqual(trivial, self.fit_r4)
+
+        # Test simple rotation
+        rot_symm_op = SymmOp.from_axis_angle_and_translation([1, 1, 1], 55.5)
+        rot_struct = self.structure.copy()
+        rot_struct.apply_operation(rot_symm_op)
+        rot_tensor = self.fit_r4.rotate(rot_symm_op.rotation_matrix)
+        trans_tensor = self.fit_r4.structure_transform(self.structure, rot_struct)
+        self.assertArrayAlmostEqual(rot_tensor, trans_tensor)
+
+        # Test supercell
+        bigcell = self.structure.copy()
+        bigcell.make_supercell([2, 2, 3])
+        trans_tensor = self.fit_r4.structure_transform(self.structure, bigcell)
+        self.assertArrayAlmostEqual(self.fit_r4, trans_tensor)
+
+        # Test rotated primitive to conventional for fcc structure
+        sn = self.get_structure("Sn")
+        sn_prim = SpacegroupAnalyzer(sn).get_primitive_standard_structure()
+        sn_prim.apply_operation(rot_symm_op)
+        rotated = self.fit_r4.rotate(rot_symm_op.rotation_matrix)
+        transformed = self.fit_r4.structure_transform(sn, sn_prim)
+        self.assertArrayAlmostEqual(rotated, transformed)
 
     def test_from_voigt(self):
         with self.assertRaises(ValueError):
@@ -281,7 +314,7 @@ class TensorTest(PymatgenTest):
     def test_populate(self):
         test_data = loadfn(os.path.join(test_dir, 'test_toec_data.json'))
 
-        sn = self.get_structure("Sn") 
+        sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
         vtens[0, 0] = 259.31
         vtens[0, 1] = 160.71
@@ -296,7 +329,7 @@ class TensorTest(PymatgenTest):
         self.assertAlmostEqual(populated[5, 5], 73.48)
         # test a rank 6 example
         vtens = np.zeros([6]*3)
-        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2), 
+        indices = [(0, 0, 0), (0, 0, 1), (0, 1, 2),
                    (0, 3, 3), (0, 5, 5), (3, 4, 5)]
         values = [-1271., -814., -50., -3., -780., -95.]
         for v, idx in zip(values, indices):
@@ -310,7 +343,7 @@ class TensorTest(PymatgenTest):
         self.assertAlmostEqual(toec.voigt[2, 5, 5], -3)
         self.assertAlmostEqual(toec.voigt[1, 2, 0], -50)
         self.assertAlmostEqual(toec.voigt[4, 5, 3], -95)
-        
+
         et = Tensor.from_voigt(test_data["C3_raw"]).fit_to_structure(sn)
         new = np.zeros(et.voigt.shape)
         for idx in indices:
@@ -322,7 +355,7 @@ class TensorTest(PymatgenTest):
         sn = self.get_structure("Sn")
         indices = [(0, 0), (0, 1), (3, 3)]
         values = [259.31, 160.71, 73.48]
-        et = Tensor.from_values_indices(values, indices, structure=sn, 
+        et = Tensor.from_values_indices(values, indices, structure=sn,
                                         populate=True).voigt.round(4)
         self.assertAlmostEqual(et[1, 1], 259.31)
         self.assertAlmostEqual(et[2, 2], 259.31)
@@ -373,7 +406,7 @@ class TensorCollectionTest(PymatgenTest):
         symm_op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30,
                                                          False, [0, 0, 1])
         self.list_based_function_check("transform", self.seq_tc, symm_op=symm_op)
-        
+
         # symmetrized
         self.list_based_function_check("symmetrized", self.seq_tc)
 
@@ -390,7 +423,7 @@ class TensorCollectionTest(PymatgenTest):
         # fit_to_structure
         self.list_based_function_check("fit_to_structure", self.diff_rank, self.struct)
         self.list_based_function_check("fit_to_structure", self.seq_tc, self.struct)
-        
+
         # fit_to_structure
         self.list_based_function_check("fit_to_structure", self.diff_rank, self.struct)
         self.list_based_function_check("fit_to_structure", self.seq_tc, self.struct)
@@ -437,7 +470,7 @@ class SquareTensorTest(PymatgenTest):
         self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)],
                                       [0, 1, 0],
                                       [-math.sin(a), 0, math.cos(a)]])
-        
+
     def test_new(self):
         non_sq_matrix = [[0.1, 0.2, 0.1],
                          [0.1, 0.2, 0.3],
@@ -453,7 +486,7 @@ class SquareTensorTest(PymatgenTest):
 
     def test_properties(self):
         # transpose
-        self.assertArrayEqual(self.non_symm.trans, 
+        self.assertArrayEqual(self.non_symm.trans,
                               SquareTensor([[0.1, 0.4, 0.2],
                                             [0.2, 0.5, 0.5],
                                             [0.3, 0.6, 0.5]]))
@@ -501,6 +534,15 @@ class SquareTensorTest(PymatgenTest):
         self.assertFalse(self.symm_sqtensor.is_rotation())
         self.assertTrue(self.low_val_2.is_rotation())
         self.assertFalse(self.low_val_2.is_rotation(tol=1e-8))
+
+    def test_refine_rotation(self):
+        self.assertArrayAlmostEqual(self.rotation, self.rotation.refine_rotation())
+        new = self.rotation.copy()
+        new[2, 2] += 0.02
+        self.assertFalse(new.is_rotation())
+        self.assertArrayAlmostEqual(self.rotation, new.refine_rotation())
+        new[1] *= 1.05
+        self.assertArrayAlmostEqual(self.rotation, new.refine_rotation())
 
     def test_get_scaled(self):
         self.assertArrayEqual(self.non_symm.get_scaled(10.),
