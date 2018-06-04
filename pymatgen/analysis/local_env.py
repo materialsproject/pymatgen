@@ -11,6 +11,7 @@ import six
 import ruamel.yaml as yaml
 import os
 import json
+from copy import deepcopy
 
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.sites import PeriodicSite
@@ -1399,14 +1400,14 @@ class LocalStructOrderParams(object):
 
         self._params = []
         for i, t in enumerate(self._types):
-            d = default_op_params[t].copy() if default_op_params[t] is not None \
+            d = deepcopy(default_op_params[t]) if default_op_params[t] is not None \
                 else None
             if parameters is None:
                 self._params.append(d)
             elif parameters[i] is None:
                 self._params.append(d)
             else:
-                self._params.append(parameters[i].copy())
+                self._params.append(deepcopy(parameters[i]))
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
