@@ -398,7 +398,7 @@ class InterfacialReactivity:
 
         # Labels kinks with indices. Labels are made draggable
         # in case of overlapping.
-        for index, x, energy, reaction, _ in kinks:
+        for index, x, energy, _, _ in kinks:
             plt.annotate(
                 index,
                 xy=(x, energy), xytext=(5, 30),
