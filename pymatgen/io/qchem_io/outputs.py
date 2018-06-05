@@ -461,8 +461,7 @@ class QCOutput(MSONable):
                 for jj, line in enumerate(triple_FMV):
                     for kk, entry in enumerate(line):
                         if entry != 'None':
-                            freq_mode_vecs[ii * 3 + math.floor(kk / 3), jj,
-                                           kk % 3] = float(entry)
+                            freq_mode_vecs[int(ii * 3 + math.floor(kk / 3)), jj, kk % 3] = float(entry)
 
             self.data["frequency_mode_vectors"] = freq_mode_vecs
 

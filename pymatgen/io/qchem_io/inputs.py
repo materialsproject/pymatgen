@@ -2,6 +2,8 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import division, unicode_literals
+
 import logging
 from monty.json import MSONable
 from monty.io import zopen
@@ -52,19 +54,19 @@ class QCInput(MSONable):
 
         # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
 
-        if isinstance(self.molecule,str):
+        """if isinstance(self.molecule, str):
             self.molecule = self.molecule.lower()
             if self.molecule != "read":
                 raise ValueError('The only acceptable text value for molecule is "read"')
         elif not isinstance(self.molecule, Molecule):
-            raise ValueError("The molecule must either be the string 'read' or be a pymatgen Molecule object")
+            raise ValueError("The molecule must either be the string 'read' or be a pymatgen Molecule object")"""
 
         # Make sure rem is valid:
         #   - Has a basis
         #   - Has a method or DFT exchange functional
         #   - Has a valid job_type or jobtype
 
-        valid_job_types = ["opt","optimization","sp","freq","frequency","nmr"]
+        """valid_job_types = ["opt", "optimization", "sp", "freq", "frequency", "nmr"]
 
         if "basis" not in self.rem:
             raise ValueError("The rem dictionary must contain a 'basis' entry")
@@ -81,7 +83,7 @@ class QCInput(MSONable):
         #   - Check that basis is valid
         #   - Check that basis is defined for all species in the molecule
         #   - Validity checks specific to job type?
-        #   - Check OPT and PCM sections?
+        #   - Check OPT and PCM sections?"""
 
     def __str__(self):
         combined_list = []
@@ -133,12 +135,12 @@ class QCInput(MSONable):
         return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent)
 
     def write_file(self, filename):
-        with zopen(filename, 'w') as f:
+        with zopen(filename, 'wt') as f:
             f.write(self.__str__())
 
     @staticmethod
     def write_multi_job_file(job_list, filename):
-        with zopen(filename, 'w') as f:
+        with zopen(filename, 'wt') as f:
             f.write(QCInput.multi_job_string(job_list))
 
     @staticmethod
