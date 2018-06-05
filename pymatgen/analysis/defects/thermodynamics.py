@@ -90,8 +90,10 @@ class DefectPhaseDiagram(MSONable):
 
             # prepping coefficient matrix forx half-space intersection
             # [-Q, 1, -1*(E_form+Q*VBM)] -> -Q*E_fermi+E+-1*(E_form+Q*VBM) <= 0  where E_fermi and E are the variables in the hyperplanes
+            # hyperplanes = np.array(
+            #     [[-1.0 * entry.charge, 1, -1.0 * (entry.energy + entry.charge * self.vbm)] for entry in defects])
             hyperplanes = np.array(
-                [[-1.0 * entry.charge, 1, -1.0 * (entry.energy + entry.charge * self.vbm)] for entry in defects])
+                [[entry.charge, -1, (entry.energy + entry.charge * self.vbm)] for entry in defects])
 
             border_hyperplanes = [[-1, 0, limits[0][0]], [1, 0, -1 * limits[0][1]], [0, -1, limits[1][0]],
                                   [0, 1, -1 * limits[1][1]]]
