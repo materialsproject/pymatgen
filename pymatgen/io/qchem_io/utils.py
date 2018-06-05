@@ -136,7 +136,7 @@ def lower_and_check_unique(dict_to_check):
             else:
                 try:
                     to_return[new_key] = dict_to_check.get(key).lower()
-                except:
+                except AttributeError:
                     to_return[new_key] = dict_to_check.get(key)
         return to_return
 
