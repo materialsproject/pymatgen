@@ -153,7 +153,7 @@ class DefectPhaseDiagram(MSONable):
         xlim = (-0.1, self.band_gap+.1)
         nb_steps = 20 #SUPER bare bones because it is so slow...
         x = np.arange(xlim[0], xlim[1], (xlim[1]-xlim[0])/nb_steps)
-        list_elts = [elt  for dfct in self.dentries  for elt in dfct.defect_sc_structure.composition.elements]
+        list_elts = [elt  for dfct in self.entries  for elt in dfct.defect_sc_structure.composition.elements]
         no_chempots = {elt: 0. for elt in set(list_elts)} #zerod chemical potentials for calculating stable defects
 
         # Grouping by defect types
@@ -180,7 +180,7 @@ class DefectPhaseDiagram(MSONable):
                 prev_min_q = cur_min_q
 
             self.stable_charges[t] = chg_type[:]
-            self.finished_charges[t] = [e.charge for e in self.dentries if e.name == t]
+            self.finished_charges[t] = [e.charge for e in self.entries if e.name == t]
             self.transition_levels[t] = trans_level[:]
 
     @property
