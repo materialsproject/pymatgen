@@ -151,7 +151,7 @@ class DefectPhaseDiagram(MSONable):
         self.finished_charges = {} #keys are defect names, items are list of charge states that are included in the phase diagram
         self.transition_levels = {} #keys are defect names, items are list of [fermi level for transition, previous q, next q] sets
         xlim = (-0.1, self.band_gap+.1)
-        nb_steps = 20 #SUPER bare bones because it is so slow...
+        nb_steps = 200 #SUPER bare bones because it is so slow...
         x = np.arange(xlim[0], xlim[1], (xlim[1]-xlim[0])/nb_steps)
         list_elts = [elt  for dfct in self.entries  for elt in dfct.defect.generate_defect_structure().composition.elements]
         no_chempots = {elt: 0. for elt in set(list_elts)} #zerod chemical potentials for calculating stable defects
