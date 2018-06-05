@@ -134,55 +134,6 @@ class DefectPhaseDiagram(MSONable):
             for defect_name, entries in stable_entries.items()
         }
 
-    def OLDfind_stable_charges(self):
-        """
-        Set the DefectPhaseDiagram attributes (which dont depend on chemical potential)
-
-        THIS is a wrapper since find_stable_charges does not currently exist...will switch over when able
-        """
-        def similar_defect(a, b):
-            """
-            Used to filter out similar defects of different charges which
-            are defined by the same type and location
-            """
-            return a.name == b.name and a.site == b.site
-
-        self.stable_charges = {} #keys are defect names, items are list of charge states that are stable
-        self.finished_charges = {} #keys are defect names, items are list of charge states that are included in the phase diagram
-        self.transition_levels = {} #keys are defect names, items are list of [fermi level for transition, previous q, next q] sets
-        xlim = (-0.1, self.band_gap+.1)
-        nb_steps = 20 #SUPER bare bones because it is so slow...
-        x = np.arange(xlim[0], xlim[1], (xlim[1]-xlim[0])/nb_steps)
-        list_elts = [elt  for dfct in self.entries  for elt in dfct.defect.generate_defect_structure().composition.elements]
-        no_chempots = {elt: 0. for elt in set(list_elts)} #zerod chemical potentials for calculating stable defects
-
-        # Grouping by defect types
-        for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
-            defects = list(defects)
-            t = defects[0].name
-            print('Analyzing {}'.format(t))
-            trans_level = []
-            chg_type = []
-            prev_min_q, cur_min_q = None, None
-            for x_step in x:
-                miny = 10000
-                for dfct in defects:
-                    val = dfct.formation_energy(chemical_potentials = no_chempots, fermi_level=x_step)
-                    if val < miny:
-                        miny = val
-                        cur_min_q = dfct.charge
-
-                if prev_min_q is not None:
-                    if cur_min_q != prev_min_q:
-                        trans_level.append((x_step, prev_min_q, cur_min_q))
-                    if cur_min_q not in chg_type:
-                        chg_type.append(cur_min_q)
-                prev_min_q = cur_min_q
-
-            self.stable_charges[t] = chg_type[:]
-            self.finished_charges[t] = [e.charge for e in self.entries if e.name == t]
-            self.transition_levels[t] = trans_level[:]
-
     @property
     def defect_types(self):
         """
