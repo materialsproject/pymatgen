@@ -183,11 +183,20 @@ class QCOutput(MSONable):
                 }).get('key')
             if temp_constraint != None:
                 self.data["opt_constraint"] = temp_constraint[0]
-                if float(self.data.get('opt_constraint')[5]) != float(self.data.get('opt_constraint')[6]):
-                    if abs(float(self.data.get('opt_constraint')[5])) != abs(float(self.data.get('opt_constraint')[6])):
-                        raise ValueError("ERROR: Opt section value and constraint should be the same!")
-                    elif abs(float(self.data.get('opt_constraint')[5])) not in [0.0, 180.0]:
-                        raise ValueError("ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!")
+                if float(self.data.get('opt_constraint')[5]) != float(
+                        self.data.get('opt_constraint')[6]):
+                    if abs(float(self.data.get('opt_constraint')[5])) != abs(
+                            float(self.data.get('opt_constraint')[6])):
+                        raise ValueError(
+                            "ERROR: Opt section value and constraint should be the same!"
+                        )
+                    elif abs(float(
+                            self.data.get('opt_constraint')[5])) not in [
+                                0.0, 180.0
+                            ]:
+                        raise ValueError(
+                            "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
+                        )
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
@@ -461,7 +470,8 @@ class QCOutput(MSONable):
                 for jj, line in enumerate(triple_FMV):
                     for kk, entry in enumerate(line):
                         if entry != 'None':
-                            freq_mode_vecs[int(ii * 3 + math.floor(kk / 3)), jj, kk % 3] = float(entry)
+                            freq_mode_vecs[int(ii * 3 + math.floor(kk / 3)),
+                                           jj, kk % 3] = float(entry)
 
             self.data["frequency_mode_vectors"] = freq_mode_vecs
 
@@ -531,4 +541,3 @@ class QCOutput(MSONable):
         d["text"] = self.text
         d["filename"] = self.filename
         return jsanitize(d, strict=True)
-

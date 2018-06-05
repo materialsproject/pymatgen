@@ -19,7 +19,8 @@ __credits__ = "Xiaohui Qu"
 
 logger = logging.getLogger(__name__)
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "test_files", "qchem")
+test_dir = os.path.join(os.path.dirname(__file__), "..",
+                        "..", "..", "..", "test_files", "qchem")
 
 
 class TestQCInput(PymatgenTest):
@@ -27,10 +28,10 @@ class TestQCInput(PymatgenTest):
     # ef setUpClass(cls):
     # add things that show up over and over again
 
-
     def test_molecule_template(self):
         species = ["C", "O"]
-        coords = [[-9.5782000000, 0.6241500000, 0.0000000000], [-7.5827400000, 0.5127000000, -0.0000000000]]
+        coords = [[-9.5782000000, 0.6241500000, 0.0000000000],
+                  [-7.5827400000, 0.5127000000, -0.0000000000]]
         mol = Molecule(species=species, coords=coords)
         molecule_test = QCInput.molecule_template(mol)
         molecule_actual = """$molecule
@@ -41,7 +42,7 @@ $end"""
 
         self.assertEqual(molecule_actual, molecule_test)
 
-    #TODO improve this test maybe add ordered dicts
+    # TODO improve this test maybe add ordered dicts
     def test_rem_template(self):
         rem_params = {
             "job_type": "opt",
@@ -169,7 +170,6 @@ $end"""
             "gen_scfman": "true"
         }
         self.assertDictEqual(rem_actual, rem_test)
-
 
     def test_read_only_rem(self):
         str_rem = """Trying to break you!
@@ -308,7 +308,8 @@ ENDCONSTRAINT
 $end
 """
         qcinput_test = QCInput.from_string(string)
-        species = ["S", "C", "H", "C", "H", "C", "H", "C", "C", "C", "H", "C", "H", "C", "H", "S"]
+        species = ["S", "C", "H", "C", "H", "C", "H",
+                   "C", "C", "C", "H", "C", "H", "C", "H", "S"]
         coords = [[-0.00250959, -0.05817469, -0.02921636],
                   [1.70755408, -0.03033788, -0.01382912],
                   [2.24317221, -0.05215019, 0.92026728],
@@ -346,7 +347,8 @@ $end
 
     # TODO this test needs an update, the assertion doesn't differentiate between the different rem sections
     def test_multi_job_string(self):
-        species = ["S", "C", "H", "C", "H", "C", "H", "C", "C", "C", "H", "C", "H", "C", "H", "S"]
+        species = ["S", "C", "H", "C", "H", "C", "H",
+                   "C", "C", "C", "H", "C", "H", "C", "H", "S"]
         coords = [[-0.00250959, -0.05817469, -0.02921636],
                   [1.70755408, -0.03033788, -0.01382912],
                   [2.24317221, -0.05215019, 0.92026728],
@@ -395,7 +397,8 @@ $end
         }
         job_2 = QCInput(molecule=molecule_2, rem=rem_2)
         job_list = [job_1, job_2]
-        multi_job_str_test = QCInput.multi_job_string(job_list=job_list).split("\n")
+        multi_job_str_test = QCInput.multi_job_string(
+            job_list=job_list).split("\n")
         multi_job_str_actual_list = ["$molecule",
                                      " 0 1",
                                      " S     -0.0025095900     -0.0581746900     -0.0292163600",
@@ -455,8 +458,10 @@ $end
             self.assertIn(i_str, multi_job_str_test)
 
     def test_from_multi_jobs_file(self):
-        job_list_test = QCInput.from_multi_jobs_file(os.path.join(test_dir, "pt_n2_wb97mv_0.0.in"))
-        species = ["S", "C", "H", "C", "H", "C", "H", "C", "C", "C", "H", "C", "H", "C", "H", "S"]
+        job_list_test = QCInput.from_multi_jobs_file(
+            os.path.join(test_dir, "pt_n2_wb97mv_0.0.in"))
+        species = ["S", "C", "H", "C", "H", "C", "H",
+                   "C", "C", "C", "H", "C", "H", "C", "H", "S"]
         coords = [[-0.00250959, -0.05817469, -0.02921636],
                   [1.70755408, -0.03033788, -0.01382912],
                   [2.24317221, -0.05215019, 0.92026728],
@@ -519,9 +524,9 @@ $pcm
 $end"""
         pcm_test = QCInput.read_pcm(str_pcm)
         pcm_actual = {
-             "theory": "cpcm",
-             "radii": "uff",
-             "vdwscale": "1.1"
+            "theory": "cpcm",
+            "radii": "uff",
+            "vdwscale": "1.1"
         }
         self.assertDictEqual(pcm_actual, pcm_test)
 
@@ -545,7 +550,7 @@ $solvent
 $end"""
         solvent_test = QCInput.read_solvent(str_solvent)
         solvent_actual = {
-             "dielectric": "5.0",
+            "dielectric": "5.0",
         }
         self.assertDictEqual(solvent_actual, solvent_test)
 
@@ -558,6 +563,7 @@ $end"""
         solvent_test = QCInput.read_solvent(str_solvent)
         solvent_actual = {}
         self.assertDictEqual(solvent_actual, solvent_test)
+
 
 if __name__ == "__main__":
     unittest.main()
