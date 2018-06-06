@@ -80,20 +80,19 @@ class DefectPhaseDiagram(MSONable):
         limits = [[-1, self.band_gap + 1], [-21, 20]]
 
         stable_entries = {}
-        stable_charges = {}
         finished_charges = {}
         transition_level_map = {}
 
         # Grouping by defect types
         for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
             defects = list(defects)
+            for d in defects:
+                print(d.name,d.charge, d.energy, self.vbm, d.energy + d.charge*self.vbm )
 
             # prepping coefficient matrix forx half-space intersection
             # [-Q, 1, -1*(E_form+Q*VBM)] -> -Q*E_fermi+E+-1*(E_form+Q*VBM) <= 0  where E_fermi and E are the variables in the hyperplanes
-            # hyperplanes = np.array(
-            #     [[-1.0 * entry.charge, 1, -1.0 * (entry.energy + entry.charge * self.vbm)] for entry in defects])
             hyperplanes = np.array(
-                [[entry.charge, -1, (entry.energy + entry.charge * self.vbm)] for entry in defects])
+                [[-1.0 * entry.charge, 1, -1.0 * (entry.energy + entry.charge * self.vbm)] for entry in defects])
 
             border_hyperplanes = [[-1, 0, limits[0][0]], [1, 0, -1 * limits[0][1]], [0, -1, limits[1][0]],
                                   [0, 1, -1 * limits[1][1]]]
@@ -120,7 +119,7 @@ class DefectPhaseDiagram(MSONable):
                 for intersection, facet in ints_and_facets
             }
 
-            stable_entries[defects[0].name] = [defects[i] for dual in facets for i in dual]
+            stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
 
             finished_charges[defects[0].name] = [defect.charge for defect in defects]
 
