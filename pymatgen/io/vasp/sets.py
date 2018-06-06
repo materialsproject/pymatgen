@@ -586,8 +586,10 @@ class MPStaticSet(MPRelaxSet):
             self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
         # Prefer to use k-point scheme from previous run
+        # except for when lepsilon = True is specified
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
-            if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
+            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) \
+                    and (not self.lepsilon):
                 k_div = [kp + 1 if kp % 2 == 1 else kp
                          for kp in kpoints.kpts[0]]
                 kpoints = Kpoints.monkhorst_automatic(k_div)
