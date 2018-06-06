@@ -364,7 +364,7 @@ class DictSet(VaspInputSet):
             incar['NUPDOWN'] = nupdown
 
         if self.structure._charge:
-            incar["NELECT"] = self.nelect + self.structure._charge
+            incar["NELECT"] = self.nelect
 
         return incar
 
@@ -377,10 +377,12 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        return int(round(
-            sum([self.structure.composition.element_composition[ps.element]
-                 * ps.ZVAL
-                 for ps in self.potcar])))
+        potcar_dict = {ps.element: ps for ps in self.potcar}
+        neutral_charge = int(round(
+            sum([self.structure.composition.element_composition[ps_element]
+                 * ps.ZVAL for ps_element, ps in potcar_dict.items()])))
+        structure_charge = self.structure._charge if self.structure._charge else 0.
+        return neutral_charge - structure_charge
 
     @property
     def kpoints(self):

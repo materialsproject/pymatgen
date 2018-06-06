@@ -224,7 +224,7 @@ class MITMPRelaxSetTest(unittest.TestCase):
                                  [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords, charge=1)
         mpr = MPRelaxSet(struct)
-        self.assertEqual(mpr.incar["NELECT"], mpr.nelect+1,
+        self.assertEqual(mpr.incar["NELECT"], 7,
                          "NELECT not properly set for nonzero charge")
 
     def test_get_kpoints(self):
