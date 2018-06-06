@@ -28,7 +28,6 @@ import numpy as np
 import logging
 import six
 import pandas as pd
-import random
 from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
@@ -491,6 +490,12 @@ class StructureMotifInterstitial(object):
             motif (string): motif type.
         """
         return self._defect_types[i]
+
+    def get_defectsite_multiplicity(self, n):
+        """
+        Returns the symmtric multiplicity of the defect site at the index.
+        """
+        return self._defect_site_multiplicity[n]
 
     def get_coordinating_elements_cns(self, i):
         """

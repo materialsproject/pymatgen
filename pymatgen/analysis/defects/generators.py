@@ -25,7 +25,7 @@ from pymatgen.core import PeriodicSite
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.defects.point_defects import StructureMotifInterstitial, TopographyAnalyzer
+from pymatgen.analysis.defects.utils import StructureMotifInterstitial, TopographyAnalyzer
 
 logger = logging.getLogger(__name__)
 

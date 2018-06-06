@@ -82,7 +82,7 @@ class FreysoldtCorrection(DefectCorrection):
         if 'scaling_matrix' in entry.parameters.keys():
             bulk_struct.make_supercell( entry.parameters['scaling_matrix'])
 
-        lattice = entry.defect.bulk_struct.lattice
+        lattice = bulk_struct
         q = entry.defect.charge
 
         es_corr = self.perform_es_corr(

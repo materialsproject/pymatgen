@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import os
 import unittest
 
 from monty.serialization import loadfn
@@ -14,7 +15,8 @@ from pymatgen.util.testing import PymatgenTest
 
 class DefectsThermodynamicsTest(PymatgenTest):
     def setUp(self):
-        self.entries = list(loadfn("GaAs_test_defentries.json").values())
+
+        self.entries = list(loadfn(os.path.join(os.path.dirname(__file__), "GaAs_test_defentries.json")).values())
 
     def test_construction(self):
         pd = DefectPhaseDiagram(self.entries, 2.6682, 2.0)
@@ -46,7 +48,7 @@ class DefectsThermodynamicsTest(PymatgenTest):
         all_stable_entries = pd.all_stable_entries
         all_unstable_entries = pd.all_unstable_entries
 
-        self.assertEqual(len(pd.defect_types),6)
+        self.assertEqual(len(pd.defect_types), 6)
         self.assertEqual(len(all_stable_entries), sum([len(v) for v in pd.stable_charges.values()]))
 
 
