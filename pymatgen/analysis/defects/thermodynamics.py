@@ -118,7 +118,7 @@ class DefectPhaseDiagram(MSONable):
                 for intersection, facet in ints_and_facets
             }
 
-            stable_entries[defects[0].name] = [defects[i] for dual in facets for i in dual]
+            stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
 
             finished_charges[defects[0].name] = [defect.charge for defect in defects]
 

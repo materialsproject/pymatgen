@@ -521,7 +521,7 @@ def create_saturated_interstitial_structure(interstitial_def):
     for pos_nn in defect_struct.get_neighbors(interstitial_def.site, 6., include_index=True):
         if pos_nn[1] < minrad:
             minrad = pos_nn[1]
-            init_basis_vector = np.subtract( interstitial_def.site.coords, pos_nn[0].coords)
+            init_basis_vector = np.subtract( interstitial_def.site.coords, pos_nn[0].coords) #TODO: move this out of for loop...and do after you get it
             nn_index = pos_nn[2]
 
     if nn_index == None:
@@ -537,7 +537,7 @@ def create_saturated_interstitial_structure(interstitial_def):
     range_set = np.arange(7,max_radius,.2)
     successful_centering = False
     range_ind = 0
-    while not successful_centering:
+    while not successful_centering: #TODO: can speed this up by just building molecule (which gets auto-centered)
         mol_coord_set = [] #zero centered site will get added
         mol_spec_set = []
         radius = range_set[range_ind]
@@ -598,7 +598,7 @@ def create_saturated_interstitial_structure(interstitial_def):
             for mdsite in mirrored_def_structure:
                 if mdsite.distance( poss_new_site) < 0.5:
                     append_site = False
-            if append_site:
+            if append_site: #TODO: just get all sites and create a new structre out of it
                 mirrored_def_structure.append( poss_new_site.specie, poss_new_site.coords, coords_are_cartesian=True, validate_proximity=True)
                 id_inter_list.append(poss_new_site)
 
