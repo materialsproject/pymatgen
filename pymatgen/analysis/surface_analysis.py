@@ -421,6 +421,20 @@ class SurfaceEnergyPlotter(object):
             type(all_slab_entries).__name__ == "dict" else \
                 entry_dict_from_list(all_slab_entries)
         self.color_dict = self.color_palette_dict()
+        self.all_chempot_variables = []
+        for hkl in self.all_slab_entries.keys():
+            for clean in self.all_slab_entries[hkl].keys():
+                se = clean.surface_energy(self.ucell_entry,
+                                          ref_entries=self.ref_entries)
+                if type(se).__name__ == "float":
+                    continue
+                self.all_chempot_variables.extend([v for v in list(se.free_symbols)
+                                                   if v not in self.all_chempot_variables])
+                for ads in self.all_slab_entries[hkl][clean]:
+                    se = ads.surface_energy(self.ucell_entry,
+                                            ref_entries=self.ref_entries)
+                    self.all_chempot_variables.extend([v for v in list(se.free_symbols)
+                                                       if v not in self.all_chempot_variables])
 
     def set_all_variables(self, entry, u_dict, u_default):
         """
@@ -636,7 +650,7 @@ class SurfaceEnergyPlotter(object):
         return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
 
     def stable_u_range_dict(self, chempot_range, ref_delu, no_doped=True,
-                            u_dict={}, miller_index=()):
+                            u_dict={}, u_default=0, miller_index=()):
         """
         Creates a dictionary where each entry is a key pointing to a
         chemical potential range where the surface of that entry is stable.
@@ -684,15 +698,22 @@ class SurfaceEnergyPlotter(object):
                 stable_urange_dict[entries_in_hkl[0]] = chempot_range
                 continue
 
+            # Make sure to set any default u
+            new_u_dict = u_dict.copy()
+            for v in self.all_chempot_variables:
+                if ref_delu != v:
+                    if v not in new_u_dict.keys():
+                        new_u_dict[v] = u_default
+
             for pair in itertools.combinations(entries_in_hkl, 2):
                 # I'm assuming ref_delu was not set in u_dict,
                 # so the solution should be for ref_delu
-                solution = self.get_surface_equilibrium(pair, u_dict=u_dict)
+                solution = self.get_surface_equilibrium(pair, u_dict=new_u_dict)
 
                 # Check if this solution is stable
                 if not solution:
+                    # ie empty set
                     continue
-                new_u_dict = u_dict.copy()
                 new_u_dict[ref_delu] = solution[ref_delu]
                 stable_entry, gamma = self.get_stable_entry_at_u(hkl, new_u_dict)
                 if stable_entry not in pair:
