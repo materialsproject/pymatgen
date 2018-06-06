@@ -2,8 +2,11 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
+from __future__ import division, unicode_literals
+
 import logging
 from monty.json import MSONable
+from monty.io import zopen
 from pymatgen.core import Molecule
 from .utils import read_table_pattern, read_pattern, lower_and_check_unique
 """
@@ -51,29 +54,38 @@ class QCInput(MSONable):
 
         # Make sure molecule is valid: either the string "read" or a pymatgen molecule object
 
-        if isinstance(self.molecule,str):
+        if isinstance(self.molecule, str):
             self.molecule = self.molecule.lower()
             if self.molecule != "read":
-                raise ValueError('The only acceptable text value for molecule is "read"')
+                raise ValueError(
+                    'The only acceptable text value for molecule is "read"')
         elif not isinstance(self.molecule, Molecule):
-            raise ValueError("The molecule must either be the string 'read' or be a pymatgen Molecule object")
+            raise ValueError(
+                "The molecule must either be the string 'read' or be a pymatgen Molecule object"
+            )
 
         # Make sure rem is valid:
         #   - Has a basis
         #   - Has a method or DFT exchange functional
         #   - Has a valid job_type or jobtype
 
-        valid_job_types = ["opt","optimization","sp","freq","frequency","nmr"]
+        valid_job_types = [
+            "opt", "optimization", "sp", "freq", "frequency", "nmr"
+        ]
 
         if "basis" not in self.rem:
             raise ValueError("The rem dictionary must contain a 'basis' entry")
         if "method" not in self.rem:
             if "exchange" not in self.rem:
-                raise ValueError("The rem dictionary must contain either a 'method' entry or an 'exchange' entry")
+                raise ValueError(
+                    "The rem dictionary must contain either a 'method' entry or an 'exchange' entry"
+                )
         if "job_type" not in self.rem:
-            raise ValueError("The rem dictionary must contain a 'job_type' entry")
+            raise ValueError(
+                "The rem dictionary must contain a 'job_type' entry")
         if self.rem.get("job_type").lower() not in valid_job_types:
-            raise ValueError("The rem dictionary must contain a valid 'job_type' entry")
+            raise ValueError(
+                "The rem dictionary must contain a valid 'job_type' entry")
 
         # Still to do:
         #   - Check that the method or functional is valid
@@ -132,23 +144,23 @@ class QCInput(MSONable):
         return cls(molecule, rem, opt=opt, pcm=pcm, solvent=solvent)
 
     def write_file(self, filename):
-        with open(filename, 'w') as f:
+        with zopen(filename, 'wt') as f:
             f.write(self.__str__())
 
     @staticmethod
     def write_multi_job_file(job_list, filename):
-        with open(filename, 'w') as f:
+        with zopen(filename, 'wt') as f:
             f.write(QCInput.multi_job_string(job_list))
 
     @staticmethod
     def from_file(filename):
-        with open(filename, 'r') as f:
+        with zopen(filename, 'rt') as f:
             return QCInput.from_string(f.read())
 
     @classmethod
     def from_multi_jobs_file(cls, filename):
         # returns a list of QCInput objects
-        with open(filename, 'r') as f:
+        with zopen(filename, 'rt') as f:
             # the delimiter between QChem jobs is @@@
             multi_job_strings = f.read().split("@@@")
             # list of individual QChem jobs
@@ -164,10 +176,13 @@ class QCInput(MSONable):
             mol_list.append(" read")
         else:
             mol_list.append(" {charge} {spin_mult}".format(
-                charge=int(molecule.charge), spin_mult=molecule.spin_multiplicity))
+                charge=int(molecule.charge),
+                spin_mult=molecule.spin_multiplicity))
             for site in molecule.sites:
-                mol_list.append(" {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
-                    atom=site.species_string, x=site.x, y=site.y, z=site.z))
+                mol_list.append(
+                    " {atom}     {x: .10f}     {y: .10f}     {z: .10f}".format(
+                        atom=site.species_string, x=site.x, y=site.y,
+                        z=site.z))
         mol_list.append("$end")
         return '\n'.join(mol_list)
 
@@ -211,7 +226,8 @@ class QCInput(MSONable):
         solvent_list = []
         solvent_list.append("$solvent")
         for key, value in solvent.items():
-            solvent_list.append("   {key} {value}".format(key=key, value=value))
+            solvent_list.append("   {key} {value}".format(
+                key=key, value=value))
         solvent_list.append("$end")
         return '\n'.join(solvent_list)
 
@@ -225,7 +241,9 @@ class QCInput(MSONable):
         sections = [sec for sec in sections if sec != 'end']
         # this error should be replaced by a multi job read function when it is added
         if "multiple_jobs" in matches.keys():
-            raise ValueError("Output file contains multiple qchem jobs please parse separately")
+            raise ValueError(
+                "Output file contains multiple qchem jobs please parse separately"
+            )
         if "molecule" not in sections:
             raise ValueError("Output file does not contain a molecule section")
         if "rem" not in sections:
@@ -251,10 +269,19 @@ class QCInput(MSONable):
         header = r"^\s*\$molecule\n\s*\d\s*\d"
         row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer = r"^\$end"
-        mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        mol_table = read_table_pattern(
+            string,
+            header_pattern=header,
+            row_pattern=row,
+            footer_pattern=footer)
         species = [val[0] for val in mol_table[0]]
-        coords = [[float(val[1]), float(val[2]), float(val[3])] for val in mol_table[0]]
-        mol = Molecule(species=species, coords=coords, charge=charge, spin_multiplicity=spin_mult)
+        coords = [[float(val[1]), float(val[2]),
+                   float(val[3])] for val in mol_table[0]]
+        mol = Molecule(
+            species=species,
+            coords=coords,
+            charge=charge,
+            spin_multiplicity=spin_mult)
         return mol
 
     @staticmethod
@@ -262,7 +289,11 @@ class QCInput(MSONable):
         header = r"^\s*\$rem"
         row = r"\s*([a-zA-Z\_]+)\s*=?\s*(\S+)"
         footer = r"^\s*\$end"
-        rem_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        rem_table = read_table_pattern(
+            string,
+            header_pattern=header,
+            row_pattern=row,
+            footer_pattern=footer)
         rem = {key: val for key, val in rem_table[0]}
         return rem
 
@@ -281,26 +312,41 @@ class QCInput(MSONable):
             c_header = r"^\s*CONSTRAINT\n"
             c_row = r"(\w.*)\n"
             c_footer = r"^\s*ENDCONSTRAINT\n"
-            c_table = read_table_pattern(string, header_pattern=c_header, row_pattern=c_row, footer_pattern=c_footer)
+            c_table = read_table_pattern(
+                string,
+                header_pattern=c_header,
+                row_pattern=c_row,
+                footer_pattern=c_footer)
             opt["CONSTRAINT"] = [val[0] for val in c_table[0]]
         if "FIXED" in opt_sections:
             f_header = r"^\s*FIXED\n"
             f_row = r"(\w.*)\n"
             f_footer = r"^\s*ENDFIXED\n"
-            f_table = read_table_pattern(string, header_pattern=f_header, row_pattern=f_row, footer_pattern=f_footer)
+            f_table = read_table_pattern(
+                string,
+                header_pattern=f_header,
+                row_pattern=f_row,
+                footer_pattern=f_footer)
             opt["FIXED"] = [val[0] for val in f_table[0]]
         if "DUMMY" in opt_sections:
             d_header = r"^\s*DUMMY\n"
             d_row = r"(\w.*)\n"
             d_footer = r"^\s*ENDDUMMY\n"
-            d_table = read_table_pattern(string, header_pattern=d_header, row_pattern=d_row, footer_pattern=d_footer)
+            d_table = read_table_pattern(
+                string,
+                header_pattern=d_header,
+                row_pattern=d_row,
+                footer_pattern=d_footer)
             opt["DUMMY"] = [val[0] for val in d_table[0]]
         if "CONNECT" in opt_sections:
             cc_header = r"^\s*CONNECT\n"
             cc_row = r"(\w.*)\n"
             cc_footer = r"^\s*ENDCONNECT\n"
             cc_table = read_table_pattern(
-                string, header_pattern=cc_header, row_pattern=cc_row, footer_pattern=cc_footer)
+                string,
+                header_pattern=cc_header,
+                row_pattern=cc_row,
+                footer_pattern=cc_footer)
             opt["CONNECT"] = [val[0] for val in cc_table[0]]
         return opt
 
@@ -309,9 +355,15 @@ class QCInput(MSONable):
         header = r"^\s*\$pcm"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
-        pcm_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        pcm_table = read_table_pattern(
+            string,
+            header_pattern=header,
+            row_pattern=row,
+            footer_pattern=footer)
         if pcm_table == []:
-            print("No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines.")
+            print(
+                "No valid PCM inputs found. Note that there should be no '=' chracters in PCM input lines."
+            )
             return {}
         else:
             pcm = {key: val for key, val in pcm_table[0]}
@@ -322,17 +374,16 @@ class QCInput(MSONable):
         header = r"^\s*\$solvent"
         row = r"\s*([a-zA-Z\_]+)\s+(\S+)"
         footer = r"^\s*\$end"
-        solvent_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
+        solvent_table = read_table_pattern(
+            string,
+            header_pattern=header,
+            row_pattern=row,
+            footer_pattern=footer)
         if solvent_table == []:
-            print("No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines.")
+            print(
+                "No valid solvent inputs found. Note that there should be no '=' chracters in solvent input lines."
+            )
             return {}
         else:
             solvent = {key: val for key, val in solvent_table[0]}
             return solvent
-
-
-
-
-
-
-
