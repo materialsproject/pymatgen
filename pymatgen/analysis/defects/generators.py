@@ -179,8 +179,8 @@ class InterstitialGenerator(DefectGenerator):
             int_site = self.defect_sites.pop(0)
             mult = self.multiplicities.pop(0)
             self.count_def += 1
-            name = 'InFiT'+str(self.count_def)
-            return Interstitial(self.structure, int_site, name=name, multiplicity=mult)
+            site_name = 'InFiT'+str(self.count_def)
+            return Interstitial(self.structure, int_site, site_name=site_name, multiplicity=mult)
         else:
             raise StopIteration
 
@@ -229,8 +229,8 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         if len(self.equiv_site_seq) > 0:
             inter_site_list = self.equiv_site_seq.pop(0)
             self.count_def += 1
-            name = 'Voronoi'+str(self.count_def)
-            return Interstitial(self.structure, inter_site_list[0], name=name,
+            site_name = 'Voronoi'+str(self.count_def)
+            return Interstitial(self.structure, inter_site_list[0], site_name=site_name,
                                 multiplicity=len(inter_site_list))
         else:
             raise StopIteration

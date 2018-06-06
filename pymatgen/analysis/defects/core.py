@@ -111,13 +111,14 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         """
         return self.from_dict(self.as_dict())
 
-    def set_charge(self,new_charge=0.):
+    def set_charge(self, new_charge=0.):
         """
         Sets the overall charge
         Args:
             charge (float): new charge to set
         """
         self._charge = new_charge
+
 
 class Vacancy(Defect):
     """
@@ -164,7 +165,8 @@ class Vacancy(Defect):
         """
         Returns a name for this defect
         """
-        return "Vac_{}_mult{}".format(self.site.specie,self.multiplicity)
+        return "Vac_{}_mult{}".format(self.site.specie, self.multiplicity)
+
 
 class Substitution(Defect):
     """
@@ -223,7 +225,8 @@ class Substitution(Defect):
         poss_deflist = sorted(
             self.bulk_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
-        return "Sub_{}_on_{}_mult{}".format(self.site.specie,self.bulk_structure[defindex].specie,self.multiplicity)
+        return "Sub_{}_on_{}_mult{}".format(self.site.specie, self.bulk_structure[defindex].specie, self.multiplicity)
+
 
 class Interstitial(Defect):
     """
@@ -245,7 +248,7 @@ class Interstitial(Defect):
             multiplicity (int): multiplicity
                 default is 1,
         """
-        super().__init__(structure=structure,defect_site=defect_site,charge=charge)
+        super().__init__(structure=structure, defect_site=defect_site, charge=charge)
         self._multiplicity = multiplicity
         self.site_name = site_name
 
@@ -280,9 +283,10 @@ class Interstitial(Defect):
         Returns a name for this defect
         """
         if self.site_name:
-            return "Int_{}_{}_mult{}".format(self.site.specie,self.site_name,self.multiplicity)
+            return "Int_{}_{}_mult{}".format(self.site.specie, self.site_name, self.multiplicity)
         else:
-            return "Int_{}_mult{}".format(self.site.specie,self.multiplicity)
+            return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
+
 
 class DefectEntry(MSONable):
     """
@@ -308,6 +312,12 @@ class DefectEntry(MSONable):
                 defect_planar_averages )
             entry_id (obj): An id to uniquely identify this defect, can be any MSONable
                 type
+
+        Optional:
+            note that if you intend to use this defect entry with Charge Corrections
+            but the bulk_structure stored in defect is not the final supercell,
+            then 'scaling_matrix' must be stored in parameters
+                for example: parameters = {'scaling_matrix': [3,3,3]}
         """
         self.defect = defect
         self.uncorrected_energy = uncorrected_energy
@@ -325,13 +335,7 @@ class DefectEntry(MSONable):
 
     @property
     def multiplicty(self):
-        sc_multiplier = 1.
-        if 'scaling_matrix' in self.parameters:
-            for val in np.array(self.parameters['scaling_matrix']).flatten():
-                if val:
-                    #scale with non-zero scaling matrix entries
-                    sc_multiplier *= val
-        return self.defect.multiplicty * sc_multiplier
+        return self.defect.multiplicty
 
     @property
     def charge(self):
@@ -358,18 +362,15 @@ class DefectEntry(MSONable):
         Returns:
             A copy of the DefectEntry.
         """
-        defect = self.defect.copy()
-        corrections = self.corrections.copy()
-        parameters = self.parameters.copy()
-        return DefectEntry(defect, self.uncorrected_energy, corrections=corrections,
-                           parameters=parameters, entry_id=self.entry_id)
+        defectentry_dict = self.as_dict()
+        return DefectEntry.from_dict(defectentry_dict)
 
-    def formation_energy(self, chemical_potentials = None, fermi_level=0):
+    def formation_energy(self, chemical_potentials=None, fermi_level=0):
         """
         Computes the formation energy for a defect taking into account a given chemical potential and fermi_level
         """
         chemical_potentials = chemical_potentials if chemical_potentials else {}
-        
+
         chempot_correction = sum([
             chem_pot * (self.bulk_structure.composition[el] - self.defect.defect_composition[el])
             for el, chem_pot in chemical_potentials.items()
@@ -394,7 +395,7 @@ class DefectEntry(MSONable):
             defects concentration in cm^-3
         """
         n = self.multiplicity * 1e24 / self.defect.bulk_structure.volume
-        conc = n*exp( -1.0*self.formation_energy(chemical_potentials, fermi_level=fermi_level)/(kb*temperature))
+        conc = n * exp(-1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature))
 
         return conc
 
@@ -405,8 +406,10 @@ class DefectEntry(MSONable):
         output = [
             #TODO: add defect.name abilities... maybe with composition?
             # "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
-            "DefectEntry {} - {}".format(self.entry_id, "DEFECT"), "Energy = {:.4f}".format(self.energy),
-            "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))), "Parameters:"
+            "DefectEntry {} - {}".format(self.entry_id, "DEFECT"),
+            "Energy = {:.4f}".format(self.energy),
+            "Correction = {:.4f}".format(np.sum(list(self.corrections.values()))),
+            "Parameters:"
         ]
         for k, v in self.parameters.items():
             output.append("\t{} = {}".format(k, v))
@@ -453,3 +456,130 @@ class DefectCorrection(MSONable):
         """
         entry.correction.update(self.get_correction(entry))
         return entry
+
+
+"""
+Below is to be reviewed for accuracy (an idea for interstitial multiplicity generalization)
+"""
+from pymatgen.core import Molecule, PeriodicSite
+from pymatgen.core.operations import SymmOp
+from pymatgen.symmetry.analyzer import PointGroupAnalyzer
+
+
+def create_saturated_interstitial_structure(interstitial_def):
+    """
+    this takes a Interstitial defect object and finds multiplicity for it by decorating the defect structure with sites
+    which are identical under the nearest neighbor's point group symmetry
+
+    Process:
+        1) Find nearest neighbor (nn) to defect site (just choose one) and calculate init_basis_vector from nn to defect site
+        2) From NON DEFECTIVE structure create a Molecule object centered on nn,
+            then generate point group operations of that molecule
+            IF no centered molecule on point operations is possible -> just assume point group op is identity
+        3) Create a list of basis vectors transformed which are the transformations of the init_basis_vector
+            with respect to the point group operations
+        4) For all equivalent sites to the nn, consider the list of basis vectors and check if an interstitial site has been
+            added with this new basis vector relative to this equivalent nn site. If not - add it to the structure
+
+    Returns:
+        Structure object decorated with interstitial site equivalents
+    """
+    print('\nTry to find multiplicity for {}'.format(interstitial_def.name))
+    #1) Find nearest neighbor to defect site (just choose one) and calculate init_basis_vector from nn to defect site
+    defect_struct = interstitial_def.generate_defect_structure()
+    minrad = 1000.
+    nn_index = None
+    init_basis_vector = None
+    for pos_nn in defect_struct.get_neighbors(interstitial_def.site, 6., include_index=True):
+        if pos_nn[1] < minrad:
+            minrad = pos_nn[1]
+            init_basis_vector = np.subtract(
+                interstitial_def.site.coords,
+                pos_nn[0].coords)  #TODO: move this out of for loop...and do after you get it
+            nn_index = pos_nn[2]
+
+    if nn_index == None:
+        raise ValueError("Could not find nearest neighbor?")
+
+    # 2) From NON DEFECTIVE structure create molecule centered on nn and generate point group operations of that molecule
+    #   IF no centered molecule on point operations is possible -> just assume point group op is identity
+    bulk_struct = interstitial_def.bulk_structure.copy()
+    center_site = defect_struct[
+        nn_index]  #this will break things if supercell is used in generate_defect_structure above...
+    max_radius = 12
+
+    range_set = np.arange(7, max_radius, .2)
+    successful_centering = False
+    range_ind = 0
+    while not successful_centering:  #TODO: can speed this up by just building molecule (which gets auto-centered)
+        mol_coord_set = []  #zero centered site will get added
+        mol_spec_set = []
+        radius = range_set[range_ind]
+        for test_site in bulk_struct.get_sites_in_sphere(center_site.coords, radius):
+            #center the test site and append
+            centered_test_site = test_site[0].coords - center_site.coords
+            mol_coord_set.append(centered_test_site)
+            mol_spec_set.append(test_site[0].specie)
+
+        #check if molecule is centered
+        mol = Molecule(mol_spec_set, mol_coord_set, validate_proximity=True)
+        if np.linalg.norm(mol.center_of_mass) < 0.01:
+            successful_centering = True
+
+        range_ind += 1
+        if range_ind == len(range_set) and not successful_centering:
+            print("Unable to center molecule through {} Angstroms... just using identity operation.".format(max_radius))
+            sg_ops = [SymmOp(np.eye(4))]
+        elif successful_centering:
+            pga = PointGroupAnalyzer(mol)
+            sg_ops = pga.get_symmetry_operations()
+            print('Succesfully centered molecule on nn with {} atoms; has {} symm ops'.format(len(mol), len(sg_ops)))
+
+    # 3) Create a list of basis vectors transformed which are the transformations of the init_basis_vector
+    #   with respect to the point group operations
+    basis_vector_list = []
+    for sgo in sg_ops:
+        new_vector = sgo.operate(init_basis_vector)
+        add_vector = True
+        for prev_vec in basis_vector_list:
+            if np.linalg.norm(np.subtract(new_vector, prev_vec)) < 0.01:
+                add_vector = False
+        if add_vector:
+            basis_vector_list.append(new_vector)
+
+    print('This process ended up with {} new basis vectors'.format(len(basis_vector_list)))
+
+    # 4) For all equivalent sites of nn, consider the list of basis vectors and check if an interstitial site has been
+    #   added with this new basis vector relative to the equivalent nn site. If not - add it to the structure
+    mirrored_def_structure = defect_struct.copy()
+    poss_mirr_nn_site_ind = sorted(
+        mirrored_def_structure.get_sites_in_sphere(defect_struct[nn_index].coords, 2, include_index=True),
+        key=lambda x: x[1])
+    mirr_nn_site_ind = poss_mirr_nn_site_ind[0][2]
+
+    sga = SpacegroupAnalyzer(mirrored_def_structure)
+    mirrored_periodic_struc = sga.get_symmetrized_structure()  #needed for finding equivalent images
+
+    id_inter_list = [defect_struct[nn_index].coords]
+
+    for equiv_site in mirrored_periodic_struc.find_equivalent_sites(mirrored_periodic_struc[mirr_nn_site_ind]):
+        for basevec in basis_vector_list:
+            trial_coord = equiv_site.coords + basevec
+            poss_new_site = PeriodicSite(
+                interstitial_def.site.specie,
+                trial_coord,
+                mirrored_def_structure.lattice,
+                to_unit_cell=True,
+                coords_are_cartesian=True)
+            append_site = True
+            for mdsite in mirrored_def_structure:
+                if mdsite.distance(poss_new_site) < 0.5:
+                    append_site = False
+            if append_site:  #TODO: just get all sites and create a new structre out of it
+                mirrored_def_structure.append(
+                    poss_new_site.specie, poss_new_site.coords, coords_are_cartesian=True, validate_proximity=True)
+                id_inter_list.append(poss_new_site)
+
+    print('Final multiplicity is {}'.format(len(id_inter_list)))
+
+    return mirrored_def_structure

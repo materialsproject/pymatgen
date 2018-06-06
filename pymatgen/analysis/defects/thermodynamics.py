@@ -52,8 +52,8 @@ class DefectPhaseDiagram(MSONable):
         """
         Sets the stable charges and transition states for a series of
         defect entries. This function uses scipy's HalfspaceInterection
-        to oncstruct the polygons corresponding to defect stability as 
-        a function of the Fermi-level. The Halfspace Intersection 
+        to oncstruct the polygons corresponding to defect stability as
+        a function of the Fermi-level. The Halfspace Intersection
         constructs N-dimensional hyperplanes, in this case N=2,  based
         on the equation of defect formation energy with considering chemical
         potentials:
@@ -118,7 +118,7 @@ class DefectPhaseDiagram(MSONable):
                 for intersection, facet in ints_and_facets
             }
 
-            stable_entries[defects[0].name] = [defects[i] for dual in facets for i in dual]
+            stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
 
             finished_charges[defects[0].name] = [defect.charge for defect in defects]
 
@@ -300,3 +300,5 @@ class DefectPhaseDiagram(MSONable):
             return non_eq_ef, nden, pden
         else:
             return non_eq_ef
+
+

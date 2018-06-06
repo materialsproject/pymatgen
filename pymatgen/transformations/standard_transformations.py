@@ -764,7 +764,7 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
 
 class ChargedCellTransformation(AbstractTransformation):
     """
-    The ChargedCellTransformation applies a charge to a structure.
+    The ChargedCellTransformation applies a charge to a structure (or defect object).
 
     Args:
         charge: A integer charge to apply to the structure.

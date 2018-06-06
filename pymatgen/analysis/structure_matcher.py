@@ -19,7 +19,10 @@ import abc
 from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.composition import Composition
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.defects.core import Interstitial
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
@@ -1105,3 +1108,63 @@ class StructureMatcher(MSONable):
             return None
 
         return match[4]
+
+
+
+class DefectComparator(AbstractComparator):
+    """
+    A Comparator that matches Defect objects.
+    Able to match identical defects even if their
+    cartesian co-ordinates are different.
+    Note that this is harder for interstitials.
+    """
+
+    def are_equal(self, d1, d2):
+        """
+        Args:
+            d1: First defect. A pymatgen Defect object.
+            d2: Second defect. A pymatgen Defect object.
+
+        Returns:
+            True if sets of occupancies (amt) are equal on both sites.
+        """
+        if (type(d1) == type(d2)) and (type(d1) != Interstitial):
+            #compare non-interstitial type defects by finding equivalent sites in
+            # structure and cross comparing to see if there is a non-zero intersection
+            sga1 = SpacegroupAnalyzer( d1.bulk_structure)
+            poss_deflist = sorted(
+                d1.bulk_structure.get_sites_in_sphere(
+                    d1.site.coords, 2, include_index=True), key=lambda x: x[1])
+            def1index = poss_deflist[0][2]
+            equiv_d1_sites = set(sga1.find_equivalent_sites(d1.bulk_structure[def1index]))
+
+            sga2 = SpacegroupAnalyzer( d2.bulk_structure)
+            poss_deflist = sorted(
+                d2.bulk_structure.get_sites_in_sphere(
+                    d2.site.coords, 2, include_index=True), key=lambda x: x[1])
+            def2index = poss_deflist[0][2]
+            equiv_d2_sites = set(sga2.find_equivalent_sites(d2.bulk_structure[def2index]))
+
+            intersect_sites = equiv_d1_sites.intersection( equiv_d2_sites)
+            #NOTE: this might break if lattice is different in the site objects?
+            # TODO: fix this / test to see if there is smarter way to do this?
+
+            if len(intersect_sites):
+                return True
+            else:
+                return False
+
+        elif type(d1) == type(d2):
+            #consider case for interstitials
+            #TODO: smarter version for this? Can use existing code in defects.core?
+            if (d1.name == d2.name) and (d1.site == d2.site):
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def get_hash(self, composition):
+        # Difficult to define sensible hash
+        return 1
+
