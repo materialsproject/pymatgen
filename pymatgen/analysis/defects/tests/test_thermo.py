@@ -46,7 +46,6 @@ class DefectsThermodynamicsTest(PymatgenTest):
         pd = DefectPhaseDiagram(self.entries, 2.6682, 2.0)
 
         all_stable_entries = pd.all_stable_entries
-        all_unstable_entries = pd.all_unstable_entries
 
         self.assertEqual(len(pd.defect_types), 6)
         self.assertEqual(len(all_stable_entries), sum([len(v) for v in pd.stable_charges.values()]))

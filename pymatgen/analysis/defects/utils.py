@@ -20,34 +20,27 @@ import math
 from monty.json import MSONable
 
 import numpy as np
-norm = np.linalg.norm
 
-import abc
+
 import itertools
 import numpy as np
 import logging
-import six
+
 import pandas as pd
 from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
-
-from pymatgen.core.periodic_table import Specie, Element, get_el_sp
+from pymatgen.analysis.local_env import LocalStructOrderParams, \
+    MinimumDistanceNN, VoronoiNN
+from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
+from pymatgen.io.zeopp import get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
-from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
-    get_energy_relax_structure_buckingham
-from pymatgen.analysis.local_env import LocalStructOrderParams, \
-    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator
-from pymatgen.analysis.structure_analyzer import RelaxationAnalyzer
-from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.phase_diagram import get_facets
-from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
 from monty.dev import requires
@@ -59,11 +52,10 @@ try:
 except ImportError:
     peak_local_max_found = False
 
-from six.moves import filter
 from six.moves import map
 
 logger = logging.getLogger(__name__)
-
+norm = np.linalg.norm
 hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
@@ -273,7 +265,7 @@ class StructureMotifInterstitial(object):
         if len(self._motif_types) == 0:
             raise RuntimeError("no motif types provided.")
         self._op_threshs = op_threshs[:]
-        for imotif, motif in enumerate(self._motif_types):
+        for motif in self._motif_types:
             if motif not in self.__supported_types:
                 raise RuntimeError("unsupported motif type: {}.".format(motif))
         self._dl = dl
@@ -348,7 +340,7 @@ class StructureMotifInterstitial(object):
 
                             if motif_type != "unrecognized":
                                 cns = {}
-                                for isite, site in enumerate(neighs):
+                                for site in neighs:
                                     if isinstance(site.specie, Element):
                                         elem = site.specie.symbol
                                     else:
@@ -870,7 +862,7 @@ class VoronoiPolyhedron(object):
         frac_diff = pbc_diff(poly.frac_coords, self.frac_coords)
         if not np.allclose(frac_diff, [0, 0, 0], atol=tol):
             return False
-        to_frac = lambda c: self.lattice.get_fractional_coords(c)
+        to_frac = self.lattice.get_fractional_coords
         for c1 in self.polyhedron_coords:
             found = False
             for c2 in poly.polyhedron_coords:

@@ -115,15 +115,15 @@ class DefectsCorrectionsTest(PymatgenTest):
         kc = KumagaiCorrection(epsilon)
 
         #test find_optimal_gamma method
-        gamma = find_optimal_gamma(vac.bulk_structure, epsilon)
+        gamma = find_optimal_gamma(vac.bulk_structure.lattice, epsilon)
         self.assertEqual(gamma, 2.006866136855667)
 
         #test generate_g_sum method
-        g_sum = generate_g_sum( vac.bulk_structure, epsilon, dim, gamma)
+        g_sum = generate_g_sum( vac.bulk_structure.lattice, epsilon, dim, gamma)
         self.assertEqual( len(g_sum), 100)
 
         #test electrostatic correction
-        es_corr = kc.perform_es_corr( vac.bulk_structure, -3, g_sum, gamma, kc.madelung_energy_tolerance)
+        es_corr = kc.perform_es_corr( vac.bulk_structure.lattice, -3, g_sum, gamma, kc.madelung_energy_tolerance)
         self.assertEqual(es_corr, 0.9764131640471401)
 
         #test potential alignment method
@@ -188,7 +188,7 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         #test a different charge
         #   for electrostatic correction
-        es_corr = kc.perform_es_corr( vac.bulk_structure, 2, g_sum, gamma, kc.madelung_energy_tolerance)
+        es_corr = kc.perform_es_corr( vac.bulk_structure.lattice, 2, g_sum, gamma, kc.madelung_energy_tolerance)
         self.assertEqual(es_corr, 0.43396140624317336)
         #   for potential alignment method
         pot_corr = kc.perform_pot_corr( vac.bulk_structure, defect_structure, defect_position, site_list,
@@ -198,11 +198,11 @@ class DefectsCorrectionsTest(PymatgenTest):
         #test an input anisotropic dielectric constant
         aniso_dielectric = np.array([[15.,0,3.],[0,15.,0.],[0,0,10.]])
         aniso_gamma = 2.0068661368556668
-        aniso_g_sum = generate_g_sum( vac.bulk_structure, aniso_dielectric, dim, aniso_gamma)
+        aniso_g_sum = generate_g_sum( vac.bulk_structure.lattice, aniso_dielectric, dim, aniso_gamma)
         kc = KumagaiCorrection(aniso_dielectric, gamma=aniso_gamma, g_sum=aniso_g_sum)
         for u,v in zip(kc.dielectric.flatten(), aniso_dielectric.flatten()):
             self.assertEqual(u, v)
-        es_corr = kc.perform_es_corr( vac.bulk_structure, -3, aniso_g_sum, aniso_gamma, kc.madelung_energy_tolerance)
+        es_corr = kc.perform_es_corr( vac.bulk_structure.lattice, -3, aniso_g_sum, aniso_gamma, kc.madelung_energy_tolerance)
         self.assertEqual(es_corr, 1.027001049757768)
         pot_corr = kc.perform_pot_corr( vac.bulk_structure, defect_structure, defect_position,
                                         site_list, sampling_radius, -3, aniso_g_sum, dim, aniso_gamma,  kc.madelung_energy_tolerance)

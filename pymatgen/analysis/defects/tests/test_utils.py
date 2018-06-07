@@ -12,15 +12,12 @@ import random
 from pymatgen.analysis.defects.utils import QModel, eV_to_k, generate_reciprocal_vectors_squared, \
     closestsites, StructureMotifInterstitial, TopographyAnalyzer, ChargeDensityAnalyzer
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator
+
 from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
+
 from pymatgen.io.vasp.outputs import Chgcar
-from pymatgen.analysis.bond_valence import BVAnalyzer
-from monty.os.path import which
-from pymatgen.io.cif import CifParser
 
 try:
     from skimage.feature import peak_local_max
@@ -276,7 +273,7 @@ class ChgDenAnalyzerTest(unittest.TestCase):
 
     def test_from_file(self):
         ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
-        assert isinstance(ca, ChargeDensityAnalyzer)
+        self.assertIsInstance(ca, ChargeDensityAnalyzer)
 
 
 if __name__ == "__main__":

@@ -8,15 +8,11 @@ __email__ = "dbroberg@berkeley.edu, shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "January 11, 2018"
 
-from math import exp
 import numpy as np
 from monty.json import MSONable
-from scipy import integrate
 from scipy.spatial import HalfspaceIntersection
 from scipy.optimize import bisect
 from itertools import groupby, chain
-
-from pymatgen.analysis.defects.utils import kb
 
 
 class DefectPhaseDiagram(MSONable):
@@ -80,7 +76,6 @@ class DefectPhaseDiagram(MSONable):
         limits = [[-1, self.band_gap + 1], [-21, 20]]
 
         stable_entries = {}
-        stable_charges = {}
         finished_charges = {}
         transition_level_map = {}
 
@@ -110,7 +105,7 @@ class DefectPhaseDiagram(MSONable):
             # sort based on transition level
             ints_and_facets = list(sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0]))
             # Unpack into lists
-            intersections, facets = zip(*ints_and_facets)
+            _, facets = zip(*ints_and_facets)
             # Map of transition level: charge states
 
             transition_level_map[defects[0].name] = {
@@ -244,61 +239,3 @@ class DefectPhaseDiagram(MSONable):
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
-
-    def solve_non_eq_fermilevel(self, lowT, highT, bulk_dos, show_carriers=True, hold_htemp_ef=True):
-        """
-        Solve for the Fermi energy at a low temperature value, but with defect concentrations frozen in
-            at some higher temperature value This means that only the fermi level and free charge carriers concentrations
-            will be solved self consistently (simulating a 'frozen-in' defect concentration approach)
-
-        Args:
-            lowT: the temperature at which you want to solve for fermi level and free carrier concentrations
-            highT: the fixed temperature that sets the defect concentrations at a higher temperature
-            bulk_dos: bulk system dos (pymatgen Dos object)
-            show_carriers: Dictates the outputs of this function
-                Set to True if you want the new carrier concentrations in addition to the fermi levels
-            hold_htemp_ef: Specifies whether the fermi level will be fixed for the defect concentrations at high T
-                Set to False if you want the fermi level of the high temperature defects to be the same as the fermi level
-                for the low temperature charge carriers (see below note on implementation for explanation of this flag)
-        Returns:
-            Fermi energy
-
-        A NOTE ON IMPLEMENTATION: while testing this function, it became apparent that negative defect formation energies
-            can sometimes cause stochastic results for the fermi level as a result of the defect concentrations not
-            being allowed to change within the self consistent result. To circumvent this, this function has a flag ('hold_htemp_ef')
-            to allow for the fermi level of high temperature defects to vary within the self consistent approach.
-            While this is no longer the fully physical 'frozen-in' approach, it helps remove the stocastic results
-            that result from numerical issues
-
-        """
-        from scipy.optimize import bisect
-        q_h_cont = IntrinsicCarrier(bulk_dos, exp_gap=self.band_gap)
-
-        if hold_htemp_ef:
-            self.solve_for_fermi_energy(bulk_dos, gap=self.band_gap)
-            defectlist = self.get_defects_concentration(highT, self._ef, unitcell=False)
-
-        def noneq_total_q(ef):
-            qd_tot = 0
-            if hold_htemp_ef:
-                for d in defectlist:
-                    qd_tot += d['charge'] * d['conc']
-            else:
-                for d in self.get_defects_concentration(highT, ef, unitcell=False):
-                    qd_tot += d['charge'] * d['conc']
-            ef_ref_cbm = ef - self.band_gap
-            nden = q_h_cont.get_n_density(ef_ref_cbm, lowT, ref='CBM', unitcell=False)
-            pden = q_h_cont.get_p_density(ef, lowT, unitcell=False)
-            qd_tot += pden - nden
-            return qd_tot
-
-        non_eq_ef = bisect(lambda e: noneq_total_q(e), -1., self.band_gap + 1.)
-        if show_carriers:
-            ef_ref_cbm = non_eq_ef - self.band_gap
-            nden = q_h_cont.get_n_density(ef_ref_cbm, lowT, ref='CBM', unitcell=False)
-            pden = q_h_cont.get_p_density(non_eq_ef, lowT, unitcell=False)
-            return non_eq_ef, nden, pden
-        else:
-            return non_eq_ef
-
-

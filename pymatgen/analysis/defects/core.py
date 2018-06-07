@@ -16,7 +16,6 @@ __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
 import six
-import copy
 import logging
 import numpy as np
 
@@ -235,7 +234,7 @@ class Interstitial(Defect):
 
     def __init__(self, structure, defect_site, charge=0., site_name='', multiplicity=1):
         """
-        Initializes an interstial defect. 
+        Initializes an interstial defect.
         User must specify multiplity. Default is 1
         Args:
             structure: Pymatgen Structure without any defects
@@ -294,7 +293,7 @@ class DefectEntry(MSONable):
     for many defect analysis.
     """
 
-    def __init__(self, defect, uncorrected_energy, corrections={}, parameters={}, entry_id=None):
+    def __init__(self, defect, uncorrected_energy, corrections=None, parameters=None, entry_id=None):
         """
         Args:
             defect:
@@ -321,9 +320,9 @@ class DefectEntry(MSONable):
         """
         self.defect = defect
         self.uncorrected_energy = uncorrected_energy
-        self.corrections = corrections
+        self.corrections = corrections if corrections else {}
         self.entry_id = entry_id
-        self.parameters = parameters
+        self.parameters = parameters if parameters else {}
 
     @property
     def bulk_structure(self):
@@ -404,7 +403,7 @@ class DefectEntry(MSONable):
         Human readable string representation of this entry
         """
         output = [
-            #TODO: add defect.name abilities... maybe with composition?
+            # TODO: add defect.name abilities... maybe with composition?
             # "DefectEntry {} - {}".format(self.entry_id, self.defect.name), "Energy = {:.4f}".format(self.energy),
             "DefectEntry {} - {}".format(self.entry_id, "DEFECT"),
             "Energy = {:.4f}".format(self.energy),
@@ -485,7 +484,7 @@ def create_saturated_interstitial_structure(interstitial_def):
         Structure object decorated with interstitial site equivalents
     """
     print('\nTry to find multiplicity for {}'.format(interstitial_def.name))
-    #1) Find nearest neighbor to defect site (just choose one) and calculate init_basis_vector from nn to defect site
+    # 1) Find nearest neighbor to defect site (just choose one) and calculate init_basis_vector from nn to defect site
     defect_struct = interstitial_def.generate_defect_structure()
     minrad = 1000.
     nn_index = None
@@ -495,7 +494,7 @@ def create_saturated_interstitial_structure(interstitial_def):
             minrad = pos_nn[1]
             init_basis_vector = np.subtract(
                 interstitial_def.site.coords,
-                pos_nn[0].coords)  #TODO: move this out of for loop...and do after you get it
+                pos_nn[0].coords)  # TODO: move this out of for loop...and do after you get it
             nn_index = pos_nn[2]
 
     if nn_index == None:
@@ -505,23 +504,23 @@ def create_saturated_interstitial_structure(interstitial_def):
     #   IF no centered molecule on point operations is possible -> just assume point group op is identity
     bulk_struct = interstitial_def.bulk_structure.copy()
     center_site = defect_struct[
-        nn_index]  #this will break things if supercell is used in generate_defect_structure above...
+        nn_index]  # this will break things if supercell is used in generate_defect_structure above...
     max_radius = 12
 
     range_set = np.arange(7, max_radius, .2)
     successful_centering = False
     range_ind = 0
-    while not successful_centering:  #TODO: can speed this up by just building molecule (which gets auto-centered)
-        mol_coord_set = []  #zero centered site will get added
+    while not successful_centering:  # TODO: can speed this up by just building molecule (which gets auto-centered)
+        mol_coord_set = []  # zero centered site will get added
         mol_spec_set = []
         radius = range_set[range_ind]
         for test_site in bulk_struct.get_sites_in_sphere(center_site.coords, radius):
-            #center the test site and append
+            # center the test site and append
             centered_test_site = test_site[0].coords - center_site.coords
             mol_coord_set.append(centered_test_site)
             mol_spec_set.append(test_site[0].specie)
 
-        #check if molecule is centered
+        # check if molecule is centered
         mol = Molecule(mol_spec_set, mol_coord_set, validate_proximity=True)
         if np.linalg.norm(mol.center_of_mass) < 0.01:
             successful_centering = True
@@ -558,7 +557,7 @@ def create_saturated_interstitial_structure(interstitial_def):
     mirr_nn_site_ind = poss_mirr_nn_site_ind[0][2]
 
     sga = SpacegroupAnalyzer(mirrored_def_structure)
-    mirrored_periodic_struc = sga.get_symmetrized_structure()  #needed for finding equivalent images
+    mirrored_periodic_struc = sga.get_symmetrized_structure()  # needed for finding equivalent images
 
     id_inter_list = [defect_struct[nn_index].coords]
 
@@ -575,7 +574,7 @@ def create_saturated_interstitial_structure(interstitial_def):
             for mdsite in mirrored_def_structure:
                 if mdsite.distance(poss_new_site) < 0.5:
                     append_site = False
-            if append_site:  #TODO: just get all sites and create a new structre out of it
+            if append_site:  # TODO: just get all sites and create a new structre out of it
                 mirrored_def_structure.append(
                     poss_new_site.specie, poss_new_site.coords, coords_are_cartesian=True, validate_proximity=True)
                 id_inter_list.append(poss_new_site)
