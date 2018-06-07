@@ -341,6 +341,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(
             vasprun.as_dict()["input"]["potcar_type"],
             ['PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE'])
+        self.assertEqual(vasprun.as_dict()['input']['nkpoints'], 24)
 
     def test_get_band_structure(self):
         with warnings.catch_warnings():
