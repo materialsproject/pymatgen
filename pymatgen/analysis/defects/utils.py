@@ -138,16 +138,28 @@ def genrecip(a1, a2, a3, encut):
     b3 = (2 * np.pi / vol) * np.cross(a1, a2)
 
     # create list of recip space vectors that satisfy |i*b1+j*b2+k*b3|<=encut
-    gcut = eV_to_k(encut)
-    imax = int(math.ceil(gcut / min(map(norm, [b1, b2, b3]))))
+    G_cut = eV_to_k(encut)
+    # Figure out max in all recipricol lattice directions
+    i_max = int(math.ceil(G_cut / norm(b1)))
+    j_max = int(math.ceil(G_cut / norm(b2)))
+    k_max = int(math.ceil(G_cut / norm(b3)))
 
-    for i in range(-imax, imax + 1):
-        for j in range(-imax, imax + 1):
-            for k in range(-imax, imax + 1):
-                vec = i * b1 + j * b2 + k * b3
-                en = invang_to_ev * (((1.0 / ang_to_bohr) * norm(vec))**2)
-                if (en <= encut and en != 0):
-                    yield vec
+    # Build index list
+    i = np.arange(-i_max,i_max)
+    j = np.arange(-j_max,j_max)
+    k = np.arange(-k_max,k_max)
+
+    # Convert index to vectors using meshgrid
+    indicies = np.array(np.meshgrid(i,j,k)).T.reshape(-1,3)
+    # Multiply integer vectors to get recipricol space vectors
+    vecs = np.dot(indicies,[b1,b2,b3])
+    # Calculate radii of all vectors
+    radii = np.sqrt(np.einsum('ij,ij->i', vecs, vecs))
+
+    # Yield based on radii
+    for vec,r in zip(vecs,radii):
+        if r < G_cut and r != 0:
+            yield vec
 
 
 def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
@@ -164,23 +176,8 @@ def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
         [[g1^2], [g2^2], ...] Square of reciprocal vectors (1/Bohr)^2
         determined by a1, a2, a3 and whose magntidue is less than gcut^2.
     """
-    vol = np.dot(a1, np.cross(a2, a3))
-    b1 = (2 * np.pi / vol) * np.cross(a2, a3)
-    b2 = (2 * np.pi / vol) * np.cross(a3, a1)
-    b3 = (2 * np.pi / vol) * np.cross(a1, a2)
-
-    # Max (i,j,k) that doesn't upset the condition |i*b1+j*b2+k*b3|<=gcut
-    gcut = eV_to_k(encut)
-    imax = int(math.ceil(gcut / min(norm(b1), norm(b2), norm(b3))))
-    gcut2 = gcut * gcut
-
-    for i in range(-imax, imax + 1):
-        for j in range(-imax, imax + 1):
-            for k in range(-imax, imax + 1):
-                vec = i * b1 + j * b2 + k * b3
-                vec2 = np.dot(vec, vec)
-                if (vec2 <= gcut2 and vec2 != 0.0):
-                    yield vec2
+    for vec in genrecip(a1,a2,a3,encut):
+        yield np.dot(vec,vec)
 
 
 def closestsites(struct_blk, struct_def, pos):
