@@ -1335,7 +1335,7 @@ class Kpoints(MSONable):
 
     def as_dict(self):
         """json friendly dict representation of Kpoints"""
-        d = {"comment": self.comment, "nkpoints": len(self.kpts),
+        d = {"comment": self.comment, "nkpoints": self.num_kpts,
              "generation_style": self.style.name, "kpoints": self.kpts,
              "usershift": self.kpts_shift,
              "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
