@@ -9,22 +9,15 @@ import subprocess
 import warnings
 import numpy as np
 import glob
-import itertools
-
-import matplotlib.pyplot as plt
 
 from scipy.spatial import KDTree
-from pymatgen.core import Structure
 from pymatgen.io.vasp.outputs import Chgcar
-from pymatgen.io.vasp.inputs import Potcar
-from pymatgen.symmetry.groups import PointGroup
 from pymatgen.analysis.graphs import StructureGraph
 from monty.os.path import which
 from monty.dev import requires
 from monty.json import MSONable
 from monty.tempfile import ScratchDir
 from enum import Enum
-from textwrap import dedent
 
 import logging
 logging.basicConfig(level=logging.INFO)

@@ -240,7 +240,7 @@ class ElasticTensor(NthOrderElasticTensor):
         nsites = structure.num_sites
         volume = structure.volume
         natoms = structure.composition.num_atoms
-        weight = structure.composition.weight
+        weight = float(structure.composition.weight)
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         if self.g_vrh < 0:
             raise ValueError("k_vrh or g_vrh is negative, "
@@ -262,7 +262,7 @@ class ElasticTensor(NthOrderElasticTensor):
         nsites = structure.num_sites
         volume = structure.volume
         natoms = structure.composition.num_atoms
-        weight = structure.composition.weight
+        weight = float(structure.composition.weight)
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         if self.g_vrh < 0:
             raise ValueError("k_vrh or g_vrh is negative, "
@@ -336,7 +336,7 @@ class ElasticTensor(NthOrderElasticTensor):
         volume = structure.volume
         tot_mass = sum([e.atomic_mass for e in structure.species])
         natoms = structure.composition.num_atoms
-        weight = structure.composition.weight
+        weight = float(structure.composition.weight)
         avg_mass = 1.6605e-27 * tot_mass / natoms
         mass_density = 1.6605e3 * nsites * weight / (natoms * volume)
         return 0.87 * 1.3806e-23 * avg_mass**(-2./3.) \
@@ -680,7 +680,7 @@ class ElasticTensorExpansion(TensorCollection):
         """
         l0 = np.dot(np.sum(structure.lattice.matrix, axis=0), n)
         l0 *= 1e-10 # in A
-        weight = structure.composition.weight * 1.66054e-27 # in kg
+        weight = float(structure.composition.weight) * 1.66054e-27 # in kg
         vol = structure.volume * 1e-30 # in m^3
         vel = (1e9 * self[0].einsum_sequence([n, u, n, u])
                / (weight / vol)) ** 0.5

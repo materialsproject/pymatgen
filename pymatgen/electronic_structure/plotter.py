@@ -2300,8 +2300,11 @@ class BSDOSPlotter(object):
                                         color=(0.7, 0.7, 0.7),
                                         facecolor=(0.7, 0.7, 0.7))
 
-                    # plot the atom-projected DOS
-                    if self.dos_projection.lower() == "elements":
+                    if self.dos_projection is None:
+                        pass
+
+                    elif self.dos_projection.lower() == "elements":
+                        # plot the atom-projected DOS
                         colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
                         el_dos = dos.get_element_dos()
                         for idx, el in enumerate(elements):

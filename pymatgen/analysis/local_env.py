@@ -11,6 +11,7 @@ import six
 import ruamel.yaml as yaml
 import os
 import json
+from copy import deepcopy
 
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.sites import PeriodicSite
@@ -38,8 +39,6 @@ from scipy.spatial import Voronoi
 from pymatgen import Element
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
-
-from pymatgen.command_line.critic2_caller import Critic2Caller
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
@@ -1401,14 +1400,14 @@ class LocalStructOrderParams(object):
 
         self._params = []
         for i, t in enumerate(self._types):
-            d = default_op_params[t].copy() if default_op_params[t] is not None \
+            d = deepcopy(default_op_params[t]) if default_op_params[t] is not None \
                 else None
             if parameters is None:
                 self._params.append(d)
             elif parameters[i] is None:
                 self._params.append(d)
             else:
-                self._params.append(parameters[i].copy())
+                self._params.append(deepcopy(parameters[i]))
 
         self._computerijs = self._computerjks = self._geomops = False
         self._geomops2 = self._boops = False
@@ -2984,6 +2983,11 @@ class Critic2NN(NearNeighbors):
         self.__last_bonded_structure = None
 
     def get_bonded_structure(self, structure, decorate=False):
+        
+        # not a top-level import because critic2 is an optional
+        # dependency, only want to raise an import error if
+        # Critic2NN() is used
+        from pymatgen.command_line.critic2_caller import Critic2Caller
 
         if structure == self.__last_structure:
             sg = self.__last_bonded_structure

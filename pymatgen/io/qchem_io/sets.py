@@ -5,6 +5,7 @@
 import logging
 from pymatgen.core import Molecule
 from pymatgen.io.qchem_io.inputs import QCInput
+from pymatgen.io.qchem_io.utils import lower_and_check_unique
 
 # Classes for reading/manipulating/writing QChem ouput files.
 
@@ -20,8 +21,16 @@ class QChemDictSet(QCInput):
     Build a QCInput given all the various input parameters. Can be extended by standard implementations below.
     """
 
-    def __init__(self, molecule, job_type, basis_set, scf_algorithm, dft_rung=4, pcm_dielectric=None,
-                 max_scf_cycles=200, geom_opt_max_cycles=200):
+    def __init__(self,
+                 molecule,
+                 job_type,
+                 basis_set,
+                 scf_algorithm,
+                 dft_rung=4,
+                 pcm_dielectric=None,
+                 max_scf_cycles=200,
+                 geom_opt_max_cycles=200,
+                 overwrite_inputs=None):
         """
         Args:
             molecule (Pymatgen molecule object)
@@ -32,6 +41,13 @@ class QChemDictSet(QCInput):
             pcm_dielectric (str)
             max_scf_cycles (int)
             geom_opt_max_cycles (int)
+            overwrite_inputs (dict): This is dictionary of QChem input sections to add or overwrite variables,
+            the available sections are currently rem, pcm, and solvent. So the accepted keys are rem, pcm, or solvent
+            and the value is a dictionary of key value pairs relevant to the section. An example would be adding a
+            new variable to the rem section that sets symmetry to false.
+            ex. overwrite_inputs = {"rem": {"symmetry": "false"}}
+            ***It should be noted that if something like basis is added to the rem dict it will overwrite
+            the default basis.***
         """
         self.molecule = molecule
         self.job_type = job_type
@@ -41,9 +57,15 @@ class QChemDictSet(QCInput):
         self.pcm_dielectric = pcm_dielectric
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
+        self.overwrite_inputs = overwrite_inputs
 
-        pcm_defaults = {"heavypoints": "194", "hpoints": "194",
-                        "radii": "uff", "theory": "cpcm", "vdwscale": "1.1"}
+        pcm_defaults = {
+            "heavypoints": "194",
+            "hpoints": "194",
+            "radii": "uff",
+            "theory": "cpcm",
+            "vdwscale": "1.1"
+        }
 
         mypcm = {}
         mysolvent = {}
@@ -51,6 +73,8 @@ class QChemDictSet(QCInput):
         myrem["job_type"] = job_type
         myrem["basis"] = self.basis_set
         myrem["max_scf_cycles"] = self.max_scf_cycles
+        myrem["gen_scfman"] = "true"
+        myrem["scf_algorithm"] = self.scf_algorithm
 
         if self.dft_rung == 1:
             myrem["exchange"] = "B3LYP"
@@ -60,7 +84,7 @@ class QChemDictSet(QCInput):
         elif self.dft_rung == 3:
             myrem["method"] = "B97M-rV"
         elif self.dft_rung == 4:
-            myrem["method"] = "wB97X-V"
+            myrem["method"] = "wb97xd"
         elif self.dft_rung == 5:
             myrem["method"] = "wB97M-V"
         else:
@@ -74,8 +98,23 @@ class QChemDictSet(QCInput):
             mysolvent["dielectric"] = self.pcm_dielectric
             myrem["solvent_method"] = 'pcm'
 
-        super(QChemDictSet, self).__init__(self.molecule,
-                                           rem=myrem, pcm=mypcm, solvent=mysolvent)
+        if self.overwrite_inputs:
+            for sec, sec_dict in self.overwrite_inputs.items():
+                if sec == "rem":
+                    temp_rem = lower_and_check_unique(sec_dict)
+                    for k, v in temp_rem.items():
+                        myrem[k] = v
+                if sec == "pcm":
+                    temp_pcm = lower_and_check_unique(sec_dict)
+                    for k, v in temp_pcm.items():
+                        mypcm[k] = v
+                if sec == "solvent":
+                    temp_solvent = lower_and_check_unique(sec_dict)
+                    for k, v in temp_solvent.items():
+                        mysolvent[k] = v
+
+        super(QChemDictSet, self).__init__(
+            self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent)
 
 
 class OptSet(QChemDictSet):
@@ -83,15 +122,29 @@ class OptSet(QChemDictSet):
     QChemDictSet for a geometry optimization
     """
 
-    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*", pcm_dielectric=None,
-                 scf_algorithm="diis", max_scf_cycles=200, geom_opt_max_cycles=200):
+    def __init__(self,
+                 molecule,
+                 dft_rung=4,
+                 basis_set="6-311++G*",
+                 pcm_dielectric=None,
+                 scf_algorithm="diis",
+                 max_scf_cycles=200,
+                 geom_opt_max_cycles=200,
+                 overwrite_inputs=None):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
-        super(OptSet, self).__init__(molecule=molecule, job_type="opt", dft_rung=dft_rung, pcm_dielectric=pcm_dielectric,
-                                     basis_set=self.basis_set, scf_algorithm=self.scf_algorithm,
-                                     max_scf_cycles=self.max_scf_cycles, geom_opt_max_cycles=self.geom_opt_max_cycles)
+        super(OptSet, self).__init__(
+            molecule=molecule,
+            job_type="opt",
+            dft_rung=dft_rung,
+            pcm_dielectric=pcm_dielectric,
+            basis_set=self.basis_set,
+            scf_algorithm=self.scf_algorithm,
+            max_scf_cycles=self.max_scf_cycles,
+            geom_opt_max_cycles=self.geom_opt_max_cycles,
+            overwrite_inputs=overwrite_inputs)
 
 
 class SinglePointSet(QChemDictSet):
@@ -99,14 +152,26 @@ class SinglePointSet(QChemDictSet):
     QChemDictSet for a single point calculation
     """
 
-    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*",  pcm_dielectric=None, scf_algorithm="diis",
-                 max_scf_cycles=200):
+    def __init__(self,
+                 molecule,
+                 dft_rung=4,
+                 basis_set="6-311++G*",
+                 pcm_dielectric=None,
+                 scf_algorithm="diis",
+                 max_scf_cycles=200,
+                 overwrite_inputs=None):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
-        super(SinglePointSet, self).__init__(molecule=molecule, job_type="sp", dft_rung=dft_rung,
-                                             pcm_dielectric=pcm_dielectric, basis_set=self.basis_set,
-                                             scf_algorithm=self.scf_algorithm, max_scf_cycles=self.max_scf_cycles)
+        super(SinglePointSet, self).__init__(
+            molecule=molecule,
+            job_type="sp",
+            dft_rung=dft_rung,
+            pcm_dielectric=pcm_dielectric,
+            basis_set=self.basis_set,
+            scf_algorithm=self.scf_algorithm,
+            max_scf_cycles=self.max_scf_cycles,
+            overwrite_inputs=overwrite_inputs)
 
 
 class FreqSet(QChemDictSet):
@@ -114,11 +179,23 @@ class FreqSet(QChemDictSet):
     QChemDictSet for a single point calculation
     """
 
-    def __init__(self, molecule, dft_rung=4, basis_set="6-311++G*", pcm_dielectric=None, scf_algorithm="diis",
-                 max_scf_cycles=200):
+    def __init__(self,
+                 molecule,
+                 dft_rung=4,
+                 basis_set="6-311++G*",
+                 pcm_dielectric=None,
+                 scf_algorithm="diis",
+                 max_scf_cycles=200,
+                 overwrite_inputs=None):
         self.basis_set = basis_set
         self.scf_algorithm = scf_algorithm
         self.max_scf_cycles = max_scf_cycles
-        super(FreqSet, self).__init__(molecule=molecule, job_type="freq", dft_rung=dft_rung,
-                                      pcm_dielectric=pcm_dielectric, basis_set=self.basis_set,
-                                      scf_algorithm=self.scf_algorithm, max_scf_cycles=self.max_scf_cycles)
+        super(FreqSet, self).__init__(
+            molecule=molecule,
+            job_type="freq",
+            dft_rung=dft_rung,
+            pcm_dielectric=pcm_dielectric,
+            basis_set=self.basis_set,
+            scf_algorithm=self.scf_algorithm,
+            max_scf_cycles=self.max_scf_cycles,
+            overwrite_inputs=overwrite_inputs)

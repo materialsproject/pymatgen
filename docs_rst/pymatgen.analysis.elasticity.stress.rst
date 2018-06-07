@@ -1,5 +1,5 @@
-pymatgen\.analysis\.elasticity\.stress module
-=============================================
+pymatgen.analysis.elasticity.stress module
+==========================================
 
 .. automodule:: pymatgen.analysis.elasticity.stress
     :members:
