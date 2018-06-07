@@ -38,16 +38,16 @@ class InterstitialGeneratorTest(PymatgenTest):
         int_gen = InterstitialGenerator(struc, "Li")
 
         ints = list(int_gen)
-        self.assertEqual(len(ints), 2)
+        self.assertEqual(len(ints), 4)
 
         multiplicities = [i.multiplicity for i in ints]
-        self.assertEqual(multiplicities, [4, 2])
+        self.assertEqual(multiplicities, [4, 4, 2, 2])
 
         self.assertEqual(str(ints[0].site.specie), "Li")
         self.assertEqual(str(ints[1].site.specie), "Li")
 
         self.assertArrayAlmostEqual(ints[0].site.coords, (0.9106, 0.3078, 0.3078), decimal=4)
-        self.assertArrayAlmostEqual(ints[1].site.coords, (1.5177, 0.7183, 0.7183), decimal=4)
+        self.assertArrayAlmostEqual(ints[1].site.coords, (1.5177, 0.3078, 1.7444), decimal=4)
 
 
 class VoronoiInterstitialGeneratorTest(PymatgenTest):
