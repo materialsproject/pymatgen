@@ -37,7 +37,6 @@ defects
 __author__ = "Danny Broberg <dbroberg@berkeley.edu>"
 
 
-
 class DefectCompatibility(MSONable):
     """
     The DefectCompatibility class combines a list of DefectEntries for a
@@ -59,13 +58,14 @@ class DefectCompatibility(MSONable):
         defect relaxation/structure analysis: ["final_defect_structure"]
 
     """
-    def __init__(self, plnr_avg_var_tol= 0.1, plnr_avg_minmax_tol= 0.1, atomic_site_var_tol= 0.1,
-                 atomic_site_minmax_tol= 0.1, tot_relax_tol= 0.1, perc_relax_tol= 0.1,
-                 defect_tot_relax_tol= 0.1,
+
+    def __init__(self, plnr_avg_var_tol=0.1, plnr_avg_minmax_tol=0.1, atomic_site_var_tol=0.1,
+                 atomic_site_minmax_tol=0.1, tot_relax_tol=0.1, perc_relax_tol=0.1,
+                 defect_tot_relax_tol=0.1,
                  preferred_cc='freysoldt', free_chg_cutoff=2.,
                  use_bandfilling=True, use_bandedgeshift=True):
-        #TODO: fine tune qualifiers a bit more...
-        self.plnr_avg_var_tol  = plnr_avg_var_tol
+        # TODO: fine tune qualifiers a bit more...
+        self.plnr_avg_var_tol = plnr_avg_var_tol
         self.plnr_avg_minmax_tol = plnr_avg_minmax_tol
         self.atomic_site_var_tol = atomic_site_var_tol
         self.atomic_site_minmax_tol = atomic_site_minmax_tol
@@ -91,47 +91,47 @@ class DefectCompatibility(MSONable):
             iii) only use BandFilling correction if use_bandfilling is set to True
             iv) only use BandEdgeShift correction if use_bandedgeshift is set to True
         """
-        self._perform_corrections( defect_entry)
+        self._perform_corrections(defect_entry)
 
-        self._delocalization_analysis( defect_entry)
+        self._delocalization_analysis(defect_entry)
 
         corrections = {}
         if (self.free_chg_cutoff < defect_entry.parameters["num_hole_vbm"]) or (self.free_chg_cutoff < defect_entry.parameters["num_elec_cbm"]):
             print('Will not use charge correction because too many free charges')
-            #TODO: should the potential alignment correction still be used in this scenario, though?
+            # TODO: should the potential alignment correction still be used in this scenario, though?
         elif 'freysoldt' in self.preferred_cc.lower():
             frey_meta = defect_entry.parameters['freysoldt_meta']
             frey_corr = frey_meta["freysoldt_electrostatic"] + frey_meta["freysoldt_potential_alignment_correction"]
-            corrections.update( {'charge_correction': frey_corr})
+            corrections.update({'charge_correction': frey_corr})
         else:
             kumagai_meta = defect_entry.parameters['kumagai_meta']
-            kumagai_corr = kumagai_meta["kumagai_electrostatic"] + kumagai_meta["kumagai_potential_alignment_correction"]
-            corrections.update( {'charge_correction': kumagai_corr})
+            kumagai_corr = kumagai_meta["kumagai_electrostatic"] + \
+                kumagai_meta["kumagai_potential_alignment_correction"]
+            corrections.update({'charge_correction': kumagai_corr})
 
         if self.use_bandfilling:
             bfc_corr = defect_entry.parameters["bandfilling_meta"]["bandfilling_correction"]
-            corrections.update( {'bandfilling_correction': bfc_corr})
+            corrections.update({'bandfilling_correction': bfc_corr})
 
         if self.use_bandedgeshift:
             bandfill_meta = defect_entry.parameters["bandshift_meta"]
             bes_corr = bandfill_meta["vbm_shift_correction"] + bandfill_meta["hole_vbm_shift_correction"] + \
-                       bandfill_meta["elec_cbm_shift_correction"]
-            corrections.update( {'bandedgeshifting_correction': bes_corr})
+                bandfill_meta["elec_cbm_shift_correction"]
+            corrections.update({'bandedgeshifting_correction': bes_corr})
 
-            #also want to update relevant data for phase diagram
-            defect_entry.parameters.update( {'phasediagram_meta': {'vbm': defect_entry.parameters['hybrid_vbm'],
-                                                                   'gap': defect_entry.parameters['hybrid_cbm'] - defect_entry.parameters['hybrid_vbm']}})
-        else: #if not using bandedge shift -> still want to have vbm and gap ready for phase diagram
-            defect_entry.parameters.update( {'phasediagram_meta': {'vbm': defect_entry.parameters['vbm'],
-                                                                   'gap': defect_entry.parameters['cbm'] - defect_entry.parameters['vbm']}})
+            # also want to update relevant data for phase diagram
+            defect_entry.parameters.update({'phasediagram_meta': {'vbm': defect_entry.parameters['hybrid_vbm'],
+                                                                  'gap': defect_entry.parameters['hybrid_cbm'] - defect_entry.parameters['hybrid_vbm']}})
+        else:  # if not using bandedge shift -> still want to have vbm and gap ready for phase diagram
+            defect_entry.parameters.update({'phasediagram_meta': {'vbm': defect_entry.parameters['vbm'],
+                                                                  'gap': defect_entry.parameters['cbm'] - defect_entry.parameters['vbm']}})
 
-        defect_entry.correction.update( corrections)
-
+        defect_entry.correction.update(corrections)
 
         return defect_entry
 
     def _perform_corrections(self, defect_entry):
-        #consider freysoldt correction
+        # consider freysoldt correction
         run_freysoldt = True
         required_frey_params = ["axis_grid", "bulk_planar_averages", "defect_planar_averages", "dielectric"]
         for frey_require in required_frey_params:
@@ -141,17 +141,16 @@ class DefectCompatibility(MSONable):
         if not run_freysoldt:
             print('Insufficient DefectEntry parameters exist for Freysoldt Correction.')
         elif 'freysoldt_meta' not in defect_entry.parameters.keys():
-            FC = FreysoldtCorrection( defect_entry.parameters['dielectric'])
-            freycorr = FC.get_correction( defect_entry)
+            FC = FreysoldtCorrection(defect_entry.parameters['dielectric'])
+            freycorr = FC.get_correction(defect_entry)
 
             freysoldt_meta = FC.metadata.copy()
             freysoldt_meta["freysoldt_potalign"] = defect_entry.parameters["potalign"]
             freysoldt_meta["freysoldt_electrostatic"] = freycorr["freysoldt_electrostatic"]
             freysoldt_meta["freysoldt_potential_alignment_correction"] = freycorr["freysoldt_potential_alignment"]
-            defect_entry.parameters.update( {'freysoldt_meta': freysoldt_meta})
+            defect_entry.parameters.update({'freysoldt_meta': freysoldt_meta})
 
-
-        #consider kumagai correction
+        # consider kumagai correction
         run_kumagai = True
         required_kumagai_params = ["dim", "bulk_atomic_site_averages", "defect_atomic_site_averages",
                                    "site_matching_indices", "dielectric"]
@@ -162,7 +161,7 @@ class DefectCompatibility(MSONable):
         if not run_kumagai:
             print('Insufficient DefectEntry parameters exist for Kumagai Correction.')
         elif 'kumagai_meta' not in defect_entry.parameters.keys():
-            #can save alot of time if gamma or g_sum in defect_entry.parameters, so check if they exist
+            # can save alot of time if gamma or g_sum in defect_entry.parameters, so check if they exist
             gamma = defect_entry.parameters['gamma'] if 'gamma' in defect_entry.parameters.keys() else None
             g_sum = defect_entry.parameters['g_sum'] if 'g_sum' in defect_entry.parameters.keys() else None
 
@@ -175,17 +174,16 @@ class DefectCompatibility(MSONable):
                 g_sum = generate_g_sum(defect_struct_sc.lattice, defect_entry.parameters["dielectric"],
                                        defect_entry.parameters['dim'], gamma)
 
-            KC = KumagaiCorrection( defect_entry.parameters['dielectric'], gamma=gamma, g_sum=g_sum)
+            KC = KumagaiCorrection(defect_entry.parameters['dielectric'], gamma=gamma, g_sum=g_sum)
             kumagaicorr = KC.get_correction(defect_entry)
 
-            kumagai_meta = {k:v for k,v in KC.metadata.items() if k != 'g_sum'}
+            kumagai_meta = {k: v for k, v in KC.metadata.items() if k != 'g_sum'}
             kumagai_meta["kumagai_potalign"] = defect_entry.parameters["potalign"]
             kumagai_meta["kumagai_electrostatic"] = kumagaicorr["kumagai_electrostatic"]
             kumagai_meta["kumagai_potential_alignment_correction"] = kumagaicorr["kumagai_potential_alignment"]
-            defect_entry.parameters.update( {'kumagai_meta': kumagai_meta})
+            defect_entry.parameters.update({'kumagai_meta': kumagai_meta})
 
-
-        #consider band filling correction
+        # consider band filling correction
         required_bandfilling_params = ["eigenvalues", "kpoint_weights", "potalign", "vbm", "cbm"]
         run_bandfilling = True
         for bandfilling_require in required_bandfilling_params:
@@ -195,19 +193,18 @@ class DefectCompatibility(MSONable):
         if not run_bandfilling:
             print('Insufficient DefectEntry parameters exist for BandFilling Correction.')
         elif 'bandfilling_meta' not in defect_entry.parameters.keys():
-            #TODO: add ability to modify the potalign value to prefer kumagai or freysoldt?
+            # TODO: add ability to modify the potalign value to prefer kumagai or freysoldt?
             BFC = BandFillingCorrection()
-            bfc_dict = BFC.get_correction( defect_entry)
+            bfc_dict = BFC.get_correction(defect_entry)
 
             bandfilling_meta = defect_entry.parameters.copy()
             bandfilling_meta["bandfilling_correction"] = bfc_dict['bandfilling']
-            defect_entry.parameters.update( {'bandfilling_meta': bandfilling_meta,
-                                             #also update free holes and electrons for band edge shifting correction...
-                                             'num_hole_vbm': bandfilling_meta["num_hole_vbm"],
-                                             'num_elec_cbm': bandfilling_meta["num_elec_cbm"]} )
+            defect_entry.parameters.update({'bandfilling_meta': bandfilling_meta,
+                                            # also update free holes and electrons for band edge shifting correction...
+                                            'num_hole_vbm': bandfilling_meta["num_hole_vbm"],
+                                            'num_elec_cbm': bandfilling_meta["num_elec_cbm"]})
 
-
-        #consider band edge shifting
+        # consider band edge shifting
         required_bandshifting_params = ["hybrid_cbm", "hybrid_vbm", "num_hole_vbm", "num_elec_cbm", "vbm", "cbm"]
         run_bandshifting = True
         for bandshifting_require in required_bandshifting_params:
@@ -218,15 +215,14 @@ class DefectCompatibility(MSONable):
             print('Insufficient DefectEntry parameters exist for BandShifting Correction.')
         elif 'bandshift_meta' not in defect_entry.parameters.keys():
             BEC = BandEdgeShiftingCorrection()
-            bec_dict = BEC.get_correction( defect_entry)
+            bec_dict = BEC.get_correction(defect_entry)
 
             bandshift_meta = BEC.metadata.copy()
-            bandfilling_meta.update( bec_dict)
+            bandfilling_meta.update(bec_dict)
 
-            defect_entry.parameters.update( {"bandshift_meta": bandshift_meta})
+            defect_entry.parameters.update({"bandshift_meta": bandshift_meta})
 
         return defect_entry
-
 
     def _delocalization_analysis(self, defect_entry):
         """
@@ -250,62 +246,62 @@ class DefectCompatibility(MSONable):
             plnr_avg_analyze_meta = {}
             plnr_avg_allows_compatible = True
             for ax in range(3):
-                freystats =  defect_entry.parameters['freysoldt_meta']['pot_corr_uncertainty_md'][ax]['stats']
+                freystats = defect_entry.parameters['freysoldt_meta']['pot_corr_uncertainty_md'][ax]['stats']
 
                 frey_variance_compatible = True if freystats['variance'] <= self.plnr_avg_var_tol else False
                 frey_window = abs(freystats['minmax'][1] - freystats['minmax'][0])
                 frey_minmax_compatible = True if frey_window <= self.plnr_avg_minmax_tol else False
 
-                plnr_avg_analyze_meta[ax].update( {'frey_variance_compatible': frey_variance_compatible,
-                                                   'frey_variance': freystats['variance'],
-                                                   'plnr_avg_var_tol': self.plnr_avg_var_tol,
-                                                   'frey_minmax_compatible': frey_minmax_compatible,
-                                                   'frey_minmax_window': frey_window,
-                                                   'plnr_avg_minmax_tol': self.plnr_avg_minmax_tol})
+                plnr_avg_analyze_meta[ax].update({'frey_variance_compatible': frey_variance_compatible,
+                                                  'frey_variance': freystats['variance'],
+                                                  'plnr_avg_var_tol': self.plnr_avg_var_tol,
+                                                  'frey_minmax_compatible': frey_minmax_compatible,
+                                                  'frey_minmax_window': frey_window,
+                                                  'plnr_avg_minmax_tol': self.plnr_avg_minmax_tol})
 
                 if (not frey_variance_compatible) or (not frey_minmax_compatible):
                     is_compatible = False
                     plnr_avg_allows_compatible = False
 
-            delocalization_meta.update({'plnr_avg': {'is_compatible':plnr_avg_allows_compatible,
+            delocalization_meta.update({'plnr_avg': {'is_compatible': plnr_avg_allows_compatible,
                                                      'metadata': plnr_avg_analyze_meta}
                                         })
         else:
             print('Insufficient information provided for performing Freysoldt correction'
                   'Cannot perform planar averaged electrostatic potential compatibility analysis.')
 
-
         if 'kumagai_meta' in defect_entry.parameters.keys():
             atomic_site_analyze_meta = {}
-            kumagaistats =  defect_entry.parameters['kumagai_meta']['pot_corr_uncertainty_md']['stats']
+            kumagaistats = defect_entry.parameters['kumagai_meta']['pot_corr_uncertainty_md']['stats']
 
             kumagai_variance_compatible = True if kumagaistats['variance'] <= self.atomic_site_var_tol else False
             kumagai_window = abs(kumagaistats['minmax'][1] - kumagaistats['minmax'][0])
             kumagai_minmax_compatible = True if kumagai_window <= self.atomic_site_minmax_tol else False
 
-            atomic_site_analyze_meta.update( {'kumagai_variance_compatible': kumagai_variance_compatible,
-                                              'kumagai_variance': kumagaistats['variance'],
-                                              'atomic_site_var_tol': self.atomic_site_var_tol,
-                                              'kumagai_minmax_compatible': kumagai_minmax_compatible,
-                                              'kumagai_minmax_window': kumagai_window,
-                                              'plnr_avg_minmax_tol': self.atomic_site_minmax_tol})
+            atomic_site_analyze_meta.update({'kumagai_variance_compatible': kumagai_variance_compatible,
+                                             'kumagai_variance': kumagaistats['variance'],
+                                             'atomic_site_var_tol': self.atomic_site_var_tol,
+                                             'kumagai_minmax_compatible': kumagai_minmax_compatible,
+                                             'kumagai_minmax_window': kumagai_window,
+                                             'plnr_avg_minmax_tol': self.atomic_site_minmax_tol})
 
-            atomic_site_allows_compatible = True if (kumagai_variance_compatible and kumagai_minmax_compatible) else False
+            atomic_site_allows_compatible = True if (
+                kumagai_variance_compatible and kumagai_minmax_compatible) else False
             if not atomic_site_allows_compatible:
                 is_compatible = False
 
-            delocalization_meta.update({'atomic_site': {'is_compatible':atomic_site_allows_compatible,
+            delocalization_meta.update({'atomic_site': {'is_compatible': atomic_site_allows_compatible,
                                                         'metadata': atomic_site_analyze_meta}
                                         })
         else:
             print('Insufficient information provided for performing Kumagai correction'
                   'Cannot perform atomic site averaged electrostatic potential compatibility analysis.')
 
-
         if 'final_defect_structure' in defect_entry.parameters.keys():
             structure_relax_analyze_meta = {}
-            sc_scale = defect_entry.parameters['scaling_matrix'] if 'scaling_matrix' in defect_entry.parameters.keys() else 1
-            initial_defect_structure = defect_entry.defect.generate_defect_structure( sc_scale)
+            sc_scale = defect_entry.parameters[
+                'scaling_matrix'] if 'scaling_matrix' in defect_entry.parameters.keys() else 1
+            initial_defect_structure = defect_entry.defect.generate_defect_structure(sc_scale)
             final_defect_structure = defect_entry.parameters["final_structure"]
             radius_to_sample = defect_entry.parameters["kumagai_meta"]['sampling_radius']
 
@@ -320,10 +316,10 @@ class DefectCompatibility(MSONable):
                 defindex = None
 
             for site_ind in range(len(initial_defect_structure)):
-                initsites.append( initial_defect_structure[site_ind].frac_coords)
-                finalsites.append( final_defect_structure[site_ind].frac_coords)
+                initsites.append(initial_defect_structure[site_ind].frac_coords)
+                finalsites.append(final_defect_structure[site_ind].frac_coords)
 
-            distmatrix = initial_defect_structure.lattice.get_all_distance( finalsites, initsites)
+            distmatrix = initial_defect_structure.lattice.get_all_distance(finalsites, initsites)
 
             distdata = []
             totpert = 0.
@@ -331,67 +327,64 @@ class DefectCompatibility(MSONable):
                 if ind == defindex:
                     continue
                 else:
-                    totpert += distmatrix[ind,ind]
-                    distdata.append([distmatrix[ind, defindex], distmatrix[ind,ind], ind]) #append [distance to defect, distance traveled, index in structure]
+                    totpert += distmatrix[ind, ind]
+                    # append [distance to defect, distance traveled, index in structure]
+                    distdata.append([distmatrix[ind, defindex], distmatrix[ind, ind], ind])
 
             distdata.sort()
             tot_relax_outside_wsrad = 0.
             perc_relax_outside_wsrad = 0.
             for newind in range(len(distdata)):
-                distdata[newind].append( 100*distdata[newind][1]/totpert) #append percentage for relaxation in
+                distdata[newind].append(100 * distdata[newind][1] / totpert)  # append percentage for relaxation in
                 if distdata[newind][0] > radius_to_sample:
                     tot_relax_outside_wsrad += distdata[newind][1]
                     perc_relax_outside_wsrad += distdata[newind][3]
 
             structure_tot_relax_compatible = True if tot_relax_outside_wsrad <= self.tot_relax_tol else False
             structure_perc_relax_compatible = True if perc_relax_outside_wsrad <= self.perc_relax_tol else False
-            structure_relax_analyze_meta.update( {'structure_tot_relax_compatible': structure_tot_relax_compatible,
-                                                  'tot_relax_outside_wsrad': tot_relax_outside_wsrad,
-                                                  'tot_relax_tol': self.tot_relax_tol,
-                                                  'structure_perc_relax_compatible': structure_perc_relax_compatible,
-                                                  'perc_relax_outside_wsrad': perc_relax_outside_wsrad,
-                                                  'perc_relax_tol': self.perc_relax_tol,
-                                                  'full_structure_relax_data': distdata,
-                                                  'defect_index': defindex} )
+            structure_relax_analyze_meta.update({'structure_tot_relax_compatible': structure_tot_relax_compatible,
+                                                 'tot_relax_outside_wsrad': tot_relax_outside_wsrad,
+                                                 'tot_relax_tol': self.tot_relax_tol,
+                                                 'structure_perc_relax_compatible': structure_perc_relax_compatible,
+                                                 'perc_relax_outside_wsrad': perc_relax_outside_wsrad,
+                                                 'perc_relax_tol': self.perc_relax_tol,
+                                                 'full_structure_relax_data': distdata,
+                                                 'defect_index': defindex})
 
-            structure_relax_allows_compatible = True if (structure_tot_relax_compatible and structure_perc_relax_compatible) else False
+            structure_relax_allows_compatible = True if (
+                structure_tot_relax_compatible and structure_perc_relax_compatible) else False
             if not structure_relax_allows_compatible:
                 is_compatible = False
 
-            delocalization_meta.update({'structure_relax': {'is_compatible':structure_relax_allows_compatible,
+            delocalization_meta.update({'structure_relax': {'is_compatible': structure_relax_allows_compatible,
                                                             'metadata': structure_relax_analyze_meta}
                                         })
         else:
             print('final_structure does not exist in defect_entry.parameters. '
                   'Cannot perform full structure site relaxation compatibility analysis.')
 
-
-
         if 'final_structure' in defect_entry.parameters.keys():
             defectsite_relax_analyze_meta = {}
             if type(defect_entry.defect) == Vacancy:
                 defectsite_relax_allows_compatible = True
-                defectsite_relax_analyze_meta.update( {'relax_amount': None,
-                                                       'defect_tot_relax_tol': self.defect_tot_relax_tol})
+                defectsite_relax_analyze_meta.update({'relax_amount': None,
+                                                      'defect_tot_relax_tol': self.defect_tot_relax_tol})
             else:
                 defect_relax_amount = distmatrix[defindex, defindex]
                 defectsite_relax_allows_compatible = True if defect_relax_amount <= self.defect_tot_relax_tol else False
-                defectsite_relax_analyze_meta.update( {'relax_amount': defect_relax_amount,
-                                                       'defect_tot_relax_tol': self.defect_tot_relax_tol})
+                defectsite_relax_analyze_meta.update({'relax_amount': defect_relax_amount,
+                                                      'defect_tot_relax_tol': self.defect_tot_relax_tol})
 
             if not defectsite_relax_allows_compatible:
                 is_compatible = False
 
-            delocalization_meta.update({'defectsite_relax': {'is_compatible':defectsite_relax_allows_compatible,
+            delocalization_meta.update({'defectsite_relax': {'is_compatible': defectsite_relax_allows_compatible,
                                                              'metadata': defectsite_relax_analyze_meta}
                                         })
         else:
             print('final_structure does not exist in defect_entry.parameters. '
                   'Cannot perform defect site relaxation compatibility analysis.')
 
-
         defect_entry.parameters.update({'is_compatible': is_compatible, 'delocalization_meta': delocalization_meta})
 
         return defect_entry
-
-
