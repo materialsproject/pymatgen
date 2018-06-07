@@ -37,7 +37,8 @@ from pymatgen.io.zeopp import get_voronoi_nodes, get_void_volume_surfarea, \
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.local_env import LocalStructOrderParams, \
-    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator
+    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator , \
+    cn_opt_params
 from pymatgen.analysis.structure_analyzer import RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.phase_diagram import get_facets
@@ -55,9 +56,15 @@ except ImportError:
 
 from six.moves import filter
 from six.moves import map
+from copy import deepcopy
 
 logger = logging.getLogger(__name__)
 
+motif_cn_op = {}
+for cn, di in cn_opt_params.items():
+    for mot, li in di.items():
+        motif_cn_op[mot] = {'cn': int(cn), 'optype': li[0]}
+        motif_cn_op[mot]['params'] = deepcopy(li[1]) if len(li) > 1 else None
 
 class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
@@ -1381,12 +1388,10 @@ class StructureMotifInterstitial(Defect):
     (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
     """
 
-    __supported_types = ("tet", "oct", "bcc")
-
     def __init__(self, struct, inter_elem,
-                 motif_types=("tet", "oct"),
+                 motif_types=("tetrahedral", "octahedral"),
                  op_threshs=(0.3, 0.5),
-                 dl=0.2, doverlap=1.0, facmaxdl=1.01, verbose=False):
+                 dl=0.2, doverlap=1, facmaxdl=1.01, verbose=False):
         """
         Generates symmetrically distinct interstitial sites at positions
         where the interstitial is coordinated by nearest neighbors
@@ -1425,10 +1430,25 @@ class StructureMotifInterstitial(Defect):
         if len(self._motif_types) == 0:
             raise RuntimeError("no motif types provided.")
         self._op_threshs = op_threshs[:]
+        self.cn_motif_lostop = {}
+        self.target_cns = []
         for imotif, motif in enumerate(self._motif_types):
-            if motif not in self.__supported_types:
+            if motif not in list(motif_cn_op.keys()):
                 raise RuntimeError("unsupported motif type: {}.".format(
                     motif))
+            cn = int(motif_cn_op[motif]['cn'])
+            if cn not in self.target_cns:
+                self.target_cns.append(cn)
+            if cn not in list(self.cn_motif_lostop.keys()):
+                self.cn_motif_lostop[cn] = {}
+            tmp_optype = motif_cn_op[motif]['optype']
+            if tmp_optype == 'tet_max':
+                tmp_optype = 'tet'
+            if tmp_optype == 'oct_max':
+                tmp_optype = 'oct'
+            self.cn_motif_lostop[cn][motif] = LocalStructOrderParams(
+                [tmp_optype],
+                parameters=[motif_cn_op[motif]['params']], cutoff=-10.0)
         self._dl = dl
         self._defect_sites = []
         self._defect_types = []
@@ -1451,7 +1471,6 @@ class StructureMotifInterstitial(Defect):
         struct_w_inter = struct.copy()
         struct_w_inter.append(inter_elem, [0, 0, 0])
         natoms = len(list(struct_w_inter.sites))
-        ops = LocalStructOrderParams(motif_types, cutoff=-10.0)
         trialsites = []
 
         # Loop over trial positions that are based on a regular
@@ -1469,66 +1488,43 @@ class StructureMotifInterstitial(Defect):
                     if len(struct_w_inter.get_sites_in_sphere(
                             struct_w_inter.sites[natoms - 1].coords,
                             doverlap)) == 1:
-                        delta = 0.1
-                        ddelta = 0.1
-                        delta_end = 0.8
-                        while delta < delta_end:
-                            neighs = MinimumDistanceNN(
-                                tol=delta, cutoff=6).get_nn(
-                                struct_w_inter, natoms - 1)
-                            nneighs = len(neighs)
-                            if nneighs > 6:
-                                break
-                            if nneighs not in [4, 6]:
-                                delta += ddelta
+                        neighs_images_weigths = MinimumDistanceNN(
+                            tol=0.8, cutoff=6).get_nn_info(
+                            struct_w_inter, natoms - 1)
+                        neighs_images_weigths_sorted = sorted(
+                                neighs_images_weigths, key=lambda x: x['weight'],
+                                reverse=True)
+                        for nsite in range(1, len(neighs_images_weigths_sorted)+1):
+                            if nsite not in self.target_cns:
                                 continue
 
-                            allsites = [s for s in neighs]
+                            allsites = [neighs_images_weigths_sorted[i]['site'] for i in range(nsite)]
                             indices_neighs = [i for i in range(len(allsites))]
                             allsites.append(struct_w_inter.sites[natoms - 1])
-                            opvals = ops.get_order_parameters(
-                                allsites, len(allsites) - 1,
-                                indices_neighs=indices_neighs)
-                            motif_type = "unrecognized"
-                            if "tet" in motif_types:
-                                if nneighs == 4 and \
-                                                opvals[
-                                                    motif_types.index("tet")] > \
-                                                op_threshs[
-                                                    motif_types.index("tet")]:
-                                    motif_type = "tet"
-                                    this_op = opvals[motif_types.index("tet")]
-                            if "oct" in motif_types:
-                                if nneighs == 6 and \
-                                                opvals[
-                                                    motif_types.index("oct")] > \
-                                                op_threshs[
-                                                    motif_types.index("oct")]:
-                                    motif_type = "oct"
-                                    this_op = opvals[motif_types.index("oct")]
-
-                            if motif_type != "unrecognized":
-                                cns = {}
-                                for isite, site in enumerate(neighs):
-                                    if isinstance(site.specie, Element):
-                                        elem = site.specie.symbol
-                                    else:
-                                        elem = site.specie.element.symbol
-                                    if elem in list(cns.keys()):
-                                        cns[elem] = cns[elem] + 1
-                                    else:
-                                        cns[elem] = 1
-                                trialsites.append({
-                                    "mtype": motif_type,
-                                    "opval": this_op,
-                                    "delta": delta,
-                                    "coords": struct_w_inter.sites[
-                                                  natoms - 1].coords[:],
-                                    "fracs": np.array([a, b, c]),
-                                    "cns": dict(cns)})
-                                break
-
-                            delta += ddelta
+                            for mot, ops in self.cn_motif_lostop[nsite].items():
+                                opvals = ops.get_order_parameters(
+                                        allsites, len(allsites) - 1,
+                                        indices_neighs=indices_neighs)
+                                if opvals[0] > op_threshs[motif_types.index(mot)]:
+                                    cns = {}
+                                    for isite in range(nsite):
+                                        site = neighs_images_weigths_sorted[isite]['site']
+                                        if isinstance(site.specie, Element):
+                                            elem = site.specie.symbol
+                                        else:
+                                            elem = site.specie.element.symbol
+                                        if elem in list(cns.keys()):
+                                            cns[elem] = cns[elem] + 1
+                                        else:
+                                            cns[elem] = 1
+                                    trialsites.append({
+                                        "mtype": mot,
+                                        "opval": opvals[0],
+                                        "coords": struct_w_inter.sites[
+                                                      natoms - 1].coords[:],
+                                        "fracs": np.array([a, b, c]),
+                                        "cns": dict(cns)})
+                                    break
 
         # Prune list of trial sites by clustering and find the site
         # with the largest order parameter value in each cluster.
