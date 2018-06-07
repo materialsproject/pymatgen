@@ -401,32 +401,37 @@ def generate_g_sum(lattice, epsilon, dim, gamma):
     b1 = np.array(b1) / ang_to_bohr  # In 1/Bohr
     b2 = np.array(b2) / ang_to_bohr
     b3 = np.array(b3) / ang_to_bohr
+    gamm2 = 4 * (gamma**2)
 
     nx, ny, nz = dim
-    logging.debug("nx: %d, ny: %d, nz: %d", nx, ny, nz)
-    ind1 = np.arange(nx)
-    for i in range(int(nx / 2), nx):
-        ind1[i] = i - nx
-    ind2 = np.arange(ny)
-    for i in range(int(ny / 2), ny):
-        ind2[i] = i - ny
-    ind3 = np.arange(nz)
-    for i in range(int(nz / 2), nz):
-        ind3[i] = i - nz
+    i = np.arange(nx)
+    j = np.arange(ny)
+    k = np.arange(nz)
 
-    g_array = np.zeros(dim, np.dtype("c16"))
-    gamm2 = 4 * (gamma**2)
-    for i in ind1:
-        for j in ind2:
-            for k in ind3:
-                g = i * b1 + j * b2 + k * b3
-                g_eps_g = np.dot(g, np.dot(epsilon, g))
-                if i == j == k == 0:
-                    continue
-                else:
-                    g_array[i, j, k] = math.exp(-g_eps_g / gamm2) / g_eps_g
+    # Generate index grid using meshgrid
+    indicies = np.array(np.meshgrid(i,j,k))
+    
+    # Generate vectors for computing using fancy shift and roll
+    vecs = np.roll(indicies,(int(nx/2),int(ny/2),int(nz/2)),axis=(1,2,3)).T.reshape(-1,3)  - np.array([nx/2,ny/2,nz/2])
 
-    r_array = np.fft.fftn(g_array)
+    # Convert index vectors to recipricol space
+    vecs = np.dot(vecs,[b1,b2,b3])
+
+    # Einsum to do G*epsilon*G
+    g_eps_g = np.einsum("ij,jk,ik->i",vecs,np.array(epsilon).T,vecs)
+
+    exp_g_eps_g = np.exp(-g_eps_g/gamm2)
+
+    # Divide by g_eps_g only when g_eps_g != 0 aka exp(-g_eps_g/gamm2) == 1
+    pre_fft = np.divide(exp_g_eps_g, g_eps_g,out=np.zeros_like(g_eps_g), where=exp_g_eps_g!=1)
+
+    # Regrid to 3D np array
+    fft_mat = np.zeros([nx,ny,nz])
+    indicies = indicies.T.reshape(-1,3)
+    for (i,j,k) ,val in zip(indicies,pre_fft):
+        fft_mat[i][j][k] = val
+
+    r_array = np.fft.fftn(fft_mat)
     over_vol = 4 * np.pi / vol  # Multiply with q later
     r_array *= over_vol
     r_arr_real = np.real(r_array)
