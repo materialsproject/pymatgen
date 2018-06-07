@@ -1388,8 +1388,6 @@ class StructureMotifInterstitial(Defect):
     (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
     """
 
-    #__supported_types = ("tet", "oct", "bcc")
-
     def __init__(self, struct, inter_elem,
                  motif_types=("tetrahedral", "octahedral"),
                  op_threshs=(0.3, 0.5),
@@ -1443,8 +1441,13 @@ class StructureMotifInterstitial(Defect):
                 self.target_cns.append(cn)
             if cn not in list(self.cn_motif_lostop.keys()):
                 self.cn_motif_lostop[cn] = {}
+            tmp_optype = motif_cn_op[motif]['optype']
+            if tmp_optype == 'tet_max':
+                tmp_optype = 'tet'
+            if tmp_optype == 'oct_max':
+                tmp_optype = 'oct'
             self.cn_motif_lostop[cn][motif] = LocalStructOrderParams(
-                [motif_cn_op[motif]['optype']],
+                [tmp_optype],
                 parameters=[motif_cn_op[motif]['params']], cutoff=-10.0)
         self._dl = dl
         self._defect_sites = []
@@ -1498,7 +1501,7 @@ class StructureMotifInterstitial(Defect):
                             allsites = [neighs_images_weigths_sorted[i]['site'] for i in range(nsite)]
                             indices_neighs = [i for i in range(len(allsites))]
                             allsites.append(struct_w_inter.sites[natoms - 1])
-                            for mot, ops in self.cn_motif_lostop[cn].items():
+                            for mot, ops in self.cn_motif_lostop[nsite].items():
                                 opvals = ops.get_order_parameters(
                                         allsites, len(allsites) - 1,
                                         indices_neighs=indices_neighs)

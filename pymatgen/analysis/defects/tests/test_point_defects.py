@@ -518,9 +518,9 @@ class StructureMotifInterstitialTest(PymatgenTest):
             coords_are_cartesian=False, site_properties=None)
         self.smi = StructureMotifInterstitial(self.silicon, "Si",
                                               motif_types=["tetrahedral", "octahedral"],
-                                              op_threshs=[0.6, 0.6],
+                                              op_threshs=[0.3, 0.5],
                                               dl=0.4, doverlap=1.0,
-                                              facmaxdl=1.01)
+                                              facmaxdl=1.51)
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264],
                      [0, 0, 2.528]]), ["C0+", "C0+"], [[2.554, 1.806, 4.423],
@@ -560,8 +560,6 @@ class StructureMotifInterstitialTest(PymatgenTest):
         self.assertIsInstance(self.smi.enumerate_defectsites()[0], PeriodicSite)
         self.assertEqual("Si",
                          self.smi.enumerate_defectsites()[0].species_string)
-        print(self.smi.get_op_value(0))
-
         self.assertEqual("tetrahedral", self.smi.get_motif_type(0))
 
         elem_cn_dict = self.smi.get_coordinating_elements_cns(0)
