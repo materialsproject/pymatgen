@@ -18,7 +18,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 This module defines classes to define point defect objects
 """
 
-__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils E. R. Zimmermann, Geoffroy Hautier"
+__author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyam Dwaraknath"
