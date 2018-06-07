@@ -6,24 +6,15 @@ from __future__ import division, unicode_literals
 """
 This module defines utillity classes for defects.
 """
-
-__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
-__copyright__ = "Copyright 2014, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Danny Broberg, Shyam Dwaraknath"
-__email__ = "dbroberg@berkeley.edu, shyamd@lbl.gov"
-__status__ = "Development"
-__date__ = "January 11, 2018"
-
 import math
 
 from monty.json import MSONable
 
 import numpy as np
 
-
 import itertools
 import numpy as np
+from numpy.linalg import norm
 import logging
 
 import pandas as pd
@@ -54,12 +45,19 @@ except ImportError:
 
 from six.moves import map
 
+__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
+__copyright__ = "Copyright 2014, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Danny Broberg, Shyam Dwaraknath"
+__email__ = "dbroberg@berkeley.edu, shyamd@lbl.gov"
+__status__ = "Development"
+__date__ = "January 11, 2018"
+
 logger = logging.getLogger(__name__)
-norm = np.linalg.norm
 hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
-kb = 8.6173324e-5  #eV / K
+kb = 8.6173324e-5  # eV / K
 
 
 class QModel(MSONable):
@@ -276,12 +274,10 @@ class StructureMotifInterstitial(object):
         self._defect_opvals = []
 
         rots, trans = SpacegroupAnalyzer(struct)._get_symmetry()
-        nbins = [int(struct.lattice.a / dl), \
-                 int(struct.lattice.b / dl), \
-                 int(struct.lattice.c / dl)]
-        dls = [struct.lattice.a / float(nbins[0]), \
-               struct.lattice.b / float(nbins[1]), \
-               struct.lattice.c / float(nbins[2])]
+        nbins = [int(struct.lattice.a / dl), int(struct.lattice.b / dl), int(struct.lattice.c / dl)]
+        dls = [
+            struct.lattice.a / float(nbins[0]), struct.lattice.b / float(nbins[1]), struct.lattice.c / float(nbins[2])
+        ]
         maxdl = max(dls)
         if verbose:
             print("Grid size: {} {} {}".format(nbins[0], nbins[1], nbins[2]))
@@ -323,18 +319,18 @@ class StructureMotifInterstitial(object):
                             motif_type = "unrecognized"
                             if "tet" in motif_types:
                                 if nneighs == 4 and \
-                                                opvals[
-                                                    motif_types.index("tet")] > \
-                                                op_threshs[
-                                                    motif_types.index("tet")]:
+                                    opvals[
+                                        motif_types.index("tet")] > \
+                                    op_threshs[
+                                        motif_types.index("tet")]:
                                     motif_type = "tet"
                                     this_op = opvals[motif_types.index("tet")]
                             if "oct" in motif_types:
                                 if nneighs == 6 and \
-                                                opvals[
-                                                    motif_types.index("oct")] > \
-                                                op_threshs[
-                                                    motif_types.index("oct")]:
+                                    opvals[
+                                        motif_types.index("oct")] > \
+                                    op_threshs[
+                                        motif_types.index("oct")]:
                                     motif_type = "oct"
                                     this_op = opvals[motif_types.index("oct")]
 
@@ -423,7 +419,7 @@ class StructureMotifInterstitial(object):
             discard_motif = []
             for indi, i in enumerate(include):
                 if trialsites[i]["mtype"] != motif or \
-                                i in discard_motif:
+                        i in discard_motif:
                     continue
                 multiplicity[i] = 1
                 symposlist = [trialsites[i]["fracs"].dot(np.array(m, dtype=float)) for m in rots]
@@ -432,7 +428,7 @@ class StructureMotifInterstitial(object):
                 for indj in range(indi + 1, len(include)):
                     j = include[indj]
                     if trialsites[j]["mtype"] != motif or \
-                                    j in discard_motif:
+                            j in discard_motif:
                         continue
                     for sympos in symposlist:
                         dist, image = struct.lattice.get_distance_and_image(sympos, trialsites[j]["fracs"])
@@ -619,8 +615,8 @@ class TopographyAnalyzer(object):
         constrained_sites = []
         for i, site in enumerate(s):
             if site.frac_coords[2] >= constrained_c_frac - thickness and \
-                            site.frac_coords[
-                                2] <= constrained_c_frac + thickness:
+                    site.frac_coords[
+                    2] <= constrained_c_frac + thickness:
                 constrained_sites.append(site)
         structure = Structure.from_sites(sites=constrained_sites)
         lattice = structure.lattice

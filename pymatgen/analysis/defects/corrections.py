@@ -1,20 +1,12 @@
-#!/usr/bin/env python
-
-__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
-__copyright__ = "Copyright 2014, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Danny Broberg, Shyam Dwaraknath"
-__email__ = "dbroberg@berkeley.edu, shyamd@lbl.gov"
-__status__ = "Development"
-__date__ = "January 11, 2018"
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 import logging
 import sys
 import math
 import numpy as np
-norm = np.linalg.norm
-
-from scipy import stats  # for statistical uncertainties of pot alignment
+from scipy import stats
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.analysis.defects.core import DefectCorrection
 from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, generate_reciprocal_vectors_squared, QModel, genrecip
@@ -23,8 +15,15 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+__author__ = "Danny Broberg, Shyam Dwaraknath"
+__copyright__ = "Copyright 2018, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyam Dwaraknath"
+__email__ = "shyamd@lbl.gov"
+__status__ = "Development"
+__date__ = "Mar 15, 2018"
+
 # TODO: Better doc on entry parameters with detailed explanation of what they are
-# TODO: Use module level logger for logging:
 
 logger = logging.getLogger(__name__)
 
@@ -122,14 +121,11 @@ class FreysoldtCorrection(DefectCorrection):
         Peform Electrostatic Freysoldt Correction
         """
         logger = logging.getLogger(__name__)
-        logger.info("Running Freysoldt 2011 PC calculation (should be "
-                    "equivalent to sxdefectalign)")
-        logger.debug("defect lattice constants are (in angstroms)"
-                     + str(lattice.abc))
+        logger.info("Running Freysoldt 2011 PC calculation (should be " "equivalent to sxdefectalign)")
+        logger.debug("defect lattice constants are (in angstroms)" + str(lattice.abc))
 
         [a1, a2, a3] = ang_to_bohr * np.array(lattice.get_cartesian_coords(1))
-        logging.debug("In atomic units, lat consts are (in bohr):"
-                      + str([a1, a2, a3]))
+        logging.debug("In atomic units, lat consts are (in bohr):" + str([a1, a2, a3]))
         vol = np.dot(a1, np.cross(a2, a3))  # vol in bohr^3
 
         # compute isolated energy
@@ -523,7 +519,7 @@ class KumagaiCorrection(DefectCorrection):
             dist = []
             for facet in wz:
                 midpt = np.mean(np.array(facet), axis=0)
-                dist.append(norm(midpt))
+                dist.append(np.linalg.norm(midpt))
             self.metadata["sampling_radius"] = min(dist)
 
         # assemble site_list as matching [[bulk_site object, defect_site object,
@@ -661,7 +657,7 @@ class KumagaiCorrection(DefectCorrection):
             # not reflect correct sc_scaling... REPLACE
             relative_vector = pbc_shortest_vectors(bulk_structure.lattice, defect_position.frac_coords,
                                                    defect_cell_site.frac_coords)[0][0]  # this is angstrom vector
-            dist_to_defect = norm(relative_vector)  # in angstroms
+            dist_to_defect = np.linalg.norm(relative_vector)  # in angstroms
 
             pot_dict[bulk_index] = {
                 "defect_cell_index": defect_cell_index,
@@ -979,6 +975,8 @@ class BandEdgeShiftingCorrection(DefectCorrection):
 
         entry.parameters["bandshift_meta"] = dict(self.metadata)
 
-        return {"vbm_shift_correction": vbm_shift_correction,
-                "hole_vbm_shift_correction": hole_vbm_shift_correction,
-                "elec_cbm_shift_correction": elec_cbm_shift_correction}
+        return {
+            "vbm_shift_correction": vbm_shift_correction,
+            "hole_vbm_shift_correction": hole_vbm_shift_correction,
+            "elec_cbm_shift_correction": elec_cbm_shift_correction
+        }
