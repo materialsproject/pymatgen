@@ -32,6 +32,9 @@ class VacancyGeneratorTest(PymatgenTest):
                 self.assertEqual(vac.charge, 2)
 
 
+class SubstitutionGeneratorTest(PymatgenTest):
+    pass
+
 class InterstitialGeneratorTest(PymatgenTest):
     def test_int_gen(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -71,6 +74,8 @@ class VoronoiInterstitialGeneratorTest(PymatgenTest):
         self.assertArrayAlmostEqual(ints[2].site.coords, (1.5177146, 3.7168193, 3.7168193))
         self.assertArrayAlmostEqual(ints[3].site.coords, (2.2765713, 2.2575138, 4.5150233))
 
+class SimpleChargeGeneratorTest(PymatgenTest):
+    pass
 
 if __name__ == "__main__":
     unittest.main()

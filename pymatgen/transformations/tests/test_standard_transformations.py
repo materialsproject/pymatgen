@@ -491,6 +491,10 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
                                                   fix_denominator=True)
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
 
+class ChargedCellTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

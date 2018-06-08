@@ -1156,7 +1156,7 @@ class DefectComparator(AbstractComparator):
 
         elif type(d1) == type(d2):
             #consider case for interstitials
-            #TODO: smarter version for this? Can use existing code in defects.core?
+            #TODO: have a smarter version for this which builds an interstitial sublattice?
             if (d1.name == d2.name) and (d1.site == d2.site):
                 return True
             else:

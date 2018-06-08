@@ -716,6 +716,8 @@ class StructureMatcherTest(PymatgenTest):
         self.assertEqual(sm.fit_anonymous(s1, s2), False)
         self.assertEqual(sm.get_mapping(s1, s2), None)
 
+class DefectMatcherTest(PymatgenTest):
+    pass
 
 if __name__ == '__main__':
     unittest.main()

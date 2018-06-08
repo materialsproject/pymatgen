@@ -300,6 +300,9 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertEqual(bfc.metadata['total_occupation_defect_levels'], 0.58333338)
         self.assertFalse(bfc.metadata['unoccupied_def_levels'])
 
+    def test_bandedgeshifting(self):
+        pass
+
 
 
 if __name__ == "__main__":

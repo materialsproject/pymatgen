@@ -29,6 +29,13 @@ try:
 except ImportError:
     zeo = None
 
+
+class DefectTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        pass
+
+
 class VacancyTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
