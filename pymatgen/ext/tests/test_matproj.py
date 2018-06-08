@@ -341,7 +341,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(kinks_open_O) > 0)
         with warnings.catch_warnings(record=True) as w:
             warnings.filterwarnings("always", message="The reactant.+")
-            self.rester.get_interface_reactions("LiCoO2", "MnO3")
+            self.rester.get_interface_reactions("LiCoO2", "MnO9")
             self.assertTrue("The reactant" in str(w[-1].message))
 
     def test_parse_criteria(self):
