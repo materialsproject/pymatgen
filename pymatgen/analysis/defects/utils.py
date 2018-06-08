@@ -6,24 +6,15 @@ from __future__ import division, unicode_literals
 """
 This module defines utillity classes for defects.
 """
-
-__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
-__copyright__ = "Copyright 2014, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Danny Broberg, Shyam Dwaraknath"
-__email__ = "dbroberg@berkeley.edu, shyamd@lbl.gov"
-__status__ = "Development"
-__date__ = "January 11, 2018"
-
 import math
 
 from monty.json import MSONable
 
 import numpy as np
 
-
 import itertools
 import numpy as np
+from numpy.linalg import norm
 import logging
 
 import pandas as pd
@@ -32,7 +23,8 @@ from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
 from pymatgen.analysis.local_env import LocalStructOrderParams, \
-    MinimumDistanceNN, VoronoiNN
+    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator , \
+    cn_opt_params
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -44,6 +36,7 @@ from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
 from monty.dev import requires
+from copy import deepcopy
 
 try:
     from skimage.feature import peak_local_max
@@ -54,12 +47,25 @@ except ImportError:
 
 from six.moves import map
 
+__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
+__copyright__ = "Copyright 2014, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Danny Broberg, Shyam Dwaraknath"
+__email__ = "dbroberg@berkeley.edu, shyamd@lbl.gov"
+__status__ = "Development"
+__date__ = "January 11, 2018"
+
 logger = logging.getLogger(__name__)
-norm = np.linalg.norm
 hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
-kb = 8.6173324e-5  #eV / K
+kb = 8.6173324e-5  # eV / K
+
+motif_cn_op = {}
+for cn, di in cn_opt_params.items():
+    for mot, li in di.items():
+        motif_cn_op[mot] = {'cn': int(cn), 'optype': li[0]}
+        motif_cn_op[mot]['params'] = deepcopy(li[1]) if len(li) > 1 else None
 
 
 class QModel(MSONable):
@@ -140,16 +146,28 @@ def genrecip(a1, a2, a3, encut):
     b3 = (2 * np.pi / vol) * np.cross(a1, a2)
 
     # create list of recip space vectors that satisfy |i*b1+j*b2+k*b3|<=encut
-    gcut = eV_to_k(encut)
-    imax = int(math.ceil(gcut / min(map(norm, [b1, b2, b3]))))
+    G_cut = eV_to_k(encut)
+    # Figure out max in all recipricol lattice directions
+    i_max = int(math.ceil(G_cut / norm(b1)))
+    j_max = int(math.ceil(G_cut / norm(b2)))
+    k_max = int(math.ceil(G_cut / norm(b3)))
 
-    for i in range(-imax, imax + 1):
-        for j in range(-imax, imax + 1):
-            for k in range(-imax, imax + 1):
-                vec = i * b1 + j * b2 + k * b3
-                en = invang_to_ev * (((1.0 / ang_to_bohr) * norm(vec))**2)
-                if (en <= encut and en != 0):
-                    yield vec
+    # Build index list
+    i = np.arange(-i_max, i_max)
+    j = np.arange(-j_max, j_max)
+    k = np.arange(-k_max, k_max)
+
+    # Convert index to vectors using meshgrid
+    indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+    # Multiply integer vectors to get recipricol space vectors
+    vecs = np.dot(indicies, [b1, b2, b3])
+    # Calculate radii of all vectors
+    radii = np.sqrt(np.einsum('ij,ij->i', vecs, vecs))
+
+    # Yield based on radii
+    for vec, r in zip(vecs, radii):
+        if r < G_cut and r != 0:
+            yield vec
 
 
 def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
@@ -166,23 +184,8 @@ def generate_reciprocal_vectors_squared(a1, a2, a3, encut):
         [[g1^2], [g2^2], ...] Square of reciprocal vectors (1/Bohr)^2
         determined by a1, a2, a3 and whose magntidue is less than gcut^2.
     """
-    vol = np.dot(a1, np.cross(a2, a3))
-    b1 = (2 * np.pi / vol) * np.cross(a2, a3)
-    b2 = (2 * np.pi / vol) * np.cross(a3, a1)
-    b3 = (2 * np.pi / vol) * np.cross(a1, a2)
-
-    # Max (i,j,k) that doesn't upset the condition |i*b1+j*b2+k*b3|<=gcut
-    gcut = eV_to_k(encut)
-    imax = int(math.ceil(gcut / min(norm(b1), norm(b2), norm(b3))))
-    gcut2 = gcut * gcut
-
-    for i in range(-imax, imax + 1):
-        for j in range(-imax, imax + 1):
-            for k in range(-imax, imax + 1):
-                vec = i * b1 + j * b2 + k * b3
-                vec2 = np.dot(vec, vec)
-                if (vec2 <= gcut2 and vec2 != 0.0):
-                    yield vec2
+    for vec in genrecip(a1, a2, a3, encut):
+        yield np.dot(vec, vec)
 
 
 def closestsites(struct_blk, struct_def, pos):
@@ -216,15 +219,13 @@ class StructureMotifInterstitial(object):
     (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).
     """
 
-    __supported_types = ("tet", "oct", "bcc")
-
     def __init__(self,
                  struct,
                  inter_elem,
-                 motif_types=("tet", "oct"),
+                 motif_types=("tetrahedral", "octahedral"),
                  op_threshs=(0.3, 0.5),
                  dl=0.2,
-                 doverlap=1.0,
+                 doverlap=1,
                  facmaxdl=1.01,
                  verbose=False):
         """
@@ -265,9 +266,23 @@ class StructureMotifInterstitial(object):
         if len(self._motif_types) == 0:
             raise RuntimeError("no motif types provided.")
         self._op_threshs = op_threshs[:]
-        for motif in self._motif_types:
-            if motif not in self.__supported_types:
+        self.cn_motif_lostop = {}
+        self.target_cns = []
+        for imotif, motif in enumerate(self._motif_types):
+            if motif not in list(motif_cn_op.keys()):
                 raise RuntimeError("unsupported motif type: {}.".format(motif))
+            cn = int(motif_cn_op[motif]['cn'])
+            if cn not in self.target_cns:
+                self.target_cns.append(cn)
+            if cn not in list(self.cn_motif_lostop.keys()):
+                self.cn_motif_lostop[cn] = {}
+            tmp_optype = motif_cn_op[motif]['optype']
+            if tmp_optype == 'tet_max':
+                tmp_optype = 'tet'
+            if tmp_optype == 'oct_max':
+                tmp_optype = 'oct'
+            self.cn_motif_lostop[cn][motif] = LocalStructOrderParams(
+                [tmp_optype], parameters=[motif_cn_op[motif]['params']], cutoff=-10.0)
         self._dl = dl
         self._defect_sites = []
         self._defect_types = []
@@ -289,7 +304,6 @@ class StructureMotifInterstitial(object):
         struct_w_inter = struct.copy()
         struct_w_inter.append(inter_elem, [0, 0, 0])
         natoms = len(list(struct_w_inter.sites))
-        ops = LocalStructOrderParams(motif_types, cutoff=-10.0)
         trialsites = []
 
         # Loop over trial positions that are based on a regular
@@ -303,63 +317,40 @@ class StructureMotifInterstitial(object):
                     c = (float(ic) + 0.5) / float(nbins[2])
                     struct_w_inter.replace(natoms - 1, inter_elem, coords=[a, b, c], coords_are_cartesian=False)
                     if len(struct_w_inter.get_sites_in_sphere(struct_w_inter.sites[natoms - 1].coords, doverlap)) == 1:
-                        delta = 0.1
-                        ddelta = 0.1
-                        delta_end = 0.8
-                        while delta < delta_end:
-                            neighs = MinimumDistanceNN(tol=delta, cutoff=6).get_nn(struct_w_inter, natoms - 1)
-                            nneighs = len(neighs)
-                            if nneighs > 6:
-                                break
-                            if nneighs not in [4, 6]:
-                                delta += ddelta
+                        neighs_images_weigths = MinimumDistanceNN(
+                            tol=0.8, cutoff=6).get_nn_info(struct_w_inter, natoms - 1)
+                        neighs_images_weigths_sorted = sorted(
+                            neighs_images_weigths, key=lambda x: x['weight'], reverse=True)
+                        for nsite in range(1, len(neighs_images_weigths_sorted) + 1):
+                            if nsite not in self.target_cns:
                                 continue
 
-                            allsites = [s for s in neighs]
+                            allsites = [neighs_images_weigths_sorted[i]['site'] for i in range(nsite)]
                             indices_neighs = [i for i in range(len(allsites))]
                             allsites.append(struct_w_inter.sites[natoms - 1])
-                            opvals = ops.get_order_parameters(
-                                allsites, len(allsites) - 1, indices_neighs=indices_neighs)
-                            motif_type = "unrecognized"
-                            if "tet" in motif_types:
-                                if nneighs == 4 and \
-                                                opvals[
-                                                    motif_types.index("tet")] > \
-                                                op_threshs[
-                                                    motif_types.index("tet")]:
-                                    motif_type = "tet"
-                                    this_op = opvals[motif_types.index("tet")]
-                            if "oct" in motif_types:
-                                if nneighs == 6 and \
-                                                opvals[
-                                                    motif_types.index("oct")] > \
-                                                op_threshs[
-                                                    motif_types.index("oct")]:
-                                    motif_type = "oct"
-                                    this_op = opvals[motif_types.index("oct")]
-
-                            if motif_type != "unrecognized":
-                                cns = {}
-                                for site in neighs:
-                                    if isinstance(site.specie, Element):
-                                        elem = site.specie.symbol
-                                    else:
-                                        elem = site.specie.element.symbol
-                                    if elem in list(cns.keys()):
-                                        cns[elem] = cns[elem] + 1
-                                    else:
-                                        cns[elem] = 1
-                                trialsites.append({
-                                    "mtype": motif_type,
-                                    "opval": this_op,
-                                    "delta": delta,
-                                    "coords": struct_w_inter.sites[natoms - 1].coords[:],
-                                    "fracs": np.array([a, b, c]),
-                                    "cns": dict(cns)
-                                })
-                                break
-
-                            delta += ddelta
+                            for mot, ops in self.cn_motif_lostop[nsite].items():
+                                opvals = ops.get_order_parameters(
+                                    allsites, len(allsites) - 1, indices_neighs=indices_neighs)
+                                if opvals[0] > op_threshs[motif_types.index(mot)]:
+                                    cns = {}
+                                    for isite in range(nsite):
+                                        site = neighs_images_weigths_sorted[isite]['site']
+                                        if isinstance(site.specie, Element):
+                                            elem = site.specie.symbol
+                                        else:
+                                            elem = site.specie.element.symbol
+                                        if elem in list(cns.keys()):
+                                            cns[elem] = cns[elem] + 1
+                                        else:
+                                            cns[elem] = 1
+                                    trialsites.append({
+                                        "mtype": mot,
+                                        "opval": opvals[0],
+                                        "coords": struct_w_inter.sites[natoms - 1].coords[:],
+                                        "fracs": np.array([a, b, c]),
+                                        "cns": dict(cns)
+                                    })
+                                    break
 
         # Prune list of trial sites by clustering and find the site
         # with the largest order parameter value in each cluster.
@@ -862,7 +853,7 @@ class VoronoiPolyhedron(object):
         frac_diff = pbc_diff(poly.frac_coords, self.frac_coords)
         if not np.allclose(frac_diff, [0, 0, 0], atol=tol):
             return False
-        to_frac = self.lattice.get_fractional_coords
+        to_frac = lambda c: self.lattice.get_fractional_coords(c)
         for c1 in self.polyhedron_coords:
             found = False
             for c2 in poly.polyhedron_coords:

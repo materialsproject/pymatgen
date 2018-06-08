@@ -4,37 +4,23 @@
 
 from __future__ import division, unicode_literals
 
-import os
-# import abc
-# import warnings
-# import six
-# from six.moves import filter, map
-#
-# from collections import defaultdict
-#
-# from monty.design_patterns import cached_class
-# from monty.serialization import loadfn
 from monty.json import MSONable
-
-# from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet
-# from pymatgen.core.periodic_table import Element
-# from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
-
-# from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, KumagaiCorrection, \
     BandFillingCorrection, generate_g_sum, find_optimal_gamma, BandEdgeShiftingCorrection
 from pymatgen.analysis.defects.core import Vacancy
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
 """
 This module implements DefectCompatibility analysis for consideration of
 defects
 """
 
-
-# MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-__author__ = "Danny Broberg <dbroberg@berkeley.edu>"
+__author__ = "Danny Broberg, Shyam Dwaraknath"
+__copyright__ = "Copyright 2018, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyam Dwaraknath"
+__email__ = "shyamd@lbl.gov"
+__status__ = "Development"
+__date__ = "Mar 15, 2018"
 
 
 class DefectCompatibility(MSONable):
@@ -59,11 +45,18 @@ class DefectCompatibility(MSONable):
 
     """
 
-    def __init__(self, plnr_avg_var_tol=0.1, plnr_avg_minmax_tol=0.1, atomic_site_var_tol=0.1,
-                 atomic_site_minmax_tol=0.1, tot_relax_tol=0.1, perc_relax_tol=0.1,
+    def __init__(self,
+                 plnr_avg_var_tol=0.1,
+                 plnr_avg_minmax_tol=0.1,
+                 atomic_site_var_tol=0.1,
+                 atomic_site_minmax_tol=0.1,
+                 tot_relax_tol=0.1,
+                 perc_relax_tol=0.1,
                  defect_tot_relax_tol=0.1,
-                 preferred_cc='freysoldt', free_chg_cutoff=2.,
-                 use_bandfilling=True, use_bandedgeshift=True):
+                 preferred_cc='freysoldt',
+                 free_chg_cutoff=2.,
+                 use_bandfilling=True,
+                 use_bandedgeshift=True):
         # TODO: fine tune qualifiers a bit more...
         self.plnr_avg_var_tol = plnr_avg_var_tol
         self.plnr_avg_minmax_tol = plnr_avg_minmax_tol
@@ -96,7 +89,8 @@ class DefectCompatibility(MSONable):
         self.delocalization_analysis(defect_entry)
 
         corrections = {}
-        if (self.free_chg_cutoff < defect_entry.parameters["num_hole_vbm"]) or (self.free_chg_cutoff < defect_entry.parameters["num_elec_cbm"]):
+        if (self.free_chg_cutoff < defect_entry.parameters["num_hole_vbm"]) or (
+                self.free_chg_cutoff < defect_entry.parameters["num_elec_cbm"]):
             print('Will not use charge correction because too many free charges')
             # TODO: should the potential alignment correction still be used in this scenario, though?
         elif 'freysoldt' in self.preferred_cc.lower():
@@ -120,11 +114,19 @@ class DefectCompatibility(MSONable):
             corrections.update({'bandedgeshifting_correction': bes_corr})
 
             # also want to update relevant data for phase diagram
-            defect_entry.parameters.update({'phasediagram_meta': {'vbm': defect_entry.parameters['hybrid_vbm'],
-                                                                  'gap': defect_entry.parameters['hybrid_cbm'] - defect_entry.parameters['hybrid_vbm']}})
+            defect_entry.parameters.update({
+                'phasediagram_meta': {
+                    'vbm': defect_entry.parameters['hybrid_vbm'],
+                    'gap': defect_entry.parameters['hybrid_cbm'] - defect_entry.parameters['hybrid_vbm']
+                }
+            })
         else:  # if not using bandedge shift -> still want to have vbm and gap ready for phase diagram
-            defect_entry.parameters.update({'phasediagram_meta': {'vbm': defect_entry.parameters['vbm'],
-                                                                  'gap': defect_entry.parameters['cbm'] - defect_entry.parameters['vbm']}})
+            defect_entry.parameters.update({
+                'phasediagram_meta': {
+                    'vbm': defect_entry.parameters['vbm'],
+                    'gap': defect_entry.parameters['cbm'] - defect_entry.parameters['vbm']
+                }
+            })
 
         defect_entry.correction.update(corrections)
 
@@ -144,7 +146,6 @@ class DefectCompatibility(MSONable):
 
 
         # consider running kumagai correction
-        run_kumagai = True
         required_kumagai_params = ["dim", "bulk_atomic_site_averages", "defect_atomic_site_averages",
                                    "site_matching_indices", "dielectric"]
         run_kumagai = True if len( set(defect_entry.parameters.keys()).intersection(required_kumagai_params)) \

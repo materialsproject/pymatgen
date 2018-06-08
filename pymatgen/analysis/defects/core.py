@@ -3,17 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-"""
-This module defines classes to define point defect objects
-"""
-
-__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils E. R. Zimmermann, Geoffroy Hautier"
-__copyright__ = "Copyright 2018, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Shyam Dwaraknath"
-__email__ = "shyamd@lbl.gov"
-__status__ = "Development"
-__date__ = "Mar 15, 2018"
 
 import six
 import logging
@@ -23,10 +12,19 @@ from abc import ABCMeta, abstractmethod
 from monty.json import MSONable
 from monty.functools import lru_cache
 
-from pymatgen.core import Molecule, PeriodicSite
 from pymatgen.core.composition import Composition
-from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, PointGroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+"""
+This module defines classes to define point defect objects
+"""
+
+__author__ = "Danny Broberg, Shyam Dwaraknath"
+__copyright__ = "Copyright 2018, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyam Dwaraknath"
+__email__ = "shyamd@lbl.gov"
+__status__ = "Development"
+__date__ = "Mar 15, 2018"
 
 logger = logging.getLogger(__name__)
 

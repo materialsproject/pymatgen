@@ -941,6 +941,7 @@ class Vasprun(MSONable):
                         "weight": self.actual_kpoints_weights[i]}
                        for i in range(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
+        vin["nkpoints"] = len(actual_kpts)
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]

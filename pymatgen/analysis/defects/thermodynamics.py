@@ -1,18 +1,20 @@
-#!/usr/bin/env python
-
-__author__ = "Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier"
-__copyright__ = "Copyright 2014, The Materials Project"
-__version__ = "1.0"
-__maintainer__ = "Danny Broberg, Shyam Dwaraknath"
-__email__ = "dbroberg@berkeley.edu, shyamd@lbl.gov"
-__status__ = "Development"
-__date__ = "January 11, 2018"
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 import numpy as np
 from monty.json import MSONable
 from scipy.spatial import HalfspaceIntersection
 from scipy.optimize import bisect
 from itertools import groupby, chain
+
+__author__ = "Danny Broberg, Shyam Dwaraknath"
+__copyright__ = "Copyright 2018, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyam Dwaraknath"
+__email__ = "shyamd@lbl.gov"
+__status__ = "Development"
+__date__ = "Mar 15, 2018"
 
 
 class DefectPhaseDiagram(MSONable):
