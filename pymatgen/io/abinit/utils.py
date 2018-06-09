@@ -274,6 +274,11 @@ class Directory(object):
             if ext == "_DDB" and f.endswith(".nc"): continue
             # Ignore BSE text files e.g. GW_NLF_MDF
             if ext == "_MDF" and not f.endswith(".nc"): continue
+            # Ignore DDK.nc files (temporary workaround for v8.8.2 in which
+            # the DFPT code produces a new file with DDK.nc extension that enters
+            # into conflict with AbiPy convention.
+            if ext == "_DDK" and f.endswith(".nc"): continue
+
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
 
@@ -287,7 +292,7 @@ class Directory(object):
         if len(files) > 1:
             # ABINIT users must learn that multiple datasets are bad!
             raise ValueError("Found multiple files with the same extensions:\n %s\n" % files +
-                             "Please avoid using mutiple datasets!")
+                             "Please avoid using multiple datasets!")
 
         return files[0]
 
