@@ -22,7 +22,7 @@ import itertools
 import warnings
 import random, copy
 from sympy import Symbol, Number
-from sympy.solvers import linsolve
+from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
 from pymatgen import Structure
@@ -419,7 +419,7 @@ class SurfaceEnergyPlotter(object):
         self.ref_entries = ref_entries
         self.all_slab_entries = all_slab_entries if \
             type(all_slab_entries).__name__ == "dict" else \
-                entry_dict_from_list(all_slab_entries)
+            entry_dict_from_list(all_slab_entries)
         self.color_dict = self.color_palette_dict()
 
     def set_all_variables(self, entry, u_dict, u_default):
@@ -636,7 +636,8 @@ class SurfaceEnergyPlotter(object):
         return {p: list(soln)[0][i] for i, p in enumerate(all_parameters)}
 
     def stable_u_range_dict(self, chempot_range, ref_delu, no_doped=True,
-                            no_clean=False, u_dict={}, miller_index=()):
+                            no_clean=False, u_dict={}, miller_index=(),
+                            dmu_at_0=False, return_se_dict=False):
         """
         Creates a dictionary where each entry is a key pointing to a
         chemical potential range where the surface of that entry is stable.
@@ -657,10 +658,18 @@ class SurfaceEnergyPlotter(object):
                 format: Symbol("delu_el") where el is the name of the element.
             miller_index (list): Miller index for a specific facet to get a
                 dictionary for.
+            dmu_at_0 (bool): If True, if the surface energies corresponding to
+                the chemical potential range is between a negative and positive
+                value, the value is a list of three chemical potentials with the
+                one in the center corresponding a surface energy of 0. Uselful
+                in identifying unphysical ranges of surface energies and their
+                chemical potential range.
+            return_se_dict (bool): Whether or not to return the corresponding
+                dictionary of surface energies
         """
 
         chempot_range = sorted(chempot_range)
-        all_intesects_dict, stable_urange_dict = {}, {}
+        all_intesects_dict, stable_urange_dict, se_dict = {}, {}, {}
 
         # Get all entries for a specific facet
         for hkl in self.all_slab_entries.keys():
@@ -677,11 +686,16 @@ class SurfaceEnergyPlotter(object):
 
             for entry in entries_in_hkl:
                 stable_urange_dict[entry] = []
-
+                se_dict[entry] = []
             # if there is only one entry for this facet, then just give it the
             # default urange, you can't make combinations with just 1 item
             if len(entries_in_hkl) == 1:
                 stable_urange_dict[entries_in_hkl[0]] = chempot_range
+                u1, u2 = u_dict.copy(), u_dict.copy()
+                u1[ref_delu], u2[ref_delu] = chempot_range[0], chempot_range[1]
+                se = entries_in_hkl[0].surface_energy(self.ucell_entry,
+                                                      ref_entries=self.ref_entries)
+                se_dict[entries_in_hkl[0]] = [se.subs(u1), se.subs(u2)]
                 continue
 
             for pair in itertools.combinations(entries_in_hkl, 2):
@@ -706,6 +720,7 @@ class SurfaceEnergyPlotter(object):
 
                 for entry in pair:
                     stable_urange_dict[entry].append(solution[ref_delu])
+                    se_dict[entry].append(gamma)
 
             # Now check if all entries have 2 chempot values. If only
             # one, we need to set the other value as either the upper
@@ -717,12 +732,31 @@ class SurfaceEnergyPlotter(object):
                                                           no_doped=no_doped,
                                                           no_clean=no_clean)
                 stable_urange_dict[entry].append(u)
+                se_dict[entry].append(gamma)
+
+        if dmu_at_0:
+            for entry in se_dict.keys():
+                # if se are of opposite sign, determine chempot when se=0.
+                # Useful for finding a chempot range where se is unphysical
+                if not stable_urange_dict[entry]:
+                    continue
+                if se_dict[entry][0] * se_dict[entry][1] < 0:
+                    # solve for gamma=0
+                    se = entry.surface_energy(self.ucell_entry,
+                                              ref_entries=self.ref_entries)
+                    se_dict[entry].append(0)
+                    stable_urange_dict[entry].append(solve(se.subs(u_dict), ref_delu)[0])
 
         # sort the chempot ranges for each facet
         for entry in stable_urange_dict.keys():
+            se_dict[entry] = [se for i, se in sorted(zip(stable_urange_dict[entry],
+                                                         se_dict[entry]))]
             stable_urange_dict[entry] = sorted(stable_urange_dict[entry])
 
-        return stable_urange_dict
+        if return_se_dict:
+            return stable_urange_dict, se_dict
+        else:
+            return stable_urange_dict
 
     def color_palette_dict(self, alpha=0.35):
         """
@@ -806,12 +840,12 @@ class SurfaceEnergyPlotter(object):
         u_dict[ref_delu] = chempot_range[0]
         gamma_min = entry.surface_energy(self.ucell_entry,
                                          ref_entries=self.ref_entries)
-        gamma_min = gamma_min if type(gamma_min).__name__ ==\
+        gamma_min = gamma_min if type(gamma_min).__name__ == \
                                  "float" else gamma_min.subs(u_dict)
         u_dict[ref_delu] = chempot_range[1]
         gamma_max = entry.surface_energy(self.ucell_entry,
                                          ref_entries=self.ref_entries)
-        gamma_max = gamma_max if type(gamma_max).__name__ ==\
+        gamma_max = gamma_max if type(gamma_max).__name__ == \
                                  "float" else gamma_max.subs(u_dict)
         gamma_range = [gamma_min, gamma_max]
 
@@ -1057,6 +1091,122 @@ class SurfaceEnergyPlotter(object):
 
         return plt
 
+    def surface_chempot_range_map(self, elements, miller_index, ranges,
+                                  incr=50, no_doped=False, no_clean=False,
+                                  u_dict={}, plt=None, annotate=True):
+        """
+        Adapted from the get_chempot_range_map() method in the PhaseDiagram
+            class. Plot the chemical potential range map based on surface
+            energy stability. Currently works only for 2-component PDs. At
+            the moment uses a brute force method by enumerating through the
+            range of the first element chempot with a specified increment
+            and determines the chempot rangeo fht e second element for each
+            SlabEntry. Future implementation will determine the chempot range
+            map first by solving systems of equations up to 3 instead of 2.
+        Args:
+            elements (list): Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges of
+                all Li-Co-O phases wrt to duLi and duO, you will supply
+                [Element("Li"), Element("O")]
+            miller_index ([h, k, l]): Miller index of the surface we are interested in
+            ranges ([[range1], [range2]]): List of chempot ranges (max and min values)
+                for the first and second element.
+            incr (int): Number of points to sample along the range of the first chempot
+            no_doped (bool): Whether or not to include doped systems.
+            no_clean (bool): Whether or not to include clean systems.
+            u_dict (Dict): Dictionary of the chemical potentials to be set as
+                constant. Note the key should be a sympy Symbol object of the
+                format: Symbol("delu_el") where el is the name of the element.
+            annotate (bool): Whether to annotate each "phase" with the label of
+                the entry. If no label, uses the reduced formula
+        """
+
+        # Set up
+        plt = pretty_plot(12, 8) if not plt else plt
+        delu1 = Symbol("delu_%s" % (str(elements[0])))
+        delu2 = Symbol("delu_%s" % (str(elements[0])))
+        range1 = ranges[0]
+        range2 = ranges[1]
+
+        # Find a range map for each entry (surface). This part is very slow, will
+        # need to implement a more sophisticated method of getting the range map
+        vertices_dict = {}
+        for dmu1 in np.linspace(range1[0], range1[1], incr):
+            # Get chemical potential range of dmu2 for each increment of dmu1
+            new_u_dict = u_dict.copy()
+            new_u_dict[delu1] = dmu1
+            range_dict, se_dict = self.stable_u_range_dict(range2, delu2, dmu_at_0=True,
+                                                           miller_index=miller_index,
+                                                           no_doped=no_doped,
+                                                           no_clean=no_clean,
+                                                           u_dict=new_u_dict,
+                                                           return_se_dict=True)
+
+            # Save the chempot range for dmu1 and dmu2
+            for i, entry in enumerate(range_dict.keys()):
+                if not range_dict[entry]:
+                    continue
+                if entry not in vertices_dict.keys():
+                    vertices_dict[entry] = []
+
+                selist = se_dict[entry]
+                vertices_dict[entry].append({delu1: dmu1, delu2: [range_dict[entry], selist]})
+
+        # Plot the edges of the phases
+        for i, entry in enumerate(vertices_dict.keys()):
+
+            xvals, yvals = [], []
+
+            # Plot each edge of a phase within the borders
+            for ii, pt1 in enumerate(vertices_dict[entry]):
+
+                # Determine if the surface energy at this lower range
+                # of dmu2 is negative. If so, shade this region.
+                if len(pt1[delu2][1]) == 3:
+                    if pt1[delu2][1][0] < 0:
+                        neg_dmu_range = [pt1[delu2][0][0], pt1[delu2][0][1]]
+                    else:
+                        neg_dmu_range = [pt1[delu2][0][1], pt1[delu2][0][2]]
+                    # Shade the threshold and region at which se<=0
+                    plt.plot([pt1[delu1], pt1[delu1]], neg_dmu_range, 'k--')
+                elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0:
+                    # Any chempot at at this point will result
+                    # in se<0, shade the entire y range
+                    plt.plot([pt1[delu1], pt1[delu1]], range2, 'k--')
+
+                if ii == len(vertices_dict[entry]) - 1:
+                    break
+                pt2 = vertices_dict[entry][ii + 1]
+                plt.plot([pt1[delu1], pt2[delu1]], [pt1[delu2][0][0], pt2[delu2][0][0]], 'k')
+
+                # Need these values to get a good position for labelling phases
+                xvals.extend([pt1[delu1], pt2[delu1]])
+                yvals.extend([pt1[delu2][0][0], pt2[delu2][0][0]])
+
+            # Plot the edge along the max x value
+            pt = vertices_dict[entry][-1]
+            delu1, delu2 = pt.keys()
+            xvals.extend([pt[delu1], pt[delu1]])
+            yvals.extend(pt[delu2][0])
+            plt.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], 'k')
+
+            if annotate:
+                # Label the phases
+                x = np.mean([max(xvals), min(xvals)])
+                y = np.mean([max(yvals), min(yvals)])
+                label = entry.label if entry.label else entry.composition.reduced_formula
+                plt.annotate(label, xy=[x, y], xytext=[x, y])
+
+        # Label plot
+        plt.xlim(range1)
+        plt.ylim(range2)
+        plt.xlabel(r"$\Delta\mu_{%s} (eV)$" % (el1), fontsize=25)
+        plt.ylabel(r"$\Delta\mu_{%s} (eV)$" % (el2), fontsize=25)
+        plt.xticks(rotation=60)
+
+        return plt, vertices_dict, se_dict
+
+
         # def surface_phase_diagram(self, y_param, x_param, miller_index):
         #     return
         #
@@ -1067,10 +1217,6 @@ class SurfaceEnergyPlotter(object):
         #
         #     return
         #
-        # def surface_u_vs_u_phase_diagram(self):
-        #
-        #     return
-        #
         # def surface_p_vs_t_phase_diagram(self):
         #
         #     return
@@ -1078,7 +1224,6 @@ class SurfaceEnergyPlotter(object):
         # def broken_bond_vs_gamma(self):
         #
         #     return
-
 
 def entry_dict_from_list(all_slab_entries):
     """
