@@ -12,7 +12,8 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp import Vasprun
 from pymatgen.analysis.defects.core import DefectEntry, Vacancy
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, freysoldt_plotter,\
-            KumagaiCorrection, find_optimal_gamma, generate_g_sum, kumagai_plotter, BandFillingCorrection
+            KumagaiCorrection, find_optimal_gamma, generate_g_sum, kumagai_plotter, \
+            BandFillingCorrection, BandEdgeShiftingCorrection
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -296,12 +297,44 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(bf_corr, 0.)
         occu = [[1.5569999999999999, 0.16666668000000001], [1.6346500000000002, 0.16666668000000001],
                 [1.6498000000000002, 0.083333340000000006], [1.6204000000000001, 0.16666668000000001]]
-        self.assertArrayAlmostEqual(bfc.metadata['occupied_def_levels'], list(sorted(occu, key=lambda x: x[0])))
+        self.assertArrayAlmostEqual(list(sorted(bfc.metadata['occupied_def_levels'], key=lambda x: x[0])),
+                                    list(sorted(occu, key=lambda x: x[0])))
         self.assertAlmostEqual(bfc.metadata['total_occupation_defect_levels'], 0.58333338)
         self.assertFalse(bfc.metadata['unoccupied_def_levels'])
 
+
     def test_bandedgeshifting(self):
-        pass
+        struc = PymatgenTest.get_structure("VO2")
+        struc.make_supercell(3)
+        struc = struc
+        vac = Vacancy(struc, struc.sites[0], charge=-3)
+
+        besc = BandEdgeShiftingCorrection()
+        params = {'hybrid_cbm': 1., 'hybrid_vbm': -1.,
+                  'vbm': -0.5, 'cbm': 0.6,
+                  'num_hole_vbm': 0., 'num_elec_cbm': 0.}
+        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+
+        #test with no free carriers
+        corr = besc.get_correction(de)
+        self.assertEqual( corr['vbm_shift_correction'], 1.5)
+        self.assertEqual( corr['elec_cbm_shift_correction'], 0.)
+        self.assertEqual( corr['hole_vbm_shift_correction'], 0.)
+
+        #test with free holes
+        de.parameters.update( {'num_hole_vbm': 1.})
+        corr = besc.get_correction(de)
+        self.assertEqual( corr['vbm_shift_correction'], 1.5)
+        self.assertEqual( corr['elec_cbm_shift_correction'], 0.)
+        self.assertEqual( corr['hole_vbm_shift_correction'], 0.5)
+
+        #test with free electrons
+        de.parameters.update( {'num_hole_vbm': 0., 'num_elec_cbm': 1.})
+        corr = besc.get_correction(de)
+        self.assertEqual( corr['vbm_shift_correction'], 1.5)
+        self.assertEqual( corr['elec_cbm_shift_correction'], 0.4)
+        self.assertEqual( corr['hole_vbm_shift_correction'], 0.)
+
 
 
 
