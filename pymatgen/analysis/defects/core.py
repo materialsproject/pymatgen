@@ -14,6 +14,7 @@ from monty.functools import lru_cache
 
 from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.defects.utils import kb
 """
 This module defines classes to define point defect objects
 """
@@ -333,8 +334,8 @@ class DefectEntry(MSONable):
         return self.defect.site
 
     @property
-    def multiplicty(self):
-        return self.defect.multiplicty
+    def multiplicity(self):
+        return self.defect.multiplicity
 
     @property
     def charge(self):
@@ -379,6 +380,9 @@ class DefectEntry(MSONable):
 
         if "vbm" in self.parameters:
             formation_energy += self.charge * (self.parameters["vbm"] + fermi_level)
+        else:
+            formation_energy += self.charge * fermi_level
+
 
         return formation_energy
 
@@ -394,7 +398,7 @@ class DefectEntry(MSONable):
             defects concentration in cm^-3
         """
         n = self.multiplicity * 1e24 / self.defect.bulk_structure.volume
-        conc = n * exp(-1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature))
+        conc = n * np.exp(-1.0 * self.formation_energy(chemical_potentials, fermi_level=fermi_level) / (kb * temperature))
 
         return conc
 
