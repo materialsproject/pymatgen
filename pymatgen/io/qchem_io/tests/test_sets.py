@@ -19,6 +19,7 @@ test_dir = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", 'test_files',
     "molecules")
 
+
 class QChemDictSetTest(PymatgenTest):
     def test_init(self):
         test_molecule = QCInput.from_file(
@@ -31,9 +32,11 @@ class QChemDictSetTest(PymatgenTest):
         self.assertEqual(
             test_DictSet.rem, {
                 'job_type': 'opt',
-                'basis': '6-31G*',
+                'gen_scfman': 'true',
+                'basis': '6-31g*',
                 'max_scf_cycles': 200,
-                'method': 'wB97X-V',
+                'method': 'wb97xd',
+                'scf_algorithm': 'diis',
                 'geom_opt_max_cycles': 200
             })
         self.assertEqual(test_DictSet.pcm, {})
@@ -46,7 +49,7 @@ class QChemDictSetTest(PymatgenTest):
         test_DictSet = QChemDictSet(
             molecule=test_molecule,
             job_type='opt',
-            basis_set='6-31G*',
+            basis_set='6-31g*',
             scf_algorithm='diis',
             dft_rung=1,
             pcm_dielectric=10.0,
@@ -54,10 +57,12 @@ class QChemDictSetTest(PymatgenTest):
         self.assertEqual(
             test_DictSet.rem, {
                 'job_type': 'opt',
-                'basis': '6-31G*',
+                'gen_scfman': 'true',
+                'basis': '6-31g*',
                 'max_scf_cycles': 35,
-                'exchange': 'B3LYP',
+                'exchange': 'b3lyp',
                 'geom_opt_max_cycles': 200,
+                'scf_algorithm': 'diis',
                 'solvent_method': 'pcm'
             })
         self.assertEqual(
@@ -71,6 +76,48 @@ class QChemDictSetTest(PymatgenTest):
         self.assertEqual(test_DictSet.solvent, {'dielectric': 10.0})
         self.assertEqual(test_DictSet.molecule, test_molecule)
 
+    def test_overwrite_input_addition(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        overwrite_inputs = {"rem": {'thresh': 14}}
+        test_OptSet = OptSet(
+            molecule=test_molecule, overwrite_inputs=overwrite_inputs)
+        act_rem = {
+            'job_type': 'opt',
+            'gen_scfman': 'true',
+            'basis': '6-311++g*',
+            'max_scf_cycles': 200,
+            'method': 'wb97xd',
+            'scf_algorithm': 'diis',
+            'geom_opt_max_cycles': 200,
+            'thresh': 14
+        }
+        self.assertDictEqual(act_rem, test_OptSet.rem)
+
+    def test_overwrite_input(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        overwrite_inputs = {
+            "rem": {
+                'method': 'b3lyp',
+                'basis': '6-31g*',
+                'thresh': 14
+            }
+        }
+        test_OptSet = OptSet(
+            molecule=test_molecule, overwrite_inputs=overwrite_inputs)
+        act_rem = {
+            'job_type': 'opt',
+            'gen_scfman': 'true',
+            'basis': '6-31g*',
+            'max_scf_cycles': 200,
+            'method': 'b3lyp',
+            'scf_algorithm': 'diis',
+            'geom_opt_max_cycles': 200,
+            'thresh': 14
+        }
+        self.assertDictEqual(act_rem, test_OptSet.rem)
+
 
 class OptSetTest(PymatgenTest):
     def test_init(self):
@@ -80,9 +127,11 @@ class OptSetTest(PymatgenTest):
         self.assertEqual(
             test_OptSet.rem, {
                 'job_type': 'opt',
-                'basis': '6-311++G*',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wB97X-V',
+                'method': 'wb97xd',
+                'scf_algorithm': 'diis',
                 'geom_opt_max_cycles': 200
             })
         self.assertEqual(test_OptSet.pcm, {})
@@ -96,10 +145,12 @@ class OptSetTest(PymatgenTest):
         self.assertEqual(
             test_OptSet.rem, {
                 'job_type': 'opt',
-                'basis': '6-311++G*',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wB97X-V',
+                'method': 'wb97xd',
                 'geom_opt_max_cycles': 200,
+                'scf_algorithm': 'diis',
                 'solvent_method': 'pcm'
             })
         self.assertEqual(
@@ -122,9 +173,11 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(
             test_SPSet.rem, {
                 'job_type': 'sp',
-                'basis': '6-311++G*',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wB97X-V'
+                'method': 'wb97xd',
+                'scf_algorithm': 'diis'
             })
         self.assertEqual(test_SPSet.pcm, {})
         self.assertEqual(test_SPSet.solvent, {})
@@ -138,9 +191,11 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(
             test_SPSet.rem, {
                 'job_type': 'sp',
-                'basis': '6-311++G*',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wB97X-V',
+                'method': 'wb97xd',
+                'scf_algorithm': 'diis',
                 'solvent_method': 'pcm'
             })
         self.assertEqual(
@@ -163,9 +218,11 @@ class FreqSetTest(PymatgenTest):
         self.assertEqual(
             test_FreqSet.rem, {
                 'job_type': 'freq',
-                'basis': '6-311++G*',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wB97X-V'
+                'method': 'wb97xd',
+                'scf_algorithm': 'diis'
             })
         self.assertEqual(test_FreqSet.pcm, {})
         self.assertEqual(test_FreqSet.solvent, {})
@@ -178,9 +235,11 @@ class FreqSetTest(PymatgenTest):
         self.assertEqual(
             test_FreqSet.rem, {
                 'job_type': 'freq',
-                'basis': '6-311++G*',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
                 'max_scf_cycles': 200,
-                'method': 'wB97X-V',
+                'method': 'wb97xd',
+                'scf_algorithm': 'diis',
                 'solvent_method': 'pcm'
             })
         self.assertEqual(
