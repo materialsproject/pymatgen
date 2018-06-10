@@ -509,7 +509,7 @@ class KumagaiCorrection(DefectCorrection):
                 self.metadata["gamma"] = find_optimal_gamma(bulk_lattice, self.dielectric,
                                                             self.madelung_energy_tolerance)
 
-        if not len(self.metadata["g_sum"]):
+        if not self.metadata["g_sum"]:
             if "g_sum" in entry.parameters.keys():
                 self.metadata["g_sum"] = entry.parameters["g_sum"]
             else:
