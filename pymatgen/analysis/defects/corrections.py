@@ -723,9 +723,12 @@ class KumagaiCorrection(DefectCorrection):
                     if abs(abs(r_sums[-1][1]) - abs(r_sums[-2][1])) * hart_to_ev < madetol:  # converge in eV
                         real_part = r_sums[-1][1]
                         logger.debug("gamma is {}".format(gamma))
-                        logger.debug("convergence for real summatin term occurs at step {} "
+                        logger.debug("convergence for real summation term occurs at step {} "
                                      "where real sum is {}".format(N, real_part * hart_to_ev))
                         break
+                else:
+                    logger.debug("\tProgress in Direct part: {} has {}.. checking "
+                                 "convergence...".format(N, r_sums[-1][1]))
 
                 N += 1
 
