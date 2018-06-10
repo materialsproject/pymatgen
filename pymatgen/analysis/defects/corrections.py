@@ -620,22 +620,36 @@ class KumagaiCorrection(DefectCorrection):
         For performing potential alignment in manner described by Kumagai et al.
         Args:
             bulk_structure: Bulk pymatgen structure type
+
             defect_structure: Bulk pymatgen structure type
+
             defect_position: Defect Position, given as a Pymatgen Site object
+                which is in the identical supercell as bulk_structure and
+                defect_structure from above
+
             site_list: list of NON-defect site information in form:
-                [[bulk_site object, defect_site object, Vqb for site], ... repeat for all non defective sites]
-                where Vqb is the difference in the site averaged electrostatic potentials between defect and bulk
-                    Note: In Vasp this is the negative value of what is given in OUTCAR:  Vqb = -(defect_cell_site - bulk_cell_site))
+                ex. [[bulk_site object (from within bulk_structure above),
+                      defect_site object (from within defect_structure above),
+                      Vqb for site], ... repeat for all non defective sites]
+                where Vqb is the difference in site averaged electrostatic potentials
+                between defect and bulk
+                    Note: In VASP this is the negative value of what is given
+                    in OUTCAR:  Vqb = -(defect_cell_site - bulk_cell_site)
+
             sampling_radius: radius (in Angstrom) which sites must be outside of to be included in the correction
-                Kumagai paper suggests Wigner-Seitz radius
+                Publication by Kumagai suggests Wigner-Seitz radius of the supercell
 
             dielectric: dielectric tensor
-            q: Point charge (in units of e+)
-            g_sum : comes from KumagaiBulkInit class
-            dim: dimlist for ngx
-            gamma : convergence parameter optimized in KumagaiBulkInit class
-            madetol: convergence for real sum term in eV
 
+            q: Point charge (in units of e+)
+
+            g_sum : comes from generate_g_sum function
+
+            dim: dimlist for ngx grid
+
+            gamma : convergence parameter optimized in find_optimal_gamma function
+
+            madetol: convergence for real summation term in eV
 
         """
         logger = logging.getLogger(__name__)
@@ -655,11 +669,8 @@ class KumagaiCorrection(DefectCorrection):
             bulk_index = bulk_structure.sites.index(bulk_cell_site)
             defect_cell_index = defect_structure.sites.index(
                 defect_cell_site
-            )  # shoudl include a raise value error if the site_list contains sites not in the structure being analyzed...
-
-            # calculate distance from defect"s position to closest periodic image of current defect_cell site object
-            # TODO: frac coords here is probably a bad idea since site object might
-            # not reflect correct sc_scaling... REPLACE
+            )
+            # calculate distance from defect position to closest periodic image of current defect_cell site object
             relative_vector = pbc_shortest_vectors(bulk_structure.lattice, defect_position.frac_coords,
                                                    defect_cell_site.frac_coords)[0][0]  # this is angstrom vector
             dist_to_defect = np.linalg.norm(relative_vector)  # in angstroms
