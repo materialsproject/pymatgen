@@ -318,71 +318,178 @@ def freysoldt_plotter(x, v_R, dft_diff, final_shift, check, title=None, saved=Fa
 # Below Here is for kumagai correction
 
 
-def find_optimal_gamma(lattice, epsilon, tolerance=0.0001, max_encut=510):
+def find_optimal_gamma(lattice, epsilon, tolerance=0.0001):
     """
-    Find optimal gamma by evaluating the brute force reciprocal
-    summation and seeing when the values are on the order of 0.75,
-    This calculation is the anisotropic Madelung potential at r = (0,0,0).
+    This algorithm finds an optimal gamma value by evaluating the
+    reciprocal and real space summations by brute force.
+    Since the reciprocal summation monotonically increases with gamma
+    and the real space summation monotonically decreases with gamma,
+    we find a value for gamma which produces summation values which are close in value
+
+    This is done by:
+        1) Find a "lower bound" gamma value which produces a real summation value > 0.5 eV
+        2) Find an "upper bound" gamma value which produces a reciprocal value > 0.5 eV
+        3) "Scope in" x2 within this range of possible gamma values to produce a gamma
+        which has roughly equivalent magnitudes for the two summations
     """
     logger = logging.getLogger(__name__)
     angset = lattice.get_cartesian_coords(1)
     [a1, a2, a3] = ang_to_bohr * angset  # convert to bohr
     vol = np.dot(a1, np.cross(a2, a3))
+    determ = np.linalg.det(epsilon)
+    invdiel = np.linalg.inv(epsilon)
 
-    # start with gamma s.t. gamma*L=5 (literature ref says this may be optimal)
-    # optimizing gamma for the reciprocal sum to improve convergence
-    maximum_gamma = 250  # choose a large gamma to stop trying this scheme at?
-    gamma = 5.0 / (vol**(1 / 3.0))
-    optimal_gamma_found = False
+    low_gamma = 0.5
+    high_gamma = 1.
 
-    def brute_force_recip_summation(tencut):
+    def single_encut_brute_force_recip_summation(tencut, trial_gamma):
         recippart = 0.0
         for rec in genrecip(a1, a2, a3, tencut):
             Gdotdiel = np.dot(rec, np.dot(epsilon, rec))
-            summand = math.exp(-Gdotdiel / (4 * (gamma**2))) / Gdotdiel
+            summand = math.exp(-Gdotdiel / (4 * (trial_gamma**2))) / Gdotdiel
             recippart += summand
         recippart *= 4 * np.pi / vol
         return recippart
 
-    while not optimal_gamma_found:
-        encut = 20  # start with small encut for expediency
-        recippart1 = brute_force_recip_summation(encut)
+    def brute_force_recip_summation(trial_gamma):
+        #brute force reciprocal summation must be converged with respect to encut
+        encut = 20  # start with a small encut for expediency
+        recippart1 = single_encut_brute_force_recip_summation(encut, trial_gamma)
 
         encut += 20
-        recippart2 = brute_force_recip_summation(encut)
+        recippart2 = single_encut_brute_force_recip_summation(encut, trial_gamma)
 
         converge = [recippart1, recippart2]
 
         while abs(abs(converge[0]) - abs(converge[1])) * hart_to_ev > tolerance:
             encut += 20
-            recippartnew = brute_force_recip_summation(encut)
+            recippartnew = single_encut_brute_force_recip_summation(encut, trial_gamma)
 
             converge.reverse()
             converge[1] = recippartnew
-            if encut > max_encut:
-                msg = "Optimal gamma not found before {} eV cutoff".format(max_encut)
+            if encut > 520:
+                msg = "Reciprocal summation for gamma {} not found before 520 " \
+                      "eV cutoff".format(trial_gamma)
                 logger.error(msg)
                 raise ValueError(msg)
 
-        logger.debug("Reciprocal sum converged to %f eV", converge[1] * hart_to_ev)
-        logger.debug("Converging encut = %d eV", encut)
+        return converge[1]* hart_to_ev
 
-        if abs(converge[1]) * hart_to_ev < 0.75:
-            logger.warning("Reciprocal summation value is less than 0.75 eV.")
-            logger.warning("Might lead to errors")
-            # reduce multiplier for optimal gamma at larger values of gamma,
-            # because larger gamma values require more time
-            multiplier = 1.5 if gamma > 15. else 3.
-            gamma *= multiplier
-            logger.warning("Changing gamma to %f", gamma)
+    def brute_force_real_summation(trial_gamma):
+        chargeless_realpre = 1. / np.sqrt( determ)
+        # Real space sum by converging with respect to real space vectors
+        # create list of real space vectors that satisfy |i*a1+j*a2+k*a3|<=N
+        Nmaxlength = 40  # max range to stopping considering for real space sum convergence (arbitrary, but "large")
+        N = 2
+        r_sums = []
+        while N < Nmaxlength:
+            real_part = 0.0
+            for i in range(-N, N + 1):
+                for j in range(-N, N + 1):
+                    for k in range(-N, N + 1):
+                        if i == j == k == 0:  # since this real sum involves r=0, skipping
+                            continue
+                        else:
+                            r_vec = i * a1 + j * a2 + k * a3
+                            loc_res = np.dot(r_vec, np.dot(invdiel, r_vec))
+                            nmr = math.erfc(trial_gamma * np.sqrt(loc_res))
+                            dmr = np.sqrt(determ * loc_res)
+                            real_part += nmr / dmr
+            r_sums.append([N, chargeless_realpre * real_part])
+
+            if N == Nmaxlength - 1:
+                logger.warning("Direct part could not converge with real space translation "
+                               "tolerance of {} for gamma {}".format(Nmaxlength - 1, trial_gamma))
+                return None
+            elif len(r_sums) > 3:
+                if abs(abs(r_sums[-1][1]) - abs(r_sums[-2][1])) * hart_to_ev < tolerance:  # converging in eV
+                    real_part = r_sums[-1][1] * hart_to_ev
+                    return real_part
+            N += 1
+
+        return None
+
+    #first find lower bound of gamma values to sample
+    real_sum = brute_force_real_summation( low_gamma)
+    if not real_sum:
+        real_sum = 0.
+    while real_sum < 0.5:
+        logger.debug("lower bound for gamma optimization not found with {}. "
+                     "Changing gamma to {}".format( low_gamma, low_gamma * 1/2.))
+        low_gamma *= 1/2.
+        real_sum = brute_force_real_summation(low_gamma)
+        if not real_sum:
+            logger.debug("ERROR with gamma {}.\n\tReal "
+                        "summation = {}".format(low_gamma, real_sum))
+            real_sum = 0.
+
+    logger.debug("lower bound found for gamma: {}\n\tReal "
+                "summation = {}".format(low_gamma, real_sum))
+
+    #then find upper bound of gamma values to sample
+    recip_sum = brute_force_recip_summation( high_gamma)
+    if not recip_sum:
+        recip_sum = 0.
+    while recip_sum < 0.5:
+        logger.debug("upper bound for gamma optimization not found with {}. "
+                     "Changing gamma to {}".format( high_gamma, high_gamma * 1.2))
+        high_gamma *= 1.2
+        recip_sum = brute_force_recip_summation(high_gamma)
+        if not recip_sum:
+            logger.debug("ERROR with gamma {}.\nRecip summation "
+                         "= {}".format(high_gamma, recip_sum))
+            recip_sum = 0.
+    logger.debug("upper bound found for gamma: {}\n\tRecip "
+                 "summation = {}".format(high_gamma, recip_sum))
+
+    logger.debug("window determined for gamma optimization:"
+                 " [{},{}]".format(low_gamma, high_gamma))
+
+    #now use these bounds on gamma to maximize both summation values
+    track_scope = []
+    for trial_gamma in np.linspace(low_gamma, high_gamma, 10):
+        recip_sum = brute_force_recip_summation( trial_gamma)
+        real_sum = brute_force_real_summation( trial_gamma)
+        if recip_sum and real_sum:
+            logger.debug("First scoping routine.\n\ttrying gamma={}\n\tRecip summation = {}; Real "
+                        "summation = {}".format(trial_gamma, recip_sum, real_sum))
+            tot_sum = abs(recip_sum) + abs(real_sum)
+            #score to minimize = have recip and real sums contribute similar amounts to total summation
+            score = abs(abs(recip_sum) - abs(real_sum)) / tot_sum
+            track_scope.append( [score, trial_gamma])
         else:
-            logger.debug("Optimized gamma found to be %f", gamma)
-            optimal_gamma_found = True
+            logger.debug("First scoping routine.\n\tERROR with gamma={}\n\tRecip summation = {}; Real "
+                        "summation = {}".format(trial_gamma, recip_sum, real_sum))
 
-        if gamma > maximum_gamma:
-            raise ValueError("Could not optimize gamma before gamma = {}".format(maximum_gamma))
+    track_scope.sort()
+    logger.debug("First scoping routine for optimal gamma found {} with a "
+                 "score of {}".format(track_scope[0][1], track_scope[0][0]))
 
-    return gamma
+    #one more iteration of this scoping routine for good measure
+    low_gamma = max(track_scope[0][1] * 0.5, low_gamma)
+    high_gamma = min(track_scope[0][1] * 1.2, high_gamma)
+    track_scope = []
+    logger.debug("secondary gamma optimization window to try is:"
+                 " [{},{}]".format(low_gamma, high_gamma))
+    for trial_gamma in np.linspace(low_gamma, high_gamma, 20):
+        recip_sum = brute_force_recip_summation( trial_gamma)
+        real_sum = brute_force_real_summation( trial_gamma)
+        if recip_sum and real_sum:
+            logger.debug("Second scoping routine:\n\ttry gamma={}\n\tRecip summation = {}; Real "
+                        "summation = {}".format(trial_gamma, recip_sum, real_sum))
+            tot_sum = abs(recip_sum) + abs(real_sum)
+            #score to minimize = have recip and real sums contribute similar amounts to total summation
+            score = abs(abs(recip_sum) - abs(real_sum)) / tot_sum
+            track_scope.append( [score, trial_gamma])
+        else:
+            logger.debug("Second scoping routine.\n\tERROR with gamma={}\n\tRecip summation = {}; Real "
+                        "summation = {}".format(trial_gamma, recip_sum, real_sum))
+
+    track_scope.sort()
+    optgamma = track_scope[0][1]
+    logger.info("Optimal gamma found to be {}".format(optgamma))
+
+    return optgamma
 
 
 def generate_g_sum(lattice, epsilon, dim, gamma):
