@@ -6,19 +6,22 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
+import copy
 import matplotlib
 matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.lattice import Lattice
 
 try:
     import openbabel as ob
 except ImportError:
     ob = None
 
-__author__ = "Matthew Horton"
+__author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
 __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
@@ -122,7 +125,7 @@ class StructureGraphTest(unittest.TestCase):
     def test_str(self):
 
         square_sg_str_ref = """Structure Graph
-Structure: 
+Structure:
 Full Formula (H1)
 Reduced Formula: H2
 abc   :   5.000000   5.000000  50.000000
@@ -132,16 +135,16 @@ Sites (1)
 ---  ----  ---  ---  ---
   0  H       0    0    0
 Graph: bonds
-from    to  to_image    
+from    to  to_image
 ----  ----  ------------
-   0     0  (1, 0, 0)   
-   0     0  (-1, 0, 0)  
-   0     0  (0, 1, 0)   
-   0     0  (0, -1, 0)  
+   0     0  (1, 0, 0)
+   0     0  (-1, 0, 0)
+   0     0  (0, 1, 0)
+   0     0  (0, -1, 0)
 """
 
         mos2_sg_str_ref = """Structure Graph
-Structure: 
+Structure:
 Full Formula (Mo1 S2)
 Reduced Formula: MoS2
 abc   :   3.190316   3.190315  17.439502
@@ -174,7 +177,7 @@ from    to  to_image      bond_length (A)
         square_sg_mul = self.square_sg * (2, 1, 1)
 
         square_sg_mul_ref_str = """Structure Graph
-Structure: 
+Structure:
 Full Formula (H2)
 Reduced Formula: H2
 abc   :  10.000000   5.000000  50.000000
@@ -185,14 +188,14 @@ Sites (2)
   0  H     0      0    0
   1  H     0.5    0   -0
 Graph: bonds
-from    to  to_image    
+from    to  to_image
 ----  ----  ------------
-   0     0  (0, 1, 0)   
-   0     0  (0, -1, 0)  
-   0     1  (0, 0, 0)   
-   0     1  (-1, 0, 0)  
-   1     1  (0, 1, 0)   
-   1     1  (0, -1, 0)  
+   0     0  (0, 1, 0)
+   0     0  (0, -1, 0)
+   0     1  (0, 0, 0)
+   0     1  (-1, 0, 0)
+   1     1  (0, 1, 0)
+   1     1  (0, -1, 0)
 """
         square_sg_mul_actual_str = str(square_sg_mul)
 
@@ -313,16 +316,116 @@ from    to  to_image
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
         self.assertEqual(len(molecules), 0)
 
-    def test_from_molecule(self):
 
+class MoleculeGraphTest(unittest.TestCase):
+
+    def setUp(self):
+
+        cyclohexene = Molecule.from_file("cyclohexene.xyz")
+        self.cyclohexene = MoleculeGraph.with_empty_graph(cyclohexene,
+                                                       edge_weight_name="strength",
+                                                       edge_weight_units="")
+        self.cyclohexene.add_edge(0, 1, weight=1.0)
+        self.cyclohexene.add_edge(1, 2, weight=1.0)
+        self.cyclohexene.add_edge(2, 3, weight=2.0)
+        self.cyclohexene.add_edge(3, 4, weight=1.0)
+        self.cyclohexene.add_edge(4, 5, weight=1.0)
+        self.cyclohexene.add_edge(5, 0, weight=1.0)
+        self.cyclohexene.add_edge(0, 6, weight=1.0)
+        self.cyclohexene.add_edge(0, 7, weight=1.0)
+        self.cyclohexene.add_edge(1, 8, weight=1.0)
+        self.cyclohexene.add_edge(1, 9, weight=1.0)
+        self.cyclohexene.add_edge(2, 10, weight=1.0)
+        self.cyclohexene.add_edge(3, 11, weight=1.0)
+        self.cyclohexene.add_edge(4, 12, weight=1.0)
+        self.cyclohexene.add_edge(4, 13, weight=1.0)
+        self.cyclohexene.add_edge(5, 14, weight=1.0)
+        self.cyclohexene.add_edge(5, 15, weight=1.0)
+
+        butadiene = Molecule.from_file("butadiene.xyz")
+        self.butadiene = MoleculeGraph.with_empty_graph(butadiene,
+                                                        edge_weight_name="strength",
+                                                        edge_weight_units="")
+        self.butadiene.add_edge(0, 1, weight=2.0)
+        self.butadiene.add_edge(1, 2, weight=1.0)
+        self.butadiene.add_edge(2, 3, weight=2.0)
+        self.butadiene.add_edge(0, 4, weight=1.0)
+        self.butadiene.add_edge(0, 5, weight=1.0)
+        self.butadiene.add_edge(1, 6, weight=1.0)
+        self.butadiene.add_edge(2, 7, weight=1.0)
+        self.butadiene.add_edge(3, 8, weight=1.0)
+        self.butadiene.add_edge(3, 9, weight=1.0)
+
+        ethylene = Molecule.from_file("ethylene.xyz")
+        self.ethylene = MoleculeGraph.with_empty_graph(ethylene,
+                                                       edge_weight_name="strength",
+                                                       edge_weight_units="")
+        self.ethylene.add_edge(0, 1, weight=2.0)
+        self.ethylene.add_edge(0, 2, weight=1.0)
+        self.ethylene.add_edge(0, 3, weight=1.0)
+        self.ethylene.add_edge(1, 4, weight=1.0)
+        self.ethylene.add_edge(1, 5, weight=1.0)
+
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_properties(self):
+        self.assertEqual(self.cyclohexene.name, "bonds")
+        self.assertEqual(self.cyclohexene.edge_weight_name, "strength")
+        self.assertEqual(self.cyclohexene.edge_weight_unit, "")
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(0), 4)
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(2), 3)
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(15), 1)
+        self.assertEqual(len(self.cyclohexene.get_connected_sites(0)), 4)
+        self.assertTrue(isinstance(self.cyclohexene.get_connected_sites(0)[0].site, Site))
+        self.assertEqual(str(self.cyclohexene.get_connected_sites(0)[0].site.specie), 'H')
+
+    def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
-        sg = StructureGraph.with_empty_graph(molecule)
-        self.assertEqual(sg.get_coordination_of_site(0), 0)
+        mg = MoleculeGraph.with_empty_graph(molecule)
+        self.assertEqual(mg.get_coordination_of_site(0), 0)
 
-        sg = StructureGraph.with_local_env_strategy(molecule, MinimumDistanceNN())
-        self.assertEqual(sg.get_coordination_of_site(0), 1)
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(0), 4)
 
+    def test_edge_editing(self):
+        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo":"bar"})
+        new_edge = self.cyclohexene.graph.get_edge_data(0, 1)[0]
+        self.assertEqual(new_edge["weight"], 0.0)
+        self.assertEqual(new_edge["foo"], "bar")
+
+        self.cyclohexene.break_edge(0, 1)
+        self.assertTrue(self.cyclohexene.graph.get_edge_data(0, 1) is None)
+
+        # Replace the now-broken edge
+        self.cyclohexene.add_edge(0, 1, weight=1.0)
+
+    def test_split(self):
+        bonds = [(0, 1), (4, 5)]
+        alterations = {(2, 3): {"weight": 1.0},
+                       (0, 5): {"weight": 2.0},
+                       (1, 2): {"weight": 2.0},
+                       (3, 4): {"weight": 2.0}
+                       }
+        reactants = self.cyclohexene.split_molecule_subgraphs(bonds, alterations=alterations)
+        self.assertTrue(isinstance(reactants, list))
+
+        reactants = sorted(reactants, key=len)
+
+        self.assertEqual(reactants[0], self.ethylene)
+        self.assertEqual(reactants[1], self.butadiene)
+
+    def test_find_rings(self):
+        #TODO: test find_rings
+        pass
+
+    def test_as_from_dict(self):
+        d = self.cyclohexene.as_dict()
+        mg = MoleculeGraph.from_dict(d)
+        d2 = mg.as_dict()
+        self.assertDictEqual(d, d2)
 
 if __name__ == "__main__":
     unittest.main()
