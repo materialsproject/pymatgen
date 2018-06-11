@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.defects.point_defects &#8212; pymatgen 2018.5.14 documentation</title>
-    
+    <title>pymatgen.analysis.defects.point_defects &#8212; pymatgen 2018.6.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.5.14',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -97,7 +85,8 @@
 <span class="kn">from</span> <span class="nn">pymatgen.command_line.gulp_caller</span> <span class="k">import</span> <span class="n">get_energy_buckingham</span><span class="p">,</span> \
     <span class="n">get_energy_relax_structure_buckingham</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">LocalStructOrderParams</span><span class="p">,</span> \
-    <span class="n">MinimumDistanceNN</span><span class="p">,</span> <span class="n">VoronoiNN</span><span class="p">,</span> <span class="n">ValenceIonicRadiusEvaluator</span>
+    <span class="n">MinimumDistanceNN</span><span class="p">,</span> <span class="n">VoronoiNN</span><span class="p">,</span> <span class="n">ValenceIonicRadiusEvaluator</span> <span class="p">,</span> \
+    <span class="n">cn_opt_params</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="k">import</span> <span class="n">RelaxationAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">get_facets</span>
@@ -115,9 +104,15 @@
 
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">filter</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
+<span class="n">motif_cn_op</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">cn_opt_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">mot</span><span class="p">,</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">di</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">mot</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cn&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">cn</span><span class="p">),</span> <span class="s1">&#39;optype&#39;</span><span class="p">:</span> <span class="n">li</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+        <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">mot</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">li</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">li</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Defect"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.point_defects.html#pymatgen.analysis.defects.point_defects.Defect">[docs]</a><span class="k">class</span> <span class="nc">Defect</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="nb">object</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1441,12 +1436,10 @@
 <span class="sd">    (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">__supported_types</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;tet&quot;</span><span class="p">,</span> <span class="s2">&quot;oct&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">inter_elem</span><span class="p">,</span>
-                 <span class="n">motif_types</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;tet&quot;</span><span class="p">,</span> <span class="s2">&quot;oct&quot;</span><span class="p">),</span>
+                 <span class="n">motif_types</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;tetrahedral&quot;</span><span class="p">,</span> <span class="s2">&quot;octahedral&quot;</span><span class="p">),</span>
                  <span class="n">op_threshs</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-                 <span class="n">dl</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">doverlap</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">facmaxdl</span><span class="o">=</span><span class="mf">1.01</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">dl</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">doverlap</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">facmaxdl</span><span class="o">=</span><span class="mf">1.01</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates symmetrically distinct interstitial sites at positions</span>
 <span class="sd">        where the interstitial is coordinated by nearest neighbors</span>
@@ -1485,10 +1478,25 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_motif_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;no motif types provided.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_op_threshs</span> <span class="o">=</span> <span class="n">op_threshs</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">imotif</span><span class="p">,</span> <span class="n">motif</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_motif_types</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">motif</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__supported_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">motif</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">motif_cn_op</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unsupported motif type: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">motif</span><span class="p">))</span>
+            <span class="n">cn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">motif_cn_op</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="s1">&#39;cn&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">tmp_optype</span> <span class="o">=</span> <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="s1">&#39;optype&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tmp_optype</span> <span class="o">==</span> <span class="s1">&#39;tet_max&#39;</span><span class="p">:</span>
+                <span class="n">tmp_optype</span> <span class="o">=</span> <span class="s1">&#39;tet&#39;</span>
+            <span class="k">if</span> <span class="n">tmp_optype</span> <span class="o">==</span> <span class="s1">&#39;oct_max&#39;</span><span class="p">:</span>
+                <span class="n">tmp_optype</span> <span class="o">=</span> <span class="s1">&#39;oct&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">tmp_optype</span><span class="p">],</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="n">motif_cn_op</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]],</span> <span class="n">cutoff</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dl</span> <span class="o">=</span> <span class="n">dl</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defect_types</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1511,7 +1519,6 @@
         <span class="n">struct_w_inter</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inter_elem</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">))</span>
-        <span class="n">ops</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">(</span><span class="n">motif_types</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">)</span>
         <span class="n">trialsites</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Loop over trial positions that are based on a regular</span>
@@ -1529,66 +1536,43 @@
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span>
                             <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
                             <span class="n">doverlap</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.1</span>
-                        <span class="n">ddelta</span> <span class="o">=</span> <span class="mf">0.1</span>
-                        <span class="n">delta_end</span> <span class="o">=</span> <span class="mf">0.8</span>
-                        <span class="k">while</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="n">delta_end</span><span class="p">:</span>
-                            <span class="n">neighs</span> <span class="o">=</span> <span class="n">MinimumDistanceNN</span><span class="p">(</span>
-                                <span class="n">tol</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">get_nn</span><span class="p">(</span>
-                                <span class="n">struct_w_inter</span><span class="p">,</span> <span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                            <span class="n">nneighs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighs</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">nneighs</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
-                                <span class="k">break</span>
-                            <span class="k">if</span> <span class="n">nneighs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]:</span>
-                                <span class="n">delta</span> <span class="o">+=</span> <span class="n">ddelta</span>
+                        <span class="n">neighs_images_weigths</span> <span class="o">=</span> <span class="n">MinimumDistanceNN</span><span class="p">(</span>
+                            <span class="n">tol</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span>
+                            <span class="n">struct_w_inter</span><span class="p">,</span> <span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">neighs_images_weigths_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                                <span class="n">neighs_images_weigths</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span>
+                                <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">nsite</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighs_images_weigths_sorted</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">nsite</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span><span class="p">:</span>
                                 <span class="k">continue</span>
 
-                            <span class="n">allsites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">neighs</span><span class="p">]</span>
+                            <span class="n">allsites</span> <span class="o">=</span> <span class="p">[</span><span class="n">neighs_images_weigths_sorted</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsite</span><span class="p">)]</span>
                             <span class="n">indices_neighs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allsites</span><span class="p">))]</span>
                             <span class="n">allsites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-                            <span class="n">opvals</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_order_parameters</span><span class="p">(</span>
-                                <span class="n">allsites</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">allsites</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-                                <span class="n">indices_neighs</span><span class="o">=</span><span class="n">indices_neighs</span><span class="p">)</span>
-                            <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;unrecognized&quot;</span>
-                            <span class="k">if</span> <span class="s2">&quot;tet&quot;</span> <span class="ow">in</span> <span class="n">motif_types</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">nneighs</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> \
-                                                <span class="n">opvals</span><span class="p">[</span>
-                                                    <span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;tet&quot;</span><span class="p">)]</span> <span class="o">&gt;</span> \
-                                                <span class="n">op_threshs</span><span class="p">[</span>
-                                                    <span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;tet&quot;</span><span class="p">)]:</span>
-                                    <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;tet&quot;</span>
-                                    <span class="n">this_op</span> <span class="o">=</span> <span class="n">opvals</span><span class="p">[</span><span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;tet&quot;</span><span class="p">)]</span>
-                            <span class="k">if</span> <span class="s2">&quot;oct&quot;</span> <span class="ow">in</span> <span class="n">motif_types</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">nneighs</span> <span class="o">==</span> <span class="mi">6</span> <span class="ow">and</span> \
-                                                <span class="n">opvals</span><span class="p">[</span>
-                                                    <span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;oct&quot;</span><span class="p">)]</span> <span class="o">&gt;</span> \
-                                                <span class="n">op_threshs</span><span class="p">[</span>
-                                                    <span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;oct&quot;</span><span class="p">)]:</span>
-                                    <span class="n">motif_type</span> <span class="o">=</span> <span class="s2">&quot;oct&quot;</span>
-                                    <span class="n">this_op</span> <span class="o">=</span> <span class="n">opvals</span><span class="p">[</span><span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;oct&quot;</span><span class="p">)]</span>
-
-                            <span class="k">if</span> <span class="n">motif_type</span> <span class="o">!=</span> <span class="s2">&quot;unrecognized&quot;</span><span class="p">:</span>
-                                <span class="n">cns</span> <span class="o">=</span> <span class="p">{}</span>
-                                <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">neighs</span><span class="p">):</span>
-                                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
-                                        <span class="n">elem</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
-                                    <span class="k">else</span><span class="p">:</span>
-                                        <span class="n">elem</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span>
-                                    <span class="k">if</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">cns</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-                                        <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-                                    <span class="k">else</span><span class="p">:</span>
-                                        <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-                                <span class="n">trialsites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-                                    <span class="s2">&quot;mtype&quot;</span><span class="p">:</span> <span class="n">motif_type</span><span class="p">,</span>
-                                    <span class="s2">&quot;opval&quot;</span><span class="p">:</span> <span class="n">this_op</span><span class="p">,</span>
-                                    <span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">,</span>
-                                    <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span>
-                                                  <span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">[:],</span>
-                                    <span class="s2">&quot;fracs&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">]),</span>
-                                    <span class="s2">&quot;cns&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cns</span><span class="p">)})</span>
-                                <span class="k">break</span>
-
-                            <span class="n">delta</span> <span class="o">+=</span> <span class="n">ddelta</span>
+                            <span class="k">for</span> <span class="n">mot</span><span class="p">,</span> <span class="n">ops</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="p">[</span><span class="n">nsite</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                                <span class="n">opvals</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_order_parameters</span><span class="p">(</span>
+                                        <span class="n">allsites</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">allsites</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                                        <span class="n">indices_neighs</span><span class="o">=</span><span class="n">indices_neighs</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">op_threshs</span><span class="p">[</span><span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">mot</span><span class="p">)]:</span>
+                                    <span class="n">cns</span> <span class="o">=</span> <span class="p">{}</span>
+                                    <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsite</span><span class="p">):</span>
+                                        <span class="n">site</span> <span class="o">=</span> <span class="n">neighs_images_weigths_sorted</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="s1">&#39;site&#39;</span><span class="p">]</span>
+                                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
+                                            <span class="n">elem</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">elem</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span>
+                                        <span class="k">if</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">cns</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                                            <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                                        <span class="k">else</span><span class="p">:</span>
+                                            <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                                    <span class="n">trialsites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                                        <span class="s2">&quot;mtype&quot;</span><span class="p">:</span> <span class="n">mot</span><span class="p">,</span>
+                                        <span class="s2">&quot;opval&quot;</span><span class="p">:</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                        <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span>
+                                                      <span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">[:],</span>
+                                        <span class="s2">&quot;fracs&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">]),</span>
+                                        <span class="s2">&quot;cns&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cns</span><span class="p">)})</span>
+                                    <span class="k">break</span>
 
         <span class="c1"># Prune list of trial sites by clustering and find the site</span>
         <span class="c1"># with the largest order parameter value in each cluster.</span>
@@ -2454,12 +2438,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -2475,7 +2461,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2483,7 +2469,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
