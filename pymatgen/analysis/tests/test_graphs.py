@@ -13,8 +13,6 @@ matplotlib.use("pdf")
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.lattice import Lattice
 
 try:
     import openbabel as ob
@@ -32,6 +30,8 @@ __date__ = "August 2017"
 class StructureGraphTest(unittest.TestCase):
 
     def setUp(self):
+
+        self.maxDiff = None
 
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5.0, 50.0), ['H'], [[0, 0, 0]])
@@ -125,7 +125,7 @@ class StructureGraphTest(unittest.TestCase):
     def test_str(self):
 
         square_sg_str_ref = """Structure Graph
-Structure:
+Structure: 
 Full Formula (H1)
 Reduced Formula: H2
 abc   :   5.000000   5.000000  50.000000
@@ -135,16 +135,16 @@ Sites (1)
 ---  ----  ---  ---  ---
   0  H       0    0    0
 Graph: bonds
-from    to  to_image
+from    to  to_image    
 ----  ----  ------------
-   0     0  (1, 0, 0)
-   0     0  (-1, 0, 0)
-   0     0  (0, 1, 0)
-   0     0  (0, -1, 0)
+   0     0  (1, 0, 0)   
+   0     0  (-1, 0, 0)  
+   0     0  (0, 1, 0)   
+   0     0  (0, -1, 0)  
 """
 
         mos2_sg_str_ref = """Structure Graph
-Structure:
+Structure: 
 Full Formula (Mo1 S2)
 Reduced Formula: MoS2
 abc   :   3.190316   3.190315  17.439502
@@ -177,7 +177,7 @@ from    to  to_image      bond_length (A)
         square_sg_mul = self.square_sg * (2, 1, 1)
 
         square_sg_mul_ref_str = """Structure Graph
-Structure:
+Structure: 
 Full Formula (H2)
 Reduced Formula: H2
 abc   :  10.000000   5.000000  50.000000
@@ -188,14 +188,14 @@ Sites (2)
   0  H     0      0    0
   1  H     0.5    0   -0
 Graph: bonds
-from    to  to_image
+from    to  to_image    
 ----  ----  ------------
-   0     0  (0, 1, 0)
-   0     0  (0, -1, 0)
-   0     1  (0, 0, 0)
-   0     1  (-1, 0, 0)
-   1     1  (0, 1, 0)
-   1     1  (0, -1, 0)
+   0     0  (0, 1, 0)   
+   0     0  (0, -1, 0)  
+   0     1  (0, 0, 0)   
+   0     1  (-1, 0, 0)  
+   1     1  (0, 1, 0)   
+   1     1  (0, -1, 0)  
 """
         square_sg_mul_actual_str = str(square_sg_mul)
 
