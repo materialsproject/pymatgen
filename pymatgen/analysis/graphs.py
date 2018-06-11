@@ -1411,24 +1411,36 @@ class MoleculeGraph(MSONable):
         only return those rings including the specified
         sites. By default, this parameter is None, and
         all rings will be returned.
-        :return: list of lists of site indices. Each
-        list will be a single ring (cycle, in graph
-        theory terms) found in the Molecule.
+        :return: dict {index:cycle}. Each
+        entry will be a ring (cycle, in graph
+        theory terms) including the index found in the Molecule.
+        If there is no cycle including an index, the value will
+        be an empty list.
         """
 
-        #TODO: find a way to ensure that this catches all cycles
-        # all_cycles = nx.algorithms.cycles.simple_cycles(self.graph)
-        #
-        # if including is None:
-        #     return all_cycles
-        # else:
-        #     included_cycles = []
-        #     for cycle in all_cycles:
-        #         if any([(n in cycle) for n in including]):
-        #             included_cycles.append(cycle)
-        #
-        #     return included_cycles
-        pass
+        cycles = {}
+
+        if including is not None:
+            for i in including:
+                try:
+                    cycle = nx.find_cycle(self.graph,
+                                          source=i,
+                                          orientation="ignore")
+                    cycles[i] = [(u, v) for (u, v, k, d) in list(cycle)]
+                except nx.exception.NetworkXNoCycle:
+                    cycles[i] = []
+        else:
+            all_nodes = list(self.graph.nodes)
+            for i in range(len(all_nodes)):
+                try:
+                    cycle = nx.find_cycle(self.graph,
+                                          source=i,
+                                          orientation="ignore")
+                    cycles[i] = [(u, v) for (u, v, k, d) in list(cycle)]
+                except nx.exception.NetworkXNoCycle:
+                    cycles[i] = []
+
+        return cycles
 
     def get_connected_sites(self, n):
         """

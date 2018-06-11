@@ -418,8 +418,10 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(reactants[1], self.butadiene)
 
     def test_find_rings(self):
-        #TODO: test find_rings
-        pass
+        ring = self.cyclohexene.find_rings(including=[0])
+        self.assertEqual(sorted(ring[0]), [(0, 1), (0, 5), (1, 2), (2, 3), (3, 4), (4, 5)])
+        no_ring = self.butadiene.find_rings()
+        self.assertEqual(no_ring[0], [])
 
     def test_as_from_dict(self):
         d = self.cyclohexene.as_dict()
