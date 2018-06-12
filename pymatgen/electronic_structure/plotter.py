@@ -2476,7 +2476,7 @@ class BSDOSPlotter(object):
         if not loc in range(1, 11):
             loc = 2
 
-        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
         inset_ax = inset_axes(ax, width=1, height=1, loc=loc)
         mesh = 35
         x = []
@@ -2523,7 +2523,7 @@ class BSDOSPlotter(object):
 
         if not loc in range(1, 11):
             loc = 2
-        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
         inset_ax = inset_axes(ax, width=1.2, height=0.4, loc=loc)
 
         x = []
