@@ -11,6 +11,8 @@ import os.path
 import copy
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule, Site
+from pymatgen.core.structure import FunctionalGroups
+from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
 
@@ -1356,7 +1358,12 @@ class MoleculeGraph(MSONable):
 
             sub_mols = []
 
-            for subg in nx.weakly_connected_component_subgraphs(original.graph):
+            # Had to use nx.weakly_connected_components because of deprecation
+            # of nx.weakly_connected_component_subgraphs
+            components = nx. weakly_connected_components(original.graph)
+            subgraphs = [original.graph.subgraph(c) for c in components]
+
+            for subg in subgraphs:
 
                 # start by extracting molecule information
                 pre_mol = original.molecule
@@ -1373,9 +1380,6 @@ class MoleculeGraph(MSONable):
                 sites = [pre_mol._sites[n] for n in
                            range(len(pre_mol._sites)) if n in nodes]
 
-                species = [site.specie for site in sites]
-                coords = [site.coords for site in sites]
-
                 # just give charge to whatever subgraph has node with index 0
                 # TODO: actually figure out how to distribute charge
                 if 0 in nodes:
@@ -1383,14 +1387,7 @@ class MoleculeGraph(MSONable):
                 else:
                     charge = 0
 
-                site_properties = {}
-                for prop in pre_mol.site_properties.keys():
-                    prop_list = pre_mol.site_properties[prop]
-                    site_properties[prop] = [prop_list[n] for n in
-                                             range(len(prop_list)) if n in nodes]
-
-                new_mol = Molecule(species, coords, charge=charge,
-                                   site_properties=site_properties)
+                new_mol = Molecule.from_sites(sites, charge=charge)
 
                 # relabel nodes in graph to match mapping
                 new_graph = nx.relabel_nodes(subg, mapping)
@@ -1401,6 +1398,118 @@ class MoleculeGraph(MSONable):
                 sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
 
             return sub_mols
+
+    def substitute_group(self, index, func_grp, bond_order=1, graph_dict=None, strategy=None, strategy_params=None):
+        """
+        Builds off of Molecule.substitute to replace an atom in self.molecule
+        with a functional group. This method also amends self.graph to
+        incorporate the new functional group.
+
+        NOTE: using a MoleculeGraph will generally produce a different graph
+        compared with using a Molecule or str (when not using graph_dict).
+        This is because of the reordering that occurs when using some of the
+        local_env strategies.
+
+        :param index: Index of atom to substitute.
+        :param func_grp: Substituent molecule. There are three options:
+
+                1. Providing an actual molecule as the input. The first atom
+                   must be a DummySpecie X, indicating the position of
+                   nearest neighbor. The second atom must be the next
+                   nearest atom. For example, for a methyl group
+                   substitution, func_grp should be X-CH3, where X is the
+                   first site and C is the second site. What the code will
+                   do is to remove the index site, and connect the nearest
+                   neighbor to the C atom in CH3. The X-C bond indicates the
+                   directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                   relevant template in func_groups.json.
+                3. A MoleculeGraph object.
+        :param bond_order: A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
+        :param grp_graph: Dictionary representing the bonds of the functional
+                group (format: {(u, v): props}, where props is a dictionary of
+                properties, including weight. If None, then the algorithm
+                will attempt to automatically determine bonds using one of
+                a list of strategies defined in pymatgen.analysis.local_env.
+        :param strategy: Class from pymatgen.analysis.local_env. If None,
+                MinimumDistanceNN will be used.
+        :param strategy_params: dictionary of keyword arguments for strategy.
+                If None, default parameters will be used.
+        :return:
+        """
+
+        def map_indices(func_grp):
+            mapping = {}
+
+            # Get indices now occupied by functional group
+            # Subtracting 1 because the dummy atom X should not count
+            atoms = len(func_grp) - 1
+            offset = len(self.molecule) - atoms
+
+            for i in range(atoms):
+                mapping[i] = i + offset
+            return mapping
+
+        # Work is simplified if a graph is already in place
+        if isinstance(func_grp, MoleculeGraph):
+
+            self.molecule.substitute(index, func_grp.molecule,
+                                     bond_order=bond_order)
+
+            mapping = map_indices(func_grp.molecule)
+
+            for (u, v) in list(func_grp.graph.edges()):
+                edge_props = func_grp.graph.get_edge_data(u, v)[0]
+                weight = None
+                if "weight" in edge_props.keys():
+                    weight = edge_props["weight"]
+                    del edge_props["weight"]
+                self.add_edge(mapping[u], mapping[v],
+                              weight=weight, edge_properties=edge_props)
+
+        else:
+            if isinstance(func_grp, Molecule):
+                func_grp = copy.deepcopy(func_grp)
+            else:
+                try:
+                    func_grp = copy.deepcopy(FunctionalGroups[func_grp])
+                except:
+                    raise RuntimeError("Can't find functional group in list. "
+                                       "Provide explicit coordinate instead")
+
+            self.molecule.substitute(index, func_grp, bond_order=bond_order)
+
+            mapping = map_indices(func_grp)
+
+            # Remove dummy atom "X"
+            func_grp.remove_species("X")
+
+            if graph_dict is not None:
+                for (u, v) in graph_dict.keys():
+                    edge_props = graph_dict[(u, v)]
+                    if "weight" in edge_props.keys():
+                        weight = edge_props["weight"]
+                        del edge_props["weight"]
+                    self.add_edge(mapping[u], mapping[v],
+                                  weight=weight, edge_properties=edge_props)
+
+            else:
+                if strategy_params is None:
+                    strategy_params = {}
+                strat = MinimumDistanceNN(**strategy_params) \
+                    if strategy is None else strategy(**strategy_params)
+                graph = self.with_local_env_strategy(func_grp, strat)
+
+                for (u, v) in list(graph.graph.edges()):
+                    edge_props = graph.graph.get_edge_data(u, v)[0]
+                    weight = None
+                    if "weight" in edge_props.keys():
+                        weight = edge_props["weight"]
+                        del edge_props["weight"]
+                    self.add_edge(mapping[u], mapping[v],
+                                  weight=weight, edge_properties=edge_props)
 
     def find_rings(self, including=None):
         """

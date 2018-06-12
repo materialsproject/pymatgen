@@ -11,6 +11,7 @@ import matplotlib
 matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
+from pymatgen.core.structure import Molecule, Structure, FunctionalGroups
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
@@ -418,10 +419,40 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(reactants[1], self.butadiene)
 
     def test_find_rings(self):
+        # These tests pass, but the method itself is broken
+        # find_rings only works for a single ring
         ring = self.cyclohexene.find_rings(including=[0])
         self.assertEqual(sorted(ring[0]), [(0, 1), (0, 5), (1, 2), (2, 3), (3, 4), (4, 5)])
         no_ring = self.butadiene.find_rings()
         self.assertEqual(no_ring[0], [])
+
+    def test_substitute(self):
+        molecule = FunctionalGroups["methyl"]
+        string = "methyl"
+        molgraph = MoleculeGraph.with_empty_graph(molecule,
+                                                  edge_weight_name="strength",
+                                                  edge_weight_units="")
+        molgraph.add_edge(0, 1, weight=1.0)
+        molgraph.add_edge(0, 2, weight=1.0)
+        molgraph.add_edge(0, 3, weight=1.0)
+
+        eth_mol = copy.deepcopy(self.ethylene)
+        eth_str = copy.deepcopy(self.ethylene)
+        eth_mol.substitute_group(5, molecule)
+        eth_str.substitute_group(5, string)
+        self.assertEqual(eth_mol, eth_str)
+
+        graph_dict = {(0, 1): {"weight": 1.0},
+                      (0, 2): {"weight": 1.0},
+                      (0, 3): {"weight": 1.0},
+                      }
+        eth_mg = copy.deepcopy(self.ethylene)
+        eth_graph = copy.deepcopy(self.ethylene)
+
+        eth_graph.substitute_group(5, molecule, graph_dict=graph_dict)
+        eth_mg.substitute_group(5, molgraph)
+        self.assertEqual(eth_graph.graph.get_edge_data(5, 6)[0]["weight"], 1.0)
+        self.assertEqual(eth_mg, eth_graph)
 
     def test_as_from_dict(self):
         d = self.cyclohexene.as_dict()
