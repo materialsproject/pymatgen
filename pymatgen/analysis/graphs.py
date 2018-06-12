@@ -1316,7 +1316,7 @@ class MoleculeGraph(MSONable):
                                 from_index, to_index
                                 ))
 
-    def split_molecule_subgraphs(self, bonds, alterations=None):
+    def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
         """
         Split MoleculeGraph into two MoleculeGraphs by
         breaking a set of bonds. This function uses
@@ -1341,13 +1341,16 @@ class MoleculeGraph(MSONable):
         :param alterations: a dict {(from_index, to_index): alt},
         where alt is a dictionary including weight and/or edge
         properties to be changed following the split.
+        :param allow_reverse: If allow_reverse is True, then break_edge will
+        attempt to break both (from_index, to_index) and, failing that,
+        will attempt to break (to_index, from_index).
         :return: list of MoleculeGraphs
         """
 
         original = copy.deepcopy(self)
 
         for bond in bonds:
-            original.break_edge(bond[0], bond[1])
+            original.break_edge(bond[0], bond[1], allow_reverse=allow_reverse)
 
         if nx.is_weakly_connected(original.graph):
             raise RuntimeError("Cannot split molecule; \
