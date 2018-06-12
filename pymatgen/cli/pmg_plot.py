@@ -70,7 +70,7 @@ def get_chgint_plot(args):
 def get_xrd_plot(args):
     s = Structure.from_file(args.xrd_structure_file)
     c = XRDCalculator()
-    return c.get_xrd_plot(s)
+    return c.get_plot(s)
 
 
 def plot(args):
