@@ -419,12 +419,10 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(reactants[1], self.butadiene)
 
     def test_find_rings(self):
-        # These tests pass, but the method itself is broken
-        # find_rings only works for a single ring
-        ring = self.cyclohexene.find_rings(including=[0])
-        self.assertEqual(sorted(ring[0]), [(0, 1), (0, 5), (1, 2), (2, 3), (3, 4), (4, 5)])
-        no_ring = self.butadiene.find_rings()
-        self.assertEqual(no_ring[0], [])
+        rings = self.cyclohexene.find_rings(including=[0])
+        self.assertEqual(sorted(rings[0]), [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
+        no_rings = self.butadiene.find_rings()
+        self.assertEqual(no_rings, [])
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]

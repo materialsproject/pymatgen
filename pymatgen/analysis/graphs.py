@@ -1284,25 +1284,37 @@ class MoleculeGraph(MSONable):
             for prop in list(new_edge_properties.keys()):
                 self.graph[from_index][to_index][0][prop] = new_edge_properties[prop]
 
-    def break_edge(self, from_index, to_index):
+    def break_edge(self, from_index, to_index, allow_reverse=False):
         """
         Remove an edge from the MoleculeGraph
 
         :param from_index: int
         :param to_index: int
+        :param allow_reverse: If allow_reverse is True, then break_edge will
+        attempt to break both (from_index, to_index) and, failing that,
+        will attempt to break (to_index, from_index).
         :return:
         """
 
         # ensure that edge exists before attempting to remove it
         existing_edge = self.graph.get_edge_data(from_index, to_index)
+        existing_reverse = None
 
-        if not existing_edge:
-            raise ValueError("Edge cannot be broken between {} and {};\
+        if existing_edge:
+            self.graph.remove_edge(from_index, to_index)
+
+        else:
+            if allow_reverse:
+                existing_reverse = self.graph.get_edge_data(to_index,
+                                                            from_index)
+
+            if existing_reverse:
+                self.graph.remove_edge(to_index, from_index)
+            else:
+                raise ValueError("Edge cannot be broken between {} and {};\
                                 no edge exists between those sites.".format(
                                 from_index, to_index
                                 ))
-
-        self.graph.remove_edge(from_index, to_index)
 
     def split_molecule_subgraphs(self, bonds, alterations=None):
         """
@@ -1515,6 +1527,10 @@ class MoleculeGraph(MSONable):
         """
         Find ring structures in the MoleculeGraph.
 
+        NOTE: Currently, this function behaves as
+        expected for single rings, but fails (miserably)
+        on molecules with more than one ring.
+
         :param including: list of site indices. If
         including is not None, then find_rings will
         only return those rings including the specified
@@ -1527,29 +1543,40 @@ class MoleculeGraph(MSONable):
         be an empty list.
         """
 
-        cycles = {}
+        # Copies self.graph such that all edges (u, v) matched by edges (v, u)
+        undirected = self.graph.to_undirected()
+        directed = undirected.to_directed()
 
-        if including is not None:
-            for i in including:
-                try:
-                    cycle = nx.find_cycle(self.graph,
-                                          source=i,
-                                          orientation="ignore")
-                    cycles[i] = [(u, v) for (u, v, k, d) in list(cycle)]
-                except nx.exception.NetworkXNoCycle:
-                    cycles[i] = []
+        cycles_nodes = []
+        cycles_edges = []
+
+        # Remove all two-edge cycles
+        all_cycles = [c for c in nx.simple_cycles(directed) if len(c) > 2]
+
+        # Using to_directed() will mean that each cycle always appears twice
+        # So, we must also remove duplicates
+        unique_sorted = []
+        unique_cycles = []
+        for cycle in all_cycles:
+            if sorted(cycle) not in unique_sorted:
+                unique_sorted.append(sorted(cycle))
+                unique_cycles.append(cycle)
+
+        if including is None:
+            cycles_nodes = unique_cycles
         else:
-            all_nodes = list(self.graph.nodes)
-            for i in range(len(all_nodes)):
-                try:
-                    cycle = nx.find_cycle(self.graph,
-                                          source=i,
-                                          orientation="ignore")
-                    cycles[i] = [(u, v) for (u, v, k, d) in list(cycle)]
-                except nx.exception.NetworkXNoCycle:
-                    cycles[i] = []
+            for i in including:
+                for cycle in unique_cycles:
+                    if i in cycle and cycle not in cycles_nodes:
+                        cycles_nodes.append(cycle)
 
-        return cycles
+        for cycle in cycles_nodes:
+            edges = []
+            for i in range(len(cycle)):
+                edges.append((cycle[i-1], cycle[i]))
+            cycles_edges.append(edges)
+
+        return cycles_edges
 
     def get_connected_sites(self, n):
         """
