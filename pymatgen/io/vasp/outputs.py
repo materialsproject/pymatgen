@@ -1596,6 +1596,12 @@ class Outcar(MSONable):
         if self.data.get('noncollinear', []):
             self.noncollinear = False
 
+        # Check if the calculation type is DFPT
+        self.dfpt = False
+        self.read_pattern({'ibrion': "IBRION =\s+([\-\d]+)"}, terminate_on_match=True,
+                          postprocess=int)
+        if self.data.get("ibrion", [[0]])[0][0] > 6:
+            self.dfpt = True
         # Check to see if LEPSILON is true and read piezo data if so
         self.lepsilon = False
         self.read_pattern({'epsilon': 'LEPSILON=     T'})
