@@ -4,20 +4,17 @@
 
 from __future__ import division, unicode_literals
 """
-This module defines utillity classes for defects.
+This module defines utility classes for defects.
 """
 import math
 
 from monty.json import MSONable
-
-import numpy as np
 
 import itertools
 import numpy as np
 from numpy.linalg import norm
 import logging
 
-import pandas as pd
 from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
@@ -60,6 +57,7 @@ hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
 kb = 8.6173324e-5  # eV / K
+
 
 motif_cn_op = {}
 for cn, di in cn_opt_params.items():
