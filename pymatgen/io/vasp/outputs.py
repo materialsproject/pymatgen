@@ -1610,7 +1610,10 @@ class Outcar(MSONable):
         if self.data.get('epsilon', []):
             self.lepsilon = True
             self.read_lepsilon()
-            self.read_lepsilon_ionic()
+            # only read ionic contribution if DFPT is turned on
+            if self.dfpt:
+                self.read_lepsilon_ionic()
+
 
         # Check to see if LCALCPOL is true and read polarization data if so
         self.lcalcpol = False
