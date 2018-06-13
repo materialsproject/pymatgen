@@ -2571,12 +2571,16 @@ class Outcar(MSONable):
              "electrostatic_potential": self.electrostatic_potential}
 
         if self.lepsilon:
-            d.update({'piezo_tensor': self.piezo_tensor,
-                      'piezo_ionic_tensor': self.piezo_ionic_tensor,
-                      'dielectric_tensor': self.dielectric_tensor,
-                      'dielectric_ionic_tensor': self.dielectric_ionic_tensor,
-                      'born_ion': self.born_ion,
-                      'born': self.born})
+            d.update({"piezo_tensor": self.piezo_tensor,
+                      "dielectric_tensor": self.dielectric_tensor,
+                      "born": self.born})
+
+        if self.dfpt:
+            d.update({"internal_strain_tensor": self.interna_strain_tensor})
+
+        if self.dfpt and self.lepsilon:
+            d.update({"piezo_ionic_tensor": self.piezo_ionic_tensor,
+                      "dielectric_ionic_tensor": self.dielectric_ionic_tensor})
 
         if self.lcalcpol:
             d.update({'p_elec': self.p_elec,
