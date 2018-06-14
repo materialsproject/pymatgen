@@ -156,13 +156,13 @@ developers:
   middle_name: ""
   affiliations:
   - "LBNL"
-- email: ""
-  orcid: ""
+- email: "ongsp@eng.ucsd.edu"
+  orcid: "0000-0001-5726-2587"
   first_name: "Shyue Ping"
   last_name: "Ong"
   middle_name: ""
   affiliations:
-  - "Materials Virtual Lab"
+  - "University of California, San Diego"
 - email: "sdacek@mit.edu"
   orcid: ""
   first_name: "Stephen"
@@ -181,16 +181,17 @@ developers:
   last_name: "Qu"
   middle_name: ""
   affiliations: []
-- email: ""
+- email: "z4deng@eng.ucsd.edu"
   orcid: ""
   first_name: "Zhi"
   last_name: "Deng"
   middle_name: ""
-  affiliations: []
+  affiliations:
+  - "University of California, San Diego"
 contributors: []
 sponsoring_organizations: []
-contributing_organizations: []
-research_organizations: []
+contributing_organizations: ["University of California, San Diego"]
+research_organizations: ["University of California, San Diego"]
 related_identifiers: []
 software_title: "pymatgen"
 acronym: "pymatgen"
