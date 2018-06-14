@@ -2146,7 +2146,7 @@ class Outcar(MSONable):
     def read_internal_strain_tensor(self):
         """
         Reads the internal strain tensor and populates self.interna_strain_tensor with an array of voigt notation
-            tensors for each site. 
+            tensors for each site.
         """
         search = []
 
