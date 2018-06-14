@@ -10,7 +10,7 @@ import numpy as np
 import os.path
 import copy
 
-from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule, Site
+from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.util.coord import lattice_points_in_supercell
@@ -1575,8 +1575,8 @@ class MoleculeGraph(MSONable):
 
         for cycle in cycles_nodes:
             edges = []
-            for i in range(len(cycle)):
-                edges.append((cycle[i-1], cycle[i]))
+            for i, e in enumerate(cycle):
+                edges.append((cycle[i-1], e))
             cycles_edges.append(edges)
 
         return cycles_edges
@@ -1596,10 +1596,10 @@ class MoleculeGraph(MSONable):
 
         connected_sites = set()
 
-        out_edges = [(u, v, d, 'out') for u, v, d in self.graph.out_edges(n, data=True)]
-        in_edges = [(u, v, d, 'in') for u, v, d in self.graph.in_edges(n, data=True)]
+        out_edges = [(u, v, d) for u, v, d in self.graph.out_edges(n, data=True)]
+        in_edges = [(u, v, d) for u, v, d in self.graph.in_edges(n, data=True)]
 
-        for u, v, d, dir in out_edges + in_edges:
+        for u, v, d in out_edges + in_edges:
 
             site = self.molecule[v]
             dist = self.molecule[u].distance(self.molecule[v])

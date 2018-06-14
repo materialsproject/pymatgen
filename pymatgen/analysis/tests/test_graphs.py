@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
-from pymatgen.core.structure import Molecule, Structure, FunctionalGroups
+from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
@@ -322,7 +322,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def setUp(self):
 
-        cyclohexene = Molecule.from_file("cyclohexene.xyz")
+        cyclohexene = Molecule.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                                      "test_files/graphs/cyclohexene.xyz"))
         self.cyclohexene = MoleculeGraph.with_empty_graph(cyclohexene,
                                                        edge_weight_name="strength",
                                                        edge_weight_units="")
@@ -343,7 +344,8 @@ class MoleculeGraphTest(unittest.TestCase):
         self.cyclohexene.add_edge(5, 14, weight=1.0)
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
-        butadiene = Molecule.from_file("butadiene.xyz")
+        butadiene = Molecule.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                                    "test_files/graphs/butadiene.xyz"))
         self.butadiene = MoleculeGraph.with_empty_graph(butadiene,
                                                         edge_weight_name="strength",
                                                         edge_weight_units="")
@@ -357,7 +359,8 @@ class MoleculeGraphTest(unittest.TestCase):
         self.butadiene.add_edge(3, 8, weight=1.0)
         self.butadiene.add_edge(3, 9, weight=1.0)
 
-        ethylene = Molecule.from_file("ethylene.xyz")
+        ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                                   "test_files/graphs/ethylene.xyz"))
         self.ethylene = MoleculeGraph.with_empty_graph(ethylene,
                                                        edge_weight_name="strength",
                                                        edge_weight_units="")
