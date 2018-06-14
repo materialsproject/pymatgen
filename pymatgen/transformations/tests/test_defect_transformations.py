@@ -18,113 +18,33 @@ __date__ = "Jul 1 2014"
 
 import unittest
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.transformations.defect_transformations import \
-    VacancyTransformation, SubstitutionDefectTransformation, \
-    AntisiteDefectTransformation, InterstitialTransformation
+    DefectTransformation
+from pymatgen.analysis.defects.core import Vacancy
 
-try:
-    import zeo
-except ImportError:
-    zeo = None
-
-class VacancyTransformationTest(unittest.TestCase):
+class DefectTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        t = VacancyTransformation([2,2,2],species="Li")
-        structures = t.apply_transformation(struct,return_ranked_list=100)
-        self.assertEqual(len(structures),1)
-        for vac_struct in structures:
-            self.assertIn(vac_struct['structure'].composition.formula,
-                          [ "Li15 O16"])
+        struc = PymatgenTest.get_structure("VO2")
+        vac = Vacancy(struc, struc[0], charge=1)
 
-        t = VacancyTransformation([2,2,2],species="O")
-        structures = t.apply_transformation(struct,return_ranked_list=100)
-        self.assertEqual(len(structures),1)
-        for vac_struct in structures:
-            self.assertIn(vac_struct['structure'].composition.formula,
-                          [ "Li16 O15"])
+        def_transform = DefectTransformation( [2,2,2], vac)
+        trans_structure = def_transform.apply_transformation( struc)
+        self.assertEqual(len(trans_structure), 47)
 
-        t = VacancyTransformation([2,2,2])
-        structures = t.apply_transformation(struct,return_ranked_list=1)
-        self.assertEqual(len(structures),1)
-        for vac_struct in structures:
-            self.assertIn(vac_struct['structure'].composition.formula,
-                          [ "Li16 O15","Li15 O16"])
-
-
-class SubstitutionDefectTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        t = SubstitutionDefectTransformation({"Li":"Na","O":"S"},[2,2,2])
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        scs = t.apply_transformation(struct,return_ranked_list=100)
-        self.assertEqual(len(scs),2)
-        for sc in scs:
-            self.assertIn(sc['structure'].composition.formula,
-                          ["Li16 O16", "Na1 Li15 O16", "Li16 S1 O15"])
-
-    def test_str_repr(self):
-        s = str(SubstitutionDefectTransformation({"Mg": "Al"}, [1,1,1]))
-
-
-class AntisiteDefectTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        t = AntisiteDefectTransformation([2,2,2])
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        scs = t.apply_transformation(struct,return_ranked_list=100)
-        self.assertEqual(len(scs),2)
-        for sc in scs:
-            self.assertIn(sc['structure'].composition.formula,
-                          ["Li16 O16", "Li15 O17", "Li17 O15"])
-
-@unittest.skipIf(not zeo, "zeo not present.")
-class InterstitialTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        t = InterstitialTransformation("Na+",[2,2,2])
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[3.8401979337, 0.00, 0.00],
-                           [1.9200989668, 3.3257101909, 0.00],
-                           [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        scs = t.apply_transformation(struct,return_ranked_list=100000)
-        #self.assertEqual(len(scs),3)
-        for sc in scs:
-            #print sc.composition.formula
-            self.assertIn(sc['structure'].composition.formula,
-                          ["Li16 O16", "Na1 Li16 O16", "Li16 Na1 O16"])
+        # confirm that transformation doesnt work for bulk structures
+        # which are slightly different than those used for defect object
+        #scaled volume
+        scaled_struc = struc.copy()
+        scaled_struc.scale_lattice(1.1 * struc.volume)
+        self.assertRaises(ValueError, def_transform.apply_transformation,
+                          scaled_struc)
+        #slightly different atomic positions
+        pert_struc = struc.copy()
+        pert_struc.perturb(.1)
+        self.assertRaises(ValueError, def_transform.apply_transformation,
+                          pert_struc)
 
 
 if __name__ == '__main__':

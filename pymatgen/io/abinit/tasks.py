@@ -53,6 +53,7 @@ __all__ = [
     "DdkTask",
     "PhononTask",
     "SigmaTask",
+    "EphTask",
     "OpticTask",
     "AnaddbTask",
     "set_user_config_taskmanager"

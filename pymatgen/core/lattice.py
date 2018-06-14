@@ -358,7 +358,7 @@ class Lattice(MSONable):
     @property
     def a(self):
         """
-        *a* lattice parameter.ATATClusterExpansion
+        *a* lattice parameter.
         """
         return self._lengths[0]
 

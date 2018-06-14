@@ -173,6 +173,18 @@ class DefectEntryTest(PymatgenTest):
         entry.defect._charge = 1
         self.assertAlmostEqual(entry.formation_energy({"Sr": 0.2, "V": 0.2}, fermi_level=0.2), 2.4)
 
+    def test_defect_concentration(self):
+        entry = DefectEntry(self.substitution, .5, corrections={})
+        entry.defect._charge = -1
+
+        chem_pots = {"Sr": 0., "V": 0., "O": 0.}
+        self.assertAlmostEqual(entry.defect_concentration(chem_pots), 1.2878309944593931e14)
+
+        # #test temperature dependence
+        self.assertAlmostEqual(entry.defect_concentration(chem_pots, temperature=600), 2.040208007417593e+18)
+
+        #test fermi level dependence
+        self.assertAlmostEqual(entry.defect_concentration(chem_pots, fermi_level=.3), 1.4113592133771723e+19)
 
 if __name__ == "__main__":
     unittest.main()

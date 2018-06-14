@@ -223,9 +223,15 @@ class MITMPRelaxSetTest(unittest.TestCase):
                                  [1.9200989668, 3.3257101909, 0.00],
                                  [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords, charge=1)
-        mpr = MPRelaxSet(struct)
-        self.assertEqual(mpr.incar["NELECT"], mpr.nelect+1,
+        mpr = MPRelaxSet(struct, use_structure_charge=True)
+        self.assertEqual(mpr.incar["NELECT"], 7,
                          "NELECT not properly set for nonzero charge")
+
+        #test that NELECT does not get set when use_structure_charge = False
+        mpr = MPRelaxSet(struct, use_structure_charge=False)
+        self.assertFalse("NELECT" in mpr.incar.keys(),
+                         "NELECT should not be set when "
+                         "use_structure_charge is False")
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints

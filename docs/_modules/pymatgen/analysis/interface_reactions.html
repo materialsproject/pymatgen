@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.interface_reactions &#8212; pymatgen 2018.5.22 documentation</title>
+    <title>pymatgen.analysis.interface_reactions &#8212; pymatgen 2018.6.11 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.22 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -93,12 +93,13 @@
 <span class="sd">        pd_non_grand (PhaseDiagram): PhaseDiagram object but not</span>
 <span class="sd">            GrandPotentialPhaseDiagram object built from elements in c1 and c2.</span>
 <span class="sd">        use_hull_energy (bool): Whether or not use the convex hull energy for</span>
-<span class="sd">            a given composition for reaction energy calculation. If false, </span>
-<span class="sd">            the energy of ground state structure will be used instead. </span>
-<span class="sd">            Note that in case when ground state can not be found for a </span>
-<span class="sd">            composition, convex hull energy will be used associated with a </span>
+<span class="sd">            a given composition for reaction energy calculation. If false,</span>
+<span class="sd">            the energy of ground state structure will be used instead.</span>
+<span class="sd">            Note that in case when ground state can not be found for a</span>
+<span class="sd">            composition, convex hull energy will be used associated with a</span>
 <span class="sd">            warning message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">EV_TO_KJ_PER_MOL</span> <span class="o">=</span> <span class="mf">96.4853</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_no_mixing_energy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">pd_non_grand</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_hull_energy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -106,13 +107,13 @@
 
         <span class="c1"># if include_no_mixing_energy is True, pd should be a</span>
         <span class="c1"># GrandPotentialPhaseDiagram object and pd_non_grand should be given.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please provide grand phase diagram to compute&#39;</span>
                              <span class="s1">&#39; no_mixing_energy!&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd_non_grand</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">include_no_mixing_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd_non_grand</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please provide non-grand phase diagram to &#39;</span>
                              <span class="s1">&#39;compute no_mixing_energy!&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grand</span> <span class="ow">and</span> <span class="n">use_hull_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd_non_grand</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span> <span class="ow">and</span> <span class="n">use_hull_energy</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd_non_grand</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please provide non-grand phase diagram if&#39;</span>
                              <span class="s1">&#39; you want to use convex hull energy.&#39;</span><span class="p">)</span>
 
@@ -168,9 +169,12 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">e1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Use entry energy as reactant energy if no reservoir is present.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">e1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span>
+                <span class="c1"># Use entry energy as reactant energy if no reservoir</span>
+                <span class="c1"># is present.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">e1</span> <span class="o">=</span> <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">=</span> <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">include_no_mixing_energy</span><span class="p">:</span>
                 <span class="c1"># Computing grand potentials needs compositions containing</span>
@@ -181,7 +185,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">e1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_entry_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">composition</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_entry_energy</span><span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="n">composition</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Finds the lowest entry energy for entries matching the composition.</span>
 <span class="sd">        Entries with non-negative formation energies are excluded. If no</span>
@@ -224,8 +229,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hull_energy</span><span class="p">:</span>
             <span class="n">grand_potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="n">composition</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">grand_potential</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span><span class="p">,</span>
-                                                     <span class="n">composition</span><span class="p">)</span>
+            <span class="n">grand_potential</span> <span class="o">=</span> <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">_get_entry_energy</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pd_non_grand</span><span class="p">,</span> <span class="n">composition</span><span class="p">)</span>
         <span class="n">grand_potential</span> <span class="o">-=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">composition</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">*</span> <span class="n">mu</span>
                                 <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">mu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">chempots</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">:</span>
@@ -238,7 +243,7 @@
 
     <span class="k">def</span> <span class="nf">_get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes reaction energy at mixing ratio x : (1-x) for</span>
+<span class="sd">        Computes reaction energy in eV/atom at mixing ratio x : (1-x) for</span>
 <span class="sd">        self.comp1 : self.comp2.</span>
 
 <span class="sd">        Args:</span>
@@ -250,16 +255,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">))</span> <span class="o">-</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">e1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">e2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_reaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_reaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates balanced reaction at mixing ratio x : (1-x) for</span>
 <span class="sd">        self.comp1 : self.comp2.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (float): Mixing ratio x of reactants, a float between 0 and 1.</span>
-<span class="sd">            normalize (bool): Whether or not to normalize the sum of</span>
-<span class="sd">                coefficients of reactants to 1. For not normalized case,</span>
-<span class="sd">                use original reactant compositions in reaction for clarity.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Reaction object.</span>
@@ -267,11 +269,8 @@
         <span class="n">mix_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
         <span class="n">decomp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_decomposition</span><span class="p">(</span><span class="n">mix_comp</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
-            <span class="n">reactant</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="p">]))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Uses original composition for reactants.</span>
-            <span class="n">reactant</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">]))</span>
+        <span class="c1"># Uses original composition for reactants.</span>
+        <span class="n">reactant</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">]))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grand</span><span class="p">:</span>
             <span class="n">reactant</span> <span class="o">+=</span> <span class="p">[</span><span class="n">Composition</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
@@ -280,25 +279,38 @@
         <span class="n">product</span> <span class="o">=</span> <span class="p">[</span><span class="n">Composition</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">decomp</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
         <span class="n">reaction</span> <span class="o">=</span> <span class="n">Reaction</span><span class="p">(</span><span class="n">reactant</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor2</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1_original</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reaction</span><span class="o">.</span><span class="n">normalize_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2_original</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">reaction</span>
+
+    <span class="k">def</span> <span class="nf">_get_elmt_amt_in_rxt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rxt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes total number of atoms in a reaction formula for elements</span>
+<span class="sd">        not in external reservoir. This method is used in the calculation</span>
+<span class="sd">        of reaction energy per mol of reaction formula.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rxt (Reaction): a reaction.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Total number of atoms for non_reservoir elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">rxt</span><span class="o">.</span><span class="n">get_el_amount</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">elements</span><span class="p">])</span>
 
 <div class="viewcode-block" id="InterfacialReactivity.get_products"><a class="viewcode-back" href="../../../pymatgen.analysis.interface_reactions.html#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products">[docs]</a>    <span class="k">def</span> <span class="nf">get_products</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List of formulas of potential products. E.g., [&#39;Li&#39;,&#39;O2&#39;,&#39;Mn&#39;].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">products</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">react</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">react</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">():</span>
             <span class="n">products</span> <span class="o">=</span> <span class="n">products</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">k</span><span class="o">.</span><span class="n">reduced_formula</span>
                                            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">react</span><span class="o">.</span><span class="n">products</span><span class="p">]))</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">products</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">factor1</span><span class="p">,</span> <span class="n">factor2</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_convert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">factor1</span><span class="p">,</span> <span class="n">factor2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts mixing ratio x in comp1 - comp2 tie line to that in</span>
 <span class="sd">        c1 - c2 tie line.</span>
@@ -317,7 +329,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor2</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">factor1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">factor2</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_reverse_convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">factor1</span><span class="p">,</span> <span class="n">factor2</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_reverse_convert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">factor1</span><span class="p">,</span> <span class="n">factor2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts mixing ratio x in c1 - c2 tie line to that in</span>
 <span class="sd">        comp1 - comp2 tie line.</span>
@@ -343,7 +356,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Zip object of tuples (index, mixing ratio,</span>
-<span class="sd">                                  reaction energy, reaction formula).</span>
+<span class="sd">                                  reaction energy per atom in eV/atom,</span>
+<span class="sd">                                  reaction formula,</span>
+<span class="sd">                                  reaction energy per mol of reaction</span>
+<span class="sd">                                  formula in kJ/mol).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">c1_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">pd_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span>
         <span class="n">c2_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">pd_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span>
@@ -351,7 +367,8 @@
         <span class="n">n2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="o">.</span><span class="n">num_atoms</span>
         <span class="n">critical_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_critical_compositions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">,</span>
                                                           <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span>
-        <span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">react_kink</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">react_kink</span><span class="p">,</span> <span class="n">energy_per_rxt_formula</span> <span class="o">=</span> \
+            <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">c1_coord</span> <span class="o">==</span> <span class="n">c2_coord</span><span class="p">):</span>
             <span class="n">x_kink</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">energy_kink</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_energy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_kink</span><span class="p">]</span>
@@ -365,16 +382,26 @@
                 <span class="c1"># Modifies mixing ratio in case compositions self.comp1 and</span>
                 <span class="c1"># self.comp2 are not normalized.</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">n2</span> <span class="o">/</span> <span class="p">(</span><span class="n">n1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">n2</span> <span class="o">-</span> <span class="n">n1</span><span class="p">))</span>
+                <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="o">.</span><span class="n">num_atoms</span> \
+                    <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="o">.</span><span class="n">num_atoms</span>
                 <span class="c1"># Converts mixing ratio in comp1 - comp2 tie line to that in</span>
                 <span class="c1"># c1 - c2 tie line.</span>
-                <span class="n">x_converted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor2</span><span class="p">)</span>
+                <span class="n">x_converted</span> <span class="o">=</span> <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">_convert</span><span class="p">(</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor2</span><span class="p">)</span>
                 <span class="n">x_kink</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_converted</span><span class="p">)</span>
                 <span class="c1"># Gets reaction energy at kinks</span>
-                <span class="n">energy_kink</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_energy</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="n">energy_per_atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_energy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">energy_kink</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energy_per_atom</span><span class="p">)</span>
                 <span class="c1"># Gets balanced reaction at kinks</span>
-                <span class="n">react_kink</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_reaction</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                <span class="n">rxt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_reaction</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">react_kink</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rxt</span><span class="p">)</span>
+                <span class="n">rxt_energy</span> <span class="o">=</span> <span class="n">energy_per_atom</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_elmt_amt_in_rxt</span><span class="p">(</span><span class="n">rxt</span><span class="p">)</span> \
+                    <span class="o">/</span> <span class="n">n_atoms</span>
+                <span class="n">energy_per_rxt_formula</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rxt_energy</span> <span class="o">*</span>
+                                        <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">EV_TO_KJ_PER_MOL</span><span class="p">)</span>
         <span class="n">index_kink</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">critical_comp</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">index_kink</span><span class="p">,</span> <span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">react_kink</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">index_kink</span><span class="p">,</span> <span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">react_kink</span><span class="p">,</span>
+                   <span class="n">energy_per_rxt_formula</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InterfacialReactivity.labels"><a class="viewcode-back" href="../../../pymatgen.analysis.interface_reactions.html#pymatgen.analysis.interface_reactions.InterfacialReactivity.labels">[docs]</a>    <span class="k">def</span> <span class="nf">labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -384,9 +411,9 @@
 <span class="sd">               2: &#39;x= 0.5 energy = -15.0 O2 + Mn -&gt; MnO2&#39;,</span>
 <span class="sd">               3: &#39;x= 1.0 energy = 0.0 O2 -&gt; O2&#39;}.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">j</span><span class="p">:</span> <span class="s1">&#39;x= &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; energy = &#39;</span> <span class="o">+</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">j</span><span class="p">:</span> <span class="s1">&#39;x= &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; energy in eV/atom = &#39;</span> <span class="o">+</span>
                    <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">reaction</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">()}</span></div>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">reaction</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">()}</span></div>
 
 <div class="viewcode-block" id="InterfacialReactivity.plot"><a class="viewcode-back" href="../../../pymatgen.analysis.interface_reactions.html#pymatgen.analysis.interface_reactions.InterfacialReactivity.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -405,21 +432,21 @@
 
         <span class="c1"># Converts sampling points in self.c1 - self.c2 tie line to those in</span>
         <span class="c1"># self.comp1 - self.comp2 tie line.</span>
-        <span class="n">xs_reverse_converted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reverse_convert</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor1</span><span class="p">,</span>
-                                                     <span class="bp">self</span><span class="o">.</span><span class="n">factor2</span><span class="p">)</span>
+        <span class="n">xs_reverse_converted</span> <span class="o">=</span> <span class="n">InterfacialReactivity</span><span class="o">.</span><span class="n">_reverse_convert</span><span class="p">(</span>
+            <span class="n">xs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor2</span><span class="p">)</span>
         <span class="n">energies</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_energy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs_reverse_converted</span><span class="p">]</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="s1">&#39;k-&#39;</span><span class="p">)</span>
 
         <span class="c1"># Marks kinks and minimum energy point.</span>
         <span class="n">kinks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">()</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">kinks</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">kinks</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_kink</span><span class="p">,</span> <span class="n">energy_kink</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minimum</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
                     <span class="n">c</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 
         <span class="c1"># Labels kinks with indices. Labels are made draggable</span>
         <span class="c1"># in case of overlapping.</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="n">kinks</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">kinks</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
                 <span class="n">index</span><span class="p">,</span>
                 <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
@@ -443,7 +470,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple (x_min, E_min).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">()],</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kinks</span><span class="p">()],</span>
                    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="InterfacialReactivity.get_no_mixing_energy"><a class="viewcode-back" href="../../../pymatgen.analysis.interface_reactions.html#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_no_mixing_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -459,9 +486,9 @@
             <span class="s1">&#39;for computing no_mixing_energy!&#39;</span>
 
         <span class="n">energy1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp1</span><span class="p">)</span> <span class="o">-</span> \
-                  <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="p">)</span>
         <span class="n">energy2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd</span><span class="o">.</span><span class="n">get_hull_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comp2</span><span class="p">)</span> <span class="o">-</span> \
-                  <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_grand_potential</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="p">)</span>
         <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;eV/f.u.&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">:</span>
             <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;eV/atom&#39;</span>
@@ -501,7 +528,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.22 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -509,7 +536,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
