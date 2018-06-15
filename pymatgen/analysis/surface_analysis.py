@@ -1123,8 +1123,9 @@ class SurfaceEnergyPlotter(object):
 
         # Set up
         plt = pretty_plot(12, 8) if not plt else plt
+        el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol("delu_%s" % (str(elements[0])))
-        delu2 = Symbol("delu_%s" % (str(elements[0])))
+        delu2 = Symbol("delu_%s" % (str(elements[1])))
         range1 = ranges[0]
         range2 = ranges[1]
 
