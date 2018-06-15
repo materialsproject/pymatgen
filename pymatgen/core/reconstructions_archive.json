@@ -177,13 +177,6 @@
   "description": "This is the (1x1) reconstruction for the fcc (111)                     slab on the hcp (h) site.",
   "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
   "base_reconstruction": "fcc_111_adatom_t_1x1",
-  "points_to_remove": [
-   [
-    0.0,
-    0.0,
-    1
-   ]
-  ],
   "points_to_add": [
    [
     0.66667,
@@ -197,13 +190,6 @@
   "description": "This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom between the fcc and top (ft) site.",
   "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
   "base_reconstruction": "fcc_111_adatom_t_1x1",
-  "points_to_remove": [
-   [
-    0.0,
-    0.0,
-    1
-   ]
-  ],
   "points_to_add": [
    [
     0.166665,
@@ -217,13 +203,6 @@
   "description": "This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom between the hcp and top (ht) site.",
   "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
   "base_reconstruction": "fcc_111_adatom_t_1x1",
-  "points_to_remove": [
-   [
-    0.0,
-    0.0,
-    1
-   ]
-  ],
   "points_to_add": [
    [
     0.333335,
@@ -237,13 +216,6 @@
   "description": "This is the (1x1) reconstruction for the fcc (111)                     slab with an adatom on the bridge site.",
   "reference": "Crljen, Z., Lazic, P., Sokcevic, D., & Brako, R. (2003).                     Relaxation and reconstruction on (111) surfaces of Au, Pt, and Cu.                     Physical Review B, 68(19), 195411.",
   "base_reconstruction": "fcc_111_adatom_t_1x1",
-  "points_to_remove": [
-   [
-    0.0,
-    0.0,
-    1
-   ]
-  ],
   "points_to_add": [
    [
     0.5,
