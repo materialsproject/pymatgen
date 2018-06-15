@@ -643,7 +643,7 @@ class SurfaceEnergyPlotter(object):
         """
 
         chempot_range = sorted(chempot_range)
-        stable_urange_dict, se_dict = {}, {}, {}
+        stable_urange_dict, se_dict = {}, {}
 
         # Get all entries for a specific facet
         for hkl in self.all_slab_entries.keys():
@@ -1128,7 +1128,7 @@ class SurfaceEnergyPlotter(object):
                 vertices_dict[entry].append({delu1: dmu1, delu2: [range_dict[entry], selist]})
 
         # Plot the edges of the phases
-        for i, entry in enumerate(vertices_dict.keys()):
+        for entry in vertices_dict.keys():
 
             xvals, yvals = [], []
 
@@ -1690,7 +1690,7 @@ class NanoscaleStability(object):
         return plt
 
     def plot_all_stability_map(self, max_r, increments=50, delu_dict=None,
-                               delu_default=0, plt=None, labels=[],
+                               delu_default=0, plt=None, labels=None,
                                from_sphere_area=False, e_units="keV",
                                r_units="nanometers", normalize=False,
                                scale_per_atom=False):
