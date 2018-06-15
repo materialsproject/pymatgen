@@ -595,7 +595,8 @@ class SurfaceEnergyPlotter(object):
             if type(se).__name__ == "float":
                 all_eqns.append(se - Symbol("gamma"))
             else:
-                all_eqns.append(se.subs(delu_dict) - Symbol("gamma"))
+                se = se.subs(delu_dict) if delu_dict else se
+                all_eqns.append(se - Symbol("gamma"))
                 all_parameters.extend([p for p in list(se.free_symbols)
                                        if p not in all_parameters])
 
@@ -1759,7 +1760,7 @@ def set_all_variables(entry, delu_dict, delu_default):
     # Set up the variables
     all_delu_dict = {}
     for el in entry.composition.as_dict().keys():
-        if Symbol("delu_%s" % (el)) in delu_dict.keys():
+        if delu_dict and Symbol("delu_%s" % (el)) in delu_dict.keys():
             all_delu_dict[Symbol("delu_%s" % (el))] = delu_dict[Symbol("delu_%s" % (el))]
         else:
             all_delu_dict[Symbol("delu_%s" % (el))] = delu_default
