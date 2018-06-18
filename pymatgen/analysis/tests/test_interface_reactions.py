@@ -281,12 +281,14 @@ class InterfaceReactionTest(unittest.TestCase):
             test3 = np.allclose(energy_kink, energy_kink_expect)
             self.assertTrue(test3, 'get_kinks:energy kinks gets error!')
 
-            # test4 = react_kink == react_kink_expect
-            # self.assertTrue(test4,
-            #                 'get_kinks: reaction kinks '
-            #                 'gets error for {0} and {1} reaction!'.format(
-            #                     ir.c1_original.reduced_formula,
-            #                     ir.c2_original.reduced_formula))
+            # Testing reaction strings are hard,
+            # as species could be arranged in random order.
+            test4 = len(react_kink) == len(react_kink_expect)
+            self.assertTrue(test4,
+                            'get_kinks: reaction kinks '
+                            'gets error for {0} and {1} reaction!'.format(
+                                ir.c1_original.reduced_formula,
+                                ir.c2_original.reduced_formula))
 
             test5 = np.allclose(energy_per_rxt_kink,
                                 energy_per_rxt_kink_expect)
