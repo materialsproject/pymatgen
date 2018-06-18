@@ -962,6 +962,9 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
         mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
         mstresses = vstresses[mode]
         mstrains = vstrains[mode]
+        # Get "strain state", i.e. ratio of each value to minimum strain
+        strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
+        strain_state = tuple(strain_state)
 
         if add_eq:
             # add zero strain state
@@ -971,9 +974,6 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
         if sort:
             mstresses = mstresses[mstrains[:, ind[0]].argsort()]
             mstrains = mstrains[mstrains[:, ind[0]].argsort()]
-        # Get "strain state", i.e. ratio of each value to minimum strain
-        strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
-        strain_state = tuple(strain_state)
         strain_state_dict[strain_state] = {"strains": mstrains,
                                            "stresses": mstresses}
     return strain_state_dict
