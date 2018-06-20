@@ -1547,6 +1547,8 @@ class Outcar(MSONable):
                 mag_z = []
                 read_mag_z = True
                 read_charge, read_mag_x, read_mag_y = False, False, False
+            elif re.search("electrostatic", clean):
+                read_charge, read_mag_x, read_mag_y, read_mag_z = False, False, False, False
 
         # merge x, y and z components of magmoms if present (SOC calculation)
         if mag_y and mag_z:
