@@ -112,6 +112,64 @@ class BabelMolAdaptor(object):
         pbmol.localopt(forcefield=forcefield, steps=steps)
         self._obmol = pbmol.OBMol
 
+    def confm_search(self, forcefield="mmff94", freeze_atoms=None,
+                     rmsd_cutoff=0.5, energy_cutoff=50.0,
+                     conf_cutoff=100000, verbose=False, make_3d=False,
+                     add_hydrogens=False):
+        """
+        Perform conformer search.
+        Args:
+            forcefield: Default is mmff94. Options are 'gaff', 'ghemical',
+                'mmff94', 'mmff94s', and 'uff'.
+            freeze_atoms: List of indices of atoms to be fixed during search.
+            rmsd_cutoff:
+            energy_cutoff:
+            conf_cutoff:
+            verbose: For conformer generation output
+            make_3d: Should conformer search be performed in 2D or 3D
+            add_hydrogens: Should implicit Hydrogens be added?
+        Returns: BabelMolAdapter
+
+        """
+
+        obmol = self.openbabel_mol
+
+        if make_3d:
+            builder = ob.OBBuilder()
+            builder.Build(obmol)
+
+        if add_hydrogens:
+            obmol.AddHydrogens()
+
+        ff = ob.OBForceField_FindType(forcefield)
+        if ff == 0:
+            print("Could not find forcefield {} in openbabel, the forcefield "
+                  "will be reset as default 'mmff94'".format(forcefield))
+            ff = ob.OBForceField_FindType("mmff94")
+
+        if freeze_atoms:
+            print('{} atoms will be freezed'.format(len(freeze_atoms)))
+            constraints = ob.OBFFConstraints()
+            for atom in ob.OBMolAtomIter(self.openbabel_mol):
+                atom_id = atom.GetIndex() + 1
+                if id in freeze_atoms:
+                    constraints.AddAtomConstraint(atom_id)
+            ff.SetConstraints(constraints)
+
+        # To improve 3D coordinates
+        ff.WeightedRotorSearch(500, 25)
+
+        # Run Confab conformer generation
+        ff.DiverseConfGen(rmsd_cutoff, conf_cutoff, energy_cutoff,
+                          verbose)
+
+        ff.GetConformers(obmol)
+
+        if verbose:
+            print("Generated {} conformers total".format(obmol.NumConformers()))
+
+        self._obmol = obmol
+
     @property
     def pybel_mol(self):
         """

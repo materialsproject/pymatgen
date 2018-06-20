@@ -1982,7 +1982,6 @@ class MoleculeGraph(MSONable):
 
         return False
 
-
     def diff(self, other, strict=True):
         """
         Compares two MoleculeGraphs. Returns dict with

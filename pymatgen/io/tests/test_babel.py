@@ -77,6 +77,13 @@ class BabelMolAdaptorTest(unittest.TestCase):
         for site in optmol[1:]:
             self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
 
+    def test_confm_search(self):
+        adaptor = BabelMolAdaptor(self.mol)
+        adaptor.confm_search()
+        confm = adaptor.pymatgen_mol(make_3d=True)
+        for site in confm[1:]:
+            self.assertAlmostEqual(site.distance(confm[0]), 1.07, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
