@@ -408,6 +408,10 @@ class DiffFitTest(PymatgenTest):
             for strain, stress in zip(data["strains"], data["stresses"]):
                 self.assertArrayAlmostEqual(Stress.from_voigt(stress),
                                             strain_dict[Strain.from_voigt(strain).tostring()])
+        # Add test to ensure zero strain state doesn't cause issue
+        strains, stresses = [Strain.from_voigt([-0.01] + [0]*5)], [Stress(np.eye(3))]
+        ss_dict = get_strain_state_dict(strains, stresses)
+        self.assertArrayAlmostEqual(list(ss_dict.keys()), [[1, 0, 0, 0, 0, 0]])
 
     def test_find_eq_stress(self):
         test_strains = deepcopy(self.strains)
