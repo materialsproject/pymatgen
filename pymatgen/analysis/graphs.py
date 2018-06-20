@@ -1930,7 +1930,10 @@ class MoleculeGraph(MSONable):
         # sort for consistent node indices
         # PeriodicSite should have a proper __hash__() value,
         # using its frac_coords as a convenient key
-        mapping = {tuple(site.coords):self.molecule.index(site) for site in other.molecule}
+        try:
+            mapping = {tuple(site.coords):self.molecule.index(site) for site in other.molecule}
+        except ValueError:
+            return False
         other_sorted = other.__copy__()
         other_sorted.sort(key=lambda site: mapping[tuple(site.coords)])
 
@@ -1941,6 +1944,44 @@ class MoleculeGraph(MSONable):
 
         return (edges == edges_other) and \
                (self.molecule == other_sorted.molecule)
+
+    def equivalent_to(self, other):
+        """
+        A weaker equality function that evaluates isomorphisms between two
+        MoleculeGraphs. If there is an isomorphism where the species are
+        identical for each pair, then the MoleculeGraphs are considered
+        "equivalent".
+
+        :param other: The MoleculeGraph to be compared to this MoleculeGraph
+        :return: Bool
+        """
+
+        # If they're already equivalent, don't worry about it.
+        if self.__eq__(other):
+            return True
+
+        # The possibility of multiple edges eliminates possible isomorphisms
+        self_undir = self.graph.to_undirected()
+        other_undir = other.graph.to_undirected()
+
+        matcher = nx.algorithms.isomorphism.GraphMatcher(self_undir,
+                                                         other_undir)
+
+        # Graph equality requires that there be an appropriate mapping between
+        # nodes in the graph
+        if not matcher.is_isomorphic():
+            return False
+
+        for mapping in matcher.isomorphisms_iter():
+            for index in mapping.keys():
+                if self.molecule[index].specie != other.molecule[mapping[index]].specie:
+                    # The isomorphism is not perfect
+                    continue
+                # If every atom in the isomorphism maps correctly by species
+                return True
+
+        return False
+
 
     def diff(self, other, strict=True):
         """
