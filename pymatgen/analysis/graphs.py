@@ -1973,13 +1973,16 @@ class MoleculeGraph(MSONable):
             return False
 
         for mapping in matcher.isomorphisms_iter():
+            species_match = True
             for index in mapping.keys():
                 if self.molecule[index].specie != other.molecule[mapping[index]].specie:
                     # The isomorphism is not perfect
-                    continue
+                    species_match = False
+            if species_match:
                 # If every atom in the isomorphism maps correctly by species
                 return True
 
+        # No isomorphism was perfect
         return False
 
     def diff(self, other, strict=True):

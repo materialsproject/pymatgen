@@ -423,9 +423,28 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
-        self.assertEqual(sorted(rings[0]), [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
+        self.assertEqual(sorted(rings[0]),
+                         [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
+
+    def test_equivalent_to(self):
+        ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__),
+                                                   "..", "..", "..",
+                                                   "test_files/graphs/ethylene.xyz"))
+        # switch carbons
+        ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
+
+        eth_copy = MoleculeGraph.with_empty_graph(ethylene,
+                                                  edge_weight_name="strength",
+                                                  edge_weight_units="")
+        eth_copy.add_edge(0, 1, weight=2.0)
+        eth_copy.add_edge(1, 2, weight=1.0)
+        eth_copy.add_edge(1, 3, weight=1.0)
+        eth_copy.add_edge(0, 4, weight=1.0)
+        eth_copy.add_edge(0, 5, weight=1.0)
+
+        self.assertTrue(self.ethylene.equivalent_to(eth_copy))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
