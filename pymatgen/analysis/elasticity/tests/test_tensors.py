@@ -311,6 +311,13 @@ class TensorTest(PymatgenTest):
         for tens_1, tens_2 in zip(tkdv, reduced[tbs[0]]):
             self.assertAlmostEqual(tens_1, tens_2)
 
+    def test_set_tkd_value(self):
+        tbs = [Tensor.from_voigt(row) for row in np.eye(6)*0.01]
+        reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
+        tval = Tensor.from_values_indices([0.01], [(0, 0)])
+        set_tkd_value(reduced, tval, 'test_val')
+        self.assertEqual(get_tkd_value(reduced, tval), 'test_val')
+
     def test_populate(self):
         test_data = loadfn(os.path.join(test_dir, 'test_toec_data.json'))
 

@@ -785,3 +785,11 @@ def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     for tkey, value in tensor_keyed_dict.items():
         if np.allclose(tensor, tkey, **allclose_kwargs):
             return value
+
+def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
+    if allclose_kwargs is None:
+        allclose_kwargs = {}
+    for tkey, value in tensor_keyed_dict.items():
+        if np.allclose(tensor, tkey, **allclose_kwargs):
+            tensor_keyed_dict[tkey] = set_value
+            return
