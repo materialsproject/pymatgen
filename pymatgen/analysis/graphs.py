@@ -1945,7 +1945,7 @@ class MoleculeGraph(MSONable):
         return (edges == edges_other) and \
                (self.molecule == other_sorted.molecule)
 
-    def equivalent_to(self, other):
+    def equivalent_to(self, other, from_strategy=False):
         """
         A weaker equality function that evaluates isomorphisms between two
         MoleculeGraphs. If there is an isomorphism where the species are
@@ -1953,6 +1953,10 @@ class MoleculeGraph(MSONable):
         "equivalent".
 
         :param other: The MoleculeGraph to be compared to this MoleculeGraph
+        :param from_strategy: This is a hack. Currently, if a strategy is used,
+        at some point the order of the molecule becomes reversed relative to the
+        nodes of the graph. So, if this is True, that ordering will be reversed
+        again in order to achieve the correct mapping.
         :return: Bool
         """
 
@@ -1973,13 +1977,17 @@ class MoleculeGraph(MSONable):
             return False
 
         for mapping in matcher.isomorphisms_iter():
-            species_match = True
-            for index in mapping.keys():
-                if self.molecule[index].specie != other.molecule[mapping[index]].specie:
-                    # The isomorphism is not perfect
-                    species_match = False
-            if species_match:
-                # If every atom in the isomorphism maps correctly by species
+            if from_strategy:
+                self_mol = self.molecule[::-1]
+                other_mol = other.molecule[::-1]
+            else:
+                self_mol = self.molecule
+                other_mol = other.molecule
+
+            truths = [self_mol[index].specie == other_mol[mapping[index]].specie
+                      for index in mapping.keys()]
+
+            if all(truths):
                 return True
 
         # No isomorphism was perfect
