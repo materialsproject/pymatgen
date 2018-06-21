@@ -19,6 +19,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
+import warnings
+import copy
 from pymatgen.core.structure import Molecule
 from monty.dev import requires
 
@@ -111,6 +113,48 @@ class BabelMolAdaptor(object):
         pbmol = pb.Molecule(self._obmol)
         pbmol.localopt(forcefield=forcefield, steps=steps)
         self._obmol = pbmol.OBMol
+
+    def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch",
+                        forcefield="mmff94"):
+        """
+        Conformer search based on several Rotor Search algorithms of openbabel.
+        If the input molecule is not 3D, make3D will be called (generate 3D
+        structure, add hydrogen, a quick localopt). All hydrogen atoms need
+        to be made explicit.
+        Args:
+            algo (str): Default is "WeightedRotorSearch". Options are
+                "SystematicRotorSearch", "FastRotorSearch", "RandomRotorSearch",
+                and "WeightedRotorSearch".
+            forcefield (str): Default is mmff94. Options are 'gaff', 'ghemical',
+                'mmff94', 'mmff94s', and 'uff'.
+            rotor_args: pass args to the Rotor Search class.
+
+        """
+        if self._obmol.GetDimension() != 3:
+            self.make3D()
+        else:
+            self.add_hydrogen()
+
+        ff = ob.OBForceField_FindType(forcefield)
+        if ff == 0:
+            warnings.warn("This input forcefield {} is not supported "
+                          "in openbabel. The forcefield will be reset as "
+                          "default 'mmff94' for now.".format(forcefield))
+            ff = ob.OBForceField_FindType("mmff94")
+        assert (ff.Setup(self._obmol))
+
+        try:
+            rotor_search = getattr(ff, algo)
+        except AttributeError:
+            warnings.warn("This input conformer search algorithm {} is not "
+                          "supported in openbabel. Options are "
+                          "'SystematicRotorSearch', 'FastRotorSearch', "
+                          "'RandomRotorSearch' and 'WeightedRotorSearch'. "
+                          "The algorithm will be reset as default "
+                          "'WeightedRotorSearch' for now.".format(algo))
+            rotor_search = ff.WeightedRotorSearch
+        rotor_search(*rotor_args)
+        ff.GetConformers(self._obmol)
 
     @property
     def pybel_mol(self):
