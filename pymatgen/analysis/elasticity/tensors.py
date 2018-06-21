@@ -14,6 +14,7 @@ import string
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 """
 This module provides a base class for tensor-like objects and methods for
@@ -116,7 +117,7 @@ class Tensor(np.ndarray):
 
     def transform(self, symm_op):
         """
-        Applies a transformation (via a symmetry operation) to a tensor. 
+        Applies a transformation (via a symmetry operation) to a tensor.
 
         Args:
             symm_op (SymmOp): a symmetry operation to apply to the tensor
@@ -163,8 +164,8 @@ class Tensor(np.ndarray):
     @property
     def symmetrized(self):
         """
-        Returns a generally symmetrized tensor, calculated by taking 
-        the sum of the tensor and its transpose with respect to all 
+        Returns a generally symmetrized tensor, calculated by taking
+        the sum of the tensor and its transpose with respect to all
         possible permutations of indices
         """
         perms = list(itertools.permutations(range(self.rank)))
@@ -199,8 +200,8 @@ class Tensor(np.ndarray):
         Returns a tensor that is invariant with respect to symmetry
         operations corresponding to a structure
 
-        Args: 
-            structure (Structure): structure from which to generate 
+        Args:
+            structure (Structure): structure from which to generate
                 symmetry operations
             symprec (float): symmetry tolerance for the Spacegroup Analyzer
                 used to generate the symmetry operations
@@ -214,9 +215,9 @@ class Tensor(np.ndarray):
         """
         Tests whether a tensor is invariant with respect to the
         symmetry operations of a particular structure by testing
-        whether the residual of the symmetric portion is below a 
+        whether the residual of the symmetric portion is below a
         tolerance
-        
+
         Args:
             structure (Structure): structure to be fit to
             tol (float): tolerance for symmetry testing
@@ -278,7 +279,7 @@ class Tensor(np.ndarray):
         """
         Constructor based on the voigt notation vector or matrix.
 
-        Args: 
+        Args:
             voigt_input (array-like): voigt input for a given tensor
         """
         voigt_input = np.array(voigt_input)
@@ -293,7 +294,7 @@ class Tensor(np.ndarray):
         return cls(t)
 
     @staticmethod
-    def get_ieee_rotation(structure):
+    def get_ieee_rotation(structure, refine_rotation=True):
         """
         Given a structure associated with a tensor, determines
         the rotation matrix for IEEE conversion according to
@@ -302,8 +303,9 @@ class Tensor(np.ndarray):
         Args:
             structure (Structure): a structure associated with the
                 tensor to be converted to the IEEE standard
+            refine_rotation (bool): whether to refine the rotation
+                using SquareTensor.refine_rotation
         """
-
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
         dataset = sga.get_symmetry_dataset()
@@ -364,9 +366,14 @@ class Tensor(np.ndarray):
             rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
+        rotation = SquareTensor(rotation)
+        if refine_rotation:
+            rotation = rotation.refine_rotation()
+
         return rotation
 
-    def convert_to_ieee(self, structure, initial_fit=True):
+    def convert_to_ieee(self, structure, initial_fit=True,
+                        refine_rotation=True):
         """
         Given a structure associated with a tensor, attempts a
         calculation of the tensor in IEEE format according to
@@ -381,21 +388,52 @@ class Tensor(np.ndarray):
                 results may be obtained due to symmetrically
                 equivalent, but distinct transformations
                 being used in different versions of spglib.
+            refine_rotation (bool): whether to refine the rotation
+                produced by the ieee transform generator, default True
         """
-        rotation = self.get_ieee_rotation(structure)
+        rotation = self.get_ieee_rotation(structure, refine_rotation)
         result = self.copy()
         if initial_fit:
             result = result.fit_to_structure(structure)
         return result.rotate(rotation, tol=1e-2)
 
+    def structure_transform(self, original_structure, new_structure,
+                            refine_rotation=True):
+        """
+        Transforms a tensor from one basis for an original structure
+        into a new basis defined by a new structure.
+
+        Args:
+            original_structure (Structure): structure corresponding
+                to the basis of the current tensor
+            new_structure (Structure): structure corresponding to the
+                desired basis
+            refine_rotation (bool): whether to refine the rotations
+                generated in get_ieee_rotation
+
+        Returns:
+            Tensor that has been transformed such that its basis
+            corresponds to the new_structure's basis
+        """
+        sm = StructureMatcher()
+        if not sm.fit(original_structure, new_structure):
+            warnings.warn("original and new structures do not match!")
+        trans_1 = self.get_ieee_rotation(original_structure, refine_rotation)
+        trans_2 = self.get_ieee_rotation(new_structure, refine_rotation)
+        # Get the ieee format tensor
+        new = self.rotate(trans_1)
+        # Reverse the ieee format rotation for the second structure
+        new = new.rotate(np.transpose(trans_2))
+        return new
+
     @classmethod
     def from_values_indices(cls, values, indices, populate=False,
-                            structure=None, voigt_rank=None, 
+                            structure=None, voigt_rank=None,
                             vsym=True, verbose=False):
         """
         Creates a tensor from values and indices, with options
         for populating the remainder of the tensor.
-        
+
         Args:
             values (floats): numbers to place at indices
             indices (array-likes): indices to place values at
@@ -405,7 +443,7 @@ class Tensor(np.ndarray):
             voigt_rank (int): full tensor rank to indicate the
                 shape of the resulting tensor.  This is necessary
                 if one provides a set of indices more minimal than
-                the shape of the tensor they want, e.g. 
+                the shape of the tensor they want, e.g.
                 Tensor.from_values_indices((0, 0), 100)
             vsym (bool): whether to voigt symmetrize during the
                 optimization procedure
@@ -443,7 +481,7 @@ class Tensor(np.ndarray):
         2. Symmetrize the tensor with respect to crystal symmetry and
            (optionally) voigt symmetry
         3. Reset the non-zero entries of the original tensor
-        
+
         Args:
             structure (structure object)
             prec (float): precision for determining a non-zero value
@@ -494,7 +532,7 @@ class Tensor(np.ndarray):
             test_new = test_old.fit_to_structure(structure)
             if vsym:
                 test_new = test_new.voigt_symmetrized
-            diff = np.abs(test_old - test_new) 
+            diff = np.abs(test_old - test_new)
             converged = (diff < prec).all()
             if converged:
                 break
@@ -544,16 +582,16 @@ class TensorCollection(collections.Sequence):
         return all([t.is_symmetric(tol) for t in self])
 
     def fit_to_structure(self, structure, symprec=0.1):
-        return self.__class__([t.fit_to_structure(structure, symprec) 
+        return self.__class__([t.fit_to_structure(structure, symprec)
                                for t in self])
-    
+
     def is_fit_to_structure(self, structure, tol=1e-2):
         return all([t.is_fit_to_structure(structure, tol) for t in self])
 
     @property
     def voigt(self):
         return [t.voigt for t in self]
-    
+
     @property
     def ranks(self):
         return [t.rank for t in self]
@@ -565,8 +603,11 @@ class TensorCollection(collections.Sequence):
     def from_voigt(cls, voigt_input_list, base_class=Tensor):
         return cls([base_class.from_voigt(v) for v in voigt_input_list])
 
-    def convert_to_ieee(self, structure):
-        return self.__class__([t.convert_to_ieee(structure) for t in self])
+    def convert_to_ieee(self, structure, initial_fit=True,
+                        refine_rotation=True):
+        return self.__class__(
+            [t.convert_to_ieee(structure, initial_fit, refine_rotation)
+             for t in self])
 
 
 class SquareTensor(Tensor):
@@ -636,6 +677,25 @@ class SquareTensor(Tensor):
         return (np.abs(self.inv - self.trans) < tol).all() \
             and (np.abs(det - 1.) < tol)
 
+    def refine_rotation(self):
+        """
+        Helper method for refining rotation matrix by ensuring
+        that second and third rows are perpindicular to the first.
+        Gets new y vector from an orthogonal projection of x onto y
+        and the new z vector from a cross product of the new x and y
+
+        Args:
+            tol to test for rotation
+
+        Returns:
+            new rotation matrix
+        """
+        new_x, y = get_uvec(self[0]), get_uvec(self[1])
+        # Get a projection on y
+        new_y = y - np.dot(new_x, y) * new_x
+        new_z = np.cross(new_x, new_y)
+        return SquareTensor([new_x, new_y, new_z])
+
     def get_scaled(self, scale_factor):
         """
         Scales the tensor by a certain multiplicative scale factor
@@ -704,7 +764,7 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     return unique_tdict
 
 
-def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs={}):
+def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """
     Helper function to find a value in a tensor-keyed-
     dictionary using an approximation to the key.  This
@@ -713,13 +773,15 @@ def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs={}):
     (e. g. from symmetry_reduce).  Resolves most
     hashing issues, and is preferable to redefining
     eq methods in the base tensor class.
-    
+
     Args:
         tensor_keyed_dict (dict): dict with Tensor keys
         tensor (Tensor): tensor to find value of in the dict
         allclose_kwargs (dict): dict of keyword-args
             to pass to allclose.
     """
+    if allclose_kwargs is None:
+        allclose_kwargs = {}
     for tkey, value in tensor_keyed_dict.items():
         if np.allclose(tensor, tkey, **allclose_kwargs):
             return value

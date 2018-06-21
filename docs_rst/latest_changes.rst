@@ -1,6 +1,9 @@
 Change log
 ==========
 
-v2018.3.22
+v2018.6.11
 ----------
-* Bug fixes to phase diagram module, enumlib adaptor, local env analysis.
+* Updates to ABINIT support for 8.1.3
+* Updates to Interface analyzer.
+* Fix bug in deserialization of ComputedStructureEntry.
+* Misc bug fixes.

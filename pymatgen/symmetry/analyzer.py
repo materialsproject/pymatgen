@@ -54,7 +54,7 @@ class SpacegroupAnalyzer(object):
 
     Args:
         structure (Structure/IStructure): Structure to find symmetry
-        symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
+        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
             which is fairly strict and works well for properly refined
             structures with atoms in the proper symmetry coordinates. For
             structures with slight deviations from their proper atomic
@@ -518,7 +518,7 @@ class SpacegroupAnalyzer(object):
             for d in range(len(sorted_dic)):
                 transf[d][sorted_dic[d]['orig_index']] = 1
 
-            if abs(b - c) < tol:
+            if abs(b - c) < tol and abs(a - c) > tol:
                 a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
             latt = Lattice.tetragonal(a, c)

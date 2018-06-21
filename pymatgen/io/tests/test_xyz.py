@@ -97,6 +97,21 @@ C 1.16730636786 -1.38166622735 -2.77112970359e-06
         self.assertTrue(abs(mol[0].z) < 1e-5)
         self.assertTrue(abs(mol[1].z) < 1e-5)
 
+        mol_str = """3
+Random
+C   0.000000000000E+00  2.232615992397E+01  0.000000000000E+00
+C  -2.383225420567E-31  1.116307996198E+01  1.933502166311E+01
+C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
+"""
+        xyz = XYZ.from_string(mol_str)
+        mol = xyz.molecule
+        self.assertAlmostEqual(mol[0].x, 0)
+        self.assertAlmostEqual(mol[1].y, 11.16307996198)
+        self.assertAlmostEqual(mol[2].x, -0.4440892098501)
+        self.assertAlmostEqual(mol[2].y, -11.16307996198)
+        # self.assertTrue(abs(mol[1].z) < 1e-5)
+
+
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'multiple_frame_xyz.xyz')
         mxyz = XYZ.from_file(filepath)

@@ -602,6 +602,31 @@ class MPSOCSetTest(PymatgenTest):
         self.assertEqual(vis.incar['SIGMA'], 0.025)
 
 
+class MPNMRSetTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_incar(self):
+        filepath = os.path.join(test_dir, 'Li.cif')
+        structure = Structure.from_file(filepath)
+
+        vis = MPNMRSet(structure)
+        self.assertTrue(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), None)
+
+        vis = MPNMRSet(structure, mode="efg")
+        self.assertFalse(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), [-0.808])
+
+        vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
+        self.assertFalse(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), [-40.1])
+
+
 class MVLSlabSetTest(PymatgenTest):
     def setUp(self):
         if "PMG_VASP_PSP_DIR" not in os.environ:
@@ -652,8 +677,8 @@ class MVLSlabSetTest(PymatgenTest):
         # No volume relaxation during slab calculations
         self.assertEqual(incar_slab["ISIF"], 2)
         self.assertEqual(potcar_slab.functional, 'PBE')
-        self.assertEqual(potcar_slab.symbols[1], u'Li_sv')
-        self.assertEqual(potcar_slab.symbols[0], u'O')
+        self.assertEqual(potcar_slab.symbols[1], u'O')
+        self.assertEqual(potcar_slab.symbols[0], u'Li_sv')
         self.assertEqual(poscar_slab.structure.formula,
                          self.slab.formula)
         # Test auto-dipole

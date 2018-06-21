@@ -3,9 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
-
+import os
 import unittest
-
+import random
+import matplotlib
+matplotlib.use("pdf")
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator
 from pymatgen.analysis.defects.point_defects import *
@@ -13,6 +15,7 @@ from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element
+from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from monty.os.path import which
 from pymatgen.io.cif import CifParser
@@ -21,6 +24,13 @@ try:
     import zeo
 except ImportError:
     zeo = None
+
+try:
+    from skimage.feature import peak_local_max
+
+    peak_local_max_found = True
+except ImportError:
+    peak_local_max_found = False
 
 gulp_present = which('gulp')
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -139,12 +149,12 @@ class VacancyFormationEnergyTest(PymatgenTest):
         self.mgo_vac = Vacancy(self.mgo_uc, val, rad)
         self.mgo_vfe = VacancyFormationEnergy(self.mgo_vac)
 
-    # This test doesn't pass!
-    # def test_get_energy(self):
-    #    for i in range(len(self.mgo_vac.enumerate_defectsites())):
-    #        vfe = self.mgo_vfe.get_energy(i)
-    #        print(vfe)
-    #        self.assertIsInstance(vfe, float)
+        # This test doesn't pass!
+        # def test_get_energy(self):
+        #    for i in range(len(self.mgo_vac.enumerate_defectsites())):
+        #        vfe = self.mgo_vfe.get_energy(i)
+        #        print(vfe)
+        #        self.assertIsInstance(vfe, float)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -490,7 +500,6 @@ class RelaxedInsterstitialTest(unittest.TestCase):
 
 
 class StructureMotifInterstitialTest(PymatgenTest):
-
     def setUp(self):
         self.silicon = Structure(
             Lattice.from_lengths_and_angles(
@@ -508,10 +517,10 @@ class StructureMotifInterstitialTest(PymatgenTest):
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=False, site_properties=None)
         self.smi = StructureMotifInterstitial(self.silicon, "Si",
-                                              motif_types=["tet", "oct"],
+                                              motif_types=["tetrahedral", "octahedral"],
                                               op_threshs=[0.3, 0.5],
                                               dl=0.4, doverlap=1.0,
-                                              facmaxdl=1.01)
+                                              facmaxdl=1.51)
         self.diamond = Structure(
             Lattice([[2.189, 0, 1.264], [0.73, 2.064, 1.264],
                      [0, 0, 2.528]]), ["C0+", "C0+"], [[2.554, 1.806, 4.423],
@@ -547,13 +556,11 @@ class StructureMotifInterstitialTest(PymatgenTest):
 
     def test_all(self):
         self.assertIsInstance(self.smi, StructureMotifInterstitial)
-
         self.assertEqual(len(self.smi.enumerate_defectsites()), 1)
         self.assertIsInstance(self.smi.enumerate_defectsites()[0], PeriodicSite)
         self.assertEqual("Si",
                          self.smi.enumerate_defectsites()[0].species_string)
-
-        self.assertEqual("tet", self.smi.get_motif_type(0))
+        self.assertEqual("tetrahedral", self.smi.get_motif_type(0))
 
         elem_cn_dict = self.smi.get_coordinating_elements_cns(0)
         self.assertEqual(len(list(elem_cn_dict.keys())), 1)
@@ -607,6 +614,96 @@ class TopographyAnalyzerTest(unittest.TestCase):
                 else:
                     continue
             self.assertTrue(is_site_matched)
+
+
+@unittest.skipIf(not peak_local_max_found,
+                 "skimage.feature.peak_local_max module not present.")
+class ChgDenAnalyzerTest(unittest.TestCase):
+    def setUp(self):
+        # This is a CHGCAR_sum file with reduced grid size
+        chgcar_path = os.path.join(test_dir, "CHGCAR.FePO4")
+        chg_FePO4 = Chgcar.from_file(chgcar_path)
+        self.chgcar_path = chgcar_path
+        self.chg_FePO4 = chg_FePO4
+        self.ca_FePO4 = ChargeDensityAnalyzer(chg_FePO4)
+        self.s_LiFePO4 = Structure.from_file(
+            os.path.join(test_dir, "LiFePO4.cif"))
+
+    def test_get_local_extrema(self):
+        ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
+        threshold_frac = random.random()
+        threshold_abs_min = random.randrange(2, 14)
+        threshold_abs_max = random.randrange(27e2, 28e4)
+
+        # Minima test
+        full_list_min = self.ca_FePO4.get_local_extrema(
+            find_min=True, threshold_frac=1.0)
+        frac_list_min_frac = self.ca_FePO4.get_local_extrema(
+            find_min=True, threshold_frac=threshold_frac)
+        frac_list_min_abs = self.ca_FePO4.get_local_extrema(
+            find_min=True, threshold_abs=threshold_abs_min)
+
+        self.assertAlmostEqual(len(full_list_min) * threshold_frac,
+                               len(frac_list_min_frac), delta=1)
+
+        ca.get_local_extrema(find_min=True)
+        df_expected = ca.extrema_df[
+            ca.extrema_df["Charge Density"] <= threshold_abs_min]
+        self.assertEqual(len(frac_list_min_abs), len(df_expected))
+
+        # Maxima test
+        full_list_max = self.ca_FePO4.get_local_extrema(
+            find_min=False, threshold_frac=1.0)
+        frac_list_max = self.ca_FePO4.get_local_extrema(
+            find_min=False, threshold_frac=threshold_frac)
+        frac_list_max_abs = self.ca_FePO4.get_local_extrema(
+            find_min=False, threshold_abs=threshold_abs_max)
+
+        self.assertAlmostEqual(len(full_list_max) * threshold_frac,
+                               len(frac_list_max), delta=1)
+
+        # Local maxima should finds all center of atoms
+        self.assertEqual(len(self.ca_FePO4.structure), len(full_list_max))
+
+        ca.get_local_extrema(find_min=False)
+        df_expected = ca.extrema_df[
+            ca.extrema_df["Charge Density"] >= threshold_abs_max]
+        self.assertEqual(len(frac_list_max_abs), len(df_expected))
+
+    def test_remove_collisions(self):
+        ca = ChargeDensityAnalyzer(self.chg_FePO4)
+        ca.get_local_extrema(threshold_frac=0)
+        ca.remove_collisions()  # should not trigger error
+        self.assertEqual(len(ca.extrema_df), 0)
+
+        self.ca_FePO4.get_local_extrema(
+            find_min=False, threshold_frac=1.0)
+        self.ca_FePO4.remove_collisions(min_dist=0.5)
+        self.assertEqual(len(self.ca_FePO4.extrema_df), 0)
+
+    def test_cluster_nodes(self):
+        ca = ChargeDensityAnalyzer(self.chg_FePO4)
+        ca.get_local_extrema()
+        ca.cluster_nodes(tol=20)
+        self.assertEqual(len(ca.extrema_df), 1)
+
+    def test_get_structure_with_nodes(self):
+        s_FePO4 = self.ca_FePO4.get_structure_with_nodes(find_min=True)
+
+        sites_predicted = np.array(
+            [self.s_LiFePO4[i].frac_coords for i in range(len(self.s_LiFePO4))
+             if self.s_LiFePO4[i].species_string == "Li"])
+        sites_guess = np.array(
+            [s_FePO4[i].frac_coords for i in range(len(s_FePO4))
+             if s_FePO4[i].species_string == "X0+"])
+        distances = s_FePO4.lattice.get_all_distances(sites_predicted,
+                                                      sites_guess).flatten()
+        distances = [d for d in distances if d < 0.1]
+        self.assertEqual(len(distances), len(sites_predicted))
+
+    def test_from_file(self):
+        ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
+        assert isinstance(ca, ChargeDensityAnalyzer)
 
 
 if __name__ == "__main__":

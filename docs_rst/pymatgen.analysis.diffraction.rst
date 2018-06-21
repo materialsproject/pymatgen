@@ -12,6 +12,8 @@ Submodules
 
 .. toctree::
 
+   pymatgen.analysis.diffraction.core
+   pymatgen.analysis.diffraction.neutron
    pymatgen.analysis.diffraction.xrd
 
 Module contents

@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.3.23 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.6.11 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -67,6 +67,7 @@
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">monty.io</span> <span class="k">import</span> <span class="n">zopen</span>
 
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.inputs</span> <span class="k">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Outcar</span>
@@ -684,7 +685,7 @@
             <span class="k">if</span> <span class="n">gap</span> <span class="o">&lt;=</span> <span class="n">small_gap_multiply</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
                 <span class="n">reciprocal_density</span> <span class="o">=</span> <span class="n">reciprocal_density</span> <span class="o">*</span> <span class="n">small_gap_multiply</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">MPStaticSet</span><span class="p">(</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">structure</span><span class="o">=</span><span class="n">prev_structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
             <span class="n">prev_kpoints</span><span class="o">=</span><span class="n">prev_kpoints</span><span class="p">,</span>
             <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
@@ -821,7 +822,7 @@
             <span class="k">if</span> <span class="n">chgcars</span><span class="p">:</span>
                 <span class="n">files_to_transfer</span><span class="p">[</span><span class="s2">&quot;CHGCAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chgcars</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">MPHSEBSSet</span><span class="p">(</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">structure</span><span class="o">=</span><span class="n">prev_structure</span><span class="p">,</span>
             <span class="n">added_kpoints</span><span class="o">=</span><span class="n">added_kpoints</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
@@ -988,7 +989,7 @@
                 <span class="n">kpoints_line_density</span> <span class="o">=</span> <span class="n">kpoints_line_density</span> <span class="o">*</span> \
                                        <span class="n">small_gap_multiply</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">MPNonSCFSet</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">incar</span><span class="p">,</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">incar</span><span class="p">,</span>
                            <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span>
                            <span class="n">kpoints_line_density</span><span class="o">=</span><span class="n">kpoints_line_density</span><span class="p">,</span>
                            <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
@@ -1103,9 +1104,66 @@
             <span class="k">if</span> <span class="n">gap</span> <span class="o">&lt;=</span> <span class="n">small_gap_multiply</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
                 <span class="n">reciprocal_density</span> <span class="o">=</span> <span class="n">reciprocal_density</span> <span class="o">*</span> <span class="n">small_gap_multiply</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">MPSOCSet</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">incar</span><span class="p">,</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">incar</span><span class="p">,</span>
                         <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span>
                         <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="MPNMRSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MPNMRSet">[docs]</a><span class="k">class</span> <span class="nc">MPNMRSet</span><span class="p">(</span><span class="n">MPStaticSet</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;cs&quot;</span><span class="p">,</span> <span class="n">isotopes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">prev_incar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reciprocal_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init a MPNMRSet.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure to compute</span>
+<span class="sd">            mode (str): The NMR calculation to run</span>
+<span class="sd">                            &quot;cs&quot;: for Chemical Shift</span>
+<span class="sd">                            &quot;efg&quot; for Electric Field Gradient</span>
+<span class="sd">            isotopes (list): list of Isotopes for quadrupole moments</span>
+<span class="sd">            prev_incar (Incar): Incar file from previous run.</span>
+<span class="sd">            reciprocal_density (int): density of k-mesh by reciprocal</span>
+<span class="sd">                                    volume (defaults to 100)</span>
+<span class="sd">            \\*\\*kwargs: kwargs supported by MPStaticSet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span> <span class="o">=</span> <span class="n">isotopes</span> <span class="k">if</span> <span class="n">isotopes</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MPNMRSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
+            <span class="n">reciprocal_density</span><span class="o">=</span><span class="n">reciprocal_density</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">incar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">incar</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MPNMRSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">incar</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;cs&quot;</span><span class="p">:</span>
+            <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;LCHIMAG&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                          <span class="s2">&quot;EDIFF&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0e-10</span><span class="p">,</span>
+                          <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                          <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="s2">&quot;LNMR_SYM_RED&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                          <span class="s2">&quot;NELMIN&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                          <span class="s2">&quot;NSLPLINE&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                          <span class="s2">&quot;PREC&quot;</span><span class="p">:</span> <span class="s2">&quot;ACCURATE&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;efg&quot;</span><span class="p">:</span>
+
+            <span class="n">isotopes</span> <span class="o">=</span> <span class="p">{</span><span class="n">ist</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">ist</span> <span class="k">for</span> <span class="n">ist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span><span class="p">}</span>
+
+            <span class="n">quad_efg</span> <span class="o">=</span> <span class="p">[</span><span class="n">Specie</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">get_nmr_quadrupole_moment</span><span class="p">(</span><span class="n">isotopes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">]</span>
+
+            <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ALGO&quot;</span><span class="p">:</span> <span class="s2">&quot;FAST&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;EDIFF&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0e-10</span><span class="p">,</span>
+                          <span class="s2">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                          <span class="s2">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="s2">&quot;LEFG&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                          <span class="s2">&quot;QUAD_EFG&quot;</span><span class="p">:</span> <span class="n">quad_efg</span><span class="p">,</span>
+                          <span class="s2">&quot;NELMIN&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                          <span class="s2">&quot;PREC&quot;</span><span class="p">:</span> <span class="s2">&quot;ACCURATE&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})</span>
+        <span class="n">incar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+
+        <span class="k">return</span> <span class="n">incar</span></div>
 
 
 <div class="viewcode-block" id="MVLElasticSet"><a class="viewcode-back" href="../../../../pymatgen.io.vasp.sets.html#pymatgen.io.vasp.sets.MVLElasticSet">[docs]</a><span class="k">class</span> <span class="nc">MVLElasticSet</span><span class="p">(</span><span class="n">MPRelaxSet</span><span class="p">):</span>
@@ -1284,7 +1342,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">files_to_transfer</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">MVLGWSet</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">prev_incar</span><span class="o">=</span><span class="n">prev_incar</span><span class="p">,</span>
                         <span class="n">nbands</span><span class="o">=</span><span class="n">nbands</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
                         <span class="n">files_to_transfer</span><span class="o">=</span><span class="n">files_to_transfer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
@@ -1866,7 +1924,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1874,7 +1932,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
