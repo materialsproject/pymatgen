@@ -22,6 +22,7 @@ __date__ = "Apr 28, 2012"
 import warnings
 import copy
 from pymatgen.core.structure import Molecule
+from pymatgen.analysis.graphs import MoleculeGraph
 from monty.dev import requires
 
 try:
@@ -301,6 +302,19 @@ class BabelMolAdaptor(object):
         """
         mols = list(pb.readfile(str(file_format), str(filename)))
         return BabelMolAdaptor(mols[0].OBMol)
+
+    @staticmethod
+    def from_molecule_graph(mol):
+        """
+        Read a pymatgen MoleculeGraph object.
+        Args:
+            mol: pymatgen MoleculeGraph object.
+
+        Returns:
+            BabelMolAdaptor object
+        """
+        if isinstance(mol, MoleculeGraph):
+            return BabelMolAdaptor(mol.molecule)
 
     @staticmethod
     def from_string(string_data, file_format="xyz"):
