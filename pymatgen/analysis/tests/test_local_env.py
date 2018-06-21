@@ -56,6 +56,9 @@ class VoronoiNNTest(PymatgenTest):
     def setUp(self):
         self.s = self.get_structure('LiFePO4')
         self.nn = VoronoiNN(targets=[Element("O")])
+        self.s_sic = self.get_structure('Si')
+        self.s_sic["Si"] =  {'Si': 0.5, 'C': 0.5}
+        self.nn_sic = VoronoiNN()
 
     def test_get_voronoi_polyhedra(self):
         self.assertEqual(len(self.nn.get_voronoi_polyhedra(self.s, 0).items()), 8)
@@ -63,6 +66,8 @@ class VoronoiNNTest(PymatgenTest):
     def test_get_cn(self):
         self.assertAlmostEqual(self.nn.get_cn(
                 self.s, 0, use_weights=True), 5.809265748999465, 7)
+        self.assertAlmostEqual(self.nn_sic.get_cn(
+                self.s_sic, 0, use_weights=True), 4.5381161643940668, 7)
 
     def test_get_coordinated_sites(self):
         self.assertEqual(len(self.nn.get_nn(self.s, 0)), 8)
