@@ -51,6 +51,8 @@ __all__ = [
     "SigmaConvWork",
     "BseMdfWork",
     "PhononWork",
+    "BecWork",
+    "DteWork",
 ]
 
 

@@ -2,7 +2,7 @@ numpy==1.14.3
 pydispatcher==2.0.5
 sympy==1.1.1
 requests==2.18.4
-monty==1.0.2
+monty==1.0.3
 ruamel.yaml==0.15.37
 six==1.11.0
 scipy==1.1.0

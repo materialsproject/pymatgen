@@ -1091,7 +1091,10 @@ def solid_angle(center, coords):
             r_norm[j] * np.dot(r[0], r[i]) + \
             r_norm[i] * np.dot(r[0], r[j]) + \
             r_norm[0] * np.dot(r[i], r[j])
-        my_angle = np.arctan(tp / de)
+        if de == 0:
+            my_angle = 0.5 * pi if tp > 0 else -0.5 * pi
+        else:
+            my_angle = np.arctan(tp / de)
         angle += (my_angle if my_angle > 0 else my_angle + np.pi) * 2
 
     return angle

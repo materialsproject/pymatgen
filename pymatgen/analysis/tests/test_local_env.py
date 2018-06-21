@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import numpy as np
+from math import pi
 import unittest
 import os
 
@@ -16,7 +17,7 @@ from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
     BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
-    Critic2NN
+    Critic2NN, solid_angle
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
@@ -87,6 +88,7 @@ class VoronoiNNTest(PymatgenTest):
             for nn in self.nn.get_voronoi_polyhedra(self.s, n).values():
                 angle += nn['solid_angle']
             self.assertAlmostEqual(4 * np.pi, angle)
+        self.assertEqual(solid_angle([0,0,0], [[1,0,0],[-1,0,0],[0,1,0]]), pi)
 
     def test_nn_shell(self):
         # First, make a SC lattice. Make my math easier

@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2018.5.22 documentation</title>
+    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2018.6.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.22 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -699,6 +699,77 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.io.abinit.works.BecWork">
+<em class="property">class </em><code class="descname">BecWork</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BecWork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BecWork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.MergeDdb</span></code></p>
+<p>Work for the computation of the Born effective charges.</p>
+<p>This work consists of DDK tasks and phonon + electric field perturbation
+It provides the callback method (on_all_ok) that calls mrgddb to merge the
+partial DDB files produced by the work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.works.BecWork.from_scf_task">
+<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BecWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BecWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a BecWork from a ground-state task.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.works.BecWork.on_all_ok">
+<code class="descname">on_all_ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BecWork.on_all_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BecWork.on_all_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called when all the task reach S_OK
+Ir runs <cite>mrgddb</cite> in sequential on the local machine to produce
+the final DDB file in the outdir of the <cite>Work</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.works.DteWork">
+<em class="property">class </em><code class="descname">DteWork</code><span class="sig-paren">(</span><em>workdir=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#DteWork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.DteWork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.works.Work" title="pymatgen.io.abinit.works.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.Work</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.works.MergeDdb</span></code></p>
+<p>Work for the computation of the third derivative of the energy.</p>
+<p>This work consists of DDK tasks and electric field perturbation.
+It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen.io.abinit.works.DteWork.from_scf_task">
+<em class="property">classmethod </em><code class="descname">from_scf_task</code><span class="sig-paren">(</span><em>scf_task</em>, <em>ddk_tolerance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#DteWork.from_scf_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.DteWork.from_scf_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a DteWork from a ground-state task.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.abinit.works.DteWork.on_all_ok">
+<code class="descname">on_all_ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#DteWork.on_all_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.DteWork.on_all_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called when all the task reach S_OK
+Ir runs <cite>mrgddb</cite> in sequential on the local machine to produce
+the final DDB file in the outdir of the <cite>Work</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -739,13 +810,13 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.22 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -130,7 +130,7 @@ def contribute_dash(ctx):
 @task
 def update_doc(ctx):
     make_doc(ctx)
-    make_dash(ctx)
+    contribute_dash(ctx)
     ctx.run("git add .")
     ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")
