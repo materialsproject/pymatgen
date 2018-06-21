@@ -4,21 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-OpenBabel interface module, which opens up access to the hundreds of file
-formats supported by OpenBabel. Requires openbabel with python bindings to be
-installed. Please consult the
-`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
-"""
-
-
-__author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
-__date__ = "Apr 28, 2012"
-
 import warnings
 import copy
 from pymatgen.core.structure import Molecule
@@ -31,6 +16,20 @@ try:
 except:
     pb = None
     ob = None
+
+"""
+OpenBabel interface module, which opens up access to the hundreds of file
+formats supported by OpenBabel. Requires openbabel with python bindings to be
+installed. Please consult the
+`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
+"""
+
+__author__ = "Shyue Ping Ong, Qi Wang"
+__copyright__ = "Copyright 2012, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__date__ = "Apr 28, 2012"
 
 
 class BabelMolAdaptor(object):
@@ -59,8 +58,6 @@ class BabelMolAdaptor(object):
             # optimization. So we go through the indirect route of creating
             # an XYZ file and reading in that file.
             obmol = ob.OBMol()
-
-            obmol = ob.OBMol()
             obmol.BeginModify()
             for site in mol:
                 coords = [c for c in site.coords]
@@ -80,7 +77,6 @@ class BabelMolAdaptor(object):
             obmol.EndModify()
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
-
             self._obmol = mol
 
     @property
