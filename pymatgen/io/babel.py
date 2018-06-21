@@ -114,6 +114,32 @@ class BabelMolAdaptor(object):
         pbmol.localopt(forcefield=forcefield, steps=steps)
         self._obmol = pbmol.OBMol
 
+    def make3D(self, forcefield="mmff94", steps=50):
+        """
+        A wrapper to pybel's make3D method generate a 3D structure from a
+        2D or 0D structure.
+        The 3D structure is made very quickly using a combination of rules
+        (e.g. sp3 atoms should have four bonds arranged in a tetrahedron) and
+        ring templates (e.g. cyclohexane is shaped like a chair). Once 3D
+        coordinates are generated, hydrogens are added and a quick local
+        optimization is carried out as default.
+
+        The generated 3D structure can have clashes or have high energy
+        structures due to some strain. Please consider to use the conformer
+        search or geometry optimization methods to optimize the structure.
+
+        """
+        pbmol = pb.Molecule(self._obmol)
+        pbmol.make3D(forcefield=forcefield, steps=steps)
+        self._obmol = pbmol.OBMol
+
+    def add_hydrogen(self):
+        """
+        Add hydrogens (make all hydrogen explicit).
+
+        """
+        self._obmol.AddHydrogens()
+
     def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch",
                         forcefield="mmff94"):
         """
