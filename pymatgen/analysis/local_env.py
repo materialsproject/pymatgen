@@ -477,8 +477,14 @@ class NearNeighbors(object):
     @staticmethod
     def _get_image(frac_coords):
         """Private convenience method for get_nn_info,
-        gives lattice image from provided PeriodicSite."""
-        return np.floor(frac_coords)
+        gives lattice image from provided PeriodicSite.
+
+        Args:
+            frac_coords ([float]*3): Fraction coordinates
+        Returns:
+            ((int)*3) Lattice image
+        """
+        return tuple(map(int, np.floor(frac_coords)))
 
     @staticmethod
     def _get_original_site(structure, site):

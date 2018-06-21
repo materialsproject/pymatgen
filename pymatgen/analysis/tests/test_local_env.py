@@ -234,8 +234,8 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
             self.mos2, 0), 6)
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            self.assertTrue(list(image) in [[0, 0, 0], [0, 1, 0], [-1, 0, 0], \
-                    [0, 0, 0], [0, 1, 0], [-1, 0, 0]])
+            self.assertTrue(image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0),
+                                      (0, 0, 0), (0, 1, 0), (-1, 0, 0)])
 
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             self.diamond, 0), 4)
