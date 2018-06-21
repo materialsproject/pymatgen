@@ -470,15 +470,7 @@ class NearNeighbors(object):
     def _get_image(frac_coords):
         """Private convenience method for get_nn_info,
         gives lattice image from provided PeriodicSite."""
-        images = [0,0,0]
-        for j, f in enumerate(frac_coords):
-            if f >= 0:
-                images[j] = int(f)
-            else:
-                images[j] = int(f - 1)
-                if f % 1 == 0:
-                    images[j] += 1
-        return images
+        return np.floor(frac_coords)
 
     @staticmethod
     def _get_original_site(structure, site):
@@ -541,7 +533,6 @@ class VoronoiNN(NearNeighbors):
                 - face_dist - Distance between site n and the facet
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
-
         """
 
         # Assemble the list of neighbors used in the tessellation
@@ -561,6 +552,54 @@ class VoronoiNN(NearNeighbors):
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
+
+    def get_all_voronoi_polyhedra(self, structure):
+        """Get the Voronoi polyhedra for all site in a simulation cell
+
+        Args:
+            structure (Structure): Structure to be evaluated
+        Returns:
+            A dict of sites sharing a common Voronoi facet with the site
+            n mapped to a directory containing statistics about the facet:
+                - solid_angle - Solid angle subtended by face
+                - angle_normalized - Solid angle normalized such that the
+                    faces with the largest
+                - area - Area of the facet
+                - face_dist - Distance between site n and the facet
+                - volume - Volume of Voronoi cell for this face
+                - n_verts - Number of vertices on the facet
+        """
+
+        # Assemble the list of neighbors used in the tessellation
+        if self.targets is None:
+            targets = structure.composition.elements
+        else:
+            targets = self.targets
+
+        # Populate an initial list of sites and their indices (id + supercell)
+        sites = list(structure)
+        indices = [(i, 0, 0, 0) for i in range(len(sites))]
+
+        # Get all neighbors within a certain cutoff
+        #   Record both the list of these neighbors, and the site indices
+        all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True)
+        for neighs in all_neighs:
+            sites.extend([x[0] for x in neighs])
+            indices.extend([(x[2],) + tuple(NearNeighbors._get_image(x[0].frac_coords))
+                            for x in neighs])
+
+        # Get the non-duplicates (using the site indices for performance)
+        _, uniq_indices = np.unique(indices, return_index=True, axis=0)
+        sites = np.array(sites)[sorted(uniq_indices)]
+        del indices  # Save memory (tessellations can be costly)
+
+        # Run the tessellation
+        qvoronoi_input = [s.coords for s in sites]
+        voro = Voronoi(qvoronoi_input)
+
+        # Get the information for each neighbor
+        return [self._extract_cell_info(structure, i, sites, targets, voro)
+                for i in range(len(structure))]
 
     def _extract_cell_info(self, structure, site_idx, sites, targets, voro):
         """Get the information about a certain atom from the results of a tessellation
@@ -669,16 +708,37 @@ class VoronoiNN(NearNeighbors):
                 and its weight.
         """
 
+        # Run the tessellation
+        nns = self.get_voronoi_polyhedra(structure, n)
+
+        # Extract the NN info
+        return self._extract_nn_info(structure, nns)
+
+    def get_all_nn_info(self, structure):
+        if len(structure) > 2:
+            all_voro_cells = self.get_all_voronoi_polyhedra(structure)
+            return [self._extract_nn_info(structure, cell) for cell in all_voro_cells]
+        else:
+            return super(VoronoiNN, self).get_all_nn_info(structure)
+
+    def _extract_nn_info(self, structure, nns):
+        """Given Voronoi NNs, extract the NN info in the form needed by NearestNeighbors
+
+        Args:
+            structure (Structure): Structure being evaluated
+            nns ([dicts]): Nearest neighbor information for a structure
+        Returns:
+            (list of tuples (Site, array, float)): See nn_info
+        """
+
+        # Get the target information
         if self.targets is None:
             targets = structure.composition.elements
         else:
             targets = self.targets
+
+        # Extract the NN info
         siw = []
-
-        # Run the tessellation
-        nns = self.get_voronoi_polyhedra(structure, n)
-
-        # Determine the maximum weight
         max_weight = max(nn[self.weight] for nn in nns.values())
         for nstats in nns.values():
             site = nstats['site']

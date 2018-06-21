@@ -125,6 +125,33 @@ class VoronoiNNTest(PymatgenTest):
                                np.sum([x['weight'] for x in nns if x['site_index'] == 0]),
                                places=3)
 
+    def test_all_at_once(self):
+        # Get all of the sites for LiFePO4
+        all_sites = self.nn.get_all_voronoi_polyhedra(self.s)
+
+        # Make sure they are the same as the single-atom ones
+        for i, site in enumerate(all_sites):
+            # Compute the tessellation using only one site
+            by_one = self.nn.get_voronoi_polyhedra(self.s, i)
+
+            # Match the coordinates the of the neighbors, as site matching does not seem to work?
+            all_coords = np.sort([x['site'].coords for x in site.values()], axis=0)
+            by_one_coords = np.sort([x['site'].coords for x in by_one.values()], axis=0)
+
+            self.assertArrayAlmostEqual(all_coords, by_one_coords)
+
+        # Test the nn_info operation
+        all_nn_info = self.nn.get_all_nn_info(self.s)
+        for i, info in enumerate(all_nn_info):
+            # Compute using the by-one method
+            by_one = self.nn.get_nn_info(self.s, i)
+
+            # Get the weights
+            all_weights = sorted([x['weight'] for x in info])
+            by_one_weights = sorted([x['weight'] for x in by_one])
+
+            self.assertArrayAlmostEqual(all_weights, by_one_weights)
+
     def tearDown(self):
         del self.s
         del self.nn
@@ -202,7 +229,7 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
             self.mos2, 0), 6)
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            self.assertTrue(image in [[0, 0, 0], [0, 1, 0], [-1, 0, 0], \
+            self.assertTrue(list(image) in [[0, 0, 0], [0, 1, 0], [-1, 0, 0], \
                     [0, 0, 0], [0, 1, 0], [-1, 0, 0]])
 
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
