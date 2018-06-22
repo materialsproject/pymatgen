@@ -123,8 +123,12 @@ class BabelMolAdaptor(object):
 
         The generated 3D structure can have clashes or have high energy
         structures due to some strain. Please consider to use the conformer
-        search or geometry optimization methods to optimize the structure.
+        search or geometry optimization to further optimize the structure.
 
+        Args:
+            forcefield: Default is mmff94. Options are 'gaff', 'ghemical',
+                'mmff94', 'mmff94s', and 'uff'.
+            steps: Default is 50.
         """
         pbmol = pb.Molecule(self._obmol)
         pbmol.make3D(forcefield=forcefield, steps=steps)
@@ -133,7 +137,6 @@ class BabelMolAdaptor(object):
     def add_hydrogen(self):
         """
         Add hydrogens (make all hydrogen explicit).
-
         """
         self._obmol.AddHydrogens()
 
@@ -144,14 +147,20 @@ class BabelMolAdaptor(object):
         If the input molecule is not 3D, make3d will be called (generate 3D
         structure, add hydrogen, a quick localopt). All hydrogen atoms need
         to be made explicit.
+
         Args:
+            rotor_args: pass args to Rotor Search in openbabel.
+                for "WeightedRotorSearch": (conformers, geomSteps,
+                sampleRingBonds-default False)
+                for "SystematicRotorSearch": (geomSteps-default 2500,
+                sampleRingBonds-default False)
+                for "RandomRotorSearch": (conformers, geomSteps-default 2500,
+                sampleRingBonds-default False)
             algo (str): Default is "WeightedRotorSearch". Options are
                 "SystematicRotorSearch", "RandomRotorSearch", and
                 "WeightedRotorSearch".
             forcefield (str): Default is mmff94. Options are 'gaff', 'ghemical',
                 'mmff94', 'mmff94s', and 'uff'.
-            rotor_args: pass args to the Rotor Search class.
-
         """
         if self._obmol.GetDimension() != 3:
             self.make3d()
@@ -192,12 +201,11 @@ class BabelMolAdaptor(object):
 
         Warning from openbabel docs:
         For many applications where 100s if not 1000s of molecules need to be
-        processed, gen3d is rather SLOW.
-        Sometimes this function will cause a segmentation fault.
+        processed, gen3d is rather SLOW. Sometimes this function can cause a
+        segmentation fault.
         A future version of Open Babel will provide options for slow/medium/fast
         3D structure generation which will involve different compromises
         between speed and finding the global energy minimum.
-
         """
         gen3d = ob.OBOp.FindType("Gen3D")
         gen3d.Do(self._obmol)
@@ -261,9 +269,6 @@ class BabelMolAdaptor(object):
             conformer = copy.deepcopy(BabelMolAdaptor(self._obmol).pymatgen_mol)
             conformers.append(conformer)
         self._obmol.SetConformer(0)
-        # conformers = pb.ob.toConformerData(
-        #     self._obmol.GetData(pb.ob.ConformerData))
-        # energies = conformers.GetEnergies()
         return conformers
 
     @property
@@ -302,7 +307,8 @@ class BabelMolAdaptor(object):
     @staticmethod
     def from_molecule_graph(mol):
         """
-        Read a pymatgen MoleculeGraph object.
+        Read a molecule from a pymatgen MoleculeGraph object.
+
         Args:
             mol: pymatgen MoleculeGraph object.
 
