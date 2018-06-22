@@ -173,7 +173,6 @@ class BabelMolAdaptor(object):
                           "in openbabel. The forcefield will be reset as "
                           "default 'mmff94' for now.".format(forcefield))
             ff = ob.OBForceField_FindType("mmff94")
-        assert (ff.Setup(self._obmol))
 
         try:
             rotor_search = getattr(ff, algo)
@@ -244,7 +243,6 @@ class BabelMolAdaptor(object):
             print("Could not find forcefield {} in openbabel, the forcefield "
                   "will be reset as default 'mmff94'".format(forcefield))
             ff = ob.OBForceField_FindType("mmff94")
-        assert (ff.Setup(self._obmol))
 
         if freeze_atoms:
             print('{} atoms will be freezed'.format(len(freeze_atoms)))
