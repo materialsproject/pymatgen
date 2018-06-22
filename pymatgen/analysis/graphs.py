@@ -154,7 +154,7 @@ class StructureGraph(MSONable):
                                              edge_weight_name="weight",
                                              edge_weight_units="")
 
-        for neighbors in strategy.get_all_nn_info(structure):
+        for n, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
 
                 # local_env will always try to add two edges

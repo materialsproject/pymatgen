@@ -672,8 +672,7 @@ class VoronoiNN(NearNeighbors):
         all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True)
         for neighs in all_neighs:
             sites.extend([x[0] for x in neighs])
-            indices.extend([(x[2],) + tuple(NearNeighbors._get_image(x[0].frac_coords))
-                            for x in neighs])
+            indices.extend([(x[2],) + NearNeighbors._get_image(x[0].frac_coords) for x in neighs])
 
         # Get the non-duplicates (using the site indices for performance)
         _, uniq_indices = np.unique(indices, return_index=True, axis=0)
