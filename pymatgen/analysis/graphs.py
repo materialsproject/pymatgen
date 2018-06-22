@@ -1136,12 +1136,12 @@ class MoleculeGraph(MSONable):
         :param molecule: Molecule object
         :param strategy: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
-        :return:
+        :return: mg, a MoleculeGraph
         """
 
         mg = MoleculeGraph.with_empty_graph(molecule, name="bonds",
-                                             edge_weight_name="weight",
-                                             edge_weight_units="")
+                                            edge_weight_name="weight",
+                                            edge_weight_units="")
 
         # NearNeighbor classes only (generally) work with structures
         # molecules have to be boxed first
@@ -1172,6 +1172,65 @@ class MoleculeGraph(MSONable):
                             warn_duplicates=False)
 
         return mg
+
+    @staticmethod
+    def with_weight_and_order(molecule, weight_strat, order_strat):
+        """
+        Constructor for MoleculeGraph, using two strategies from :Class
+        `pymatgen.analysis.local_env`, one for bond weights, and one for
+        bond orders.
+
+        Note: this function will only add edges that appear in the results of
+        both strategies
+
+        :param molecule: Molecule object
+        :param weight_strat: an instance of a
+            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+        :param order_strat: an instance of a
+            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+        :return: mg, a MoleculeGraph
+        """
+
+        mg = MoleculeGraph.with_empty_graph(molecule, name="bonds",
+                                            edge_weight_name="weight",
+                                            edge_weight_units="")
+
+        # NearNeighbor classes only (generally) work with structures
+        # molecules have to be boxed first
+        coords = molecule.cart_coords
+
+        a = max(coords[:, 0]) - min(coords[:, 0]) + 100
+        b = max(coords[:, 1]) - min(coords[:, 1]) + 100
+        c = max(coords[:, 2]) - min(coords[:, 2]) + 100
+
+        molecule = molecule.get_boxed_structure(a, b, c, no_cross=True)
+
+        for n in range(len(molecule)):
+            neighbors_weight = weight_strat.get_nn_info(molecule, n)
+            neighbors_order = order_strat.get_nn_info(molecule, n)
+
+            for nw in neighbors_weight:
+                try:
+                    no = [x for x in neighbors_order
+                          if x["site_index"] == nw["site_index"]][0]
+                except IndexError:
+                    no = None
+
+                # all bonds in molecules should not cross
+                # (artificial) periodic boundaries
+                if not np.array_equal(nw['image'], [0, 0, 0]):
+                    continue
+
+                # local_env will always try to add two edges
+                # for any one bond, one from site u to site v
+                # and another form site v to site u: this is
+                # harmless, so warn_duplicates=False
+                if no:
+                    mg.add_edge(from_index=n,
+                                to_index=nw["site_index"],
+                                weight=nw["weight"],
+                                warn_duplicates=False,
+                                edge_properties={"order": no["weight"]})
 
     @property
     def name(self):

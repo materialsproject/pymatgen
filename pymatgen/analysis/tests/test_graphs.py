@@ -374,6 +374,9 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.resetwarnings()
+        del self.ethylene
+        del self.butadiene
+        del self.cyclohexene
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")

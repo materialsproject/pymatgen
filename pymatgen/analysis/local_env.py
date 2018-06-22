@@ -34,11 +34,16 @@ __date__ = "August 17, 2017"
 from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs
 import numpy as np
 
+import openbabel as ob
+import pybel as pb
+
 from bisect import bisect_left
 from scipy.spatial import Voronoi
+
 from pymatgen import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
+from pymatgen.io.babel import BabelMolAdaptor
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
@@ -919,6 +924,59 @@ class MinimumDistanceNN(NearNeighbors):
                             'image': self._get_image(s.frac_coords),
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
+        return siw
+
+
+class OpenBabelNN(NearNeighbors):
+    """
+    Determine near-neighbor sites and bond orders using OpenBabel API.
+
+    Args:
+        order (bool): True if bond order should be returned as a weight, False
+        if bond length should be used as a weight.
+
+    """
+
+    def __init__(self, order=True):
+        self.order = order
+
+    def get_nn_info(self, molecule, n):
+        """
+        Get all near-neighbor sites and weights (orders) of bonds for a given
+        atom.
+
+        :param molecule: input Molecule.
+        :param n: index of site for which to determine near neighbors.
+        :return: [dict] representing a neighboring site and the type of
+        bond present between site n and the neighboring site.
+        """
+
+        obmol = BabelMolAdaptor(molecule).openbabel_mol
+
+        siw = []
+
+        # Get only the atom of interest
+        site_atom = [a for i, a in enumerate(ob.OBMolAtomDFSIter(obmol))
+                     if [a.GetX(), a.GetY(), a.GetZ()] == list(molecule[n].coords)][0]
+
+        for neighbor in ob.OBAtomAtomIter(site_atom):
+            coords = [neighbor.GetX(), neighbor.GetY(), neighbor.GetZ()]
+            site = [a for a in molecule if list(a.coords) == coords][0]
+            index = molecule.index(site)
+
+            bond = site_atom.GetBond(neighbor)
+
+            if self.order:
+                obmol.PerceiveBondOrders()
+                weight = bond.GetBondOrder()
+            else:
+                weight = bond.GetLength()
+
+            siw.append({"site": site,
+                        "image": [0, 0, 0],
+                        "weight": weight,
+                        "site_index": index})
+
         return siw
 
 
