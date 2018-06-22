@@ -1306,7 +1306,8 @@ class LocalStructOrderParams(object):
         "sq_plan_max", "pent_plan", "pent_plan_max", "sq", "tet", "tet_max", "tri_pyr", \
         "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
         "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
-        "T", "cuboct", "cuboct_max", "see_saw_rect", "bcc", "q2", "q4", "q6", "oct_max", "hex_plan_max")
+        "T", "cuboct", "cuboct_max", "see_saw_rect", "bcc", "q2", "q4", "q6", "oct_max", \
+        "hex_plan_max", "sq_face_cap_trig_pris")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -1441,7 +1442,8 @@ class LocalStructOrderParams(object):
                  "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr",
                  "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max",
                  "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max",
-                 "bent", "see_saw_rect", "hex_plan_max"]):
+                 "bent", "see_saw_rect", "hex_plan_max",
+                 "sq_face_cap_trig_pris"]):
             self._computerijs = self._geomops = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
@@ -2182,6 +2184,12 @@ class LocalStructOrderParams(object):
                                     qsptheta[i][j][kc] += (self._params[i]['w_SPP'] *
                                                        exp(-0.5 * tmp * tmp))
                                     norms[i][j][kc] += self._params[i]['w_SPP']
+                            elif t == "sq_face_cap_trig_pris":
+                                if thetak < self._params[i]['TA3']:
+                                    tmp = self._params[i]['IGW_TA1'] * (
+                                        thetak * ipi - self._params[i]['TA1'])
+                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                    norms[i][j][kc] += 1
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -2320,13 +2328,26 @@ class LocalStructOrderParams(object):
                                                     qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
                                                             exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
+                                        elif t == "sq_face_cap_trig_pris":
+                                            if thetak < self._params[i]['TA3']:
+                                                if thetam < self._params[i]['TA3']:
+                                                    tmp = cos(self._params[i]['fac_AA1'] * \
+                                                        phi) ** self._params[i]['exp_cos_AA1']
+                                                    tmp2 = self._params[i]['IGW_TA1'] * (
+                                                        thetam * ipi - self._params[i]['TA1'])
+                                                else:
+                                                    tmp = cos(self._params[i]['fac_AA2'] * \
+                                                        (phi + self._params[i]['shift_AA2'])) ** \
+                                                        self._params[i]['exp_cos_AA2']
+                                                    tmp2 = self._params[i]['IGW_TA2'] * (
+                                                        thetam * ipi - self._params[i]['TA2'])
+                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                norms[i][j][kc] += 1
+
                         kc += 1
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
-                #if t == "pent_plan":
-                #    ops[i] = ops[i] / sum(norms[i]) \
-                #        if sum(norms[i]) > 1.0e-12 else None
                 if t in ["tri_plan", "tet", "bent", "sq_plan",
                            "oct", "oct_legacy", "cuboct", "pent_plan"]:
                     ops[i] = tmp_norm = 0.0
@@ -2337,7 +2358,8 @@ class LocalStructOrderParams(object):
                 elif t in ["T", "tri_pyr", "see_saw_rect", "sq_pyr", "tri_bipyr",
                         "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
                         "hex_bipyr", "oct_max", "tri_plan_max", "tet_max",
-                        "sq_plan_max", "pent_plan_max", "cuboct_max", "hex_plan_max"]:
+                        "sq_plan_max", "pent_plan_max", "cuboct_max", "hex_plan_max",
+                        "sq_face_cap_trig_pris"]:
                     ops[i] = None
                     if nneigh > 1:
                         for j in range(nneigh):
@@ -2346,7 +2368,6 @@ class LocalStructOrderParams(object):
                                     if norms[i][j][k] > 1.0e-12 else 0.0
                             ops[i] = max(qsptheta[i][j]) if j == 0 \
                                     else max(ops[i], max(qsptheta[i][j]))
-                    #ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
                 elif t == "bcc":
                     ops[i] = 0.0
                     for j in range(nneigh):
