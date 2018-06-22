@@ -13,6 +13,8 @@ import os
 import json
 from copy import deepcopy
 
+from monty.dev import deprecated
+
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core.sites import PeriodicSite
 
@@ -844,16 +846,66 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
-class VoronoiNN_modified(VoronoiNN):
+class VoronoiNNFiltered(VoronoiNN):
     """
-    Modified VoronoiNN that only considers neighbors
-    with at least 50% weight of max(weight).
+    Modified VoronoiNN that only considers neighbors with a certain fraction of the maximum weight
     """
 
-    def get_nn_info(self, structure, n):
-        result = super(VoronoiNN_modified, self).get_nn_info(structure, n)
+    def __init__(self, tol=0, targets=None, cutoff=10.0,
+                 allow_pathological=False, weight='solid_angle',
+                 extra_nn_info=True, min_weight_fraction=0.5):
+        """
+        Args:
+            tol (float): tolerance parameter for near-neighbor finding
+                (default: 0).
+            targets (Element or list of Elements): target element(s).
+            cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+                atoms. Defaults to 10.0.
+            allow_pathological (bool): whether to allow infinite vertices in
+                determination of Voronoi coordination.
+            weight (string) - Statistic used to weigh neighbors (see the statistics
+                available in get_voronoi_polyhedra)
+            extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
+            min_weight_fraction (float) - Minimum fraction of the maximum for a neighbor to
+                be included in the neighbor list
+        """
+        super(VoronoiNNFiltered, self).__init__(tol, targets, cutoff, allow_pathological,
+                                                weight, extra_nn_info)
+        self.min_weight_fraction = min_weight_fraction
+
+    def _extract_nn_info(self, structure, nns):
+        result = super(VoronoiNNFiltered, self)._extract_nn_info(structure, nns)
+
+        # Remove edges with weights smaller than the cutoff
         max_weight = max(i['weight'] for i in result)
-        return [i for i in result if i['weight'] > 0.5 * max_weight]
+        return [i for i in result if i['weight'] > self.min_weight_fraction * max_weight]
+
+
+@deprecated(replacement=VoronoiNNFiltered,
+            message='Use VoronoiNNFiltered instead, which has greater flexibility')
+class VoronoiNN_modified(VoronoiNNFiltered):
+    """
+    Modified VoronoiNN that only considers neighbors with more than 50% of the maximum weight
+    """
+
+    def __init__(self, tol=0, targets=None, cutoff=10.0,
+                 allow_pathological=False, weight='solid_angle',
+                 extra_nn_info=True):
+        """
+        Args:
+            tol (float): tolerance parameter for near-neighbor finding
+                (default: 0).
+            targets (Element or list of Elements): target element(s).
+            cutoff (float): cutoff radius in Angstrom to look for near-neighbor
+                atoms. Defaults to 10.0.
+            allow_pathological (bool): whether to allow infinite vertices in
+                determination of Voronoi coordination.
+            weight (string) - Statistic used to weigh neighbors (see the statistics
+                available in get_voronoi_polyhedra)
+            extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
+        """
+        super(VoronoiNN_modified, self).__init__(tol, targets, cutoff, allow_pathological,
+                                                 weight, extra_nn_info, 0.5)
 
 
 class JMolNN(NearNeighbors):

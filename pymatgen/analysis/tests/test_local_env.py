@@ -12,12 +12,11 @@ import os
 from monty.os.path import which
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-    VoronoiNN, VoronoiNN_modified, JMolNN, \
-    MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
+    VoronoiNN, JMolNN, MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
     BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
-    Critic2NN, solid_angle
+    Critic2NN, solid_angle, VoronoiNNFiltered
 from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
@@ -162,6 +161,35 @@ class VoronoiNNTest(PymatgenTest):
         del self.nn
 
 
+class VoronoiNNFilteredTest(PymatgenTest):
+
+    def test_bcc(self):
+        nn = VoronoiNNFiltered(weight='area')
+
+        # Make a bcc crystal
+        bcc = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu', 'Cu'],
+                        [[0, 0, 0], [0.5, 0.5, 0.5]], coords_are_cartesian=False)
+
+        # Compute the weight of the little face
+        big_face_area = np.sqrt(3) * 3 / 2 * (2 / 4 / 4)
+        small_face_area = 0.125
+        little_weight = small_face_area / big_face_area
+
+        # Run one test where you get the small neighbors
+        nn.min_weight_fraction = little_weight * 0.99
+        nns = nn.get_nn_info(bcc, 0)
+        self.assertEqual(14, len(nns))
+
+        # Run a second test where we screen out little faces
+        nn.min_weight_fraction = little_weight * 1.01
+        nns = nn.get_nn_info(bcc, 0)
+        self.assertEqual(8, len(nns))
+
+        # Make sure it works for the `get_all` operation
+        all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
+        self.assertEqual([8,]*16, [len(x) for x in all_nns])
+
+
 class JMolNNTest(PymatgenTest):
 
     def setUp(self):
@@ -279,11 +307,11 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
             self.cscl, 0), 14)
 
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNNFiltered().get_cn(
             self.diamond, 0), 4)
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNNFiltered().get_cn(
             self.nacl, 0), 6)
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNNFiltered().get_cn(
             self.cscl, 0), 8)
 
     def test_get_local_order_params(self):
