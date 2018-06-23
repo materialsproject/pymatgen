@@ -834,11 +834,8 @@ class VoronoiNN(NearNeighbors):
         return self._extract_nn_info(structure, nns)
 
     def get_all_nn_info(self, structure):
-        if len(structure) > 2:
-            all_voro_cells = self.get_all_voronoi_polyhedra(structure)
-            return [self._extract_nn_info(structure, cell) for cell in all_voro_cells]
-        else:
-            return super(VoronoiNN, self).get_all_nn_info(structure)
+        all_voro_cells = self.get_all_voronoi_polyhedra(structure)
+        return [self._extract_nn_info(structure, cell) for cell in all_voro_cells]
 
     def _extract_nn_info(self, structure, nns):
         """Given Voronoi NNs, extract the NN info in the form needed by NearestNeighbors
