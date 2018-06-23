@@ -687,6 +687,38 @@ class VoronoiNN(NearNeighbors):
         return [self._extract_cell_info(structure, i, sites, targets, voro)
                 for i in range(len(structure))]
 
+    def _get_elements(self, site):
+        """
+        Get the list of elements for a Site
+
+        Args:
+             site (Site): Site to assess
+        Returns:
+            [Element]: List of elements
+        """
+        try:
+            if isinstance(site.specie, Element):
+                return [site.specie]
+            return [Element(site.specie)]
+        except:
+            return site.species_and_occu.elements
+
+    def _is_in_targets(self, site, targets):
+        """
+        Test whether a site contains elements in the target list
+
+        Args:
+            site (Site): Site to assess
+            targets ([Element]) List of elements
+        Returns:
+             (boolean) Whether this site contains a certain list of elements
+        """
+        elems = self._get_elements(site)
+        for elem in elems:
+            if elem not in targets:
+                return False
+        return True
+
     def _extract_cell_info(self, structure, site_idx, sites, targets, voro):
         """Get the information about a certain atom from the results of a tessellation
 
@@ -829,7 +861,7 @@ class VoronoiNN(NearNeighbors):
         for nstats in nns.values():
             site = nstats['site']
             if nstats[self.weight] > self.tol * max_weight \
-                    and site.specie in targets:
+                    and self._is_in_targets(site, targets):
                 nn_info = {'site': site,
                            'image': self._get_image(site.frac_coords),
                            'weight': nstats[self.weight] / max_weight,
