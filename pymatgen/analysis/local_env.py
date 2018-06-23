@@ -575,7 +575,8 @@ class VoronoiNN(NearNeighbors):
     structure.
 
     Args:
-        tol (float): tolerance parameter for near-neighbor finding
+        tol (float): tolerance parameter for near-neighbor finding. Faces that are smaller
+            than `tol` fraction of the largest face are not included in the tessellation.
             (default: 0).
         targets (Element or list of Elements): target element(s).
         cutoff (float): cutoff radius in Angstrom to look for near-neighbor
@@ -877,55 +878,18 @@ class VoronoiNN(NearNeighbors):
         return siw
 
 
-class VoronoiNNFiltered(VoronoiNN):
-    """
-    Modified VoronoiNN that only considers neighbors with a certain fraction of the maximum weight
-    """
-
-    def __init__(self, tol=0, targets=None, cutoff=10.0,
-                 allow_pathological=False, weight='solid_angle',
-                 extra_nn_info=True, min_weight_fraction=0.5):
-        """
-        Args:
-            tol (float): tolerance parameter for near-neighbor finding
-                (default: 0).
-            targets (Element or list of Elements): target element(s).
-            cutoff (float): cutoff radius in Angstrom to look for near-neighbor
-                atoms. Defaults to 10.0.
-            allow_pathological (bool): whether to allow infinite vertices in
-                determination of Voronoi coordination.
-            weight (string) - Statistic used to weigh neighbors (see the statistics
-                available in get_voronoi_polyhedra)
-            extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
-            min_weight_fraction (float) - Minimum fraction of the maximum for a neighbor to
-                be included in the neighbor list
-        """
-        super(VoronoiNNFiltered, self).__init__(tol, targets, cutoff, allow_pathological,
-                                                weight, extra_nn_info)
-        self.min_weight_fraction = min_weight_fraction
-
-    def _extract_nn_info(self, structure, nns):
-        result = super(VoronoiNNFiltered, self)._extract_nn_info(structure, nns)
-
-        # Remove edges with weights smaller than the cutoff
-        max_weight = max(i['weight'] for i in result)
-        return [i for i in result if i['weight'] > self.min_weight_fraction * max_weight]
-
-
-@deprecated(replacement=VoronoiNNFiltered,
-            message='Use VoronoiNNFiltered instead, which has greater flexibility')
-class VoronoiNN_modified(VoronoiNNFiltered):
+@deprecated(replacement=VoronoiNN,
+            message='Use VoronoiNN instead, and set "tol" to 0.5')
+class VoronoiNN_modified(VoronoiNN):
     """
     Modified VoronoiNN that only considers neighbors with more than 50% of the maximum weight
     """
 
-    def __init__(self, tol=0, targets=None, cutoff=10.0,
+    def __init__(self, targets=None, cutoff=10.0,
                  allow_pathological=False, weight='solid_angle',
                  extra_nn_info=True):
         """
         Args:
-            tol (float): tolerance parameter for near-neighbor finding
-                (default: 0).
             targets (Element or list of Elements): target element(s).
             cutoff (float): cutoff radius in Angstrom to look for near-neighbor
                 atoms. Defaults to 10.0.
@@ -935,8 +899,8 @@ class VoronoiNN_modified(VoronoiNNFiltered):
                 available in get_voronoi_polyhedra)
             extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
         """
-        super(VoronoiNN_modified, self).__init__(tol, targets, cutoff, allow_pathological,
-                                                 weight, extra_nn_info, 0.5)
+        super(VoronoiNN_modified, self).__init__(0.5, targets, cutoff, allow_pathological,
+                                                 weight, extra_nn_info)
 
 
 class JMolNN(NearNeighbors):
