@@ -86,7 +86,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         adaptor.localopt()
         optmol = adaptor.pymatgen_mol
         for site in optmol[1:]:
-            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
+            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_make3d(self):
         mol_0d = pb.readstring("smi", "CCCC").OBMol
@@ -109,7 +109,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         adaptor.rotor_conformer(*rotor_args, algo="WeightedRotorSearch")
         optmol = adaptor.pymatgen_mol
         for site in optmol[1:]:
-            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
+            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_rotor_search_srs(self):
         mol = copy.deepcopy(self.mol)
@@ -118,7 +118,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         adaptor.rotor_conformer(200, algo="SystematicRotorSearch")
         optmol = adaptor.pymatgen_mol
         for site in optmol[1:]:
-            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
+            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_rotor_search_rrs(self):
         mol = copy.deepcopy(self.mol)
@@ -127,7 +127,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         adaptor.rotor_conformer(250, 50, algo="RandomRotorSearch")
         optmol = adaptor.pymatgen_mol
         for site in optmol[1:]:
-            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
+            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 1)
 
     def test_confab_conformers(self):
         mol = pb.readstring("smi", "CCCC").OBMol
