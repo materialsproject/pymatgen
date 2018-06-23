@@ -31,7 +31,7 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs
+from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs, atan2
 import numpy as np
 
 from bisect import bisect_left
@@ -1418,6 +1418,7 @@ class LocalStructOrderParams(object):
                                  t + ")!")
         self._types = tuple(types)
 
+        self._comp_azi = False
         self._params = []
         for i, t in enumerate(self._types):
             d = deepcopy(default_op_params[t]) if default_op_params[t] is not None \
@@ -1445,6 +1446,8 @@ class LocalStructOrderParams(object):
                  "bent", "see_saw_rect", "hex_plan_max",
                  "sq_face_cap_trig_pris"]):
             self._computerijs = self._geomops = True
+        if "sq_face_cap_trig_pris" in self._types:
+            self._comp_azi = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
         if not set(self._types).isdisjoint(["q2", "q4", "q6"]):
@@ -2128,6 +2131,9 @@ class LocalStructOrderParams(object):
                         else:
                             xaxis = xaxistmp / np.linalg.norm(xaxistmp)
                             flag_xaxis = False
+                        if self._comp_azi:
+                            yaxistmp = np.cross(zaxis, xaxis)
+                            yaxis = yaxistmp / np.linalg.norm(yaxistmp)
 
                         # Contributions of j-i-k angles, where i represents the
                         # central atom and j and k two of the neighbors.
@@ -2206,7 +2212,11 @@ class LocalStructOrderParams(object):
                                         -1.0,
                                         min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
-
+                                    if self._comp_azi:
+                                        phi2 = atan2(
+                                            np.dot(xtwoaxis, yaxis),
+                                            np.dot(xtwoaxis, xaxis))
+                                        #print('{} {}'.format(180*phi/pi, 180*phi2/pi))
                                 # South pole contributions of m.
                                 if t in ["tri_bipyr", "sq_bipyr", "pent_bipyr",
                                          "hex_bipyr", "oct_max", "sq_plan_max",
@@ -2332,15 +2342,16 @@ class LocalStructOrderParams(object):
                                             if thetak < self._params[i]['TA3']:
                                                 if thetam < self._params[i]['TA3']:
                                                     tmp = cos(self._params[i]['fac_AA1'] * \
-                                                        phi) ** self._params[i]['exp_cos_AA1']
+                                                        phi2) ** self._params[i]['exp_cos_AA1']
                                                     tmp2 = self._params[i]['IGW_TA1'] * (
                                                         thetam * ipi - self._params[i]['TA1'])
                                                 else:
                                                     tmp = cos(self._params[i]['fac_AA2'] * \
-                                                        (phi + self._params[i]['shift_AA2'])) ** \
+                                                        (phi2 + self._params[i]['shift_AA2'])) ** \
                                                         self._params[i]['exp_cos_AA2']
                                                     tmp2 = self._params[i]['IGW_TA2'] * (
                                                         thetam * ipi - self._params[i]['TA2'])
+                                                    #print("phi2 {}   phi2+shift {}   tmp {}  ".format(phi2*180/pi, 180*(phi2 + self._params[i]['shift_AA2'])/pi, tmp))
                                                 qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                 norms[i][j][kc] += 1
 
