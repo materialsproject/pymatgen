@@ -363,8 +363,9 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(nn[0][-1], 0)
 
         r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors(r, True)
+        all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
+            self.assertEquals(4, len(all_nn[s]))
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
 
         for site, nns in zip(s, all_nn):
@@ -376,7 +377,6 @@ class IStructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
         s.make_supercell([2,2,2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
-
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
