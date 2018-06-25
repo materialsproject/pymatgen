@@ -12,10 +12,11 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
     get_symmetrically_distinct_miller_indices, ReconstructionGenerator, \
-    miller_index_from_sites
+    miller_index_from_sites, get_d
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 
 def get_path(path_str):
@@ -468,16 +469,24 @@ class ReconstructionGeneratorTests(PymatgenTest):
         species = ["Ni"]
         coords = [[0,0,0]]
         self.Ni = Structure.from_spacegroup("Fm-3m", l, species, coords)
+        l = Lattice.cubic(2.819000)
+        species = ["Fe"]
+        coords = [[0,0,0]]
+        self.Fe = Structure.from_spacegroup("Im-3m", l, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500),
                                             ["Si"], [(0, 0, 0.5)])
+
+        with open(os.path.join(os.getcwd(), "pymatgen", "core",
+                               "reconstructions_archive.json")) as data_file:
+            self.rec_archive = json.load(data_file)
 
     def test_build_slab(self):
 
         # First lets test a reconstruction where we only remove atoms
         recon = ReconstructionGenerator(self.Ni, 10, 10,
                                         "fcc_110_missing_row_1x2")
-        slab = recon.get_unreconstructed_slab()
-        recon_slab = recon.build_slab()
+        slab = recon.get_unreconstructed_slabs()[0]
+        recon_slab = recon.build_slabs()[0]
         self.assertTrue(recon_slab.reconstruction)
         self.assertEqual(len(slab), len(recon_slab)+2)
         self.assertTrue(recon_slab.is_symmetric())
@@ -491,8 +500,8 @@ class ReconstructionGeneratorTests(PymatgenTest):
         # Test a reconstruction where we simply add atoms
         recon = ReconstructionGenerator(self.Ni, 10, 10,
                                         "fcc_111_adatom_t_1x1")
-        slab = recon.get_unreconstructed_slab()
-        recon_slab = recon.build_slab()
+        slab = recon.get_unreconstructed_slabs()[0]
+        recon_slab = recon.build_slabs()[0]
         self.assertEqual(len(slab), len(recon_slab)-2)
         self.assertTrue(recon_slab.is_symmetric())
 
@@ -500,15 +509,15 @@ class ReconstructionGeneratorTests(PymatgenTest):
         # make sure it is properly generated
         recon = ReconstructionGenerator(self.Ni, 10, 10,
                                         "fcc_111_adatom_ft_1x1")
-        slab = recon.build_slab()
+        slab = recon.build_slabs()[0]
         self.assertTrue(slab.is_symmetric)
 
         # Test a reconstruction where it works on a specific
         # termination (Fd-3m (111))
         recon = ReconstructionGenerator(self.Si, 10, 10,
                                         "diamond_111_1x2")
-        slab = recon.get_unreconstructed_slab()
-        recon_slab = recon.build_slab()
+        slab = recon.get_unreconstructed_slabs()[0]
+        recon_slab = recon.build_slabs()[0]
         self.assertEqual(len(slab), len(recon_slab)-8)
         self.assertTrue(recon_slab.is_symmetric())
 
@@ -522,9 +531,39 @@ class ReconstructionGeneratorTests(PymatgenTest):
 
         recon = ReconstructionGenerator(self.Si, 10, 10,
                                         "diamond_100_2x1")
+
         recon2 = ReconstructionGenerator(self.Si, 20, 10,
                                          "diamond_100_2x1")
-        self.assertAlmostEqual(recon.get_d(), recon2.get_d())
+        s1 = recon.get_unreconstructed_slabs()[0]
+        s2 = recon2.get_unreconstructed_slabs()[0]
+        self.assertAlmostEqual(get_d(s1), get_d(s2))
+
+    def test_previous_reconstructions(self):
+
+        # Test to see if we generated all reconstruction
+        # types correctly and nothing changes
+
+        m = StructureMatcher()
+        for n in self.rec_archive.keys():
+            if "base_reconstruction" in self.rec_archive[n].keys():
+                arch = self.rec_archive[self.rec_archive[n]["base_reconstruction"]]
+                sg = arch["spacegroup"]["symbol"]
+            else:
+                sg = self.rec_archive[n]["spacegroup"]["symbol"]
+            if sg == "Fm-3m":
+                rec = ReconstructionGenerator(self.Ni, 20, 20, n)
+                el = self.Ni[0].species_string
+            elif sg == "Im-3m":
+                rec = ReconstructionGenerator(self.Fe, 20, 20, n)
+                el = self.Fe[0].species_string
+            elif sg == "Fd-3m":
+                rec = ReconstructionGenerator(self.Si, 20, 20, n)
+                el = self.Si[0].species_string
+
+            slabs = rec.build_slabs()
+            s = Structure.from_file(get_path(os.path.join("reconstructions",
+                                                          el+"_"+n+".cif")))
+            self.assertTrue(any([len(m.group_structures([s, slab]))==1 for slab in slabs]))
 
 
 class MillerIndexFinderTests(PymatgenTest):
