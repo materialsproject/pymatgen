@@ -486,6 +486,7 @@ class NearNeighbors(object):
         Returns:
             ((int)*3) Lattice image
         """
+        # TODO: This is not numerically stable. Also, move to PeriodicSite? -WardLT, 23Jun18
         return tuple(map(int, np.floor(frac_coords)))
 
     @staticmethod
@@ -658,26 +659,41 @@ class VoronoiNN(NearNeighbors):
                 - n_verts - Number of vertices on the facet
         """
 
+        # Special case: For atoms with 1 site, the atom in the root image is not included
+        #   in the get_all_neighbors output. Rather than creating logic to add that atom
+        #   to the neighbor list, which requires detecting whether it will be translated
+        #   to reside within the unit cell before neighbor detection, it is less complex
+        #   to just call the one-by-one operation
+        if len(structure) == 1:
+            return [self.get_voronoi_polyhedra(structure, 0)]
+
         # Assemble the list of neighbors used in the tessellation
         if self.targets is None:
             targets = structure.composition.elements
         else:
             targets = self.targets
 
-        # Populate an initial list of sites and their indices (id + supercell)
-        sites = list(structure)
-        indices = [(i, 0, 0, 0) for i in range(len(sites))]
-
+        sites = []
+        indices = []
         # Get all neighbors within a certain cutoff
         #   Record both the list of these neighbors, and the site indices
-        all_neighs = structure.get_all_neighbors(self.cutoff, include_index=True)
+        all_neighs = structure.get_all_neighbors(self.cutoff,
+                                                 include_index=True,
+                                                 include_image=True)
         for neighs in all_neighs:
             sites.extend([x[0] for x in neighs])
-            indices.extend([(x[2],) + NearNeighbors._get_image(x[0].frac_coords) for x in neighs])
+            indices.extend([(x[2],) + x[3] for x in neighs])
 
-        # Get the non-duplicates (using the site indices for performance)
-        _, uniq_indices = np.unique(indices, return_index=True, axis=0)
-        sites = np.array(sites)[sorted(uniq_indices)]
+        # Get the non-duplicates (using the site indices for performance/numerical stability)
+        indices = np.array(indices, dtype=np.int)
+        indices, uniq_inds = np.unique(indices, return_index=True, axis=0)
+        sites = np.array(sites)[uniq_inds]
+
+        # Sort array such that atoms in the root image are first
+        #   Exploit the fact that the array is sorted by the unique operation such that
+        #   the images associated with atom 0 are first, followed by atom 1, etc.
+        root_images, = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)
+        assert len(root_images) == len(structure)
         del indices  # Save memory (tessellations can be costly)
 
         # Run the tessellation
@@ -686,7 +702,7 @@ class VoronoiNN(NearNeighbors):
 
         # Get the information for each neighbor
         return [self._extract_cell_info(structure, i, sites, targets, voro)
-                for i in range(len(structure))]
+                for i in root_images.tolist()]
 
     def _get_elements(self, site):
         """
