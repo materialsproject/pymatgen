@@ -365,7 +365,7 @@ class IStructureTest(PymatgenTest):
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
-            self.assertEquals(4, len(all_nn[s]))
+            self.assertEqual(4, len(all_nn[i][0]))
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
 
         for site, nns in zip(s, all_nn):
