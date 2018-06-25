@@ -693,7 +693,6 @@ class VoronoiNN(NearNeighbors):
         #   Exploit the fact that the array is sorted by the unique operation such that
         #   the images associated with atom 0 are first, followed by atom 1, etc.
         root_images, = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)
-        assert len(root_images) == len(structure)
         del indices  # Save memory (tessellations can be costly)
 
         # Run the tessellation
