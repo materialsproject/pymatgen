@@ -87,6 +87,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
         self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
 
+        # Check that it works for disordered structure. Was a bug previously
+        s = Structure(lattice, ['Si4+', 'Fe2+', 'Si4+'], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
+        self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
