@@ -12,8 +12,7 @@ import os
 from monty.os.path import which
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-    VoronoiNN, VoronoiNN_modified, JMolNN, \
-    MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
+    VoronoiNN, JMolNN, MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
     BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
@@ -135,6 +134,59 @@ class VoronoiNNTest(PymatgenTest):
                                np.sum([x['weight'] for x in nns if x['site_index'] == 0]),
                                places=3)
 
+    def test_all_at_once(self):
+        # Get all of the sites for LiFePO4
+        all_sites = self.nn.get_all_voronoi_polyhedra(self.s)
+
+        # Make sure they are the same as the single-atom ones
+        for i, site in enumerate(all_sites):
+            # Compute the tessellation using only one site
+            by_one = self.nn.get_voronoi_polyhedra(self.s, i)
+
+            # Match the coordinates the of the neighbors, as site matching does not seem to work?
+            all_coords = np.sort([x['site'].coords for x in site.values()], axis=0)
+            by_one_coords = np.sort([x['site'].coords for x in by_one.values()], axis=0)
+
+            self.assertArrayAlmostEqual(all_coords, by_one_coords)
+
+        # Test the nn_info operation
+        all_nn_info = self.nn.get_all_nn_info(self.s)
+        for i, info in enumerate(all_nn_info):
+            # Compute using the by-one method
+            by_one = self.nn.get_nn_info(self.s, i)
+
+            # Get the weights
+            all_weights = sorted([x['weight'] for x in info])
+            by_one_weights = sorted([x['weight'] for x in by_one])
+
+            self.assertArrayAlmostEqual(all_weights, by_one_weights)
+
+    def test_filtered(self):
+        nn = VoronoiNN(weight='area')
+
+        # Make a bcc crystal
+        bcc = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu', 'Cu'],
+                        [[0, 0, 0], [0.5, 0.5, 0.5]], coords_are_cartesian=False)
+
+        # Compute the weight of the little face
+        big_face_area = np.sqrt(3) * 3 / 2 * (2 / 4 / 4)
+        small_face_area = 0.125
+        little_weight = small_face_area / big_face_area
+
+        # Run one test where you get the small neighbors
+        nn.tol = little_weight * 0.99
+        nns = nn.get_nn_info(bcc, 0)
+        self.assertEqual(14, len(nns))
+
+        # Run a second test where we screen out little faces
+        nn.tol = little_weight * 1.01
+        nns = nn.get_nn_info(bcc, 0)
+        self.assertEqual(8, len(nns))
+
+        # Make sure it works for the `get_all` operation
+        all_nns = nn.get_all_nn_info(bcc * [2, 2, 2])
+        self.assertEqual([8,]*16, [len(x) for x in all_nns])
+
     def tearDown(self):
         del self.s
         del self.nn
@@ -212,8 +264,8 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(MinimumDistanceNN(tol=0.1).get_cn(
             self.mos2, 0), 6)
         for image in MinimumDistanceNN(tol=0.1).get_nn_images(self.mos2, 0):
-            self.assertTrue(image in [[0, 0, 0], [0, 1, 0], [-1, 0, 0], \
-                    [0, 0, 0], [0, 1, 0], [-1, 0, 0]])
+            self.assertTrue(image in [(0, 0, 0), (0, 1, 0), (-1, 0, 0),
+                                      (0, 0, 0), (0, 1, 0), (-1, 0, 0)])
 
         self.assertAlmostEqual(MinimumOKeeffeNN(tol=0.01).get_cn(
             self.diamond, 0), 4)
@@ -257,11 +309,11 @@ class MiniDistNNTest(PymatgenTest):
         self.assertAlmostEqual(EconNN(tol=0.01).get_cn(
             self.cscl, 0), 14)
 
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
             self.diamond, 0), 4)
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
             self.nacl, 0), 6)
-        self.assertAlmostEqual(VoronoiNN_modified().get_cn(
+        self.assertAlmostEqual(VoronoiNN(tol=0.5).get_cn(
             self.cscl, 0), 8)
 
     def test_get_local_order_params(self):
