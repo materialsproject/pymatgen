@@ -341,6 +341,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(
             vasprun.as_dict()["input"]["potcar_type"],
             ['PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE'])
+        self.assertEqual(vasprun.as_dict()['input']['nkpoints'], 24)
 
     def test_get_band_structure(self):
         with warnings.catch_warnings():
@@ -547,6 +548,12 @@ class OutcarTest(PymatgenTest):
             self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][0][0], -572.5437,places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][0], 683.2985,places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[0][1][3], 73.07059,places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][0][0], 570.98927,places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519,places=4)
+            self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927,places=4)
 
         filepath = os.path.join(test_dir, 'OUTCAR.NiO_SOC.gz')
         outcar = Outcar(filepath)

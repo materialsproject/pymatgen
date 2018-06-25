@@ -6,10 +6,12 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
+import copy
 import matplotlib
 matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
+from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
 from pymatgen.analysis.graphs import *
 from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
@@ -18,7 +20,7 @@ try:
 except ImportError:
     ob = None
 
-__author__ = "Matthew Horton"
+__author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
 __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
@@ -29,6 +31,8 @@ __date__ = "August 2017"
 class StructureGraphTest(unittest.TestCase):
 
     def setUp(self):
+
+        self.maxDiff = None
 
         # trivial example, simple square lattice for testing
         structure = Structure(Lattice.tetragonal(5.0, 50.0), ['H'], [[0, 0, 0]])
@@ -313,16 +317,149 @@ from    to  to_image
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
         self.assertEqual(len(molecules), 0)
 
-    def test_from_molecule(self):
 
+class MoleculeGraphTest(unittest.TestCase):
+
+    def setUp(self):
+
+        cyclohexene = Molecule.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                                      "test_files/graphs/cyclohexene.xyz"))
+        self.cyclohexene = MoleculeGraph.with_empty_graph(cyclohexene,
+                                                       edge_weight_name="strength",
+                                                       edge_weight_units="")
+        self.cyclohexene.add_edge(0, 1, weight=1.0)
+        self.cyclohexene.add_edge(1, 2, weight=1.0)
+        self.cyclohexene.add_edge(2, 3, weight=2.0)
+        self.cyclohexene.add_edge(3, 4, weight=1.0)
+        self.cyclohexene.add_edge(4, 5, weight=1.0)
+        self.cyclohexene.add_edge(5, 0, weight=1.0)
+        self.cyclohexene.add_edge(0, 6, weight=1.0)
+        self.cyclohexene.add_edge(0, 7, weight=1.0)
+        self.cyclohexene.add_edge(1, 8, weight=1.0)
+        self.cyclohexene.add_edge(1, 9, weight=1.0)
+        self.cyclohexene.add_edge(2, 10, weight=1.0)
+        self.cyclohexene.add_edge(3, 11, weight=1.0)
+        self.cyclohexene.add_edge(4, 12, weight=1.0)
+        self.cyclohexene.add_edge(4, 13, weight=1.0)
+        self.cyclohexene.add_edge(5, 14, weight=1.0)
+        self.cyclohexene.add_edge(5, 15, weight=1.0)
+
+        butadiene = Molecule.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                                    "test_files/graphs/butadiene.xyz"))
+        self.butadiene = MoleculeGraph.with_empty_graph(butadiene,
+                                                        edge_weight_name="strength",
+                                                        edge_weight_units="")
+        self.butadiene.add_edge(0, 1, weight=2.0)
+        self.butadiene.add_edge(1, 2, weight=1.0)
+        self.butadiene.add_edge(2, 3, weight=2.0)
+        self.butadiene.add_edge(0, 4, weight=1.0)
+        self.butadiene.add_edge(0, 5, weight=1.0)
+        self.butadiene.add_edge(1, 6, weight=1.0)
+        self.butadiene.add_edge(2, 7, weight=1.0)
+        self.butadiene.add_edge(3, 8, weight=1.0)
+        self.butadiene.add_edge(3, 9, weight=1.0)
+
+        ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                                   "test_files/graphs/ethylene.xyz"))
+        self.ethylene = MoleculeGraph.with_empty_graph(ethylene,
+                                                       edge_weight_name="strength",
+                                                       edge_weight_units="")
+        self.ethylene.add_edge(0, 1, weight=2.0)
+        self.ethylene.add_edge(0, 2, weight=1.0)
+        self.ethylene.add_edge(0, 3, weight=1.0)
+        self.ethylene.add_edge(1, 4, weight=1.0)
+        self.ethylene.add_edge(1, 5, weight=1.0)
+
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_properties(self):
+        self.assertEqual(self.cyclohexene.name, "bonds")
+        self.assertEqual(self.cyclohexene.edge_weight_name, "strength")
+        self.assertEqual(self.cyclohexene.edge_weight_unit, "")
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(0), 4)
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(2), 3)
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(15), 1)
+        self.assertEqual(len(self.cyclohexene.get_connected_sites(0)), 4)
+        self.assertTrue(isinstance(self.cyclohexene.get_connected_sites(0)[0].site, Site))
+        self.assertEqual(str(self.cyclohexene.get_connected_sites(0)[0].site.specie), 'H')
+
+    def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
-        sg = StructureGraph.with_empty_graph(molecule)
-        self.assertEqual(sg.get_coordination_of_site(0), 0)
+        mg = MoleculeGraph.with_empty_graph(molecule)
+        self.assertEqual(mg.get_coordination_of_site(0), 0)
 
-        sg = StructureGraph.with_local_env_strategy(molecule, MinimumDistanceNN())
-        self.assertEqual(sg.get_coordination_of_site(0), 1)
+        self.assertEqual(self.cyclohexene.get_coordination_of_site(0), 4)
 
+    def test_edge_editing(self):
+        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo":"bar"})
+        new_edge = self.cyclohexene.graph.get_edge_data(0, 1)[0]
+        self.assertEqual(new_edge["weight"], 0.0)
+        self.assertEqual(new_edge["foo"], "bar")
+
+        self.cyclohexene.break_edge(0, 1)
+        self.assertTrue(self.cyclohexene.graph.get_edge_data(0, 1) is None)
+
+        # Replace the now-broken edge
+        self.cyclohexene.add_edge(0, 1, weight=1.0)
+
+    def test_split(self):
+        bonds = [(0, 1), (4, 5)]
+        alterations = {(2, 3): {"weight": 1.0},
+                       (0, 5): {"weight": 2.0},
+                       (1, 2): {"weight": 2.0},
+                       (3, 4): {"weight": 2.0}
+                       }
+        reactants = self.cyclohexene.split_molecule_subgraphs(bonds, alterations=alterations)
+        self.assertTrue(isinstance(reactants, list))
+
+        reactants = sorted(reactants, key=len)
+
+        self.assertEqual(reactants[0], self.ethylene)
+        self.assertEqual(reactants[1], self.butadiene)
+
+    def test_find_rings(self):
+        rings = self.cyclohexene.find_rings(including=[0])
+        self.assertEqual(sorted(rings[0]), [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
+        no_rings = self.butadiene.find_rings()
+        self.assertEqual(no_rings, [])
+
+    def test_substitute(self):
+        molecule = FunctionalGroups["methyl"]
+        string = "methyl"
+        molgraph = MoleculeGraph.with_empty_graph(molecule,
+                                                  edge_weight_name="strength",
+                                                  edge_weight_units="")
+        molgraph.add_edge(0, 1, weight=1.0)
+        molgraph.add_edge(0, 2, weight=1.0)
+        molgraph.add_edge(0, 3, weight=1.0)
+
+        eth_mol = copy.deepcopy(self.ethylene)
+        eth_str = copy.deepcopy(self.ethylene)
+        eth_mol.substitute_group(5, molecule)
+        eth_str.substitute_group(5, string)
+        self.assertEqual(eth_mol, eth_str)
+
+        graph_dict = {(0, 1): {"weight": 1.0},
+                      (0, 2): {"weight": 1.0},
+                      (0, 3): {"weight": 1.0},
+                      }
+        eth_mg = copy.deepcopy(self.ethylene)
+        eth_graph = copy.deepcopy(self.ethylene)
+
+        eth_graph.substitute_group(5, molecule, graph_dict=graph_dict)
+        eth_mg.substitute_group(5, molgraph)
+        self.assertEqual(eth_graph.graph.get_edge_data(5, 6)[0]["weight"], 1.0)
+        self.assertEqual(eth_mg, eth_graph)
+
+    def test_as_from_dict(self):
+        d = self.cyclohexene.as_dict()
+        mg = MoleculeGraph.from_dict(d)
+        d2 = mg.as_dict()
+        self.assertDictEqual(d, d2)
 
 if __name__ == "__main__":
     unittest.main()

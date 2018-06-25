@@ -853,16 +853,19 @@ class PhaseDiagram(MSONable):
 
     def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
         """
-        returns a set of chemical potentials corresponding to the vertices of the simplex
-        in the chemical potential phase diagram.
-        The simplex is built using all elements in the target_composition except dep_elt.
-        The chemical potential of dep_elt is computed from the target composition energy.
+        returns a set of chemical potentials corresponding to the vertices of
+        the simplex in the chemical potential phase diagram.
+        The simplex is built using all elements in the target_composition
+        except dep_elt.
+        The chemical potential of dep_elt is computed from the target
+        composition energy.
         This method is useful to get the limiting conditions for
         defects computations for instance.
 
         Args:
             target_comp: A Composition object
-            dep_elt: the element for which the chemical potential is computed from the energy of
+            dep_elt: the element for which the chemical potential is computed
+                from the energy of
             the stable phase at the target composition
             tol_en: a tolerance on the energy to set
 
@@ -910,7 +913,7 @@ class PhaseDiagram(MSONable):
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
         """
-        returns a set of chemical potentials correspoding to the max and min
+        returns a set of chemical potentials corresponding to the max and min
         chemical potential of the open element for a given composition. It is
         quite common to have for instance a ternary oxide (e.g., ABO3) for
         which you want to know what are the A and B chemical potential leading
