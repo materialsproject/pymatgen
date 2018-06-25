@@ -1124,7 +1124,7 @@ class MoleculeGraph(MSONable):
         return cls(molecule, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(molecule, strategy):
+    def with_local_env_strategy(molecule, strategy, reorder=True):
         """
         Constructor for MoleculeGraph, using a strategy
         from :Class: `pymatgen.analysis.local_env`.
@@ -1136,6 +1136,8 @@ class MoleculeGraph(MSONable):
         :param molecule: Molecule object
         :param strategy: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
+        :param reorder: bool, representing if graph nodes need to be reordered
+        following the application of the local_env strategy
         :return: mg, a MoleculeGraph
         """
 
@@ -1171,66 +1173,14 @@ class MoleculeGraph(MSONable):
                             weight=neighbor['weight'],
                             warn_duplicates=False)
 
+        if reorder:
+            # Reverse order of nodes to match with molecule
+            n = len(mg.molecule)
+            mapping = {i: (n-i) for i in range(n)}
+
+            mg.graph = nx.relabel_nodes(mg.graph, mapping)
+
         return mg
-
-    @staticmethod
-    def with_weight_and_order(molecule, weight_strat, order_strat):
-        """
-        Constructor for MoleculeGraph, using two strategies from :Class
-        `pymatgen.analysis.local_env`, one for bond weights, and one for
-        bond orders.
-
-        Note: this function will only add edges that appear in the results of
-        both strategies
-
-        :param molecule: Molecule object
-        :param weight_strat: an instance of a
-            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
-        :param order_strat: an instance of a
-            :Class: `pymatgen.analysis.local_env.NearNeighbors` object
-        :return: mg, a MoleculeGraph
-        """
-
-        mg = MoleculeGraph.with_empty_graph(molecule, name="bonds",
-                                            edge_weight_name="weight",
-                                            edge_weight_units="")
-
-        # NearNeighbor classes only (generally) work with structures
-        # molecules have to be boxed first
-        coords = molecule.cart_coords
-
-        a = max(coords[:, 0]) - min(coords[:, 0]) + 100
-        b = max(coords[:, 1]) - min(coords[:, 1]) + 100
-        c = max(coords[:, 2]) - min(coords[:, 2]) + 100
-
-        molecule = molecule.get_boxed_structure(a, b, c, no_cross=True)
-
-        for n in range(len(molecule)):
-            neighbors_weight = weight_strat.get_nn_info(molecule, n)
-            neighbors_order = order_strat.get_nn_info(molecule, n)
-
-            for nw in neighbors_weight:
-                try:
-                    no = [x for x in neighbors_order
-                          if x["site_index"] == nw["site_index"]][0]
-                except IndexError:
-                    no = None
-
-                # all bonds in molecules should not cross
-                # (artificial) periodic boundaries
-                if not np.array_equal(nw['image'], [0, 0, 0]):
-                    continue
-
-                # local_env will always try to add two edges
-                # for any one bond, one from site u to site v
-                # and another form site v to site u: this is
-                # harmless, so warn_duplicates=False
-                if no:
-                    mg.add_edge(from_index=n,
-                                to_index=nw["site_index"],
-                                weight=nw["weight"],
-                                warn_duplicates=False,
-                                edge_properties={"order": no["weight"]})
 
     @property
     def name(self):
@@ -1306,6 +1256,22 @@ class MoleculeGraph(MSONable):
         else:
             self.graph.add_edge(from_index, to_index,
                                 **edge_properties)
+
+    def set_node_attributes(self):
+        """
+        Gives each node a "specie" and a "coords" attribute, updated with the
+        current species and coordinates.
+
+        :return:
+        """
+
+        species = {}
+        coords = {}
+        for node in self.graph:
+            species[node] = self.molecule[node].specie.symbol
+            coords[node] = self.molecule[node].coords
+        nx.set_node_attributes(self.graph, species, "specie")
+        nx.set_node_attributes(self.graph, coords, "coords")
 
     def alter_edge(self, from_index, to_index,
                    new_weight=None, new_edge_properties=None):
@@ -2004,7 +1970,7 @@ class MoleculeGraph(MSONable):
         return (edges == edges_other) and \
                (self.molecule == other_sorted.molecule)
 
-    def equivalent_to(self, other, from_strategy=False):
+    def equivalent_to(self, other):
         """
         A weaker equality function that evaluates isomorphisms between two
         MoleculeGraphs. If there is an isomorphism where the species are
@@ -2012,10 +1978,6 @@ class MoleculeGraph(MSONable):
         "equivalent".
 
         :param other: The MoleculeGraph to be compared to this MoleculeGraph
-        :param from_strategy: This is a hack. Currently, if a strategy is used,
-        at some point the order of the molecule becomes reversed relative to the
-        nodes of the graph. So, if this is True, that ordering will be reversed
-        again in order to achieve the correct mapping.
         :return: Bool
         """
 
@@ -2035,14 +1997,10 @@ class MoleculeGraph(MSONable):
         if not matcher.is_isomorphic():
             return False
 
-        for mapping in matcher.isomorphisms_iter():
-            if from_strategy:
-                self_mol = self.molecule[::-1]
-                other_mol = other.molecule[::-1]
-            else:
-                self_mol = self.molecule
-                other_mol = other.molecule
+        self_mol = self.molecule
+        other_mol = other.molecule
 
+        for mapping in matcher.isomorphisms_iter():
             truths = [self_mol[index].specie == other_mol[mapping[index]].specie
                       for index in mapping.keys()]
 

@@ -398,7 +398,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(self.cyclohexene.get_coordination_of_site(0), 4)
 
     def test_edge_editing(self):
-        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo":"bar"})
+        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
         new_edge = self.cyclohexene.graph.get_edge_data(0, 1)[0]
         self.assertEqual(new_edge["weight"], 0.0)
         self.assertEqual(new_edge["foo"], "bar")
