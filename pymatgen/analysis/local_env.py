@@ -931,6 +931,9 @@ class OpenBabelNN(NearNeighbors):
     """
     Determine near-neighbor sites and bond orders using OpenBabel API.
 
+    NOTE: This strategy is only appropriate for molecules, and not for
+    structures.
+
     Args:
         order (bool): True if bond order should be returned as a weight, False
         if bond length should be used as a weight.

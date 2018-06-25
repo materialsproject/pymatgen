@@ -1514,17 +1514,17 @@ class MoleculeGraph(MSONable):
         :return:
         """
 
-        def map_indices(func_grp):
-            mapping = {}
+        def map_indices(grp):
+            grp_map = {}
 
             # Get indices now occupied by functional group
             # Subtracting 1 because the dummy atom X should not count
-            atoms = len(func_grp) - 1
+            atoms = len(grp) - 1
             offset = len(self.molecule) - atoms
 
             for i in range(atoms):
-                mapping[i] = i + offset
-            return mapping
+                grp_map[i] = i + offset
+            return grp_map
 
         # Work is simplified if a graph is already in place
         if isinstance(func_grp, MoleculeGraph):
@@ -1647,7 +1647,7 @@ class MoleculeGraph(MSONable):
         Index is the index of the corresponding site
         in the original structure, weight can be
         None if not defined.
-        :param n: index of Site in Structure
+        :param n: index of Site in Molecule
         :param jimage: lattice vector of site
         :return: list of ConnectedSite tuples,
         sorted by closest first
