@@ -34,8 +34,14 @@ __date__ = "August 17, 2017"
 from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs
 import numpy as np
 
-import openbabel as ob
-import pybel as pb
+try:
+    import openbabel as ob
+    import pybel as pb
+except:
+    pb = None
+    ob = None
+
+from monty.dev import requires
 
 from bisect import bisect_left
 from scipy.spatial import Voronoi
@@ -940,6 +946,9 @@ class OpenBabelNN(NearNeighbors):
 
     """
 
+    @requires(pb and ob,
+              "OpenBabelNN requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org.")
     def __init__(self, order=True):
         self.order = order
 
