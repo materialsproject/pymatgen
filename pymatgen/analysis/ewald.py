@@ -284,7 +284,7 @@ class EwaldSummation(object):
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                  self._gmax)
 
-        frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
+        frac_coords = [fcoords for (fcoords, dist, i, img) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
         g2s = np.sum(gs ** 2, 1)
@@ -338,7 +338,7 @@ class EwaldSummation(object):
         epoint = - qs ** 2 * sqrt(self._eta / pi)
 
         for i in range(numsites):
-            nfcoords, rij, js = self._s.lattice.get_points_in_sphere(fcoords,
+            nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(fcoords,
                                     coords[i], self._rmax, zip_results=False)
 
             # remove the rii term
