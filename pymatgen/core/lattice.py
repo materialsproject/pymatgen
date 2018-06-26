@@ -165,10 +165,9 @@ class Lattice(MSONable):
             d_hkl (float)
         """
 
-        g = 0
-        for i, gi in enumerate(self.reciprocal_lattice.matrix):
-            g += (gi / (2 * np.pi)) * miller_index[i]
-        return 1 / (np.dot(g, g) ** (1 / 2))
+        gstar = self.reciprocal_lattice_crystallographic.metric_tensor
+        hkl = np.array(miller_index)
+        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
     def cubic(a):
@@ -709,7 +708,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2):k])
                     q = np.diag(m[(k - 2):k])
-                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T
+                    result = np.linalg.lstsq(q.T, p.T, rcond=-1)[0].T
                     u[k:3, (k - 2):k] = result
 
         return a.T, mapping.T
