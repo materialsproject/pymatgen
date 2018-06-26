@@ -856,7 +856,7 @@ class IStructure(SiteCollection, MSONable):
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []
-        for fcoord, dist, i, img in self._lattice.get_points_in_sphere(
+        for fcoord, dist, i, _ in self._lattice.get_points_in_sphere(
                 site_fcoords, pt, r):
             nnsite = PeriodicSite(self[i].species_and_occu,
                                   fcoord, self._lattice,
