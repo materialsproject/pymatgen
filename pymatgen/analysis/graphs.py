@@ -1490,6 +1490,7 @@ class MoleculeGraph(MSONable):
 
             for i in range(atoms):
                 grp_map[i] = i + offset
+
             return grp_map
 
         # Work is simplified if a graph is already in place
@@ -1548,6 +1549,11 @@ class MoleculeGraph(MSONable):
                     if "weight" in edge_props.keys():
                         weight = edge_props["weight"]
                         del edge_props["weight"]
+
+                    if 0 not in list(graph.graph.nodes()):
+                        # If graph indices have different indexing
+                        u, v = (u-1), (v-1)
+
                     self.add_edge(mapping[u], mapping[v],
                                   weight=weight, edge_properties=edge_props)
 
@@ -1985,6 +1991,10 @@ class MoleculeGraph(MSONable):
         if self.__eq__(other):
             return True
 
+        # Associate each node with a species, coordinates
+        self.set_node_attributes()
+        other.set_node_attributes()
+
         # The possibility of multiple edges eliminates possible isomorphisms
         self_undir = self.graph.to_undirected()
         other_undir = other.graph.to_undirected()
@@ -1997,12 +2007,10 @@ class MoleculeGraph(MSONable):
         if not matcher.is_isomorphic():
             return False
 
-        self_mol = self.molecule
-        other_mol = other.molecule
-
         for mapping in matcher.isomorphisms_iter():
-            truths = [self_mol[index].specie == other_mol[mapping[index]].specie
-                      for index in mapping.keys()]
+            self_spec = nx.get_node_attributes(self_undir, "specie")
+            other_spec = nx.get_node_attributes(other_undir, "specie")
+            truths = [self_spec[i] == other_spec[mapping[i]] for i in mapping]
 
             if all(truths):
                 return True

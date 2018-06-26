@@ -448,10 +448,10 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_copy.add_edge(0, 5, weight=1.0)
 
         self.assertTrue(self.ethylene.equivalent_to(eth_copy))
+        self.assertFalse(self.ethylene.equivalent_to(self.butadiene))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
-        string = "methyl"
         molgraph = MoleculeGraph.with_empty_graph(molecule,
                                                   edge_weight_name="strength",
                                                   edge_weight_units="")
@@ -462,7 +462,7 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_mol = copy.deepcopy(self.ethylene)
         eth_str = copy.deepcopy(self.ethylene)
         eth_mol.substitute_group(5, molecule)
-        eth_str.substitute_group(5, string)
+        eth_str.substitute_group(5, "methyl")
         self.assertEqual(eth_mol, eth_str)
 
         graph_dict = {(0, 1): {"weight": 1.0},

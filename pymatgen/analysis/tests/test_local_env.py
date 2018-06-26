@@ -193,23 +193,20 @@ class OpenBabelNNTest(PymatgenTest):
     def test_nn_length(self):
         strat = OpenBabelNN(order=False)
 
-        self.assertAlmostEqual(strat.get_nn_info(self.benzene, 0)[0]["weight"],
-                               1.41,
-                               2)
-        self.assertAlmostEqual(strat.get_nn_info(self.benzene, 0)[1]["weight"],
-                               1.02,
-                               2)
+        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+
+        c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
+        h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
+
+        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
+        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
 
         self.assertAlmostEqual(strat.get_nn_info(self.acetylene, 0)[0]["weight"],
                                1.19,
                                2)
-        self.assertAlmostEqual(strat.get_nn_info(self.benzene, 0)[0]["weight"],
-                               0.92,
-                               2)
 
     def tearDown(self):
         del self.benzene
-        del self.ethylene
         del self.acetylene
 
 
