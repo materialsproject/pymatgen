@@ -374,6 +374,9 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.resetwarnings()
+        del self.ethylene
+        del self.butadiene
+        del self.cyclohexene
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")
@@ -395,7 +398,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(self.cyclohexene.get_coordination_of_site(0), 4)
 
     def test_edge_editing(self):
-        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo":"bar"})
+        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
         new_edge = self.cyclohexene.graph.get_edge_data(0, 1)[0]
         self.assertEqual(new_edge["weight"], 0.0)
         self.assertEqual(new_edge["foo"], "bar")
@@ -423,13 +426,32 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
-        self.assertEqual(sorted(rings[0]), [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
+        self.assertEqual(sorted(rings[0]),
+                         [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
 
+    def test_equivalent_to(self):
+        ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__),
+                                                   "..", "..", "..",
+                                                   "test_files/graphs/ethylene.xyz"))
+        # switch carbons
+        ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
+
+        eth_copy = MoleculeGraph.with_empty_graph(ethylene,
+                                                  edge_weight_name="strength",
+                                                  edge_weight_units="")
+        eth_copy.add_edge(0, 1, weight=2.0)
+        eth_copy.add_edge(1, 2, weight=1.0)
+        eth_copy.add_edge(1, 3, weight=1.0)
+        eth_copy.add_edge(0, 4, weight=1.0)
+        eth_copy.add_edge(0, 5, weight=1.0)
+
+        self.assertTrue(self.ethylene.equivalent_to(eth_copy))
+        self.assertFalse(self.ethylene.equivalent_to(self.butadiene))
+
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
-        string = "methyl"
         molgraph = MoleculeGraph.with_empty_graph(molecule,
                                                   edge_weight_name="strength",
                                                   edge_weight_units="")
@@ -439,8 +461,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         eth_mol = copy.deepcopy(self.ethylene)
         eth_str = copy.deepcopy(self.ethylene)
-        eth_mol.substitute_group(5, molecule)
-        eth_str.substitute_group(5, string)
+        eth_mol.substitute_group(5, molecule, MinimumDistanceNN)
+        eth_str.substitute_group(5, "methyl", MinimumDistanceNN)
         self.assertEqual(eth_mol, eth_str)
 
         graph_dict = {(0, 1): {"weight": 1.0},
@@ -450,8 +472,8 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_mg = copy.deepcopy(self.ethylene)
         eth_graph = copy.deepcopy(self.ethylene)
 
-        eth_graph.substitute_group(5, molecule, graph_dict=graph_dict)
-        eth_mg.substitute_group(5, molgraph)
+        eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
+        eth_mg.substitute_group(5, molgraph, MinimumDistanceNN)
         self.assertEqual(eth_graph.graph.get_edge_data(5, 6)[0]["weight"], 1.0)
         self.assertEqual(eth_mg, eth_graph)
 
