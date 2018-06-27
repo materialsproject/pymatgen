@@ -21,6 +21,13 @@ from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
 from pymatgen import Element, Molecule, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
+try:
+    import openbabel as ob
+    import pybel as pb
+except:
+    pb = None
+    ob = None
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
@@ -234,6 +241,8 @@ class OpenBabelNNTest(PymatgenTest):
         self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
         self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
 
+    @unittest.skipIf((not (ob and pb)) or (not which("babel")),
+                     "OpenBabel not installed.")
     def test_nn_orders(self):
         strat = OpenBabelNN()
 
@@ -248,6 +257,8 @@ class OpenBabelNNTest(PymatgenTest):
         self.assertEqual(strat.get_nn_info(self.benzene, 0)[0]["weight"],
                          strat.get_nn_info(self.benzene, 1)[0]["weight"])
 
+    @unittest.skipIf((not (ob and pb)) or (not which("babel")),
+                     "OpenBabel not installed.")
     def test_nn_length(self):
         strat = OpenBabelNN(order=False)
 
