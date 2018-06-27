@@ -50,7 +50,6 @@ from scipy.spatial import Voronoi
 
 from pymatgen import Element
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
-from pymatgen.io.babel import BabelMolAdaptor
 
 default_op_params = {}
 with open(os.path.join(os.path.dirname(
@@ -1086,6 +1085,8 @@ class OpenBabelNN(NearNeighbors):
         :return: [dict] representing a neighboring site and the type of
         bond present between site n and the neighboring site.
         """
+
+        from pymatgen.io.babel import BabelMolAdaptor
 
         obmol = BabelMolAdaptor(structure).openbabel_mol
 

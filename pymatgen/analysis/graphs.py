@@ -12,7 +12,6 @@ import copy
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
-from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
 
@@ -1438,7 +1437,7 @@ class MoleculeGraph(MSONable):
 
             return sub_mols
 
-    def substitute_group(self, index, func_grp, bond_order=1, graph_dict=None, strategy=None, strategy_params=None):
+    def substitute_group(self, index, func_grp, strategy, bond_order=1, graph_dict=None, strategy_params=None):
         """
         Builds off of Molecule.substitute to replace an atom in self.molecule
         with a functional group. This method also amends self.graph to
@@ -1464,6 +1463,7 @@ class MoleculeGraph(MSONable):
                 2. A string name. The molecule will be obtained from the
                    relevant template in func_groups.json.
                 3. A MoleculeGraph object.
+        :param strategy: Class from pymatgen.analysis.local_env.
         :param bond_order: A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
@@ -1472,8 +1472,6 @@ class MoleculeGraph(MSONable):
                 properties, including weight. If None, then the algorithm
                 will attempt to automatically determine bonds using one of
                 a list of strategies defined in pymatgen.analysis.local_env.
-        :param strategy: Class from pymatgen.analysis.local_env. If None,
-                MinimumDistanceNN will be used.
         :param strategy_params: dictionary of keyword arguments for strategy.
                 If None, default parameters will be used.
         :return:
@@ -1538,8 +1536,7 @@ class MoleculeGraph(MSONable):
             else:
                 if strategy_params is None:
                     strategy_params = {}
-                strat = MinimumDistanceNN(**strategy_params) \
-                    if strategy is None else strategy(**strategy_params)
+                strat = strategy(**strategy_params)
                 graph = self.with_local_env_strategy(func_grp, strat)
 
                 for (u, v) in list(graph.graph.edges()):
