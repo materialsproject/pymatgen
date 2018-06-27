@@ -461,8 +461,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         eth_mol = copy.deepcopy(self.ethylene)
         eth_str = copy.deepcopy(self.ethylene)
-        eth_mol.substitute_group(5, molecule, MinimumDistanceNN())
-        eth_str.substitute_group(5, "methyl", MinimumDistanceNN())
+        eth_mol.substitute_group(5, molecule, MinimumDistanceNN)
+        eth_str.substitute_group(5, "methyl", MinimumDistanceNN)
         self.assertEqual(eth_mol, eth_str)
 
         graph_dict = {(0, 1): {"weight": 1.0},
@@ -472,8 +472,8 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_mg = copy.deepcopy(self.ethylene)
         eth_graph = copy.deepcopy(self.ethylene)
 
-        eth_graph.substitute_group(5, molecule, MinimumDistanceNN(), graph_dict=graph_dict)
-        eth_mg.substitute_group(5, molgraph, MinimumDistanceNN())
+        eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
+        eth_mg.substitute_group(5, molgraph, MinimumDistanceNN)
         self.assertEqual(eth_graph.graph.get_edge_data(5, 6)[0]["weight"], 1.0)
         self.assertEqual(eth_mg, eth_graph)
 
