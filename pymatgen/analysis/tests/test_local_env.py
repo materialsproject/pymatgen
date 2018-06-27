@@ -24,7 +24,7 @@ from pymatgen.util.testing import PymatgenTest
 try:
     import openbabel as ob
     import pybel as pb
-except:
+except ImportError:
     pb = None
     ob = None
 
