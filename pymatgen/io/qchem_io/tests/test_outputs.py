@@ -47,7 +47,10 @@ property_list = {"errors",
                  "molecule_from_last_geometry",
                  "frequency_mode_vectors",
                  "walltime",
-                 "cputime"}
+                 "cputime",
+                 "frequencies",
+                 "IR_intens",
+                 "IR_active"}
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",

@@ -429,6 +429,10 @@ class QCOutput(MSONable):
             self.text, {
                 "frequencies":
                 r"\s*Frequency:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                "IR_intens":
+                r"\s*IR Intens:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                "IR_active":
+                r"\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
                 "enthalpy":
                 r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
                 "entropy":
@@ -447,16 +451,34 @@ class QCOutput(MSONable):
 
         if temp_dict.get('frequencies') == None:
             self.data['frequencies'] = None
+            self.data['IR_intens'] = None
+            self.data['IR_active'] = None
         else:
             temp_freqs = [
                 value for entry in temp_dict.get('frequencies')
                 for value in entry
             ]
+            temp_intens = [
+                value for entry in temp_dict.get('IR_intens')
+                for value in entry
+            ]
+            active = [
+                value for entry in temp_dict.get('IR_active')
+                for value in entry
+            ]
+            self.data['IR_active'] = active
+
             freqs = np.zeros(len(temp_freqs) - temp_freqs.count('None'))
             for ii, entry in enumerate(temp_freqs):
                 if entry != 'None':
                     freqs[ii] = float(entry)
             self.data['frequencies'] = freqs
+
+            intens = np.zeros(len(temp_intens) - temp_intens.count('None'))
+            for ii, entry in enumerate(temp_intens):
+                if entry != 'None':
+                    intens[ii] = float(entry)
+            self.data['IR_intens'] = intens
 
             header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
             table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
