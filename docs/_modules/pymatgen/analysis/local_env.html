@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.analysis.local_env &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -61,8 +61,10 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.molecule_structure_comparator</span> <span class="k">import</span> <span class="n">CovalentRadius</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Site</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides classes to perform analyses of</span>
@@ -82,10 +84,19 @@
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="nb">pow</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">asin</span><span class="p">,</span> <span class="n">atan</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">acos</span><span class="p">,</span> <span class="n">fabs</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">openbabel</span> <span class="k">as</span> <span class="nn">ob</span>
+    <span class="kn">import</span> <span class="nn">pybel</span> <span class="k">as</span> <span class="nn">pb</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">pb</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ob</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+
 <span class="kn">from</span> <span class="nn">bisect</span> <span class="k">import</span> <span class="n">bisect_left</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Voronoi</span>
+
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="k">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BV_PARAMS</span><span class="p">,</span> <span class="n">BVAnalyzer</span>
 
 <span class="n">default_op_params</span> <span class="o">=</span> <span class="p">{}</span>
@@ -525,16 +536,15 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_image</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Private convenience method for get_nn_info,</span>
-<span class="sd">        gives lattice image from provided PeriodicSite.&quot;&quot;&quot;</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">f</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">images</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">images</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">f</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">images</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">images</span>
+<span class="sd">        gives lattice image from provided PeriodicSite.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frac_coords ([float]*3): Fraction coordinates</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            ((int)*3) Lattice image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: This is not numerically stable. Also, move to PeriodicSite? -WardLT, 23Jun18</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)))</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
@@ -623,7 +633,8 @@
 <span class="sd">    structure.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        tol (float): tolerance parameter for near-neighbor finding</span>
+<span class="sd">        tol (float): tolerance parameter for near-neighbor finding. Faces that are smaller</span>
+<span class="sd">            than `tol` fraction of the largest face are not included in the tessellation.</span>
 <span class="sd">            (default: 0).</span>
 <span class="sd">        targets (Element or list of Elements): target element(s).</span>
 <span class="sd">        cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
@@ -668,7 +679,6 @@
 <span class="sd">                - face_dist - Distance between site n and the facet</span>
 <span class="sd">                - volume - Volume of Voronoi cell for this face</span>
 <span class="sd">                - n_verts - Number of vertices on the facet</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Assemble the list of neighbors used in the tessellation</span>
@@ -688,6 +698,99 @@
 
         <span class="c1"># Extract data about the site in question</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_cell_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">voro</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VoronoiNN.get_all_voronoi_polyhedra"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_all_voronoi_polyhedra">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_voronoi_polyhedra</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the Voronoi polyhedra for all site in a simulation cell</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure to be evaluated</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A dict of sites sharing a common Voronoi facet with the site</span>
+<span class="sd">            n mapped to a directory containing statistics about the facet:</span>
+<span class="sd">                - solid_angle - Solid angle subtended by face</span>
+<span class="sd">                - angle_normalized - Solid angle normalized such that the</span>
+<span class="sd">                    faces with the largest</span>
+<span class="sd">                - area - Area of the facet</span>
+<span class="sd">                - face_dist - Distance between site n and the facet</span>
+<span class="sd">                - volume - Volume of Voronoi cell for this face</span>
+<span class="sd">                - n_verts - Number of vertices on the facet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Special case: For atoms with 1 site, the atom in the root image is not included</span>
+        <span class="c1">#   in the get_all_neighbors output. Rather than creating logic to add that atom</span>
+        <span class="c1">#   to the neighbor list, which requires detecting whether it will be translated</span>
+        <span class="c1">#   to reside within the unit cell before neighbor detection, it is less complex</span>
+        <span class="c1">#   to just call the one-by-one operation</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+
+        <span class="c1"># Assemble the list of neighbors used in the tessellation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span>
+
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Get all neighbors within a certain cutoff</span>
+        <span class="c1">#   Record both the list of these neighbors, and the site indices</span>
+        <span class="n">all_neighs</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">,</span>
+                                                 <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                 <span class="n">include_image</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">neighs</span> <span class="ow">in</span> <span class="n">all_neighs</span><span class="p">:</span>
+            <span class="n">sites</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">neighs</span><span class="p">])</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],)</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">neighs</span><span class="p">])</span>
+
+        <span class="c1"># Get the non-duplicates (using the site indices for performance/numerical stability)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="n">indices</span><span class="p">,</span> <span class="n">uniq_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sites</span><span class="p">)[</span><span class="n">uniq_inds</span><span class="p">]</span>
+
+        <span class="c1"># Sort array such that atoms in the root image are first</span>
+        <span class="c1">#   Exploit the fact that the array is sorted by the unique operation such that</span>
+        <span class="c1">#   the images associated with atom 0 are first, followed by atom 1, etc.</span>
+        <span class="n">root_images</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">indices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">indices</span>  <span class="c1"># Save memory (tessellations can be costly)</span>
+
+        <span class="c1"># Run the tessellation</span>
+        <span class="n">qvoronoi_input</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
+        <span class="n">voro</span> <span class="o">=</span> <span class="n">Voronoi</span><span class="p">(</span><span class="n">qvoronoi_input</span><span class="p">)</span>
+
+        <span class="c1"># Get the information for each neighbor</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_extract_cell_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">voro</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">root_images</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the list of elements for a Site</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">             site (Site): Site to assess</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            [Element]: List of elements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">elements</span>
+
+    <span class="k">def</span> <span class="nf">_is_in_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test whether a site contains elements in the target list</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site (Site): Site to assess</span>
+<span class="sd">            targets ([Element]) List of elements</span>
+<span class="sd">        Returns:</span>
+<span class="sd">             (boolean) Whether this site contains a certain list of elements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_elements</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">elem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">_extract_cell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">voro</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the information about a certain atom from the results of a tessellation</span>
@@ -796,21 +899,39 @@
 <span class="sd">                and its weight.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1"># Run the tessellation</span>
+        <span class="n">nns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># Extract the NN info</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">nns</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VoronoiNN.get_all_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN.get_all_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="n">all_voro_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_voronoi_polyhedra</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_extract_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">all_voro_cells</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_extract_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">nns</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given Voronoi NNs, extract the NN info in the form needed by NearestNeighbors</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): Structure being evaluated</span>
+<span class="sd">            nns ([dicts]): Nearest neighbor information for a structure</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (list of tuples (Site, array, float)): See nn_info</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get the target information</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">targets</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span>
+
+        <span class="c1"># Extract the NN info</span>
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Run the tessellation</span>
-        <span class="n">nns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-
-        <span class="c1"># Determine the maximum weight</span>
         <span class="n">max_weight</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nn</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">]</span> <span class="k">for</span> <span class="n">nn</span> <span class="ow">in</span> <span class="n">nns</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">nstats</span> <span class="ow">in</span> <span class="n">nns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">site</span> <span class="o">=</span> <span class="n">nstats</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">nstats</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">*</span> <span class="n">max_weight</span> \
-                    <span class="ow">and</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_in_targets</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
                 <span class="n">nn_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
                            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
                            <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">nstats</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_weight</span><span class="p">,</span>
@@ -823,19 +944,32 @@
                     <span class="k">del</span> <span class="n">poly_info</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span>
                     <span class="n">nn_info</span><span class="p">[</span><span class="s1">&#39;poly_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">poly_info</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn_info</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">siw</span></div></div>
+        <span class="k">return</span> <span class="n">siw</span></div>
 
 
-<div class="viewcode-block" id="VoronoiNN_modified"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN_modified">[docs]</a><span class="k">class</span> <span class="nc">VoronoiNN_modified</span><span class="p">(</span><span class="n">VoronoiNN</span><span class="p">):</span>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="n">replacement</span><span class="o">=</span><span class="n">VoronoiNN</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="s1">&#39;Use VoronoiNN instead, and set &quot;tol&quot; to 0.5&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VoronoiNN_modified</span><span class="p">(</span><span class="n">VoronoiNN</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Modified VoronoiNN that only considers neighbors</span>
-<span class="sd">    with at least 50% weight of max(weight).</span>
+<span class="sd">    Modified VoronoiNN that only considers neighbors with more than 50% of the maximum weight</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="VoronoiNN_modified.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.VoronoiNN_modified.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">VoronoiNN_modified</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-        <span class="n">max_weight</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">result</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">max_weight</span><span class="p">]</span></div></div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+                 <span class="n">allow_pathological</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;solid_angle&#39;</span><span class="p">,</span>
+                 <span class="n">extra_nn_info</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            targets (Element or list of Elements): target element(s).</span>
+<span class="sd">            cutoff (float): cutoff radius in Angstrom to look for near-neighbor</span>
+<span class="sd">                atoms. Defaults to 10.0.</span>
+<span class="sd">            allow_pathological (bool): whether to allow infinite vertices in</span>
+<span class="sd">                determination of Voronoi coordination.</span>
+<span class="sd">            weight (string) - Statistic used to weigh neighbors (see the statistics</span>
+<span class="sd">                available in get_voronoi_polyhedra)</span>
+<span class="sd">            extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VoronoiNN_modified</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">allow_pathological</span><span class="p">,</span>
+                                                 <span class="n">weight</span><span class="p">,</span> <span class="n">extra_nn_info</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="JMolNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JMolNN">[docs]</a><span class="k">class</span> <span class="nc">JMolNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -968,6 +1102,139 @@
                             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
                             <span class="s1">&#39;site_index&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_original_site</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">s</span><span class="p">)})</span>
         <span class="k">return</span> <span class="n">siw</span></div></div>
+
+
+<div class="viewcode-block" id="OpenBabelNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN">[docs]</a><span class="k">class</span> <span class="nc">OpenBabelNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine near-neighbor sites and bond orders using OpenBabel API.</span>
+
+<span class="sd">    NOTE: This strategy is only appropriate for molecules, and not for</span>
+<span class="sd">    structures.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        order (bool): True if bond order should be returned as a weight, False</span>
+<span class="sd">        if bond length should be used as a weight.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="n">pb</span> <span class="ow">and</span> <span class="n">ob</span><span class="p">,</span>
+              <span class="s2">&quot;OpenBabelNN requires openbabel to be installed with &quot;</span>
+              <span class="s2">&quot;Python bindings. Please get it at http://openbabel.org.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+
+<div class="viewcode-block" id="OpenBabelNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites and weights (orders) of bonds for a given</span>
+<span class="sd">        atom.</span>
+
+<span class="sd">        :param molecule: input Molecule.</span>
+<span class="sd">        :param n: index of site for which to determine near neighbors.</span>
+<span class="sd">        :return: [dict] representing a neighboring site and the type of</span>
+<span class="sd">        bond present between site n and the neighboring site.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
+
+        <span class="n">obmol</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">openbabel_mol</span>
+
+        <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Get only the atom of interest</span>
+        <span class="n">site_atom</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ob</span><span class="o">.</span><span class="n">OBMolAtomDFSIter</span><span class="p">(</span><span class="n">obmol</span><span class="p">))</span>
+                     <span class="k">if</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">GetX</span><span class="p">(),</span> <span class="n">a</span><span class="o">.</span><span class="n">GetY</span><span class="p">(),</span> <span class="n">a</span><span class="o">.</span><span class="n">GetZ</span><span class="p">()]</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBAtomAtomIter</span><span class="p">(</span><span class="n">site_atom</span><span class="p">):</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">neighbor</span><span class="o">.</span><span class="n">GetX</span><span class="p">(),</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">GetY</span><span class="p">(),</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">GetZ</span><span class="p">()]</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">structure</span> <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span> <span class="o">==</span> <span class="n">coords</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+
+            <span class="n">bond</span> <span class="o">=</span> <span class="n">site_atom</span><span class="o">.</span><span class="n">GetBond</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">:</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">PerceiveBondOrders</span><span class="p">()</span>
+                <span class="n">weight</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBondOrder</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">weight</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetLength</span><span class="p">()</span>
+
+            <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;site&quot;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
+                        <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
+                        <span class="s2">&quot;site_index&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">siw</span></div>
+
+<div class="viewcode-block" id="OpenBabelNN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a MoleculeGraph object using this NearNeighbor</span>
+<span class="sd">        class. Requires the optional dependency networkx</span>
+<span class="sd">        (pip install networkx).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Molecule object.</span>
+<span class="sd">            decorate (bool): whether to annotate site properties</span>
+<span class="sd">            with order parameters using neighbors determined by</span>
+<span class="sd">            this NearNeighbor class</span>
+
+<span class="sd">        Returns: a pymatgen.analysis.graphs.MoleculeGraph object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># requires optional dependency which is why it&#39;s not a top-level import</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span>
+
+        <span class="k">if</span> <span class="n">decorate</span><span class="p">:</span>
+            <span class="c1"># Decorate all sites in the underlying structure</span>
+            <span class="c1"># with site properties that provides information on the</span>
+            <span class="c1"># coordination number and coordination pattern based</span>
+            <span class="c1"># on the (current) structure of this graph.</span>
+            <span class="n">order_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_local_order_parameters</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;order_parameters&#39;</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">)</span>
+
+        <span class="n">mg</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mg</span></div>
+
+<div class="viewcode-block" id="OpenBabelNN.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a certain nearest neighbor shell for a certain site.</span>
+
+<span class="sd">        Determines all non-backtracking paths through the neighbor network</span>
+<span class="sd">        computed by `get_nn_info`. The weight is determined by multiplying</span>
+<span class="sd">        the weight of the neighbor at each hop through the network. For</span>
+<span class="sd">        example, a 2nd-nearest-neighbor that has a weight of 1 from its</span>
+<span class="sd">        1st-nearest-neighbor and weight 0.5 from the original site will</span>
+<span class="sd">        be assigned a weight of 0.5.</span>
+
+<span class="sd">        As this calculation may involve computing the nearest neighbors of</span>
+<span class="sd">        atoms multiple times, the calculation starts by computing all of the</span>
+<span class="sd">        neighbor info and then calling `_get_nn_shell_info`. If you are likely</span>
+<span class="sd">        to call this method for more than one site, consider calling `get_all_nn`</span>
+<span class="sd">        first and then calling this protected method yourself.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Molecule): Input structure</span>
+<span class="sd">            site_idx (int): index of site for which to determine neighbor</span>
+<span class="sd">                information.</span>
+<span class="sd">            shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list of dictionaries. Each entry in the list is information about</span>
+<span class="sd">                a certain neighbor in the structure, in the same format as</span>
+<span class="sd">                `get_nn_info`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">all_nn_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_nn_shell_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">all_nn_info</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">)</span>
+
+        <span class="c1"># Update the site positions</span>
+        <span class="c1">#   Did not do this during NN options because that can be slower</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+            <span class="n">orig_site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;site_index&#39;</span><span class="p">]]</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">orig_site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
+                                <span class="n">orig_site</span><span class="o">.</span><span class="n">_coords</span><span class="p">,</span>
+                                <span class="n">properties</span><span class="o">=</span><span class="n">orig_site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
 
 
 <div class="viewcode-block" id="MinimumOKeeffeNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.MinimumOKeeffeNN">[docs]</a><span class="k">class</span> <span class="nc">MinimumOKeeffeNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
@@ -1123,7 +1390,10 @@
             <span class="n">r_norm</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> \
             <span class="n">r_norm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">+</span> \
             <span class="n">r_norm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-        <span class="n">my_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">tp</span> <span class="o">/</span> <span class="n">de</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">de</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">my_angle</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">pi</span> <span class="k">if</span> <span class="n">tp</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">pi</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">my_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">tp</span> <span class="o">/</span> <span class="n">de</span><span class="p">)</span>
         <span class="n">angle</span> <span class="o">+=</span> <span class="p">(</span><span class="n">my_angle</span> <span class="k">if</span> <span class="n">my_angle</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">my_angle</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
 
     <span class="k">return</span> <span class="n">angle</span></div>
@@ -3097,7 +3367,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
