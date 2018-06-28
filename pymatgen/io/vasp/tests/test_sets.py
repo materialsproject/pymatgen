@@ -87,6 +87,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
         self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
 
+        # Check that it works for disordered structure. Was a bug previously
+        s = Structure(lattice, ['Si4+', 'Fe2+', 'Si4+'], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
+        self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
@@ -683,8 +688,8 @@ class MVLSlabSetTest(PymatgenTest):
         # No volume relaxation during slab calculations
         self.assertEqual(incar_slab["ISIF"], 2)
         self.assertEqual(potcar_slab.functional, 'PBE')
-        self.assertEqual(potcar_slab.symbols[1], u'Li_sv')
-        self.assertEqual(potcar_slab.symbols[0], u'O')
+        self.assertEqual(potcar_slab.symbols[1], u'O')
+        self.assertEqual(potcar_slab.symbols[0], u'Li_sv')
         self.assertEqual(poscar_slab.structure.formula,
                          self.slab.formula)
         # Test auto-dipole
