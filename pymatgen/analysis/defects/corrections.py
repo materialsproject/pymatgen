@@ -36,19 +36,19 @@ class FreysoldtCorrection(DefectCorrection):
         scaling_matrix
     """
 
-    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001, axis=None):
+    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madetol=0.0001, axis=None):
         """
         Initializes the Freysoldt Correction
         Args:
             dielectric_const (float or 3x3 matrix): Dielectric constant for the structure
             q_mode (QModel): instantiated QModel object or None. Uses default parameters to instantiate QModel if None supplied
             energy_cutoff (int): Maximum energy in eV in recipripcol space to perform integration for potential correction
-            madelung_energy_tolerance(float): Convergence criteria for the Madelung energy for potential correction
+            madeltol(float): Convergence criteria for the Madelung energy for potential correction
             axis (int): Axis to calculate correction. Averages over all three if not supplied
         """
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
-        self.madelung_energy_tolerance = madelung_energy_tolerance
+        self.madetol = madetol
 
         if isinstance(dielectric_const, int) or \
                 isinstance(dielectric_const, float):
@@ -86,31 +86,14 @@ class FreysoldtCorrection(DefectCorrection):
         lattice = bulk_struct.lattice
         q = entry.defect.charge
 
-        es_corr = perform_es_corr(
-            lattice,
-            self.dielectric,
-            entry.charge,
-            energy_cutoff=self.energy_cutoff,
-            q_model=self.q_model,
-            madetol=self.madelung_energy_tolerance)
+        es_corr = self.perform_es_corr(lattice, entry.charge)
 
         pot_corr_tracker = []
 
         for x, pureavg, defavg, axis in zip(list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp,
                                             list_axes):
             tmp_pot_corr = self.perform_pot_corr(
-                x,
-                pureavg,
-                defavg,
-                lattice,
-                self.dielectric,
-                entry.charge,
-                entry.site.coords,
-                axis,
-                q_model=self.q_model,
-                madetol=self.madelung_energy_tolerance,
-                title=None,
-                widthsample=1.0)
+                x, pureavg, defavg, lattice, entry.charge, entry.site.coords, axis, widthsample=1.0)
             pot_corr_tracker.append(tmp_pot_corr)
 
         pot_corr = np.mean(pot_corr_tracker)
@@ -120,18 +103,52 @@ class FreysoldtCorrection(DefectCorrection):
 
         return {"freysoldt_electrostatic": es_corr, "freysoldt_potential_alignment": pot_corr}
 
+    def perform_es_corr(self, lattice, q, step=1e-4):
+        """
+        Peform Electrostatic Freysoldt Correction
+        """
+        logger.info("Running Freysoldt 2011 PC calculation (should be " "equivalent to sxdefectalign)")
+        logger.debug("defect lattice constants are (in angstroms)" + str(lattice.abc))
+
+        [a1, a2, a3] = ang_to_bohr * np.array(lattice.get_cartesian_coords(1))
+        logging.debug("In atomic units, lat consts are (in bohr):" + str([a1, a2, a3]))
+        vol = np.dot(a1, np.cross(a2, a3))  # vol in bohr^3
+
+        def e_iso(encut):
+            gcut = eV_to_k(encut)  # gcut is in units of 1/A
+            return scipy.integrate.quad(lambda g: self.q_model.rho_rec(g * g)**2, step, gcut)[0] * (q**2) / np.pi
+
+        def e_per(encut):
+            eper = 0
+            for g2 in generate_reciprocal_vectors_squared(a1, a2, a3, encut):
+                eper += (self.q_model.rho_rec(g2)**2) / g2
+            eper *= (q**2) * 2 * round(np.pi, 6) / vol
+            eper += (q**2) * 4 * round(np.pi, 6) \
+                * self.q_model.rho_rec_limit0 / vol
+            return eper
+
+        eiso = converge(e_iso, 5, self.madetol, self.energy_cutoff)
+        logger.debug("Eisolated : %f", round(eiso, 5))
+
+        eper = converge(e_per, 5, self.madetol, self.energy_cutoff)
+
+        logger.info("Eperiodic : %f hartree", round(eper, 5))
+        logger.info("difference (periodic-iso) is %f hartree", round(eper - eiso, 6))
+        logger.info("difference in (eV) is %f", round((eper - eiso) * hart_to_ev, 4))
+
+        es_corr = round((eiso - eper) / self.dielectric * hart_to_ev, 6)
+        logger.info("Defect Correction without alignment %f (eV): ", es_corr)
+        return es_corr
+
     def perform_pot_corr(self,
                          axis_grid,
                          pureavg,
                          defavg,
                          lattice,
-                         dielectricconst,
                          q,
                          defect_position,
                          axis,
-                         q_model=QModel(),
                          madetol=0.0001,
-                         title=None,
                          widthsample=1.0):
         """
         For performing planar averaging potential alignment
@@ -151,7 +168,7 @@ class FreysoldtCorrection(DefectCorrection):
             axbulkval -= lattice.abc[axis]
 
         if axbulkval:
-            for i in range(len(axis_grid)):
+            for i in range(nx):
                 if axbulkval < axis_grid[i]:
                     break
             rollind = len(axis_grid) - i
@@ -165,16 +182,16 @@ class FreysoldtCorrection(DefectCorrection):
         dg /= ang_to_bohr  # convert to bohr to do calculation in atomic units
 
         v_G = np.empty(len(axis_grid), np.dtype("c16"))
-        epsilon = dielectricconst
+        epsilon = self.dielectric
         # q needs to be that of the back ground
-        v_G[0] = 4 * np.pi * -q / epsilon * q_model.rho_rec_limit0
+        v_G[0] = 4 * np.pi * -q / epsilon * self.q_model.rho_rec_limit0
         for i in range(1, nx):
             if (2 * i < nx):
                 g = i * dg
             else:
                 g = (i - nx) * dg
             g2 = g * g
-            v_G[i] = 4 * np.pi / (epsilon * g2) * -q * q_model.rho_rec(g2)
+            v_G[i] = 4 * np.pi / (epsilon * g2) * -q * self.q_model.rho_rec(g2)
         if not (nx % 2):
             v_G[nx // 2] = 0
         v_R = np.fft.fft(v_G)
@@ -183,7 +200,7 @@ class FreysoldtCorrection(DefectCorrection):
         v_R = np.real(v_R) * hart_to_ev
 
         max_imag_vr = v_R_imag.max()
-        if abs(max_imag_vr) > madetol:
+        if abs(max_imag_vr) > self.madetol:
             logging.error("imaginary part found to be %s", repr(max_imag_vr))
             sys.exit()
 
@@ -254,47 +271,6 @@ class FreysoldtCorrection(DefectCorrection):
             plt.savefig(str(title) + "FreyplnravgPlot.pdf")
         else:
             return plt
-
-
-def perform_es_corr(lattice, dielectric, q, energy_cutoff=520, q_model=QModel(), madetol=0.0001):
-    """
-    Peform Electrostatic Freysoldt Correction
-    """
-    logger.info("Running Freysoldt 2011 PC calculation (should be " "equivalent to sxdefectalign)")
-    logger.debug("defect lattice constants are (in angstroms)" + str(lattice.abc))
-
-    [a1, a2, a3] = ang_to_bohr * np.array(lattice.get_cartesian_coords(1))
-    logging.debug("In atomic units, lat consts are (in bohr):" + str([a1, a2, a3]))
-    vol = np.dot(a1, np.cross(a2, a3))  # vol in bohr^3
-
-    # compute isolated energy
-    step = 1e-4
-
-    def e_iso(encut):
-        gcut = eV_to_k(encut)  # gcut is in units of 1/A
-        return scipy.integrate.quad(lambda g: q_model.rho_rec(g * g)**2, step, gcut)[0] * (q**2) / np.pi
-
-    def e_per(encut):
-        eper = 0
-        for g2 in generate_reciprocal_vectors_squared(a1, a2, a3, encut):
-            eper += (q_model.rho_rec(g2)**2) / g2
-        eper *= (q**2) * 2 * round(np.pi, 6) / vol
-        eper += (q**2) * 4 * round(np.pi, 6) \
-            * q_model.rho_rec_limit0 / vol
-        return eper
-
-    eiso = converge(e_iso, 5, madetol, energy_cutoff)
-    logger.debug("Eisolated : %f", round(eiso, 5))
-
-    eper = converge(e_per, 5, madetol, energy_cutoff)
-
-    logger.info("Eperiodic : %f hartree", round(eper, 5))
-    logger.info("difference (periodic-iso) is %f hartree", round(eper - eiso, 6))
-    logger.info("difference in (eV) is %f", round((eper - eiso) * hart_to_ev, 4))
-
-    es_corr = round((eiso - eper) / dielectric * hart_to_ev, 6)
-    logger.info("Defect Correction without alignment %f (eV): ", es_corr)
-    return es_corr
 
 
 class BandFillingCorrection(DefectCorrection):

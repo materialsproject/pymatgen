@@ -12,7 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp import Vasprun
 from pymatgen.analysis.defects.core import DefectEntry, Vacancy
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection,\
-            BandFillingCorrection, BandEdgeShiftingCorrection, perform_es_corr
+            BandFillingCorrection, BandEdgeShiftingCorrection
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
 
@@ -34,11 +34,11 @@ class DefectsCorrectionsTest(PymatgenTest):
         fc = FreysoldtCorrection(15)
 
         #test electrostatic correction
-        es_corr = perform_es_corr(struc.lattice, 15., -3)
+        es_corr = fc.perform_es_corr(struc.lattice, -3)
         self.assertAlmostEqual(es_corr, 0.975893)
 
         #test potential alignment method
-        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, 15., -3, vac.site.coords, 0)
+        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, -3, vac.site.coords, 0)
         self.assertAlmostEqual(pot_corr, 2.836369987722345)
 
         #test entry full correction method
@@ -64,10 +64,10 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         #test a different charge
         #   for electrostatic correction
-        es_corr = perform_es_corr(struc.lattice, 15., 2)
+        es_corr = fc.perform_es_corr(struc.lattice, 2)
         self.assertAlmostEqual(es_corr, 0.43373)
         #   for potential alignment method
-        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, 15., 2, vac.site.coords, 0)
+        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, 2, vac.site.coords, 0)
         self.assertAlmostEqual(pot_corr, -2.1375685936497768)
 
         #test an input anisotropic dielectric constant
