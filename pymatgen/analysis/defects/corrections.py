@@ -219,11 +219,17 @@ class FreysoldtCorrection(DefectCorrection):
 
         return self.pot_corr
 
-    def plot(self, axis, x, v_R, dft_diff, final_shift, check, title=None, saved=False):
+    def plot(self, axis, title=None, saved=False):
         """
         Plots the planar average electrostatic potential against the Long range and short range models from Freysoldt
 
         """
+
+        x = self.metadata['pot_plot_data'][axis]['x']
+        v_R = self.metadata['pot_plot_data'][axis]['Vr']
+        dft_diff = self.metadata['pot_plot_data'][axis]['dft_diff']
+        final_shift = self.metadata['pot_plot_data'][axis]['final_shift']
+        check = self.metadata['pot_plot_data'][axis]['check']
 
         plt.figure()
         plt.clf()

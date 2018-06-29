@@ -11,7 +11,7 @@ import numpy as np
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp import Vasprun
 from pymatgen.analysis.defects.core import DefectEntry, Vacancy
-from pymatgen.analysis.defects.corrections import FreysoldtCorrection, freysoldt_plotter,\
+from pymatgen.analysis.defects.corrections import FreysoldtCorrection,\
             BandFillingCorrection, BandEdgeShiftingCorrection, perform_es_corr
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -49,14 +49,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         #test the freysoldt plotter and that plot metadata exists
         pltsaver = []
         for ax in range(3):
-            x = fc.metadata['pot_plot_data'][ax]['x']
-            Vr = fc.metadata['pot_plot_data'][ax]['Vr']
-            dft_diff = fc.metadata['pot_plot_data'][ax]['dft_diff']
-            final_shift = fc.metadata['pot_plot_data'][ax]['final_shift']
-            check = fc.metadata['pot_plot_data'][ax]['check']
-            fp = freysoldt_plotter( x, Vr, dft_diff, final_shift, check, title='axis_'+str(ax+1), saved=False)
-            if fp: #if plot exists then append it...
-                pltsaver.append(fp)
+            pltsaver.append(fc.plot(axis=ax))
         self.assertAlmostEqual(len(pltsaver), 3)
 
         #check that uncertainty metadata exists
