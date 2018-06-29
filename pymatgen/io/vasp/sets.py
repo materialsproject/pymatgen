@@ -261,7 +261,7 @@ class DictSet(VaspInputSet):
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
                  reduce_structure=None, vdw=None,
-                 use_structure_charge=False):
+                 use_structure_charge=False, allow_fractional_nelect=False):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -279,6 +279,7 @@ class DictSet(VaspInputSet):
         self.user_potcar_settings = user_potcar_settings
         self.vdw = vdw.lower() if vdw is not None else None
         self.use_structure_charge = use_structure_charge
+        self.allow_fractional_nelect = allow_fractional_nelect
         if self.vdw:
             vdw_par = loadfn(os.path.join(MODULE_DIR, "vdW_parameters.yaml"))
             try:
@@ -393,10 +394,13 @@ class DictSet(VaspInputSet):
                 site_symbols.remove(ps.element)
                 nelect += self.structure.composition.element_composition[ps.element] * ps.ZVAL
 
+        if not self.allow_fractional_nelect:
+            nelect = int(round(nelect))
+
         if self.use_structure_charge:
-            return int(round(nelect)) - self.structure.charge
+            return nelect - self.structure.charge
         else:
-            return int(round(nelect))
+            return nelect
 
     @property
     def kpoints(self):
