@@ -27,13 +27,6 @@ logger = logging.getLogger(__name__)
 class FreysoldtCorrection(DefectCorrection):
     """
     A class for FreysoldtCorrection class. Largely adapated from PyCDT code
-    Requires some parameters in the DefectEntry to properly function:
-        # TODO: @dbroberg please give better descriptions of what these are
-        axis_grid
-            list of numpy arrays of x-axis values (in angstroms) corresponding to each avg esp supplied
-        bulk_planar_averages
-        defect_planar_averages
-        scaling_matrix
     """
 
     def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madetol=0.0001, axis=None):
@@ -44,7 +37,7 @@ class FreysoldtCorrection(DefectCorrection):
             q_mode (QModel): instantiated QModel object or None. Uses default parameters to instantiate QModel if None supplied
             energy_cutoff (int): Maximum energy in eV in recipripcol space to perform integration for potential correction
             madeltol(float): Convergence criteria for the Madelung energy for potential correction
-            axis (int): Axis to calculate correction. Averages over all three if not supplied
+            axis (int): Axis to calculate correction. Averages over all three if not supplied.
         """
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
@@ -64,8 +57,33 @@ class FreysoldtCorrection(DefectCorrection):
         """
         Gets the Freysoldt correction for a defect entry
         Args:
-            entry (DefectEntry): defect entry to compute Freysoldt correction on
+            entry (DefectEntry): defect entry to compute Freysoldt correction on.
+                Requires following parameters in the DefectEntry to exist:
+
+                    axis_grid (3 x NGX where NGX is the length of the NGX grid
+                    in the x,y and z axis directions. Same length as planar
+                    average lists):
+                        A list of 3 numpy arrays which contain the cartesian axis
+                        values (in angstroms) that correspond to each planar avg
+                        potential supplied.
+
+                    bulk_planar_averages (3 x NGX where NGX is the length of
+                    the NGX grid in the x,y and z axis directions.):
+                        A list of 3 numpy arrays which contain the planar averaged
+                        electrostatic potential for the bulk supercell.
+
+                    defect_planar_averages (3 x NGX where NGX is the length of
+                    the NGX grid in the x,y and z axis directions.):
+                        A list of 3 numpy arrays which contain the planar averaged
+                        electrostatic potential for the defective supercell.
+
+                    scaling_matrix (3 x 1 matrix): scaling matrix required to convert the
+                        entry.defect.bulk_structure object into the lattice which is used by
+                        the bulk_planar_average and defect_planar_average
+
         """
+
+
         if not self.axis:
             list_axis_grid = np.array(entry.parameters["axis_grid"])
             list_bulk_plnr_avg_esp = np.array(entry.parameters["bulk_planar_averages"])
@@ -429,7 +447,7 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         """
         Gets the BandEdge correction for a defect entry
         """
-        # TODO: in future will perform a defect level shift with projection method from kyle
+        # TODO: add smarter defect level shifting based on defect level projection onto host bands
         hybrid_cbm = entry.parameters["hybrid_cbm"]
         hybrid_vbm = entry.parameters["hybrid_vbm"]
         vbm = entry.parameters["vbm"]

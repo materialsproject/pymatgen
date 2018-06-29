@@ -176,7 +176,6 @@ class DefectPhaseDiagram(MSONable):
                 dfct.charge
             })
 
-            # TODO: Should be this entry: concentration?
         return concentrations
 
     def suggest_charges(self, tolerance=0.1):
