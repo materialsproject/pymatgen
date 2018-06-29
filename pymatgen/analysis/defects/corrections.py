@@ -5,14 +5,12 @@
 import logging
 import sys
 import numpy as np
+import scipy
 from scipy import stats
 from pymatgen.analysis.defects.core import DefectCorrection
 from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, \
     generate_reciprocal_vectors_squared, QModel
 
-
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
@@ -23,8 +21,6 @@ __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
-# TODO: Better doc on entry parameters with detailed explanation of what they are
-
 logger = logging.getLogger(__name__)
 
 
@@ -32,18 +28,24 @@ class FreysoldtCorrection(DefectCorrection):
     """
     A class for FreysoldtCorrection class. Largely adapated from PyCDT code
     Requires some parameters in the DefectEntry to properly function:
+        # TODO: @dbroberg please give better descriptions of what these are
         axis_grid
             list of numpy arrays of x-axis values (in angstroms) corresponding to each avg esp supplied
-
         bulk_planar_averages
-
         defect_planar_averages
-
-        axis: The axes to calculate on, if none given, averages over all three.
-
+        scaling_matrix
     """
 
     def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001, axis=None):
+        """
+        Initializes the Freysoldt Correction
+        Args:
+            dielectric_const (float or 3x3 matrix): Dielectric constant for the structure
+            q_mode (QModel): instantiated QModel object or None. Uses default parameters to instantiate QModel if None supplied
+            energy_cutoff (int): Maximum energy in eV in recipripcol space to perform integration for potential correction
+            madelung_energy_tolerance(float): Convergence criteria for the Madelung energy for potential correction
+            axis (int): Axis to calculate correction. Averages over all three if not supplied
+        """
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
         self.madelung_energy_tolerance = madelung_energy_tolerance
@@ -61,6 +63,8 @@ class FreysoldtCorrection(DefectCorrection):
     def get_correction(self, entry):
         """
         Gets the Freysoldt correction for a defect entry
+        Args:
+            entry (DefectEntry): defect entry to compute Freysoldt correction on
         """
         if not self.axis:
             list_axis_grid = np.array(entry.parameters["axis_grid"])
@@ -390,8 +394,8 @@ class BandFillingCorrection(DefectCorrection):
 
         # for tracking mid gap states...
         resolution = 0.01  # this is energy resolution to maintain for gap states
-        shifted_cbm = potalign + cbm #shift cbm with potential alignment
-        shifted_vbm = potalign + vbm #shift vbm with potential alignment
+        shifted_cbm = potalign + cbm  # shift cbm with potential alignment
+        shifted_vbm = potalign + vbm  # shift vbm with potential alignment
 
         occupied_midgap = {en: [] for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution)}
         occupation = {en: 0. for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution)}
