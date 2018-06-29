@@ -5,14 +5,12 @@
 import logging
 import sys
 import numpy as np
+import scipy
 from scipy import stats
 from pymatgen.analysis.defects.core import DefectCorrection
 from pymatgen.analysis.defects.utils import ang_to_bohr, hart_to_ev, eV_to_k, \
-    generate_reciprocal_vectors_squared, QModel
+    generate_reciprocal_vectors_squared, QModel, converge
 
-
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
@@ -23,8 +21,6 @@ __email__ = "shyamd@lbl.gov"
 __status__ = "Development"
 __date__ = "Mar 15, 2018"
 
-# TODO: Better doc on entry parameters with detailed explanation of what they are
-
 logger = logging.getLogger(__name__)
 
 
@@ -32,21 +28,27 @@ class FreysoldtCorrection(DefectCorrection):
     """
     A class for FreysoldtCorrection class. Largely adapated from PyCDT code
     Requires some parameters in the DefectEntry to properly function:
+        # TODO: @dbroberg please give better descriptions of what these are
         axis_grid
             list of numpy arrays of x-axis values (in angstroms) corresponding to each avg esp supplied
-
         bulk_planar_averages
-
         defect_planar_averages
-
-        axis: The axes to calculate on, if none given, averages over all three.
-
+        scaling_matrix
     """
 
-    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madelung_energy_tolerance=0.0001, axis=None):
+    def __init__(self, dielectric_const, q_model=None, energy_cutoff=520, madetol=0.0001, axis=None):
+        """
+        Initializes the Freysoldt Correction
+        Args:
+            dielectric_const (float or 3x3 matrix): Dielectric constant for the structure
+            q_mode (QModel): instantiated QModel object or None. Uses default parameters to instantiate QModel if None supplied
+            energy_cutoff (int): Maximum energy in eV in recipripcol space to perform integration for potential correction
+            madeltol(float): Convergence criteria for the Madelung energy for potential correction
+            axis (int): Axis to calculate correction. Averages over all three if not supplied
+        """
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
-        self.madelung_energy_tolerance = madelung_energy_tolerance
+        self.madetol = madetol
 
         if isinstance(dielectric_const, int) or \
                 isinstance(dielectric_const, float):
@@ -61,6 +63,8 @@ class FreysoldtCorrection(DefectCorrection):
     def get_correction(self, entry):
         """
         Gets the Freysoldt correction for a defect entry
+        Args:
+            entry (DefectEntry): defect entry to compute Freysoldt correction on
         """
         if not self.axis:
             list_axis_grid = np.array(entry.parameters["axis_grid"])
@@ -82,31 +86,14 @@ class FreysoldtCorrection(DefectCorrection):
         lattice = bulk_struct.lattice
         q = entry.defect.charge
 
-        es_corr = self.perform_es_corr(
-            lattice,
-            self.dielectric,
-            entry.charge,
-            energy_cutoff=self.energy_cutoff,
-            q_model=self.q_model,
-            madetol=self.madelung_energy_tolerance)
+        es_corr = self.perform_es_corr(lattice, entry.charge)
 
         pot_corr_tracker = []
 
         for x, pureavg, defavg, axis in zip(list_axis_grid, list_bulk_plnr_avg_esp, list_defect_plnr_avg_esp,
                                             list_axes):
             tmp_pot_corr = self.perform_pot_corr(
-                x,
-                pureavg,
-                defavg,
-                lattice,
-                self.dielectric,
-                entry.charge,
-                entry.site.coords,
-                axis,
-                q_model=self.q_model,
-                madetol=self.madelung_energy_tolerance,
-                title=None,
-                widthsample=1.0)
+                x, pureavg, defavg, lattice, entry.charge, entry.site.coords, axis, widthsample=1.0)
             pot_corr_tracker.append(tmp_pot_corr)
 
         pot_corr = np.mean(pot_corr_tracker)
@@ -116,11 +103,10 @@ class FreysoldtCorrection(DefectCorrection):
 
         return {"freysoldt_electrostatic": es_corr, "freysoldt_potential_alignment": pot_corr}
 
-    def perform_es_corr(self, lattice, dielectric, q, energy_cutoff=520, q_model=QModel(), madetol=0.0001):
+    def perform_es_corr(self, lattice, q, step=1e-4):
         """
         Peform Electrostatic Freysoldt Correction
         """
-        logger = logging.getLogger(__name__)
         logger.info("Running Freysoldt 2011 PC calculation (should be " "equivalent to sxdefectalign)")
         logger.debug("defect lattice constants are (in angstroms)" + str(lattice.abc))
 
@@ -128,58 +114,29 @@ class FreysoldtCorrection(DefectCorrection):
         logging.debug("In atomic units, lat consts are (in bohr):" + str([a1, a2, a3]))
         vol = np.dot(a1, np.cross(a2, a3))  # vol in bohr^3
 
-        # compute isolated energy
-        step = 1e-4
-        encut1 = 20  # converge to some smaller encut first [eV]
-        flag = 0
-        converge = []
-        while (flag != 1):
-            eiso = 1.
-            gcut = eV_to_k(encut1)  # gcut is in units of 1/A
-            g = step  # initalize
-            while g < (gcut + step):
-                # simpson integration
-                eiso += 4 * (q_model.rho_rec(g * g)**2)
-                eiso += 2 * (q_model.rho_rec((g + step)**2)**2)
-                g += 2 * step
-            eiso -= q_model.rho_rec(gcut**2)**2
-            eiso *= (q**2) * step / (3 * round(np.pi, 6))
-            converge.append(eiso)
-            if len(converge) > 2:
-                if abs(converge[-1] - converge[-2]) < madetol:
-                    flag = 1
-                elif encut1 > energy_cutoff:
-                    raise Exception("Eiso did not converge before " + str(energy_cutoff) + " eV")
-            encut1 += 20
-        eiso = converge[-1]
-        logger.debug("Eisolated : %f, converged at encut: %d", round(eiso, 5), encut1 - 20)
+        def e_iso(encut):
+            gcut = eV_to_k(encut)  # gcut is in units of 1/A
+            return scipy.integrate.quad(lambda g: self.q_model.rho_rec(g * g)**2, step, gcut)[0] * (q**2) / np.pi
 
-        # compute periodic energy;
-        encut1 = 20  # converge to some smaller encut
-        flag = 0
-        converge = []
-        while flag != 1:
-            eper = 0.0
-            for g2 in generate_reciprocal_vectors_squared(a1, a2, a3, encut1):
-                eper += (q_model.rho_rec(g2)**2) / g2
+        def e_per(encut):
+            eper = 0
+            for g2 in generate_reciprocal_vectors_squared(a1, a2, a3, encut):
+                eper += (self.q_model.rho_rec(g2)**2) / g2
             eper *= (q**2) * 2 * round(np.pi, 6) / vol
             eper += (q**2) * 4 * round(np.pi, 6) \
-                * q_model.rho_rec_limit0 / vol
-            converge.append(eper)
-            if len(converge) > 2:
-                if abs(converge[-1] - converge[-2]) < madetol:
-                    flag = 1
-                elif encut1 > energy_cutoff:
-                    logger.error("Eper did not converge before %d eV", energy_cutoff)
-                    return
-            encut1 += 20
-        eper = converge[-1]
+                * self.q_model.rho_rec_limit0 / vol
+            return eper
 
-        logger.info("Eperiodic : %f hartree, converged at encut %d eV", round(eper, 5), encut1 - 20)
+        eiso = converge(e_iso, 5, self.madetol, self.energy_cutoff)
+        logger.debug("Eisolated : %f", round(eiso, 5))
+
+        eper = converge(e_per, 5, self.madetol, self.energy_cutoff)
+
+        logger.info("Eperiodic : %f hartree", round(eper, 5))
         logger.info("difference (periodic-iso) is %f hartree", round(eper - eiso, 6))
         logger.info("difference in (eV) is %f", round((eper - eiso) * hart_to_ev, 4))
 
-        es_corr = round((eiso - eper) / dielectric * hart_to_ev, 6)
+        es_corr = round((eiso - eper) / self.dielectric * hart_to_ev, 6)
         logger.info("Defect Correction without alignment %f (eV): ", es_corr)
         return es_corr
 
@@ -188,13 +145,10 @@ class FreysoldtCorrection(DefectCorrection):
                          pureavg,
                          defavg,
                          lattice,
-                         dielectricconst,
                          q,
                          defect_position,
                          axis,
-                         q_model=QModel(),
                          madetol=0.0001,
-                         title=None,
                          widthsample=1.0):
         """
         For performing planar averaging potential alignment
@@ -202,8 +156,6 @@ class FreysoldtCorrection(DefectCorrection):
         title is for name of plot, if you dont want a plot then leave it as None
         widthsample is the width (in Angstroms) of the region in between defects where the potential alignment correction is averaged
         """
-        logger = logging.getLogger(__name__)
-
         logging.debug("run Freysoldt potential alignment method for axis " + str(axis))
         nx = len(axis_grid)
 
@@ -216,7 +168,7 @@ class FreysoldtCorrection(DefectCorrection):
             axbulkval -= lattice.abc[axis]
 
         if axbulkval:
-            for i in range(len(axis_grid)):
+            for i in range(nx):
                 if axbulkval < axis_grid[i]:
                     break
             rollind = len(axis_grid) - i
@@ -230,16 +182,16 @@ class FreysoldtCorrection(DefectCorrection):
         dg /= ang_to_bohr  # convert to bohr to do calculation in atomic units
 
         v_G = np.empty(len(axis_grid), np.dtype("c16"))
-        epsilon = dielectricconst
+        epsilon = self.dielectric
         # q needs to be that of the back ground
-        v_G[0] = 4 * np.pi * -q / epsilon * q_model.rho_rec_limit0
+        v_G[0] = 4 * np.pi * -q / epsilon * self.q_model.rho_rec_limit0
         for i in range(1, nx):
             if (2 * i < nx):
                 g = i * dg
             else:
                 g = (i - nx) * dg
             g2 = g * g
-            v_G[i] = 4 * np.pi / (epsilon * g2) * -q * q_model.rho_rec(g2)
+            v_G[i] = 4 * np.pi / (epsilon * g2) * -q * self.q_model.rho_rec(g2)
         if not (nx % 2):
             v_G[nx // 2] = 0
         v_R = np.fft.fft(v_G)
@@ -248,7 +200,7 @@ class FreysoldtCorrection(DefectCorrection):
         v_R = np.real(v_R) * hart_to_ev
 
         max_imag_vr = v_R_imag.max()
-        if abs(max_imag_vr) > madetol:
+        if abs(max_imag_vr) > self.madetol:
             logging.error("imaginary part found to be %s", repr(max_imag_vr))
             sys.exit()
 
@@ -284,35 +236,41 @@ class FreysoldtCorrection(DefectCorrection):
 
         return self.pot_corr
 
+    def plot(self, axis, title=None, saved=False):
+        """
+        Plots the planar average electrostatic potential against the Long range and short range models from Freysoldt
 
-# TODO: Make this a part of above
-def freysoldt_plotter(x, v_R, dft_diff, final_shift, check, title=None, saved=False):
-    """
-    planar average electrostatic potential plotter for Freysoldt
-    """
-    plt.figure()
-    plt.clf()
-    plt.plot(x, v_R, c="green", zorder=1, label="long range from model")
-    plt.plot(x, dft_diff, c="red", label="DFT locpot diff")
-    plt.plot(x, final_shift, c="blue", label="short range (aligned)")
+        """
 
-    tmpx = [x[i] for i in range(check[0], check[1])]
-    plt.fill_between(tmpx, -100, 100, facecolor="red", alpha=0.15, label="sampling region")
+        x = self.metadata['pot_plot_data'][axis]['x']
+        v_R = self.metadata['pot_plot_data'][axis]['Vr']
+        dft_diff = self.metadata['pot_plot_data'][axis]['dft_diff']
+        final_shift = self.metadata['pot_plot_data'][axis]['final_shift']
+        check = self.metadata['pot_plot_data'][axis]['check']
 
-    plt.xlim(round(x[0]), round(x[-1]))
-    ymin = min(min(v_R), min(dft_diff), min(final_shift))
-    ymax = max(max(v_R), max(dft_diff), max(final_shift))
-    plt.ylim(-0.2 + ymin, 0.2 + ymax)
-    plt.xlabel("distance along axis ($\AA$)", fontsize=15)
-    plt.ylabel("Potential (V)", fontsize=15)
-    plt.legend(loc=9)
-    plt.axhline(y=0, linewidth=0.2, color="black")
-    plt.title(str(title) + " defect potential", fontsize=18)
-    plt.xlim(0, max(x))
-    if saved:
-        plt.savefig(str(title) + "FreyplnravgPlot.pdf")
-    else:
-        return plt
+        plt.figure()
+        plt.clf()
+        plt.plot(x, v_R, c="green", zorder=1, label="long range from model")
+        plt.plot(x, dft_diff, c="red", label="DFT locpot diff")
+        plt.plot(x, final_shift, c="blue", label="short range (aligned)")
+
+        tmpx = [x[i] for i in range(check[0], check[1])]
+        plt.fill_between(tmpx, -100, 100, facecolor="red", alpha=0.15, label="sampling region")
+
+        plt.xlim(round(x[0]), round(x[-1]))
+        ymin = min(min(v_R), min(dft_diff), min(final_shift))
+        ymax = max(max(v_R), max(dft_diff), max(final_shift))
+        plt.ylim(-0.2 + ymin, 0.2 + ymax)
+        plt.xlabel("distance along axis ($\AA$)", fontsize=15)
+        plt.ylabel("Potential (V)", fontsize=15)
+        plt.legend(loc=9)
+        plt.axhline(y=0, linewidth=0.2, color="black")
+        plt.title(str(title) + " defect potential", fontsize=18)
+        plt.xlim(0, max(x))
+        if saved:
+            plt.savefig(str(title) + "FreyplnravgPlot.pdf")
+        else:
+            return plt
 
 
 class BandFillingCorrection(DefectCorrection):
@@ -390,8 +348,8 @@ class BandFillingCorrection(DefectCorrection):
 
         # for tracking mid gap states...
         resolution = 0.01  # this is energy resolution to maintain for gap states
-        shifted_cbm = potalign + cbm #shift cbm with potential alignment
-        shifted_vbm = potalign + vbm #shift vbm with potential alignment
+        shifted_cbm = potalign + cbm  # shift cbm with potential alignment
+        shifted_vbm = potalign + vbm  # shift vbm with potential alignment
 
         occupied_midgap = {en: [] for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution)}
         occupation = {en: 0. for en in np.arange(shifted_vbm, shifted_cbm + resolution, resolution)}

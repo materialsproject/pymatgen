@@ -3,14 +3,13 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-"""
-This module defines utility classes for defects.
-"""
+
 import math
 
 from monty.json import MSONable
 
 import itertools
+import pandas as pd
 import numpy as np
 from numpy.linalg import norm
 import logging
@@ -20,15 +19,14 @@ from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
 from pymatgen.analysis.local_env import LocalStructOrderParams, \
-    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator , \
+    MinimumDistanceNN, ValenceIonicRadiusEvaluator , \
     cn_opt_params
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.zeopp import get_void_volume_surfarea, \
-    get_high_accuracy_voronoi_nodes
+from pymatgen.io.zeopp import get_high_accuracy_voronoi_nodes
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
@@ -57,7 +55,6 @@ hart_to_ev = 27.2114
 ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
 kb = 8.6173324e-5  # eV / K
-
 
 motif_cn_op = {}
 for cn, di in cn_opt_params.items():
@@ -266,7 +263,7 @@ class StructureMotifInterstitial(object):
         self._op_threshs = op_threshs[:]
         self.cn_motif_lostop = {}
         self.target_cns = []
-        for imotif, motif in enumerate(self._motif_types):
+        for motif in self._motif_types:
             if motif not in list(motif_cn_op.keys()):
                 raise RuntimeError("unsupported motif type: {}.".format(motif))
             cn = int(motif_cn_op[motif]['cn'])
@@ -289,12 +286,10 @@ class StructureMotifInterstitial(object):
         self._defect_opvals = []
 
         rots, trans = SpacegroupAnalyzer(struct)._get_symmetry()
-        nbins = [int(struct.lattice.a / dl), \
-                 int(struct.lattice.b / dl), \
-                 int(struct.lattice.c / dl)]
-        dls = [struct.lattice.a / float(nbins[0]), \
-               struct.lattice.b / float(nbins[1]), \
-               struct.lattice.c / float(nbins[2])]
+        nbins = [int(struct.lattice.a / dl), int(struct.lattice.b / dl), int(struct.lattice.c / dl)]
+        dls = [
+            struct.lattice.a / float(nbins[0]), struct.lattice.b / float(nbins[1]), struct.lattice.c / float(nbins[2])
+        ]
         maxdl = max(dls)
         if verbose:
             print("Grid size: {} {} {}".format(nbins[0], nbins[1], nbins[2]))
@@ -412,7 +407,7 @@ class StructureMotifInterstitial(object):
             discard_motif = []
             for indi, i in enumerate(include):
                 if trialsites[i]["mtype"] != motif or \
-                                i in discard_motif:
+                        i in discard_motif:
                     continue
                 multiplicity[i] = 1
                 symposlist = [trialsites[i]["fracs"].dot(np.array(m, dtype=float)) for m in rots]
@@ -421,7 +416,7 @@ class StructureMotifInterstitial(object):
                 for indj in range(indi + 1, len(include)):
                     j = include[indj]
                     if trialsites[j]["mtype"] != motif or \
-                                    j in discard_motif:
+                            j in discard_motif:
                         continue
                     for sympos in symposlist:
                         dist, image = struct.lattice.get_distance_and_image(sympos, trialsites[j]["fracs"])
@@ -608,8 +603,8 @@ class TopographyAnalyzer(object):
         constrained_sites = []
         for i, site in enumerate(s):
             if site.frac_coords[2] >= constrained_c_frac - thickness and \
-                            site.frac_coords[
-                                2] <= constrained_c_frac + thickness:
+                    site.frac_coords[
+                    2] <= constrained_c_frac + thickness:
                 constrained_sites.append(site)
         structure = Structure.from_sites(sites=constrained_sites)
         lattice = structure.lattice
@@ -851,7 +846,7 @@ class VoronoiPolyhedron(object):
         frac_diff = pbc_diff(poly.frac_coords, self.frac_coords)
         if not np.allclose(frac_diff, [0, 0, 0], atol=tol):
             return False
-        to_frac = lambda c: self.lattice.get_fractional_coords(c)
+        to_frac = self.lattice.get_fractional_coords
         for c1 in self.polyhedron_coords:
             found = False
             for c2 in poly.polyhedron_coords:
@@ -1178,3 +1173,21 @@ def calculate_vol(coords):
             c.append(center)
             vol += calculate_vol(c)
         return vol
+
+
+def converge(f, step, tol, max_h):
+    """
+    simple newton itteration based convergence function
+    """
+    g = f(0)
+    dx = 10000
+    h = step
+    while (dx > tol):
+        g2 = f(h)
+        dx = abs(g - g2)
+        g = g2
+        h += step
+
+        if h > max_h:
+            raise Exception("Did not converge before {}".format(h))
+    return g

@@ -384,18 +384,20 @@ class PhaseDiagramTest(unittest.TestCase):
         c2 = Composition('FeO')
 
         cp1 = self.pd.get_all_chempots(c1)
-        cpresult = {'FeO-LiFeO2-Fe3O4':
-                         {Element("Li"): -4.077061954999998,
-                          Element("Fe"): -6.741593864999999,
-                          Element("O"): -6.969907375000003}}
-        self.assertEqual(cp1, cpresult)
+        cpresult = {Element("Li"): -4.077061954999998,
+                    Element("Fe"): -6.741593864999999,
+                    Element("O"): -6.969907375000003}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem],energy)
 
         cp2 = self.pd.get_all_chempots(c2)
-        cpresult['FeO-LiFeO2-Fe'] = \
-                        {Element("O"): -7.115354140000001,
-                         Element("Fe"): -6.5961471,
-                         Element("Li"): -3.9316151899999987}
-        self.assertEqual(cp2, cpresult)
+        cpresult = {Element("O"): -7.115354140000001,
+                    Element("Fe"): -6.5961471,
+                    Element("Li"): -3.9316151899999987}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp2['FeO-LiFeO2-Fe'][elem],energy)
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):

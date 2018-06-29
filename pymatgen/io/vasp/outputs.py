@@ -1606,17 +1606,13 @@ class Outcar(MSONable):
 
         # Check to see if LEPSILON is true and read piezo data if so
         self.lepsilon = False
-        self.dfpt = False
         self.read_pattern({'epsilon': 'LEPSILON=     T'})
-        self.read_pattern({'ibrion': "IBRION =\s+(\d)"}, terminate_on_match=True,
-                          postprocess=int)
         if self.data.get('epsilon', []):
             self.lepsilon = True
             self.read_lepsilon()
             # only read ionic contribution if DFPT is turned on
             if self.dfpt:
                 self.read_lepsilon_ionic()
-
 
         # Check to see if LCALCPOL is true and read polarization data if so
         self.lcalcpol = False
