@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure module &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.core.structure module &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -785,7 +785,7 @@ are within merge_tol from each other will be merged. Usually
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_all_neighbors">
-<code class="descname">get_all_neighbors</code><span class="sig-paren">(</span><em>r</em>, <em>include_index=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_all_neighbors</code><span class="sig-paren">(</span><em>r</em>, <em>include_index=False</em>, <em>include_image=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_all_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_all_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get neighbors for each atom in the unit cell, out to a distance r
 Returns a list of list of neighbors for each site in structure.
 Use this method if you are planning on looping over all sites in the
@@ -796,6 +796,10 @@ is more efficient since it only performs one pass over a large enough
 supercell to contain all possible atoms out to a distance r.
 The return type is a [(site, dist) …] since most of the time,
 subsequent processing requires the distance.</p>
+<p>A note about periodic images: Before computing the neighbors, this operation
+translates all atoms to within the unit cell (having fractional coordinates within [0,1)).
+This means that the “image” of a site does not correspond to how much it has been
+translates from its current position, but which image of the unit cell it resides.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -803,6 +807,8 @@ subsequent processing requires the distance.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>r</strong> (<em>float</em>) – Radius of sphere.</li>
 <li><strong>include_index</strong> (<em>bool</em>) – Whether to include the non-supercell site
+in the returned data</li>
+<li><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
 in the returned data</li>
 </ul>
 </td>
@@ -812,7 +818,8 @@ in the returned data</li>
 Index only supplied if include_index = True.
 The index is the index of the site in the original (non-supercell)
 structure. This is needed for ewaldmatrix by keeping track of which
-sites contribute to the ewald sum.</p>
+sites contribute to the ewald sum.
+Image only supplied if include_image = True</p>
 </td>
 </tr>
 </tbody>
@@ -849,7 +856,7 @@ Default is None for nearest image.</li>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_neighbors">
-<code class="descname">get_neighbors</code><span class="sig-paren">(</span><em>site</em>, <em>r</em>, <em>include_index=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_neighbors</code><span class="sig-paren">(</span><em>site</em>, <em>r</em>, <em>include_index=False</em>, <em>include_image=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all neighbors to a site within a sphere of radius r.  Excludes the
 site itself.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -857,15 +864,21 @@ site itself.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site</strong> – site, which is the center of the sphere.</li>
-<li><strong>r</strong> – radius of sphere.</li>
-<li><strong>include_index</strong> – boolean that determines whether the non-supercell site index
+<li><strong>site</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site" title="pymatgen.core.sites.Site"><em>Site</em></a>) – Which is the center of the sphere.</li>
+<li><strong>r</strong> (<em>float</em>) – Radius of sphere.</li>
+<li><strong>include_index</strong> (<em>bool</em>) – Whether the non-supercell site index
+is included in the returned data</li>
+<li><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
 is included in the returned data</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[(site, dist) …] since most of the time, subsequent processing
-requires the distance.</p>
+requires the distance.
+If include_index == True, the tuple for each neighbor also includes
+the index of the neighbor.
+If include_supercell == True, the tuple for each neighbor also includes
+the index of supercell.</p>
 </td>
 </tr>
 </tbody>
@@ -874,7 +887,7 @@ requires the distance.</p>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_neighbors_in_shell">
-<code class="descname">get_neighbors_in_shell</code><span class="sig-paren">(</span><em>origin</em>, <em>r</em>, <em>dr</em>, <em>include_index=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors_in_shell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors_in_shell" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_neighbors_in_shell</code><span class="sig-paren">(</span><em>origin</em>, <em>r</em>, <em>dr</em>, <em>include_index=False</em>, <em>include_image=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_neighbors_in_shell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_neighbors_in_shell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all sites in a shell centered on origin (coords) between radii
 r-dr and r+dr.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -887,6 +900,8 @@ r-dr and r+dr.</p>
 <li><strong>dr</strong> (<em>float</em>) – Width of shell.</li>
 <li><strong>include_index</strong> (<em>bool</em>) – Whether to include the non-supercell site
 in the returned data</li>
+<li><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
+in the returned data</li>
 </ul>
 </td>
 </tr>
@@ -895,7 +910,8 @@ processing
 requires the distance. Index only supplied if include_index = True.
 The index is the index of the site in the original (non-supercell)
 structure. This is needed for ewaldmatrix by keeping track of which
-sites contribute to the ewald sum.</p>
+sites contribute to the ewald sum.
+Image only supplied if include_image = True</p>
 </td>
 </tr>
 </tbody>
@@ -951,7 +967,7 @@ Currently supported options are “niggli” or “LLL”.</td>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.get_sites_in_sphere">
-<code class="descname">get_sites_in_sphere</code><span class="sig-paren">(</span><em>pt</em>, <em>r</em>, <em>include_index=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_sites_in_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_sites_in_sphere" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_sites_in_sphere</code><span class="sig-paren">(</span><em>pt</em>, <em>r</em>, <em>include_index=False</em>, <em>include_image=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.get_sites_in_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.get_sites_in_sphere" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all sites within a sphere from the point. This includes sites
 in other periodic images.</p>
 <p>Algorithm:</p>
@@ -974,6 +990,8 @@ determine how many a_1”s it will take to contain the sphere.</p>
 <li><strong>pt</strong> (<em>3x1 array</em>) – cartesian coordinates of center of sphere.</li>
 <li><strong>r</strong> (<em>float</em>) – Radius of sphere.</li>
 <li><strong>include_index</strong> (<em>bool</em>) – Whether the non-supercell site index
+is included in the returned data</li>
+<li><strong>include_image</strong> (<em>bool</em>) – Whether to include the supercell image
 is included in the returned data</li>
 </ul>
 </td>
@@ -2255,7 +2273,7 @@ Raised when the structure has problems, e.g., atoms that are too close.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>
 

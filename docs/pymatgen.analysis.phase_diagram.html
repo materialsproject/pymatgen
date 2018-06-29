@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.analysis.phase_diagram module &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -613,7 +613,7 @@ allowable chemical potential range of each entry.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_stability_phase">
 <code class="descname">get_chempot_range_stability_phase</code><span class="sig-paren">(</span><em>target_comp</em>, <em>open_elt</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.get_chempot_range_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.get_chempot_range_stability_phase" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a set of chemical potentials correspoding to the max and min
+<dd><p>returns a set of chemical potentials corresponding to the max and min
 chemical potential of the open element for a given composition. It is
 quite common to have for instance a ternary oxide (e.g., ABO3) for
 which you want to know what are the A and B chemical potential leading
@@ -851,10 +851,12 @@ negative to more negative.</td>
 <dl class="method">
 <dt id="pymatgen.analysis.phase_diagram.PhaseDiagram.getmu_vertices_stability_phase">
 <code class="descname">getmu_vertices_stability_phase</code><span class="sig-paren">(</span><em>target_comp</em>, <em>dep_elt</em>, <em>tol_en=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/phase_diagram.html#PhaseDiagram.getmu_vertices_stability_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.phase_diagram.PhaseDiagram.getmu_vertices_stability_phase" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns a set of chemical potentials corresponding to the vertices of the simplex
-in the chemical potential phase diagram.
-The simplex is built using all elements in the target_composition except dep_elt.
-The chemical potential of dep_elt is computed from the target composition energy.
+<dd><p>returns a set of chemical potentials corresponding to the vertices of
+the simplex in the chemical potential phase diagram.
+The simplex is built using all elements in the target_composition
+except dep_elt.
+The chemical potential of dep_elt is computed from the target
+composition energy.
 This method is useful to get the limiting conditions for
 defects computations for instance.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -863,7 +865,8 @@ defects computations for instance.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>target_comp</strong> – A Composition object</li>
-<li><strong>dep_elt</strong> – the element for which the chemical potential is computed from the energy of</li>
+<li><strong>dep_elt</strong> – the element for which the chemical potential is computed
+from the energy of</li>
 <li><strong>stable phase at the target composition</strong> (<em>the</em>) – </li>
 <li><strong>tol_en</strong> – a tolerance on the energy to set</li>
 </ul>
@@ -1157,7 +1160,7 @@ used for converting convex hull facets into line pairs of coordinates.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>
 

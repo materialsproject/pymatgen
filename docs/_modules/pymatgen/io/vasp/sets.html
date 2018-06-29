@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.io.vasp.sets &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -296,6 +296,11 @@
 <span class="sd">            Tkatchenko-Scheffler with iterative Hirshfeld partitioning,</span>
 <span class="sd">            MBD@rSC, dDsC, Dion&#39;s vdW-DF, DF2, optPBE, optB88, optB86b and</span>
 <span class="sd">            rVV10.</span>
+<span class="sd">        use_structure_charge (bool): If set to True, then the public</span>
+<span class="sd">            variable used for setting the overall charge of the</span>
+<span class="sd">            structure (structure.charge) is used to set the NELECT</span>
+<span class="sd">            variable in the INCAR</span>
+<span class="sd">            Default is False (structure&#39;s overall charge is not used)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span>
@@ -303,7 +308,8 @@
                  <span class="n">user_kpoints_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_potcar_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">potcar_functional</span><span class="o">=</span><span class="s2">&quot;PBE&quot;</span><span class="p">,</span> <span class="n">force_gamma</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">reduce_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vdw</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">reduce_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vdw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">use_structure_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">reduce_structure</span><span class="p">:</span>
             <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">(</span><span class="n">reduce_structure</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sort_structure</span><span class="p">:</span>
@@ -320,6 +326,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">user_kpoints_settings</span> <span class="o">=</span> <span class="n">user_kpoints_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_potcar_settings</span> <span class="o">=</span> <span class="n">user_potcar_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span> <span class="o">=</span> <span class="n">vdw</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">vdw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span> <span class="o">=</span> <span class="n">use_structure_charge</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vdw</span><span class="p">:</span>
             <span class="n">vdw_par</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s2">&quot;vdW_parameters.yaml&quot;</span><span class="p">))</span>
             <span class="k">try</span><span class="p">:</span>
@@ -411,8 +418,8 @@
                            <span class="k">for</span> <span class="n">mag</span> <span class="ow">in</span> <span class="n">incar</span><span class="p">[</span><span class="s1">&#39;MAGMOM&#39;</span><span class="p">]])</span>
             <span class="n">incar</span><span class="p">[</span><span class="s1">&#39;NUPDOWN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nupdown</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">_charge</span><span class="p">:</span>
-            <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NELECT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">_charge</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span><span class="p">:</span>
+            <span class="n">incar</span><span class="p">[</span><span class="s2">&quot;NELECT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelect</span>
 
         <span class="k">return</span> <span class="n">incar</span>
 
@@ -425,10 +432,19 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets the default number of electrons for a given structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span>
-            <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">element_composition</span><span class="p">[</span><span class="n">ps</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
-                 <span class="o">*</span> <span class="n">ps</span><span class="o">.</span><span class="n">ZVAL</span>
-                 <span class="k">for</span> <span class="n">ps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">])))</span>
+        <span class="c1">#if structure is not sorted this can cause problems, so must take care to</span>
+        <span class="c1">#remove redundant symbols when counting electrons</span>
+        <span class="n">site_symbols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">))</span>
+        <span class="n">nelect</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">ps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ps</span><span class="o">.</span><span class="n">element</span> <span class="ow">in</span> <span class="n">site_symbols</span><span class="p">:</span>
+                <span class="n">site_symbols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+                <span class="n">nelect</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">element_composition</span><span class="p">[</span><span class="n">ps</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="n">ps</span><span class="o">.</span><span class="n">ZVAL</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_structure_charge</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">nelect</span><span class="p">))</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">charge</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">nelect</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -631,9 +647,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;KPOINTS&quot;</span><span class="p">][</span><span class="s2">&quot;reciprocal_density&quot;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_density</span>
         <span class="n">kpoints</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MPStaticSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">kpoints</span>
+
         <span class="c1"># Prefer to use k-point scheme from previous run</span>
+        <span class="c1"># except for when lepsilon = True is specified</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_kpoints</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_kpoints</span><span class="o">.</span><span class="n">style</span> <span class="o">!=</span> <span class="n">kpoints</span><span class="o">.</span><span class="n">style</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_kpoints</span><span class="o">.</span><span class="n">style</span> <span class="o">==</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Monkhorst</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prev_kpoints</span><span class="o">.</span><span class="n">style</span> <span class="o">==</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">supported_modes</span><span class="o">.</span><span class="n">Monkhorst</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lepsilon</span><span class="p">):</span>
                 <span class="n">k_div</span> <span class="o">=</span> <span class="p">[</span><span class="n">kp</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">kp</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">kp</span>
                          <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
                 <span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">monkhorst_automatic</span><span class="p">(</span><span class="n">k_div</span><span class="p">)</span>
@@ -1357,21 +1376,21 @@
 <span class="sd">        k_product: default to 50, kpoint number * length for a &amp; b directions,</span>
 <span class="sd">            also for c direction in bulk calculations</span>
 <span class="sd">        bulk (bool): Set to True for bulk calculation. Defaults to False.</span>
-<span class="sd">        get_locpot (bool): For calculating the electrostatic potential across the</span>
-<span class="sd">            slab. Use this if you want to calculate the work function. Will</span>
-<span class="sd">            set if slab calculation only.</span>
 <span class="sd">        **kwargs:</span>
 <span class="sd">            Other kwargs supported by :class:`DictSet`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">k_product</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bulk</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">auto_dipole</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_locpot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_mix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                 <span class="n">auto_dipole</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_mix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MVLSlabSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sort_structure</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">k_product</span> <span class="o">=</span> <span class="n">k_product</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bulk</span> <span class="o">=</span> <span class="n">bulk</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">auto_dipole</span> <span class="o">=</span> <span class="n">auto_dipole</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_locpot</span> <span class="o">=</span> <span class="n">get_locpot</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_mix</span> <span class="o">=</span> <span class="n">set_mix</span>
 
@@ -1379,17 +1398,21 @@
                       <span class="s2">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">&quot;ISIF&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk</span><span class="p">:</span>
             <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;ISIF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;LVTOT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_mix</span><span class="p">:</span>
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;AMIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span>
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;AMIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span>
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;BMIX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
             <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;NELMIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_dipole</span><span class="p">:</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
+                <span class="n">center_of_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                                            <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;IDIPOL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
                 <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;LDIPOL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;DIPOL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">center_of_mass</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_locpot</span><span class="p">:</span>
-                <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;LVTOT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">slab_incar</span><span class="p">[</span><span class="s2">&quot;DIPOL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">center_of_mass</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">[</span><span class="s2">&quot;INCAR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">slab_incar</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -1924,7 +1947,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

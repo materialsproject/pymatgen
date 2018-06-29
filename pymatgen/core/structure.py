@@ -825,7 +825,7 @@ class IStructure(SiteCollection, MSONable):
         """
         return self[i].distance(self[j], jimage)
 
-    def get_sites_in_sphere(self, pt, r, include_index=False):
+    def get_sites_in_sphere(self, pt, r, include_index=False, include_image=False):
         """
         Find all sites within a sphere from the point. This includes sites
         in other periodic images.
@@ -847,6 +847,8 @@ class IStructure(SiteCollection, MSONable):
             r (float): Radius of sphere.
             include_index (bool): Whether the non-supercell site index
                 is included in the returned data
+            include_image (bool): Whether to include the supercell image
+                is included in the returned data
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
@@ -854,35 +856,43 @@ class IStructure(SiteCollection, MSONable):
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []
-        for fcoord, dist, i in self._lattice.get_points_in_sphere(
+        for fcoord, dist, i, img in self._lattice.get_points_in_sphere(
                 site_fcoords, pt, r):
             nnsite = PeriodicSite(self[i].species_and_occu,
                                   fcoord, self._lattice,
                                   properties=self[i].properties)
-            neighbors.append((nnsite, dist) if not include_index
-                             else (nnsite, dist, i))
+
+            # Get the neighbor data
+            nn_data = (nnsite, dist) if not include_index else (nnsite, dist, i)
+            if include_image:
+                nn_data += (img,)
+            neighbors.append(nn_data)
         return neighbors
 
-    def get_neighbors(self, site, r, include_index=False):
+    def get_neighbors(self, site, r, include_index=False, include_image=False):
         """
         Get all neighbors to a site within a sphere of radius r.  Excludes the
         site itself.
 
         Args:
-            site:
-                site, which is the center of the sphere.
-            r:
-                radius of sphere.
-            include_index:
-                boolean that determines whether the non-supercell site index
+            site (Site): Which is the center of the sphere.
+            r (float): Radius of sphere.
+            include_index (bool): Whether the non-supercell site index
+                is included in the returned data
+            include_image (bool): Whether to include the supercell image
                 is included in the returned data
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
             requires the distance.
+            If include_index == True, the tuple for each neighbor also includes
+            the index of the neighbor.
+            If include_supercell == True, the tuple for each neighbor also includes
+            the index of supercell.
         """
         nn = self.get_sites_in_sphere(site.coords, r,
-                                      include_index=include_index)
+                                      include_index=include_index,
+                                      include_image=include_image)
         return [d for d in nn if site != d[0]]
 
     def get_all_neighbors(self, r, include_index=False, include_image=False):
@@ -954,7 +964,7 @@ class IStructure(SiteCollection, MSONable):
                     neighbors[i].append(item)
         return neighbors
 
-    def get_neighbors_in_shell(self, origin, r, dr, include_index=False):
+    def get_neighbors_in_shell(self, origin, r, dr, include_index=False, include_image=False):
         """
         Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
@@ -965,6 +975,8 @@ class IStructure(SiteCollection, MSONable):
             dr (float): Width of shell.
             include_index (bool): Whether to include the non-supercell site
                 in the returned data
+            include_image (bool): Whether to include the supercell image
+                in the returned data
 
         Returns:
             [(site, dist, index) ...] since most of the time, subsequent
@@ -973,9 +985,11 @@ class IStructure(SiteCollection, MSONable):
             The index is the index of the site in the original (non-supercell)
             structure. This is needed for ewaldmatrix by keeping track of which
             sites contribute to the ewald sum.
+            Image only supplied if include_image = True
         """
         outer = self.get_sites_in_sphere(origin, r + dr,
-                                         include_index=include_index)
+                                         include_index=include_index,
+                                         include_image=include_image)
         inner = r - dr
         return [t for t in outer if t[1] > inner]
 

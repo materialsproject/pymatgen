@@ -16,7 +16,7 @@ from copy import deepcopy
 from monty.dev import deprecated
 
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.sites import PeriodicSite, Site
 
 """
 This module provides classes to perform analyses of
@@ -36,10 +36,19 @@ __date__ = "August 17, 2017"
 from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs
 import numpy as np
 
+try:
+    import openbabel as ob
+    import pybel as pb
+except:
+    pb = None
+    ob = None
+
+from monty.dev import requires
+
 from bisect import bisect_left
 from scipy.spatial import Voronoi
+
 from pymatgen import Element
-from pymatgen.core.structure import Structure
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 
 default_op_params = {}
@@ -1045,6 +1054,139 @@ class MinimumDistanceNN(NearNeighbors):
                             'weight': w,
                             'site_index': self._get_original_site(structure, s)})
         return siw
+
+
+class OpenBabelNN(NearNeighbors):
+    """
+    Determine near-neighbor sites and bond orders using OpenBabel API.
+
+    NOTE: This strategy is only appropriate for molecules, and not for
+    structures.
+
+    Args:
+        order (bool): True if bond order should be returned as a weight, False
+        if bond length should be used as a weight.
+
+    """
+
+    @requires(pb and ob,
+              "OpenBabelNN requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org.")
+    def __init__(self, order=True):
+        self.order = order
+
+    def get_nn_info(self, structure, n):
+        """
+        Get all near-neighbor sites and weights (orders) of bonds for a given
+        atom.
+
+        :param molecule: input Molecule.
+        :param n: index of site for which to determine near neighbors.
+        :return: [dict] representing a neighboring site and the type of
+        bond present between site n and the neighboring site.
+        """
+
+        from pymatgen.io.babel import BabelMolAdaptor
+
+        obmol = BabelMolAdaptor(structure).openbabel_mol
+
+        siw = []
+
+        # Get only the atom of interest
+        site_atom = [a for i, a in enumerate(ob.OBMolAtomDFSIter(obmol))
+                     if [a.GetX(), a.GetY(), a.GetZ()] == list(structure[n].coords)][0]
+
+        for neighbor in ob.OBAtomAtomIter(site_atom):
+            coords = [neighbor.GetX(), neighbor.GetY(), neighbor.GetZ()]
+            site = [a for a in structure if list(a.coords) == coords][0]
+            index = structure.index(site)
+
+            bond = site_atom.GetBond(neighbor)
+
+            if self.order:
+                obmol.PerceiveBondOrders()
+                weight = bond.GetBondOrder()
+            else:
+                weight = bond.GetLength()
+
+            siw.append({"site": site,
+                        "image": [0, 0, 0],
+                        "weight": weight,
+                        "site_index": index})
+
+        return siw
+
+    def get_bonded_structure(self, structure, decorate=False):
+        """
+        Obtain a MoleculeGraph object using this NearNeighbor
+        class. Requires the optional dependency networkx
+        (pip install networkx).
+
+        Args:
+            structure: Molecule object.
+            decorate (bool): whether to annotate site properties
+            with order parameters using neighbors determined by
+            this NearNeighbor class
+
+        Returns: a pymatgen.analysis.graphs.MoleculeGraph object
+        """
+
+        # requires optional dependency which is why it's not a top-level import
+        from pymatgen.analysis.graphs import MoleculeGraph
+
+        if decorate:
+            # Decorate all sites in the underlying structure
+            # with site properties that provides information on the
+            # coordination number and coordination pattern based
+            # on the (current) structure of this graph.
+            order_parameters = [self.get_local_order_parameters(structure, n)
+                                for n in range(len(structure))]
+            structure.add_site_property('order_parameters', order_parameters)
+
+        mg = MoleculeGraph.with_local_env_strategy(structure, self)
+
+        return mg
+
+    def get_nn_shell_info(self, structure, site_idx, shell):
+        """Get a certain nearest neighbor shell for a certain site.
+
+        Determines all non-backtracking paths through the neighbor network
+        computed by `get_nn_info`. The weight is determined by multiplying
+        the weight of the neighbor at each hop through the network. For
+        example, a 2nd-nearest-neighbor that has a weight of 1 from its
+        1st-nearest-neighbor and weight 0.5 from the original site will
+        be assigned a weight of 0.5.
+
+        As this calculation may involve computing the nearest neighbors of
+        atoms multiple times, the calculation starts by computing all of the
+        neighbor info and then calling `_get_nn_shell_info`. If you are likely
+        to call this method for more than one site, consider calling `get_all_nn`
+        first and then calling this protected method yourself.
+
+        Args:
+            structure (Molecule): Input structure
+            site_idx (int): index of site for which to determine neighbor
+                information.
+            shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)
+        Returns:
+            list of dictionaries. Each entry in the list is information about
+                a certain neighbor in the structure, in the same format as
+                `get_nn_info`.
+        """
+
+        all_nn_info = self.get_all_nn_info(structure)
+        sites = self._get_nn_shell_info(structure, all_nn_info, site_idx, shell)
+
+        # Update the site positions
+        #   Did not do this during NN options because that can be slower
+        output = []
+        for info in sites:
+            orig_site = structure[info['site_index']]
+            info['site'] = Site(orig_site.species_and_occu,
+                                orig_site._coords,
+                                properties=orig_site.properties)
+            output.append(info)
+        return output
 
 
 class MinimumOKeeffeNN(NearNeighbors):
