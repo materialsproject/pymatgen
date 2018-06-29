@@ -92,6 +92,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
         self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
 
+        s = Structure(lattice, ['H']*3, coords)
+        mprs = MPRelaxSet(s, allow_fractional_nelect=True)
+        mprs._config_dict['POTCAR']['H'] = 'H1.25'
+        self.assertAlmostEqual(mprs.nelect, 3.75)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
