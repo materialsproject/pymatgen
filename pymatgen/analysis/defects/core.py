@@ -297,13 +297,13 @@ class DefectEntry(MSONable):
             defect:
                 A Defect object from pymatgen.analysis.defects.core
             uncorrected_energy (float): Energy of the defect entry. Usually the difference between
-                the final calculated energy for the defect supercell - the perfect 
+                the final calculated energy for the defect supercell - the perfect
                 supercell energy
             corrections ([Correction]):
                 List of Correction classes (from pymatgen.analysis.defects.corrections)
                 which correct energy due to charge (e.g. Freysoldt or Kumagai)
                 or other factors (e.g. Shallow level shifts)
-            parameters (dict): An optional dict of calculation parameters and data to 
+            parameters (dict): An optional dict of calculation parameters and data to
                 use with correction schemes
                 (examples of parameter keys: supercell_size, axis_grid, bulk_planar_averages
                 defect_planar_averages )

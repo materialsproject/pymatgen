@@ -3,9 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-"""
-This module defines utility classes for defects.
-"""
+
 import math
 
 from monty.json import MSONable
@@ -21,15 +19,14 @@ from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
 from pymatgen.analysis.local_env import LocalStructOrderParams, \
-    MinimumDistanceNN, VoronoiNN, ValenceIonicRadiusEvaluator , \
+    MinimumDistanceNN, ValenceIonicRadiusEvaluator , \
     cn_opt_params
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.zeopp import get_void_volume_surfarea, \
-    get_high_accuracy_voronoi_nodes
+from pymatgen.io.zeopp import get_high_accuracy_voronoi_nodes
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
@@ -266,7 +263,7 @@ class StructureMotifInterstitial(object):
         self._op_threshs = op_threshs[:]
         self.cn_motif_lostop = {}
         self.target_cns = []
-        for imotif, motif in enumerate(self._motif_types):
+        for motif in self._motif_types:
             if motif not in list(motif_cn_op.keys()):
                 raise RuntimeError("unsupported motif type: {}.".format(motif))
             cn = int(motif_cn_op[motif]['cn'])
@@ -849,7 +846,7 @@ class VoronoiPolyhedron(object):
         frac_diff = pbc_diff(poly.frac_coords, self.frac_coords)
         if not np.allclose(frac_diff, [0, 0, 0], atol=tol):
             return False
-        to_frac = lambda c: self.lattice.get_fractional_coords(c)
+        to_frac = self.lattice.get_fractional_coords
         for c1 in self.polyhedron_coords:
             found = False
             for c2 in poly.polyhedron_coords:
