@@ -12,7 +12,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp import Vasprun
 from pymatgen.analysis.defects.core import DefectEntry, Vacancy
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, freysoldt_plotter,\
-            BandFillingCorrection, BandEdgeShiftingCorrection
+            BandFillingCorrection, BandEdgeShiftingCorrection, perform_es_corr
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -33,8 +33,8 @@ class DefectsCorrectionsTest(PymatgenTest):
         fc = FreysoldtCorrection(15)
 
         #test electrostatic correction
-        es_corr = fc.perform_es_corr(struc.lattice, 15., -3)
-        self.assertAlmostEqual(es_corr, 0.976412)
+        es_corr = perform_es_corr(struc.lattice, 15., -3)
+        self.assertAlmostEqual(es_corr, 0.975893)
 
         #test potential alignment method
         pot_corr = fc.perform_pot_corr( axisdata[0], bldata[0], dldata[0], struc.lattice, 15., -3, vac.site.coords, 0)
@@ -43,7 +43,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         #test entry full correction method
         de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
         val = fc.get_correction(de)
-        self.assertAlmostEqual(val['freysoldt_electrostatic'], 0.976412)
+        self.assertAlmostEqual(val['freysoldt_electrostatic'], 0.975893)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 4.4700574)
 
         #test the freysoldt plotter and that plot metadata exists
@@ -70,8 +70,8 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         #test a different charge
         #   for electrostatic correction
-        es_corr = fc.perform_es_corr(struc.lattice, 15., 2)
-        self.assertAlmostEqual(es_corr, 0.43396099999999999)
+        es_corr = perform_es_corr(struc.lattice, 15., 2)
+        self.assertAlmostEqual(es_corr, 0.43373)
         #   for potential alignment method
         pot_corr = fc.perform_pot_corr( axisdata[0], bldata[0], dldata[0], struc.lattice, 15., 2, vac.site.coords, 0)
         self.assertAlmostEqual(pot_corr, -2.1375685936497768)
@@ -80,7 +80,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         fc = FreysoldtCorrection([[1.,2.,3.],[0.,3.,5.],[4., 10., 8.]])
         self.assertAlmostEqual( fc.dielectric, 4.)
         val = fc.get_correction(de)
-        self.assertAlmostEqual(val['freysoldt_electrostatic'], 3.6615440000000001)
+        self.assertAlmostEqual(val['freysoldt_electrostatic'], 3.659599)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 3.3605255195745087)
 
         #test potalign being added to defect entry
