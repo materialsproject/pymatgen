@@ -11,6 +11,7 @@ import math
 from monty.json import MSONable
 
 import itertools
+import pandas as pd
 import numpy as np
 from numpy.linalg import norm
 import logging
@@ -1178,3 +1179,20 @@ def calculate_vol(coords):
             c.append(center)
             vol += calculate_vol(c)
         return vol
+
+def converge(f,step,tol,max_h):
+    """
+    simple newton itteration based convergence function
+    """
+    g = f(0)
+    dx = 10000
+    h = step
+    while (dx > tol):
+        g2 = f(h)
+        dx = abs(g-g2)
+        g = g2
+        h += step
+
+        if h > max_h:
+            raise Exception("Did not converge before {}".format(h))
+    return g
