@@ -59,7 +59,6 @@ ang_to_bohr = 1.8897
 invang_to_ev = 3.80986
 kb = 8.6173324e-5  # eV / K
 
-
 motif_cn_op = {}
 for cn, di in cn_opt_params.items():
     for mot, li in di.items():
@@ -290,12 +289,10 @@ class StructureMotifInterstitial(object):
         self._defect_opvals = []
 
         rots, trans = SpacegroupAnalyzer(struct)._get_symmetry()
-        nbins = [int(struct.lattice.a / dl), \
-                 int(struct.lattice.b / dl), \
-                 int(struct.lattice.c / dl)]
-        dls = [struct.lattice.a / float(nbins[0]), \
-               struct.lattice.b / float(nbins[1]), \
-               struct.lattice.c / float(nbins[2])]
+        nbins = [int(struct.lattice.a / dl), int(struct.lattice.b / dl), int(struct.lattice.c / dl)]
+        dls = [
+            struct.lattice.a / float(nbins[0]), struct.lattice.b / float(nbins[1]), struct.lattice.c / float(nbins[2])
+        ]
         maxdl = max(dls)
         if verbose:
             print("Grid size: {} {} {}".format(nbins[0], nbins[1], nbins[2]))
@@ -413,7 +410,7 @@ class StructureMotifInterstitial(object):
             discard_motif = []
             for indi, i in enumerate(include):
                 if trialsites[i]["mtype"] != motif or \
-                                i in discard_motif:
+                        i in discard_motif:
                     continue
                 multiplicity[i] = 1
                 symposlist = [trialsites[i]["fracs"].dot(np.array(m, dtype=float)) for m in rots]
@@ -422,7 +419,7 @@ class StructureMotifInterstitial(object):
                 for indj in range(indi + 1, len(include)):
                     j = include[indj]
                     if trialsites[j]["mtype"] != motif or \
-                                    j in discard_motif:
+                            j in discard_motif:
                         continue
                     for sympos in symposlist:
                         dist, image = struct.lattice.get_distance_and_image(sympos, trialsites[j]["fracs"])
@@ -609,8 +606,8 @@ class TopographyAnalyzer(object):
         constrained_sites = []
         for i, site in enumerate(s):
             if site.frac_coords[2] >= constrained_c_frac - thickness and \
-                            site.frac_coords[
-                                2] <= constrained_c_frac + thickness:
+                    site.frac_coords[
+                    2] <= constrained_c_frac + thickness:
                 constrained_sites.append(site)
         structure = Structure.from_sites(sites=constrained_sites)
         lattice = structure.lattice
@@ -1180,7 +1177,8 @@ def calculate_vol(coords):
             vol += calculate_vol(c)
         return vol
 
-def converge(f,step,tol,max_h):
+
+def converge(f, step, tol, max_h):
     """
     simple newton itteration based convergence function
     """
@@ -1189,7 +1187,7 @@ def converge(f,step,tol,max_h):
     h = step
     while (dx > tol):
         g2 = f(h)
-        dx = abs(g-g2)
+        dx = abs(g - g2)
         g = g2
         h += step
 

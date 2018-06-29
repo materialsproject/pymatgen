@@ -14,8 +14,7 @@ from pymatgen.analysis.defects.core import DefectEntry, Vacancy
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection,\
             BandFillingCorrection, BandEdgeShiftingCorrection, perform_es_corr
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
 
 
 class DefectsCorrectionsTest(PymatgenTest):
@@ -27,9 +26,11 @@ class DefectsCorrectionsTest(PymatgenTest):
 
         abc = struc.lattice.abc
         axisdata = [np.arange(0., lattval, 0.2) for lattval in abc]
-        bldata = [np.array([1. for u in np.arange(0., lattval, 0.2)])  for lattval in abc]
-        dldata = [np.array([(-1-np.cos(2*np.pi*u/lattval)) for u in np.arange(0., lattval, 0.2)])  for lattval in abc]
-        params = {'axis_grid':axisdata, 'bulk_planar_averages': bldata, 'defect_planar_averages':dldata}
+        bldata = [np.array([1. for u in np.arange(0., lattval, 0.2)]) for lattval in abc]
+        dldata = [
+            np.array([(-1 - np.cos(2 * np.pi * u / lattval)) for u in np.arange(0., lattval, 0.2)]) for lattval in abc
+        ]
+        params = {'axis_grid': axisdata, 'bulk_planar_averages': bldata, 'defect_planar_averages': dldata}
         fc = FreysoldtCorrection(15)
 
         #test electrostatic correction
@@ -37,11 +38,11 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertAlmostEqual(es_corr, 0.975893)
 
         #test potential alignment method
-        pot_corr = fc.perform_pot_corr( axisdata[0], bldata[0], dldata[0], struc.lattice, 15., -3, vac.site.coords, 0)
+        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, 15., -3, vac.site.coords, 0)
         self.assertAlmostEqual(pot_corr, 2.836369987722345)
 
         #test entry full correction method
-        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+        de = DefectEntry(vac, 0., corrections={}, parameters=params, entry_id=None)
         val = fc.get_correction(de)
         self.assertAlmostEqual(val['freysoldt_electrostatic'], 0.975893)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 4.4700574)
@@ -57,7 +58,7 @@ class DefectsCorrectionsTest(PymatgenTest):
             self.assertAlmostEqual(set(fc.metadata['pot_corr_uncertainty_md'][ax].keys()), set(['potcorr', 'stats']))
 
         #test a specified axis from entry
-        fc = FreysoldtCorrection(15, axis = [1])
+        fc = FreysoldtCorrection(15, axis=[1])
         val = fc.get_correction(de)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 5.2869010593283132)
 
@@ -66,30 +67,30 @@ class DefectsCorrectionsTest(PymatgenTest):
         es_corr = perform_es_corr(struc.lattice, 15., 2)
         self.assertAlmostEqual(es_corr, 0.43373)
         #   for potential alignment method
-        pot_corr = fc.perform_pot_corr( axisdata[0], bldata[0], dldata[0], struc.lattice, 15., 2, vac.site.coords, 0)
+        pot_corr = fc.perform_pot_corr(axisdata[0], bldata[0], dldata[0], struc.lattice, 15., 2, vac.site.coords, 0)
         self.assertAlmostEqual(pot_corr, -2.1375685936497768)
 
         #test an input anisotropic dielectric constant
-        fc = FreysoldtCorrection([[1.,2.,3.],[0.,3.,5.],[4., 10., 8.]])
-        self.assertAlmostEqual( fc.dielectric, 4.)
+        fc = FreysoldtCorrection([[1., 2., 3.], [0., 3., 5.], [4., 10., 8.]])
+        self.assertAlmostEqual(fc.dielectric, 4.)
         val = fc.get_correction(de)
         self.assertAlmostEqual(val['freysoldt_electrostatic'], 3.659599)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 3.3605255195745087)
 
         #test potalign being added to defect entry
-        self.assertAlmostEqual( de.parameters['potalign'], 1.1201751731915028)
+        self.assertAlmostEqual(de.parameters['potalign'], 1.1201751731915028)
 
         #test that metadata entries exist in defect entry
-        self.assertTrue( 'freysoldt_meta' in de.parameters.keys())
-        self.assertAlmostEqual( set(de.parameters['freysoldt_meta'].keys()), set(['pot_plot_data', 'pot_corr_uncertainty_md']))
+        self.assertTrue('freysoldt_meta' in de.parameters.keys())
+        self.assertAlmostEqual(
+            set(de.parameters['freysoldt_meta'].keys()), set(['pot_plot_data', 'pot_corr_uncertainty_md']))
 
         #test a charge of zero
         vac = Vacancy(struc, struc.sites[0], charge=0)
-        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+        de = DefectEntry(vac, 0., corrections={}, parameters=params, entry_id=None)
         val = fc.get_correction(de)
         self.assertAlmostEqual(val['freysoldt_electrostatic'], 0.)
         self.assertAlmostEqual(val['freysoldt_potential_alignment'], 0.)
-
 
     def test_bandfilling(self):
         v = Vasprun(os.path.join(test_dir, 'vasprun.xml'))
@@ -98,8 +99,13 @@ class DefectsCorrectionsTest(PymatgenTest):
         potalign = 0.
         vbm = v.eigenvalue_band_properties[2]
         cbm = v.eigenvalue_band_properties[1]
-        params = {'eigenvalues': eigenvalues, 'kpoint_weights': kptweights, 'potalign': potalign,
-                  'vbm': vbm, 'cbm': cbm}
+        params = {
+            'eigenvalues': eigenvalues,
+            'kpoint_weights': kptweights,
+            'potalign': potalign,
+            'vbm': vbm,
+            'cbm': cbm
+        }
         bfc = BandFillingCorrection()
         struc = PymatgenTest.get_structure("VO2")
         struc.make_supercell(3)
@@ -107,7 +113,7 @@ class DefectsCorrectionsTest(PymatgenTest):
         vac = Vacancy(struc, struc.sites[0], charge=-3)
 
         #test trivial performing bandfilling correction
-        bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
+        bf_corr = bfc.perform_bandfill_corr(eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bf_corr, 0.)
         self.assertFalse(bfc.metadata['occupied_def_levels'])
         self.assertFalse(bfc.metadata['unoccupied_def_levels'])
@@ -117,9 +123,9 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertFalse(bfc.metadata['potalign'])
 
         #test trivial full entry bandfill evaluation
-        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+        de = DefectEntry(vac, 0., corrections={}, parameters=params, entry_id=None)
 
-        corr = bfc.get_correction( de)
+        corr = bfc.get_correction(de)
         self.assertAlmostEqual(corr['bandfilling'], 0.)
 
         #modify the eigenvalue list to have free holes
@@ -134,7 +140,7 @@ class DefectsCorrectionsTest(PymatgenTest):
                     else:
                         hole_eigenvalues[spinkey][-1].append(eig)
 
-        hole_bf_corr = bfc.perform_bandfill_corr( hole_eigenvalues, kptweights, potalign, vbm, cbm)
+        hole_bf_corr = bfc.perform_bandfill_corr(hole_eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(hole_bf_corr, -0.82276673248)
         self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 1.6250001299)
         self.assertFalse(bfc.metadata['num_elec_cbm'])
@@ -151,7 +157,7 @@ class DefectsCorrectionsTest(PymatgenTest):
                     else:
                         elec_eigenvalues[spinkey][-1].append(eig)
 
-        elec_bf_corr = bfc.perform_bandfill_corr( elec_eigenvalues, kptweights, potalign, vbm, cbm)
+        elec_bf_corr = bfc.perform_bandfill_corr(elec_eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(elec_bf_corr, -0.18063751445099)
         self.assertAlmostEqual(bfc.metadata['num_elec_cbm'], 1.708333469999)
         self.assertFalse(bfc.metadata['num_hole_vbm'])
@@ -159,15 +165,15 @@ class DefectsCorrectionsTest(PymatgenTest):
         #modify the potalignment and introduce new occupied defect levels from vbm states
         potalign = -0.1
 
-        bf_corr = bfc.perform_bandfill_corr( eigenvalues, kptweights, potalign, vbm, cbm)
+        bf_corr = bfc.perform_bandfill_corr(eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
         self.assertAlmostEqual(bf_corr, 0.)
         occu = [[1.457, 0.1666667], [1.5204, 0.1666667], [1.53465, 0.1666667], [1.5498, 0.0833333]]
-        self.assertArrayAlmostEqual(list(sorted(bfc.metadata['occupied_def_levels'], key=lambda x: x[0])),
-                                    list(sorted(occu, key=lambda x: x[0])))
+        self.assertArrayAlmostEqual(
+            list(sorted(bfc.metadata['occupied_def_levels'], key=lambda x: x[0])), list(
+                sorted(occu, key=lambda x: x[0])))
         self.assertAlmostEqual(bfc.metadata['total_occupation_defect_levels'], 0.58333338)
         self.assertFalse(bfc.metadata['unoccupied_def_levels'])
-
 
     def test_bandedgeshifting(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -176,32 +182,28 @@ class DefectsCorrectionsTest(PymatgenTest):
         vac = Vacancy(struc, struc.sites[0], charge=-3)
 
         besc = BandEdgeShiftingCorrection()
-        params = {'hybrid_cbm': 1., 'hybrid_vbm': -1.,
-                  'vbm': -0.5, 'cbm': 0.6,
-                  'num_hole_vbm': 0., 'num_elec_cbm': 0.}
-        de = DefectEntry( vac, 0., corrections={}, parameters=params, entry_id=None)
+        params = {'hybrid_cbm': 1., 'hybrid_vbm': -1., 'vbm': -0.5, 'cbm': 0.6, 'num_hole_vbm': 0., 'num_elec_cbm': 0.}
+        de = DefectEntry(vac, 0., corrections={}, parameters=params, entry_id=None)
 
         #test with no free carriers
         corr = besc.get_correction(de)
-        self.assertEqual( corr['vbm_shift_correction'], 1.5)
-        self.assertEqual( corr['elec_cbm_shift_correction'], 0.)
-        self.assertEqual( corr['hole_vbm_shift_correction'], 0.)
+        self.assertEqual(corr['vbm_shift_correction'], 1.5)
+        self.assertEqual(corr['elec_cbm_shift_correction'], 0.)
+        self.assertEqual(corr['hole_vbm_shift_correction'], 0.)
 
         #test with free holes
-        de.parameters.update( {'num_hole_vbm': 1.})
+        de.parameters.update({'num_hole_vbm': 1.})
         corr = besc.get_correction(de)
-        self.assertEqual( corr['vbm_shift_correction'], 1.5)
-        self.assertEqual( corr['elec_cbm_shift_correction'], 0.)
-        self.assertEqual( corr['hole_vbm_shift_correction'], 0.5)
+        self.assertEqual(corr['vbm_shift_correction'], 1.5)
+        self.assertEqual(corr['elec_cbm_shift_correction'], 0.)
+        self.assertEqual(corr['hole_vbm_shift_correction'], 0.5)
 
         #test with free electrons
-        de.parameters.update( {'num_hole_vbm': 0., 'num_elec_cbm': 1.})
+        de.parameters.update({'num_hole_vbm': 0., 'num_elec_cbm': 1.})
         corr = besc.get_correction(de)
-        self.assertEqual( corr['vbm_shift_correction'], 1.5)
-        self.assertEqual( corr['elec_cbm_shift_correction'], 0.4)
-        self.assertEqual( corr['hole_vbm_shift_correction'], 0.)
-
-
+        self.assertEqual(corr['vbm_shift_correction'], 1.5)
+        self.assertEqual(corr['elec_cbm_shift_correction'], 0.4)
+        self.assertEqual(corr['hole_vbm_shift_correction'], 0.)
 
 
 if __name__ == "__main__":
