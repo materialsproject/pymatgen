@@ -7,7 +7,7 @@ from __future__ import unicode_literals, division, print_function
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.io.xcrysden import XSF
+from pymatgen.io.xcrysden import XSF, BXSF
 
 
 class XSFTest(PymatgenTest):
