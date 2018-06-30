@@ -941,6 +941,7 @@ class Vasprun(MSONable):
                         "weight": self.actual_kpoints_weights[i]}
                        for i in range(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
+        vin["nkpoints"] = len(actual_kpts)
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
@@ -1595,13 +1596,24 @@ class Outcar(MSONable):
         if self.data.get('noncollinear', []):
             self.noncollinear = False
 
+        # Check if the calculation type is DFPT
+        self.dfpt = False
+        self.read_pattern({'ibrion': "IBRION =\s+([\-\d]+)"}, terminate_on_match=True,
+                          postprocess=int)
+        if self.data.get("ibrion", [[0]])[0][0] > 6:
+            self.dfpt = True
+            self.read_internal_strain_tensor()
+
         # Check to see if LEPSILON is true and read piezo data if so
         self.lepsilon = False
         self.read_pattern({'epsilon': 'LEPSILON=     T'})
         if self.data.get('epsilon', []):
             self.lepsilon = True
             self.read_lepsilon()
-            self.read_lepsilon_ionic()
+            # only read ionic contribution if DFPT is turned on
+            if self.dfpt:
+                self.read_lepsilon_ionic()
+
 
         # Check to see if LCALCPOL is true and read polarization data if so
         self.lcalcpol = False
@@ -2131,6 +2143,42 @@ class Outcar(MSONable):
             self.er_bp_tot = None
             raise Exception("IGPAR OUTCAR could not be parsed.")
 
+    def read_internal_strain_tensor(self):
+        """
+        Reads the internal strain tensor and populates self.interna_strain_tensor with an array of voigt notation
+            tensors for each site.
+        """
+        search = []
+
+        def internal_strain_start(results, match):
+            results.internal_strain_ion = int(match.group(1)) - 1
+            results.internal_strain_tensor.append(np.zeros((3, 6)))
+
+        search.append([r"INTERNAL STRAIN TENSOR FOR ION\s+(\d+)\s+for displacements in x,y,z  \(eV/Angst\):",
+                       None, internal_strain_start])
+
+        def internal_strain_data(results, match):
+            if match.group(1).lower() == "x":
+                index = 0
+            elif match.group(1).lower() == "y":
+                index = 1
+            elif match.group(1).lower() == "z":
+                index = 2
+            else:
+                raise Exception(
+                    "Couldn't parse row index from symbol for internal strain tensor: {}".format(match.group(1)))
+            results.internal_strain_tensor[results.internal_strain_ion][index] = np.array([float(match.group(i))
+                                                                                            for i in range(2, 8)])
+            if index == 2:
+                results.internal_strain_ion = None
+
+        search.append([r"^\s+([x,y,z])\s+" + r"([-]?\d+\.\d+)\s+" * 6, lambda results,
+                       line: results.internal_strain_ion is not None,  internal_strain_data])
+
+        self.internal_strain_ion = None
+        self.internal_strain_tensor = []
+        micro_pyawk(self.filename, search, self)
+
     def read_lepsilon(self):
         # variables to be filled
         try:
@@ -2523,12 +2571,16 @@ class Outcar(MSONable):
              "electrostatic_potential": self.electrostatic_potential}
 
         if self.lepsilon:
-            d.update({'piezo_tensor': self.piezo_tensor,
-                      'piezo_ionic_tensor': self.piezo_ionic_tensor,
-                      'dielectric_tensor': self.dielectric_tensor,
-                      'dielectric_ionic_tensor': self.dielectric_ionic_tensor,
-                      'born_ion': self.born_ion,
-                      'born': self.born})
+            d.update({"piezo_tensor": self.piezo_tensor,
+                      "dielectric_tensor": self.dielectric_tensor,
+                      "born": self.born})
+
+        if self.dfpt:
+            d.update({"internal_strain_tensor": self.interna_strain_tensor})
+
+        if self.dfpt and self.lepsilon:
+            d.update({"piezo_ionic_tensor": self.piezo_ionic_tensor,
+                      "dielectric_ionic_tensor": self.dielectric_ionic_tensor})
 
         if self.lcalcpol:
             d.update({'p_elec': self.p_elec,
