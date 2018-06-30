@@ -2,6 +2,9 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 from __future__ import division, unicode_literals, print_function
+import numpy as np
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.io.vasp.sets import get_vasprun_outcar
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -163,8 +166,10 @@ class BXSF(object):
         kpts = [
             len(set(np.array(vasprun.kpoints.kpts)[:, i])) for i in range(3)
         ]
-        return cls(vasprun.efermi, vasprun.eigenvalues, kpts,
-                   vasprun.lattice_rec)
+        return cls(
+            vasprun.efermi, vasprun.eigenvalues, kpts,
+            vasprun.final_structure.get_primitive_structure()
+            .lattice.reciprocal_lattice)
 
     @classmethod
     def from_path(cls, path):
