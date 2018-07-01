@@ -1211,7 +1211,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # In this way, we know that only the first two bound states (with f and n attributes)
         # should be used for constructing an initial guess for the wave functions.
 
-        self.valence_states = {}
+        self.valence_states = OrderedDict()
         for node in root.find("valence_states"):
             attrib = AttrDict(node.attrib)
             assert attrib.id not in self.valence_states
