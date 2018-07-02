@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.ewald &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.analysis.ewald &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -332,7 +332,7 @@
         <span class="n">recip_nn</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
                                                  <span class="bp">self</span><span class="o">.</span><span class="n">_gmax</span><span class="p">)</span>
 
-        <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">fcoords</span> <span class="k">for</span> <span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recip_nn</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">fcoords</span> <span class="k">for</span> <span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recip_nn</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="n">gs</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
         <span class="n">g2s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gs</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -386,7 +386,7 @@
         <span class="n">epoint</span> <span class="o">=</span> <span class="o">-</span> <span class="n">qs</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">/</span> <span class="n">pi</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsites</span><span class="p">):</span>
-            <span class="n">nfcoords</span><span class="p">,</span> <span class="n">rij</span><span class="p">,</span> <span class="n">js</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span><span class="n">fcoords</span><span class="p">,</span>
+            <span class="n">nfcoords</span><span class="p">,</span> <span class="n">rij</span><span class="p">,</span> <span class="n">js</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span><span class="n">fcoords</span><span class="p">,</span>
                                     <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rmax</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
             <span class="c1"># remove the rii term</span>
@@ -741,7 +741,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

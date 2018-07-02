@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.babel module &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.io.babel module &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,123 +43,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-pymatgen.io.babel">
-<span id="pymatgen-io-babel-module"></span><h1>pymatgen.io.babel module<a class="headerlink" href="#module-pymatgen.io.babel" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="pymatgen.io.babel.BabelMolAdaptor">
-<em class="property">class </em><code class="descname">BabelMolAdaptor</code><span class="sig-paren">(</span><em>mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Adaptor serves as a bridge between OpenBabel’s Molecule and pymatgen’s
-Molecule.</p>
-<p>Initializes with pymatgen Molecule or OpenBabel”s OBMol.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mol</strong> – pymatgen’s Molecule or OpenBabel OBMol</td>
-</tr>
-</tbody>
-</table>
-<dl class="staticmethod">
-<dt id="pymatgen.io.babel.BabelMolAdaptor.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>file_format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses OpenBabel to read a molecule from a file in all supported formats.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> – Filename of input file</li>
-<li><strong>file_format</strong> – String specifying any OpenBabel supported formats.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">BabelMolAdaptor object</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pymatgen.io.babel.BabelMolAdaptor.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string_data</em>, <em>file_format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses OpenBabel to read a molecule from a string in all supported
-formats.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>string_data</strong> – String containing molecule data.</li>
-<li><strong>file_format</strong> – String specifying any OpenBabel supported formats.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">BabelMolAdaptor object</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.io.babel.BabelMolAdaptor.localopt">
-<code class="descname">localopt</code><span class="sig-paren">(</span><em>forcefield='mmff94'</em>, <em>steps=500</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.localopt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.localopt" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper to pybel’s localopt method to optimize a Molecule.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>forcefield</strong> – Default is mmff94. Options are ‘gaff’, ‘ghemical’,
-‘mmff94’, ‘mmff94s’, and ‘uff’.</li>
-<li><strong>steps</strong> – Default is 500.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.io.babel.BabelMolAdaptor.openbabel_mol">
-<code class="descname">openbabel_mol</code><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.openbabel_mol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns OpenBabel’s OBMol.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.io.babel.BabelMolAdaptor.pybel_mol">
-<code class="descname">pybel_mol</code><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pybel_mol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns Pybel’s Molecule object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pymatgen.io.babel.BabelMolAdaptor.pymatgen_mol">
-<code class="descname">pymatgen_mol</code><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pymatgen_mol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns pymatgen Molecule object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.io.babel.BabelMolAdaptor.write_file">
-<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em>, <em>file_format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.write_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses OpenBabel to output all supported formats.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> – Filename of file to output</li>
-<li><strong>file_format</strong> – String specifying any OpenBabel supported formats.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="pymatgen-io-babel-module">
+<h1>pymatgen.io.babel module<a class="headerlink" href="#pymatgen-io-babel-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -200,7 +85,7 @@ formats.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>
 

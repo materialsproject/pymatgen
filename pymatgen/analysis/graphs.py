@@ -12,7 +12,6 @@ import copy
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
-from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
 
@@ -154,8 +153,7 @@ class StructureGraph(MSONable):
                                              edge_weight_name="weight",
                                              edge_weight_units="")
 
-        for n in range(len(structure)):
-            neighbors = strategy.get_nn_info(structure, n)
+        for n, neighbors in enumerate(strategy.get_all_nn_info(structure)):
             for neighbor in neighbors:
 
                 # local_env will always try to add two edges
@@ -1124,7 +1122,7 @@ class MoleculeGraph(MSONable):
         return cls(molecule, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(molecule, strategy):
+    def with_local_env_strategy(molecule, strategy, reorder=True):
         """
         Constructor for MoleculeGraph, using a strategy
         from :Class: `pymatgen.analysis.local_env`.
@@ -1136,12 +1134,14 @@ class MoleculeGraph(MSONable):
         :param molecule: Molecule object
         :param strategy: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
-        :return:
+        :param reorder: bool, representing if graph nodes need to be reordered
+        following the application of the local_env strategy
+        :return: mg, a MoleculeGraph
         """
 
         mg = MoleculeGraph.with_empty_graph(molecule, name="bonds",
-                                             edge_weight_name="weight",
-                                             edge_weight_units="")
+                                            edge_weight_name="weight",
+                                            edge_weight_units="")
 
         # NearNeighbor classes only (generally) work with structures
         # molecules have to be boxed first
@@ -1170,6 +1170,13 @@ class MoleculeGraph(MSONable):
                             to_index=neighbor['site_index'],
                             weight=neighbor['weight'],
                             warn_duplicates=False)
+
+        if reorder:
+            # Reverse order of nodes to match with molecule
+            n = len(mg.molecule)
+            mapping = {i: (n-i) for i in range(n)}
+
+            mg.graph = nx.relabel_nodes(mg.graph, mapping)
 
         return mg
 
@@ -1247,6 +1254,22 @@ class MoleculeGraph(MSONable):
         else:
             self.graph.add_edge(from_index, to_index,
                                 **edge_properties)
+
+    def set_node_attributes(self):
+        """
+        Gives each node a "specie" and a "coords" attribute, updated with the
+        current species and coordinates.
+
+        :return:
+        """
+
+        species = {}
+        coords = {}
+        for node in self.graph:
+            species[node] = self.molecule[node].specie.symbol
+            coords[node] = self.molecule[node].coords
+        nx.set_node_attributes(self.graph, species, "specie")
+        nx.set_node_attributes(self.graph, coords, "coords")
 
     def alter_edge(self, from_index, to_index,
                    new_weight=None, new_edge_properties=None):
@@ -1414,7 +1437,7 @@ class MoleculeGraph(MSONable):
 
             return sub_mols
 
-    def substitute_group(self, index, func_grp, bond_order=1, graph_dict=None, strategy=None, strategy_params=None):
+    def substitute_group(self, index, func_grp, strategy, bond_order=1, graph_dict=None, strategy_params=None):
         """
         Builds off of Molecule.substitute to replace an atom in self.molecule
         with a functional group. This method also amends self.graph to
@@ -1440,6 +1463,7 @@ class MoleculeGraph(MSONable):
                 2. A string name. The molecule will be obtained from the
                    relevant template in func_groups.json.
                 3. A MoleculeGraph object.
+        :param strategy: Class from pymatgen.analysis.local_env.
         :param bond_order: A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
@@ -1448,24 +1472,23 @@ class MoleculeGraph(MSONable):
                 properties, including weight. If None, then the algorithm
                 will attempt to automatically determine bonds using one of
                 a list of strategies defined in pymatgen.analysis.local_env.
-        :param strategy: Class from pymatgen.analysis.local_env. If None,
-                MinimumDistanceNN will be used.
         :param strategy_params: dictionary of keyword arguments for strategy.
                 If None, default parameters will be used.
         :return:
         """
 
-        def map_indices(func_grp):
-            mapping = {}
+        def map_indices(grp):
+            grp_map = {}
 
             # Get indices now occupied by functional group
             # Subtracting 1 because the dummy atom X should not count
-            atoms = len(func_grp) - 1
+            atoms = len(grp) - 1
             offset = len(self.molecule) - atoms
 
             for i in range(atoms):
-                mapping[i] = i + offset
-            return mapping
+                grp_map[i] = i + offset
+
+            return grp_map
 
         # Work is simplified if a graph is already in place
         if isinstance(func_grp, MoleculeGraph):
@@ -1513,8 +1536,7 @@ class MoleculeGraph(MSONable):
             else:
                 if strategy_params is None:
                     strategy_params = {}
-                strat = MinimumDistanceNN(**strategy_params) \
-                    if strategy is None else strategy(**strategy_params)
+                strat = strategy(**strategy_params)
                 graph = self.with_local_env_strategy(func_grp, strat)
 
                 for (u, v) in list(graph.graph.edges()):
@@ -1523,6 +1545,11 @@ class MoleculeGraph(MSONable):
                     if "weight" in edge_props.keys():
                         weight = edge_props["weight"]
                         del edge_props["weight"]
+
+                    if 0 not in list(graph.graph.nodes()):
+                        # If graph indices have different indexing
+                        u, v = (u-1), (v-1)
+
                     self.add_edge(mapping[u], mapping[v],
                                   weight=weight, edge_properties=edge_props)
 
@@ -1588,7 +1615,7 @@ class MoleculeGraph(MSONable):
         Index is the index of the corresponding site
         in the original structure, weight can be
         None if not defined.
-        :param n: index of Site in Structure
+        :param n: index of Site in Molecule
         :param jimage: lattice vector of site
         :return: list of ConnectedSite tuples,
         sorted by closest first
@@ -1930,7 +1957,10 @@ class MoleculeGraph(MSONable):
         # sort for consistent node indices
         # PeriodicSite should have a proper __hash__() value,
         # using its frac_coords as a convenient key
-        mapping = {tuple(site.coords):self.molecule.index(site) for site in other.molecule}
+        try:
+            mapping = {tuple(site.coords):self.molecule.index(site) for site in other.molecule}
+        except ValueError:
+            return False
         other_sorted = other.__copy__()
         other_sorted.sort(key=lambda site: mapping[tuple(site.coords)])
 
@@ -1941,6 +1971,48 @@ class MoleculeGraph(MSONable):
 
         return (edges == edges_other) and \
                (self.molecule == other_sorted.molecule)
+
+    def equivalent_to(self, other):
+        """
+        A weaker equality function that evaluates isomorphisms between two
+        MoleculeGraphs. If there is an isomorphism where the species are
+        identical for each pair, then the MoleculeGraphs are considered
+        "equivalent".
+
+        :param other: The MoleculeGraph to be compared to this MoleculeGraph
+        :return: Bool
+        """
+
+        # If they're already equivalent, don't worry about it.
+        if self.__eq__(other):
+            return True
+
+        # Associate each node with a species, coordinates
+        self.set_node_attributes()
+        other.set_node_attributes()
+
+        # The possibility of multiple edges eliminates possible isomorphisms
+        self_undir = self.graph.to_undirected()
+        other_undir = other.graph.to_undirected()
+
+        matcher = nx.algorithms.isomorphism.GraphMatcher(self_undir,
+                                                         other_undir)
+
+        # Graph equality requires that there be an appropriate mapping between
+        # nodes in the graph
+        if not matcher.is_isomorphic():
+            return False
+
+        for mapping in matcher.isomorphisms_iter():
+            self_spec = nx.get_node_attributes(self_undir, "specie")
+            other_spec = nx.get_node_attributes(other_undir, "specie")
+            truths = [self_spec[i] == other_spec[mapping[i]] for i in mapping]
+
+            if all(truths):
+                return True
+
+        # No isomorphism was perfect
+        return False
 
     def diff(self, other, strict=True):
         """
