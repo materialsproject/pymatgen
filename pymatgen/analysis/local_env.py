@@ -2376,15 +2376,18 @@ class LocalStructOrderParams(object):
                         tmp = max(
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = acos(tmp)
-                        xaxistmp = gramschmidt(rijnorm[k], zaxis)
-                        if np.linalg.norm(xaxistmp) < very_small:
+                        xaxis = gramschmidt(rijnorm[k], zaxis)
+                        if np.linalg.norm(xaxis) < very_small:
                             flag_xaxis = True
                         else:
-                            xaxis = xaxistmp / np.linalg.norm(xaxistmp)
+                            xaxis = xaxis / np.linalg.norm(xaxis)
                             flag_xaxis = False
                         if self._comp_azi:
-                            yaxistmp = np.cross(zaxis, xaxis)
-                            yaxis = yaxistmp / np.linalg.norm(yaxistmp)
+                            flag_yaxis = True
+                            yaxis = np.cross(zaxis, xaxis)
+                            if np.linalg.norm(yaxis) > very_small:
+                                yaxis = yaxis / np.linalg.norm(yaxis)
+                                flag_yaxis = False
 
                         # Contributions of j-i-k angles, where i represents the
                         # central atom and j and k two of the neighbors.
@@ -2589,7 +2592,7 @@ class LocalStructOrderParams(object):
                                                     qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
                                                             exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
-                                        elif t == "sq_face_cap_trig_pris":
+                                        elif t == "sq_face_cap_trig_pris" and not flag_yaxis:
                                             if thetak < self._params[i]['TA3']:
                                                 if thetam < self._params[i]['TA3']:
                                                     tmp = cos(self._params[i]['fac_AA1'] * \
