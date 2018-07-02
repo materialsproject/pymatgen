@@ -256,7 +256,7 @@ class QCInput(MSONable):
         spin_mult = None
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
-            "charge": r"^\s*\$molecule\n\s*(\d+)\s+\d",
+            "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d",
             "spin_mult": r"^\s*\$molecule\n\s*\d+\s*(\d)"
         }
         matches = read_pattern(string, patterns)
@@ -266,7 +266,7 @@ class QCInput(MSONable):
             charge = float(matches["charge"][0][0])
         if "spin_mult" in matches.keys():
             spin_mult = int(matches["spin_mult"][0][0])
-        header = r"^\s*\$molecule\n\s*\d\s*\d"
+        header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s*\d"
         row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer = r"^\$end"
         mol_table = read_table_pattern(
