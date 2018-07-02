@@ -295,9 +295,9 @@ sq_face_cap_trig_pris:
   TA3:
     1.8055339573923717
   IGW_TA1:
-    18
+    15.5
   IGW_TA2:
-    14
+    13
   fac_AA1:
     2
   exp_cos_AA1:
