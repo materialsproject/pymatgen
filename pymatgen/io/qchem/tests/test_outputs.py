@@ -8,7 +8,7 @@ import os
 import unittest
 
 from monty.serialization import loadfn, dumpfn
-from pymatgen.io.qchem_io.outputs import QCOutput
+from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"

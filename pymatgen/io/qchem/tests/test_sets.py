@@ -7,9 +7,9 @@ from __future__ import unicode_literals
 import unittest
 import os
 
-from pymatgen.io.qchem_io.sets import *
+from pymatgen.io.qchem.sets import *
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.qchem_io.inputs import QCInput
+from pymatgen.io.qchem.inputs import QCInput
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"

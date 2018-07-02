@@ -4,8 +4,8 @@
 
 import logging
 from pymatgen.core import Molecule
-from pymatgen.io.qchem_io.inputs import QCInput
-from pymatgen.io.qchem_io.utils import lower_and_check_unique
+from pymatgen.io.qchem.inputs import QCInput
+from pymatgen.io.qchem.utils import lower_and_check_unique
 
 # Classes for reading/manipulating/writing QChem ouput files.
 

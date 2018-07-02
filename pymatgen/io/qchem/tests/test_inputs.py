@@ -9,7 +9,7 @@ import os
 import unittest
 from pymatgen import Molecule
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.qchem_io.inputs import QCInput
+from pymatgen.io.qchem.inputs import QCInput
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
