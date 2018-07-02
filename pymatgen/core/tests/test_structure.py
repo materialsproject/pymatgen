@@ -358,13 +358,14 @@ class IStructureTest(PymatgenTest):
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
-                                       include_index=True)
+                                      include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
-        self.assertEqual(nn[0][-1], 0)
+        self.assertEqual(nn[0][-2], 0)
 
         r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors(r, True)
+        all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
+            self.assertEqual(4, len(all_nn[i][0]))
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
 
         for site, nns in zip(s, all_nn):
@@ -376,7 +377,6 @@ class IStructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
         s.make_supercell([2,2,2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
-
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
