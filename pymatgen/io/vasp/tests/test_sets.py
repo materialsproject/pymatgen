@@ -87,6 +87,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
         self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
 
+        # Check that it works for disordered structure. Was a bug previously
+        s = Structure(lattice, ['Si4+', 'Fe2+', 'Si4+'], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
+        self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
@@ -223,9 +228,15 @@ class MITMPRelaxSetTest(unittest.TestCase):
                                  [1.9200989668, 3.3257101909, 0.00],
                                  [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords, charge=1)
-        mpr = MPRelaxSet(struct)
-        self.assertEqual(mpr.incar["NELECT"], mpr.nelect+1,
+        mpr = MPRelaxSet(struct, use_structure_charge=True)
+        self.assertEqual(mpr.incar["NELECT"], 7,
                          "NELECT not properly set for nonzero charge")
+
+        #test that NELECT does not get set when use_structure_charge = False
+        mpr = MPRelaxSet(struct, use_structure_charge=False)
+        self.assertFalse("NELECT" in mpr.incar.keys(),
+                         "NELECT should not be set when "
+                         "use_structure_charge is False")
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints

@@ -247,6 +247,7 @@ class BabelMolAdaptor(object):
         if freeze_atoms:
             print('{} atoms will be freezed'.format(len(freeze_atoms)))
             constraints = ob.OBFFConstraints()
+
             for atom in ob.OBMolAtomIter(self._obmol):
                 atom_id = atom.GetIndex() + 1
                 if id in freeze_atoms:
