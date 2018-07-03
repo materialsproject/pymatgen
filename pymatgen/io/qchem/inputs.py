@@ -172,8 +172,11 @@ class QCInput(MSONable):
         # todo: add ghost atoms
         mol_list = []
         mol_list.append("$molecule")
-        if molecule == "read":
-            mol_list.append(" read")
+        if isinstance(molecule, str):
+            if molecule == "read":
+                mol_list.append(" read")
+            else:
+                raise ValueError('The only acceptable text value for molecule is "read"')
         else:
             mol_list.append(" {charge} {spin_mult}".format(
                 charge=int(molecule.charge),

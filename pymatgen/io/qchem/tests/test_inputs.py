@@ -10,6 +10,7 @@ import unittest
 from pymatgen import Molecule
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.qchem.inputs import QCInput
+from monty.serialization import loadfn
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -596,6 +597,19 @@ $end
 """
         qcinp = QCInput.from_string(str_molecule)
         self.assertEqual(str_molecule,str(qcinp))
+
+    def test_write_file_from_OptSet(self):
+        from pymatgen.io.qchem.sets import OptSet
+        odd_dict = loadfn(os.path.join(os.path.dirname(__file__), "odd.json"))
+        odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
+        qcinp = OptSet(odd_mol)
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
+        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test.qin")).as_dict()
+        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref.qin")).as_dict()
+        for key in test_dict:
+            self.assertEqual(test_dict[key], test_ref_dict[key])
+        os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
+
 
 
 if __name__ == "__main__":
