@@ -524,6 +524,7 @@ class SurfaceEnergyPlotter(object):
                 for each facet vs chemical potential.
         """
 
+        delu_dict = delu_dict if delu_dict else {}
         chempot_range = sorted(chempot_range)
         all_chempots = np.linspace(min(chempot_range), max(chempot_range),
                                    increments)
