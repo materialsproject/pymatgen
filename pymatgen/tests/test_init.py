@@ -42,5 +42,6 @@ class SettingsTestCase(unittest.TestCase):
             obj = loadfn(os.path.join(test_dir, "vasprun.xml"))
             self.assertIsInstance(obj, Vasprun)
 
+
 if __name__ == '__main__':
     unittest.main()
