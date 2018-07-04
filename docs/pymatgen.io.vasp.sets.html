@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.io.vasp.sets module &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <span id="pymatgen-io-vasp-sets-module"></span><h1>pymatgen.io.vasp.sets module<a class="headerlink" href="#module-pymatgen.io.vasp.sets" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.DictSet">
-<em class="property">class </em><code class="descname">DictSet</code><span class="sig-paren">(</span><em>structure</em>, <em>config_dict</em>, <em>files_to_transfer=None</em>, <em>user_incar_settings=None</em>, <em>user_kpoints_settings=None</em>, <em>user_potcar_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em>, <em>potcar_functional='PBE'</em>, <em>force_gamma=False</em>, <em>reduce_structure=None</em>, <em>vdw=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DictSet</code><span class="sig-paren">(</span><em>structure</em>, <em>config_dict</em>, <em>files_to_transfer=None</em>, <em>user_incar_settings=None</em>, <em>user_kpoints_settings=None</em>, <em>user_potcar_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em>, <em>potcar_functional='PBE'</em>, <em>force_gamma=False</em>, <em>reduce_structure=None</em>, <em>vdw=None</em>, <em>use_structure_charge=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#DictSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.DictSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.VaspInputSet" title="pymatgen.io.vasp.sets.VaspInputSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.VaspInputSet</span></code></a></p>
 <p>Concrete implementation of VaspInputSet that is initialized from a dict
 settings. This allows arbitrary settings to be input. In general,
@@ -118,6 +118,11 @@ DFT-D3, DFT-D3 with Becke-Jonson damping, Tkatchenko-Scheffler,
 Tkatchenko-Scheffler with iterative Hirshfeld partitioning,
 <a class="reference external" href="mailto:MBD&#37;&#52;&#48;rSC">MBD<span>&#64;</span>rSC</a>, dDsC, Dion’s vdW-DF, DF2, optPBE, optB88, optB86b and
 rVV10.</li>
+<li><strong>use_structure_charge</strong> (<em>bool</em>) – If set to True, then the public
+variable used for setting the overall charge of the
+structure (structure.charge) is used to set the NELECT
+variable in the INCAR
+Default is False (structure’s overall charge is not used)</li>
 </ul>
 </td>
 </tr>
@@ -899,7 +904,7 @@ with the rVV10 non-local correlation functional.</li>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.sets.MVLSlabSet">
-<em class="property">class </em><code class="descname">MVLSlabSet</code><span class="sig-paren">(</span><em>structure</em>, <em>k_product=50</em>, <em>bulk=False</em>, <em>auto_dipole=False</em>, <em>get_locpot=False</em>, <em>set_mix=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MVLSlabSet</code><span class="sig-paren">(</span><em>structure</em>, <em>k_product=50</em>, <em>bulk=False</em>, <em>auto_dipole=False</em>, <em>set_mix=True</em>, <em>sort_structure=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/sets.html#MVLSlabSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.sets.MVLSlabSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vasp.sets.MPRelaxSet" title="pymatgen.io.vasp.sets.MPRelaxSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.vasp.sets.MPRelaxSet</span></code></a></p>
 <p>Class for writing a set of slab vasp runs,
 including both slabs (along the c direction) and orient unit cells (bulk),
@@ -912,9 +917,6 @@ to ensure the same KPOINTS, POTCAR and INCAR criterion.</p>
 <li><strong>k_product</strong> – default to 50, kpoint number * length for a &amp; b directions,
 also for c direction in bulk calculations</li>
 <li><strong>bulk</strong> (<em>bool</em>) – Set to True for bulk calculation. Defaults to False.</li>
-<li><strong>get_locpot</strong> (<em>bool</em>) – For calculating the electrostatic potential across the
-slab. Use this if you want to calculate the work function. Will
-set if slab calculation only.</li>
 <li><strong>**kwargs</strong> – Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vasp.sets.DictSet" title="pymatgen.io.vasp.sets.DictSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">DictSet</span></code></a>.</li>
 </ul>
 </td>
@@ -1130,7 +1132,7 @@ Vasp input files, e.g. get_kpoints.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
       </ul>
     </div>
 

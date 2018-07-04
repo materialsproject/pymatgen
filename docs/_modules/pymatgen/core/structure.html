@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2018.6.27 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -873,7 +873,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">jimage</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="IStructure.get_sites_in_sphere"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_sites_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_sites_in_sphere"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_sites_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all sites within a sphere from the point. This includes sites</span>
 <span class="sd">        in other periodic images.</span>
@@ -895,6 +895,8 @@
 <span class="sd">            r (float): Radius of sphere.</span>
 <span class="sd">            include_index (bool): Whether the non-supercell site index</span>
 <span class="sd">                is included in the returned data</span>
+<span class="sd">            include_image (bool): Whether to include the supercell image</span>
+<span class="sd">                is included in the returned data</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            [(site, dist) ...] since most of the time, subsequent processing</span>
@@ -902,38 +904,46 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">site_fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">fcoord</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span>
+        <span class="k">for</span> <span class="n">fcoord</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">img</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span>
                 <span class="n">site_fcoords</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
             <span class="n">nnsite</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
                                   <span class="n">fcoord</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span>
                                   <span class="n">properties</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
-            <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">include_index</span>
-                             <span class="k">else</span> <span class="p">(</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+            <span class="c1"># Get the neighbor data</span>
+            <span class="n">nn_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">include_index</span> <span class="k">else</span> <span class="p">(</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">include_image</span><span class="p">:</span>
+                <span class="n">nn_data</span> <span class="o">+=</span> <span class="p">(</span><span class="n">img</span><span class="p">,)</span>
+            <span class="n">neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">neighbors</span></div>
 
-<div class="viewcode-block" id="IStructure.get_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all neighbors to a site within a sphere of radius r.  Excludes the</span>
 <span class="sd">        site itself.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            site:</span>
-<span class="sd">                site, which is the center of the sphere.</span>
-<span class="sd">            r:</span>
-<span class="sd">                radius of sphere.</span>
-<span class="sd">            include_index:</span>
-<span class="sd">                boolean that determines whether the non-supercell site index</span>
+<span class="sd">            site (Site): Which is the center of the sphere.</span>
+<span class="sd">            r (float): Radius of sphere.</span>
+<span class="sd">            include_index (bool): Whether the non-supercell site index</span>
+<span class="sd">                is included in the returned data</span>
+<span class="sd">            include_image (bool): Whether to include the supercell image</span>
 <span class="sd">                is included in the returned data</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            [(site, dist) ...] since most of the time, subsequent processing</span>
 <span class="sd">            requires the distance.</span>
+<span class="sd">            If include_index == True, the tuple for each neighbor also includes</span>
+<span class="sd">            the index of the neighbor.</span>
+<span class="sd">            If include_supercell == True, the tuple for each neighbor also includes</span>
+<span class="sd">            the index of supercell.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span>
-                                      <span class="n">include_index</span><span class="o">=</span><span class="n">include_index</span><span class="p">)</span>
+                                      <span class="n">include_index</span><span class="o">=</span><span class="n">include_index</span><span class="p">,</span>
+                                      <span class="n">include_image</span><span class="o">=</span><span class="n">include_image</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nn</span> <span class="k">if</span> <span class="n">site</span> <span class="o">!=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
 
-<div class="viewcode-block" id="IStructure.get_all_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_all_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_all_neighbors"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_all_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get neighbors for each atom in the unit cell, out to a distance r</span>
 <span class="sd">        Returns a list of list of neighbors for each site in structure.</span>
@@ -946,9 +956,16 @@
 <span class="sd">        The return type is a [(site, dist) ...] since most of the time,</span>
 <span class="sd">        subsequent processing requires the distance.</span>
 
+<span class="sd">        A note about periodic images: Before computing the neighbors, this operation</span>
+<span class="sd">        translates all atoms to within the unit cell (having fractional coordinates within [0,1)).</span>
+<span class="sd">        This means that the &quot;image&quot; of a site does not correspond to how much it has been</span>
+<span class="sd">        translates from its current position, but which image of the unit cell it resides.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            r (float): Radius of sphere.</span>
 <span class="sd">            include_index (bool): Whether to include the non-supercell site</span>
+<span class="sd">                in the returned data</span>
+<span class="sd">            include_image (bool): Whether to include the supercell image</span>
 <span class="sd">                in the returned data</span>
 
 <span class="sd">        Returns:</span>
@@ -958,6 +975,7 @@
 <span class="sd">            The index is the index of the site in the original (non-supercell)</span>
 <span class="sd">            structure. This is needed for ewaldmatrix by keeping track of which</span>
 <span class="sd">            sites contribute to the ewald sum.</span>
+<span class="sd">            Image only supplied if include_image = True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Use same algorithm as get_sites_in_sphere to determine supercell but</span>
         <span class="c1"># loop over all atoms in crystal</span>
@@ -987,10 +1005,14 @@
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">]:</span>
                     <span class="n">item</span> <span class="o">=</span> <span class="p">(</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">j</span><span class="p">)</span> <span class="k">if</span> <span class="n">include_index</span> <span class="k">else</span> <span class="p">(</span>
                         <span class="n">nnsite</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+                    <span class="c1"># Add the image, if requested</span>
+                    <span class="k">if</span> <span class="n">include_image</span><span class="p">:</span>
+                        <span class="n">item</span> <span class="o">+=</span> <span class="p">(</span><span class="n">image</span><span class="p">,)</span>
                     <span class="n">neighbors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">neighbors</span></div>
 
-<div class="viewcode-block" id="IStructure.get_neighbors_in_shell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_neighbors_in_shell">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors_in_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.get_neighbors_in_shell"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.IStructure.get_neighbors_in_shell">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors_in_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_image</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns all sites in a shell centered on origin (coords) between radii</span>
 <span class="sd">        r-dr and r+dr.</span>
@@ -1001,6 +1023,8 @@
 <span class="sd">            dr (float): Width of shell.</span>
 <span class="sd">            include_index (bool): Whether to include the non-supercell site</span>
 <span class="sd">                in the returned data</span>
+<span class="sd">            include_image (bool): Whether to include the supercell image</span>
+<span class="sd">                in the returned data</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            [(site, dist, index) ...] since most of the time, subsequent</span>
@@ -1009,9 +1033,11 @@
 <span class="sd">            The index is the index of the site in the original (non-supercell)</span>
 <span class="sd">            structure. This is needed for ewaldmatrix by keeping track of which</span>
 <span class="sd">            sites contribute to the ewald sum.</span>
+<span class="sd">            Image only supplied if include_image = True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">r</span> <span class="o">+</span> <span class="n">dr</span><span class="p">,</span>
-                                         <span class="n">include_index</span><span class="o">=</span><span class="n">include_index</span><span class="p">)</span>
+                                         <span class="n">include_index</span><span class="o">=</span><span class="n">include_index</span><span class="p">,</span>
+                                         <span class="n">include_image</span><span class="o">=</span><span class="n">include_image</span><span class="p">)</span>
         <span class="n">inner</span> <span class="o">=</span> <span class="n">r</span> <span class="o">-</span> <span class="n">dr</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">outer</span> <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">inner</span><span class="p">]</span></div>
 
@@ -3561,7 +3587,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
