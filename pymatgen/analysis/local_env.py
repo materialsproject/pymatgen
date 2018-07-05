@@ -643,7 +643,7 @@ class VoronoiNN(NearNeighbors):
 
         cutoff = self.cutoff
         max_cutoff = np.linalg.norm(
-            structure.lattice.lengths_and_angles[0])  # diagonal of cell
+            structure.lattice.lengths_and_angles[0]) + 0.01  # diagonal of cell
 
         while True:
             try:
@@ -659,10 +659,10 @@ class VoronoiNN(NearNeighbors):
                 break
 
             except RuntimeError:
-                if cutoff > max_cutoff:
+                if cutoff >= max_cutoff:
                     raise RuntimeError("Error in Voronoi neighbor finding; max "
                                        "cutoff exceeded")
-                cutoff *= 2
+                cutoff = min(cutoff * 2, max_cutoff)
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
