@@ -662,7 +662,7 @@ class VoronoiNN(NearNeighbors):
                 if cutoff >= max_cutoff:
                     raise RuntimeError("Error in Voronoi neighbor finding; max "
                                        "cutoff exceeded")
-                cutoff = min(cutoff * 2, max_cutoff)
+                cutoff = min(cutoff * 2, max_cutoff + 0.001)
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
@@ -2961,17 +2961,8 @@ class CrystalNN(NearNeighbors):
 
         # get base VoronoiNN targets
         cutoff = self.search_cutoff
-        max_cutoff = np.linalg.norm(structure.lattice.lengths_and_angles[0])
-        while True:
-            try:
-                vnn = VoronoiNN(weight="solid_angle", targets=target,
-                                cutoff=cutoff)
-                nn = vnn.get_nn_info(structure, n)
-                break
-            except RuntimeError:
-                if cutoff > max_cutoff:
-                    raise RuntimeError("CrystalNN error in Voronoi finding.")
-                cutoff = cutoff * 2
+        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=cutoff)
+        nn = vnn.get_nn_info(structure, n)
 
         # solid angle weights can be misleading in open / porous structures
         # adjust weights to correct for this behavior
