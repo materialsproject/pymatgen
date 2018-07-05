@@ -640,13 +640,29 @@ class VoronoiNN(NearNeighbors):
         else:
             targets = self.targets
         center = structure[n]
-        neighbors = structure.get_sites_in_sphere(
-            center.coords, self.cutoff)
-        neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
 
-        # Run the Voronoi tessellation
-        qvoronoi_input = [s.coords for s in neighbors]
-        voro = Voronoi(qvoronoi_input) # can give a seg fault if cutoff is too small
+        cutoff = self.cutoff
+        max_cutoff = np.linalg.norm(
+            structure.lattice.lengths_and_angles[0])  # diagonal of cell
+
+        while True:
+            try:
+                neighbors = structure.get_sites_in_sphere(
+                    center.coords, cutoff)
+                neighbors = [i[0] for i in
+                             sorted(neighbors, key=lambda s: s[1])]
+
+                # Run the Voronoi tessellation
+                qvoronoi_input = [s.coords for s in neighbors]
+                voro = Voronoi(
+                    qvoronoi_input)  # can give seg fault if cutoff is too small
+                break
+
+            except RuntimeError:
+                if cutoff > max_cutoff:
+                    raise RuntimeError("Error in Voronoi neighbor finding; max "
+                                       "cutoff exceeded")
+                cutoff *= 2
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
