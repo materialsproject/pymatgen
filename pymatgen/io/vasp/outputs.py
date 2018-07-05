@@ -2145,7 +2145,7 @@ class Outcar(MSONable):
 
     def read_internal_strain_tensor(self):
         """
-        Reads the internal strain tensor and populates self.interna_strain_tensor with an array of voigt notation
+        Reads the internal strain tensor and populates self.internal_strain_tensor with an array of voigt notation
             tensors for each site.
         """
         search = []
@@ -2576,7 +2576,7 @@ class Outcar(MSONable):
                       "born": self.born})
 
         if self.dfpt:
-            d.update({"internal_strain_tensor": self.interna_strain_tensor})
+            d.update({"internal_strain_tensor": self.internal_strain_tensor})
 
         if self.dfpt and self.lepsilon:
             d.update({"piezo_ionic_tensor": self.piezo_ionic_tensor,
