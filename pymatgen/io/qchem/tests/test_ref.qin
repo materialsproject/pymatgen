@@ -11,7 +11,7 @@ $rem
    basis = 6-311++g*
    max_scf_cycles = 200
    gen_scfman = true
-   scf_algorithm = diis
+   scf_algorithm = gdm
    method = wb97xd
    geom_opt_max_cycles = 200
 $end

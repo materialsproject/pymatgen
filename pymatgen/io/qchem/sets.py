@@ -127,7 +127,6 @@ class OptSet(QChemDictSet):
                  dft_rung=4,
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
-                 # scf_algorithm="diis",
                  scf_algorithm="gdm",
                  max_scf_cycles=200,
                  geom_opt_max_cycles=200,
@@ -158,7 +157,6 @@ class SinglePointSet(QChemDictSet):
                  dft_rung=4,
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
-                 # scf_algorithm="diis",
                  scf_algorithm="gdm",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
@@ -186,7 +184,6 @@ class FreqSet(QChemDictSet):
                  dft_rung=4,
                  basis_set="6-311++G*",
                  pcm_dielectric=None,
-                 # scf_algorithm="diis",
                  scf_algorithm="gdm",
                  max_scf_cycles=200,
                  overwrite_inputs=None):
