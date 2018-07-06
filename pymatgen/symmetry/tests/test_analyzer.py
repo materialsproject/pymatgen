@@ -18,6 +18,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
 from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core.lattice import Lattice
 
 """
 Created on Mar 9, 2012
@@ -63,6 +64,15 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         a = SpacegroupAnalyzer(s)
         self.assertEqual(len(s), 4)
         self.assertEqual(len(a.find_primitive()), 1)
+        
+    def test_choices(self):
+        s = Structure.from_spacegroup("R-3m", Lattice.hexagonal(3.0, 5.0), ["Cu"],
+                                      [[0, 0, 0]])
+        a = SpacegroupAnalyzer(s)
+        self.assertListEqual(a.get_available_choices(), ['H', 'R'])
+        self.assertEqual(a.get_symmetry_dataset()['choice'], 'H')
+        a = SpacegroupAnalyzer(s, choice='R')
+        self.assertEqual(a.get_symmetry_dataset()['choice'], 'R')
 
     def test_is_laue(self):
         s = Structure.from_spacegroup("Fm-3m", np.eye(3) * 3, ["Cu"],
