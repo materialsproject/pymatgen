@@ -21,10 +21,8 @@ from pymatgen.io.vasp.outputs import Chgcar
 
 try:
     from skimage.feature import peak_local_max
-
-    peak_local_max_found = True
 except ImportError:
-    peak_local_max_found = False
+    peak_local_max = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files', "chgden")
 
@@ -34,11 +32,11 @@ class DefectsUtilsTest(PymatgenTest):
         qm = QModel()
         modqm = QModel(beta=2., expnorm=0.5, gamma=0.1)
 
-        #test rho_rec
+        # test rho_rec
         self.assertEqual(qm.rho_rec(1.), 0.77880078307140488)
         self.assertEqual(modqm.rho_rec(1.), 0.6814583156907158)
 
-        #test rho_rec_limit0
+        # test rho_rec_limit0
         self.assertEqual(qm.rho_rec_limit0, -0.25)
         self.assertEqual(modqm.rho_rec_limit0, -0.51)
 
@@ -46,18 +44,18 @@ class DefectsUtilsTest(PymatgenTest):
         self.assertAlmostEqual(eV_to_k(1.), 0.9681404248678961)
 
     def test_genrecip(self):
-        #TODO
+        # TODO
         pass
 
     def test_generate_reciprocal_vectors_squared(self):
-        #test cubic case
+        # test cubic case
         a = 6.
         lattvectors = [[a if i == j else 0. for j in range(3)] for i in range(3)]
         brecip = [1.0966227112321507 for i in range(6)]
         self.assertAlmostEqual(
             list(generate_reciprocal_vectors_squared(lattvectors[0], lattvectors[1], lattvectors[2], 1.3)), brecip)
 
-        #test orthorhombic case
+        # test orthorhombic case
         lattconsts = [a, a / 2., 3. * a]
         lattvectors = [[lattconsts[i] if i == j else 0. for j in range(3)] for i in range(3)]
         brval = 0.4873878716587337
@@ -65,7 +63,7 @@ class DefectsUtilsTest(PymatgenTest):
         self.assertAlmostEqual(
             list(generate_reciprocal_vectors_squared(lattvectors[0], lattvectors[1], lattvectors[2], 1.)), brecip)
 
-        #test triclinic case
+        # test triclinic case
         lattvectors = [[1.5, 0.2, 0.3], [0.3, 1.2, .2], [0.5, 0.4, 1.3]]
         brval = 24.28330561545568
         brecip = [brval, brval]
@@ -75,25 +73,25 @@ class DefectsUtilsTest(PymatgenTest):
     def test_closest_sites(self):
         struct = PymatgenTest.get_structure("VO2")
 
-        #test O vacancy
+        # test O vacancy
         dstruct = struct.copy()
         dstruct.remove_sites([0])
         pos = struct.sites[0].coords
         bsite, dsite = closestsites(struct, dstruct, pos)
-        self.assertEqual(bsite[2], 0)  #test against index
+        self.assertEqual(bsite[2], 0)  # test against index
         self.assertEqual(dsite[2], 4)
 
-        #test V vacancy
+        # test V vacancy
         dstruct = struct.copy()
         dstruct.remove_sites([4])
         pos = struct.sites[4].coords
         bsite, dsite = closestsites(struct, dstruct, pos)
-        self.assertEqual(bsite[2], 4)  #test against index
+        self.assertEqual(bsite[2], 4)  # test against index
         self.assertEqual(dsite[2], 1)
 
     def test_converges(self):
-        self.assertAlmostEqual(converge(np.sqrt, 0.1, 0.1, 1.0),
-            0.6324555320336759)        
+        self.assertAlmostEqual(converge(np.sqrt, 0.1, 0.1, 1.0), 0.6324555320336759)
+
 
 class StructureMotifInterstitialTest(PymatgenTest):
     def setUp(self):
@@ -137,17 +135,18 @@ class StructureMotifInterstitialTest(PymatgenTest):
             coords_are_cartesian=True,
             site_properties=None)
         self.square_pyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
-            ["C", "C", "C", "C", "C", "C"], [
-                [0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], \
-                [0, 0, 1]], validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=True, site_properties=None)
+            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]), ["C", "C", "C", "C", "C", "C"],
+            [[0, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1]],
+            validate_proximity=False,
+            to_unit_cell=False,
+            coords_are_cartesian=True,
+            site_properties=None)
         self.trigonal_bipyramid = Structure(
-            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]),
-            ["P", "Cl", "Cl", "Cl", "Cl", "Cl"], [
-                [0, 0, 0], [0, 0, 2.14], [0, 2.02, 0], [1.74937, -1.01, 0], \
-                [-1.74937, -1.01, 0], [0, 0, -2.14]], validate_proximity=False,
-            to_unit_cell=False, coords_are_cartesian=True,
+            Lattice([[100, 0, 0], [0, 100, 0], [0, 0, 100]]), ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
+            [[0, 0, 0], [0, 0, 2.14], [0, 2.02, 0], [1.74937, -1.01, 0], [-1.74937, -1.01, 0], [0, 0, -2.14]],
+            validate_proximity=False,
+            to_unit_cell=False,
+            coords_are_cartesian=True,
             site_properties=None)
 
     def test_all(self):
@@ -206,7 +205,7 @@ class TopographyAnalyzerTest(unittest.TestCase):
             self.assertTrue(is_site_matched)
 
 
-@unittest.skipIf(not peak_local_max_found, "skimage.feature.peak_local_max module not present.")
+@unittest.skipIf(not peak_local_max, "skimage.feature.peak_local_max module not present.")
 class ChgDenAnalyzerTest(unittest.TestCase):
     def setUp(self):
         # This is a CHGCAR_sum file with reduced grid size
