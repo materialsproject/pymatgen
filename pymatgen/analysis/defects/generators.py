@@ -261,7 +261,7 @@ class SimpleChargeGenerator(DefectGenerator):
             site_index = self.defect.bulk_structure.get_sites_in_sphere(
                 self.defect.site.coords, 0.1, include_index=True)[0][2]
             def_site_valence = struct_valences[site_index]
-        except:  # sometimes valences cant be assigned
+        except Exception as e:  # sometimes valences cant be assigned
             def_site_valence = 0
 
         if isinstance(defect, Vacancy):
