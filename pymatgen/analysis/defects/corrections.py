@@ -42,6 +42,7 @@ class FreysoldtCorrection(DefectCorrection):
         self.q_model = QModel() if not q_model else q_model
         self.energy_cutoff = energy_cutoff
         self.madetol = madetol
+        self.dielectric_const = dielectric_const
 
         if isinstance(dielectric_const, int) or \
                 isinstance(dielectric_const, float):
@@ -82,7 +83,6 @@ class FreysoldtCorrection(DefectCorrection):
                         the bulk_planar_average and defect_planar_average
 
         """
-
 
         if not self.axis:
             list_axis_grid = np.array(entry.parameters["axis_grid"])
@@ -199,28 +199,21 @@ class FreysoldtCorrection(DefectCorrection):
         dg = reci_latt.abc[axis]
         dg /= ang_to_bohr  # convert to bohr to do calculation in atomic units
 
+        # Build background charge potential with defect at origin
         v_G = np.empty(len(axis_grid), np.dtype("c16"))
-        epsilon = self.dielectric
-        # q needs to be that of the back ground
-        v_G[0] = 4 * np.pi * -q / epsilon * self.q_model.rho_rec_limit0
-        for i in range(1, nx):
-            if (2 * i < nx):
-                g = i * dg
-            else:
-                g = (i - nx) * dg
-            g2 = g * g
-            v_G[i] = 4 * np.pi / (epsilon * g2) * -q * self.q_model.rho_rec(g2)
-        if not (nx % 2):
-            v_G[nx // 2] = 0
+        v_G[0] = 4 * np.pi * -q / self.dielectric * self.q_model.rho_rec_limit0
+        g = np.roll(np.arange(-nx / 2, nx / 2, 1, dtype=int), int(nx / 2)) * dg
+        g2 = np.multiply(g, g)[1:]
+        v_G[1:] = 4 * np.pi / (self.dielectric * g2) * -q * self.q_model.rho_rec(g2)
+        v_G[nx // 2] = 0 if not (nx % 2) else v_G[nx // 2]
+
+        # Get the real space potential by peforming a  fft and grabbing the imaginary portion
         v_R = np.fft.fft(v_G)
-        v_R_imag = np.imag(v_R)
+
+        if abs(np.imag(v_R).max()) > self.madetol:
+            raise Exception("imaginary part found to be %s", repr(np.imag(v_R).max()))
         v_R /= (lattice.volume * ang_to_bohr**3)
         v_R = np.real(v_R) * hart_to_ev
-
-        max_imag_vr = v_R_imag.max()
-        if abs(max_imag_vr) > self.madetol:
-            logging.error("imaginary part found to be %s", repr(max_imag_vr))
-            sys.exit()
 
         # get correction
         short = (defavg - pureavg - v_R)
@@ -317,7 +310,14 @@ class BandFillingCorrection(DefectCorrection):
 
     """
 
-    def __init__(self):
+    def __init__(self, resolution=0.01):
+        """
+        Initializes the Bandfilling correction
+
+        Args:
+            resolution (float): energy resolution to maintain for gap states
+        """
+        self.resolution = resolution
         self.metadata = {
             "occupied_def_levels": [],
             "unoccupied_def_levels": [],
@@ -365,7 +365,7 @@ class BandFillingCorrection(DefectCorrection):
             raise ValueError("Eigenvalue keys greater than 2")
 
         # for tracking mid gap states...
-        resolution = 0.01  # this is energy resolution to maintain for gap states
+        resolution = self.resolution
         shifted_cbm = potalign + cbm  # shift cbm with potential alignment
         shifted_vbm = potalign + vbm  # shift vbm with potential alignment
 
