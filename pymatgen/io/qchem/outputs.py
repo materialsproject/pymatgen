@@ -565,6 +565,18 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["IO_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"Could not find \$molecule section in ParseQInput"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["read_molecule_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"Welcome to Q-Chem"
+                },
+                terminate_on_match=True).get('key') != [[]]:
+            self.data["errors"] += ["never_called_qchem"]
         else:
             self.data["errors"] += ["unknown_error"]
 

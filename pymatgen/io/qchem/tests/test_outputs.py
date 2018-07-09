@@ -97,6 +97,8 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/Frequency_no_equal.qout",
                         "new_qchem_files/gdm.qout",
                         "new_qchem_files/DinfH.qout",
+                        "new_qchem_files/mpi_error.qout",
+                        "new_qchem_files/molecule_read_error.qout",
                         "new_qchem_files/Optimization_no_equal.qout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
