@@ -292,7 +292,18 @@ class QCOutput(MSONable):
             self.data["species"] = None
             self.data["initial_geometry"] = None
             self.data["initial_molecule"] = None
+            self.data["point_group"] = None
         else:
+            temp_point_group = read_pattern(
+            self.text, {
+                "key":
+                r"Molecular Point Group\s+([A-Za-z\d\*]+)"
+            },
+            terminate_on_match=True).get('key')
+            if temp_point_group != None:
+                self.data["point_group"] = temp_point_group[0][0]
+            else:
+                self.data["point_group"] = None
             temp_geom = temp_geom[0]
             species = []
             geometry = np.zeros(shape=(len(temp_geom), 3), dtype=float)
