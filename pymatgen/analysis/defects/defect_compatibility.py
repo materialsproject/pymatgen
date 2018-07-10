@@ -344,7 +344,7 @@ class DefectCompatibility(MSONable):
             defect_entry.parameters['delocalization_meta'] = {}
         defect_entry.parameters['delocalization_meta'].update( {'plnr_avg':
                                                                     {'is_compatible': plnr_avg_allows_compatible,
-                                                                     'metadata': plnr_avg_analyze_meta}}})
+                                                                     'metadata': plnr_avg_analyze_meta}})
 
         if not plnr_avg_allows_compatible:
             defect_entry.parameters.update({'is_compatible': False})
@@ -373,7 +373,7 @@ class DefectCompatibility(MSONable):
             defect_entry.parameters['delocalization_meta'] = {}
         defect_entry.parameters['delocalization_meta'].update( {'atomic_site':
                                                                     {'is_compatible': atomic_site_allows_compatible,
-                                                                     'metadata': atomic_site_analyze_meta}}})
+                                                                     'metadata': atomic_site_analyze_meta}})
 
         if not atomic_site_allows_compatible:
             defect_entry.parameters.update({'is_compatible': False})
