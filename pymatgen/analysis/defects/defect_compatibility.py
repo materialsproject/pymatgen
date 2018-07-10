@@ -340,7 +340,9 @@ class DefectCompatibility(MSONable):
             if (not frey_variance_compatible) or (not frey_minmax_compatible):
                 plnr_avg_allows_compatible = False
 
-        defect_entry.parameters.update({'delocalization_meta': {'plnr_avg':
+        if 'delocalization_meta' not in defect_entry.parameters.keys():
+            defect_entry.parameters['delocalization_meta'] = {}
+        defect_entry.parameters['delocalization_meta'].update( {'plnr_avg':
                                                                     {'is_compatible': plnr_avg_allows_compatible,
                                                                      'metadata': plnr_avg_analyze_meta}}})
 
@@ -367,7 +369,9 @@ class DefectCompatibility(MSONable):
         atomic_site_allows_compatible = True if (
             kumagai_variance_compatible and kumagai_minmax_compatible) else False
 
-        defect_entry.parameters.update({'delocalization_meta': {'atomic_site':
+        if 'delocalization_meta' not in defect_entry.parameters.keys():
+            defect_entry.parameters['delocalization_meta'] = {}
+        defect_entry.parameters['delocalization_meta'].update( {'atomic_site':
                                                                     {'is_compatible': atomic_site_allows_compatible,
                                                                      'metadata': atomic_site_analyze_meta}}})
 
@@ -450,12 +454,14 @@ class DefectCompatibility(MSONable):
             defectsite_relax_analyze_meta.update({'relax_amount': defect_relax_amount,
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})
 
-        defect_entry.parameters.update({'delocalization_meta': {'defectsite_relax':
+        if 'delocalization_meta' not in defect_entry.parameters.keys():
+            defect_entry.parameters['delocalization_meta'] = {}
+        defect_entry.parameters['delocalization_meta'].update( {'defectsite_relax':
                                                                     {'is_compatible': defectsite_relax_allows_compatible,
-                                                                     'metadata': defectsite_relax_analyze_meta},
-                                                                'structure_relax':
+                                                                     'metadata': defectsite_relax_analyze_meta}})
+        defect_entry.parameters['delocalization_meta'].update( {'structure_relax':
                                                                    {'is_compatible': structure_relax_allows_compatible,
-                                                                    'metadata': structure_relax_analyze_meta}}})
+                                                                    'metadata': structure_relax_analyze_meta}})
 
         if (not structure_relax_allows_compatible) or (not defectsite_relax_allows_compatible):
             defect_entry.parameters.update({'is_compatible': False})
