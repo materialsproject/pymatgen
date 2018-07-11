@@ -199,15 +199,38 @@ class GBGenerator(object):
         parent_structure = self.initial_structure.copy()
         # top grain
         top_grain = fix_pbc(parent_structure * top_grain_matrix)
-        top_grain_init = top_grain.lattice.matrix
-        top_grain.make_supercell([1, 1, expand_times])
-        top_grain = fix_pbc(top_grain)
 
         # bottom grain, using top grain's lattice matrix
-        bottom_grain = fix_pbc(parent_structure * bottom_grain_matrix, top_grain_init)
-        bottom_grain.make_supercell([1, 1, expand_times])
-        bottom_grain = fix_pbc(bottom_grain, top_grain.lattice.matrix)
+        bottom_grain = fix_pbc(parent_structure * bottom_grain_matrix, top_grain.lattice.matrix)
 
+        # label both grains with 'top','bottom','top_incident','bottom_incident'
+        N_sites = top_grain.num_sites
+        t_and_b = Structure(top_grain.lattice, top_grain.species + bottom_grain.species,
+                            list(top_grain.frac_coords) + list(bottom_grain.frac_coords))
+        index_incident = np.nonzero(t_and_b.lattice.get_all_distances(
+            t_and_b.frac_coords[0:N_sites], t_and_b.frac_coords[N_sites:N_sites * 2]) < 1.e-5)
+        top_labels = []
+        for i in range(N_sites):
+            if i in index_incident[0]:
+                top_labels.append('top_incident')
+            else:
+                top_labels.append('top')
+        bottom_labels = []
+        for i in range(N_sites):
+            if i in index_incident[1]:
+                bottom_labels.append('bottom_incident')
+            else:
+                bottom_labels.append('bottom')
+        top_grain = Structure(Lattice(top_grain.lattice.matrix), top_grain.species,
+                              top_grain.frac_coords, site_properties={'grain_label': top_labels})
+        bottom_grain = Structure(Lattice(bottom_grain.lattice.matrix), bottom_grain.species,
+                                 bottom_grain.frac_coords, site_properties={'grain_label': bottom_labels})
+
+        # expand both grains
+        top_grain.make_supercell([1, 1, expand_times])
+        bottom_grain.make_supercell([1, 1, expand_times])
+        top_grain = fix_pbc(top_grain)
+        bottom_grain = fix_pbc(bottom_grain)
         # construct all species
         all_species = []
         all_species.extend([site.specie for site in bottom_grain])
@@ -228,13 +251,12 @@ class GBGenerator(object):
 
         # construct the coords, move top grain with translation_v
         all_coords = []
-        grain_labels = []
+        grain_labels = bottom_grain.site_properties['grain_label'] \
+                       + top_grain.site_properties['grain_label']
         for site in bottom_grain:
             all_coords.append(site.coords)
-            grain_labels.append('bottom_grain')
         for site in top_grain:
             all_coords.append(site.coords + half_lattice.matrix[2] + translation_v)
-            grain_labels.append('top_grain')
 
         gb_with_vac = Structure(whole_lat, all_species, all_coords,
                                 coords_are_cartesian=True,
@@ -355,7 +377,9 @@ class GBGenerator(object):
             r_axis = [int(round(x / reduce(gcd, r_axis))) for x in r_axis]
         # transform four index notation to three index notation
         if len(r_axis) == 4:
-            u1, v1, t1, w1 = r_axis
+            u1 = r_axis[0]
+            v1 = r_axis[1]
+            w1 = r_axis[3]
             u = 2 * u1 + v1
             v = 2 * v1 + u1
             w = w1
@@ -477,7 +501,9 @@ class GBGenerator(object):
         sigmas = {}
         # transform four index notation to three index notation
         if len(r_axis) == 4:
-            u1, v1, t1, w1 = r_axis
+            u1 = r_axis[0]
+            v1 = r_axis[1]
+            w1 = r_axis[3]
             u = 2 * u1 + v1 + w1
             v = v1 + w1 - u1
             w = w1 - 2 * v1 - u1
@@ -919,7 +945,9 @@ class GBGenerator(object):
 
         # transform four index notation to three index notation
         if len(r_axis) == 4:
-            u1, v1, t_temp, w1 = r_axis
+            u1 = r_axis[0]
+            v1 = r_axis[1]
+            w1 = r_axis[3]
             if lat_type.lower() == 'h':
                 u = 2 * u1 + v1
                 v = 2 * v1 + u1
@@ -937,7 +965,9 @@ class GBGenerator(object):
 
         if surface is not None:
             if len(surface) == 4:
-                u1, v1, t_temp, w1 = surface
+                u1 = surface[0]
+                v1 = surface[1]
+                w1 = surface[3]
                 surface = [u1, v1, w1]
         # set the surface for grain boundary.
         if surface is None:
@@ -1649,4 +1679,4 @@ def fix_pbc(structure, matrix=None):
                 coord[i] = round(coord[i], 7)
         coords.append(coord)
 
-    return Structure(latte, spec, coords)
+    return Structure(latte, spec, coords, site_properties=structure.site_properties)
