@@ -6,6 +6,7 @@ __email__ = 'xil110@eng.ucsd.edu'
 __date__ = '05/18/18'
 
 import unittest
+from pymatgen.util.testing import PymatgenTest
 import os
 import numpy as np
 from pymatgen import Structure
@@ -15,7 +16,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files", "grain_boundary")
 
 
-class Test_grain_boundary_generator(unittest.TestCase):
+class Test_grain_boundary_generator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.Cu_prim = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_primitive.cif"))
@@ -219,7 +220,7 @@ class Test_grain_boundary_generator(unittest.TestCase):
     def test_get_rotation_angle_from_sigma(self):
         true_angle = [12.680383491819821, 167.3196165081802]
         angle = GBGenerator.get_rotation_angle_from_sigma(41, [1, 0, 0], lat_type='o', ratio=[270, 30, 29])
-        np.testing.assert_almost_equal(true_angle, angle)
+        self.assertArrayAlmostEqual(true_angle, angle)
         close_angle = [36.86989764584403, 143.13010235415598]
         angle = GBGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type='o', ratio=[270, 30, 29])
-        np.testing.assert_almost_equal(close_angle, angle)
+        self.assertArrayAlmostEqual(close_angle, angle)

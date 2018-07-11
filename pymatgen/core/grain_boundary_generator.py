@@ -17,6 +17,7 @@ __maintainer__ = "Xiang-Guo Li"
 __email__ = "xil110@ucsd.edu"
 __date__ = "7/10/18"
 
+
 class GBGenerator(object):
     """
     This class provides two methods to generate grain boundaries (GBs) from bulk
@@ -227,13 +228,17 @@ class GBGenerator(object):
 
         # construct the coords, move top grain with translation_v
         all_coords = []
+        grain_labels = []
         for site in bottom_grain:
             all_coords.append(site.coords)
+            grain_labels.append('bottom_grain')
         for site in top_grain:
             all_coords.append(site.coords + half_lattice.matrix[2] + translation_v)
+            grain_labels.append('top_grain')
 
         gb_with_vac = Structure(whole_lat, all_species, all_coords,
-                                coords_are_cartesian=True)
+                                coords_are_cartesian=True,
+                                site_properties={'grain_label': grain_labels})
 
         return gb_with_vac
 
