@@ -696,6 +696,18 @@ class LocalStructOrderParamsTest(PymatgenTest):
             [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.sq_face_capped_trig_pris = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]),
+            ["H", "H", "H", "H", "H", "H", "H", "H"],
+            [[0, 0, 0], [-0.6546536707079771, -0.37796447300922725, 0.6546536707079771],
+            [0.6546536707079771, -0.37796447300922725, 0.6546536707079771],
+            [0.0, 0.7559289460184545, 0.6546536707079771],
+            [-0.6546536707079771, -0.37796447300922725, -0.6546536707079771],
+            [0.6546536707079771, -0.37796447300922725, -0.6546536707079771],
+            [0.0, 0.7559289460184545, -0.6546536707079771], [0.0, -1.0, 0.0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
 
     def test_init(self):
         self.assertIsNotNone(
@@ -714,7 +726,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
-            "pent_plan_max", "cuboct_max", "tet_max"]
+            "pent_plan_max", "cuboct_max", "tet_max", "sq_face_cap_trig_pris"]
         op_params = [None for i in range(len(op_types))]
         op_params[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
         op_params[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
@@ -892,6 +904,12 @@ class LocalStructOrderParamsTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(
             self.hexagonal_planar, 0, indices_neighs=[1,2,3,4,5,6])
         self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)
+
+        # Square face capped trigonal prism.
+        op_vals = ops_101.get_order_parameters(
+            self.sq_face_capped_trig_pris, 0,
+            indices_neighs=[i for i in range(1, 8)])
+        self.assertAlmostEqual(int(op_vals[34] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])

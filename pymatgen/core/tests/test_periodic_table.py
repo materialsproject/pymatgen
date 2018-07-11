@@ -136,7 +136,7 @@ class ElementTestCase(PymatgenTest):
                 "vickers_hardness", "density_of_solid", "atomic_orbitals"
                 "coefficient_of_linear_thermal_expansion", "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
-                "ionic_radii", "long_name"]
+                "ionic_radii", "long_name", "metallic_radius"]
 
         # Test all elements up to Uranium
         for i in range(1, 104):
