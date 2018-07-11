@@ -1570,26 +1570,26 @@ class GBGenerator(object):
                                         c_norm = c_norm_temp
 
         # find the best a, b vectors with their formed area smallest and average norm of a,b smallest.
-        for i in range(len(ab_vector)):
-            for j in range(i + 1, len(ab_vector)):
-                area_temp = np.linalg.norm(np.cross(np.matmul(ab_vector[i], trans),
-                                                    np.matmul(ab_vector[j], trans)))
+        for i, vali in enumerate(ab_vector):
+            for j, valj in enumerate(ab_vector, start = i + 1):
+                area_temp = np.linalg.norm(np.cross(np.matmul(vali, trans),
+                                                    np.matmul(valj, trans)))
                 if abs(area_temp - 0) > 1.e-8:
-                    ab_norm_temp = np.linalg.norm(np.matmul(ab_vector[i], trans)) + \
-                                   np.linalg.norm(np.matmul(ab_vector[j], trans))
+                    ab_norm_temp = np.linalg.norm(np.matmul(vali, trans)) + \
+                                   np.linalg.norm(np.matmul(valj, trans))
                     if area is None:
                         area = area_temp
                         ab_norm = ab_norm_temp
-                        t_matrix[0] = ab_vector[i]
-                        t_matrix[1] = ab_vector[j]
+                        t_matrix[0] = vali
+                        t_matrix[1] = valj
                     elif area_temp < area:
-                        t_matrix[0] = ab_vector[i]
-                        t_matrix[1] = ab_vector[j]
+                        t_matrix[0] = vali
+                        t_matrix[1] = valj
                         area = area_temp
                         ab_norm = ab_norm_temp
                     elif abs(area - area_temp) < 1.e-8 and ab_norm_temp < ab_norm:
-                        t_matrix[0] = ab_vector[i]
-                        t_matrix[1] = ab_vector[j]
+                        t_matrix[0] = vali
+                        t_matrix[1] = valj
                         area = area_temp
                         ab_norm = ab_norm_temp
         # make sure we have a left-handed crystallographic system
