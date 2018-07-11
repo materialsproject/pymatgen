@@ -9,7 +9,7 @@ import unittest
 import os
 import numpy as np
 from pymatgen import Structure
-from pymacy.grain_boundary.grain_boundary_generator import GBGenerator
+from pymatgen.core.grain_boundary_generator import GBGenerator
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files", "grain_boundary")
@@ -212,6 +212,7 @@ class Test_grain_boundary_generator(unittest.TestCase):
                                                surface=[21, 20, 10], normal=True)
         self.assertAlmostEqual(np.dot(mat1[0], [21, 20, 10]), 0)
         self.assertAlmostEqual(np.dot(mat1[1], [21, 20, 10]), 0)
+        self.assertAlmostEqual(np.linalg.det(mat1), np.linalg.det(mat2))
         ab_len1 = np.linalg.norm(np.cross(mat1[2], [1, 1, 1]))
         self.assertAlmostEqual(ab_len1, 0)
 

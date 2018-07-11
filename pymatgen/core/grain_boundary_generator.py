@@ -10,6 +10,12 @@ from pymatgen import Structure, Lattice
 from monty.fractions import lcm
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+__author__ = "Xiang-Guo Li"
+__copyright__ = "Copyright 2018, The Materials Virtual Lab"
+__version__ = "0.1"
+__maintainer__ = "Xiang-Guo Li"
+__email__ = "xil110@ucsd.edu"
+__date__ = "7/10/18"
 
 class GBGenerator(object):
     """
@@ -31,12 +37,6 @@ class GBGenerator(object):
     multiple rotation angles.
     Users can use structure matcher in pymatgen to get rid of the redundant structures.
     """
-__author__ = "Xiang-Guo Li"
-__copyright__ = "Copyright 2018, The Materials Virtual Lab"
-__version__ = "0.1"
-__maintainer__ = "Xiang-Guo Li"
-__email__ = "xil110@ucsd.edu"
-__date__ = "7/10/18"
 
     def __init__(self, initial_structure):
 
