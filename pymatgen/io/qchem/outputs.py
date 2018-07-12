@@ -13,6 +13,11 @@ from monty.json import jsanitize
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
+from pymatgen.analysis.graphs import MoleculeGraph
+import networkx as nx
+from pymatgen.io.babel import BabelMolAdaptor
+import openbabel as ob
+
 from .utils import read_table_pattern, read_pattern, process_parsed_coords
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
@@ -519,7 +524,12 @@ class QCOutput(MSONable):
                     "key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"
                 },
                 terminate_on_match=True).get('key') == [[]]:
-            self.data["errors"] += ["out_of_opt_cycles"]
+            initial_graph = build_MoleculeGraph(self.data["initial_molecule"]).graph
+            last_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"]).graph
+            if not is_isomorphic(initial_graph, last_graph):
+                self.data["errors"] += ["unstable_optimization"]
+            else:
+                self.data["errors"] += ["out_of_opt_cycles"]
         elif read_pattern(
                 self.text, {
                     "key": r"UNABLE TO DETERMINE Lamda IN FormD"
@@ -586,3 +596,36 @@ class QCOutput(MSONable):
         d["text"] = self.text
         d["filename"] = self.filename
         return jsanitize(d, strict=True)
+
+
+def edges_from_babel(molecule):
+    babel_mol = BabelMolAdaptor(molecule).openbabel_mol
+    edges = []
+    for obbond in ob.OBMolBondIter(babel_mol):
+        edges += [[obbond.GetBeginAtomIdx() - 1, obbond.GetEndAtomIdx() - 1]]
+    return edges
+
+
+def build_MoleculeGraph(molecule, edges=None):
+    if edges == None:
+        edges = edges_from_babel(molecule)
+    mol_graph = MoleculeGraph.with_empty_graph(molecule)
+    for edge in edges:
+        mol_graph.add_edge(edge[0], edge[1])
+    mol_graph.graph = mol_graph.graph.to_undirected()
+    species = {}
+    coords = {}
+    for node in mol_graph.graph:
+        species[node] = mol_graph.molecule[node].specie.symbol
+        coords[node] = mol_graph.molecule[node].coords
+    nx.set_node_attributes(mol_graph.graph, species, "specie")
+    nx.set_node_attributes(mol_graph.graph, coords, "coords")
+    return mol_graph
+
+
+def _node_match(node, othernode):
+    return node["specie"] == othernode["specie"]
+
+
+def is_isomorphic(graph1, graph2):
+    return nx.is_isomorphic(graph1, graph2, node_match=_node_match)
