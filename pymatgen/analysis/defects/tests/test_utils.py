@@ -279,7 +279,7 @@ class ChgDenAnalyzerTest(unittest.TestCase):
 
     def test_from_file(self):
         ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
-        assert isinstance(ca, ChargeDensityAnalyzer)
+        self.assertTrue(isinstance(ca, ChargeDensityAnalyzer))
 
 
 if __name__ == "__main__":

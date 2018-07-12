@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 import logging
-import sys
 import numpy as np
 import scipy
 from scipy import stats

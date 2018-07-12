@@ -18,7 +18,7 @@ from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
-from pymatgen.analysis.local_env import LocalStructOrderParams, MinimumDistanceNN, ValenceIonicRadiusEvaluator, cn_opt_params
+from pymatgen.analysis.local_env import LocalStructOrderParams, MinimumDistanceNN, cn_opt_params
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
@@ -296,7 +296,6 @@ class StructureMotifInterstitial(object):
         natoms = len(list(struct_w_inter.sites))
         trialsites = []
 
-
         # Build index list
         i = np.arange(0, nbins[0]) + 0.5
         j = np.arange(0, nbins[1]) + 0.5
@@ -305,8 +304,7 @@ class StructureMotifInterstitial(object):
         # Convert index to vectors using meshgrid
         indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
         # Multiply integer vectors to get recipricol space vectors
-        vecs = np.multiply(indicies, np.divide(1,nbins))
-
+        vecs = np.multiply(indicies, np.divide(1, nbins))
 
         # Loop over trial positions that are based on a regular
         # grid in fractional coordinate space
@@ -314,10 +312,8 @@ class StructureMotifInterstitial(object):
         for vec in vecs:
             struct_w_inter.replace(natoms - 1, inter_elem, coords=vec, coords_are_cartesian=False)
             if len(struct_w_inter.get_sites_in_sphere(struct_w_inter.sites[natoms - 1].coords, doverlap)) == 1:
-                neighs_images_weigths = MinimumDistanceNN(
-                    tol=0.8, cutoff=6).get_nn_info(struct_w_inter, natoms - 1)
-                neighs_images_weigths_sorted = sorted(
-                    neighs_images_weigths, key=lambda x: x['weight'], reverse=True)
+                neighs_images_weigths = MinimumDistanceNN(tol=0.8, cutoff=6).get_nn_info(struct_w_inter, natoms - 1)
+                neighs_images_weigths_sorted = sorted(neighs_images_weigths, key=lambda x: x['weight'], reverse=True)
                 for nsite in range(1, len(neighs_images_weigths_sorted) + 1):
                     if nsite not in self.target_cns:
                         continue
@@ -326,8 +322,7 @@ class StructureMotifInterstitial(object):
                     indices_neighs = [i for i in range(len(allsites))]
                     allsites.append(struct_w_inter.sites[natoms - 1])
                     for mot, ops in self.cn_motif_lostop[nsite].items():
-                        opvals = ops.get_order_parameters(
-                            allsites, len(allsites) - 1, indices_neighs=indices_neighs)
+                        opvals = ops.get_order_parameters(allsites, len(allsites) - 1, indices_neighs=indices_neighs)
                         if opvals[0] > op_threshs[motif_types.index(mot)]:
                             cns = {}
                             for isite in range(nsite):
@@ -436,7 +431,6 @@ class StructureMotifInterstitial(object):
             print("Initial trial sites: {}\nAfter clustering: {}\n"
                   "After symmetry pruning: {}".format(len(trialsites), len(include),
                                                       len(include) - len(discard)))
-        c = 0
         for i in include:
             if i not in discard:
                 self._defect_sites.append(
@@ -943,7 +937,8 @@ class ChargeDensityAnalyzer(object):
                 logger.warning(  # Exit if both filter are set
                     "Filter can be either threshold_frac or threshold_abs!")
                 return
-            assert 0 <= threshold_frac <= 1, "threshold_frac range is [0, 1]!"
+            if threshold_frac > 1 or threshold_frac < 0:
+                raise Exception("threshold_frac range is [0, 1]!")
 
         # Return empty result if coords list is empty
         if len(f_coords) == 0:
