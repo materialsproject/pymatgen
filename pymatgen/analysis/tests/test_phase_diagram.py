@@ -10,8 +10,6 @@ from numbers import Number
 import matplotlib
 import warnings
 
-matplotlib.use("pdf")
-
 from pymatgen.analysis.phase_diagram import *
 from pymatgen.core.periodic_table import Element, DummySpecie
 from pymatgen.core.composition import Composition
