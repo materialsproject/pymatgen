@@ -51,7 +51,8 @@ property_list = {"errors",
                  "point_group",
                  "frequencies",
                  "IR_intens",
-                 "IR_active"}
+                 "IR_active",
+                 "structure_change"}
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",
@@ -99,7 +100,11 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/DinfH.qout",
                         "new_qchem_files/mpi_error.qout",
                         "new_qchem_files/molecule_read_error.qout",
-                        "new_qchem_files/Optimization_no_equal.qout"}
+                        "new_qchem_files/Optimization_no_equal.qout",
+                        "new_qchem_files/2068.qout",
+                        "new_qchem_files/2620.qout",
+                        "new_qchem_files/1746.qout",
+                        "new_qchem_files/1570.qout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
                        "new_qchem_files/VC_solv_eps10.qcout",
@@ -122,6 +127,7 @@ class TestQCOutput(PymatgenTest):
         """
         single_job_dict = {}
         for file in single_job_out_names:
+            print(file)
             single_job_dict[file] = QCOutput(os.path.join(test_dir, file)).data
         dumpfn(single_job_dict, "single_job.json")
 
@@ -132,6 +138,7 @@ class TestQCOutput(PymatgenTest):
         """
         multi_job_dict = {}
         for file in multi_job_out_names:
+            print(file)
             outputs = QCOutput.multiple_outputs_from_file(
                 QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
             data = []
@@ -166,4 +173,6 @@ class TestQCOutput(PymatgenTest):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    TestQCOutput.generate_multi_job_dict()
+    TestQCOutput.generate_single_job_dict()
+    # unittest.main()

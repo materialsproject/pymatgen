@@ -165,15 +165,16 @@ class QCOutput(MSONable):
                 for ii, entry in enumerate(temp_energy_trajectory):
                     real_energy_trajectory[ii] = float(entry[0])
                 self.data["energy_trajectory"] = real_energy_trajectory
+                self._read_last_geometry()
+                self._check_for_structure_changes()
                 self._read_optimized_geometry()
                 # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
                 # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-                # to be determined. Also, if there is an energy trajectory, read the last geometry in the
-                # optimization trajectory for use in the next input file.
+                # to be determined.
                 if len(self.data.get("errors")) == 0 and len(
                         self.data.get('optimized_geometry')) == 0 and len(
                             self.data.get('optimized_zmat')) == 0:
-                    self._read_last_geometry()
+                    
                     self._check_optimization_errors()
 
         # Check if the calculation contains a constraint in an $opt section.
@@ -437,6 +438,24 @@ class QCOutput(MSONable):
                     charge=self.data.get('charge'),
                     spin_multiplicity=self.data.get('multiplicity'))
 
+    def _check_for_structure_changes(self):
+        initial_mol_graph = build_MoleculeGraph(self.data["initial_molecule"])
+        initial_graph = initial_mol_graph.graph
+        last_mol_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"])
+        last_graph = last_mol_graph.graph
+        if is_isomorphic(initial_graph, last_graph):
+            self.data["structure_change"] = ["no_change"]
+        else:
+            if not nx.is_connected(initial_graph, last_graph):
+                self.data["structure_change"] = ["unconnected_fragments"]
+            elif last_graph.number_of_edges() < initial_graph.number_of_edges():
+                self.data["structure_change"] = ["fewer_bonds"]
+            elif last_graph.number_of_edges() > initial_graph.number_of_edges():
+                self.data["structure_change"] = ["more_bonds"]
+            else:
+                self.data["structure_change"] = ["bond_change"]
+
+
     def _read_frequency_data(self):
         """
         Parses frequencies, enthalpy, entropy, and mode vectors.
@@ -524,12 +543,7 @@ class QCOutput(MSONable):
                     "key": r"MAXIMUM OPTIMIZATION CYCLES REACHED"
                 },
                 terminate_on_match=True).get('key') == [[]]:
-            initial_graph = build_MoleculeGraph(self.data["initial_molecule"]).graph
-            last_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"]).graph
-            if not is_isomorphic(initial_graph, last_graph):
-                self.data["errors"] += ["unstable_optimization"]
-            else:
-                self.data["errors"] += ["out_of_opt_cycles"]
+            self.data["errors"] += ["out_of_opt_cycles"]
         elif read_pattern(
                 self.text, {
                     "key": r"UNABLE TO DETERMINE Lamda IN FormD"
