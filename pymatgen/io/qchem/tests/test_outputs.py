@@ -56,7 +56,7 @@ property_list = {"errors",
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",
                         "hf.qcout",
-                        #"hf_opt_failed.qcout",
+                        "hf_opt_failed.qcout",
                         "no_reading.qcout",
                         "exit_code_134.qcout",
                         "negative_eigen.qcout",
@@ -142,7 +142,6 @@ class TestQCOutput(PymatgenTest):
 
     def _test_property(self, key):
         for file in single_job_out_names:
-            print(file)
             try:
                 self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(
                     key), single_job_dict[file].get(key))
@@ -150,7 +149,6 @@ class TestQCOutput(PymatgenTest):
                 self.assertArrayEqual(QCOutput(os.path.join(test_dir, file)).data.get(
                     key), single_job_dict[file].get(key))
         for file in multi_job_out_names:
-            print(file)
             outputs = QCOutput.multiple_outputs_from_file(
                 QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
             for ii, sub_output in enumerate(outputs):
@@ -168,4 +166,6 @@ class TestQCOutput(PymatgenTest):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    TestQCOutput.generate_multi_job_dict()
+    TestQCOutput.generate_single_job_dict()
+    # unittest.main()
