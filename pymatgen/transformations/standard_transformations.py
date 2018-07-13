@@ -420,6 +420,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         symmetrized_structures (bool): Whether the input structures are
             instances of SymmetrizedStructure, and that their symmetry
             should be used for the grouping of sites.
+        no_oxi_states (bool): Whether to remove oxidation states prior to
+            ordering.
     """
 
     ALGO_FAST = 0
@@ -432,7 +434,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self._all_structures = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
-
+        
     def apply_transformation(self, structure, return_ranked_list=False):
         """
         For this transformation, the apply_transformation method will return

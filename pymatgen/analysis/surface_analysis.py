@@ -524,6 +524,7 @@ class SurfaceEnergyPlotter(object):
                 for each facet vs chemical potential.
         """
 
+        delu_dict = delu_dict if delu_dict else {}
         chempot_range = sorted(chempot_range)
         all_chempots = np.linspace(min(chempot_range), max(chempot_range),
                                    increments)
@@ -648,12 +649,12 @@ class SurfaceEnergyPlotter(object):
 
         # Get all entries for a specific facet
         for hkl in self.all_slab_entries.keys():
-
+            entries_in_hkl = []
             # Skip this facet if this is not the facet we want
             if miller_index and hkl != tuple(miller_index):
                 continue
             if not no_clean:
-                entries_in_hkl = [clean for clean in self.all_slab_entries[hkl]]
+                entries_in_hkl.extend([clean for clean in self.all_slab_entries[hkl]])
             if not no_doped:
                 for entry in self.all_slab_entries[hkl]:
                     entries_in_hkl.extend([ads_entry for ads_entry in
@@ -1068,7 +1069,8 @@ class SurfaceEnergyPlotter(object):
 
     def surface_chempot_range_map(self, elements, miller_index, ranges,
                                   incr=50, no_doped=False, no_clean=False,
-                                  delu_dict=None, plt=None, annotate=True):
+                                  delu_dict=None, plt=None, annotate=True,
+                                  show_unphyiscal_only=False):
         """
         Adapted from the get_chempot_range_map() method in the PhaseDiagram
             class. Plot the chemical potential range map based on surface
@@ -1094,9 +1096,12 @@ class SurfaceEnergyPlotter(object):
                 format: Symbol("delu_el") where el is the name of the element.
             annotate (bool): Whether to annotate each "phase" with the label of
                 the entry. If no label, uses the reduced formula
+            show_unphyiscal_only (bool): Whether to only show the shaded region where
+                surface energy is negative. Useful for drawing other chempot range maps.
         """
 
         # Set up
+        delu_dict = delu_dict if delu_dict else {}
         plt = pretty_plot(12, 8) if not plt else plt
         el1, el2 = str(elements[0]), str(elements[1])
         delu1 = Symbol("delu_%s" % (str(elements[0])))
@@ -1148,12 +1153,14 @@ class SurfaceEnergyPlotter(object):
                 elif pt1[delu2][1][0] < 0 and pt1[delu2][1][1] < 0:
                     # Any chempot at at this point will result
                     # in se<0, shade the entire y range
-                    plt.plot([pt1[delu1], pt1[delu1]], range2, 'k--')
+                    if not show_unphyiscal_only:
+                        plt.plot([pt1[delu1], pt1[delu1]], range2, 'k--')
 
                 if ii == len(vertices_dict[entry]) - 1:
                     break
                 pt2 = vertices_dict[entry][ii + 1]
-                plt.plot([pt1[delu1], pt2[delu1]], [pt1[delu2][0][0], pt2[delu2][0][0]], 'k')
+                if not show_unphyiscal_only:
+                    plt.plot([pt1[delu1], pt2[delu1]], [pt1[delu2][0][0], pt2[delu2][0][0]], 'k')
 
                 # Need these values to get a good position for labelling phases
                 xvals.extend([pt1[delu1], pt2[delu1]])
@@ -1164,7 +1171,8 @@ class SurfaceEnergyPlotter(object):
             delu1, delu2 = pt.keys()
             xvals.extend([pt[delu1], pt[delu1]])
             yvals.extend(pt[delu2][0])
-            plt.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], 'k')
+            if not show_unphyiscal_only:
+                plt.plot([pt[delu1], pt[delu1]], [pt[delu2][0][0], pt[delu2][0][-1]], 'k')
 
             if annotate:
                 # Label the phases

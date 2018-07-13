@@ -33,7 +33,7 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs
+from math import pow, pi, asin, atan, sqrt, exp, sin, cos, acos, fabs, atan2
 import numpy as np
 
 try:
@@ -640,13 +640,29 @@ class VoronoiNN(NearNeighbors):
         else:
             targets = self.targets
         center = structure[n]
-        neighbors = structure.get_sites_in_sphere(
-            center.coords, self.cutoff)
-        neighbors = [i[0] for i in sorted(neighbors, key=lambda s: s[1])]
 
-        # Run the Voronoi tessellation
-        qvoronoi_input = [s.coords for s in neighbors]
-        voro = Voronoi(qvoronoi_input) # can give a seg fault if cutoff is too small
+        cutoff = self.cutoff
+        max_cutoff = np.linalg.norm(
+            structure.lattice.lengths_and_angles[0]) + 0.01  # diagonal of cell
+
+        while True:
+            try:
+                neighbors = structure.get_sites_in_sphere(
+                    center.coords, cutoff)
+                neighbors = [i[0] for i in
+                             sorted(neighbors, key=lambda s: s[1])]
+
+                # Run the Voronoi tessellation
+                qvoronoi_input = [s.coords for s in neighbors]
+                voro = Voronoi(
+                    qvoronoi_input)  # can give seg fault if cutoff is too small
+                break
+
+            except RuntimeError:
+                if cutoff >= max_cutoff:
+                    raise RuntimeError("Error in Voronoi neighbor finding; max "
+                                       "cutoff exceeded")
+                cutoff = min(cutoff * 2, max_cutoff + 0.001)
 
         # Extract data about the site in question
         return self._extract_cell_info(structure, 0, neighbors, targets, voro)
@@ -1557,7 +1573,8 @@ class LocalStructOrderParams(object):
         "sq_plan_max", "pent_plan", "pent_plan_max", "sq", "tet", "tet_max", "tri_pyr", \
         "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
         "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
-        "T", "cuboct", "cuboct_max", "see_saw_rect", "bcc", "q2", "q4", "q6", "oct_max", "hex_plan_max")
+        "T", "cuboct", "cuboct_max", "see_saw_rect", "bcc", "q2", "q4", "q6", "oct_max", \
+        "hex_plan_max", "sq_face_cap_trig_pris")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -1668,6 +1685,7 @@ class LocalStructOrderParams(object):
                                  t + ")!")
         self._types = tuple(types)
 
+        self._comp_azi = False
         self._params = []
         for i, t in enumerate(self._types):
             d = deepcopy(default_op_params[t]) if default_op_params[t] is not None \
@@ -1692,8 +1710,11 @@ class LocalStructOrderParams(object):
                  "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr",
                  "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max",
                  "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max",
-                 "bent", "see_saw_rect", "hex_plan_max"]):
+                 "bent", "see_saw_rect", "hex_plan_max",
+                 "sq_face_cap_trig_pris"]):
             self._computerijs = self._geomops = True
+        if "sq_face_cap_trig_pris" in self._types:
+            self._comp_azi = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
         if not set(self._types).isdisjoint(["q2", "q4", "q6"]):
@@ -2371,12 +2392,18 @@ class LocalStructOrderParams(object):
                         tmp = max(
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = acos(tmp)
-                        xaxistmp = gramschmidt(rijnorm[k], zaxis)
-                        if np.linalg.norm(xaxistmp) < very_small:
+                        xaxis = gramschmidt(rijnorm[k], zaxis)
+                        if np.linalg.norm(xaxis) < very_small:
                             flag_xaxis = True
                         else:
-                            xaxis = xaxistmp / np.linalg.norm(xaxistmp)
+                            xaxis = xaxis / np.linalg.norm(xaxis)
                             flag_xaxis = False
+                        if self._comp_azi:
+                            flag_yaxis = True
+                            yaxis = np.cross(zaxis, xaxis)
+                            if np.linalg.norm(yaxis) > very_small:
+                                yaxis = yaxis / np.linalg.norm(yaxis)
+                                flag_yaxis = False
 
                         # Contributions of j-i-k angles, where i represents the
                         # central atom and j and k two of the neighbors.
@@ -2433,6 +2460,12 @@ class LocalStructOrderParams(object):
                                     qsptheta[i][j][kc] += (self._params[i]['w_SPP'] *
                                                        exp(-0.5 * tmp * tmp))
                                     norms[i][j][kc] += self._params[i]['w_SPP']
+                            elif t == "sq_face_cap_trig_pris":
+                                if thetak < self._params[i]['TA3']:
+                                    tmp = self._params[i]['IGW_TA1'] * (
+                                        thetak * ipi - self._params[i]['TA1'])
+                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                    norms[i][j][kc] += 1
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -2449,7 +2482,11 @@ class LocalStructOrderParams(object):
                                         -1.0,
                                         min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
-
+                                    if self._comp_azi:
+                                        phi2 = atan2(
+                                            np.dot(xtwoaxis, yaxis),
+                                            np.dot(xtwoaxis, xaxis))
+                                        #print('{} {}'.format(180*phi/pi, 180*phi2/pi))
                                 # South pole contributions of m.
                                 if t in ["tri_bipyr", "sq_bipyr", "pent_bipyr",
                                          "hex_bipyr", "oct_max", "sq_plan_max",
@@ -2571,13 +2608,27 @@ class LocalStructOrderParams(object):
                                                     qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
                                                             exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
+                                        elif t == "sq_face_cap_trig_pris" and not flag_yaxis:
+                                            if thetak < self._params[i]['TA3']:
+                                                if thetam < self._params[i]['TA3']:
+                                                    tmp = cos(self._params[i]['fac_AA1'] * \
+                                                        phi2) ** self._params[i]['exp_cos_AA1']
+                                                    tmp2 = self._params[i]['IGW_TA1'] * (
+                                                        thetam * ipi - self._params[i]['TA1'])
+                                                else:
+                                                    tmp = cos(self._params[i]['fac_AA2'] * \
+                                                        (phi2 + self._params[i]['shift_AA2'])) ** \
+                                                        self._params[i]['exp_cos_AA2']
+                                                    tmp2 = self._params[i]['IGW_TA2'] * (
+                                                        thetam * ipi - self._params[i]['TA2'])
+                                                    #print("phi2 {}   phi2+shift {}   tmp {}  ".format(phi2*180/pi, 180*(phi2 + self._params[i]['shift_AA2'])/pi, tmp))
+                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+                                                norms[i][j][kc] += 1
+
                         kc += 1
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
-                #if t == "pent_plan":
-                #    ops[i] = ops[i] / sum(norms[i]) \
-                #        if sum(norms[i]) > 1.0e-12 else None
                 if t in ["tri_plan", "tet", "bent", "sq_plan",
                            "oct", "oct_legacy", "cuboct", "pent_plan"]:
                     ops[i] = tmp_norm = 0.0
@@ -2588,7 +2639,8 @@ class LocalStructOrderParams(object):
                 elif t in ["T", "tri_pyr", "see_saw_rect", "sq_pyr", "tri_bipyr",
                         "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
                         "hex_bipyr", "oct_max", "tri_plan_max", "tet_max",
-                        "sq_plan_max", "pent_plan_max", "cuboct_max", "hex_plan_max"]:
+                        "sq_plan_max", "pent_plan_max", "cuboct_max", "hex_plan_max",
+                        "sq_face_cap_trig_pris"]:
                     ops[i] = None
                     if nneigh > 1:
                         for j in range(nneigh):
@@ -2597,7 +2649,6 @@ class LocalStructOrderParams(object):
                                     if norms[i][j][k] > 1.0e-12 else 0.0
                             ops[i] = max(qsptheta[i][j]) if j == 0 \
                                     else max(ops[i], max(qsptheta[i][j]))
-                    #ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
                 elif t == "bcc":
                     ops[i] = 0.0
                     for j in range(nneigh):
@@ -2945,17 +2996,8 @@ class CrystalNN(NearNeighbors):
 
         # get base VoronoiNN targets
         cutoff = self.search_cutoff
-        max_cutoff = np.linalg.norm(structure.lattice.lengths_and_angles[0])
-        while True:
-            try:
-                vnn = VoronoiNN(weight="solid_angle", targets=target,
-                                cutoff=cutoff)
-                nn = vnn.get_nn_info(structure, n)
-                break
-            except RuntimeError:
-                if cutoff > max_cutoff:
-                    raise RuntimeError("CrystalNN error in Voronoi finding.")
-                cutoff = cutoff * 2
+        vnn = VoronoiNN(weight="solid_angle", targets=target, cutoff=cutoff)
+        nn = vnn.get_nn_info(structure, n)
 
         # solid angle weights can be misleading in open / porous structures
         # adjust weights to correct for this behavior

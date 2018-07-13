@@ -10,7 +10,7 @@ from pymatgen.util.coord import get_linear_interpolated_value
 
 """
 This module defines classes to represent any type of spectrum, essentially any
-x y value pairs. 
+x y value pairs.
 """
 
 __author__ = "Chen Zheng"
@@ -62,7 +62,7 @@ class Spectrum(MSONable):
         elif item == self.YLABEL.lower():
             return self.y
         else:
-            raise AttributeError
+            raise AttributeError("Invalid attribute name %s" % str(item))
 
     def __len__(self):
         return self.ydim[0]
