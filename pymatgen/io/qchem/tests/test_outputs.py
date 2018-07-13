@@ -104,7 +104,8 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/2068.qout",
                         "new_qchem_files/2620.qout",
                         "new_qchem_files/1746.qout",
-                        "new_qchem_files/1570.qout"}
+                        "new_qchem_files/1570.qout",
+                        "new_qchem_files/1570_2.qout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
                        "new_qchem_files/VC_solv_eps10.qcout",
