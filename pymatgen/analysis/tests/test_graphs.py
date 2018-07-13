@@ -389,6 +389,9 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertTrue(isinstance(self.cyclohexene.get_connected_sites(0)[0].site, Site))
         self.assertEqual(str(self.cyclohexene.get_connected_sites(0)[0].site.specie), 'H')
 
+    def test_set_node_attributes(self):
+        pass
+
     def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
