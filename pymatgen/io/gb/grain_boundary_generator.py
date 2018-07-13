@@ -55,7 +55,7 @@ class GBGenerator(object):
         self.initial_structure = initial_structure
 
     def gb_from_parameters(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                           normal=False, ratio=None, plane=None, tol=1.e-4):
+                           normal=False, ratio=None, plane=None, tol=1.e-4, tol_angle=1.e-2):
 
         """
         Args:
@@ -95,11 +95,11 @@ class GBGenerator(object):
                 e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
                 to the rotation axis.
             tol (float): tolerance to determine the type of inital structure.
+            tol_angle (float): angle tolerance to determine the type of inital structure.
         Returns:
            Grain boundary structure (structure object).
                """
-        # angle tolerance should be looser.
-        tol_angle = 100 * tol
+
         # if the initial structure is primitive cell in cubic system,
         # calculate the transformation matrix from its conventional cell
         # to primitive cell, basically for bcc and fcc systems.
@@ -1571,7 +1571,7 @@ class GBGenerator(object):
 
         # find the best a, b vectors with their formed area smallest and average norm of a,b smallest.
         for i, vali in enumerate(ab_vector):
-            for j, valj in enumerate(ab_vector, start = i + 1):
+            for j, valj in enumerate(ab_vector, start=i + 1):
                 area_temp = np.linalg.norm(np.cross(np.matmul(vali, trans),
                                                     np.matmul(valj, trans)))
                 if abs(area_temp - 0) > 1.e-8:
