@@ -421,7 +421,7 @@ class QCOutput(MSONable):
             str(len(self.data.get("energy_trajectory"))) + \
             "\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
         table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Point Group\:\s+[\d\w]+\s+Number of degrees of freedom\:\s+\d+"
+        footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
 
         parsed_last_geometry = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern)
