@@ -142,6 +142,7 @@ class TestQCOutput(PymatgenTest):
 
     def _test_property(self, key):
         for file in single_job_out_names:
+            print(file)
             try:
                 self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(
                     key), single_job_dict[file].get(key))
@@ -149,6 +150,7 @@ class TestQCOutput(PymatgenTest):
                 self.assertArrayEqual(QCOutput(os.path.join(test_dir, file)).data.get(
                     key), single_job_dict[file].get(key))
         for file in multi_job_out_names:
+            print(file)
             outputs = QCOutput.multiple_outputs_from_file(
                 QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
             for ii, sub_output in enumerate(outputs):
