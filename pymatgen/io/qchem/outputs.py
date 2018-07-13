@@ -446,7 +446,7 @@ class QCOutput(MSONable):
         if is_isomorphic(initial_graph, last_graph):
             self.data["structure_change"] = ["no_change"]
         else:
-            if not nx.is_connected(initial_graph, last_graph):
+            if nx.is_connected(initial_graph) and not nx.is_connected(last_graph):
                 self.data["structure_change"] = ["unconnected_fragments"]
             elif last_graph.number_of_edges() < initial_graph.number_of_edges():
                 self.data["structure_change"] = ["fewer_bonds"]
