@@ -4,6 +4,7 @@
 
 from __future__ import division, unicode_literals
 import numpy as np
+
 import six
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
@@ -336,7 +337,7 @@ class Dos(MSONable):
         Returns:
             (cbm, vbm): float in eV corresponding to the gap
         """
-        #determine tolerance
+        # determine tolerance
         tdos = self.get_densities(spin)
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
@@ -431,6 +432,7 @@ class FermiDos(Dos):
         bandgap (float): if set, the energy values are scissored so that the
             electronic band gap matches this value.
     """
+
     def __init__(self, dos, structure=None, nelecs=None, bandgap=None):
         super(FermiDos, self).__init__(
             dos.efermi, energies=dos.energies,
@@ -448,7 +450,7 @@ class FermiDos(Dos):
         tdos = np.array(self.get_densities())
         nelecs = nelecs or self.structure.composition.total_electrons
         # normalize total density of states based on integral at 0K
-        self.tdos = tdos*nelecs / (tdos*self.de)[self.energies <= self.efermi].sum()
+        self.tdos = tdos * nelecs / (tdos * self.de)[self.energies <= self.efermi].sum()
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = np.argmin(abs(self.energies - evbm))
         self.idx_cbm = np.argmin(abs(self.energies - ecbm))
@@ -471,13 +473,13 @@ class FermiDos(Dos):
         Returns (float): in units 1/cm3. If negative it means that the majority
             carriers are electrons (n-type doping) and if positive holes/p-type
         """
-        cb_integral = np.sum(self.tdos[self.idx_cbm:]\
-                             * f0(self.energies[self.idx_cbm:], fermi, T)\
+        cb_integral = np.sum(self.tdos[self.idx_cbm:]
+                             * f0(self.energies[self.idx_cbm:], fermi, T)
                              * self.de[self.idx_cbm:], axis=0)
-        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1]\
-                             * (1-f0(self.energies[:self.idx_vbm+1], fermi, T))\
-                             * self.de[:self.idx_vbm + 1],axis=0)
-        return (vb_integral-cb_integral) / (self.volume*self.A_to_cm**3)
+        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1]
+                             * (1 - f0(self.energies[:self.idx_vbm + 1], fermi, T))
+                             * self.de[:self.idx_vbm + 1], axis=0)
+        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
 
     def get_fermi(self, c, T, rtol=0.01, nstep=50, step=0.1, precision=8):
         """
@@ -498,16 +500,16 @@ class FermiDos(Dos):
         Returns (float): the fermi level. Note that this is different from the
             default dos.efermi.
         """
-        fermi = self.efermi # initialize target fermi
+        fermi = self.efermi  # initialize target fermi
         for _ in range(precision):
-            frange = np.arange(-nstep, nstep+1) * step + fermi
+            frange = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(f, T) for f in frange])
-            relative_error = abs(calc_doping/c - 1.0)
+            relative_error = abs(calc_doping / c - 1.0)
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
         if min(relative_error) > rtol:
             raise ValueError('Could not find fermi within {}% of c={}'.format(
-                    rtol*100, c))
+                rtol * 100, c))
         return fermi
 
 
@@ -532,6 +534,7 @@ class CompleteDos(Dos):
 
         Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
     """
+
     def __init__(self, structure, total_dos, pdoss):
         super(CompleteDos, self).__init__(
             total_dos.efermi, energies=total_dos.energies,
@@ -775,4 +778,4 @@ def f0(E, fermi, T):
         fermi (float): the fermi level in eV
         T (float): the temperature in kelvin
     """
-    return 1./ ( 1.+np.exp((E-fermi)/(_cd("Boltzmann constant in eV/K") * T)) )
+    return 1. / (1. + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))

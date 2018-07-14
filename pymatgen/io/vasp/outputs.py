@@ -1614,7 +1614,6 @@ class Outcar(MSONable):
             if self.dfpt:
                 self.read_lepsilon_ionic()
 
-
         # Check to see if LCALCPOL is true and read polarization data if so
         self.lcalcpol = False
         self.read_pattern({'calcpol': 'LCALCPOL   =     T'})

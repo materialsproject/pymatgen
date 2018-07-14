@@ -47,7 +47,6 @@ class DosTest(unittest.TestCase):
         for spin in Spin:
             self.assertAlmostEqual(sum(dens[spin]), sum(smeared[spin]))
 
-
 class FermiDosTest(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:

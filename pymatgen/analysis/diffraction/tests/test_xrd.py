@@ -9,7 +9,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.util.testing import PymatgenTest
 import matplotlib as mpl
-mpl.use("pdf")
 
 
 """
