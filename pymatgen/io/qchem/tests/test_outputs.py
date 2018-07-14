@@ -128,7 +128,6 @@ class TestQCOutput(PymatgenTest):
         """
         single_job_dict = {}
         for file in single_job_out_names:
-            print(file)
             single_job_dict[file] = QCOutput(os.path.join(test_dir, file)).data
         dumpfn(single_job_dict, "single_job.json")
 
@@ -139,7 +138,6 @@ class TestQCOutput(PymatgenTest):
         """
         multi_job_dict = {}
         for file in multi_job_out_names:
-            print(file)
             outputs = QCOutput.multiple_outputs_from_file(
                 QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
             data = []
@@ -174,6 +172,4 @@ class TestQCOutput(PymatgenTest):
 
 
 if __name__ == "__main__":
-    TestQCOutput.generate_multi_job_dict()
-    TestQCOutput.generate_single_job_dict()
-    # unittest.main()
+    unittest.main()
