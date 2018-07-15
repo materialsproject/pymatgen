@@ -1750,7 +1750,7 @@ class Outcar(MSONable):
         self.sampling_radii = [float(f) for f in self.data["radii"][0][0].split()]
 
         header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
-        table_pattern = r"((?:\s+\d+\s+[\.\-\d]+)+)"
+        table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
         footer_pattern = r"\s+E-fermi :"
 
         pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
