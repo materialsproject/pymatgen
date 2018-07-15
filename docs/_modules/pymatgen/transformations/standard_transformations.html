@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.transformations.standard_transformations &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>pymatgen.transformations.standard_transformations &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -468,6 +468,8 @@
 <span class="sd">        symmetrized_structures (bool): Whether the input structures are</span>
 <span class="sd">            instances of SymmetrizedStructure, and that their symmetry</span>
 <span class="sd">            should be used for the grouping of sites.</span>
+<span class="sd">        no_oxi_states (bool): Whether to remove oxidation states prior to</span>
+<span class="sd">            ordering.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ALGO_FAST</span> <span class="o">=</span> <span class="mi">0</span>
@@ -480,7 +482,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_all_structures</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">no_oxi_states</span> <span class="o">=</span> <span class="n">no_oxi_states</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symmetrized_structures</span> <span class="o">=</span> <span class="n">symmetrized_structures</span>
-
+        
 <div class="viewcode-block" id="OrderDisorderedStructureTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For this transformation, the apply_transformation method will return</span>
@@ -808,6 +810,39 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="ChargedCellTransformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation">[docs]</a><span class="k">class</span> <span class="nc">ChargedCellTransformation</span><span class="p">(</span><span class="n">AbstractTransformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The ChargedCellTransformation applies a charge to a structure (or defect object).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        charge: A integer charge to apply to the structure.</span>
+<span class="sd">            Defaults to zero. Has to be a single integer. e.g. 2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span>
+
+<div class="viewcode-block" id="ChargedCellTransformation.apply_transformation"><a class="viewcode-back" href="../../../pymatgen.transformations.standard_transformations.html#pymatgen.transformations.standard_transformations.ChargedCellTransformation.apply_transformation">[docs]</a>    <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Structure with charge &quot;</span> <span class="o">+</span> \
+            <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 </pre></div>
 
           </div>
@@ -840,7 +875,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

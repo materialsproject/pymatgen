@@ -135,7 +135,7 @@ class EnumlibAdaptorTest(PymatgenTest):
         a = SpacegroupAnalyzer(s, 0.1)
         s["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
         adaptor = EnumlibAdaptor(s, 1, 1, enum_precision_parameter=0.01,
-                                 timeout=0.000001)
+                                 timeout=0.0000001)
         self.assertRaises(TimeoutError, adaptor._run_multienum)
 
 

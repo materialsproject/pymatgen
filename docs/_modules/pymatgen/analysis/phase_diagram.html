@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>pymatgen.analysis.phase_diagram &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -714,6 +714,25 @@
 <div class="viewcode-block" id="PhaseDiagram.get_composition_chempots"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_composition_chempots">[docs]</a>    <span class="k">def</span> <span class="nf">get_composition_chempots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">):</span>
         <span class="n">facet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_and_simplex</span><span class="p">(</span><span class="n">comp</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_chempots</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhaseDiagram.get_all_chempots"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_all_chempots">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_chempots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">):</span>
+        <span class="c1">#note the top part takes from format of _get_facet_and_simplex,</span>
+        <span class="c1">#   but wants to return all facets rather than the first one that meets this criteria</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd_coords</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+        <span class="n">allfacets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simplexes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">in_simplex</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">PhaseDiagram</span><span class="o">.</span><span class="n">numerical_tol</span> <span class="o">/</span> <span class="mi">10</span><span class="p">):</span>
+                <span class="n">allfacets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">allfacets</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No facets found for comp = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chempots</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="n">allfacets</span><span class="p">:</span>
+                <span class="n">facet_elt_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">qhull_entries</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">]</span>
+                <span class="n">facet_name</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">facet_elt_list</span><span class="p">)</span>
+                <span class="n">chempots</span><span class="p">[</span><span class="n">facet_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_facet_chempots</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">chempots</span></div>
 
 <div class="viewcode-block" id="PhaseDiagram.get_transition_chempots"><a class="viewcode-back" href="../../../pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram.get_transition_chempots">[docs]</a>    <span class="k">def</span> <span class="nf">get_transition_chempots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2171,7 +2190,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
