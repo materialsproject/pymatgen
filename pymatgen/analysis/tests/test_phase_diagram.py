@@ -8,6 +8,7 @@ import unittest
 import os
 from numbers import Number
 import matplotlib
+matplotlib.use("pdf")
 import warnings
 
 from pymatgen.analysis.phase_diagram import *
