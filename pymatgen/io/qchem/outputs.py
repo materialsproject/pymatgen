@@ -444,16 +444,16 @@ class QCOutput(MSONable):
         last_mol_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"])
         last_graph = last_mol_graph.graph
         if is_isomorphic(initial_graph, last_graph):
-            self.data["structure_change"] = ["no_change"]
+            self.data["structure_change"] = "no_change"
         else:
             if nx.is_connected(initial_graph) and not nx.is_connected(last_graph):
-                self.data["structure_change"] = ["unconnected_fragments"]
+                self.data["structure_change"] = "unconnected_fragments"
             elif last_graph.number_of_edges() < initial_graph.number_of_edges():
-                self.data["structure_change"] = ["fewer_bonds"]
+                self.data["structure_change"] = "fewer_bonds"
             elif last_graph.number_of_edges() > initial_graph.number_of_edges():
-                self.data["structure_change"] = ["more_bonds"]
+                self.data["structure_change"] = "more_bonds"
             else:
-                self.data["structure_change"] = ["bond_change"]
+                self.data["structure_change"] = "bond_change"
 
 
     def _read_frequency_data(self):
