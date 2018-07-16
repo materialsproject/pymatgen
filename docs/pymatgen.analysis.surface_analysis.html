@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>pymatgen.analysis.surface_analysis module &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -853,7 +853,7 @@ dictionary of surface energies</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map">
-<code class="descname">surface_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>miller_index</em>, <em>ranges</em>, <em>incr=50</em>, <em>no_doped=False</em>, <em>no_clean=False</em>, <em>delu_dict=None</em>, <em>plt=None</em>, <em>annotate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.surface_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map" title="Permalink to this definition">¶</a></dt>
+<code class="descname">surface_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>miller_index</em>, <em>ranges</em>, <em>incr=50</em>, <em>no_doped=False</em>, <em>no_clean=False</em>, <em>delu_dict=None</em>, <em>plt=None</em>, <em>annotate=True</em>, <em>show_unphyiscal_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.surface_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Adapted from the get_chempot_range_map() method in the PhaseDiagram</dt>
 <dd>class. Plot the chemical potential range map based on surface
@@ -884,6 +884,8 @@ constant. Note the key should be a sympy Symbol object of the
 format: Symbol(“delu_el”) where el is the name of the element.</li>
 <li><strong>annotate</strong> (<em>bool</em>) – Whether to annotate each “phase” with the label of
 the entry. If no label, uses the reduced formula</li>
+<li><strong>show_unphyiscal_only</strong> (<em>bool</em>) – Whether to only show the shaded region where
+surface energy is negative. Useful for drawing other chempot range maps.</li>
 </ul>
 </td>
 </tr>
@@ -1177,7 +1179,7 @@ format: Symbol(“delu_el”) where el is the name of the element.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>
 

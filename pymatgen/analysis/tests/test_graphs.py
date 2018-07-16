@@ -8,7 +8,6 @@ import unittest
 import os
 import copy
 import matplotlib
-matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site

@@ -1,0 +1,564 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.defects.core &#8212; pymatgen 2018.7.15 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.defects.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.functools</span> <span class="k">import</span> <span class="n">lru_cache</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="k">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="k">import</span> <span class="n">kb</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyamd@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 15, 2018&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Defect"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Defect">[docs]</a><span class="k">class</span> <span class="nc">Defect</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class for a single point defect</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">defect_site</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes an abstract defect</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Pymatgen Structure without any defects</span>
+<span class="sd">            charge: (int or float) defect charge</span>
+<span class="sd">                default is zero, meaning no change to NELECT after defect is created in the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">charge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_site</span> <span class="o">=</span> <span class="n">defect_site</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bulk_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the structure without any defects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the charge of a defect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">site</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the defect position as a site object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_site</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the multiplicity of a defect site within the structure (needed for concentration analysis)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">defect_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the defect composition as a Composition object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="Defect.generate_defect_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Defect.generate_defect_structure">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">generate_defect_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given structure and defect_site (and type of defect) should return a defect_structure that is charged</span>
+<span class="sd">        Args:</span>
+<span class="sd">            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a name for this defect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="Defect.copy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Defect.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method to get a copy of the defect.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A copy of the Defect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Defect.set_charge"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Defect.set_charge">[docs]</a>    <span class="k">def</span> <span class="nf">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_charge</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the overall charge</span>
+<span class="sd">        Args:</span>
+<span class="sd">            charge (float): new charge to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">new_charge</span></div></div>
+
+
+<div class="viewcode-block" id="Vacancy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Vacancy">[docs]</a><span class="k">class</span> <span class="nc">Vacancy</span><span class="p">(</span><span class="n">Defect</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of Defect to capture essential information for a single Vacancy defect structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defect_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">temp_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">temp_comp</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">temp_comp</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Vacancy.generate_defect_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Vacancy.generate_defect_structure">[docs]</a>    <span class="k">def</span> <span class="nf">generate_defect_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Defective Vacancy structure, decorated with charge</span>
+<span class="sd">        Args:</span>
+<span class="sd">            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defect_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
+        <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">defect_structure</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">([</span><span class="n">defindex</span><span class="p">])</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">defect_structure</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the multiplicity of a defect site within the structure (needed for concentration analysis)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">)</span>
+        <span class="n">periodic_struc</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">periodic_struc</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">equivalent_sites</span> <span class="o">=</span> <span class="n">periodic_struc</span><span class="o">.</span><span class="n">find_equivalent_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">[</span><span class="n">defindex</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">equivalent_sites</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a name for this defect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Vac_</span><span class="si">{}</span><span class="s2">_mult</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Substitution"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Substitution">[docs]</a><span class="k">class</span> <span class="nc">Substitution</span><span class="p">(</span><span class="n">Defect</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of Defect to capture essential information for a single Substitution defect structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">defect_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">temp_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">temp_comp</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">temp_comp</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">[</span><span class="n">defindex</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">temp_comp</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Substitution.generate_defect_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Substitution.generate_defect_structure">[docs]</a>    <span class="k">def</span> <span class="nf">generate_defect_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Defective Substitution structure, decorated with charge</span>
+<span class="sd">        Args:</span>
+<span class="sd">            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defect_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
+        <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">defect_structure</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">subsite</span> <span class="o">=</span> <span class="n">defect_structure</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">defindex</span><span class="p">)</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">subsite</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">defect_structure</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the multiplicity of a defect site within the structure (needed for concentration analysis)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">)</span>
+        <span class="n">periodic_struc</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">periodic_struc</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">equivalent_sites</span> <span class="o">=</span> <span class="n">periodic_struc</span><span class="o">.</span><span class="n">find_equivalent_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">[</span><span class="n">defindex</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">equivalent_sites</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a name for this defect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">poss_deflist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">defindex</span> <span class="o">=</span> <span class="n">poss_deflist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;Sub_</span><span class="si">{}</span><span class="s2">_on_</span><span class="si">{}</span><span class="s2">_mult</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">[</span><span class="n">defindex</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Interstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Interstitial">[docs]</a><span class="k">class</span> <span class="nc">Interstitial</span><span class="p">(</span><span class="n">Defect</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of Defect to capture essential information for a single Interstitial defect structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">defect_site</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">site_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes an interstial defect.</span>
+<span class="sd">        User must specify multiplity. Default is 1</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Pymatgen Structure without any defects</span>
+<span class="sd">            defect_site (Site): the site for the interstial</span>
+<span class="sd">            charge: (int or float) defect charge</span>
+<span class="sd">                default is zero, meaning no change to NELECT after defect is created in the structure</span>
+<span class="sd">            site_name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity is</span>
+<span class="sd">                    insufficient to categorize the defect type</span>
+<span class="sd">                default is no name.</span>
+<span class="sd">            multiplicity (int): multiplicity</span>
+<span class="sd">                default is 1,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">defect_site</span><span class="o">=</span><span class="n">defect_site</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_multiplicity</span> <span class="o">=</span> <span class="n">multiplicity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_name</span> <span class="o">=</span> <span class="n">site_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defect_composition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">temp_comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="n">temp_comp</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">Composition</span><span class="p">(</span><span class="n">temp_comp</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Interstitial.generate_defect_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.Interstitial.generate_defect_structure">[docs]</a>    <span class="k">def</span> <span class="nf">generate_defect_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns Defective Interstitial structure, decorated with charge</span>
+<span class="sd">        Args:</span>
+<span class="sd">            supercell (int, [3x1], or [[]] (3x3)): supercell integer, vector, or scaling matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defect_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">defect_structure</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">defect_structure</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the multiplicity of a defect site within the structure (needed for concentration analysis)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiplicity</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a name for this defect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Int_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_mult</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;Int_</span><span class="si">{}</span><span class="s2">_mult</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DefectEntry"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry">[docs]</a><span class="k">class</span> <span class="nc">DefectEntry</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An lightweight DefectEntry object containing key computed data</span>
+<span class="sd">    for many defect analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect</span><span class="p">,</span> <span class="n">uncorrected_energy</span><span class="p">,</span> <span class="n">corrections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            defect:</span>
+<span class="sd">                A Defect object from pymatgen.analysis.defects.core</span>
+<span class="sd">            uncorrected_energy (float): Energy of the defect entry. Usually the difference between</span>
+<span class="sd">                the final calculated energy for the defect supercell - the perfect</span>
+<span class="sd">                supercell energy</span>
+<span class="sd">            corrections ([Correction]):</span>
+<span class="sd">                List of Correction classes (from pymatgen.analysis.defects.corrections)</span>
+<span class="sd">                which correct energy due to charge (e.g. Freysoldt or Kumagai)</span>
+<span class="sd">                or other factors (e.g. Shallow level shifts)</span>
+<span class="sd">            parameters (dict): An optional dict of calculation parameters and data to</span>
+<span class="sd">                use with correction schemes</span>
+<span class="sd">                (examples of parameter keys: supercell_size, axis_grid, bulk_planar_averages</span>
+<span class="sd">                defect_planar_averages )</span>
+<span class="sd">            entry_id (obj): An id to uniquely identify this defect, can be any MSONable</span>
+<span class="sd">                type</span>
+
+<span class="sd">        Optional:</span>
+<span class="sd">            note that if you intend to use this defect entry with Charge Corrections</span>
+<span class="sd">            but the bulk_structure stored in defect is not the final supercell,</span>
+<span class="sd">            then &#39;scaling_matrix&#39; must be stored in parameters</span>
+<span class="sd">                for example: parameters = {&#39;scaling_matrix&#39;: [3,3,3]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defect</span> <span class="o">=</span> <span class="n">defect</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">=</span> <span class="n">uncorrected_energy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span> <span class="o">=</span> <span class="n">corrections</span> <span class="k">if</span> <span class="n">corrections</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">=</span> <span class="n">entry_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span> <span class="k">if</span> <span class="n">parameters</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bulk_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">bulk_structure</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">site</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">site</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">multiplicity</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">charge</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the *corrected* energy of the entry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncorrected_energy</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returms the defect name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="DefectEntry.copy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method to get a copy of the DefectEntry.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A copy of the DefectEntry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">defectentry_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">DefectEntry</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">defectentry_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DefectEntry.formation_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry.formation_energy">[docs]</a>    <span class="k">def</span> <span class="nf">formation_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemical_potentials</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fermi_level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the formation energy for a defect taking into account a given chemical potential and fermi_level</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">chemical_potentials</span> <span class="o">=</span> <span class="n">chemical_potentials</span> <span class="k">if</span> <span class="n">chemical_potentials</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="n">chempot_correction</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span>
+            <span class="n">chem_pot</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">defect_composition</span><span class="p">[</span><span class="n">el</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">chem_pot</span> <span class="ow">in</span> <span class="n">chemical_potentials</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">])</span>
+
+        <span class="n">formation_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">+</span> <span class="n">chempot_correction</span>
+
+        <span class="k">if</span> <span class="s2">&quot;vbm&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="n">formation_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;vbm&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">fermi_level</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">formation_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">*</span> <span class="n">fermi_level</span>
+
+        <span class="k">return</span> <span class="n">formation_energy</span></div>
+
+<div class="viewcode-block" id="DefectEntry.defect_concentration"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectEntry.defect_concentration">[docs]</a>    <span class="k">def</span> <span class="nf">defect_concentration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemical_potentials</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">fermi_level</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the defect concentration for a temperature and Fermi level.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            temperature:</span>
+<span class="sd">                the temperature in K</span>
+<span class="sd">            fermi_level:</span>
+<span class="sd">                the fermi level in eV (with respect to the VBM)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            defects concentration in cm^-3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">*</span> <span class="mf">1e24</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">volume</span>
+        <span class="n">conc</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">formation_energy</span><span class="p">(</span><span class="n">chemical_potentials</span><span class="p">,</span> <span class="n">fermi_level</span><span class="o">=</span><span class="n">fermi_level</span><span class="p">)</span> <span class="o">/</span>
+                          <span class="p">(</span><span class="n">kb</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">conc</span></div>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Human readable string representation of this entry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="c1"># TODO: add defect.name abilities... maybe with composition?</span>
+            <span class="c1"># &quot;DefectEntry {} - {}&quot;.format(self.entry_id, self.defect.name), &quot;Energy = {:.4f}&quot;.format(self.energy),</span>
+            <span class="s2">&quot;DefectEntry </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span> <span class="s2">&quot;DEFECT&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;Energy = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">),</span>
+            <span class="s2">&quot;Correction = </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="o">.</span><span class="n">values</span><span class="p">()))),</span>
+            <span class="s2">&quot;Parameters:&quot;</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DefectCorrection"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection">[docs]</a><span class="k">class</span> <span class="nc">DefectCorrection</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Correction class modeled off the computed entry correction format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DefectCorrection.get_correction"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection.get_correction">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns correction for a single entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A DefectEntry object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A single dictionary with the format</span>
+<span class="sd">            correction_name: energy_correction</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompatibilityError if entry is not compatible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="DefectCorrection.correct_entry"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.core.html#pymatgen.analysis.defects.core.DefectCorrection.correct_entry">[docs]</a>    <span class="k">def</span> <span class="nf">correct_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Corrects a single entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            entry: A DefectEntry object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An processed entry.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompatibilityError if entry is not compatible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">correction</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_correction</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">entry</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

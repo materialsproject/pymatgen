@@ -1,8 +1,14 @@
 Change log
 ==========
 
-v2018.6.27
+v2018.7.15
 ----------
-* Improved local_env and MoleculeGraph (@WardLT, @espottesmith) 
-* Improve BabelMolAdaptor with conformer search and other functions (@Qi-Max)
-* Improved surface analysis (@richardtran415)
+* Grain boundary generator (Xiangguo Li @ucsdlxg)
+* Massive updates to defect code and new DefectTransformation  
+  (@shyamd)
+* Bug fix for OUTCAR parsing with more than one space in 
+  electrostatic potential. 
+* get_fermi_interextrapolated to support wider range of 
+  input doping (@albalu)
+* Update to cython compile to support Py3.7.
+* Update VoronoiNN cutoff dynamically (@computron)

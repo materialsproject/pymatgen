@@ -8,6 +8,7 @@ env:
     - secure: "LQDypjfjcQYVN1NYPYfBz1VqMSqjNQqEqGBp+R6u/opf8bRUtYUGdK1gR356U3ApPzgLl906M3rI2ZMNqxiROdB6RDZrDEzXLhushwCfqt0C9qmZFLsj7TtGCMT8qHahU/sfYKntYxlWDgTbvFVrHhmg6brWEObPYny5FUidJc4="
     - PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit:`pwd`/cmd_line/boltztrap/Linux_64bit
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+    - MPLBACKEND=Agg
 # command to install dependencies
 sudo: false
 install:

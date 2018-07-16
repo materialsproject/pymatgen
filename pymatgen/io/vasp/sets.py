@@ -394,9 +394,9 @@ class DictSet(VaspInputSet):
                 nelect += self.structure.composition.element_composition[ps.element] * ps.ZVAL
 
         if self.use_structure_charge:
-            return int(round(nelect)) - self.structure.charge
+            return nelect - self.structure.charge
         else:
-            return int(round(nelect))
+            return nelect
 
     @property
     def kpoints(self):

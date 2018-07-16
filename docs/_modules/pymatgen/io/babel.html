@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.babel &#8212; pymatgen 2018.6.11 documentation</title>
+    <title>pymatgen.io.babel &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -52,22 +52,10 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">OpenBabel interface module, which opens up access to the hundreds of file</span>
-<span class="sd">formats supported by OpenBabel. Requires openbabel with python bindings to be</span>
-<span class="sd">installed. Please consult the</span>
-<span class="sd">`openbabel documentation &lt;http://openbabel.org/wiki/Main_Page&gt;`_.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
-<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Apr 28, 2012&quot;</span>
-
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
 
 <span class="k">try</span><span class="p">:</span>
@@ -76,6 +64,20 @@
 <span class="k">except</span><span class="p">:</span>
     <span class="n">pb</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">ob</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">OpenBabel interface module, which opens up access to the hundreds of file</span>
+<span class="sd">formats supported by OpenBabel. Requires openbabel with python bindings to be</span>
+<span class="sd">installed. Please consult the</span>
+<span class="sd">`openbabel documentation &lt;http://openbabel.org/wiki/Main_Page&gt;`_.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Qi Wang&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyuep@gmail.com&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Apr 28, 2012&quot;</span>
 
 
 <div class="viewcode-block" id="BabelMolAdaptor"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor">[docs]</a><span class="k">class</span> <span class="nc">BabelMolAdaptor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -104,8 +106,6 @@
             <span class="c1"># optimization. So we go through the indirect route of creating</span>
             <span class="c1"># an XYZ file and reading in that file.</span>
             <span class="n">obmol</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMol</span><span class="p">()</span>
-
-            <span class="n">obmol</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMol</span><span class="p">()</span>
             <span class="n">obmol</span><span class="o">.</span><span class="n">BeginModify</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">mol</span><span class="p">:</span>
                 <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">]</span>
@@ -125,7 +125,6 @@
             <span class="n">obmol</span><span class="o">.</span><span class="n">EndModify</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span> <span class="o">=</span> <span class="n">obmol</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMol</span><span class="p">):</span>
-
             <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span> <span class="o">=</span> <span class="n">mol</span>
 
     <span class="nd">@property</span>
@@ -160,6 +159,165 @@
         <span class="n">pbmol</span><span class="o">.</span><span class="n">localopt</span><span class="p">(</span><span class="n">forcefield</span><span class="o">=</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span> <span class="o">=</span> <span class="n">pbmol</span><span class="o">.</span><span class="n">OBMol</span></div>
 
+<div class="viewcode-block" id="BabelMolAdaptor.make3d"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.make3d">[docs]</a>    <span class="k">def</span> <span class="nf">make3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forcefield</span><span class="o">=</span><span class="s2">&quot;mmff94&quot;</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A wrapper to pybel&#39;s make3D method generate a 3D structure from a</span>
+<span class="sd">        2D or 0D structure.</span>
+<span class="sd">        The 3D structure is made very quickly using a combination of rules</span>
+<span class="sd">        (e.g. sp3 atoms should have four bonds arranged in a tetrahedron) and</span>
+<span class="sd">        ring templates (e.g. cyclohexane is shaped like a chair). Once 3D</span>
+<span class="sd">        coordinates are generated, hydrogens are added and a quick local</span>
+<span class="sd">        optimization is carried out as default.</span>
+
+<span class="sd">        The generated 3D structure can have clashes or have high energy</span>
+<span class="sd">        structures due to some strain. Please consider to use the conformer</span>
+<span class="sd">        search or geometry optimization to further optimize the structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            forcefield: Default is mmff94. Options are &#39;gaff&#39;, &#39;ghemical&#39;,</span>
+<span class="sd">                &#39;mmff94&#39;, &#39;mmff94s&#39;, and &#39;uff&#39;.</span>
+<span class="sd">            steps: Default is 50.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pbmol</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span>
+        <span class="n">pbmol</span><span class="o">.</span><span class="n">make3D</span><span class="p">(</span><span class="n">forcefield</span><span class="o">=</span><span class="n">forcefield</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span> <span class="o">=</span> <span class="n">pbmol</span><span class="o">.</span><span class="n">OBMol</span></div>
+
+<div class="viewcode-block" id="BabelMolAdaptor.add_hydrogen"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.add_hydrogen">[docs]</a>    <span class="k">def</span> <span class="nf">add_hydrogen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add hydrogens (make all hydrogen explicit).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="o">.</span><span class="n">AddHydrogens</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BabelMolAdaptor.rotor_conformer"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.rotor_conformer">[docs]</a>    <span class="k">def</span> <span class="nf">rotor_conformer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">rotor_args</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s2">&quot;WeightedRotorSearch&quot;</span><span class="p">,</span>
+                        <span class="n">forcefield</span><span class="o">=</span><span class="s2">&quot;mmff94&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conformer search based on several Rotor Search algorithms of openbabel.</span>
+<span class="sd">        If the input molecule is not 3D, make3d will be called (generate 3D</span>
+<span class="sd">        structure, add hydrogen, a quick localopt). All hydrogen atoms need</span>
+<span class="sd">        to be made explicit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rotor_args: pass args to Rotor Search in openbabel.</span>
+<span class="sd">                for &quot;WeightedRotorSearch&quot;: (conformers, geomSteps,</span>
+<span class="sd">                sampleRingBonds-default False)</span>
+<span class="sd">                for &quot;SystematicRotorSearch&quot;: (geomSteps-default 2500,</span>
+<span class="sd">                sampleRingBonds-default False)</span>
+<span class="sd">                for &quot;RandomRotorSearch&quot;: (conformers, geomSteps-default 2500,</span>
+<span class="sd">                sampleRingBonds-default False)</span>
+<span class="sd">            algo (str): Default is &quot;WeightedRotorSearch&quot;. Options are</span>
+<span class="sd">                &quot;SystematicRotorSearch&quot;, &quot;RandomRotorSearch&quot;, and</span>
+<span class="sd">                &quot;WeightedRotorSearch&quot;.</span>
+<span class="sd">            forcefield (str): Default is mmff94. Options are &#39;gaff&#39;, &#39;ghemical&#39;,</span>
+<span class="sd">                &#39;mmff94&#39;, &#39;mmff94s&#39;, and &#39;uff&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="o">.</span><span class="n">GetDimension</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">make3d</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_hydrogen</span><span class="p">()</span>
+
+        <span class="n">ff</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBForceField_FindType</span><span class="p">(</span><span class="n">forcefield</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;This input forcefield </span><span class="si">{}</span><span class="s2"> is not supported &quot;</span>
+                          <span class="s2">&quot;in openbabel. The forcefield will be reset as &quot;</span>
+                          <span class="s2">&quot;default &#39;mmff94&#39; for now.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">forcefield</span><span class="p">))</span>
+            <span class="n">ff</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBForceField_FindType</span><span class="p">(</span><span class="s2">&quot;mmff94&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rotor_search</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ff</span><span class="p">,</span> <span class="n">algo</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;This input conformer search algorithm </span><span class="si">{}</span><span class="s2"> is not &quot;</span>
+                          <span class="s2">&quot;supported in openbabel. Options are &quot;</span>
+                          <span class="s2">&quot;&#39;SystematicRotorSearch&#39;, &#39;RandomRotorSearch&#39; &quot;</span>
+                          <span class="s2">&quot;and &#39;WeightedRotorSearch&#39;. &quot;</span>
+                          <span class="s2">&quot;The algorithm will be reset as default &quot;</span>
+                          <span class="s2">&quot;&#39;WeightedRotorSearch&#39; for now.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">algo</span><span class="p">))</span>
+            <span class="n">rotor_search</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">WeightedRotorSearch</span>
+        <span class="n">rotor_search</span><span class="p">(</span><span class="o">*</span><span class="n">rotor_args</span><span class="p">)</span>
+        <span class="n">ff</span><span class="o">.</span><span class="n">GetConformers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BabelMolAdaptor.gen3d_conformer"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer">[docs]</a>    <span class="k">def</span> <span class="nf">gen3d_conformer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A combined method to first generate 3D structures from 0D or 2D</span>
+<span class="sd">        structures and then find the minimum energy conformer:</span>
+<span class="sd">        1. Use OBBuilder to create a 3D structure using rules and ring templates</span>
+<span class="sd">        2. Do 250 steps of a steepest descent geometry optimization with the</span>
+<span class="sd">           MMFF94 forcefield</span>
+<span class="sd">        3. Do 200 iterations of a Weighted Rotor conformational search</span>
+<span class="sd">           (optimizing each conformer with 25 steps of a steepest descent)</span>
+<span class="sd">        4. Do 250 steps of a conjugate gradient geometry optimization.</span>
+
+<span class="sd">        Warning from openbabel docs:</span>
+<span class="sd">        For many applications where 100s if not 1000s of molecules need to be</span>
+<span class="sd">        processed, gen3d is rather SLOW. Sometimes this function can cause a</span>
+<span class="sd">        segmentation fault.</span>
+<span class="sd">        A future version of Open Babel will provide options for slow/medium/fast</span>
+<span class="sd">        3D structure generation which will involve different compromises</span>
+<span class="sd">        between speed and finding the global energy minimum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gen3d</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBOp</span><span class="o">.</span><span class="n">FindType</span><span class="p">(</span><span class="s2">&quot;Gen3D&quot;</span><span class="p">)</span>
+        <span class="n">gen3d</span><span class="o">.</span><span class="n">Do</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BabelMolAdaptor.confab_conformers"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.confab_conformers">[docs]</a>    <span class="k">def</span> <span class="nf">confab_conformers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forcefield</span><span class="o">=</span><span class="s2">&quot;mmff94&quot;</span><span class="p">,</span> <span class="n">freeze_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">rmsd_cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">energy_cutoff</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span>
+                          <span class="n">conf_cutoff</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conformer generation based on Confab to generate all diverse low-energy</span>
+<span class="sd">        conformers for molecules. This is different from rotor_conformer or</span>
+<span class="sd">        gen3d_conformer as it aims to not simply to find a low energy</span>
+<span class="sd">        conformation but to generate several different conformations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            forcefield (str): Default is mmff94. Options are &#39;gaff&#39;, &#39;ghemical&#39;,</span>
+<span class="sd">                &#39;mmff94&#39;, &#39;mmff94s&#39;, and &#39;uff&#39;.</span>
+<span class="sd">            freeze_atoms ([int]): index of atoms to be freezed when performing</span>
+<span class="sd">                conformer search, default is None.</span>
+<span class="sd">            rmsd_cutoff (float): rmsd_cufoff, default is 0.5 Angstrom.</span>
+<span class="sd">            energy_cutoff (float): energy_cutoff, default is 50.0 kcal/mol.</span>
+<span class="sd">            conf_cutoff (float): max number of conformers to test,</span>
+<span class="sd">                default is 1 million.</span>
+<span class="sd">            verbose (bool): whether to display information on torsions found,</span>
+<span class="sd">                default is False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             (list): list of pymatgen Molecule objects for generated conformers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="o">.</span><span class="n">GetDimension</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">make3d</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_hydrogen</span><span class="p">()</span>
+
+        <span class="n">ff</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBForceField_FindType</span><span class="p">(</span><span class="n">forcefield</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Could not find forcefield </span><span class="si">{}</span><span class="s2"> in openbabel, the forcefield &quot;</span>
+                  <span class="s2">&quot;will be reset as default &#39;mmff94&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">forcefield</span><span class="p">))</span>
+            <span class="n">ff</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBForceField_FindType</span><span class="p">(</span><span class="s2">&quot;mmff94&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">freeze_atoms</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> atoms will be freezed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">freeze_atoms</span><span class="p">)))</span>
+            <span class="n">constraints</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBFFConstraints</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBMolAtomIter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">):</span>
+                <span class="n">atom_id</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetIndex</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">freeze_atoms</span><span class="p">:</span>
+                    <span class="n">constraints</span><span class="o">.</span><span class="n">AddAtomConstraint</span><span class="p">(</span><span class="n">atom_id</span><span class="p">)</span>
+            <span class="n">ff</span><span class="o">.</span><span class="n">SetConstraints</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
+
+        <span class="c1"># Confab conformer generation</span>
+        <span class="n">ff</span><span class="o">.</span><span class="n">DiverseConfGen</span><span class="p">(</span><span class="n">rmsd_cutoff</span><span class="p">,</span> <span class="n">conf_cutoff</span><span class="p">,</span> <span class="n">energy_cutoff</span><span class="p">,</span>
+                          <span class="n">verbose</span><span class="p">)</span>
+        <span class="n">ff</span><span class="o">.</span><span class="n">GetConformers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span>
+
+        <span class="c1"># Number of conformers generated by Confab conformer generation</span>
+        <span class="n">conformer_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="o">.</span><span class="n">NumConformers</span><span class="p">()</span>
+
+        <span class="n">conformers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">conformer_num</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="o">.</span><span class="n">SetConformer</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">conformer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="p">)</span><span class="o">.</span><span class="n">pymatgen_mol</span><span class="p">)</span>
+            <span class="n">conformers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conformer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obmol</span><span class="o">.</span><span class="n">SetConformer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conformers</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pybel_mol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -192,6 +350,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">readfile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_format</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">OBMol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BabelMolAdaptor.from_molecule_graph"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_molecule_graph</span><span class="p">(</span><span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a molecule from a pymatgen MoleculeGraph object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol: pymatgen MoleculeGraph object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            BabelMolAdaptor object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">MoleculeGraph</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BabelMolAdaptor.from_string"><a class="viewcode-back" href="../../../pymatgen.io.babel.html#pymatgen.io.babel.BabelMolAdaptor.from_string">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string_data</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="p">):</span>
@@ -240,7 +412,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

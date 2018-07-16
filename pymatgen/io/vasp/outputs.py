@@ -904,8 +904,8 @@ class Vasprun(MSONable):
 
         if potcar and self.incar.get("ALGO", "") not in ["GW0", "G0W0", "GW", "BSE"]:
             nelect = self.parameters["NELECT"]
-            potcar_nelect = int(round(sum([self.initial_structure.composition.element_composition[
-                                ps.element] * ps.ZVAL for ps in potcar])))
+            potcar_nelect = sum([self.initial_structure.composition.element_composition[
+                                ps.element] * ps.ZVAL for ps in potcar])
             charge = nelect - potcar_nelect
 
             if charge:
@@ -1382,7 +1382,7 @@ class Outcar(MSONable):
           [sigma21, sigma22, sigma23],
           [sigma31, sigma32, sigma33]]]
 
-    .. attribute:: unsym_cs_tensor 
+    .. attribute:: unsym_cs_tensor
         G=0 contribution to chemical shielding. 2D rank 3 matrix
 
     .. attribute:: cs_core_contribution
@@ -1424,7 +1424,7 @@ class Outcar(MSONable):
         Dimensions for the Augementation grid
 
     .. attribute: sampling_radii
-        Size of the sampling radii in VASP for the test charges for 
+        Size of the sampling radii in VASP for the test charges for
         the electrostatic potential at each atom. Total array size is the number
         of elements present in the calculation
 
@@ -1614,7 +1614,6 @@ class Outcar(MSONable):
             if self.dfpt:
                 self.read_lepsilon_ionic()
 
-
         # Check to see if LCALCPOL is true and read polarization data if so
         self.lcalcpol = False
         self.read_pattern({'calcpol': 'LCALCPOL   =     T'})
@@ -1751,7 +1750,7 @@ class Outcar(MSONable):
         self.sampling_radii = [float(f) for f in self.data["radii"][0][0].split()]
 
         header_pattern = r"\(the norm of the test charge is\s+[\.\-\d]+\)"
-        table_pattern = r"((?:\s+\d+\s?[\.\-\d]+)+)"
+        table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
         footer_pattern = r"\s+E-fermi :"
 
         pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
@@ -1841,7 +1840,7 @@ class Outcar(MSONable):
             Parse the  G0 contribution of NMR chemical shielding.
 
             Returns:
-            G0 contribution matrix as list of list. 
+            G0 contribution matrix as list of list.
         """
         header_pattern = r'^\s+G\=0 CONTRIBUTION TO CHEMICAL SHIFT \(field along BDIR\)\s+$\n' \
                          r'^\s+-{50,}$\n' \
@@ -1857,7 +1856,7 @@ class Outcar(MSONable):
             Parse the core contribution of NMR chemical shielding.
 
             Returns:
-            G0 contribution matrix as list of list. 
+            G0 contribution matrix as list of list.
         """
         header_pattern = r'^\s+Core NMR properties\s*$\n' \
                          r'\n' \
@@ -1876,7 +1875,7 @@ class Outcar(MSONable):
         Parse the matrix form of NMR tensor before corrected to table.
 
         Returns:
-        nsymmetrized tensors list in the order of atoms. 
+        nsymmetrized tensors list in the order of atoms.
         """
         header_pattern = r"\s+-{50,}\s+" \
                          r"\s+Absolute Chemical Shift tensors\s+" \
@@ -2145,7 +2144,7 @@ class Outcar(MSONable):
 
     def read_internal_strain_tensor(self):
         """
-        Reads the internal strain tensor and populates self.interna_strain_tensor with an array of voigt notation
+        Reads the internal strain tensor and populates self.internal_strain_tensor with an array of voigt notation
             tensors for each site.
         """
         search = []
@@ -2576,7 +2575,7 @@ class Outcar(MSONable):
                       "born": self.born})
 
         if self.dfpt:
-            d.update({"internal_strain_tensor": self.interna_strain_tensor})
+            d.update({"internal_strain_tensor": self.internal_strain_tensor})
 
         if self.dfpt and self.lepsilon:
             d.update({"piezo_ionic_tensor": self.piezo_ionic_tensor,
