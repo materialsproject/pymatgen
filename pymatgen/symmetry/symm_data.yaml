@@ -3525,7 +3525,7 @@ space_group_encoding:
     point_group: '32'
   R32H:
     enc: 03aECCnOOOeOOO0
-    full_symbol: R32
+    full_symbol: R32H
     int_number: 155
     order: 18
     patterson_symmetry: R-3m
