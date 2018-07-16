@@ -172,6 +172,4 @@ class TestQCOutput(PymatgenTest):
 
 
 if __name__ == "__main__":
-    TestQCOutput.generate_multi_job_dict()
-    TestQCOutput.generate_single_job_dict()
-    # unittest.main()
+    unittest.main()
