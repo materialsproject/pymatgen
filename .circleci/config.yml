@@ -20,6 +20,7 @@ jobs:
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+            export MPLBACKEND=Agg
             pip install --quiet -e .
             nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports
             # Command line tests
