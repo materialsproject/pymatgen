@@ -79,7 +79,7 @@ class GBGenerator(object):
                 if (abs(alpha - 90) > angle_tolerance):
                     initial_structure.make_supercell([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
                 # beta = 120 or 60, rotate c, a to a, b vectors
-                else:
+                elif (abs(beta - 90) > angle_tolerance):
                     initial_structure.make_supercell([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
         self.initial_structure = initial_structure
 
