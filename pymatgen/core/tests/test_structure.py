@@ -252,6 +252,15 @@ class IStructureTest(PymatgenTest):
             self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
             self.assertArrayAlmostEqual(s1[3].frac_coords, s[3].frac_coords)
 
+        # Test non-hexagonal setting.
+        lattice = Lattice.rhombohedral(4.0718, 89.459)
+        species = [{'S': 1.0}, {'Ni': 1.0}]
+        coordinate = [(0.252100, 0.252100, 0.252100),
+                      (0.500000, 0.244900, -0.244900)]
+        s = Structure.from_spacegroup('R32:R', lattice, species, coordinate)
+        self.assertEqual(s.formula, "Ni3 S2")
+
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
