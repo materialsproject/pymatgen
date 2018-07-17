@@ -102,7 +102,7 @@ setup(
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "six", "requests", "ruamel.yaml>=0.15.6",
                       "monty>=0.9.6", "scipy>=1.0.1", "pydispatcher>=2.0.5",
-                      "tabulate", "spglib>=1.9.9.44",
+                      "tabulate", "spglib>=1.9.9.44", "networkx>=2.1",
                       "matplotlib>=1.5", "palettable>=2.1.1", "sympy", "pandas"],
     extras_require={
         ':python_version == "2.7"': [
