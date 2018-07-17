@@ -12,3 +12,4 @@ matplotlib==2.2.2
 palettable==3.1.1
 spglib==1.10.3.65
 pandas==0.22.0
+networkx==2.1
