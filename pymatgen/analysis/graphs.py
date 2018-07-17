@@ -21,13 +21,10 @@ from operator import itemgetter
 from collections import namedtuple
 from scipy.spatial import KDTree
 
-try:
-    import networkx as nx
-    from networkx.readwrite import json_graph
-    from networkx.drawing.nx_agraph import write_dot
-except ImportError:
-    raise ImportError("This module requires the NetworkX "
-                      "graph library to be installed.")
+
+import networkx as nx
+from networkx.readwrite import json_graph
+from networkx.drawing.nx_agraph import write_dot
 
 import logging
 logging.basicConfig(level=logging.INFO)
