@@ -3,7 +3,7 @@ pydispatcher==2.0.5
 sympy==1.1.1
 requests==2.19.1
 monty==1.0.3
-ruamel.yaml==0.15.42
+ruamel.yaml==0.15.44
 six==1.11.0
 scipy==1.1.0
 tabulate==0.8.2
@@ -12,3 +12,4 @@ matplotlib==2.2.2
 palettable==3.1.1
 spglib==1.10.3.65
 pandas==0.22.0
+networkx==2.1

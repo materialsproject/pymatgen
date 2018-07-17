@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.graphs &#8212; pymatgen 2018.5.14 documentation</title>
-    
+    <title>pymatgen.analysis.graphs &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.5.14',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -68,8 +56,10 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">PeriodicSite</span><span class="p">,</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">FunctionalGroups</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">lattice_points_in_supercell</span>
 <span class="kn">from</span> <span class="nn">pymatgen.vis.structure_vtk</span> <span class="k">import</span> <span class="n">EL_COLORS</span>
 
@@ -78,7 +68,6 @@
 <span class="kn">from</span> <span class="nn">operator</span> <span class="k">import</span> <span class="n">itemgetter</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">KDTree</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
@@ -92,7 +81,7 @@
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton, Evan Spotte-Smith&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Matthew Horton&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;mkhorton@lbl.gov&quot;</span>
@@ -102,16 +91,15 @@
 <span class="n">ConnectedSite</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;ConnectedSite&#39;</span><span class="p">,</span> <span class="s1">&#39;site, jimage, index, weight, dist&#39;</span><span class="p">)</span>
 
 
-<span class="c1"># TODO: split into separate class for Molecules</span>
 <div class="viewcode-block" id="StructureGraph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph">[docs]</a><span class="k">class</span> <span class="nc">StructureGraph</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This is a class for annotating a Structure (or Molecule) with</span>
+<span class="sd">    This is a class for annotating a Structure with</span>
 <span class="sd">    bond information, stored in the form of a graph. A &quot;bond&quot; does</span>
 <span class="sd">    not necessarily have to be a chemical bond, but can store any</span>
 <span class="sd">    kind of information that connects two Sites.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If constructing this class manually, use the `with_empty_graph`</span>
 <span class="sd">        method or `with_local_env_strategy` method (using an algorithm</span>
@@ -132,21 +120,18 @@
 <span class="sd">        For periodic graphs, class stores information on the graph</span>
 <span class="sd">        edges of what lattice image the edge belongs to.</span>
 
-<span class="sd">        :param structure_or_molecule: a Structure object or a</span>
-<span class="sd">        Molecule object (molecules are supported, but some</span>
-<span class="sd">        methods are for structures only, such as __mul__, in</span>
-<span class="sd">        future this may be broken into two separate classes)</span>
+<span class="sd">        :param structure: a Structure object</span>
 
 <span class="sd">        :param graph_data: dict containing graph information in</span>
 <span class="sd">        dict format (not intended to be constructed manually,</span>
 <span class="sd">        see as_dict method for format)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
             <span class="c1"># just make a copy from input</span>
-            <span class="n">graph_data</span> <span class="o">=</span> <span class="n">structure_or_molecule</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;graphs&#39;</span><span class="p">]</span>
+            <span class="n">graph_data</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;graphs&#39;</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure_or_molecule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">readwrite</span><span class="o">.</span><span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_graph</span><span class="p">(</span><span class="n">graph_data</span><span class="p">)</span>
 
         <span class="c1"># tidy up edge attr dicts, reading to/from json duplicates</span>
@@ -165,7 +150,7 @@
                 <span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="StructureGraph.with_empty_graph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.with_empty_graph">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">with_empty_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">with_empty_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
                          <span class="n">edge_weight_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">edge_weight_units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -173,7 +158,7 @@
 <span class="sd">        object with an empty graph (no edges, only nodes defined</span>
 <span class="sd">        that correspond to Sites in Structure).</span>
 
-<span class="sd">        :param structure_or_molecule (Structure):</span>
+<span class="sd">        :param structure (Structure):</span>
 <span class="sd">        :param name (str): name of graph, e.g. &quot;bonds&quot;</span>
 <span class="sd">        :param edge_weight_name (str): name of edge weights,</span>
 <span class="sd">        e.g. &quot;bond_length&quot; or &quot;exchange_constant&quot;</span>
@@ -194,54 +179,30 @@
         <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">(</span><span class="n">edge_weight_name</span><span class="o">=</span><span class="n">edge_weight_name</span><span class="p">,</span>
                                 <span class="n">edge_weight_units</span><span class="o">=</span><span class="n">edge_weight_units</span><span class="p">,</span>
                                 <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">)))</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)))</span>
 
         <span class="n">graph_data</span> <span class="o">=</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_data</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StructureGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.StructureGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for StructureGraph, using a strategy</span>
 <span class="sd">        from :Class: `pymatgen.analysis.local_env`.</span>
 
-<span class="sd">        Molecules will be put into a large artificial box for calculation</span>
-<span class="sd">        of bonds using a NearNeighbor strategy, since some strategies</span>
-<span class="sd">        assume periodic boundary conditions.</span>
-
-<span class="sd">        :param structure_or_molecule: Structure object</span>
+<span class="sd">        :param structure: Structure object</span>
 <span class="sd">        :param strategy: an instance of a</span>
 <span class="sd">            :Class: `pymatgen.analysis.local_env.NearNeighbors` object</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">is_molecule</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">)</span>
-
-        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+        <span class="n">sg</span> <span class="o">=</span> <span class="n">StructureGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
                                              <span class="n">edge_weight_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span>
                                              <span class="n">edge_weight_units</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">is_molecule</span><span class="p">:</span>
-            <span class="c1"># NearNeighbor classes only (generally) work with structures</span>
-            <span class="c1"># molecules have to be boxed first</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="n">structure_or_molecule</span><span class="o">.</span><span class="n">cart_coords</span>
-
-            <span class="n">a</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
-
-            <span class="n">structure_or_molecule</span> <span class="o">=</span> <span class="n">structure_or_molecule</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span>
-                                                                              <span class="n">no_cross</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">)):</span>
-            <span class="n">neighbors</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">structure_or_molecule</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">neighbors</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">strategy</span><span class="o">.</span><span class="n">get_all_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">)):</span>
             <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
-
-                <span class="c1"># all bonds in molecules should not cross</span>
-                <span class="c1"># (artificial) periodic boundaries</span>
-                <span class="k">if</span> <span class="n">is_molecule</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
-                    <span class="k">continue</span>
 
                 <span class="c1"># local_env will always try to add two edges</span>
                 <span class="c1"># for any one bond, one from site u to site v</span>
@@ -323,7 +284,7 @@
         <span class="c1"># automatic detection of to_jimage if user doesn&#39;t specify</span>
         <span class="c1"># will try and detect all equivalent images and add multiple</span>
         <span class="c1"># edges if appropriate</span>
-        <span class="k">if</span> <span class="n">to_jimage</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">to_jimage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># assume we want the closest site</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Please specify to_jimage to be unambiguous, &quot;</span>
                           <span class="s2">&quot;trying to automatically detect.&quot;</span><span class="p">)</span>
@@ -403,29 +364,20 @@
 
         <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">out_edges</span> <span class="o">+</span> <span class="n">in_edges</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span>
 
-                <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span>
+                <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span>
+                <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">to_jimage</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span>
-                    <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span>
-                    <span class="n">to_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">to_jimage</span><span class="p">)</span>
+            <span class="n">site_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+            <span class="n">site_d</span><span class="p">[</span><span class="s1">&#39;abc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">site_d</span><span class="p">[</span><span class="s1">&#39;abc&#39;</span><span class="p">],</span> <span class="n">to_jimage</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">to_jimage</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)))</span>
+            <span class="n">site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">site_d</span><span class="p">)</span>
 
-                <span class="n">site_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
-                <span class="n">site_d</span><span class="p">[</span><span class="s1">&#39;abc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">site_d</span><span class="p">[</span><span class="s1">&#39;abc&#39;</span><span class="p">],</span> <span class="n">to_jimage</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-                <span class="n">to_jimage</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)))</span>
-                <span class="n">site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">site_d</span><span class="p">)</span>
-
-                <span class="c1"># from_site if jimage arg != (0, 0, 0)</span>
-                <span class="n">relative_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)</span>
-                <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">jimage</span><span class="o">=</span><span class="n">relative_jimage</span><span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-
-                <span class="c1"># simpler case for molecules</span>
-                <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
-                <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
-                <span class="n">to_jimage</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># from_site if jimage arg != (0, 0, 0)</span>
+            <span class="n">relative_jimage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">to_jimage</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">jimage</span><span class="o">=</span><span class="n">relative_jimage</span><span class="p">)</span>
 
             <span class="n">weight</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
@@ -678,11 +630,6 @@
         <span class="c1"># computationally expensive than just keeping track of the</span>
         <span class="c1"># which new lattice images present, but should hopefully be</span>
         <span class="c1"># easier to extend to a general 3x3 scaling matrix.</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multiplying graphs is only-welled defined for &quot;</span>
-                             <span class="s2">&quot;structures not molecules or other objects without &quot;</span>
-                             <span class="s2">&quot;a well-defined periodic lattice.&quot;</span><span class="p">)</span>
 
         <span class="c1"># code adapted from Structure.__mul__</span>
         <span class="n">scale_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
@@ -1130,6 +1077,1058 @@
             <span class="n">molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">molecules</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeGraph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph">[docs]</a><span class="k">class</span> <span class="nc">MoleculeGraph</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a class for annotating a Molecule with</span>
+<span class="sd">    bond information, stored in the form of a graph. A &quot;bond&quot; does</span>
+<span class="sd">    not necessarily have to be a chemical bond, but can store any</span>
+<span class="sd">    kind of information that connects two Sites.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If constructing this class manually, use the `with_empty_graph`</span>
+<span class="sd">        method or `with_local_env_strategy` method (using an algorithm</span>
+<span class="sd">        provided by the `local_env` module, such as O&#39;Keeffe).</span>
+
+<span class="sd">        This class that contains connection information:</span>
+<span class="sd">        relationships between sites represented by a Graph structure,</span>
+<span class="sd">        and an associated structure object.</span>
+
+<span class="sd">        This class uses the NetworkX package to store and operate</span>
+<span class="sd">        on the graph itself, but contains a lot of helper methods</span>
+<span class="sd">        to make associating a graph with a given molecule easier.</span>
+
+<span class="sd">        Use cases for this include storing bonding information,</span>
+<span class="sd">        NMR J-couplings, Heisenberg exchange parameters, etc.</span>
+
+<span class="sd">        :param molecule: Molecule object</span>
+
+<span class="sd">        :param graph_data: dict containing graph information in</span>
+<span class="sd">        dict format (not intended to be constructed manually,</span>
+<span class="sd">        see as_dict method for format)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">MoleculeGraph</span><span class="p">):</span>
+            <span class="c1"># just make a copy from input</span>
+            <span class="n">graph_data</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s1">&#39;graphs&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">readwrite</span><span class="o">.</span><span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_graph</span><span class="p">(</span><span class="n">graph_data</span><span class="p">)</span>
+
+        <span class="c1"># tidy up edge attr dicts, reading to/from json duplicates</span>
+        <span class="c1"># information</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;key&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+            <span class="c1"># ensure images are tuples (conversion to lists happens</span>
+            <span class="c1"># when serializing back from json), it&#39;s important images</span>
+            <span class="c1"># are hashable/immutable</span>
+            <span class="k">if</span> <span class="s1">&#39;to_jimage&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s1">&#39;from_jimage&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;from_jimage&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="MoleculeGraph.with_empty_graph"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">with_empty_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+                         <span class="n">edge_weight_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">edge_weight_units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for MoleculeGraph, returns a MoleculeGraph</span>
+<span class="sd">        object with an empty graph (no edges, only nodes defined</span>
+<span class="sd">        that correspond to Sites in Molecule).</span>
+
+<span class="sd">        :param molecule (Molecule):</span>
+<span class="sd">        :param name (str): name of graph, e.g. &quot;bonds&quot;</span>
+<span class="sd">        :param edge_weight_name (str): name of edge weights,</span>
+<span class="sd">        e.g. &quot;bond_length&quot; or &quot;exchange_constant&quot;</span>
+<span class="sd">        :param edge_weight_units (str): name of edge weight units</span>
+<span class="sd">        e.g. &quot;Å&quot; or &quot;eV&quot;</span>
+<span class="sd">        :return (MoleculeGraph):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">edge_weight_name</span> <span class="ow">and</span> <span class="p">(</span><span class="n">edge_weight_units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify units associated &quot;</span>
+                             <span class="s2">&quot;with your edge weights. Can be &quot;</span>
+                             <span class="s2">&quot;empty string if arbitrary or &quot;</span>
+                             <span class="s2">&quot;dimensionless.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># construct graph with one node per site</span>
+        <span class="c1"># graph attributes don&#39;t change behavior of graph,</span>
+        <span class="c1"># they&#39;re just for book-keeping</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">(</span><span class="n">edge_weight_name</span><span class="o">=</span><span class="n">edge_weight_name</span><span class="p">,</span>
+                                <span class="n">edge_weight_units</span><span class="o">=</span><span class="n">edge_weight_units</span><span class="p">,</span>
+                                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecule</span><span class="p">)))</span>
+
+        <span class="n">graph_data</span> <span class="o">=</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_data</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for MoleculeGraph, using a strategy</span>
+<span class="sd">        from :Class: `pymatgen.analysis.local_env`.</span>
+
+<span class="sd">        Molecules will be put into a large artificial box for calculation</span>
+<span class="sd">        of bonds using a NearNeighbor strategy, since some strategies</span>
+<span class="sd">        assume periodic boundary conditions.</span>
+
+<span class="sd">        :param molecule: Molecule object</span>
+<span class="sd">        :param strategy: an instance of a</span>
+<span class="sd">            :Class: `pymatgen.analysis.local_env.NearNeighbors` object</span>
+<span class="sd">        :param reorder: bool, representing if graph nodes need to be reordered</span>
+<span class="sd">        following the application of the local_env strategy</span>
+<span class="sd">        :return: mg, a MoleculeGraph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">mg</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_empty_graph</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span>
+                                            <span class="n">edge_weight_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span>
+                                            <span class="n">edge_weight_units</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># NearNeighbor classes only (generally) work with structures</span>
+        <span class="c1"># molecules have to be boxed first</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+
+        <span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">no_cross</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecule</span><span class="p">)):</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+
+                <span class="c1"># all bonds in molecules should not cross</span>
+                <span class="c1"># (artificial) periodic boundaries</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># local_env will always try to add two edges</span>
+                <span class="c1"># for any one bond, one from site u to site v</span>
+                <span class="c1"># and another form site v to site u: this is</span>
+                <span class="c1"># harmless, so warn_duplicates=False</span>
+                <span class="n">mg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+                            <span class="n">to_index</span><span class="o">=</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;site_index&#39;</span><span class="p">],</span>
+                            <span class="n">weight</span><span class="o">=</span><span class="n">neighbor</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span>
+                            <span class="n">warn_duplicates</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">reorder</span><span class="p">:</span>
+            <span class="c1"># Reverse order of nodes to match with molecule</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mg</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)}</span>
+
+            <span class="n">mg</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="n">mg</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mg</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Name of graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edge_weight_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Name of the edge weight property of graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;edge_weight_name&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edge_weight_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Units of the edge weight property of graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;edge_weight_units&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MoleculeGraph.add_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+                 <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">warn_duplicates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">edge_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add edge to graph.</span>
+
+<span class="sd">        Since physically a &#39;bond&#39; (or other connection</span>
+<span class="sd">        between sites) doesn&#39;t have a direction, from_index,</span>
+<span class="sd">        from_jimage can be swapped with to_index, to_jimage.</span>
+
+<span class="sd">        However, images will always always be shifted so that</span>
+<span class="sd">        from_index &lt; to_index and from_jimage becomes (0, 0, 0).</span>
+
+<span class="sd">        :param from_index: index of site connecting from</span>
+<span class="sd">        :param to_index: index of site connecting to</span>
+<span class="sd">        :param weight (float): e.g. bond length</span>
+<span class="sd">        :param warn_duplicates (bool): if True, will warn if</span>
+<span class="sd">        trying to add duplicate edges (duplicate edges will not</span>
+<span class="sd">        be added in either case)</span>
+<span class="sd">        :param edge_properties (dict): any other information to</span>
+<span class="sd">        store on graph edges, similar to Structure&#39;s site_properties</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># this is not necessary for the class to work, but</span>
+        <span class="c1"># just makes it neater</span>
+        <span class="k">if</span> <span class="n">to_index</span> <span class="o">&lt;</span> <span class="n">from_index</span><span class="p">:</span>
+            <span class="n">to_index</span><span class="p">,</span> <span class="n">from_index</span> <span class="o">=</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span>
+
+        <span class="c1"># sanitize types</span>
+        <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">from_index</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">to_index</span><span class="p">)</span>
+
+        <span class="c1"># check we&#39;re not trying to add a duplicate edge</span>
+        <span class="c1"># there should only ever be at most one edge</span>
+        <span class="c1"># between two sites</span>
+        <span class="n">existing_edge_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">existing_edge_data</span> <span class="ow">and</span> <span class="n">warn_duplicates</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Trying to add an edge that already exists from &quot;</span>
+                            <span class="s2">&quot;site </span><span class="si">{}</span><span class="s2"> to site </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span>
+                                                         <span class="n">to_index</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="c1"># generic container for additional edge properties,</span>
+        <span class="c1"># similar to site properties</span>
+        <span class="n">edge_properties</span> <span class="o">=</span> <span class="n">edge_properties</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">weight</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+                                <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+                                <span class="o">**</span><span class="n">edge_properties</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+                                <span class="o">**</span><span class="n">edge_properties</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.set_node_attributes"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives each node a &quot;specie&quot; and a &quot;coords&quot; attribute, updated with the</span>
+<span class="sd">        current species and coordinates.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">species</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="n">species</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
+            <span class="n">coords</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="s2">&quot;specie&quot;</span><span class="p">)</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.alter_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.alter_edge">[docs]</a>    <span class="k">def</span> <span class="nf">alter_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span>
+                   <span class="n">new_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">new_edge_properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Alters either the weight or the edge_properties of</span>
+<span class="sd">        an edge in the MoleculeGraph.</span>
+
+<span class="sd">        :param from_index: int</span>
+<span class="sd">        :param to_index: int</span>
+<span class="sd">        :param new_weight: alter_edge does not require</span>
+<span class="sd">        that weight be altered. As such, by default, this</span>
+<span class="sd">        is None. If weight is to be changed, it should be a</span>
+<span class="sd">        float.</span>
+<span class="sd">        :param new_edge_properties: alter_edge does not require</span>
+<span class="sd">        that edge_properties be altered. As such, by default,</span>
+<span class="sd">        this is None. If any edge properties are to be changed,</span>
+<span class="sd">        it should be a dictionary of edge properties to be changed.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">existing_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">)</span>
+
+        <span class="c1"># ensure that edge exists before attempting to change it</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_edge</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Edge between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> cannot be altered;</span><span class="se">\</span>
+<span class="s2">                                no edge exists between those sites.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span>
+                                <span class="p">))</span>
+
+        <span class="c1"># Third index should always be 0 because there should only be one edge between any two nodes</span>
+        <span class="k">if</span> <span class="n">new_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">from_index</span><span class="p">][</span><span class="n">to_index</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_weight</span>
+
+        <span class="k">if</span> <span class="n">new_edge_properties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">new_edge_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">from_index</span><span class="p">][</span><span class="n">to_index</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_edge_properties</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.break_edge"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.break_edge">[docs]</a>    <span class="k">def</span> <span class="nf">break_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove an edge from the MoleculeGraph</span>
+
+<span class="sd">        :param from_index: int</span>
+<span class="sd">        :param to_index: int</span>
+<span class="sd">        :param allow_reverse: If allow_reverse is True, then break_edge will</span>
+<span class="sd">        attempt to break both (from_index, to_index) and, failing that,</span>
+<span class="sd">        will attempt to break (to_index, from_index).</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># ensure that edge exists before attempting to remove it</span>
+        <span class="n">existing_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">)</span>
+        <span class="n">existing_reverse</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">existing_edge</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">allow_reverse</span><span class="p">:</span>
+                <span class="n">existing_reverse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">to_index</span><span class="p">,</span>
+                                                            <span class="n">from_index</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">existing_reverse</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">to_index</span><span class="p">,</span> <span class="n">from_index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Edge cannot be broken between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">;</span><span class="se">\</span>
+<span class="s2">                                no edge exists between those sites.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">from_index</span><span class="p">,</span> <span class="n">to_index</span>
+                                <span class="p">))</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.split_molecule_subgraphs"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.split_molecule_subgraphs">[docs]</a>    <span class="k">def</span> <span class="nf">split_molecule_subgraphs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bonds</span><span class="p">,</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alterations</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split MoleculeGraph into two MoleculeGraphs by</span>
+<span class="sd">        breaking a set of bonds. This function uses</span>
+<span class="sd">        MoleculeGraph.break_edge repeatedly to create</span>
+<span class="sd">        disjoint graphs (two or more separate molecules).</span>
+<span class="sd">        This function does not only alter the graph</span>
+<span class="sd">        information, but also changes the underlying</span>
+<span class="sd">        Moledules.</span>
+<span class="sd">        If the bonds parameter does not include sufficient</span>
+<span class="sd">        bonds to separate two bonds, then this function will</span>
+<span class="sd">        fail.</span>
+<span class="sd">        Currently, this function naively assigns the charge</span>
+<span class="sd">        of the total molecule to a single submolecule. A</span>
+<span class="sd">        later effort will be to actually accurately assign</span>
+<span class="sd">        charge.</span>
+<span class="sd">        NOTE: This function does not modify the original</span>
+<span class="sd">        MoleculeGraph. It creates a copy, modifies that, and</span>
+<span class="sd">        returns two or more new MoleculeGraph objects.</span>
+
+<span class="sd">        :param bonds: list of tuples (from_index, to_index)</span>
+<span class="sd">        representing bonds to be broken to split the MoleculeGraph.</span>
+<span class="sd">        :param alterations: a dict {(from_index, to_index): alt},</span>
+<span class="sd">        where alt is a dictionary including weight and/or edge</span>
+<span class="sd">        properties to be changed following the split.</span>
+<span class="sd">        :param allow_reverse: If allow_reverse is True, then break_edge will</span>
+<span class="sd">        attempt to break both (from_index, to_index) and, failing that,</span>
+<span class="sd">        will attempt to break (to_index, from_index).</span>
+<span class="sd">        :return: list of MoleculeGraphs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">original</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
+            <span class="n">original</span><span class="o">.</span><span class="n">break_edge</span><span class="p">(</span><span class="n">bond</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bond</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">allow_reverse</span><span class="o">=</span><span class="n">allow_reverse</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_weakly_connected</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">graph</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Cannot split molecule; </span><span class="se">\</span>
+<span class="s2">                                MoleculeGraph is still connected.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># alter any bonds before partition, to avoid remapping</span>
+            <span class="k">if</span> <span class="n">alterations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">alterations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">alterations</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]:</span>
+                        <span class="n">weight</span> <span class="o">=</span> <span class="n">alterations</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                        <span class="k">del</span> <span class="n">alterations</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                        <span class="n">edge_properties</span> <span class="o">=</span> <span class="n">alterations</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span> \
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alterations</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)])</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+                        <span class="n">original</span><span class="o">.</span><span class="n">alter_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">new_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+                                        <span class="n">new_edge_properties</span><span class="o">=</span><span class="n">edge_properties</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">original</span><span class="o">.</span><span class="n">alter_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span>
+                                        <span class="n">new_edge_properties</span><span class="o">=</span><span class="n">alterations</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)])</span>
+
+            <span class="n">sub_mols</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Had to use nx.weakly_connected_components because of deprecation</span>
+            <span class="c1"># of nx.weakly_connected_component_subgraphs</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span> <span class="n">weakly_connected_components</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+            <span class="n">subgraphs</span> <span class="o">=</span> <span class="p">[</span><span class="n">original</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">subg</span> <span class="ow">in</span> <span class="n">subgraphs</span><span class="p">:</span>
+
+                <span class="c1"># start by extracting molecule information</span>
+                <span class="n">pre_mol</span> <span class="o">=</span> <span class="n">original</span><span class="o">.</span><span class="n">molecule</span>
+                <span class="n">nodes</span> <span class="o">=</span> <span class="n">subg</span><span class="o">.</span><span class="n">nodes</span>
+
+                <span class="c1"># create mapping to translate edges from old graph to new</span>
+                <span class="c1"># every list (species, coords, etc.) automatically uses this</span>
+                <span class="c1"># mapping, because they all form lists sorted by rising index</span>
+                <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)):</span>
+                    <span class="n">mapping</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="p">)[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span>
+
+                <span class="c1"># there must be a more elegant way to do this</span>
+                <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">pre_mol</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span>
+                           <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pre_mol</span><span class="o">.</span><span class="n">_sites</span><span class="p">))</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
+
+                <span class="c1"># just give charge to whatever subgraph has node with index 0</span>
+                <span class="c1"># TODO: actually figure out how to distribute charge</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+                    <span class="n">charge</span> <span class="o">=</span> <span class="n">pre_mol</span><span class="o">.</span><span class="n">charge</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">charge</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="n">new_mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">)</span>
+
+                <span class="c1"># relabel nodes in graph to match mapping</span>
+                <span class="n">new_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="n">subg</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
+
+                <span class="n">graph_data</span> <span class="o">=</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_data</span><span class="p">(</span><span class="n">new_graph</span><span class="p">)</span>
+
+                <span class="c1"># create new MoleculeGraph</span>
+                <span class="n">sub_mols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MoleculeGraph</span><span class="p">(</span><span class="n">new_mol</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">sub_mols</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.substitute_group"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.substitute_group">[docs]</a>    <span class="k">def</span> <span class="nf">substitute_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">graph_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strategy_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds off of Molecule.substitute to replace an atom in self.molecule</span>
+<span class="sd">        with a functional group. This method also amends self.graph to</span>
+<span class="sd">        incorporate the new functional group.</span>
+
+<span class="sd">        NOTE: using a MoleculeGraph will generally produce a different graph</span>
+<span class="sd">        compared with using a Molecule or str (when not using graph_dict).</span>
+<span class="sd">        This is because of the reordering that occurs when using some of the</span>
+<span class="sd">        local_env strategies.</span>
+
+<span class="sd">        :param index: Index of atom to substitute.</span>
+<span class="sd">        :param func_grp: Substituent molecule. There are three options:</span>
+
+<span class="sd">                1. Providing an actual molecule as the input. The first atom</span>
+<span class="sd">                   must be a DummySpecie X, indicating the position of</span>
+<span class="sd">                   nearest neighbor. The second atom must be the next</span>
+<span class="sd">                   nearest atom. For example, for a methyl group</span>
+<span class="sd">                   substitution, func_grp should be X-CH3, where X is the</span>
+<span class="sd">                   first site and C is the second site. What the code will</span>
+<span class="sd">                   do is to remove the index site, and connect the nearest</span>
+<span class="sd">                   neighbor to the C atom in CH3. The X-C bond indicates the</span>
+<span class="sd">                   directionality to connect the atoms.</span>
+<span class="sd">                2. A string name. The molecule will be obtained from the</span>
+<span class="sd">                   relevant template in func_groups.json.</span>
+<span class="sd">                3. A MoleculeGraph object.</span>
+<span class="sd">        :param strategy: Class from pymatgen.analysis.local_env.</span>
+<span class="sd">        :param bond_order: A specified bond order to calculate the bond</span>
+<span class="sd">                length between the attached functional group and the nearest</span>
+<span class="sd">                neighbor site. Defaults to 1.</span>
+<span class="sd">        :param grp_graph: Dictionary representing the bonds of the functional</span>
+<span class="sd">                group (format: {(u, v): props}, where props is a dictionary of</span>
+<span class="sd">                properties, including weight. If None, then the algorithm</span>
+<span class="sd">                will attempt to automatically determine bonds using one of</span>
+<span class="sd">                a list of strategies defined in pymatgen.analysis.local_env.</span>
+<span class="sd">        :param strategy_params: dictionary of keyword arguments for strategy.</span>
+<span class="sd">                If None, default parameters will be used.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">map_indices</span><span class="p">(</span><span class="n">grp</span><span class="p">):</span>
+            <span class="n">grp_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="c1"># Get indices now occupied by functional group</span>
+            <span class="c1"># Subtracting 1 because the dummy atom X should not count</span>
+            <span class="n">atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span> <span class="o">-</span> <span class="n">atoms</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
+                <span class="n">grp_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">offset</span>
+
+            <span class="k">return</span> <span class="n">grp_map</span>
+
+        <span class="c1"># Work is simplified if a graph is already in place</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_grp</span><span class="p">,</span> <span class="n">MoleculeGraph</span><span class="p">):</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span>
+                                     <span class="n">bond_order</span><span class="o">=</span><span class="n">bond_order</span><span class="p">)</span>
+
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">map_indices</span><span class="p">(</span><span class="n">func_grp</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">func_grp</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()):</span>
+                <span class="n">edge_props</span> <span class="o">=</span> <span class="n">func_grp</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">weight</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">edge_props</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="n">edge_props</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                    <span class="k">del</span> <span class="n">edge_props</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">mapping</span><span class="p">[</span><span class="n">v</span><span class="p">],</span>
+                              <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">edge_properties</span><span class="o">=</span><span class="n">edge_props</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_grp</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+                <span class="n">func_grp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">func_grp</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">func_grp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">FunctionalGroups</span><span class="p">[</span><span class="n">func_grp</span><span class="p">])</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t find functional group in list. &quot;</span>
+                                       <span class="s2">&quot;Provide explicit coordinate instead&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="n">bond_order</span><span class="p">)</span>
+
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">map_indices</span><span class="p">(</span><span class="n">func_grp</span><span class="p">)</span>
+
+            <span class="c1"># Remove dummy atom &quot;X&quot;</span>
+            <span class="n">func_grp</span><span class="o">.</span><span class="n">remove_species</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">graph_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">graph_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">edge_props</span> <span class="o">=</span> <span class="n">graph_dict</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)]</span>
+                    <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">edge_props</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">weight</span> <span class="o">=</span> <span class="n">edge_props</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                        <span class="k">del</span> <span class="n">edge_props</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">mapping</span><span class="p">[</span><span class="n">v</span><span class="p">],</span>
+                                  <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">edge_properties</span><span class="o">=</span><span class="n">edge_props</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">strategy_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">strategy_params</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">strat</span> <span class="o">=</span> <span class="n">strategy</span><span class="p">(</span><span class="o">**</span><span class="n">strategy_params</span><span class="p">)</span>
+                <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">func_grp</span><span class="p">,</span> <span class="n">strat</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()):</span>
+                    <span class="n">edge_props</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">edge_props</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">weight</span> <span class="o">=</span> <span class="n">edge_props</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                        <span class="k">del</span> <span class="n">edge_props</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()):</span>
+                        <span class="c1"># If graph indices have different indexing</span>
+                        <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">v</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="n">u</span><span class="p">],</span> <span class="n">mapping</span><span class="p">[</span><span class="n">v</span><span class="p">],</span>
+                                  <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">edge_properties</span><span class="o">=</span><span class="n">edge_props</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.find_rings"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.find_rings">[docs]</a>    <span class="k">def</span> <span class="nf">find_rings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">including</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find ring structures in the MoleculeGraph.</span>
+
+<span class="sd">        NOTE: Currently, this function behaves as</span>
+<span class="sd">        expected for single rings, but fails (miserably)</span>
+<span class="sd">        on molecules with more than one ring.</span>
+
+<span class="sd">        :param including: list of site indices. If</span>
+<span class="sd">        including is not None, then find_rings will</span>
+<span class="sd">        only return those rings including the specified</span>
+<span class="sd">        sites. By default, this parameter is None, and</span>
+<span class="sd">        all rings will be returned.</span>
+<span class="sd">        :return: dict {index:cycle}. Each</span>
+<span class="sd">        entry will be a ring (cycle, in graph</span>
+<span class="sd">        theory terms) including the index found in the Molecule.</span>
+<span class="sd">        If there is no cycle including an index, the value will</span>
+<span class="sd">        be an empty list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Copies self.graph such that all edges (u, v) matched by edges (v, u)</span>
+        <span class="n">undirected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+        <span class="n">directed</span> <span class="o">=</span> <span class="n">undirected</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
+
+        <span class="n">cycles_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cycles_edges</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Remove all two-edge cycles</span>
+        <span class="n">all_cycles</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">simple_cycles</span><span class="p">(</span><span class="n">directed</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Using to_directed() will mean that each cycle always appears twice</span>
+        <span class="c1"># So, we must also remove duplicates</span>
+        <span class="n">unique_sorted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">unique_cycles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">all_cycles</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unique_sorted</span><span class="p">:</span>
+                <span class="n">unique_sorted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
+                <span class="n">unique_cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">including</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cycles_nodes</span> <span class="o">=</span> <span class="n">unique_cycles</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">including</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">unique_cycles</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cycle</span> <span class="ow">and</span> <span class="n">cycle</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cycles_nodes</span><span class="p">:</span>
+                        <span class="n">cycles_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">cycles_nodes</span><span class="p">:</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cycle</span><span class="p">):</span>
+                <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cycle</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">e</span><span class="p">))</span>
+            <span class="n">cycles_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cycles_edges</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.get_connected_sites"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.get_connected_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a named tuple of neighbors of site n:</span>
+<span class="sd">        periodic_site, jimage, index, weight.</span>
+<span class="sd">        Index is the index of the corresponding site</span>
+<span class="sd">        in the original structure, weight can be</span>
+<span class="sd">        None if not defined.</span>
+<span class="sd">        :param n: index of Site in Molecule</span>
+<span class="sd">        :param jimage: lattice vector of site</span>
+<span class="sd">        :return: list of ConnectedSite tuples,</span>
+<span class="sd">        sorted by closest first</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">connected_sites</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="n">out_edges</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+        <span class="n">in_edges</span> <span class="o">=</span> <span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">in_edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">out_edges</span> <span class="o">+</span> <span class="n">in_edges</span><span class="p">:</span>
+
+            <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="n">connected_site</span> <span class="o">=</span> <span class="n">ConnectedSite</span><span class="p">(</span><span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">,</span>
+                                           <span class="n">jimage</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                                           <span class="n">index</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+                                           <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+                                           <span class="n">dist</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+
+            <span class="n">connected_sites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">connected_site</span><span class="p">)</span>
+
+        <span class="c1"># return list sorted by closest sites first</span>
+        <span class="n">connected_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">connected_sites</span><span class="p">)</span>
+        <span class="n">connected_sites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">dist</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">connected_sites</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.get_coordination_of_site"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.get_coordination_of_site">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_of_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of neighbors of site n.</span>
+<span class="sd">        In graph terms, simply returns degree</span>
+<span class="sd">        of node corresponding to site n.</span>
+<span class="sd">        :param n: index of site</span>
+<span class="sd">        :return (int):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">number_of_self_loops</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">v</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="n">number_of_self_loops</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.draw_graph_to_file"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">draw_graph_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
+                           <span class="n">diff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">hide_unconnected_nodes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">hide_image_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">edge_colors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">node_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">weight_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">image_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">color_scheme</span><span class="o">=</span><span class="s2">&quot;VESTA&quot;</span><span class="p">,</span>
+                           <span class="n">keep_dot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">algo</span><span class="o">=</span><span class="s2">&quot;fdp&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draws graph using GraphViz.</span>
+
+<span class="sd">        The networkx graph object itself can also be drawn</span>
+<span class="sd">        with networkx&#39;s in-built graph drawing methods, but</span>
+<span class="sd">        note that this might give misleading results for</span>
+<span class="sd">        multigraphs (edges are super-imposed on each other).</span>
+
+<span class="sd">        If visualization is difficult to interpret,</span>
+<span class="sd">        `hide_image_edges` can help, especially in larger</span>
+<span class="sd">        graphs.</span>
+
+<span class="sd">        :param filename: filename to output, will detect filetype</span>
+<span class="sd">        from extension (any graphviz filetype supported, such as</span>
+<span class="sd">        pdf or png)</span>
+<span class="sd">        :param diff (StructureGraph): an additional graph to</span>
+<span class="sd">        compare with, will color edges red that do not exist in diff</span>
+<span class="sd">        and edges green that are in diff graph but not in the</span>
+<span class="sd">        reference graph</span>
+<span class="sd">        :param hide_unconnected_nodes: if True, hide unconnected</span>
+<span class="sd">        nodes</span>
+<span class="sd">        :param hide_image_edges: if True, do not draw edges that</span>
+<span class="sd">        go through periodic boundaries</span>
+<span class="sd">        :param edge_colors (bool): if True, use node colors to</span>
+<span class="sd">        color edges</span>
+<span class="sd">        :param node_labels (bool): if True, label nodes with</span>
+<span class="sd">        species and site index</span>
+<span class="sd">        :param weight_labels (bool): if True, label edges with</span>
+<span class="sd">        weights</span>
+<span class="sd">        :param image_labels (bool): if True, label edges with</span>
+<span class="sd">        their periodic images (usually only used for debugging,</span>
+<span class="sd">        edges to periodic images always appear as dashed lines)</span>
+<span class="sd">        :param color_scheme (str): &quot;VESTA&quot; or &quot;JMOL&quot;</span>
+<span class="sd">        :param keep_dot (bool): keep GraphViz .dot file for later</span>
+<span class="sd">        visualization</span>
+<span class="sd">        :param algo: any graphviz algo, &quot;neato&quot; (for simple graphs)</span>
+<span class="sd">        or &quot;fdp&quot; (for more crowded graphs) usually give good outputs</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">which</span><span class="p">(</span><span class="n">algo</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;StructureGraph graph drawing requires &quot;</span>
+                               <span class="s2">&quot;GraphViz binaries to be in the path.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Developer note: NetworkX also has methods for drawing</span>
+        <span class="c1"># graphs using matplotlib, these also work here. However,</span>
+        <span class="c1"># a dedicated tool like GraphViz allows for much easier</span>
+        <span class="c1"># control over graph appearance and also correctly displays</span>
+        <span class="c1"># mutli-graphs (matplotlib can superimpose multiple edges).</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">g</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nodesep&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s1">&#39;dpi&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span> <span class="s1">&#39;overlap&#39;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">}</span>
+
+        <span class="c1"># add display options for nodes</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+
+            <span class="c1"># get label by species name</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">node_labels</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="c1"># use standard color scheme for nodes</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">EL_COLORS</span><span class="p">[</span><span class="n">color_scheme</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># get contrasting font color</span>
+            <span class="c1"># magic numbers account for perceived luminescence</span>
+            <span class="c1"># https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color</span>
+            <span class="n">fontcolor</span> <span class="o">=</span> <span class="s1">&#39;#000000&#39;</span> <span class="k">if</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.299</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.587</span>
+                                          <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.114</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="s1">&#39;#ffffff&#39;</span>
+
+            <span class="c1"># convert color to hex string</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{:02x}{:02x}{:02x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">g</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fontcolor</span><span class="o">=</span><span class="n">fontcolor</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                       <span class="n">fontname</span><span class="o">=</span><span class="s2">&quot;Helvetica-bold&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;filled&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;circle&quot;</span><span class="p">)</span>
+
+        <span class="n">edges_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># add display options for edges</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+            <span class="c1"># retrieve from/to images, set as origin if not defined</span>
+            <span class="k">if</span> <span class="s2">&quot;to_image&quot;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">to_image</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_image</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># set edge style</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span>
+            <span class="k">if</span> <span class="n">to_image</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;style&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;dashed&quot;</span>
+                <span class="k">if</span> <span class="n">hide_image_edges</span><span class="p">:</span>
+                    <span class="n">edges_to_delete</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+
+            <span class="c1"># don&#39;t show edge directions</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;arrowhead&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+
+            <span class="c1"># only add labels for images that are not the origin</span>
+            <span class="k">if</span> <span class="n">image_labels</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;headlabel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">to_image</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">to_image</span><span class="p">))</span>
+                <span class="n">d</span><span class="p">[</span><span class="s1">&#39;arrowhead&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;headlabel&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span>
+
+            <span class="c1"># optionally color edges using node colors</span>
+            <span class="n">color_u</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;fillcolor&#39;</span><span class="p">]</span>
+            <span class="n">color_v</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;fillcolor&#39;</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;color_uv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">;0.5:</span><span class="si">{}</span><span class="s2">;0.5&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">color_u</span><span class="p">,</span> <span class="n">color_v</span><span class="p">)</span> <span class="k">if</span> <span class="n">edge_colors</span> <span class="k">else</span> <span class="s2">&quot;#000000&quot;</span>
+
+            <span class="c1"># optionally add weights to graph</span>
+            <span class="k">if</span> <span class="n">weight_labels</span><span class="p">:</span>
+                <span class="n">units</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;edge_weight_units&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">):</span>
+                    <span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">units</span><span class="p">)</span>
+
+            <span class="c1"># update edge with our new style attributes</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="c1"># optionally remove periodic image edges,</span>
+        <span class="c1"># these can be confusing due to periodic boundaries</span>
+        <span class="k">if</span> <span class="n">hide_image_edges</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">edge_to_delete</span> <span class="ow">in</span> <span class="n">edges_to_delete</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge_to_delete</span><span class="p">)</span>
+
+        <span class="c1"># optionally hide unconnected nodes,</span>
+        <span class="c1"># these can appear when removing periodic edges</span>
+        <span class="k">if</span> <span class="n">hide_unconnected_nodes</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">subgraph</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">degree</span><span class="p">()[</span><span class="n">n</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># optionally highlight differences with another graph</span>
+        <span class="k">if</span> <span class="n">diff</span><span class="p">:</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">green_edges</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">red_edges</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">diff</span><span class="p">[</span><span class="s1">&#39;self&#39;</span><span class="p">]:</span>
+                    <span class="c1"># edge has been deleted</span>
+                    <span class="n">red_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">diff</span><span class="p">[</span><span class="s1">&#39;other&#39;</span><span class="p">]:</span>
+                    <span class="c1"># edge has been added</span>
+                    <span class="n">green_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">green_edges</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;color_uv&#39;</span><span class="p">:</span> <span class="s1">&#39;#00ff00&#39;</span><span class="p">})</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">red_edges</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;color_uv&#39;</span><span class="p">:</span> <span class="s1">&#39;#ff0000&#39;</span><span class="p">})</span>
+
+        <span class="n">basename</span><span class="p">,</span> <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">extension</span> <span class="o">=</span> <span class="n">extension</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="n">write_dot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">basename</span><span class="o">+</span><span class="s2">&quot;.dot&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">algo</span><span class="p">,</span> <span class="s2">&quot;-T&quot;</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">basename</span><span class="o">+</span><span class="s2">&quot;.dot&quot;</span><span class="p">]</span>
+            <span class="n">rs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span>
+                                  <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="p">,</span>
+                                  <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rs</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">rs</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> exited with return code </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">algo</span><span class="p">,</span> <span class="n">rs</span><span class="o">.</span><span class="n">returncode</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_dot</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">basename</span><span class="o">+</span><span class="s2">&quot;.dot&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.as_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As in :Class: `pymatgen.core.Molecule` except</span>
+<span class="sd">        with using `to_dict_of_dicts` from NetworkX</span>
+<span class="sd">        to store graph information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;molecule&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+             <span class="s2">&quot;graphs&quot;</span><span class="p">:</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">adjacency_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)}</span>
+
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        As in :Class: `pymatgen.core.Molecule` except</span>
+<span class="sd">        restoring graphs using `from_dict_of_dicts`</span>
+<span class="sd">        from NetworkX to restore graph information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;molecule&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;graphs&#39;</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="nf">_edges_to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;from    to  to_image    &quot;</span>
+        <span class="n">header_line</span> <span class="o">=</span> <span class="s2">&quot;----  ----  ------------&quot;</span>
+        <span class="n">edge_weight_name</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;edge_weight_name&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">edge_weight_name</span><span class="p">:</span>
+            <span class="n">print_weights</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+            <span class="n">edge_label</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;edge_weight_name&quot;</span><span class="p">]</span>
+            <span class="n">edge_weight_units</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;edge_weight_units&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">edge_weight_units</span><span class="p">:</span>
+                <span class="n">edge_label</span> <span class="o">+=</span> <span class="s2">&quot; (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">edge_weight_units</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">edge_label</span><span class="p">)</span>
+            <span class="n">header_line</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="nb">max</span><span class="p">([</span><span class="mi">18</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge_label</span><span class="p">)]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">print_weights</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header_line</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="c1"># sort edges for consistent ordering</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">print_weights</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:12}</span><span class="s2">  </span><span class="si">{:.3e}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))),</span>
+                                                           <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:4}</span><span class="s2">  </span><span class="si">{:12}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span>
+                                                  <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;to_jimage&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))))</span>
+
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Molecule Graph&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Molecule: </span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="fm">__str__</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Graph: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Molecule Graph&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Molecule: </span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Graph: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: length of Molecule / number of nodes in graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MoleculeGraph.sort"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Same as Molecule.sort(), also remaps nodes in graph.</span>
+<span class="sd">        :param key:</span>
+<span class="sd">        :param reverse:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">old_molecule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># sort Molecule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">_sites</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+
+        <span class="c1"># apply Molecule ordering to graph</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="n">idx</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">old_molecule</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># normalize directions of edges</span>
+        <span class="n">edges_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">edges_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">u</span><span class="p">:</span>
+                <span class="n">new_v</span><span class="p">,</span> <span class="n">new_u</span><span class="p">,</span> <span class="n">new_d</span> <span class="o">=</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">new_d</span><span class="p">[</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">edges_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="n">edges_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_u</span><span class="p">,</span> <span class="n">new_v</span><span class="p">,</span> <span class="n">new_d</span><span class="p">))</span>
+
+        <span class="c1"># add/delete marked edges</span>
+        <span class="k">for</span> <span class="n">edges_to_remove</span> <span class="ow">in</span> <span class="n">edges_to_remove</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edges_to_remove</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edges_to_add</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Two MoleculeGraphs are equal if they have equal Molecules,</span>
+<span class="sd">        and have the same edges between Sites. Edge weights can be</span>
+<span class="sd">        different and MoleculeGraphs can still be considered equal.</span>
+
+<span class="sd">        :param other: MoleculeGraph</span>
+<span class="sd">        :return (bool):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># sort for consistent node indices</span>
+        <span class="c1"># PeriodicSite should have a proper __hash__() value,</span>
+        <span class="c1"># using its frac_coords as a convenient key</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">):</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">molecule</span><span class="p">}</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">other_sorted</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span>
+        <span class="n">other_sorted</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">mapping</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">)])</span>
+
+        <span class="n">edges</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                 <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="n">edges_other</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">edges</span> <span class="o">==</span> <span class="n">edges_other</span><span class="p">)</span> <span class="ow">and</span> \
+               <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">==</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MoleculeGraph.equivalent_to"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.equivalent_to">[docs]</a>    <span class="k">def</span> <span class="nf">equivalent_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A weaker equality function that evaluates isomorphisms between two</span>
+<span class="sd">        MoleculeGraphs. If there is an isomorphism where the species are</span>
+<span class="sd">        identical for each pair, then the MoleculeGraphs are considered</span>
+<span class="sd">        &quot;equivalent&quot;.</span>
+
+<span class="sd">        :param other: The MoleculeGraph to be compared to this MoleculeGraph</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If they&#39;re already equivalent, don&#39;t worry about it.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># Associate each node with a species, coordinates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span>
+        <span class="n">other</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span>
+
+        <span class="c1"># The possibility of multiple edges eliminates possible isomorphisms</span>
+        <span class="n">self_undir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+        <span class="n">other_undir</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+
+        <span class="n">matcher</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">isomorphism</span><span class="o">.</span><span class="n">GraphMatcher</span><span class="p">(</span><span class="n">self_undir</span><span class="p">,</span>
+                                                         <span class="n">other_undir</span><span class="p">)</span>
+
+        <span class="c1"># Graph equality requires that there be an appropriate mapping between</span>
+        <span class="c1"># nodes in the graph</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matcher</span><span class="o">.</span><span class="n">is_isomorphic</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">mapping</span> <span class="ow">in</span> <span class="n">matcher</span><span class="o">.</span><span class="n">isomorphisms_iter</span><span class="p">():</span>
+            <span class="n">self_spec</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">self_undir</span><span class="p">,</span> <span class="s2">&quot;specie&quot;</span><span class="p">)</span>
+            <span class="n">other_spec</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">other_undir</span><span class="p">,</span> <span class="s2">&quot;specie&quot;</span><span class="p">)</span>
+            <span class="n">truths</span> <span class="o">=</span> <span class="p">[</span><span class="n">self_spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">other_spec</span><span class="p">[</span><span class="n">mapping</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">truths</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># No isomorphism was perfect</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="MoleculeGraph.diff"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.diff">[docs]</a>    <span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compares two MoleculeGraphs. Returns dict with</span>
+<span class="sd">        keys &#39;self&#39;, &#39;other&#39;, &#39;both&#39; with edges that are</span>
+<span class="sd">        present in only one MoleculeGraph (&#39;self&#39; and</span>
+<span class="sd">        &#39;other&#39;), and edges that are present in both.</span>
+
+<span class="sd">        The Jaccard distance is a simple measure of the</span>
+<span class="sd">        dissimilarity between two MoleculeGraphs (ignoring</span>
+<span class="sd">        edge weights), and is defined by 1 - (size of the</span>
+<span class="sd">        intersection / size of the union) of the sets of</span>
+<span class="sd">        edges. This is returned with key &#39;dist&#39;.</span>
+
+<span class="sd">        Important note: all node indices are in terms</span>
+<span class="sd">        of the MoleculeGraph this method is called</span>
+<span class="sd">        from, not the &#39;other&#39; MoleculeGraph: there</span>
+<span class="sd">        is no guarantee the node indices will be the</span>
+<span class="sd">        same if the underlying Molecules are ordered</span>
+<span class="sd">        differently.</span>
+
+<span class="sd">        :param other: MoleculeGraph</span>
+<span class="sd">        :param strict: if False, will compare bonds</span>
+<span class="sd">        from different Molecules, with node indices</span>
+<span class="sd">        replaced by Specie strings, will not count</span>
+<span class="sd">        number of occurrences of bonds</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">molecule</span> <span class="ow">and</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meaningless to compare MoleculeGraphs if &quot;</span>
+                              <span class="s2">&quot;corresponding Molecules are different.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="c1"># sort for consistent node indices</span>
+            <span class="c1"># PeriodicSite should have a proper __hash__() value,</span>
+            <span class="c1"># using its frac_coords as a convenient key</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">):</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">molecule</span><span class="p">}</span>
+            <span class="n">other_sorted</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span>
+            <span class="n">other_sorted</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">mapping</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)])</span>
+
+            <span class="n">edges</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+                     <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+            <span class="n">edges_other</span> <span class="o">=</span> <span class="p">{(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;to_jimage&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+                           <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">other_sorted</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">edges</span> <span class="o">=</span> <span class="p">{(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span>
+                      <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">))</span>
+                     <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+            <span class="n">edges_other</span> <span class="o">=</span> <span class="p">{(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">),</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">structure</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">))</span>
+                           <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges_other</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">jaccard_dist</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># by definition</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jaccard_dist</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">edges_other</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">edges_other</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;self&#39;</span><span class="p">:</span> <span class="n">edges</span> <span class="o">-</span> <span class="n">edges_other</span><span class="p">,</span>
+            <span class="s1">&#39;other&#39;</span><span class="p">:</span> <span class="n">edges_other</span> <span class="o">-</span> <span class="n">edges</span><span class="p">,</span>
+            <span class="s1">&#39;both&#39;</span><span class="p">:</span> <span class="n">edges</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">edges_other</span><span class="p">),</span>
+            <span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="n">jaccard_dist</span>
+        <span class="p">}</span></div></div>
 </pre></div>
 
           </div>
@@ -1139,12 +2138,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1160,7 +2161,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.5.14 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1168,7 +2169,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

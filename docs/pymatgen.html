@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen package &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>pymatgen package &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -127,9 +127,13 @@
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.defects.html#submodules">Submodules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.core.html">pymatgen.analysis.defects.core module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.corrections.html">pymatgen.analysis.defects.corrections module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.defect_compatibility.html">pymatgen.analysis.defects.defect_compatibility module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.dilute_solution_model.html">pymatgen.analysis.defects.dilute_solution_model module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.point_defects.html">pymatgen.analysis.defects.point_defects module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.surf_error.html">pymatgen.analysis.defects.surf_error module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.generators.html">pymatgen.analysis.defects.generators module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.thermodynamics.html">pymatgen.analysis.defects.thermodynamics module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="pymatgen.analysis.defects.utils.html">pymatgen.analysis.defects.utils module</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.defects.html#module-pymatgen.analysis.defects">Module contents</a></li>
@@ -294,7 +298,6 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.cli.pmg_potcar.html">pymatgen.cli.pmg_potcar module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.cli.pmg_query.html">pymatgen.cli.pmg_query module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.cli.pmg_structure.html">pymatgen.cli.pmg_structure module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.cli.pydii.html">pymatgen.cli.pydii module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.cli.html#module-pymatgen.cli">Module contents</a></li>
@@ -629,6 +632,26 @@ the API. Requires PMG_MAPI_KEY to be set.</p>
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="pymatgen.loadfn">
+<code class="descname">loadfn</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen.html#loadfn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.loadfn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to perform quick loading of data from a filename. The
+type of object returned depends the file type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fname</strong> (<em>string</em>) – A filename.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Note that fname is matched using unix-style, i.e., fnmatch.
+(Structure) if <em>POSCAR</em>/<em>CONTCAR</em>/<em>.cif
+(Vasprun) *vasprun</em>
+(obj) if <em>json</em> (passthrough to monty.serialization.loadfn)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 
@@ -680,7 +703,7 @@ the API. Requires PMG_MAPI_KEY to be set.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>
 

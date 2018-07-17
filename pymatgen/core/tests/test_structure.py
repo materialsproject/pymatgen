@@ -252,6 +252,15 @@ class IStructureTest(PymatgenTest):
             self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
             self.assertArrayAlmostEqual(s1[3].frac_coords, s[3].frac_coords)
 
+        # Test non-hexagonal setting.
+        lattice = Lattice.rhombohedral(4.0718, 89.459)
+        species = [{'S': 1.0}, {'Ni': 1.0}]
+        coordinate = [(0.252100, 0.252100, 0.252100),
+                      (0.500000, 0.244900, -0.244900)]
+        s = Structure.from_spacegroup('R32:R', lattice, species, coordinate)
+        self.assertEqual(s.formula, "Ni3 S2")
+
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -904,6 +913,9 @@ class StructureTest(PymatgenTest):
         self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
         sorted_s = super_cell.get_sorted_structure()
         self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
+        super_cell.set_charge(25)
+        self.assertEqual(super_cell.charge,25,"Set charge not properly modifying _charge")
+
 
     def test_vesta_lattice_matrix(self):
         silica_zeolite = Molecule.from_file(os.path.join(test_dir, "CON_vesta.xyz"))

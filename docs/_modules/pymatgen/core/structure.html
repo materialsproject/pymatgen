@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.core.structure &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>pymatgen.core.structure &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -3072,8 +3072,15 @@
                     <span class="n">coords</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
             <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="n">sites</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="n">sites</span></div>
 
+<div class="viewcode-block" id="Structure.set_charge"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.set_charge">[docs]</a>    <span class="k">def</span> <span class="nf">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">new_charge</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the overall structure charge</span>
+<span class="sd">        Args:</span>
+<span class="sd">            charge (float): new charge to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span> <span class="o">=</span> <span class="n">new_charge</span></div></div>
 
 <div class="viewcode-block" id="Molecule"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Molecule">[docs]</a><span class="k">class</span> <span class="nc">Molecule</span><span class="p">(</span><span class="n">IMolecule</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -3587,7 +3594,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.6.27 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.babel module &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>pymatgen.io.babel module &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -43,8 +43,262 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pymatgen-io-babel-module">
-<h1>pymatgen.io.babel module<a class="headerlink" href="#pymatgen-io-babel-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pymatgen.io.babel">
+<span id="pymatgen-io-babel-module"></span><h1>pymatgen.io.babel module<a class="headerlink" href="#module-pymatgen.io.babel" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.babel.BabelMolAdaptor">
+<em class="property">class </em><code class="descname">BabelMolAdaptor</code><span class="sig-paren">(</span><em>mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Adaptor serves as a bridge between OpenBabel’s Molecule and pymatgen’s
+Molecule.</p>
+<p>Initializes with pymatgen Molecule or OpenBabel”s OBMol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mol</strong> – pymatgen’s Molecule or OpenBabel OBMol</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.add_hydrogen">
+<code class="descname">add_hydrogen</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.add_hydrogen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.add_hydrogen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add hydrogens (make all hydrogen explicit).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.confab_conformers">
+<code class="descname">confab_conformers</code><span class="sig-paren">(</span><em>forcefield='mmff94'</em>, <em>freeze_atoms=None</em>, <em>rmsd_cutoff=0.5</em>, <em>energy_cutoff=50.0</em>, <em>conf_cutoff=100000</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.confab_conformers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.confab_conformers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conformer generation based on Confab to generate all diverse low-energy
+conformers for molecules. This is different from rotor_conformer or
+gen3d_conformer as it aims to not simply to find a low energy
+conformation but to generate several different conformations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>forcefield</strong> (<em>str</em>) – Default is mmff94. Options are ‘gaff’, ‘ghemical’,
+‘mmff94’, ‘mmff94s’, and ‘uff’.</li>
+<li><strong>freeze_atoms</strong> (<em>[</em><em>int</em><em>]</em>) – index of atoms to be freezed when performing
+conformer search, default is None.</li>
+<li><strong>rmsd_cutoff</strong> (<em>float</em>) – rmsd_cufoff, default is 0.5 Angstrom.</li>
+<li><strong>energy_cutoff</strong> (<em>float</em>) – energy_cutoff, default is 50.0 kcal/mol.</li>
+<li><strong>conf_cutoff</strong> (<em>float</em>) – max number of conformers to test,
+default is 1 million.</li>
+<li><strong>verbose</strong> (<em>bool</em>) – whether to display information on torsions found,
+default is False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of pymatgen Molecule objects for generated conformers.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(list)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.from_file">
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>file_format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses OpenBabel to read a molecule from a file in all supported formats.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> – Filename of input file</li>
+<li><strong>file_format</strong> – String specifying any OpenBabel supported formats.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">BabelMolAdaptor object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph">
+<em class="property">static </em><code class="descname">from_molecule_graph</code><span class="sig-paren">(</span><em>mol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.from_molecule_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_molecule_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a molecule from a pymatgen MoleculeGraph object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mol</strong> – pymatgen MoleculeGraph object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">BabelMolAdaptor object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.from_string">
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string_data</em>, <em>file_format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses OpenBabel to read a molecule from a string in all supported
+formats.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>string_data</strong> – String containing molecule data.</li>
+<li><strong>file_format</strong> – String specifying any OpenBabel supported formats.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">BabelMolAdaptor object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer">
+<code class="descname">gen3d_conformer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.gen3d_conformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.gen3d_conformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A combined method to first generate 3D structures from 0D or 2D
+structures and then find the minimum energy conformer:
+1. Use OBBuilder to create a 3D structure using rules and ring templates
+2. Do 250 steps of a steepest descent geometry optimization with the</p>
+<blockquote>
+<div>MMFF94 forcefield</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>Do 200 iterations of a Weighted Rotor conformational search
+(optimizing each conformer with 25 steps of a steepest descent)</li>
+<li>Do 250 steps of a conjugate gradient geometry optimization.</li>
+</ol>
+<p>Warning from openbabel docs:
+For many applications where 100s if not 1000s of molecules need to be
+processed, gen3d is rather SLOW. Sometimes this function can cause a
+segmentation fault.
+A future version of Open Babel will provide options for slow/medium/fast
+3D structure generation which will involve different compromises
+between speed and finding the global energy minimum.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.localopt">
+<code class="descname">localopt</code><span class="sig-paren">(</span><em>forcefield='mmff94'</em>, <em>steps=500</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.localopt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.localopt" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper to pybel’s localopt method to optimize a Molecule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>forcefield</strong> – Default is mmff94. Options are ‘gaff’, ‘ghemical’,
+‘mmff94’, ‘mmff94s’, and ‘uff’.</li>
+<li><strong>steps</strong> – Default is 500.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.make3d">
+<code class="descname">make3d</code><span class="sig-paren">(</span><em>forcefield='mmff94'</em>, <em>steps=50</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.make3d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.make3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper to pybel’s make3D method generate a 3D structure from a
+2D or 0D structure.
+The 3D structure is made very quickly using a combination of rules
+(e.g. sp3 atoms should have four bonds arranged in a tetrahedron) and
+ring templates (e.g. cyclohexane is shaped like a chair). Once 3D
+coordinates are generated, hydrogens are added and a quick local
+optimization is carried out as default.</p>
+<p>The generated 3D structure can have clashes or have high energy
+structures due to some strain. Please consider to use the conformer
+search or geometry optimization to further optimize the structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>forcefield</strong> – Default is mmff94. Options are ‘gaff’, ‘ghemical’,
+‘mmff94’, ‘mmff94s’, and ‘uff’.</li>
+<li><strong>steps</strong> – Default is 50.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.openbabel_mol">
+<code class="descname">openbabel_mol</code><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.openbabel_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns OpenBabel’s OBMol.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.pybel_mol">
+<code class="descname">pybel_mol</code><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pybel_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Pybel’s Molecule object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.pymatgen_mol">
+<code class="descname">pymatgen_mol</code><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.pymatgen_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns pymatgen Molecule object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.rotor_conformer">
+<code class="descname">rotor_conformer</code><span class="sig-paren">(</span><em>*rotor_args</em>, <em>algo='WeightedRotorSearch'</em>, <em>forcefield='mmff94'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.rotor_conformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.rotor_conformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conformer search based on several Rotor Search algorithms of openbabel.
+If the input molecule is not 3D, make3d will be called (generate 3D
+structure, add hydrogen, a quick localopt). All hydrogen atoms need
+to be made explicit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rotor_args</strong> – pass args to Rotor Search in openbabel.
+for “WeightedRotorSearch”: (conformers, geomSteps,
+sampleRingBonds-default False)
+for “SystematicRotorSearch”: (geomSteps-default 2500,
+sampleRingBonds-default False)
+for “RandomRotorSearch”: (conformers, geomSteps-default 2500,
+sampleRingBonds-default False)</li>
+<li><strong>algo</strong> (<em>str</em>) – Default is “WeightedRotorSearch”. Options are
+“SystematicRotorSearch”, “RandomRotorSearch”, and
+“WeightedRotorSearch”.</li>
+<li><strong>forcefield</strong> (<em>str</em>) – Default is mmff94. Options are ‘gaff’, ‘ghemical’,
+‘mmff94’, ‘mmff94s’, and ‘uff’.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babel.BabelMolAdaptor.write_file">
+<code class="descname">write_file</code><span class="sig-paren">(</span><em>filename</em>, <em>file_format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/babel.html#BabelMolAdaptor.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babel.BabelMolAdaptor.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses OpenBabel to output all supported formats.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> – Filename of file to output</li>
+<li><strong>file_format</strong> – String specifying any OpenBabel supported formats.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -85,7 +339,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>
 

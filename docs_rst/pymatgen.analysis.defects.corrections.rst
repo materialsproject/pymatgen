@@ -1,7 +1,7 @@
-pymatgen.analysis.defects.surf\_error module
+pymatgen.analysis.defects.corrections module
 ============================================
 
-.. automodule:: pymatgen.analysis.defects.surf_error
+.. automodule:: pymatgen.analysis.defects.corrections
     :members:
     :undoc-members:
     :show-inheritance:
