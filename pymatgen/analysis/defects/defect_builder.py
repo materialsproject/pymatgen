@@ -223,22 +223,25 @@ class TaskDefectBuilder(object):
                     bulkindex = poss_deflist[0][2]
                     site_matching_indices.append( [bulkindex, dindex])
 
-            """HACK RIGHT HERE BECAUSE INSUFFICIENT DATA IN DATABASE FOR BANDFILLING"""
-            #TODO: this data exists in bandstructure task; REPLACE
-            fw_loc = task['dir_name'].split(':')[-1]
-            vrpath = os.path.join(fw_loc, 'vasprun.xml')
-            if not os.path.exists(vrpath):
-                vrpath += '.gz'
-            if not os.path.exists(vrpath):
-                vrpath = os.path.join(fw_loc, 'vasprun.xml.relax2')
-            if not os.path.exists(vrpath):
-                vrpath += '.gz'
-            if not os.path.exists(vrpath):
-                raise ValueError("Could not find Vasprun file path. This is needed for doing band filling correction")
-            vr = Vasprun(os.path.join( vrpath))
-            eigenvalues = {cnt:v for cnt, v in enumerate(vr.eigenvalues.values())}
-            kpoint_weights = vr.actual_kpoints_weights
-            """END HACK FOR DATABASE"""
+            if 'bandstructure' in task['calcs_reversed'][0].keys():
+                raise ValueError("DANNY: you havent figured out hwo to do this yet...")
+            else:
+                """HACK RIGHT HERE BECAUSE INSUFFICIENT DATA IN DATABASE FOR BANDFILLING"""
+                #TODO: this data exists in bandstructure task; REPLACE
+                fw_loc = task['dir_name'].split(':')[-1]
+                vrpath = os.path.join(fw_loc, 'vasprun.xml')
+                if not os.path.exists(vrpath):
+                    vrpath += '.gz'
+                if not os.path.exists(vrpath):
+                    vrpath = os.path.join(fw_loc, 'vasprun.xml.relax2')
+                if not os.path.exists(vrpath):
+                    vrpath += '.gz'
+                if not os.path.exists(vrpath):
+                    raise ValueError("Could not find Vasprun file path. This is needed for doing band filling correction")
+                vr = Vasprun(os.path.join( vrpath))
+                eigenvalues = {cnt:v for cnt, v in enumerate(vr.eigenvalues.values())}
+                kpoint_weights = vr.actual_kpoints_weights
+                """END HACK FOR DATABASE"""
 
             # assuming Wigner-Seitz radius for sampling radius
             wz = initial_defect_structure.lattice.get_wigner_seitz_cell()
