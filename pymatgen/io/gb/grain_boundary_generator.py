@@ -39,7 +39,7 @@ class GBGenerator(object):
     Users can use structure matcher in pymatgen to get rid of the redundant structures.
     """
 
-    def __init__(self, initial_structure):
+    def __init__(self, initial_structure, symprec=0.01, angle_tolerance=1):
 
         """
         initial_structure (Structure): Initial input structure. It can
@@ -50,12 +50,41 @@ class GBGenerator(object):
                Hexagonal systems.
                For Tetragonal and Hexagonal systems, keep the structure's third direction
                as c axis, the first two axis as a axis.
+        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
+                which is fairly strict and works well for properly refined
+                structures with atoms in the proper symmetry coordinates. For
+                structures with slight deviations from their proper atomic
+                positions (e.g., structures relaxed with electronic structure
+                codes), a looser tolerance of 0.1 (the value used in Materials
+                Project) is often needed.
+        angle_tolerance (float): Angle tolerance for symmetry finding.
         """
-
+        analyzer = SpacegroupAnalyzer(initial_structure, symprec, angle_tolerance)
+        self.lat_type = analyzer.get_lattice_type()[0]
+        if (self.lat_type == 't'):
+            a, b, c = initial_structure.lattice.abc
+            # c axis of tetragonal structure not in the third direction
+            if abs(a - b) > symprec:
+                # a == c, rotate b to the third direction
+                if abs(a - c) < symprec:
+                    initial_structure.make_supercell([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
+                # b == c, rotate a to the third direction
+                else:
+                    initial_structure.make_supercell([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
+        elif (self.lat_type == 'h'):
+            alpha, beta, gamma = initial_structure.lattice.angles
+            # c axis is not in the third direction
+            if (abs(gamma - 90) < angle_tolerance):
+                # alpha = 120 or 60, rotate b, c to a, b vectors
+                if (abs(alpha - 90) > angle_tolerance):
+                    initial_structure.make_supercell([[0, 1, 0], [0, 0, 1], [1, 0, 0]])
+                # beta = 120 or 60, rotate c, a to a, b vectors
+                elif (abs(beta - 90) > angle_tolerance):
+                    initial_structure.make_supercell([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
         self.initial_structure = initial_structure
 
     def gb_from_parameters(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                           normal=False, ratio=None, plane=None, tol=1.e-4, tol_angle=1.e-2):
+                           normal=False, ratio=None, plane=None):
 
         """
         Args:
@@ -94,8 +123,7 @@ class GBGenerator(object):
             plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
                 to the rotation axis.
-            tol (float): tolerance to determine the type of inital structure.
-            tol_angle (float): angle tolerance to determine the type of inital structure.
+
         Returns:
            Grain boundary structure (structure object).
                """
@@ -104,64 +132,51 @@ class GBGenerator(object):
         # calculate the transformation matrix from its conventional cell
         # to primitive cell, basically for bcc and fcc systems.
         init_str = self.initial_structure
-        alpha, beta, gamma = init_str.lattice.angles
-        a, b, c = init_str.lattice.abc
-        analyzer = SpacegroupAnalyzer(init_str)
-        convention_cell = analyzer.get_conventional_standard_structure()
-        vol_ratio = init_str.volume / convention_cell.volume
-        # bcc primitive cell, belong to cubic system
-        if abs(vol_ratio - 0.5) < tol * vol_ratio:
-            trans_cry = np.array([[0.5, 0.5, -0.5], [-0.5, 0.5, 0.5], [0.5, -0.5, 0.5]])
-            lat_type = 'c'
-            print('Make sure this is for cubic system with bcc primitive cell')
-        # fcc primitive cell, belong to cubic system
-        elif abs(vol_ratio - 0.25) < tol * vol_ratio:
-            trans_cry = np.array([[0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]])
-            lat_type = 'c'
-            print('Make sure this is for cubic system with fcc primitive cell')
-        else:
-            trans_cry = np.eye(3)
-            if abs(alpha - 90) < tol_angle and (abs(beta - 90) < tol_angle) and \
-                    (abs(gamma - 90) < tol_angle):
-                if abs(a - b) < tol and (abs(a - c) < tol):
-                    lat_type = 'c'
-                    print('Make sure this is for cubic system with conventional cell')
-                elif abs(a - b) < tol:
-                    lat_type = 't'
-                    print('Make sure this is for tetragonal system')
-                    if ratio is None:
-                        print('Make sure this is for irrational c2/a2')
-                    elif len(ratio) != 2:
-                        raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
-                else:
-                    lat_type = 'o'
-                    print('Make sure this is for orthorhombic system')
-                    if ratio is None:
-                        raise RuntimeError('CSL donot exist if all axial ratios are irrational'
-                                           'for orthorhombic system')
-                    elif len(ratio) != 3:
-                        raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
-            elif abs(alpha - 90) < tol_angle and ((beta - 90) < tol_angle) and \
-                    (abs(gamma - 120) < tol_angle or abs(gamma - 60) < tol_angle) and \
-                            abs(a - b) < tol:
-                lat_type = 'h'
-                print('Make sure this is for hexagonal system')
-                if ratio is None:
-                    print('Make sure this is for irrational c2/a2')
-                elif len(ratio) != 2:
-                    raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
-            elif abs(alpha - beta) < tol_angle and ((alpha - gamma) < tol_angle) and \
-                    (abs(a - b) < tol) and abs(a - c) < tol:
-                lat_type = 'r'
-                print('Make sure this is for rhombohedral system')
-                if ratio is None:
-                    print('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
-                elif len(ratio) != 2:
-                    raise RuntimeError('Rhombohedral system needs correct '
-                                       '(1+2*cos(alpha)/cos(alpha) ratio')
+        lat_type = self.lat_type
+        trans_cry = np.eye(3)
+        if lat_type == 'c':
+            analyzer = SpacegroupAnalyzer(init_str)
+            convention_cell = analyzer.get_conventional_standard_structure()
+            vol_ratio = init_str.volume / convention_cell.volume
+            # bcc primitive cell, belong to cubic system
+            if abs(vol_ratio - 0.5) < 1.e-3:
+                trans_cry = np.array([[0.5, 0.5, -0.5], [-0.5, 0.5, 0.5], [0.5, -0.5, 0.5]])
+                print('Make sure this is for cubic system with bcc primitive cell')
+            # fcc primitive cell, belong to cubic system
+            elif abs(vol_ratio - 0.25) < 1.e-3:
+                trans_cry = np.array([[0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]])
+                print('Make sure this is for cubic system with fcc primitive cell')
             else:
-                raise RuntimeError('Lattice type not implemented. This code works for cubic, '
-                                   'tetragonal, orthorhombic, rhombehedral, hexagonal systems')
+                print('Make sure this is for cubic system with conventional cell')
+        elif lat_type == 't':
+            print('Make sure this is for tetragonal system')
+            if ratio is None:
+                print('Make sure this is for irrational c2/a2')
+            elif len(ratio) != 2:
+                raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
+        elif lat_type == 'o':
+            print('Make sure this is for orthorhombic system')
+            if ratio is None:
+                raise RuntimeError('CSL donot exist if all axial ratios are irrational'
+                                   'for orthorhombic system')
+            elif len(ratio) != 3:
+                raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
+        elif lat_type == 'h':
+            print('Make sure this is for hexagonal system')
+            if ratio is None:
+                print('Make sure this is for irrational c2/a2')
+            elif len(ratio) != 2:
+                raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
+        elif lat_type == 'r':
+            print('Make sure this is for rhombohedral system')
+            if ratio is None:
+                print('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
+            elif len(ratio) != 2:
+                raise RuntimeError('Rhombohedral system needs correct '
+                                   '(1+2*cos(alpha)/cos(alpha) ratio')
+        else:
+            raise RuntimeError('Lattice type not implemented. This code works for cubic, '
+                               'tetragonal, orthorhombic, rhombehedral, hexagonal systems')
 
         t1, t2 = self.get_trans_mat(r_axis=rotation_axis, angle=rotation_angle, normal=normal,
                                     trans_cry=trans_cry, lat_type=lat_type, ratio=ratio, surface=plane)
@@ -207,8 +222,9 @@ class GBGenerator(object):
         N_sites = top_grain.num_sites
         t_and_b = Structure(top_grain.lattice, top_grain.species + bottom_grain.species,
                             list(top_grain.frac_coords) + list(bottom_grain.frac_coords))
-        index_incident = np.nonzero(t_and_b.lattice.get_all_distances(
-            t_and_b.frac_coords[0:N_sites], t_and_b.frac_coords[N_sites:N_sites * 2]) < 1.e-5)
+        t_and_b_dis = t_and_b.lattice.get_all_distances(t_and_b.frac_coords[0:N_sites],
+                                                        t_and_b.frac_coords[N_sites:N_sites * 2])
+        index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + 1.e-5)
         top_labels = []
         for i in range(N_sites):
             if i in index_incident[0]:
@@ -1030,7 +1046,7 @@ class GBGenerator(object):
                 mu = int(round(mu / temp))
                 mv = int(round(mv / temp))
             d = (u ** 2 + v ** 2 - u * v) * mv + w ** 2 * mu
-            if abs(angle - 180.0) < 1.e-2:
+            if abs(angle - 180.0) < 1.e0:
                 m = 0
                 n = 1
             else:
@@ -1091,7 +1107,7 @@ class GBGenerator(object):
                 mv = int(round(mv / temp))
             d = (u ** 2 + v ** 2 + w ** 2) * (mu - 2 * mv) + \
                 2 * mv * (v * w + w * u + u * v)
-            if abs(angle - 180.0) < 1.e-2:
+            if abs(angle - 180.0) < 1.e0:
                 m = 0
                 n = 1
             else:
@@ -1215,7 +1231,7 @@ class GBGenerator(object):
                 mv = int(round(mv / temp))
                 lam = int(round(lam / temp))
             d = (mv * u ** 2 + lam * v ** 2) * mv + w ** 2 * mu * mv
-            if abs(angle - 180.0) < 1.e-2:
+            if abs(angle - 180.0) < 1.e0:
                 m = 0
                 n = 1
             else:
