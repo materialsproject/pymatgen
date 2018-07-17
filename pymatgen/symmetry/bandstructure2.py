@@ -539,7 +539,7 @@ class HighSymmKpath2(object):
                     max_occurence = max([int(label[3:-1]) for label in existing_labels[1:]])
                 kpoints[point_label + '_{' + str(max_occurence + 1) + '}'] = key_points[point_ind]
                 reverse_kpoints[point_ind] = point_label + '_{' + str(max_occurence + 1) + '}'
-
+        print('hello world')
         path = []
         i = 0
         start_of_subpath = True
