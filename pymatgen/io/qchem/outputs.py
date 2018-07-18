@@ -16,7 +16,10 @@ from pymatgen.core import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
 import networkx as nx
 from pymatgen.io.babel import BabelMolAdaptor
-import openbabel as ob
+try:
+    import openbabel as ob
+except ImportError:
+    ob = None
 
 from .utils import read_table_pattern, read_pattern, process_parsed_coords
 
