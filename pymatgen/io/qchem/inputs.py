@@ -9,9 +9,9 @@ from monty.json import MSONable
 from monty.io import zopen
 from pymatgen.core import Molecule
 from .utils import read_table_pattern, read_pattern, lower_and_check_unique
-"""
-Classes for reading/manipulating/writing QChem ouput files.
-"""
+
+# Classes for reading/manipulating/writing QChem ouput files.
+
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"

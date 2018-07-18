@@ -174,7 +174,6 @@ class QCOutput(MSONable):
                 if len(self.data.get("errors")) == 0 and len(
                         self.data.get('optimized_geometry')) == 0 and len(
                             self.data.get('optimized_zmat')) == 0:
-                    
                     self._check_optimization_errors()
 
         # Check if the calculation contains a constraint in an $opt section.
