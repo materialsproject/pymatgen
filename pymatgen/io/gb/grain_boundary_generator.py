@@ -4,7 +4,7 @@
 from __future__ import division, unicode_literals
 import numpy as np
 from fractions import Fraction
-from math import gcd, floor
+from math import gcd, floor, cos
 from functools import reduce
 from pymatgen import Structure, Lattice
 from monty.fractions import lcm
@@ -39,7 +39,7 @@ class GBGenerator(object):
     Users can use structure matcher in pymatgen to get rid of the redundant structures.
     """
 
-    def __init__(self, initial_structure, symprec=0.01, angle_tolerance=1):
+    def __init__(self, initial_structure, symprec=0.1, angle_tolerance=1):
 
         """
         initial_structure (Structure): Initial input structure. It can
@@ -48,20 +48,20 @@ class GBGenerator(object):
                grain boundary structure.
                This code supplies Cubic, Tetragonal, Orthorhombic, Rhombohedral, and
                Hexagonal systems.
-               For Tetragonal and Hexagonal systems, keep the structure's third direction
-               as c axis, the first two axis as a axis.
-        symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
-                which is fairly strict and works well for properly refined
-                structures with atoms in the proper symmetry coordinates. For
-                structures with slight deviations from their proper atomic
-                positions (e.g., structures relaxed with electronic structure
-                codes), a looser tolerance of 0.1 (the value used in Materials
-                Project) is often needed.
+        symprec (float): Tolerance for symmetry finding. Defaults to 0.1 (the value used
+                in Materials Project), which is for structures with slight deviations
+                from their proper atomic positions (e.g., structures relaxed with
+                electronic structure codes).
+                A smaller value of 0.01 is often used for properly refined
+                structures with atoms in the proper symmetry coordinates.
+                User should make sure the symmetry is what you want.
         angle_tolerance (float): Angle tolerance for symmetry finding.
         """
         analyzer = SpacegroupAnalyzer(initial_structure, symprec, angle_tolerance)
         self.lat_type = analyzer.get_lattice_type()[0]
         if (self.lat_type == 't'):
+            # need to use the conventional cell for tetragonal
+            initial_structure = analyzer.get_conventional_standard_structure()
             a, b, c = initial_structure.lattice.abc
             # c axis of tetragonal structure not in the third direction
             if abs(a - b) > symprec:
@@ -81,10 +81,16 @@ class GBGenerator(object):
                 # beta = 120 or 60, rotate c, a to a, b vectors
                 elif (abs(beta - 90) > angle_tolerance):
                     initial_structure.make_supercell([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
+        elif (self.lat_type == 'r'):
+            # need to use primitive cell for rhombohedra
+            initial_structure = analyzer.get_primitive_standard_structure()
+        elif (self.lat_type == 'o'):
+            # need to use the conventional cell for orthorombic
+            initial_structure = analyzer.get_conventional_standard_structure()
         self.initial_structure = initial_structure
 
     def gb_from_parameters(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                           normal=False, ratio=None, plane=None):
+                           normal=False, ratio=None, plane=None, max_search=50, tol_coi=1.e-3):
 
         """
         Args:
@@ -120,9 +126,19 @@ class GBGenerator(object):
                     If irrational, set it to None.
                     For hexagonal system, ratio = [mu, mv], list of two integers,
                     that is, mu/mv = c2/a2. If it is irrational, set it to none.
+                    This code also supplies a class method to generate the ratio from the
+                    structure (get_ratio). User can also make their own approximation and
+                    input the ratio directly.
             plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3]. If none, we set it as twist GB. The plane will be perpendicular
                 to the rotation axis.
+            max_search (int): max search for the GB lattice vectors that give the smallest GB
+                lattice. If normal is true, also max search the GB c vector that perpendicular
+                to the plane. For complex GB, if you want to speed up, you can reduce this value.
+                But too small of this value may lead to error.
+            tol_coi (float): tolerance to find the coincidence sites. When making approximations to
+                the ratio needed to generate the GB, you probably need to increase this tolerance to
+                obtain the correct number of coincidence sites.
 
         Returns:
            Grain boundary structure (structure object).
@@ -179,16 +195,18 @@ class GBGenerator(object):
                                'tetragonal, orthorhombic, rhombehedral, hexagonal systems')
 
         t1, t2 = self.get_trans_mat(r_axis=rotation_axis, angle=rotation_angle, normal=normal,
-                                    trans_cry=trans_cry, lat_type=lat_type, ratio=ratio, surface=plane)
+                                    trans_cry=trans_cry, lat_type=lat_type, ratio=ratio,
+                                    surface=plane, max_search=max_search)
 
-        gb_with_vac = self.gb_from_matrices(top_grain_matrix=t1,
-                                            bottom_grain_matrix=t2,
+        gb_with_vac = self.gb_from_matrices(top_grain_matrix=t1, bottom_grain_matrix=t2,
                                             expand_times=expand_times,
-                                            vacuum_thickness=vacuum_thickness)
+                                            vacuum_thickness=vacuum_thickness,
+                                            tol_coi=tol_coi)
 
         return gb_with_vac
 
-    def gb_from_matrices(self, top_grain_matrix, bottom_grain_matrix, expand_times, vacuum_thickness):
+    def gb_from_matrices(self, top_grain_matrix, bottom_grain_matrix, expand_times, vacuum_thickness,
+                         tol_coi=1.e-3):
 
         """
         This function is used to generate GB structures from the given transformation matrices.
@@ -207,6 +225,9 @@ class GBGenerator(object):
                not interact with each other.
            vacuum_thickness (float): The thickness of vacuum that you want to insert between
                 two grains of the GB.
+           tol_coi (float): tolerance to find the coincidence sites. When making approximations to
+                the ratio needed to generate the GB, you probably need to increase this tolerance to
+                obtain the correct number of coincidence sites.
         Returns:
            Grain boundary structure.
         """
@@ -224,7 +245,8 @@ class GBGenerator(object):
                             list(top_grain.frac_coords) + list(bottom_grain.frac_coords))
         t_and_b_dis = t_and_b.lattice.get_all_distances(t_and_b.frac_coords[0:N_sites],
                                                         t_and_b.frac_coords[N_sites:N_sites * 2])
-        index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + 1.e-5)
+        index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + tol_coi)
+
         top_labels = []
         for i in range(N_sites):
             if i in index_incident[0]:
@@ -279,6 +301,65 @@ class GBGenerator(object):
                                 site_properties={'grain_label': grain_labels})
 
         return gb_with_vac
+
+    def get_ratio(self, max_denominator=5, index_none=None):
+        """
+        find the axial ratio needed for GB generator input.
+        Args:
+            max_denominator (int): the maximum denominator for
+                the computed ratio, default to be 5.
+            index_none (int): specify the irrational axis.
+                0-a, 1-b, 2-c. Only may be needed for orthorombic system.
+        Returns:
+               axial ratio needed for GB generator (list of integers).
+
+        """
+        structure = self.initial_structure
+        lat_type = self.lat_type
+        if lat_type == 't' or lat_type == 'h':
+            # For tetragonal and hexagonal system, ratio = c2 / a2.
+            a, c = (structure.lattice.a, structure.lattice.c)
+            if c > a:
+                frac = Fraction(c ** 2 / a ** 2).limit_denominator(max_denominator)
+                ratio = [frac.numerator, frac.denominator]
+            else:
+                frac = Fraction(a ** 2 / c ** 2).limit_denominator(max_denominator)
+                ratio = [frac.denominator, frac.numerator]
+        elif lat_type == 'r':
+            # For rhombohedral system, ratio = (1 + 2 * cos(alpha)) / cos(alpha).
+            cos_alpha = cos(structure.lattice.alpha / 180 * np.pi)
+            frac = Fraction((1 + 2 * cos_alpha) / cos_alpha).limit_denominator(max_denominator)
+            ratio = [frac.numerator, frac.denominator]
+        elif lat_type == 'o':
+            # For orthorhombic system, ratio = c2:b2:a2.If irrational for one axis, set it to None.
+            ratio = [None] * 3
+            lat = (structure.lattice.c, structure.lattice.b, structure.lattice.a)
+            index = [0, 1, 2]
+            if index_none is None:
+                min_index = np.argmin(lat)
+                index.pop(min_index)
+                frac1 = Fraction(lat[index[0]] ** 2 / lat[min_index] ** 2).limit_denominator(max_denominator)
+                frac2 = Fraction(lat[index[1]] ** 2 / lat[min_index] ** 2).limit_denominator(max_denominator)
+                com_lcm = lcm(frac1.denominator, frac2.denominator)
+                ratio[min_index] = com_lcm
+                ratio[index[0]] = frac1.numerator * int(round((com_lcm / frac1.denominator)))
+                ratio[index[1]] = frac2.numerator * int(round((com_lcm / frac2.denominator)))
+            else:
+                index.pop(index_none)
+                if (lat[index[0]] > lat[index[1]]):
+                    frac = Fraction(lat[index[0]] ** 2 / lat[index[1]] ** 2).limit_denominator(max_denominator)
+                    ratio[index[0]] = frac.numerator
+                    ratio[index[1]] = frac.denominator
+                else:
+                    frac = Fraction(lat[index[1]] ** 2 / lat[index[0]] ** 2).limit_denominator(max_denominator)
+                    ratio[index[1]] = frac.numerator
+                    ratio[index[0]] = frac.denominator
+        elif lat_type == 'c':
+            print('Cubic system does not need axial ratio')
+        else:
+            print('Lattice type not implemented')
+
+        return ratio
 
     @staticmethod
     def enum_sigma_cubic(cutoff, r_axis):
@@ -903,7 +984,7 @@ class GBGenerator(object):
 
     @staticmethod
     def get_trans_mat(r_axis, angle, normal=False, trans_cry=np.eye(3), lat_type='c',
-                      ratio=None, surface=None):
+                      ratio=None, surface=None, max_search=50):
         """
         Find the two transformation matrix for each grain from given rotation axis,
         GB plane, rotation angle and corresponding ratio (see explanation for ratio
@@ -951,6 +1032,9 @@ class GBGenerator(object):
                     the miller index of grain boundary plane, with the format of [h,k,l]
                     if surface is not given, the default is perpendicular to r_axis, which is
                     a twist grain boundary.
+            max_search (int): max search for the GB lattice vectors that give the smallest GB
+                lattice. If normal is true, also max search the GB c vector that perpendicular
+                to the plane.
 
         Returns:
             t1 (3 by 3 integer array):
@@ -1003,7 +1087,6 @@ class GBGenerator(object):
                         cos_alpha = 1.0 / (ratio[0] / ratio[1] - 2)
                     metric = np.array([[1, cos_alpha, cos_alpha], [cos_alpha, 1, cos_alpha],
                                        [cos_alpha, cos_alpha, 1]])
-                    print('metric', metric)
                 elif lat_type.lower() == 't':
                     if ratio is None:
                         c2_a2_ratio = 1
@@ -1287,7 +1370,6 @@ class GBGenerator(object):
         if reduce(gcd, r_axis) != 1:
             r_axis = [int(round(x / reduce(gcd, r_axis))) for x in r_axis]
         r_matrix = np.matrix(trans_cry).T.I * r_matrix * np.matrix(trans_cry).T
-
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
         I_mat = np.matrix(np.identity(3))
@@ -1342,7 +1424,7 @@ class GBGenerator(object):
                                       [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)]])
             else:
                 trans_cry = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
-        t1_final = GBGenerator.slab_from_csl(csl, surface, normal, trans_cry)
+        t1_final = GBGenerator.slab_from_csl(csl, surface, normal, trans_cry, max_search=max_search)
         t2_final = np.array(np.rint(np.matrix(t1_final) * (r_matrix).T.I)).astype(int)
         return t1_final, t2_final
 
@@ -1434,7 +1516,7 @@ class GBGenerator(object):
         return rotation_angles
 
     @staticmethod
-    def slab_from_csl(csl, surface, normal, trans_cry):
+    def slab_from_csl(csl, surface, normal, trans_cry, max_search=50):
         """
         By linear operation of csl lattice vectors to get the best corresponding
         slab lattice. That is the area of a,b vectors (within the surface plane)
@@ -1450,26 +1532,9 @@ class GBGenerator(object):
                     determine if the c vector needs to perpendicular to surface
             trans_cry (3 by 3 array):
                     transform matrix from crystal system to orthogonal system
-            lat_type ( one character):
-                    'c' or 'C': cubic system
-                     't' or 'T': tetragonal system
-                     'o' or 'O': orthorhombic system
-                     'h' or 'H': hexagonal system
-                     'r' or 'R': rhombohedral system
-                     default to cubic system
-            ratio (list of integers):
-                    lattice axial ratio.
-                    For cubic system, ratio is not needed.
-                    For tetragonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
-                    For orthorhombic system, ratio = [mu, lam, mv], list of three integers,
-                    that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
-                    e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
-                    For rhombohedral system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv is the ratio of (1+2*cos(alpha)/cos(alpha).
-                    If irrational, set it to None.
-                    For hexagonal system, ratio = [mu, mv], list of two integers,
-                    that is, mu/mv = c2/a2. If it is irrational, set it to none.
+            max_search (int): max search for the GB lattice vectors that give the smallest GB
+                lattice. If normal is true, also max search the GB c vector that perpendicular
+                to the plane.
 
         Returns:
             t_matrix: a slab lattice ( 3 by 3 integer array):
@@ -1517,7 +1582,8 @@ class GBGenerator(object):
                 return t_matrix
             else:
                 max_j = abs(miller_nonzero[0])
-
+        if max_j > max_search:
+            max_j = max_search
         # area of a, b vectors
         area = None
         # length of c vector
@@ -1566,7 +1632,12 @@ class GBGenerator(object):
         if normal and (not normal_init):
             print('Warning: did not find the perpendicular c vector, increase max_j')
             while (not normal_init):
+                if max_j == max_search:
+                    print('Cannot find the perpendicular c vector, please increase max_search')
+                    break
                 max_j = 3 * max_j
+                if max_j > 50:
+                    max_j = 50
                 c_norm = None
                 for j1 in range(-max_j, max_j + 1):
                     for j2 in range(-max_j, max_j + 1):
@@ -1611,6 +1682,7 @@ class GBGenerator(object):
         # make sure we have a left-handed crystallographic system
         if np.linalg.det(np.matmul(t_matrix, trans)) < 0:
             t_matrix *= -1
+
         return t_matrix
 
     @staticmethod

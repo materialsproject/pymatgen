@@ -94,8 +94,8 @@ class Test_grain_boundary_generator(PymatgenTest):
 
         # from hex cell,axis [1,1,1], sigma 21
         gb_Be_111_1 = self.GB_Be.gb_from_parameters([1, 1, 1],
-                                                    128.246619878345,
-                                                    ratio=[12, 5],
+                                                    147.36310249644626,
+                                                    ratio=[5, 2],
                                                     expand_times=4,
                                                     vacuum_thickness=1.5,
                                                     plane=[1, 2, 1])
@@ -104,45 +104,44 @@ class Test_grain_boundary_generator(PymatgenTest):
         self.assertAlmostEqual(np.dot(lat_mat1[0], [1, 2, 1]), 0)
         self.assertAlmostEqual(np.dot(lat_mat1[1], [1, 2, 1]), 0)
         # test volume associated with sigma value
-        gb_Be_111_2 = self.GB_Be.gb_from_parameters([1, 1, 1], 128.246619878345, ratio=[12, 5],
+        gb_Be_111_2 = self.GB_Be.gb_from_parameters([1, 1, 1], 147.36310249644626, ratio=[5, 2],
                                                     expand_times=4)
         vol_ratio = gb_Be_111_2.volume / self.Be.volume
-        self.assertAlmostEqual(vol_ratio, 21 * 2 * 4)
+        self.assertAlmostEqual(vol_ratio, 19 * 2 * 4)
         # test ratio = None, axis [0,0,1], sigma 7
         gb_Be_111_3 = self.GB_Be.gb_from_parameters([0, 0, 1], 21.786789298261812,
-                                                    ratio=[12, 5],
+                                                    ratio=[5, 2],
                                                     expand_times=4)
         gb_Be_111_4 = self.GB_Be.gb_from_parameters([0, 0, 1], 21.786789298261812, ratio=None,
                                                     expand_times=4)
         self.assertTupleEqual(gb_Be_111_3.lattice.abc, gb_Be_111_4.lattice.abc)
         self.assertTupleEqual(gb_Be_111_3.lattice.angles, gb_Be_111_4.lattice.angles)
-        gb_Be_111_5 = self.GB_Be.gb_from_parameters([3, 1, 0], 180.0, ratio=[12, 5],
+        gb_Be_111_5 = self.GB_Be.gb_from_parameters([3, 1, 0], 180.0, ratio=[5, 2],
                                                     expand_times=4)
-        ouc_supercell_gb_Be_111_6 = self.GB_Be.gb_from_parameters([3, 1, 0], 180.0, ratio=None,
-                                                                  expand_times=4)
-        gb_Be_111_6 = ouc_supercell_gb_Be_111_6[2]
+        gb_Be_111_6 = self.GB_Be.gb_from_parameters([3, 1, 0], 180.0, ratio=None,
+                                                    expand_times=4)
         self.assertTupleEqual(gb_Be_111_5.lattice.abc, gb_Be_111_6.lattice.abc)
         self.assertTupleEqual(gb_Be_111_5.lattice.angles, gb_Be_111_6.lattice.angles)
 
         # gb from tetragonal cell, axis[1,1,1], sigma 15
-        gb_Pa_111_1 = self.GB_Pa.gb_from_parameters([1, 1, 1], 86.17744627072565, ratio=[4, 5],
+        gb_Pa_111_1 = self.GB_Pa.gb_from_parameters([1, 1, 1], 151.92751306414706, ratio=[2, 3],
                                                     expand_times=4)
         vol_ratio = gb_Pa_111_1.volume / self.Pa.volume
-        self.assertAlmostEqual(vol_ratio, 15 * 2 * 4)
+        self.assertAlmostEqual(vol_ratio, 17 * 2 * 4)
 
         # gb from orthorhombic cell, axis[1,1,1], sigma 93
-        gb_Br_111_1 = self.GB_Br.gb_from_parameters([1, 1, 1], 95.55344419565849,
-                                                    ratio=[10, 20, 21],
+        gb_Br_111_1 = self.GB_Br.gb_from_parameters([1, 1, 1], 131.5023374652235,
+                                                    ratio=[21, 20, 5],
                                                     expand_times=4)
         vol_ratio = gb_Br_111_1.volume / self.Br.volume
-        self.assertAlmostEqual(vol_ratio, 93 * 2 * 4)
+        self.assertAlmostEqual(vol_ratio, 83 * 2 * 4)
 
         # gb from rhombohedra cell, axis[1,2,0], sigma 81
-        gb_Bi_120_1 = self.GB_Bi.gb_from_parameters([1, 2, 0], 63.612200038756995,
-                                                    ratio=[39, 10],
+        gb_Bi_120_1 = self.GB_Bi.gb_from_parameters([1, 2, 0], 63.310675060280246,
+                                                    ratio=[19, 5],
                                                     expand_times=4)
         vol_ratio = gb_Bi_120_1.volume / self.Bi.volume
-        self.assertAlmostEqual(vol_ratio, 81 * 2 * 4)
+        self.assertAlmostEqual(vol_ratio, 59 * 2 * 4)
 
     def test_gb_from_matrices(self):
         mat1 = np.array([[30, -11, -41], [20, 3, -48], [-7, -1, 17]])
@@ -153,6 +152,22 @@ class Test_grain_boundary_generator(PymatgenTest):
         lat_mat1 = np.rint(np.matmul(gb_Br_111_1.lattice.matrix, np.linalg.inv(lat_conv))).astype(int)
         self.assertListEqual(list(lat_mat1[0]), list(mat1[0]))
         self.assertListEqual(list(lat_mat1[1]), list(mat1[1]))
+
+    def test_get_ratio(self):
+        # hexagnal
+        Be_ratio = self.GB_Be.get_ratio(max_denominator=2)
+        self.assertListEqual(Be_ratio, [5, 2])
+        Be_ratio = self.GB_Be.get_ratio(max_denominator=5)
+        self.assertListEqual(Be_ratio, [12, 5])
+        # tetragonal
+        Pa_ratio = self.GB_Pa.get_ratio(max_denominator=5)
+        self.assertListEqual(Pa_ratio, [2, 3])
+        # orthorombic
+        Br_ratio = self.GB_Br.get_ratio(max_denominator=5)
+        self.assertListEqual(Br_ratio, [21, 20, 5])
+        # orthorombic
+        Bi_ratio = self.GB_Bi.get_ratio(max_denominator=5)
+        self.assertListEqual(Bi_ratio, [19, 5])
 
     def test_enum_sigma_cubic(self):
         true_100 = [5, 13, 17, 25, 29, 37, 41]
