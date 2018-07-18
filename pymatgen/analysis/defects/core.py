@@ -12,6 +12,7 @@ from abc import ABCMeta, abstractmethod
 from monty.json import MSONable
 from monty.functools import lru_cache
 
+from pymatgen.core import PeriodicSite
 from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.utils import kb
@@ -39,7 +40,9 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         Args:
             structure: Pymatgen Structure without any defects
             charge: (int or float) defect charge
-                default is zero, meaning no change to NELECT after defect is created in the structure
+                default is zero, meaning no change to NELECT
+                 after defect is created in the structure
+                (assuming use_structure_charge=True in vasp input set)
         """
         self._structure = structure
         self._charge = charge
@@ -230,20 +233,33 @@ class Interstitial(Defect):
     Subclass of Defect to capture essential information for a single Interstitial defect structure.
     """
 
-    def __init__(self, structure, defect_site, charge=0., site_name='', multiplicity=1):
+    def __init__(self, structure, defect_site, charge=0., site_name='', multiplicity=None):
         """
         Initializes an interstial defect.
         User must specify multiplity. Default is 1
         Args:
             structure: Pymatgen Structure without any defects
-            defect_site (Site): the site for the interstial
+            defect_site (Site): the site for the interstitial
             charge: (int or float) defect charge
-                default is zero, meaning no change to NELECT after defect is created in the structure
-            site_name: allows user to give a unique name to defect, since Wyckoff symbol/multiplicity is
-                    insufficient to categorize the defect type
+                default is zero, meaning no change to NELECT
+                after defect is created in the structure
+                (assuming use_structure_charge=True in vasp input set)
+            site_name: allows user to give a unique name to
+                defect, since Wyckoff symbol/multiplicity is
+                insufficient to categorize the defect type
                 default is no name.
-            multiplicity (int): multiplicity
-                default is 1,
+            multiplicity (int): multiplicity of defect within
+                the supercell can be supplied by user. if not
+                specified, then space group symmetry is used
+                to generator interstitial sublattice
+                NOTE: this will not work for complexes,
+                where multiplicity may depend on additional
+                factors (ex. orientation etc.)
+                If defect is not a complex, then this
+                process will yield the correct multiplicity,
+                provided that the defect does not relax
+                into a different position
+
         """
         super().__init__(structure=structure, defect_site=defect_site, charge=charge)
         self._multiplicity = multiplicity
@@ -272,7 +288,20 @@ class Interstitial(Defect):
         """
         Returns the multiplicity of a defect site within the structure (needed for concentration analysis)
         """
-        return self._multiplicity
+        if self._multiplicity is None:
+            #generate multiplicity based on space group symmetry operations performed on defect coordinates
+            d_structure = create_saturated_interstitial_structure(self)
+
+            sga = SpacegroupAnalyzer( d_structure)
+            periodic_struc = sga.get_symmetrized_structure()
+            poss_deflist = sorted(
+                periodic_struc.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
+            defindex = poss_deflist[0][2]
+
+            equivalent_sites = periodic_struc.find_equivalent_sites(periodic_struc[defindex])
+            return len(equivalent_sites)
+        else:
+            return self._multiplicity
 
     @property
     def name(self):
@@ -283,6 +312,43 @@ class Interstitial(Defect):
             return "Int_{}_{}_mult{}".format(self.site.specie, self.site_name, self.multiplicity)
         else:
             return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
+
+
+def create_saturated_interstitial_structure( interstitial_def):
+    """
+    this takes a Interstitial defect object and generates the
+    sublattice for it based on the structure's space group.
+    Useful for understanding multiplicity of an interstitial
+    defect in thermodynamic analysis.
+    NOTE: if large relaxation happens to interstitial or
+        defect involves a complex then there maybe additional
+        degrees of freedom that need to be considered for
+        the multiplicity.
+
+    Returns:
+        Structure object decorated with interstitial site equivalents
+    """
+    sga = SpacegroupAnalyzer( interstitial_def.bulk_structure.copy())
+    sg_ops = sga.get_symmetry_operations( cartesian=True)
+
+    saturated_defect_struct = interstitial_def.bulk_structure.copy()
+    for sgo in sg_ops:
+        new_interstit_coords = sgo.operate( interstitial_def.site.coords[:])
+        poss_new_site = PeriodicSite(
+                interstitial_def.site.specie,
+                new_interstit_coords,
+                saturated_defect_struct.lattice,
+                to_unit_cell=True,
+                coords_are_cartesian=True)
+        try:
+            #will raise value error if site already exists in structure
+            saturated_defect_struct.append(
+                        poss_new_site.specie, poss_new_site.coords,
+                        coords_are_cartesian=True, validate_proximity=True)
+        except:
+            continue
+
+    return saturated_defect_struct
 
 
 class DefectEntry(MSONable):

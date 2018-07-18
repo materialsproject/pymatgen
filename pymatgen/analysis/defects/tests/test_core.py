@@ -7,7 +7,8 @@ from __future__ import unicode_literals
 import unittest
 
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.defects.core import Vacancy, Interstitial, Substitution, DefectEntry
+from pymatgen.analysis.defects.core import Vacancy, Interstitial, \
+    Substitution, DefectEntry, create_saturated_interstitial_structure
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -85,8 +86,9 @@ class DefectsCoreTest(PymatgenTest):
 
         # test multiplicity
         interstitial = Interstitial(struc, int_site)
-        self.assertEqual(interstitial.multiplicity, 1.0)
+        self.assertEqual(interstitial.multiplicity, 8.0)
 
+        #test manual setting of multiplicity
         interstitial = Interstitial(struc, int_site, multiplicity=4.0)
         self.assertEqual(interstitial.multiplicity, 4.0)
 
@@ -134,6 +136,76 @@ class DefectsCoreTest(PymatgenTest):
 
         # Test composoition
         self.assertEqual(dict(substitution.defect_composition.as_dict()), {"V": 2, "Sr": 1, "O": 3})
+
+class create_saturated_interstitial_structureTest(PymatgenTest):
+
+    def test_sublattice_generation(self):
+        struc = PymatgenTest.get_structure("CsCl")
+        sc_struc = struc.copy()
+        sc_struc.make_supercell(3)
+
+
+        #test for vacancy and sub (should not change structure)
+        Cs_index = sc_struc.indices_from_symbol("Cs")[0]
+        cs_vac = Vacancy(sc_struc, sc_struc[Cs_index])
+        decorated_cs_vac = create_saturated_interstitial_structure( cs_vac)
+        self.assertEqual( len(decorated_cs_vac), len(sc_struc))
+
+        Cl_index = sc_struc.indices_from_symbol("Cl")[0]
+        cl_vac = Vacancy(sc_struc, sc_struc[Cl_index])
+        decorated_cl_vac = create_saturated_interstitial_structure( cl_vac)
+        self.assertEqual( len(decorated_cl_vac), len(sc_struc))
+
+        sub_site = PeriodicSite("Sr", sc_struc[Cs_index].coords, sc_struc.lattice, coords_are_cartesian=True)
+        sub = Substitution(sc_struc, sub_site)
+        decorated_sub = create_saturated_interstitial_structure( sub)
+        self.assertEqual( len(decorated_sub), len(sc_struc))
+
+
+        #test interstitial in symmorphic structure type
+        inter_site = PeriodicSite("H", [0., 1.05225, 2.1045], struc.lattice, coords_are_cartesian=True) #voronoi type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 14)
+
+        inter_site = PeriodicSite("H", [0.10021429, 0.10021429, 2.1045], struc.lattice, coords_are_cartesian=True) #InFit type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 5)
+
+        inter_site = PeriodicSite("H", [4.10878571, 1.10235714, 2.1045], struc.lattice, coords_are_cartesian=True) #InFit type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 14)
+
+
+        #test interstitial in non-symmorphic structure type (voronoi and InFit generator of different types...)
+        ns_struc = PymatgenTest.get_mp_structure('mp-23287')
+
+        inter_site = PeriodicSite("H", [0.45173594, 0.41157895, 5.6604067], ns_struc.lattice, coords_are_cartesian=True) #InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.47279906, 0.82845998, 5.62015285], ns_struc.lattice, coords_are_cartesian=True) #InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.70845255, 6.50298148, 5.16979425], ns_struc.lattice, coords_are_cartesian=True) #InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.98191329, 0.36460337, 4.64718203], ns_struc.lattice, coords_are_cartesian=True) #InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 40)
+
+        inter_site = PeriodicSite("H", [0.39286561, 3.92702149, 1.05802631], ns_struc.lattice, coords_are_cartesian=True) #InFit type
+        interstitial = Interstitial(ns_struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 40)
 
 
 class DefectEntryTest(PymatgenTest):
