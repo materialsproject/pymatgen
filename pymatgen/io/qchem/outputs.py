@@ -18,8 +18,10 @@ import networkx as nx
 from pymatgen.io.babel import BabelMolAdaptor
 try:
     import openbabel as ob
+    have_babel = True
 except ImportError:
     ob = None
+    have_babel = False
 
 from .utils import read_table_pattern, read_pattern, process_parsed_coords
 
@@ -169,7 +171,8 @@ class QCOutput(MSONable):
                     real_energy_trajectory[ii] = float(entry[0])
                 self.data["energy_trajectory"] = real_energy_trajectory
                 self._read_last_geometry()
-                self._check_for_structure_changes()
+                if have_babel:
+                    self._check_for_structure_changes()
                 self._read_optimized_geometry()
                 # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
                 # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able

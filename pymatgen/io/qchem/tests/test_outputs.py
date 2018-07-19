@@ -10,6 +10,11 @@ import unittest
 from monty.serialization import loadfn, dumpfn
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
+try:
+    import openbabel
+    have_babel = True
+except ImportError:
+    have_babel = False
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -51,8 +56,10 @@ property_list = {"errors",
                  "point_group",
                  "frequencies",
                  "IR_intens",
-                 "IR_active",
-                 "structure_change"}
+                 "IR_active"}
+
+if have_babel:
+    property_list.add("structure_change")
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",
