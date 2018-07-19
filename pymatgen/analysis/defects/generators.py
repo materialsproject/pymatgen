@@ -169,6 +169,8 @@ class InterstitialGenerator(DefectGenerator):
             int(interstitial_finder.get_defectsite_multiplicity(def_ind) / conv_prim_rat)
             for def_ind in range(len(self.defect_sites))
         ]
+
+        #TODO: add sublattice comparison to remove additional equivalent sites
         self.count_def = 0  # for counting the index of the generated defect
 
     def __next__(self):
@@ -218,6 +220,8 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         for poss_site_list in equiv_sites_list:
             if poss_site_list[0] not in self.structure:
                 self.equiv_site_seq.append(poss_site_list)
+
+        #TODO: add sublattice comparison to remove additional equivalent sites
 
         self.count_def = 0  # for counting the index of the generated defect
 
