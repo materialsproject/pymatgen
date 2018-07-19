@@ -13,6 +13,16 @@ from monty.json import jsanitize
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
+from pymatgen.analysis.graphs import MoleculeGraph
+import networkx as nx
+from pymatgen.io.babel import BabelMolAdaptor
+try:
+    import openbabel as ob
+    have_babel = True
+except ImportError:
+    ob = None
+    have_babel = False
+
 from .utils import read_table_pattern, read_pattern, process_parsed_coords
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
@@ -160,16 +170,17 @@ class QCOutput(MSONable):
                 for ii, entry in enumerate(temp_energy_trajectory):
                     real_energy_trajectory[ii] = float(entry[0])
                 self.data["energy_trajectory"] = real_energy_trajectory
+                self._read_last_geometry()
+                if have_babel:
+                    self._check_for_structure_changes()
                 self._read_optimized_geometry()
                 # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
                 # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
-                # to be determined. Also, if there is an energy trajectory, read the last geometry in the
-                # optimization trajectory for use in the next input file.
+                # to be determined.
                 if len(self.data.get("errors")) == 0 and len(
                         self.data.get('optimized_geometry')) == 0 and len(
                             self.data.get('optimized_zmat')) == 0:
                     self._check_optimization_errors()
-                    self._read_last_geometry()
 
         # Check if the calculation contains a constraint in an $opt section.
         self.data["opt_constraint"] = read_pattern(self.text, {
@@ -292,7 +303,18 @@ class QCOutput(MSONable):
             self.data["species"] = None
             self.data["initial_geometry"] = None
             self.data["initial_molecule"] = None
+            self.data["point_group"] = None
         else:
+            temp_point_group = read_pattern(
+            self.text, {
+                "key":
+                r"Molecular Point Group\s+([A-Za-z\d\*]+)"
+            },
+            terminate_on_match=True).get('key')
+            if temp_point_group != None:
+                self.data["point_group"] = temp_point_group[0][0]
+            else:
+                self.data["point_group"] = None
             temp_geom = temp_geom[0]
             species = []
             geometry = np.zeros(shape=(len(temp_geom), 3), dtype=float)
@@ -316,9 +338,9 @@ class QCOutput(MSONable):
             if "SCF_failed_to_converge" in self.data.get("errors"):
                 footer_pattern = r"^\s*gen_scfman_exception: SCF failed to converge"
             else:
-                footer_pattern = r"^\s*\-+\n"
+                footer_pattern = r"^\s*\-+\n\s+SCF time"
             header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
-            table_pattern = r"(?:\s*Nonlocal correlation = [\d\-\.]+e[\d\-]+)*(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*"
+            table_pattern = r"(?:\s*Nonlocal correlation = [\d\-\.]+e[\d\-]+)*(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Dog-leg BFGS step)*(?:\s+Line search: understep)*(?:\s+Descent step)*"
         else:
             if "SCF_failed_to_converge" in self.data.get("errors"):
                 footer_pattern = r"^\s*\d+\s*[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
@@ -405,7 +427,7 @@ class QCOutput(MSONable):
             str(len(self.data.get("energy_trajectory"))) + \
             "\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
         table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
-        footer_pattern = r"\s+Point Group\:\s+[\d\w]+\s+Number of degrees of freedom\:\s+\d+"
+        footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
 
         parsed_last_geometry = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern)
@@ -421,6 +443,24 @@ class QCOutput(MSONable):
                     charge=self.data.get('charge'),
                     spin_multiplicity=self.data.get('multiplicity'))
 
+    def _check_for_structure_changes(self):
+        initial_mol_graph = build_MoleculeGraph(self.data["initial_molecule"])
+        initial_graph = initial_mol_graph.graph
+        last_mol_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"])
+        last_graph = last_mol_graph.graph
+        if is_isomorphic(initial_graph, last_graph):
+            self.data["structure_change"] = "no_change"
+        else:
+            if nx.is_connected(initial_graph) and not nx.is_connected(last_graph):
+                self.data["structure_change"] = "unconnected_fragments"
+            elif last_graph.number_of_edges() < initial_graph.number_of_edges():
+                self.data["structure_change"] = "fewer_bonds"
+            elif last_graph.number_of_edges() > initial_graph.number_of_edges():
+                self.data["structure_change"] = "more_bonds"
+            else:
+                self.data["structure_change"] = "bond_change"
+
+
     def _read_frequency_data(self):
         """
         Parses frequencies, enthalpy, entropy, and mode vectors.
@@ -429,6 +469,10 @@ class QCOutput(MSONable):
             self.text, {
                 "frequencies":
                 r"\s*Frequency:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                "IR_intens":
+                r"\s*IR Intens:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
+                "IR_active":
+                r"\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
                 "enthalpy":
                 r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
                 "entropy":
@@ -447,16 +491,34 @@ class QCOutput(MSONable):
 
         if temp_dict.get('frequencies') == None:
             self.data['frequencies'] = None
+            self.data['IR_intens'] = None
+            self.data['IR_active'] = None
         else:
             temp_freqs = [
                 value for entry in temp_dict.get('frequencies')
                 for value in entry
             ]
+            temp_intens = [
+                value for entry in temp_dict.get('IR_intens')
+                for value in entry
+            ]
+            active = [
+                value for entry in temp_dict.get('IR_active')
+                for value in entry
+            ]
+            self.data['IR_active'] = active
+
             freqs = np.zeros(len(temp_freqs) - temp_freqs.count('None'))
             for ii, entry in enumerate(temp_freqs):
                 if entry != 'None':
                     freqs[ii] = float(entry)
             self.data['frequencies'] = freqs
+
+            intens = np.zeros(len(temp_intens) - temp_intens.count('None'))
+            for ii, entry in enumerate(temp_intens):
+                if entry != 'None':
+                    intens[ii] = float(entry)
+            self.data['IR_intens'] = intens
 
             header_pattern = r"\s*Raman Active:\s+[YESNO]+\s+(?:[YESNO]+\s+)*X\s+Y\s+Z\s+(?:X\s+Y\s+Z\s+)*"
             table_pattern = r"\s*[a-zA-Z][a-zA-Z\s]\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*(?:([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+))*)*"
@@ -532,6 +594,18 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') == [[]]:
             self.data["errors"] += ["IO_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"Could not find \$molecule section in ParseQInput"
+                },
+                terminate_on_match=True).get('key') == [[]]:
+            self.data["errors"] += ["read_molecule_error"]
+        elif read_pattern(
+                self.text, {
+                    "key": r"Welcome to Q-Chem"
+                },
+                terminate_on_match=True).get('key') != [[]]:
+            self.data["errors"] += ["never_called_qchem"]
         else:
             self.data["errors"] += ["unknown_error"]
 
@@ -541,3 +615,36 @@ class QCOutput(MSONable):
         d["text"] = self.text
         d["filename"] = self.filename
         return jsanitize(d, strict=True)
+
+
+def edges_from_babel(molecule):
+    babel_mol = BabelMolAdaptor(molecule).openbabel_mol
+    edges = []
+    for obbond in ob.OBMolBondIter(babel_mol):
+        edges += [[obbond.GetBeginAtomIdx() - 1, obbond.GetEndAtomIdx() - 1]]
+    return edges
+
+
+def build_MoleculeGraph(molecule, edges=None):
+    if edges == None:
+        edges = edges_from_babel(molecule)
+    mol_graph = MoleculeGraph.with_empty_graph(molecule)
+    for edge in edges:
+        mol_graph.add_edge(edge[0], edge[1])
+    mol_graph.graph = mol_graph.graph.to_undirected()
+    species = {}
+    coords = {}
+    for node in mol_graph.graph:
+        species[node] = mol_graph.molecule[node].specie.symbol
+        coords[node] = mol_graph.molecule[node].coords
+    nx.set_node_attributes(mol_graph.graph, species, "specie")
+    nx.set_node_attributes(mol_graph.graph, coords, "coords")
+    return mol_graph
+
+
+def _node_match(node, othernode):
+    return node["specie"] == othernode["specie"]
+
+
+def is_isomorphic(graph1, graph2):
+    return nx.is_isomorphic(graph1, graph2, node_match=_node_match)

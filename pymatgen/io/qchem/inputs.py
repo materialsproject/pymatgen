@@ -9,9 +9,9 @@ from monty.json import MSONable
 from monty.io import zopen
 from pymatgen.core import Molecule
 from .utils import read_table_pattern, read_pattern, lower_and_check_unique
-"""
-Classes for reading/manipulating/writing QChem ouput files.
-"""
+
+# Classes for reading/manipulating/writing QChem ouput files.
+
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -172,8 +172,11 @@ class QCInput(MSONable):
         # todo: add ghost atoms
         mol_list = []
         mol_list.append("$molecule")
-        if molecule == "read":
-            mol_list.append(" read")
+        if isinstance(molecule, str):
+            if molecule == "read":
+                mol_list.append(" read")
+            else:
+                raise ValueError('The only acceptable text value for molecule is "read"')
         else:
             mol_list.append(" {charge} {spin_mult}".format(
                 charge=int(molecule.charge),
@@ -256,7 +259,7 @@ class QCInput(MSONable):
         spin_mult = None
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
-            "charge": r"^\s*\$molecule\n\s*(\d+)\s+\d",
+            "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d",
             "spin_mult": r"^\s*\$molecule\n\s*\d+\s*(\d)"
         }
         matches = read_pattern(string, patterns)
@@ -266,7 +269,7 @@ class QCInput(MSONable):
             charge = float(matches["charge"][0][0])
         if "spin_mult" in matches.keys():
             spin_mult = int(matches["spin_mult"][0][0])
-        header = r"^\s*\$molecule\n\s*\d\s*\d"
+        header = r"^\s*\$molecule\n\s*(?:\-)*\d+\s*\d"
         row = r"\s*((?i)[a-z]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer = r"^\$end"
         mol_table = read_table_pattern(

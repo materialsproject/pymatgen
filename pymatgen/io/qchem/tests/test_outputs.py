@@ -8,8 +8,13 @@ import os
 import unittest
 
 from monty.serialization import loadfn, dumpfn
-from pymatgen.io.qchem_io.outputs import QCOutput
+from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import PymatgenTest
+try:
+    import openbabel
+    have_babel = True
+except ImportError:
+    have_babel = False
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -47,7 +52,14 @@ property_list = {"errors",
                  "molecule_from_last_geometry",
                  "frequency_mode_vectors",
                  "walltime",
-                 "cputime"}
+                 "cputime",
+                 "point_group",
+                 "frequencies",
+                 "IR_intens",
+                 "IR_active"}
+
+if have_babel:
+    property_list.add("structure_change")
 
 single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "thiophene_wfs_5_carboxyl.qcout",
@@ -91,7 +103,16 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/N2.qcout",
                         "new_qchem_files/julian.qcout",
                         "new_qchem_files/Frequency_no_equal.qout",
-                        "new_qchem_files/Optimization_no_equal.qout"}
+                        "new_qchem_files/gdm.qout",
+                        "new_qchem_files/DinfH.qout",
+                        "new_qchem_files/mpi_error.qout",
+                        "new_qchem_files/molecule_read_error.qout",
+                        "new_qchem_files/Optimization_no_equal.qout",
+                        "new_qchem_files/2068.qout",
+                        "new_qchem_files/2620.qout",
+                        "new_qchem_files/1746.qout",
+                        "new_qchem_files/1570.qout",
+                        "new_qchem_files/1570_2.qout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
                        "new_qchem_files/VC_solv_eps10.qcout",
