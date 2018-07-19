@@ -17,6 +17,7 @@ import itertools
 import abc
 
 from monty.json import MSONable
+from pymatgen.core import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
@@ -25,6 +26,8 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_cython import pbc_shortest_vectors, is_coord_subset_pbc
 from pymatgen.util.coord import lattice_points_in_supercell
+from pymatgen.analysis.defects.core import create_saturated_interstitial_structure, Interstitial
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1105,4 +1108,99 @@ class StructureMatcher(MSONable):
             return None
 
         return match[4]
-    
+
+
+class PointDefectComparator(MSONable):
+    """
+    A class that matches pymatgen
+    Point Defect objects even if their
+    cartesian co-ordinates are different
+    (compares sublattices for the defect)
+
+    Note for defect complexes, the interstital sublattice approach
+    breaks down because a sublattice is ill-defined for such a case.
+
+    Args:
+            check_charge (bool): Gives option to check
+                if charges are identical.
+                Default is False (different charged defects can be same)
+            check_primitive_cell (bool): Gives option to
+                compare primitive cells of bulk_structure,
+                rather than directly compare supercell sizes
+                Default is False (requires supercells to be same size)
+            check_lattice_scale (bool): Gives option to scale volumes of
+                structures to each other identical lattice constants.
+                Default is False (enforces same
+                lattice constants in both structures)
+    """
+    def __init__(self, check_charge=False, check_primitive_cell=False,
+                 check_lattice_scale=False):
+        self.check_charge = check_charge
+        self.check_primitive_cell = check_primitive_cell
+        self.check_lattice_scale = check_lattice_scale
+
+    def are_equal(self, d1, d2):
+        """
+        Args:
+            d1: First defect. A pymatgen Defect object.
+            d2: Second defect. A pymatgen Defect object.
+
+        Returns:
+            True if defects are identical in type and sublattice.
+        """
+        if (type(d1) != type(d2)):
+            return False
+        elif d1.site.specie != d2.site.specie:
+            return False
+        elif self.check_charge and (d1.charge != d2.charge):
+            return False
+
+        sm = StructureMatcher( primitive_cell=self.check_primitive_cell,
+                               scale=self.check_lattice_scale)
+        if not sm.fit(d1.bulk_structure, d2.bulk_structure):
+            return False
+
+        if type(d1) != Interstitial:
+            d1_structure = d1.bulk_structure.copy()
+            d2_structure = d2.bulk_structure.copy()
+        else:
+            # for interstitials use sublattice generator to
+            # return decorated structure with sublattice given
+            # based on space group symmetry.
+            d1_structure = create_saturated_interstitial_structure( d1)
+            d2_structure = create_saturated_interstitial_structure( d2)
+
+        #if lattice needed to be scaled for matching, then site coordinates must also be scaled accordingly
+        if self.check_lattice_scale:
+            d1_structure, d2_structure, _, _  = sm._preprocess( d1_structure, d2_structure)
+
+        # find all equivalent sites for each defect and compare to
+        # see if there is a non-zero intersection
+        #NOTE: below may occasionally not work if lattices are sufficiently different and check_lattice_scale=True
+        sga1 = SpacegroupAnalyzer( d1_structure).get_symmetrized_structure()
+        poss_deflist1 = sorted(
+            sga1.get_sites_in_sphere(
+                d1.site.coords, 2, include_index=True), key=lambda x: x[1])
+        def1index = poss_deflist1[0][2]
+        equiv_d1_sites = sga1.find_equivalent_sites( sga1[def1index])
+
+        sga2 = SpacegroupAnalyzer( d2_structure).get_symmetrized_structure()
+        poss_deflist2 = sorted(
+            sga2.get_sites_in_sphere(
+                d2.site.coords, 2, include_index=True), key=lambda x: x[1])
+        def2index = poss_deflist2[0][2]
+        equiv_d2_sites = sga2.find_equivalent_sites( sga2[def2index])
+
+        #only comparing cartesian coords since lattices might be different for two sites
+        intersect_sites = []
+        for ts1, ts2 in list(itertools.product(equiv_d1_sites,equiv_d2_sites)):
+            if (ts1.distance_from_point(ts2.coords) < 0.001) or (ts2.distance_from_point(ts1.coords) < 0.001):
+                intersect_sites.append(ts1.coords)
+
+        if len(intersect_sites):
+            return True
+        else:
+            return False
+
+
+
