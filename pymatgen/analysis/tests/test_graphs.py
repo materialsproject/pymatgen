@@ -394,13 +394,14 @@ class MoleculeGraphTest(unittest.TestCase):
     def test_set_node_attributes(self):
         self.ethylene.set_node_attributes()
 
-        specie = nx.get_node_attributes(self.ethylene, "specie")
-        coords = nx.get_node_attributes(self.ethylene, "coords")
+        specie = nx.get_node_attributes(self.ethylene.graph, "specie")
+        coords = nx.get_node_attributes(self.ethylene.graph, "coords")
 
-        self.assertEqual(str(specie[0]), self.ethylene.molecule[0].specie)
+        self.assertEqual(str(specie[0]), str(self.ethylene.molecule[0].specie))
         self.assertEqual(str(specie[0]), "C")
-        self.assertEqual(coords[0], self.ethylene.molecule[0].coords)
-        self.assertEqual(coords[0], [-0.59244, 2.49159, -1.19400])
+        self.assertEqual(coords[0][0], self.ethylene.molecule[0].coords[0])
+        self.assertEqual(coords[0][1], self.ethylene.molecule[0].coords[1])
+        self.assertEqual(coords[0][2], self.ethylene.molecule[0].coords[2])
 
     def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
