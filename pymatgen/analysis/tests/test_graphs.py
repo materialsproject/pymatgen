@@ -16,8 +16,10 @@ from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
 try:
     import openbabel as ob
+    import networkx as nx
 except ImportError:
     ob = None
+    nx = None
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -387,6 +389,18 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(len(self.cyclohexene.get_connected_sites(0)), 4)
         self.assertTrue(isinstance(self.cyclohexene.get_connected_sites(0)[0].site, Site))
         self.assertEqual(str(self.cyclohexene.get_connected_sites(0)[0].site.specie), 'H')
+
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
+    def test_set_node_attributes(self):
+        self.ethylene.set_node_attributes()
+
+        specie = nx.get_node_attributes(self.ethylene, "specie")
+        coords = nx.get_node_attributes(self.ethylene, "coords")
+
+        self.assertEqual(str(specie[0]), self.ethylene.molecule[0].specie)
+        self.assertEqual(str(specie[0]), "C")
+        self.assertEqual(coords[0], self.ethylene.molecule[0].coords)
+        self.assertEqual(coords[0], [-0.59244, 2.49159, -1.19400])
 
     def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])

@@ -1119,20 +1119,20 @@ class MoleculeGraph(MSONable):
         return cls(molecule, graph_data=graph_data)
 
     @staticmethod
-    def with_local_env_strategy(molecule, strategy, reorder=True):
+    def with_local_env_strategy(molecule, strategy, reorder=True,
+                                extend_structure=True):
         """
         Constructor for MoleculeGraph, using a strategy
         from :Class: `pymatgen.analysis.local_env`.
-
-        Molecules will be put into a large artificial box for calculation
-        of bonds using a NearNeighbor strategy, since some strategies
-        assume periodic boundary conditions.
 
         :param molecule: Molecule object
         :param strategy: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object
         :param reorder: bool, representing if graph nodes need to be reordered
-        following the application of the local_env strategy
+            following the application of the local_env strategy
+        :param extend_structure: If True (default), then a large artificial box
+            will be placed around the Molecule, because some strategies assume
+            periodic boundary conditions.
         :return: mg, a MoleculeGraph
         """
 
@@ -1144,11 +1144,12 @@ class MoleculeGraph(MSONable):
         # molecules have to be boxed first
         coords = molecule.cart_coords
 
-        a = max(coords[:, 0]) - min(coords[:, 0]) + 100
-        b = max(coords[:, 1]) - min(coords[:, 1]) + 100
-        c = max(coords[:, 2]) - min(coords[:, 2]) + 100
+        if extend_structure:
+            a = max(coords[:, 0]) - min(coords[:, 0]) + 100
+            b = max(coords[:, 1]) - min(coords[:, 1]) + 100
+            c = max(coords[:, 2]) - min(coords[:, 2]) + 100
 
-        molecule = molecule.get_boxed_structure(a, b, c, no_cross=True)
+            molecule = molecule.get_boxed_structure(a, b, c, no_cross=True)
 
         for n in range(len(molecule)):
             neighbors = strategy.get_nn_info(molecule, n)
@@ -1262,7 +1263,7 @@ class MoleculeGraph(MSONable):
 
         species = {}
         coords = {}
-        for node in self.graph:
+        for node in self.graph.nodes():
             species[node] = self.molecule[node].specie.symbol
             coords[node] = self.molecule[node].coords
         nx.set_node_attributes(self.graph, species, "specie")
