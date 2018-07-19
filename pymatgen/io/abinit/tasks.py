@@ -1636,9 +1636,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Reset datetimes
         self.datetimes.reset()
 
+        # Remove the lock file
+        self.start_lockfile.remove()
+
         if submit:
-            # Remove the lock file
-            self.start_lockfile.remove()
             # Relaunch the task.
             fired = self.start()
             if not fired: self.history.warning("Restart failed")
@@ -1880,7 +1881,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 if self.gc is not None and self.gc.policy == "task":
                     self.clean_output_files()
 
-            self.send_signal(self.S_OK)
+            if self.status == self.S_OK:
+                # Because _on_ok might have changed the status.
+                self.send_signal(self.S_OK)
 
         return status
 
