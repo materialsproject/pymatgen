@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Introduction &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>Introduction &#8212; pymatgen 2018.7.15 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -169,9 +169,15 @@ other research groups.</li>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>Improved local_env and MoleculeGraph (&#64;WardLT, &#64;espottesmith)</li>
-<li>Improve BabelMolAdaptor with conformer search and other functions (&#64;Qi-Max)</li>
-<li>Improved surface analysis (&#64;richardtran415)</li>
+<li>Grain boundary generator (Xiangguo Li &#64;ucsdlxg)</li>
+<li>Massive updates to defect code and new DefectTransformation
+(&#64;shyamd)</li>
+<li>Bug fix for OUTCAR parsing with more than one space in
+electrostatic potential.</li>
+<li>get_fermi_interextrapolated to support wider range of
+input doping (&#64;albalu)</li>
+<li>Update to cython compile to support Py3.7.</li>
+<li>Update VoronoiNN cutoff dynamically (&#64;computron)</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -730,7 +736,7 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.7.15 documentation</a> &#187;</li> 
       </ul>
     </div>
 

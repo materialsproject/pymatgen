@@ -5,13 +5,11 @@
 from __future__ import division, unicode_literals
 
 from monty.json import MSONable
-# from pymatgen.analysis.defects.corrections import FreysoldtCorrection, KumagaiCorrection, \
-#     BandFillingCorrection, generate_g_sum, find_optimal_gamma, BandEdgeShiftingCorrection
 from pymatgen.core import PeriodicSite
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, \
     BandFillingCorrection, BandEdgeShiftingCorrection
 from pymatgen.analysis.defects.core import Vacancy
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 """
 This module implements DefectCompatibility analysis for consideration of
 defects
@@ -387,7 +385,7 @@ class DefectCompatibility(MSONable):
         radius_to_sample = defect_entry.parameters['sampling_radius']
 
         #determine the defect index within the structure and append fractional_coordinates
-        if type(defect_entry.defect) != Vacancy:
+        if not isinstance(defect_entry.defect,Vacancy):
             poss_deflist = sorted(
                 initial_defect_structure.get_sites_in_sphere(defect_entry.defect.site.coords,
                                                              2, include_index=True), key=lambda x: x[1])
@@ -444,7 +442,7 @@ class DefectCompatibility(MSONable):
         #NEXT: do single defect delocalization analysis (requires similar data, so might as well run in tandem
         # with structural delocalization
         defectsite_relax_analyze_meta = {}
-        if type(defect_entry.defect) == Vacancy:
+        if isinstance(defect_entry.defect,Vacancy):
             defectsite_relax_allows_compatible = True
             defectsite_relax_analyze_meta.update({'relax_amount': None,
                                                   'defect_tot_relax_tol': self.defect_tot_relax_tol})

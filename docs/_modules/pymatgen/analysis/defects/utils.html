@@ -1,0 +1,1299 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.defects.utils &#8212; pymatgen 2018.7.15 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.defects.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">Voronoi</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">squareform</span>
+<span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">import</span> <span class="n">linkage</span><span class="p">,</span> <span class="n">fcluster</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">LocalStructOrderParams</span><span class="p">,</span> <span class="n">MinimumDistanceNN</span><span class="p">,</span> <span class="n">cn_opt_params</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">get_el_sp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Chgcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="k">import</span> <span class="n">get_facets</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">pbc_diff</span>
+<span class="kn">from</span> <span class="nn">pymatgen.vis.structure_vtk</span> <span class="k">import</span> <span class="n">StructureVis</span>
+<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">skimage.feature</span> <span class="k">import</span> <span class="n">peak_local_max</span>
+
+    <span class="n">peak_local_max_found</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">peak_local_max_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">map</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath, Bharat Medasani, Nils Zimmermann, Geoffroy Hautier&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2014, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;dbroberg@berkeley.edu, shyamd@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;January 11, 2018&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">hart_to_ev</span> <span class="o">=</span> <span class="mf">27.2114</span>
+<span class="n">ang_to_bohr</span> <span class="o">=</span> <span class="mf">1.8897</span>
+<span class="n">invang_to_ev</span> <span class="o">=</span> <span class="mf">3.80986</span>
+<span class="n">kb</span> <span class="o">=</span> <span class="mf">8.6173324e-5</span>  <span class="c1"># eV / K</span>
+
+<span class="n">motif_cn_op</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">cn_opt_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">mot</span><span class="p">,</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">di</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">mot</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cn&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">cn</span><span class="p">),</span> <span class="s1">&#39;optype&#39;</span><span class="p">:</span> <span class="n">li</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+        <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">mot</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">li</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">li</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="QModel"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.QModel">[docs]</a><span class="k">class</span> <span class="nc">QModel</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model for the defect charge distribution.</span>
+<span class="sd">    A combination of exponential tail and gaussian distribution is used</span>
+<span class="sd">    (see Freysoldt (2011), DOI: 10.1002/pssb.201046289 )</span>
+<span class="sd">    q_model(r) = q [x exp(-r/gamma) + (1-x) exp(-r^2/beta^2)]</span>
+<span class="sd">            without normalization constants</span>
+<span class="sd">    By default, gaussian distribution with 1 Bohr width is assumed.</span>
+<span class="sd">    If defect charge is more delocalized, exponential tail is suggested.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">expnorm</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            beta: Gaussian decay constant. Default value is 1 Bohr.</span>
+<span class="sd">                  When delocalized (eg. diamond), 2 Bohr is more appropriate.</span>
+<span class="sd">            expnorm: Weight for the exponential tail in the range of [0-1].</span>
+<span class="sd">                     Default is 0.0 indicating no tail .</span>
+<span class="sd">                     For delocalized charges ideal value is around 0.54-0.6.</span>
+<span class="sd">            gamma: Exponential decay constant</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expnorm</span> <span class="o">=</span> <span class="n">expnorm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta2</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">beta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma2</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">gamma</span>
+        <span class="k">if</span> <span class="n">expnorm</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gamma</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please supply exponential decay constant.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QModel.rho_rec"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.QModel.rho_rec">[docs]</a>    <span class="k">def</span> <span class="nf">rho_rec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reciprocal space model charge value</span>
+<span class="sd">        for input squared reciprocal vector.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            g2: Square of reciprocal vector</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Charge density at the reciprocal vector magnitude</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expnorm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma2</span> <span class="o">*</span> <span class="n">g2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">expnorm</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta2</span> <span class="o">*</span> <span class="n">g2</span><span class="p">))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rho_rec_limit0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reciprocal space model charge value</span>
+<span class="sd">        close to reciprocal vector 0 .</span>
+<span class="sd">        rho_rec(g-&gt;0) -&gt; 1 + rho_rec_limit0 * g^2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">expnorm</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">expnorm</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="eV_to_k"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.eV_to_k">[docs]</a><span class="k">def</span> <span class="nf">eV_to_k</span><span class="p">(</span><span class="n">energy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert energy to reciprocal vector magnitude k via hbar*k^2/2m</span>
+<span class="sd">    Args:</span>
+<span class="sd">        a: Energy in eV.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (double) Reciprocal vector magnitude (units of 1/Bohr).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">energy</span> <span class="o">/</span> <span class="n">invang_to_ev</span><span class="p">)</span> <span class="o">*</span> <span class="n">ang_to_bohr</span></div>
+
+
+<div class="viewcode-block" id="genrecip"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.genrecip">[docs]</a><span class="k">def</span> <span class="nf">genrecip</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">encut</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        a1, a2, a3: lattice vectors in bohr</span>
+<span class="sd">        encut: energy cut off in eV</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        reciprocal lattice vectors with energy less than encut</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">))</span>  <span class="c1"># 1/bohr^3</span>
+    <span class="n">b1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">vol</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">)</span>  <span class="c1"># units 1/bohr</span>
+    <span class="n">b2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">vol</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a3</span><span class="p">,</span> <span class="n">a1</span><span class="p">)</span>
+    <span class="n">b3</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">vol</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">)</span>
+
+    <span class="c1"># create list of recip space vectors that satisfy |i*b1+j*b2+k*b3|&lt;=encut</span>
+    <span class="n">G_cut</span> <span class="o">=</span> <span class="n">eV_to_k</span><span class="p">(</span><span class="n">encut</span><span class="p">)</span>
+    <span class="c1"># Figure out max in all recipricol lattice directions</span>
+    <span class="n">i_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">G_cut</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">b1</span><span class="p">)))</span>
+    <span class="n">j_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">G_cut</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">b2</span><span class="p">)))</span>
+    <span class="n">k_max</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">G_cut</span> <span class="o">/</span> <span class="n">norm</span><span class="p">(</span><span class="n">b3</span><span class="p">)))</span>
+
+    <span class="c1"># Build index list</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">i_max</span><span class="p">,</span> <span class="n">i_max</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">j_max</span><span class="p">,</span> <span class="n">j_max</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">k_max</span><span class="p">,</span> <span class="n">k_max</span><span class="p">)</span>
+
+    <span class="c1"># Convert index to vectors using meshgrid</span>
+    <span class="n">indicies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="c1"># Multiply integer vectors to get recipricol space vectors</span>
+    <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">indicies</span><span class="p">,</span> <span class="p">[</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">])</span>
+    <span class="c1"># Calculate radii of all vectors</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,ij-&gt;i&#39;</span><span class="p">,</span> <span class="n">vecs</span><span class="p">,</span> <span class="n">vecs</span><span class="p">))</span>
+
+    <span class="c1"># Yield based on radii</span>
+    <span class="k">for</span> <span class="n">vec</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vecs</span><span class="p">,</span> <span class="n">radii</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">G_cut</span> <span class="ow">and</span> <span class="n">r</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">vec</span></div>
+
+
+<div class="viewcode-block" id="generate_reciprocal_vectors_squared"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.generate_reciprocal_vectors_squared">[docs]</a><span class="k">def</span> <span class="nf">generate_reciprocal_vectors_squared</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">encut</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate reciprocal vector magnitudes within the cutoff along the specied</span>
+<span class="sd">    lattice vectors.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        a1: Lattice vector a (in Bohrs)</span>
+<span class="sd">        a2: Lattice vector b (in Bohrs)</span>
+<span class="sd">        a3: Lattice vector c (in Bohrs)</span>
+<span class="sd">        encut: Reciprocal vector energy cutoff</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [[g1^2], [g2^2], ...] Square of reciprocal vectors (1/Bohr)^2</span>
+<span class="sd">        determined by a1, a2, a3 and whose magntidue is less than gcut^2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">genrecip</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">encut</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="closestsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.closestsites">[docs]</a><span class="k">def</span> <span class="nf">closestsites</span><span class="p">(</span><span class="n">struct_blk</span><span class="p">,</span> <span class="n">struct_def</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns closest site to the input position</span>
+<span class="sd">    for both bulk and defect structures</span>
+<span class="sd">    Args:</span>
+<span class="sd">        struct_blk: Bulk structure</span>
+<span class="sd">        struct_def: Defect structure</span>
+<span class="sd">        pos: Position</span>
+<span class="sd">    Return: (site object, dist, index)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">blk_close_sites</span> <span class="o">=</span> <span class="n">struct_blk</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">blk_close_sites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">def_close_sites</span> <span class="o">=</span> <span class="n">struct_def</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">def_close_sites</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">blk_close_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">def_close_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="StructureMotifInterstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial">[docs]</a><span class="k">class</span> <span class="nc">StructureMotifInterstitial</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate interstitial sites at positions</span>
+<span class="sd">    where the interstitialcy is coordinated by nearest neighbors</span>
+<span class="sd">    in a way that resembles basic structure motifs</span>
+<span class="sd">    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT</span>
+<span class="sd">    (Interstitialcy Finding Tool), it was introducted by</span>
+<span class="sd">    Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,</span>
+<span class="sd">    and Maciej Haranczyk (Front. Mater., 4, 34, 2017),</span>
+<span class="sd">    and it is used by the Python Charged Defect Toolkit</span>
+<span class="sd">    (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">struct</span><span class="p">,</span>
+                 <span class="n">inter_elem</span><span class="p">,</span>
+                 <span class="n">motif_types</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;tetrahedral&quot;</span><span class="p">,</span> <span class="s2">&quot;octahedral&quot;</span><span class="p">),</span>
+                 <span class="n">op_threshs</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+                 <span class="n">dl</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                 <span class="n">doverlap</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">facmaxdl</span><span class="o">=</span><span class="mf">1.01</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates symmetrically distinct interstitial sites at positions</span>
+<span class="sd">        where the interstitial is coordinated by nearest neighbors</span>
+<span class="sd">        in a pattern that resembles a supported structure motif</span>
+<span class="sd">        (e.g., tetrahedra, octahedra).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            struct (Structure): input structure for which symmetrically</span>
+<span class="sd">                distinct interstitial sites are to be found.</span>
+<span class="sd">            inter_elem (string): element symbol of desired interstitial.</span>
+<span class="sd">            motif_types ([string]): list of structure motif types that are</span>
+<span class="sd">                to be considered.  Permissible types are:</span>
+<span class="sd">                tet (tetrahedron), oct (octahedron).</span>
+<span class="sd">            op_threshs ([float]): threshold values for the underlying order</span>
+<span class="sd">                parameters to still recognize a given structural motif</span>
+<span class="sd">                (i.e., for an OP value &gt;= threshold the coordination pattern</span>
+<span class="sd">                match is positive, for OP &lt; threshold the match is</span>
+<span class="sd">                negative.</span>
+<span class="sd">            dl (float): grid fineness in Angstrom.  The input</span>
+<span class="sd">                structure is divided into a grid of dimension</span>
+<span class="sd">                a/dl x b/dl x c/dl along the three crystallographic</span>
+<span class="sd">                directions, with a, b, and c being the lengths of</span>
+<span class="sd">                the three lattice vectors of the input unit cell.</span>
+<span class="sd">            doverlap (float): distance that is considered</span>
+<span class="sd">                to flag an overlap between any trial interstitial site</span>
+<span class="sd">                and a host atom.</span>
+<span class="sd">            facmaxdl (float): factor to be multiplied with the maximum grid</span>
+<span class="sd">                width that is then used as a cutoff distance for the</span>
+<span class="sd">                clustering prune step.</span>
+<span class="sd">            verbose (bool): flag indicating whether (True) or not (False;</span>
+<span class="sd">                default) to print additional information to screen.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initialize interstitial finding.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_motif_types</span> <span class="o">=</span> <span class="n">motif_types</span><span class="p">[:]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_motif_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;no motif types provided.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op_threshs</span> <span class="o">=</span> <span class="n">op_threshs</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_motif_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">motif</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">motif_cn_op</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;unsupported motif type: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">motif</span><span class="p">))</span>
+            <span class="n">cn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">motif_cn_op</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="s1">&#39;cn&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="p">[</span><span class="n">cn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">tmp_optype</span> <span class="o">=</span> <span class="n">motif_cn_op</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="s1">&#39;optype&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tmp_optype</span> <span class="o">==</span> <span class="s1">&#39;tet_max&#39;</span><span class="p">:</span>
+                <span class="n">tmp_optype</span> <span class="o">=</span> <span class="s1">&#39;tet&#39;</span>
+            <span class="k">if</span> <span class="n">tmp_optype</span> <span class="o">==</span> <span class="s1">&#39;oct_max&#39;</span><span class="p">:</span>
+                <span class="n">tmp_optype</span> <span class="o">=</span> <span class="s1">&#39;oct&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="p">[</span><span class="n">cn</span><span class="p">][</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="n">LocalStructOrderParams</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">tmp_optype</span><span class="p">],</span> <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="n">motif_cn_op</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]],</span> <span class="n">cutoff</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dl</span> <span class="o">=</span> <span class="n">dl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_types</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_site_multiplicity</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_cns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_opvals</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">rots</span><span class="p">,</span> <span class="n">trans</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span><span class="o">.</span><span class="n">_get_symmetry</span><span class="p">()</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="n">dl</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="n">dl</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="n">dl</span><span class="p">)]</span>
+        <span class="n">dls</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nbins</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">b</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nbins</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nbins</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="n">maxdl</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dls</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Grid size: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nbins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nbins</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nbins</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dls: </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dls</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dls</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">struct_w_inter</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inter_elem</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">))</span>
+        <span class="n">trialsites</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Build index list</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nbins</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nbins</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nbins</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.5</span>
+
+        <span class="c1"># Convert index to vectors using meshgrid</span>
+        <span class="n">indicies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="c1"># Multiply integer vectors to get recipricol space vectors</span>
+        <span class="n">vecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">indicies</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nbins</span><span class="p">))</span>
+
+        <span class="c1"># Loop over trial positions that are based on a regular</span>
+        <span class="c1"># grid in fractional coordinate space</span>
+        <span class="c1"># within the unit cell.</span>
+        <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">vecs</span><span class="p">:</span>
+            <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">inter_elem</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">vec</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">doverlap</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">neighs_images_weigths</span> <span class="o">=</span> <span class="n">MinimumDistanceNN</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="p">,</span> <span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">neighs_images_weigths_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">neighs_images_weigths</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">nsite</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighs_images_weigths_sorted</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">nsite</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cns</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="n">allsites</span> <span class="o">=</span> <span class="p">[</span><span class="n">neighs_images_weigths_sorted</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsite</span><span class="p">)]</span>
+                    <span class="n">indices_neighs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allsites</span><span class="p">))]</span>
+                    <span class="n">allsites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">mot</span><span class="p">,</span> <span class="n">ops</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cn_motif_lostop</span><span class="p">[</span><span class="n">nsite</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">opvals</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">get_order_parameters</span><span class="p">(</span><span class="n">allsites</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">allsites</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">indices_neighs</span><span class="o">=</span><span class="n">indices_neighs</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">op_threshs</span><span class="p">[</span><span class="n">motif_types</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">mot</span><span class="p">)]:</span>
+                            <span class="n">cns</span> <span class="o">=</span> <span class="p">{}</span>
+                            <span class="k">for</span> <span class="n">isite</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsite</span><span class="p">):</span>
+                                <span class="n">site</span> <span class="o">=</span> <span class="n">neighs_images_weigths_sorted</span><span class="p">[</span><span class="n">isite</span><span class="p">][</span><span class="s1">&#39;site&#39;</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
+                                    <span class="n">elem</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">elem</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">symbol</span>
+                                <span class="k">if</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">cns</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                                    <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">cns</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                            <span class="n">trialsites</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                                <span class="s2">&quot;mtype&quot;</span><span class="p">:</span> <span class="n">mot</span><span class="p">,</span>
+                                <span class="s2">&quot;opval&quot;</span><span class="p">:</span> <span class="n">opvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="s2">&quot;coords&quot;</span><span class="p">:</span> <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">natoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">[:],</span>
+                                <span class="s2">&quot;fracs&quot;</span><span class="p">:</span> <span class="n">vec</span><span class="p">,</span>
+                                <span class="s2">&quot;cns&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cns</span><span class="p">)</span>
+                            <span class="p">})</span>
+                            <span class="k">break</span>
+
+        <span class="c1"># Prune list of trial sites by clustering and find the site</span>
+        <span class="c1"># with the largest order parameter value in each cluster.</span>
+        <span class="n">nintersites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trialsites</span><span class="p">)</span>
+        <span class="n">unique_motifs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">trialsites</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ts</span><span class="p">[</span><span class="s2">&quot;mtype&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unique_motifs</span><span class="p">:</span>
+                <span class="n">unique_motifs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="s2">&quot;mtype&quot;</span><span class="p">])</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">connected</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nintersites</span><span class="p">):</span>
+            <span class="n">connected</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nintersites</span><span class="p">):</span>
+                <span class="n">dist</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">struct_w_inter</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;fracs&quot;</span><span class="p">],</span>
+                                                                            <span class="n">trialsites</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;fracs&quot;</span><span class="p">])</span>
+                <span class="n">connected</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">maxdl</span> <span class="o">*</span> <span class="n">facmaxdl</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">include</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">unique_motifs</span><span class="p">:</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ts</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">trialsites</span><span class="p">):</span>
+                <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="k">if</span> <span class="n">ts</span><span class="p">[</span><span class="s2">&quot;mtype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">motif</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">change</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">while</span> <span class="n">change</span><span class="p">:</span>
+                <span class="n">change</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nintersites</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">change</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nintersites</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="k">if</span> <span class="n">connected</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="ow">and</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> \
+                                <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">j</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">j</span><span class="p">]:</span>
+                                <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                            <span class="n">change</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">break</span>
+            <span class="n">unique_ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">l</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">l</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unique_ids</span><span class="p">:</span>
+                    <span class="n">unique_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;unique_ids </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">motif</span><span class="p">,</span> <span class="n">unique_ids</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">unique_ids</span><span class="p">:</span>
+                <span class="n">maxq</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">imaxq</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nintersites</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">labels</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">uid</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">imaxq</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;opval&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">maxq</span><span class="p">:</span>
+                            <span class="n">imaxq</span> <span class="o">=</span> <span class="n">i</span>
+                            <span class="n">maxq</span> <span class="o">=</span> <span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;opval&quot;</span><span class="p">]</span>
+                <span class="n">include</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imaxq</span><span class="p">)</span>
+
+        <span class="c1"># Prune by symmetry.</span>
+        <span class="n">multiplicity</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">discard</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">unique_motifs</span><span class="p">:</span>
+            <span class="n">discard_motif</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">indi</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">include</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;mtype&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">motif</span> <span class="ow">or</span> \
+                        <span class="n">i</span> <span class="ow">in</span> <span class="n">discard_motif</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">multiplicity</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">symposlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;fracs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">rots</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trans</span><span class="p">:</span>
+                    <span class="n">symposlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;fracs&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">indj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">indi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">include</span><span class="p">)):</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">include</span><span class="p">[</span><span class="n">indj</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">trialsites</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;mtype&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">motif</span> <span class="ow">or</span> \
+                            <span class="n">j</span> <span class="ow">in</span> <span class="n">discard_motif</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">for</span> <span class="n">sympos</span> <span class="ow">in</span> <span class="n">symposlist</span><span class="p">:</span>
+                        <span class="n">dist</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">sympos</span><span class="p">,</span> <span class="n">trialsites</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s2">&quot;fracs&quot;</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">maxdl</span> <span class="o">*</span> <span class="n">facmaxdl</span><span class="p">:</span>
+                            <span class="n">discard_motif</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                            <span class="n">multiplicity</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">break</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">discard_motif</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">discard</span><span class="p">:</span>
+                    <span class="n">discard</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial trial sites: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">After clustering: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                  <span class="s2">&quot;After symmetry pruning: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trialsites</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">include</span><span class="p">),</span>
+                                                      <span class="nb">len</span><span class="p">(</span><span class="n">include</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">discard</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">include</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">discard</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">PeriodicSite</span><span class="p">(</span>
+                        <span class="n">Element</span><span class="p">(</span><span class="n">inter_elem</span><span class="p">),</span>
+                        <span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;fracs&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                        <span class="n">to_unit_cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defect_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;mtype&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defect_cns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;cns&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defect_site_multiplicity</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">multiplicity</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defect_opvals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trialsites</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;opval&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="StructureMotifInterstitial.enumerate_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.enumerate_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all defect sites.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            defect_sites ([PeriodicSite]): list of periodic sites</span>
+<span class="sd">                    representing the interstitials.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span></div>
+
+<div class="viewcode-block" id="StructureMotifInterstitial.get_motif_type"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_motif_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_motif_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the motif type of defect with index i (e.g., &quot;tet&quot;).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            motif (string): motif type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StructureMotifInterstitial.get_defectsite_multiplicity"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_defectsite_multiplicity">[docs]</a>    <span class="k">def</span> <span class="nf">get_defectsite_multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the symmtric multiplicity of the defect site at the index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_site_multiplicity</span><span class="p">[</span><span class="n">n</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StructureMotifInterstitial.get_coordinating_elements_cns"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_coordinating_elements_cns">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinating_elements_cns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get element-specific coordination numbers of defect with index i.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            elem_cn (dict): dictionary storing the coordination numbers (int)</span>
+<span class="sd">                    with string representation of elements as keys.</span>
+<span class="sd">                    (i.e., {elem1 (string): cn1 (int), ...}).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_cns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StructureMotifInterstitial.get_op_value"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.get_op_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_op_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get order-parameter value of defect with index i.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            opval (float): OP value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_opvals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StructureMotifInterstitial.make_supercells_with_defects"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.StructureMotifInterstitial.make_supercells_with_defects">[docs]</a>    <span class="k">def</span> <span class="nf">make_supercells_with_defects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a sequence of supercells</span>
+<span class="sd">        in which each supercell contains a single interstitial,</span>
+<span class="sd">        except for the first supercell in the sequence</span>
+<span class="sd">        which is a copy of the defect-free input structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            scaling_matrix (3x3 integer array): scaling matrix</span>
+<span class="sd">                to transform the lattice vectors.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            scs ([Structure]): sequence of supercells.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">)</span>
+        <span class="n">scs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ids</span><span class="p">,</span> <span class="n">defect_site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">):</span>
+            <span class="n">sc_with_inter</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">sc_with_inter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">defect_site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span>
+                <span class="n">defect_site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span>
+                <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">validate_proximity</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sc_with_inter</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;could not generate supercell with&quot;</span> <span class="s2">&quot; interstitial </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ids</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">scs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sc_with_inter</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">scs</span></div></div>
+
+
+<div class="viewcode-block" id="TopographyAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">TopographyAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a generalized module to perform topological analyses of a crystal</span>
+<span class="sd">    structure using Voronoi tessellations. It can be used for finding potential</span>
+<span class="sd">    interstitial sites. Applications including using these sites for</span>
+<span class="sd">    inserting additional atoms or for analyzing diffusion pathways.</span>
+
+<span class="sd">    Note that you typically want to do some preliminary postprocessing after</span>
+<span class="sd">    the initial construction. The initial construction will create a lot of</span>
+<span class="sd">    points, especially for determining potential insertion sites. Some helper</span>
+<span class="sd">    methods are available to perform aggregation and elimination of nodes. A</span>
+<span class="sd">    typical use is something like::</span>
+
+<span class="sd">        a = TopographyAnalyzer(structure, [&quot;O&quot;], [&quot;P&quot;])</span>
+<span class="sd">        a.cluster_nodes()</span>
+<span class="sd">        a.remove_collisions()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">structure</span><span class="p">,</span>
+                 <span class="n">framework_ions</span><span class="p">,</span>
+                 <span class="n">cations</span><span class="p">,</span>
+                 <span class="n">tol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span>
+                 <span class="n">max_cell_range</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">check_volume</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">constrained_c_frac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                 <span class="n">thickness</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): An initial structure.</span>
+<span class="sd">            framework_ions ([str]): A list of ions to be considered as a</span>
+<span class="sd">                framework. Typically, this would be all anion species. E.g.,</span>
+<span class="sd">                [&quot;O&quot;, &quot;S&quot;].</span>
+<span class="sd">            cations ([str]): A list of ions to be considered as non-migrating</span>
+<span class="sd">                cations. E.g., if you are looking at Li3PS4 as a Li</span>
+<span class="sd">                conductor, Li is a mobile species. Your cations should be [</span>
+<span class="sd">                &quot;P&quot;]. The cations are used to exclude polyhedra from</span>
+<span class="sd">                diffusion analysis since those polyhedra are already occupied.</span>
+<span class="sd">            tol (float): A tolerance distance for the analysis, used to</span>
+<span class="sd">                determine if something are actually periodic boundary images of</span>
+<span class="sd">                each other. Default is usually fine.</span>
+<span class="sd">            max_cell_range (int): This is the range of periodic images to</span>
+<span class="sd">                construct the Voronoi tesselation. A value of 1 means that we</span>
+<span class="sd">                include all points from (x +- 1, y +- 1, z+- 1) in the</span>
+<span class="sd">                voronoi construction. This is because the Voronoi poly</span>
+<span class="sd">                extends beyond the standard unit cell because of PBC.</span>
+<span class="sd">                Typically, the default value of 1 works fine for most</span>
+<span class="sd">                structures and is fast. But for really small unit</span>
+<span class="sd">                cells with high symmetry, you may need to increase this to 2</span>
+<span class="sd">                or higher.</span>
+<span class="sd">            check_volume (bool): Set False when ValueError always happen after</span>
+<span class="sd">                tuning tolerance.</span>
+<span class="sd">            constrained_c_frac (float): Constraint the region where users want</span>
+<span class="sd">                to do Topology analysis the default value is 0.5, which is the</span>
+<span class="sd">                fractional coordinate of the cell</span>
+<span class="sd">            thickness (float): Along with constrained_c_frac, limit the</span>
+<span class="sd">                thickness of the regions where we want to explore. Default is</span>
+<span class="sd">                0.5, which is mapping all the site of the unit cell.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framework_ions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">framework_ions</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cations</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">get_el_sp</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">cations</span><span class="p">])</span>
+
+        <span class="c1"># Let us first map all sites to the standard unit cell, i.e.,</span>
+        <span class="c1"># 0 ≤ coordinates &lt; 1.</span>
+        <span class="c1"># structure = Structure.from_sites(structure, to_unit_cell=True)</span>
+        <span class="c1"># lattice = structure.lattice</span>
+
+        <span class="c1"># We could constrain the region where we want to dope/explore by setting</span>
+        <span class="c1"># the value of constrained_c_frac and thickness. The default mode is</span>
+        <span class="c1"># mapping all sites to the standard unit cell</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">constrained_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">constrained_c_frac</span> <span class="o">-</span> <span class="n">thickness</span> <span class="ow">and</span> \
+                    <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span>
+                    <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">constrained_c_frac</span> <span class="o">+</span> <span class="n">thickness</span><span class="p">:</span>
+                <span class="n">constrained_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="o">=</span><span class="n">constrained_sites</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="c1"># Divide the sites into framework and non-framework sites.</span>
+        <span class="n">framework</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">non_framework</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework_ions</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">framework</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">non_framework</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+
+        <span class="c1"># We construct a supercell series of coords. This is because the</span>
+        <span class="c1"># Voronoi polyhedra can extend beyond the standard unit cell. Using a</span>
+        <span class="c1"># range of -2, -1, 0, 1 should be fine.</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cell_range</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">max_cell_range</span><span class="p">,</span> <span class="n">max_cell_range</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">shift</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">cell_range</span><span class="p">,</span> <span class="n">cell_range</span><span class="p">,</span> <span class="n">cell_range</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">framework</span><span class="p">:</span>
+                <span class="n">shifted</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">shift</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">shifted</span><span class="p">))</span>
+
+        <span class="c1"># Perform the voronoi tessellation.</span>
+        <span class="n">voro</span> <span class="o">=</span> <span class="n">Voronoi</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+
+        <span class="c1"># Store a mapping of each voronoi node to a set of points.</span>
+        <span class="n">node_points_map</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pts</span><span class="p">,</span> <span class="n">vs</span> <span class="ow">in</span> <span class="n">voro</span><span class="o">.</span><span class="n">ridge_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
+                <span class="n">node_points_map</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> total Voronoi vertices&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">voro</span><span class="o">.</span><span class="n">vertices</span><span class="p">))</span>
+
+        <span class="c1"># Vnodes store all the valid voronoi polyhedra. Cation vnodes store</span>
+        <span class="c1"># the voronoi polyhedra that are already occupied by existing cations.</span>
+        <span class="n">vnodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cation_vnodes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span> <span class="nf">get_mapping</span><span class="p">(</span><span class="n">poly</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Helper function to check if a vornoi poly is a periodic image</span>
+<span class="sd">            of one of the existing voronoi polys.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vnodes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">is_image</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">v</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Filter all the voronoi polyhedra so that we only consider those</span>
+        <span class="c1"># which are within the unit cell.</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">voro</span><span class="o">.</span><span class="n">vertices</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">fcoord</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
+            <span class="n">poly</span> <span class="o">=</span> <span class="n">VoronoiPolyhedron</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">fcoord</span><span class="p">,</span> <span class="n">node_points_map</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">coords</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="o">-</span><span class="n">tol</span> <span class="o">&lt;=</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">tol</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">fcoord</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vnodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">vnodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ref</span> <span class="o">=</span> <span class="n">get_mapping</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">ref</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">vnodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> voronoi vertices in cell.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">vnodes</span><span class="p">))</span>
+
+        <span class="c1"># Eliminate all voronoi nodes which are closest to existing cations.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">cation_coords</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">non_framework</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cations</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">]</span>
+
+            <span class="n">vertex_fcoords</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vnodes</span><span class="p">]</span>
+            <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">cation_coords</span><span class="p">,</span> <span class="n">vertex_fcoords</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dist_matrix</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">cation_vnodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vnodes</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="n">vnodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vnodes</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> vertices in cell not with cation.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">vnodes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span> <span class="o">=</span> <span class="n">vnodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cation_vnodes</span> <span class="o">=</span> <span class="n">cation_vnodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="o">=</span> <span class="n">framework</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_framework</span> <span class="o">=</span> <span class="n">non_framework</span>
+        <span class="k">if</span> <span class="n">check_volume</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_volume</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TopographyAnalyzer.check_volume"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.check_volume">[docs]</a>    <span class="k">def</span> <span class="nf">check_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Basic check for volume of all voronoi poly sum to unit cell volume</span>
+        <span class="c1"># Note that this does not apply after poly combination.</span>
+        <span class="n">vol</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">v</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">))</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">((</span><span class="n">v</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cation_vnodes</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vol</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sum of voronoi volumes is not equal to original volume of &quot;</span>
+                             <span class="s2">&quot;structure! This may lead to inaccurate results. You need to &quot;</span>
+                             <span class="s2">&quot;tweak the tolerance and max_cell_range until you get a &quot;</span>
+                             <span class="s2">&quot;correct mapping.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TopographyAnalyzer.cluster_nodes"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.cluster_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">cluster_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cluster nodes that are too close together using a tol.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): A distance tolerance. PBC is taken into account.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="n">vfcoords</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">]</span>
+
+        <span class="c1"># Manually generate the distance matrix (which needs to take into</span>
+        <span class="c1"># account PBC.</span>
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">vfcoords</span><span class="p">,</span> <span class="n">vfcoords</span><span class="p">))</span>
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">dist_matrix</span> <span class="o">+</span> <span class="n">dist_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">)):</span>
+            <span class="n">dist_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">condensed_m</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">condensed_m</span><span class="p">)</span>
+        <span class="n">cn</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+        <span class="n">merged_vnodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">cn</span><span class="p">):</span>
+            <span class="n">poly_indices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cn</span> <span class="o">==</span> <span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">poly_indices</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">polyhedron_indices</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fcoords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span>
+                    <span class="c1"># We need the image to combine the frac_coords properly.</span>
+                    <span class="n">d</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fcoords</span><span class="p">)</span>
+                    <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fcoords</span> <span class="o">+</span> <span class="n">image</span><span class="p">)</span>
+            <span class="n">merged_vnodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">VoronoiPolyhedron</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">poly_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span> <span class="o">=</span> <span class="n">merged_vnodes</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> vertices after combination.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TopographyAnalyzer.remove_collisions"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.remove_collisions">[docs]</a>    <span class="k">def</span> <span class="nf">remove_collisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_dist</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove vnodes that are too close to existing atoms in the structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_dist(float): The minimum distance that a vertex needs to be</span>
+<span class="sd">                from existing atoms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vfcoords</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">]</span>
+        <span class="n">sfcoords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">vfcoords</span><span class="p">,</span> <span class="n">sfcoords</span><span class="p">)</span>
+        <span class="n">all_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">new_vnodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">all_dist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">min_dist</span><span class="p">:</span>
+                <span class="n">new_vnodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span> <span class="o">=</span> <span class="n">new_vnodes</span></div>
+
+<div class="viewcode-block" id="TopographyAnalyzer.get_structure_with_nodes"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.get_structure_with_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure_with_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the modified structure with the voronoi nodes inserted. The</span>
+<span class="sd">        species is set as a DummySpecie X.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">:</span>
+            <span class="n">new_s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_s</span></div>
+
+<div class="viewcode-block" id="TopographyAnalyzer.print_stats"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.print_stats">[docs]</a>    <span class="k">def</span> <span class="nf">print_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">latt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+
+        <span class="k">def</span> <span class="nf">get_min_dist</span><span class="p">(</span><span class="n">fcoords</span><span class="p">):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fcoords</span><span class="p">)</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">)</span>
+            <span class="n">all_dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_dist</span><span class="p">)</span>
+
+        <span class="n">voro</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Min dist between voronoi vertices centers = </span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">get_min_dist</span><span class="p">(</span><span class="n">voro</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">get_non_framework_dist</span><span class="p">(</span><span class="n">fcoords</span><span class="p">):</span>
+            <span class="n">cations</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_framework</span><span class="p">]</span>
+            <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">latt</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">cations</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">)</span>
+            <span class="n">min_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cations</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_dist</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Could not calculate distance to all cations&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">min_dist</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">min_dist</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">min_dist</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">non_framework</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MSE dist voro = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_non_framework_dist</span><span class="p">(</span><span class="n">voro</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="TopographyAnalyzer.write_topology"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.write_topology">[docs]</a>    <span class="k">def</span> <span class="nf">write_topology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;Topo.cif&quot;</span><span class="p">):</span>
+        <span class="n">new_s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">:</span>
+            <span class="n">new_s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Mg&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="n">new_s</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">fname</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TopographyAnalyzer.analyze_symmetry"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.analyze_symmetry">[docs]</a>    <span class="k">def</span> <span class="nf">analyze_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">)</span>
+        <span class="n">site_to_vindex</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">):</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+            <span class="n">site_to_vindex</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">finder</span><span class="o">.</span><span class="n">get_space_group_operations</span><span class="p">())</span>
+        <span class="n">symm_structure</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">site_to_vindex</span><span class="p">[</span><span class="n">site</span><span class="p">]</span>
+                 <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">sites</span> <span class="ow">in</span> <span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span>
+                <span class="k">if</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="s2">&quot;Li&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TopographyAnalyzer.vtk"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.TopographyAnalyzer.vtk">[docs]</a>    <span class="k">def</span> <span class="nf">vtk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">StructureVis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;vtk must be present to view.&quot;</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">vis</span> <span class="o">=</span> <span class="n">StructureVis</span><span class="p">()</span>
+        <span class="n">vis</span><span class="o">.</span><span class="n">set_structure</span><span class="p">(</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">:</span>
+            <span class="n">vis</span><span class="o">.</span><span class="n">add_site</span><span class="p">(</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">lattice</span><span class="p">))</span>
+            <span class="n">vis</span><span class="o">.</span><span class="n">add_polyhedron</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">PeriodicSite</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">polyhedron_coords</span><span class="p">],</span>
+                <span class="n">PeriodicSite</span><span class="p">(</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">lattice</span><span class="p">),</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;element&quot;</span><span class="p">,</span>
+                <span class="n">draw_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">edges_color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">vis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="VoronoiPolyhedron"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.VoronoiPolyhedron">[docs]</a><span class="k">class</span> <span class="nc">VoronoiPolyhedron</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convenience container for a voronoi point in PBC and its associated polyhedron.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="n">polyhedron_indices</span><span class="p">,</span> <span class="n">all_coords</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">=</span> <span class="n">frac_coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_indices</span> <span class="o">=</span> <span class="n">polyhedron_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">all_coords</span><span class="p">)[</span><span class="nb">list</span><span class="p">(</span><span class="n">polyhedron_indices</span><span class="p">),</span> <span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+<div class="viewcode-block" id="VoronoiPolyhedron.is_image"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.VoronoiPolyhedron.is_image">[docs]</a>    <span class="k">def</span> <span class="nf">is_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poly</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
+        <span class="n">frac_diff</span> <span class="o">=</span> <span class="n">pbc_diff</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">frac_diff</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">to_frac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span>
+        <span class="k">for</span> <span class="n">c1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_coords</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">c2</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">polyhedron_coords</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">pbc_diff</span><span class="p">(</span><span class="n">to_frac</span><span class="p">(</span><span class="n">c1</span><span class="p">),</span> <span class="n">to_frac</span><span class="p">(</span><span class="n">c2</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="n">tol</span><span class="p">):</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coordination</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_indices</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">calculate_vol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polyhedron_coords</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Voronoi polyhedron </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="ChargeDensityAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">ChargeDensityAnalyzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyzer to find potential interstitial sites based on charge density. The</span>
+<span class="sd">    `total` charge density is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chgcar</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            chgcar (pmg.Chgcar): input Chgcar object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span> <span class="o">=</span> <span class="n">chgcar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of frac_coords of local extrema</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># &quot;local maxima&quot; or &quot;local minima&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># extrema frac_coords - chg density table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charge_distribution_df</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># frac_coords - chg density table</span>
+
+<div class="viewcode-block" id="ChargeDensityAnalyzer.from_file"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.from_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">chgcar_filename</span><span class="p">):</span>
+        <span class="n">chgcar</span> <span class="o">=</span> <span class="n">Chgcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">chgcar_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">chgcar</span><span class="o">=</span><span class="n">chgcar</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">charge_distribution_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge_distribution_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_charge_distribution_df</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge_distribution_df</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extrema_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Please run ChargeDensityAnalyzer.get_local_extrema first!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span>
+
+    <span class="k">def</span> <span class="nf">_get_charge_distribution_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a complete table of fractional coordinates - charge density.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Fraction coordinates and corresponding indices</span>
+        <span class="n">axis_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">get_axis_grid</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+        <span class="n">axis_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axis_grid</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">axis_index</span><span class="p">):</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">index</span>
+            <span class="n">f_coords</span> <span class="o">=</span> <span class="p">(</span><span class="n">axis_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">a</span><span class="p">],</span> <span class="n">axis_grid</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">b</span><span class="p">],</span> <span class="n">axis_grid</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">c</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">f_coords</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="n">a</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+
+        <span class="c1"># Fraction coordinates - charge density table</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;Charge Density&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_charge_distribution_df</span> <span class="o">=</span> <span class="n">df</span>
+
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_update_extrema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_coords</span><span class="p">,</span> <span class="n">extrema_type</span><span class="p">,</span> <span class="n">threshold_frac</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold_abs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update _extrema_df, extrema_type and extrema_coords&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">threshold_frac</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">threshold_abs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>  <span class="c1"># Exit if both filter are set</span>
+                    <span class="s2">&quot;Filter can be either threshold_frac or threshold_abs!&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="n">threshold_frac</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">threshold_frac</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;threshold_frac range is [0, 1]!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Return empty result if coords list is empty</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">f_coords</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({},</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s2">&quot;Chgcar&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span> <span class="o">=</span> <span class="n">df</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Find </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="n">extrema_type</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>  <span class="c1"># pixel along a, b, c</span>
+
+        <span class="k">for</span> <span class="n">fc</span> <span class="ow">in</span> <span class="n">f_coords</span><span class="p">:</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">fc</span> <span class="o">/</span> <span class="n">unit</span><span class="p">))</span>
+            <span class="n">data</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">fc</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="n">a</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;Charge Density&#39;</span><span class="p">]</span>
+        <span class="n">ascending</span> <span class="o">=</span> <span class="p">(</span><span class="n">extrema_type</span> <span class="o">==</span> <span class="s2">&quot;local minima&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">threshold_abs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">threshold_frac</span> <span class="o">=</span> <span class="n">threshold_frac</span> \
+                <span class="k">if</span> <span class="n">threshold_frac</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span>
+            <span class="n">num_extrema</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">threshold_frac</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">f_coords</span><span class="p">))</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;Charge Density&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="n">ascending</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_extrema</span><span class="p">]</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># reset major index</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># threshold_abs is set</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;Charge Density&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="n">ascending</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Charge Density&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">threshold_abs</span><span class="p">]</span> <span class="k">if</span> <span class="n">ascending</span> \
+                <span class="k">else</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Charge Density&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold_abs</span><span class="p">]</span>
+
+        <span class="n">extrema_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;a&quot;</span><span class="p">:</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
+            <span class="n">extrema_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fc</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extrema_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span> <span class="o">=</span> <span class="n">extrema_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span> <span class="o">=</span> <span class="n">extrema_coords</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Find </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="n">extrema_type</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ChargeDensityAnalyzer.get_local_extrema"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.get_local_extrema">[docs]</a>    <span class="nd">@requires</span><span class="p">(</span><span class="n">peak_local_max_found</span><span class="p">,</span> <span class="s2">&quot;get_local_extrema requires skimage.feature.peak_local_max module&quot;</span>
+              <span class="s2">&quot; to be installed. Please confirm your skimage installation.&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_local_extrema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">find_min</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">threshold_frac</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold_abs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all local extrema fractional coordinates in charge density,</span>
+<span class="sd">        searching for local minimum by default. Note that sites are NOT grouped</span>
+<span class="sd">        symmetrically.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            find_min (bool): True to find local minimum else maximum, otherwise</span>
+<span class="sd">                find local maximum.</span>
+
+<span class="sd">            threshold_frac (float): optional fraction of extrema shown, which</span>
+<span class="sd">                returns `threshold_frac * tot_num_extrema` extrema fractional</span>
+<span class="sd">                coordinates based on highest/lowest intensity.</span>
+
+<span class="sd">                E.g. set 0.2 to show the extrema with 20% highest or lowest</span>
+<span class="sd">                intensity. Value range: 0 &lt;= threshold_frac &lt;= 1</span>
+
+<span class="sd">                Note that threshold_abs and threshold_frac should not set in the</span>
+<span class="sd">                same time.</span>
+
+<span class="sd">            threshold_abs (float): optional filter. When searching for local</span>
+<span class="sd">                minima, intensity &lt;= threshold_abs returns; when searching for</span>
+<span class="sd">                local maxima, intensity &gt;= threshold_abs returns.</span>
+
+<span class="sd">                Note that threshold_abs and threshold_frac should not set in the</span>
+<span class="sd">                same time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            extrema_coords (list): list of fractional coordinates corresponding</span>
+<span class="sd">                to local extrema.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sign</span><span class="p">,</span> <span class="n">extrema_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;local maxima&quot;</span>
+
+        <span class="k">if</span> <span class="n">find_min</span><span class="p">:</span>
+            <span class="n">sign</span><span class="p">,</span> <span class="n">extrema_type</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;local minima&quot;</span>
+
+        <span class="c1"># Make 3x3x3 supercell</span>
+        <span class="c1"># This is a trick to resolve the periodical boundary issue.</span>
+        <span class="n">total_chg</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+        <span class="n">total_chg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">total_chg</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="n">peak_local_max</span><span class="p">(</span><span class="n">total_chg</span><span class="p">,</span> <span class="n">min_distance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Remove duplicated sites introduced by supercell.</span>
+        <span class="n">f_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">coord</span> <span class="o">/</span> <span class="n">total_chg</span><span class="o">.</span><span class="n">shape</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">]</span>
+        <span class="n">f_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">f_coords</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="c1"># Update information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_extrema</span><span class="p">(</span><span class="n">f_coords</span><span class="p">,</span> <span class="n">extrema_type</span><span class="p">,</span> <span class="n">threshold_frac</span><span class="o">=</span><span class="n">threshold_frac</span><span class="p">,</span> <span class="n">threshold_abs</span><span class="o">=</span><span class="n">threshold_abs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span></div>
+
+<div class="viewcode-block" id="ChargeDensityAnalyzer.cluster_nodes"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.cluster_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">cluster_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cluster nodes that are too close together using a tol.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tol (float): A distance tolerance. PBC is taken into account.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">vf_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vf_coords</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Please run ChargeDensityAnalyzer.get_local_extrema first!&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">new_f_coords</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_extrema</span><span class="p">(</span><span class="n">new_f_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_f_coords</span>
+
+        <span class="c1"># Manually generate the distance matrix (which needs to take into</span>
+        <span class="c1"># account PBC.</span>
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">vf_coords</span><span class="p">,</span> <span class="n">vf_coords</span><span class="p">))</span>
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">dist_matrix</span> <span class="o">+</span> <span class="n">dist_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">)):</span>
+            <span class="n">dist_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">condensed_m</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">condensed_m</span><span class="p">)</span>
+        <span class="n">cn</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+        <span class="n">merged_fcoords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">cn</span><span class="p">):</span>
+            <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cn</span> <span class="o">==</span> <span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">f_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="c1"># We need the image to combine the frac_coords properly.</span>
+                    <span class="n">d</span><span class="p">,</span> <span class="n">image</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_distance_and_image</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">f_coords</span><span class="p">)</span>
+                    <span class="n">frac_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_coords</span> <span class="o">+</span> <span class="n">image</span><span class="p">)</span>
+            <span class="n">merged_fcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_extrema</span><span class="p">(</span><span class="n">merged_fcoords</span><span class="p">,</span> <span class="n">extrema_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> vertices after combination.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="ChargeDensityAnalyzer.remove_collisions"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.remove_collisions">[docs]</a>    <span class="k">def</span> <span class="nf">remove_collisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_dist</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove predicted sites that are too close to existing atoms in the</span>
+<span class="sd">        structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            min_dist (float): The minimum distance (in Angstrom) that</span>
+<span class="sd">                a predicted site needs to be from existing atoms. A min_dist</span>
+<span class="sd">                with value &lt;= 0 returns all sites without distance checking.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s_f_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">f_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">f_coords</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Please run ChargeDensityAnalyzer.get_local_extrema first!&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">new_f_coords</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_extrema</span><span class="p">(</span><span class="n">new_f_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_f_coords</span>
+
+        <span class="n">dist_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_all_distances</span><span class="p">(</span><span class="n">f_coords</span><span class="p">,</span> <span class="n">s_f_coords</span><span class="p">)</span>
+        <span class="n">all_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">new_f_coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f_coords</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">all_dist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">min_dist</span><span class="p">:</span>
+                <span class="n">new_f_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_extrema</span><span class="p">(</span><span class="n">new_f_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_type</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_f_coords</span></div>
+
+<div class="viewcode-block" id="ChargeDensityAnalyzer.get_structure_with_nodes"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.ChargeDensityAnalyzer.get_structure_with_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure_with_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">find_min</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_dist</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">threshold_frac</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold_abs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the modified structure with the possible interstitial sites added.</span>
+<span class="sd">        The species is set as a DummySpecie X.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            find_min (bool): True to find local minimum else maximum, otherwise</span>
+<span class="sd">                find local maximum.</span>
+
+<span class="sd">            min_dist (float): The minimum distance (in Angstrom) that</span>
+<span class="sd">                a predicted site needs to be from existing atoms. A min_dist</span>
+<span class="sd">                with value &lt;= 0 returns all sites without distance checking.</span>
+
+<span class="sd">            tol (float): A distance tolerance of nodes clustering that sites too</span>
+<span class="sd">                closed to other predicted sites will be merged. PBC is taken</span>
+<span class="sd">                into account.</span>
+
+<span class="sd">            threshold_frac (float): optional fraction of extrema, which returns</span>
+<span class="sd">                `threshold_frac * tot_num_extrema` extrema fractional</span>
+<span class="sd">                coordinates based on highest/lowest intensity.</span>
+
+<span class="sd">                E.g. set 0.2 to insert DummySpecie atom at the extrema with 20%</span>
+<span class="sd">                highest or lowest intensity.</span>
+<span class="sd">                Value range: 0 &lt;= threshold_frac &lt;= 1</span>
+
+<span class="sd">                Note that threshold_abs and threshold_frac should not set in the</span>
+<span class="sd">                same time.</span>
+
+<span class="sd">            threshold_abs (float): optional filter. When searching for local</span>
+<span class="sd">                minima, intensity &lt;= threshold_abs returns; when searching for</span>
+<span class="sd">                local maxima, intensity &gt;= threshold_abs returns.</span>
+
+<span class="sd">                Note that threshold_abs and threshold_frac should not set in the</span>
+<span class="sd">                same time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            structure (Structure)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_local_extrema</span><span class="p">(</span><span class="n">find_min</span><span class="o">=</span><span class="n">find_min</span><span class="p">,</span> <span class="n">threshold_frac</span><span class="o">=</span><span class="n">threshold_frac</span><span class="p">,</span> <span class="n">threshold_abs</span><span class="o">=</span><span class="n">threshold_abs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_collisions</span><span class="p">(</span><span class="n">min_dist</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_nodes</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema_coords</span><span class="p">:</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">fc</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">structure</span></div></div>
+
+
+<div class="viewcode-block" id="calculate_vol"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.calculate_vol">[docs]</a><span class="k">def</span> <span class="nf">calculate_vol</span><span class="p">(</span><span class="n">coords</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">coords_affine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">coords_affine</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">coords_affine</span><span class="p">))</span> <span class="o">/</span> <span class="mi">6</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">simplices</span> <span class="o">=</span> <span class="n">get_facets</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">joggle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">vol</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simplices</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+            <span class="n">vol</span> <span class="o">+=</span> <span class="n">calculate_vol</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">vol</span></div>
+
+
+<div class="viewcode-block" id="converge"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.utils.html#pymatgen.analysis.defects.utils.converge">[docs]</a><span class="k">def</span> <span class="nf">converge</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">max_h</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    simple newton itteration based convergence function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="mi">10000</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">step</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">dx</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">):</span>
+        <span class="n">g2</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">g</span> <span class="o">-</span> <span class="n">g2</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">g2</span>
+        <span class="n">h</span> <span class="o">+=</span> <span class="n">step</span>
+
+        <span class="k">if</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="n">max_h</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Did not converge before </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">g</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

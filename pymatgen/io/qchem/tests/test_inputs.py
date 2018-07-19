@@ -9,7 +9,8 @@ import os
 import unittest
 from pymatgen import Molecule
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.qchem_io.inputs import QCInput
+from pymatgen.io.qchem.inputs import QCInput
+from monty.serialization import loadfn
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -563,6 +564,52 @@ $end"""
         solvent_test = QCInput.read_solvent(str_solvent)
         solvent_actual = {}
         self.assertDictEqual(solvent_actual, solvent_test)
+
+    def test_read_negative(self):
+        str_molecule = """$molecule
+ -1 1
+ S     -1.1516880000      0.8568110000     -0.0787470000
+ S      1.1527500000     -0.8580450000     -0.0786430000
+ O     -1.6523520000      1.8607750000     -1.0252100000
+ O     -0.9052880000      1.2448490000      1.3156410000
+ O      0.9072410000     -1.2461780000      1.3158760000
+ O      1.6543670000     -1.8616640000     -1.0249090000
+ C     -2.5841130000     -0.3746500000      0.0297340000
+ C      2.5833220000      0.3755850000      0.0296900000
+ F     -3.6480730000      0.2204040000      0.6112110000
+ F     -2.2609850000     -1.4531020000      0.7616580000
+ F     -2.9656640000     -0.7966010000     -1.1900330000
+ F      3.6467050000     -0.2152590000      0.6163310000
+ F      2.2560700000      1.4560310000      0.7568190000
+ F      2.9672080000      0.7933560000     -1.1908790000
+ N     -0.0001900000     -0.0016540000     -0.8250640000
+$end
+
+$rem
+   job_type = opt
+   basis = 6-311++g*
+   max_scf_cycles = 200
+   gen_scfman = true
+   scf_algorithm = diis
+   method = wb97xd
+   geom_opt_max_cycles = 200
+$end
+"""
+        qcinp = QCInput.from_string(str_molecule)
+        self.assertEqual(str_molecule,str(qcinp))
+
+    def test_write_file_from_OptSet(self):
+        from pymatgen.io.qchem.sets import OptSet
+        odd_dict = loadfn(os.path.join(os.path.dirname(__file__), "odd.json"))
+        odd_mol = odd_dict["spec"]["_tasks"][0]["molecule"]
+        qcinp = OptSet(odd_mol)
+        qcinp.write_file(os.path.join(os.path.dirname(__file__), "test.qin"))
+        test_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test.qin")).as_dict()
+        test_ref_dict = QCInput.from_file(os.path.join(os.path.dirname(__file__), "test_ref.qin")).as_dict()
+        for key in test_dict:
+            self.assertEqual(test_dict[key], test_ref_dict[key])
+        os.remove(os.path.join(os.path.dirname(__file__), "test.qin"))
+
 
 
 if __name__ == "__main__":

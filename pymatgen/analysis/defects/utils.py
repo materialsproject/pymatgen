@@ -18,15 +18,12 @@ from collections import defaultdict
 from scipy.spatial import Voronoi
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
-from pymatgen.analysis.local_env import LocalStructOrderParams, \
-    MinimumDistanceNN, ValenceIonicRadiusEvaluator , \
-    cn_opt_params
+from pymatgen.analysis.local_env import LocalStructOrderParams, MinimumDistanceNN, cn_opt_params
 from pymatgen.core.periodic_table import Element, get_el_sp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.zeopp import get_high_accuracy_voronoi_nodes
 from pymatgen.analysis.phase_diagram import get_facets
 from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
@@ -299,51 +296,53 @@ class StructureMotifInterstitial(object):
         natoms = len(list(struct_w_inter.sites))
         trialsites = []
 
+        # Build index list
+        i = np.arange(0, nbins[0]) + 0.5
+        j = np.arange(0, nbins[1]) + 0.5
+        k = np.arange(0, nbins[2]) + 0.5
+
+        # Convert index to vectors using meshgrid
+        indicies = np.array(np.meshgrid(i, j, k)).T.reshape(-1, 3)
+        # Multiply integer vectors to get recipricol space vectors
+        vecs = np.multiply(indicies, np.divide(1, nbins))
+
         # Loop over trial positions that are based on a regular
         # grid in fractional coordinate space
         # within the unit cell.
-        for ia in range(nbins[0]):
-            a = (float(ia) + 0.5) / float(nbins[0])
-            for ib in range(nbins[1]):
-                b = (float(ib) + 0.5) / float(nbins[1])
-                for ic in range(nbins[2]):
-                    c = (float(ic) + 0.5) / float(nbins[2])
-                    struct_w_inter.replace(natoms - 1, inter_elem, coords=[a, b, c], coords_are_cartesian=False)
-                    if len(struct_w_inter.get_sites_in_sphere(struct_w_inter.sites[natoms - 1].coords, doverlap)) == 1:
-                        neighs_images_weigths = MinimumDistanceNN(
-                            tol=0.8, cutoff=6).get_nn_info(struct_w_inter, natoms - 1)
-                        neighs_images_weigths_sorted = sorted(
-                            neighs_images_weigths, key=lambda x: x['weight'], reverse=True)
-                        for nsite in range(1, len(neighs_images_weigths_sorted) + 1):
-                            if nsite not in self.target_cns:
-                                continue
+        for vec in vecs:
+            struct_w_inter.replace(natoms - 1, inter_elem, coords=vec, coords_are_cartesian=False)
+            if len(struct_w_inter.get_sites_in_sphere(struct_w_inter.sites[natoms - 1].coords, doverlap)) == 1:
+                neighs_images_weigths = MinimumDistanceNN(tol=0.8, cutoff=6).get_nn_info(struct_w_inter, natoms - 1)
+                neighs_images_weigths_sorted = sorted(neighs_images_weigths, key=lambda x: x['weight'], reverse=True)
+                for nsite in range(1, len(neighs_images_weigths_sorted) + 1):
+                    if nsite not in self.target_cns:
+                        continue
 
-                            allsites = [neighs_images_weigths_sorted[i]['site'] for i in range(nsite)]
-                            indices_neighs = [i for i in range(len(allsites))]
-                            allsites.append(struct_w_inter.sites[natoms - 1])
-                            for mot, ops in self.cn_motif_lostop[nsite].items():
-                                opvals = ops.get_order_parameters(
-                                    allsites, len(allsites) - 1, indices_neighs=indices_neighs)
-                                if opvals[0] > op_threshs[motif_types.index(mot)]:
-                                    cns = {}
-                                    for isite in range(nsite):
-                                        site = neighs_images_weigths_sorted[isite]['site']
-                                        if isinstance(site.specie, Element):
-                                            elem = site.specie.symbol
-                                        else:
-                                            elem = site.specie.element.symbol
-                                        if elem in list(cns.keys()):
-                                            cns[elem] = cns[elem] + 1
-                                        else:
-                                            cns[elem] = 1
-                                    trialsites.append({
-                                        "mtype": mot,
-                                        "opval": opvals[0],
-                                        "coords": struct_w_inter.sites[natoms - 1].coords[:],
-                                        "fracs": np.array([a, b, c]),
-                                        "cns": dict(cns)
-                                    })
-                                    break
+                    allsites = [neighs_images_weigths_sorted[i]['site'] for i in range(nsite)]
+                    indices_neighs = [i for i in range(len(allsites))]
+                    allsites.append(struct_w_inter.sites[natoms - 1])
+                    for mot, ops in self.cn_motif_lostop[nsite].items():
+                        opvals = ops.get_order_parameters(allsites, len(allsites) - 1, indices_neighs=indices_neighs)
+                        if opvals[0] > op_threshs[motif_types.index(mot)]:
+                            cns = {}
+                            for isite in range(nsite):
+                                site = neighs_images_weigths_sorted[isite]['site']
+                                if isinstance(site.specie, Element):
+                                    elem = site.specie.symbol
+                                else:
+                                    elem = site.specie.element.symbol
+                                if elem in list(cns.keys()):
+                                    cns[elem] = cns[elem] + 1
+                                else:
+                                    cns[elem] = 1
+                            trialsites.append({
+                                "mtype": mot,
+                                "opval": opvals[0],
+                                "coords": struct_w_inter.sites[natoms - 1].coords[:],
+                                "fracs": vec,
+                                "cns": dict(cns)
+                            })
+                            break
 
         # Prune list of trial sites by clustering and find the site
         # with the largest order parameter value in each cluster.
@@ -432,7 +431,6 @@ class StructureMotifInterstitial(object):
             print("Initial trial sites: {}\nAfter clustering: {}\n"
                   "After symmetry pruning: {}".format(len(trialsites), len(include),
                                                       len(include) - len(discard)))
-        c = 0
         for i in include:
             if i not in discard:
                 self._defect_sites.append(
@@ -784,7 +782,8 @@ class TopographyAnalyzer(object):
             cations = [site.frac_coords for site in self.non_framework]
             dist_matrix = latt.get_all_distances(cations, fcoords)
             min_dist = np.min(dist_matrix, axis=1)
-            assert len(cations) == len(min_dist)
+            if len(cations) != len(min_dist):
+                raise Exception("Could not calculate distance to all cations")
             return np.linalg.norm(min_dist), min(min_dist), max(min_dist)
 
         print(len(self.non_framework))
@@ -938,7 +937,8 @@ class ChargeDensityAnalyzer(object):
                 logger.warning(  # Exit if both filter are set
                     "Filter can be either threshold_frac or threshold_abs!")
                 return
-            assert 0 <= threshold_frac <= 1, "threshold_frac range is [0, 1]!"
+            if threshold_frac > 1 or threshold_frac < 0:
+                raise Exception("threshold_frac range is [0, 1]!")
 
         # Return empty result if coords list is empty
         if len(f_coords) == 0:

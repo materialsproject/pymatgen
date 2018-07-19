@@ -74,7 +74,7 @@ class InterstitialGeneratorTest(PymatgenTest):
         self.assertEqual(str(ints[1].site.specie), "Li")
 
         self.assertArrayAlmostEqual(ints[0].site.coords, (0.9106, 0.3078, 0.3078), decimal=4)
-        self.assertArrayAlmostEqual(ints[1].site.coords, (1.5177, 0.3078, 1.7444), decimal=4)
+        self.assertArrayAlmostEqual(ints[1].site.coords, (1.5177, 1.7444, 0.3078,), decimal=4)
 
 
 class VoronoiInterstitialGeneratorTest(PymatgenTest):

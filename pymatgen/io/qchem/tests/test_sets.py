@@ -7,9 +7,9 @@ from __future__ import unicode_literals
 import unittest
 import os
 
-from pymatgen.io.qchem_io.sets import *
+from pymatgen.io.qchem.sets import *
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.qchem_io.inputs import QCInput
+from pymatgen.io.qchem.inputs import QCInput
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -88,7 +88,7 @@ class QChemDictSetTest(PymatgenTest):
             'basis': '6-311++g*',
             'max_scf_cycles': 200,
             'method': 'wb97xd',
-            'scf_algorithm': 'diis',
+            'scf_algorithm': 'gdm',
             'geom_opt_max_cycles': 200,
             'thresh': 14
         }
@@ -112,7 +112,7 @@ class QChemDictSetTest(PymatgenTest):
             'basis': '6-31g*',
             'max_scf_cycles': 200,
             'method': 'b3lyp',
-            'scf_algorithm': 'diis',
+            'scf_algorithm': 'gdm',
             'geom_opt_max_cycles': 200,
             'thresh': 14
         }
@@ -131,7 +131,7 @@ class OptSetTest(PymatgenTest):
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis',
+                'scf_algorithm': 'gdm',
                 'geom_opt_max_cycles': 200
             })
         self.assertEqual(test_OptSet.pcm, {})
@@ -150,7 +150,7 @@ class OptSetTest(PymatgenTest):
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
                 'geom_opt_max_cycles': 200,
-                'scf_algorithm': 'diis',
+                'scf_algorithm': 'gdm',
                 'solvent_method': 'pcm'
             })
         self.assertEqual(
@@ -177,7 +177,7 @@ class SinglePointSetTest(PymatgenTest):
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis'
+                'scf_algorithm': 'gdm'
             })
         self.assertEqual(test_SPSet.pcm, {})
         self.assertEqual(test_SPSet.solvent, {})
@@ -195,7 +195,7 @@ class SinglePointSetTest(PymatgenTest):
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis',
+                'scf_algorithm': 'gdm',
                 'solvent_method': 'pcm'
             })
         self.assertEqual(
@@ -222,7 +222,7 @@ class FreqSetTest(PymatgenTest):
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis'
+                'scf_algorithm': 'gdm'
             })
         self.assertEqual(test_FreqSet.pcm, {})
         self.assertEqual(test_FreqSet.solvent, {})
@@ -239,7 +239,7 @@ class FreqSetTest(PymatgenTest):
                 'basis': '6-311++g*',
                 'max_scf_cycles': 200,
                 'method': 'wb97xd',
-                'scf_algorithm': 'diis',
+                'scf_algorithm': 'gdm',
                 'solvent_method': 'pcm'
             })
         self.assertEqual(

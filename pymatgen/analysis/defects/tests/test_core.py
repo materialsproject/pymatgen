@@ -219,6 +219,7 @@ class DefectEntryTest(PymatgenTest):
         entry = DefectEntry(self.substitution, 2.5)
         entry_doc = entry.as_dict()
         re_entry = DefectEntry.from_dict(entry_doc)
+        self.assertNotEqual(re_entry, None)
 
     def test_corrections(self):
         entry = DefectEntry(self.substitution, 2.5)
@@ -255,8 +256,9 @@ class DefectEntryTest(PymatgenTest):
         # #test temperature dependence
         self.assertAlmostEqual(entry.defect_concentration(chem_pots, temperature=600), 2.040208007417593e+18)
 
-        #test fermi level dependence
+        # test fermi level dependence
         self.assertAlmostEqual(entry.defect_concentration(chem_pots, fermi_level=.3), 1.4113592133771723e+19)
+
 
 if __name__ == "__main__":
     unittest.main()

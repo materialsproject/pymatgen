@@ -525,7 +525,6 @@ class OutcarTest(PymatgenTest):
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
-
         for f in ['OUTCAR.lepsilon', 'OUTCAR.lepsilon.gz']:
             filepath = os.path.join(test_dir, f)
             outcar = Outcar(filepath)

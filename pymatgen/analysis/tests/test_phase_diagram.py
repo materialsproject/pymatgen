@@ -8,9 +8,8 @@ import unittest
 import os
 from numbers import Number
 import matplotlib
-import warnings
-
 matplotlib.use("pdf")
+import warnings
 
 from pymatgen.analysis.phase_diagram import *
 from pymatgen.core.periodic_table import Element, DummySpecie
