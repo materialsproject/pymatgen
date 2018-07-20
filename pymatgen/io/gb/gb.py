@@ -2,9 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-# coding: utf-8
-# !/usr/bin/env python
-
 from __future__ import division, unicode_literals
 import numpy as np
 from fractions import Fraction
@@ -17,10 +14,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import logging
 
-"""
-This module implements representations of grain boundaries, as well as
-algorithms for generating them. 
-"""
+#This module implements representations of grain boundaries, as well as
+#algorithms for generating them. 
 
 __author__ = "Xiang-Guo Li"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
