@@ -1435,7 +1435,8 @@ class MoleculeGraph(MSONable):
 
             return sub_mols
 
-    def substitute_group(self, index, func_grp, strategy, bond_order=1, graph_dict=None, strategy_params=None):
+    def substitute_group(self, index, func_grp, strategy, bond_order=1,
+                         graph_dict=None, strategy_params=None, extend_structure=True):
         """
         Builds off of Molecule.substitute to replace an atom in self.molecule
         with a functional group. This method also amends self.graph to
@@ -1472,6 +1473,9 @@ class MoleculeGraph(MSONable):
                 a list of strategies defined in pymatgen.analysis.local_env.
         :param strategy_params: dictionary of keyword arguments for strategy.
                 If None, default parameters will be used.
+        :param extend_structure: bool. If True (default), then put Molecule in
+                a large box as a Structure for strategy. If False, leave
+                Molecule as-is.
         :return:
         """
 
@@ -1535,7 +1539,8 @@ class MoleculeGraph(MSONable):
                 if strategy_params is None:
                     strategy_params = {}
                 strat = strategy(**strategy_params)
-                graph = self.with_local_env_strategy(func_grp, strat)
+                graph = self.with_local_env_strategy(func_grp, strat,
+                                                     extend_structure=extend_structure)
 
                 for (u, v) in list(graph.graph.edges()):
                     edge_props = graph.graph.get_edge_data(u, v)[0]
