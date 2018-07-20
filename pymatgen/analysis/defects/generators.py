@@ -442,32 +442,45 @@ class MasterInterstitialGenerator(DefectGenerator):
         print('\tproduced {} new interstitial defects'.format(midpoint_unique))
 
 
-        #now trim based on interstitial candidates which are very close to each other
+        #now trim based on interstitial candidates which are too close to each other
         ir_val = Element(self.element).ionic_radii.values()
         dist_tol = 2. * max(ir_val) if ir_val else 0.5
+        print("Removing defects that are within {} of each other."
+              "".format(dist_tol))
         group_too_close = []
         for d1, d2 in itertools.combinations( self.unique_defect_seq, 2):
             if d1.site.distance_from_point(d2.site.coords) < dist_tol:
-                # too close, but want to group based on sets of defects which are too close,
-                # keeping the defect with the highest multiplicity
+                # too close, but want to group based on sets of defects
+                # which are too close and only keep the highest symmetry one
                 new_defects = True
+
                 for defect_set in group_too_close:
-                    if defect_set[0][1].site.distance_from_point(d1) < dist_tol:
-                        defect_set.extend( [[d1.multiplicity, d1.copy()], [d2.multiplicity, d2.copy()]])
+                    if (defect_set[0].site.distance_from_point(d1.site.coords) < dist_tol) or \
+                        (defect_set[0].site.distance_from_point(d2.site.coords) < dist_tol):
+                        d1_append = True
+                        d2_append = True
+                        for def_in_set in defect_set:
+                            if pdc.are_equal(d1, def_in_set):
+                                d1_append = False
+                            if pdc.are_equal(d2, def_in_set):
+                                d2_append = False
+                        if d1_append:
+                            defect_set.append( d1.copy())
+                        if d2_append:
+                            defect_set.append( d2.copy())
                         new_defects = False
+
                 if new_defects:
-                    group_too_close.append( [[d1.multiplicity, d1.copy()], [d2.multiplicity, d2.copy()]])
+                    group_too_close.append( [d1.copy(), d2.copy()])
 
         too_close = []
         for close_group in group_too_close:
-            close_group = set(close_group)
-            close_group.sort() #want to keep lowest multiplicity because this implies higher symmetry
+            close_group = sorted( close_group, key=lambda defect: defect.multiplicity) #want to keep lowest multiplicity because this implies higher symmetry location
             for ind in range(1, len(close_group)):
-                too_close.append( close_group[ind][1])
+                too_close.append( close_group[ind])
 
-        print("Removing defects that are within {} of each other.\nThis removed {} defects."
-              "".format(dist_tol, len(too_close)))
-        self.unique_defect_seq = set(self.unique_defect_seq) - set(too_close)
+        print("This removed {} defects.".format(dist_tol, len(too_close)))
+        self.unique_defect_seq = list(set(self.unique_defect_seq) - set(too_close))
         print('Overall found {} distinct defects.'.format(len(self.unique_defect_seq)))
 
 
