@@ -144,7 +144,6 @@ class create_saturated_interstitial_structureTest(PymatgenTest):
         sc_struc = struc.copy()
         sc_struc.make_supercell(3)
 
-
         #test for vacancy and sub (should not change structure)
         Cs_index = sc_struc.indices_from_symbol("Cs")[0]
         cs_vac = Vacancy(sc_struc, sc_struc[Cs_index])
@@ -161,7 +160,6 @@ class create_saturated_interstitial_structureTest(PymatgenTest):
         decorated_sub = create_saturated_interstitial_structure( sub)
         self.assertEqual( len(decorated_sub), len(sc_struc))
 
-
         #test interstitial in symmorphic structure type
         inter_site = PeriodicSite("H", [0., 1.05225, 2.1045], struc.lattice, coords_are_cartesian=True) #voronoi type
         interstitial = Interstitial(struc, inter_site)
@@ -171,12 +169,17 @@ class create_saturated_interstitial_structureTest(PymatgenTest):
         inter_site = PeriodicSite("H", [0.10021429, 0.10021429, 2.1045], struc.lattice, coords_are_cartesian=True) #InFit type
         interstitial = Interstitial(struc, inter_site)
         decorated_inter = create_saturated_interstitial_structure( interstitial)
-        self.assertEqual( len(decorated_inter), 5)
+        self.assertEqual( len(decorated_inter), 14)
 
         inter_site = PeriodicSite("H", [4.10878571, 1.10235714, 2.1045], struc.lattice, coords_are_cartesian=True) #InFit type
         interstitial = Interstitial(struc, inter_site)
         decorated_inter = create_saturated_interstitial_structure( interstitial)
-        self.assertEqual( len(decorated_inter), 14)
+        self.assertEqual( len(decorated_inter), 26)
+
+        inter_site = PeriodicSite("H", [0., 0., 0.5], struc.lattice, coords_are_cartesian=False) # a reasonable guess type
+        interstitial = Interstitial(struc, inter_site)
+        decorated_inter = create_saturated_interstitial_structure( interstitial)
+        self.assertEqual( len(decorated_inter), 5)
 
 
         #test interstitial in non-symmorphic structure type (voronoi and InFit generator of different types...)

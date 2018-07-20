@@ -314,7 +314,7 @@ class Interstitial(Defect):
             return "Int_{}_mult{}".format(self.site.specie, self.multiplicity)
 
 
-def create_saturated_interstitial_structure( interstitial_def):
+def create_saturated_interstitial_structure( interstitial_def, dist_tol=0.1):
     """
     this takes a Interstitial defect object and generates the
     sublattice for it based on the structure's space group.
@@ -325,13 +325,24 @@ def create_saturated_interstitial_structure( interstitial_def):
         degrees of freedom that need to be considered for
         the multiplicity.
 
+    Args:
+        dist_tol: changing distance tolerance of saturated structure,
+                allowing for possibly overlapping sites
+                but ensuring space group is maintained
+
     Returns:
         Structure object decorated with interstitial site equivalents
     """
     sga = SpacegroupAnalyzer( interstitial_def.bulk_structure.copy())
     sg_ops = sga.get_symmetry_operations( cartesian=True)
 
+    # copy bulk structure to make saturated interstitial structure out of
+    # artificially lower distance_tolerance to allow for distinct interstitials
+    # with lower symmetry to be replicated - This is OK because one would never
+    # actually use this structure for a practical calcualtion...
     saturated_defect_struct = interstitial_def.bulk_structure.copy()
+    saturated_defect_struct.DISTANCE_TOLERANCE = dist_tol
+
     for sgo in sg_ops:
         new_interstit_coords = sgo.operate( interstitial_def.site.coords[:])
         poss_new_site = PeriodicSite(
@@ -347,6 +358,13 @@ def create_saturated_interstitial_structure( interstitial_def):
                         coords_are_cartesian=True, validate_proximity=True)
         except:
             continue
+
+    # do final space group analysis to make sure symmetry not lowered by saturating defect structure
+    saturated_sga = SpacegroupAnalyzer( saturated_defect_struct)
+    if saturated_sga.get_space_group_number() != sga.get_space_group_number():
+        raise ValueError("Warning! Interstitial sublattice generation "
+                         "has changed space group symmetry. I recommend "
+                         "reducing dist_tol and trying again...")
 
     return saturated_defect_struct
 
