@@ -222,13 +222,11 @@ class Gb(Structure):
 
 class GBGenerator(object):
     """
-    This class provides two methods to generate grain boundaries (GBs) from bulk
+    This class is to generate grain boundaries (GBs) from bulk
     conventional cell (fcc, bcc can from the primitive cell), and works for Cubic,
     Tetragonal, Orthorhombic, Rhombohedral, and Hexagonal systems.
-    The first one is to generate GBs from given parameters, which includes
+    It generate GBs from given parameters, which includes
     GB plane, rotation axis, rotation angle.
-    The second one is to generate GBs from given transformation matrices for each
-    grain.
 
     This class works for any general GB, including both twist and tilt GBs.
     The three parameters, rotation axis, GB plane and rotation angle, are
