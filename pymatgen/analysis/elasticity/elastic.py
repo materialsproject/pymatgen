@@ -702,12 +702,10 @@ class ElasticTensorExpansion(TensorCollection):
         soec = ElasticTensor(self[0])
         v0 = (structure.volume * 1e-30 / structure.num_sites)
         if mode == "debye":
-            vl, vt = soec.long_v(structure), soec.trans_v(structure)
-            vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
-            td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
+            td = soec.debye_temperature(structure)
             t_ratio = temperature / td
             integrand = lambda x: (x**4 * np.exp(x)) / (np.exp(x) - 1)**2
-            cv = 3 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
+            cv = 9 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
         elif mode == "dulong-petit":
             cv = 3 * 8.314
         else:
