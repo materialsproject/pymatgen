@@ -1,0 +1,578 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.defects.corrections &#8212; pymatgen 2018.7.15 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.defects.corrections</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">DefectCorrection</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="k">import</span> <span class="n">ang_to_bohr</span><span class="p">,</span> <span class="n">hart_to_ev</span><span class="p">,</span> <span class="n">eV_to_k</span><span class="p">,</span> \
+    <span class="n">generate_reciprocal_vectors_squared</span><span class="p">,</span> <span class="n">QModel</span><span class="p">,</span> <span class="n">converge</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyamd@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 15, 2018&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="FreysoldtCorrection"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.FreysoldtCorrection">[docs]</a><span class="k">class</span> <span class="nc">FreysoldtCorrection</span><span class="p">(</span><span class="n">DefectCorrection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for FreysoldtCorrection class. Largely adapated from PyCDT code</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dielectric_const</span><span class="p">,</span> <span class="n">q_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy_cutoff</span><span class="o">=</span><span class="mi">520</span><span class="p">,</span> <span class="n">madetol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the Freysoldt Correction</span>
+<span class="sd">        Args:</span>
+<span class="sd">            dielectric_const (float or 3x3 matrix): Dielectric constant for the structure</span>
+<span class="sd">            q_mode (QModel): instantiated QModel object or None. Uses default parameters to instantiate QModel if None supplied</span>
+<span class="sd">            energy_cutoff (int): Maximum energy in eV in recipripcol space to perform integration for potential correction</span>
+<span class="sd">            madeltol(float): Convergence criteria for the Madelung energy for potential correction</span>
+<span class="sd">            axis (int): Axis to calculate correction. Averages over all three if not supplied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span> <span class="o">=</span> <span class="n">QModel</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">q_model</span> <span class="k">else</span> <span class="n">q_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_cutoff</span> <span class="o">=</span> <span class="n">energy_cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">madetol</span> <span class="o">=</span> <span class="n">madetol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dielectric_const</span> <span class="o">=</span> <span class="n">dielectric_const</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dielectric_const</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">dielectric_const</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dielectric_const</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">dielectric_const</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pot_plot_data&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;pot_corr_uncertainty_md&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+<div class="viewcode-block" id="FreysoldtCorrection.get_correction"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.FreysoldtCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the Freysoldt correction for a defect entry</span>
+<span class="sd">        Args:</span>
+<span class="sd">            entry (DefectEntry): defect entry to compute Freysoldt correction on.</span>
+<span class="sd">                Requires following parameters in the DefectEntry to exist:</span>
+
+<span class="sd">                    axis_grid (3 x NGX where NGX is the length of the NGX grid</span>
+<span class="sd">                    in the x,y and z axis directions. Same length as planar</span>
+<span class="sd">                    average lists):</span>
+<span class="sd">                        A list of 3 numpy arrays which contain the cartesian axis</span>
+<span class="sd">                        values (in angstroms) that correspond to each planar avg</span>
+<span class="sd">                        potential supplied.</span>
+
+<span class="sd">                    bulk_planar_averages (3 x NGX where NGX is the length of</span>
+<span class="sd">                    the NGX grid in the x,y and z axis directions.):</span>
+<span class="sd">                        A list of 3 numpy arrays which contain the planar averaged</span>
+<span class="sd">                        electrostatic potential for the bulk supercell.</span>
+
+<span class="sd">                    defect_planar_averages (3 x NGX where NGX is the length of</span>
+<span class="sd">                    the NGX grid in the x,y and z axis directions.):</span>
+<span class="sd">                        A list of 3 numpy arrays which contain the planar averaged</span>
+<span class="sd">                        electrostatic potential for the defective supercell.</span>
+
+<span class="sd">                    scaling_matrix (3 x 1 matrix): scaling matrix required to convert the</span>
+<span class="sd">                        entry.defect.bulk_structure object into the lattice which is used by</span>
+<span class="sd">                        the bulk_planar_average and defect_planar_average</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">:</span>
+            <span class="n">list_axis_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;axis_grid&quot;</span><span class="p">])</span>
+            <span class="n">list_bulk_plnr_avg_esp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;bulk_planar_averages&quot;</span><span class="p">])</span>
+            <span class="n">list_defect_plnr_avg_esp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;defect_planar_averages&quot;</span><span class="p">])</span>
+            <span class="n">list_axes</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_axis_grid</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">list_axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">)</span>
+            <span class="n">list_axis_grid</span><span class="p">,</span> <span class="n">list_bulk_plnr_avg_esp</span><span class="p">,</span> <span class="n">list_defect_plnr_avg_esp</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">list_axes</span><span class="p">:</span>
+                <span class="n">list_axis_grid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;axis_grid&quot;</span><span class="p">][</span><span class="n">ax</span><span class="p">]))</span>
+                <span class="n">list_bulk_plnr_avg_esp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;bulk_planar_averages&quot;</span><span class="p">][</span><span class="n">ax</span><span class="p">]))</span>
+                <span class="n">list_defect_plnr_avg_esp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;defect_planar_averages&quot;</span><span class="p">][</span><span class="n">ax</span><span class="p">]))</span>
+
+        <span class="n">bulk_struct</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;scaling_matrix&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">bulk_struct</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;scaling_matrix&quot;</span><span class="p">])</span>
+
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">bulk_struct</span><span class="o">.</span><span class="n">lattice</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">charge</span>
+
+        <span class="n">es_corr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_es_corr</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+
+        <span class="n">pot_corr_tracker</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">pureavg</span><span class="p">,</span> <span class="n">defavg</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">list_axis_grid</span><span class="p">,</span> <span class="n">list_bulk_plnr_avg_esp</span><span class="p">,</span> <span class="n">list_defect_plnr_avg_esp</span><span class="p">,</span>
+                                            <span class="n">list_axes</span><span class="p">):</span>
+            <span class="n">tmp_pot_corr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_pot_corr</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">pureavg</span><span class="p">,</span> <span class="n">defavg</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">widthsample</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">pot_corr_tracker</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_pot_corr</span><span class="p">)</span>
+
+        <span class="n">pot_corr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pot_corr_tracker</span><span class="p">)</span>
+
+        <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;freysoldt_meta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;potalign&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pot_corr</span> <span class="o">/</span> <span class="p">(</span><span class="o">-</span><span class="n">q</span><span class="p">)</span> <span class="k">if</span> <span class="n">q</span> <span class="k">else</span> <span class="mf">0.</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;freysoldt_electrostatic&quot;</span><span class="p">:</span> <span class="n">es_corr</span><span class="p">,</span> <span class="s2">&quot;freysoldt_potential_alignment&quot;</span><span class="p">:</span> <span class="n">pot_corr</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="FreysoldtCorrection.perform_es_corr"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_es_corr">[docs]</a>    <span class="k">def</span> <span class="nf">perform_es_corr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Peform Electrostatic Freysoldt Correction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running Freysoldt 2011 PC calculation (should be &quot;</span> <span class="s2">&quot;equivalent to sxdefectalign)&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;defect lattice constants are (in angstroms)&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">))</span>
+
+        <span class="p">[</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">]</span> <span class="o">=</span> <span class="n">ang_to_bohr</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;In atomic units, lat consts are (in bohr):&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">([</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">]))</span>
+        <span class="n">vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">))</span>  <span class="c1"># vol in bohr^3</span>
+
+        <span class="k">def</span> <span class="nf">e_iso</span><span class="p">(</span><span class="n">encut</span><span class="p">):</span>
+            <span class="n">gcut</span> <span class="o">=</span> <span class="n">eV_to_k</span><span class="p">(</span><span class="n">encut</span><span class="p">)</span>  <span class="c1"># gcut is in units of 1/A</span>
+            <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">integrate</span><span class="o">.</span><span class="n">quad</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">g</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">gcut</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="k">def</span> <span class="nf">e_per</span><span class="p">(</span><span class="n">encut</span><span class="p">):</span>
+            <span class="n">eper</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">g2</span> <span class="ow">in</span> <span class="n">generate_reciprocal_vectors_squared</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">encut</span><span class="p">):</span>
+                <span class="n">eper</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">g2</span>
+            <span class="n">eper</span> <span class="o">*=</span> <span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">/</span> <span class="n">vol</span>
+            <span class="n">eper</span> <span class="o">+=</span> <span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> \
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec_limit0</span> <span class="o">/</span> <span class="n">vol</span>
+            <span class="k">return</span> <span class="n">eper</span>
+
+        <span class="n">eiso</span> <span class="o">=</span> <span class="n">converge</span><span class="p">(</span><span class="n">e_iso</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">madetol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_cutoff</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Eisolated : </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">eiso</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+        <span class="n">eper</span> <span class="o">=</span> <span class="n">converge</span><span class="p">(</span><span class="n">e_per</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">madetol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_cutoff</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Eperiodic : </span><span class="si">%f</span><span class="s2"> hartree&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">eper</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;difference (periodic-iso) is </span><span class="si">%f</span><span class="s2"> hartree&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">eper</span> <span class="o">-</span> <span class="n">eiso</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;difference in (eV) is </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">((</span><span class="n">eper</span> <span class="o">-</span> <span class="n">eiso</span><span class="p">)</span> <span class="o">*</span> <span class="n">hart_to_ev</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+        <span class="n">es_corr</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">eiso</span> <span class="o">-</span> <span class="n">eper</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span> <span class="o">*</span> <span class="n">hart_to_ev</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Defect Correction without alignment </span><span class="si">%f</span><span class="s2"> (eV): &quot;</span><span class="p">,</span> <span class="n">es_corr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">es_corr</span></div>
+
+<div class="viewcode-block" id="FreysoldtCorrection.perform_pot_corr"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.FreysoldtCorrection.perform_pot_corr">[docs]</a>    <span class="k">def</span> <span class="nf">perform_pot_corr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">axis_grid</span><span class="p">,</span>
+                         <span class="n">pureavg</span><span class="p">,</span>
+                         <span class="n">defavg</span><span class="p">,</span>
+                         <span class="n">lattice</span><span class="p">,</span>
+                         <span class="n">q</span><span class="p">,</span>
+                         <span class="n">defect_position</span><span class="p">,</span>
+                         <span class="n">axis</span><span class="p">,</span>
+                         <span class="n">madetol</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span>
+                         <span class="n">widthsample</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For performing planar averaging potential alignment</span>
+
+<span class="sd">        title is for name of plot, if you dont want a plot then leave it as None</span>
+<span class="sd">        widthsample is the width (in Angstroms) of the region in between defects where the potential alignment correction is averaged</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;run Freysoldt potential alignment method for axis &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">axis</span><span class="p">))</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis_grid</span><span class="p">)</span>
+
+        <span class="c1"># shift these planar averages to have defect at origin</span>
+        <span class="n">axfracval</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">defect_position</span><span class="p">)[</span><span class="n">axis</span><span class="p">]</span>
+        <span class="n">axbulkval</span> <span class="o">=</span> <span class="n">axfracval</span> <span class="o">*</span> <span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">axbulkval</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">axbulkval</span> <span class="o">+=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">axbulkval</span> <span class="o">&gt;</span> <span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="n">axis</span><span class="p">]:</span>
+            <span class="n">axbulkval</span> <span class="o">-=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">axbulkval</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nx</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">axbulkval</span> <span class="o">&lt;</span> <span class="n">axis_grid</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="k">break</span>
+            <span class="n">rollind</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis_grid</span><span class="p">)</span> <span class="o">-</span> <span class="n">i</span>
+            <span class="n">pureavg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">pureavg</span><span class="p">,</span> <span class="n">rollind</span><span class="p">)</span>
+            <span class="n">defavg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">defavg</span><span class="p">,</span> <span class="n">rollind</span><span class="p">)</span>
+
+        <span class="c1"># if not self._silence:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;calculating lr part along planar avg axis&quot;</span><span class="p">)</span>
+        <span class="n">reci_latt</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span>
+        <span class="n">dg</span> <span class="o">=</span> <span class="n">reci_latt</span><span class="o">.</span><span class="n">abc</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+        <span class="n">dg</span> <span class="o">/=</span> <span class="n">ang_to_bohr</span>  <span class="c1"># convert to bohr to do calculation in atomic units</span>
+
+        <span class="c1"># Build background charge potential with defect at origin</span>
+        <span class="n">v_G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axis_grid</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;c16&quot;</span><span class="p">))</span>
+        <span class="n">v_G</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="o">-</span><span class="n">q</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec_limit0</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">nx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">nx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="n">dg</span>
+        <span class="n">g2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">v_G</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dielectric</span> <span class="o">*</span> <span class="n">g2</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="n">q</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_model</span><span class="o">.</span><span class="n">rho_rec</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span>
+        <span class="n">v_G</span><span class="p">[</span><span class="n">nx</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">nx</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="k">else</span> <span class="n">v_G</span><span class="p">[</span><span class="n">nx</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Get the real space potential by peforming a  fft and grabbing the imaginary portion</span>
+        <span class="n">v_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">v_G</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v_R</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">madetol</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;imaginary part found to be </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v_R</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+        <span class="n">v_R</span> <span class="o">/=</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">ang_to_bohr</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">v_R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v_R</span><span class="p">)</span> <span class="o">*</span> <span class="n">hart_to_ev</span>
+
+        <span class="c1"># get correction</span>
+        <span class="n">short</span> <span class="o">=</span> <span class="p">(</span><span class="n">defavg</span> <span class="o">-</span> <span class="n">pureavg</span> <span class="o">-</span> <span class="n">v_R</span><span class="p">)</span>
+        <span class="n">checkdis</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">widthsample</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">axis_grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">axis_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">short</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">tmppot</span> <span class="o">=</span> <span class="p">[</span><span class="n">short</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mid</span> <span class="o">-</span> <span class="n">checkdis</span><span class="p">,</span> <span class="n">mid</span> <span class="o">+</span> <span class="n">checkdis</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;shifted defect position on axis (</span><span class="si">%s</span><span class="s2">) to origin&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">axbulkval</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;means sampling region is (</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">axis_grid</span><span class="p">[</span><span class="n">mid</span> <span class="o">-</span> <span class="n">checkdis</span><span class="p">],</span> <span class="n">axis_grid</span><span class="p">[</span><span class="n">mid</span> <span class="o">+</span> <span class="n">checkdis</span><span class="p">])</span>
+
+        <span class="n">C</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">tmppot</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;C = </span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+        <span class="n">final_shift</span> <span class="o">=</span> <span class="p">[</span><span class="n">short</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">C</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v_R</span><span class="p">))]</span>
+        <span class="n">v_R</span> <span class="o">=</span> <span class="p">[</span><span class="n">elmnt</span> <span class="o">-</span> <span class="n">C</span> <span class="k">for</span> <span class="n">elmnt</span> <span class="ow">in</span> <span class="n">v_R</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;C value is averaged to be </span><span class="si">%f</span><span class="s2"> eV &quot;</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Potentital alignment energy correction (-q*delta V):  </span><span class="si">%f</span><span class="s2"> (eV)&quot;</span><span class="p">,</span> <span class="o">-</span><span class="n">q</span> <span class="o">*</span> <span class="n">C</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pot_corr</span> <span class="o">=</span> <span class="o">-</span><span class="n">q</span> <span class="o">*</span> <span class="n">C</span>
+
+        <span class="c1"># log plotting data:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;pot_plot_data&quot;</span><span class="p">][</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Vr&quot;</span><span class="p">:</span> <span class="n">v_R</span><span class="p">,</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">axis_grid</span><span class="p">,</span>
+            <span class="s2">&quot;dft_diff&quot;</span><span class="p">:</span> <span class="n">defavg</span> <span class="o">-</span> <span class="n">pureavg</span><span class="p">,</span>
+            <span class="s2">&quot;final_shift&quot;</span><span class="p">:</span> <span class="n">final_shift</span><span class="p">,</span>
+            <span class="s2">&quot;check&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">mid</span> <span class="o">-</span> <span class="n">checkdis</span><span class="p">,</span> <span class="n">mid</span> <span class="o">+</span> <span class="n">checkdis</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="c1"># log uncertainty:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;pot_corr_uncertainty_md&quot;</span><span class="p">][</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;stats&quot;</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">tmppot</span><span class="p">)</span><span class="o">.</span><span class="n">_asdict</span><span class="p">(),</span> <span class="s2">&quot;potcorr&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">q</span> <span class="o">*</span> <span class="n">C</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pot_corr</span></div>
+
+<div class="viewcode-block" id="FreysoldtCorrection.plot"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.FreysoldtCorrection.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saved</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the planar average electrostatic potential against the Long range and short range models from Freysoldt</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;pot_plot_data&#39;</span><span class="p">][</span><span class="n">axis</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="n">v_R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;pot_plot_data&#39;</span><span class="p">][</span><span class="n">axis</span><span class="p">][</span><span class="s1">&#39;Vr&#39;</span><span class="p">]</span>
+        <span class="n">dft_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;pot_plot_data&#39;</span><span class="p">][</span><span class="n">axis</span><span class="p">][</span><span class="s1">&#39;dft_diff&#39;</span><span class="p">]</span>
+        <span class="n">final_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;pot_plot_data&#39;</span><span class="p">][</span><span class="n">axis</span><span class="p">][</span><span class="s1">&#39;final_shift&#39;</span><span class="p">]</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;pot_plot_data&#39;</span><span class="p">][</span><span class="n">axis</span><span class="p">][</span><span class="s1">&#39;check&#39;</span><span class="p">]</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">v_R</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;long range from model&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dft_diff</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;DFT locpot diff&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">final_shift</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;short range (aligned)&quot;</span><span class="p">)</span>
+
+        <span class="n">tmpx</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">check</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">tmpx</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;sampling region&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">ymin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">v_R</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">dft_diff</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">final_shift</span><span class="p">))</span>
+        <span class="n">ymax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">v_R</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">dft_diff</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">final_shift</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span> <span class="o">+</span> <span class="n">ymin</span><span class="p">,</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="n">ymax</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;distance along axis ($\AA$)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Potential (V)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; defect potential&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">saved</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;FreyplnravgPlot.pdf&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">plt</span></div></div>
+
+
+<div class="viewcode-block" id="BandFillingCorrection"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.BandFillingCorrection">[docs]</a><span class="k">class</span> <span class="nc">BandFillingCorrection</span><span class="p">(</span><span class="n">DefectCorrection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for BandFillingCorrection class. Largely adapted from PyCDT code</span>
+
+<span class="sd">    Requires some parameters in the DefectEntry to properly function:</span>
+<span class="sd">        eigenvalues</span>
+<span class="sd">            dictionary of defect eigenvalues, as stored in a Vasprun</span>
+
+<span class="sd">        kpoint_weights</span>
+<span class="sd">            kpoint weights corresponding to the dictionary of eigenvalues</span>
+
+<span class="sd">        potalign</span>
+<span class="sd">            potential alignment for the defect calculation</span>
+<span class="sd">            Only applies to non-zero charge,</span>
+<span class="sd">            When using potential alignment Correction (freysoldt or kumagai), need to divide by -q</span>
+
+<span class="sd">        cbm</span>
+<span class="sd">            CBM of bulk calculation (or band structure calculation of bulk);</span>
+<span class="sd">            calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA cbm</span>
+
+<span class="sd">        vbm</span>
+<span class="sd">            VBM of bulk calculation (or band structure calculation of bulk);</span>
+<span class="sd">            calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA vbm</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the Bandfilling correction</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resolution (float): energy resolution to maintain for gap states</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;occupied_def_levels&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;unoccupied_def_levels&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;total_occupation_defect_levels&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;num_hole_vbm&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;num_elec_cbm&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;potalign&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="BandFillingCorrection.get_correction"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.BandFillingCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the BandFilling correction for a defect entry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">]</span>
+        <span class="n">kpoint_weights</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;kpoint_weights&quot;</span><span class="p">]</span>
+        <span class="n">potalign</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;potalign&quot;</span><span class="p">]</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;vbm&quot;</span><span class="p">]</span>
+        <span class="n">cbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;cbm&quot;</span><span class="p">]</span>
+
+        <span class="n">bf_corr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_bandfill_corr</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">,</span> <span class="n">kpoint_weights</span><span class="p">,</span> <span class="n">potalign</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">cbm</span><span class="p">)</span>
+
+        <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;bandfilling_meta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bandfilling&quot;</span><span class="p">:</span> <span class="n">bf_corr</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="BandFillingCorrection.perform_bandfill_corr"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.BandFillingCorrection.perform_bandfill_corr">[docs]</a>    <span class="k">def</span> <span class="nf">perform_bandfill_corr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eigenvalues</span><span class="p">,</span> <span class="n">kpoint_weights</span><span class="p">,</span> <span class="n">potalign</span><span class="p">,</span> <span class="n">vbm</span><span class="p">,</span> <span class="n">cbm</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This calculates the band filling correction based on excess of electrons/holes in CB/VB...</span>
+
+<span class="sd">        Note that the total free holes and electrons may also be used for a &quot;shallow donor/acceptor&quot;</span>
+<span class="sd">               correction with specified band shifts: +num_elec_cbm * Delta E_CBM (or -num_hole_vbm * Delta E_VBM)</span>
+<span class="sd">               [this is done in the LevelShiftingCorrection class]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bf_corr</span> <span class="o">=</span> <span class="mf">0.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;potalign&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">potalign</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;num_hole_vbm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;num_elec_cbm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">eigenvalues</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># needed because occupation of non-spin calcs is still 1... should be 2</span>
+            <span class="n">spinfctr</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">eigenvalues</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">spinfctr</span> <span class="o">=</span> <span class="mf">2.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Eigenvalue keys greater than 2&quot;</span><span class="p">)</span>
+
+        <span class="c1"># for tracking mid gap states...</span>
+        <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span>
+        <span class="n">shifted_cbm</span> <span class="o">=</span> <span class="n">potalign</span> <span class="o">+</span> <span class="n">cbm</span>  <span class="c1"># shift cbm with potential alignment</span>
+        <span class="n">shifted_vbm</span> <span class="o">=</span> <span class="n">potalign</span> <span class="o">+</span> <span class="n">vbm</span>  <span class="c1"># shift vbm with potential alignment</span>
+
+        <span class="n">occupied_midgap</span> <span class="o">=</span> <span class="p">{</span><span class="n">en</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shifted_vbm</span><span class="p">,</span> <span class="n">shifted_cbm</span> <span class="o">+</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)}</span>
+        <span class="n">occupation</span> <span class="o">=</span> <span class="p">{</span><span class="n">en</span><span class="p">:</span> <span class="mf">0.</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shifted_vbm</span><span class="p">,</span> <span class="n">shifted_cbm</span> <span class="o">+</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)}</span>
+        <span class="n">unoccupied_midgap</span> <span class="o">=</span> <span class="p">{</span><span class="n">en</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shifted_vbm</span><span class="p">,</span> <span class="n">shifted_cbm</span> <span class="o">+</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)}</span>
+
+        <span class="k">for</span> <span class="n">spinset</span> <span class="ow">in</span> <span class="n">eigenvalues</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">kptset</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">spinset</span><span class="p">,</span> <span class="n">kpoint_weights</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">eig</span> <span class="ow">in</span> <span class="n">kptset</span><span class="p">:</span>  <span class="c1"># eig[0] is eigenvalue and eig[1] is occupation</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">shifted_cbm</span><span class="p">)):</span>  <span class="c1"># donor MB correction</span>
+                        <span class="n">bf_corr</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">shifted_cbm</span><span class="p">)</span>  <span class="c1"># &quot;move the electrons down&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;num_elec_cbm&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mf">1.</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">shifted_vbm</span><span class="p">):</span>  <span class="c1"># acceptor MB correction</span>
+                        <span class="n">bf_corr</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">shifted_vbm</span> <span class="o">-</span> <span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># &quot;move the holes up&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;num_hole_vbm&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">shifted_vbm</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">shifted_cbm</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shifted_vbm</span><span class="p">,</span> <span class="n">shifted_cbm</span> <span class="o">+</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">en</span> <span class="o">+</span> <span class="n">resolution</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">en</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                                    <span class="n">occupied_midgap</span><span class="p">[</span><span class="n">en</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                                    <span class="n">occupation</span><span class="p">[</span><span class="n">en</span><span class="p">]</span> <span class="o">+=</span> <span class="n">eig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">spinfctr</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">unoccupied_midgap</span><span class="p">[</span><span class="n">en</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eig</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                                <span class="k">continue</span>
+
+        <span class="n">bf_corr</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># need to take negative of this shift for energetic correction</span>
+
+        <span class="c1"># summarize defect level results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;total_occupation_defect_levels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;occupied_def_levels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;unoccupied_def_levels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">occupied_midgap</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">occupied_midgap</span><span class="p">[</span><span class="n">en</span><span class="p">]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;occupied_def_levels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">occupied_midgap</span><span class="p">[</span><span class="n">en</span><span class="p">]),</span> <span class="n">occupation</span><span class="p">[</span><span class="n">en</span><span class="p">]])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;total_occupation_defect_levels&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">occupation</span><span class="p">[</span><span class="n">en</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">unoccupied_midgap</span><span class="p">[</span><span class="n">en</span><span class="p">]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;unoccupied_def_levels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">unoccupied_midgap</span><span class="p">[</span><span class="n">en</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">bf_corr</span></div></div>
+
+
+<div class="viewcode-block" id="BandEdgeShiftingCorrection"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection">[docs]</a><span class="k">class</span> <span class="nc">BandEdgeShiftingCorrection</span><span class="p">(</span><span class="n">DefectCorrection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for BandEdgeShiftingCorrection class. Largely adapted from PyCDT code</span>
+
+<span class="sd">    Requires some parameters in the DefectEntry to properly function:</span>
+<span class="sd">        hybrid_cbm</span>
+<span class="sd">            CBM of HYBRID bulk calculation</span>
+
+<span class="sd">        hybrid_vbm</span>
+<span class="sd">            VBM of HYBRID bulk calculation</span>
+
+<span class="sd">        cbm</span>
+<span class="sd">            CBM of bulk calculation (or band structure calculation of bulk);</span>
+<span class="sd">            calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA cbm</span>
+
+<span class="sd">        vbm</span>
+<span class="sd">            VBM of bulk calculation (or band structure calculation of bulk);</span>
+<span class="sd">            calculated on same level of theory as the eigenvalues list (ex. GGA defects -&gt; need GGA vbm</span>
+
+<span class="sd">        num_hole_vbm</span>
+<span class="sd">            number of free holes that were found in valence band for the defect calculation</span>
+<span class="sd">            calculated in the metadata of the BandFilling Correction</span>
+
+<span class="sd">        num_elec_cbm</span>
+<span class="sd">            number of free electrons that were found in the conduction band for the defect calculation</span>
+<span class="sd">            calculated in the metadata of the BandFilling Correction</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;vbmshift&quot;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span>
+            <span class="s2">&quot;cbmshift&quot;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="BandEdgeShiftingCorrection.get_correction"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.corrections.html#pymatgen.analysis.defects.corrections.BandEdgeShiftingCorrection.get_correction">[docs]</a>    <span class="k">def</span> <span class="nf">get_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the BandEdge correction for a defect entry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: add smarter defect level shifting based on defect level projection onto host bands</span>
+        <span class="n">hybrid_cbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;hybrid_cbm&quot;</span><span class="p">]</span>
+        <span class="n">hybrid_vbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;hybrid_vbm&quot;</span><span class="p">]</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;vbm&quot;</span><span class="p">]</span>
+        <span class="n">cbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;cbm&quot;</span><span class="p">]</span>
+        <span class="n">num_hole_vbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;num_hole_vbm&quot;</span><span class="p">]</span>
+        <span class="n">num_elec_cbm</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;num_elec_cbm&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;vbmshift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hybrid_vbm</span> <span class="o">-</span> <span class="n">vbm</span>  <span class="c1"># note vbmshift has UPWARD as positive convention</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cbmshift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hybrid_cbm</span> <span class="o">-</span> <span class="n">cbm</span>  <span class="c1"># note cbmshift has UPWARD as positive convention</span>
+
+        <span class="n">charge</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">charge</span>
+        <span class="n">vbm_shift_correction</span> <span class="o">=</span> <span class="n">charge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;vbmshift&quot;</span><span class="p">]</span>
+        <span class="c1"># negative sign has to do with fact that these are holes</span>
+        <span class="n">hole_vbm_shift_correction</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span> <span class="o">*</span> <span class="n">num_hole_vbm</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;vbmshift&quot;</span><span class="p">]</span>
+        <span class="n">elec_cbm_shift_correction</span> <span class="o">=</span> <span class="n">num_elec_cbm</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;cbmshift&quot;</span><span class="p">]</span>
+
+        <span class="n">entry</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;bandshift_meta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;vbm_shift_correction&quot;</span><span class="p">:</span> <span class="n">vbm_shift_correction</span><span class="p">,</span>
+            <span class="s2">&quot;hole_vbm_shift_correction&quot;</span><span class="p">:</span> <span class="n">hole_vbm_shift_correction</span><span class="p">,</span>
+            <span class="s2">&quot;elec_cbm_shift_correction&quot;</span><span class="p">:</span> <span class="n">elec_cbm_shift_correction</span>
+        <span class="p">}</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -248,6 +248,11 @@ class DictSet(VaspInputSet):
             Tkatchenko-Scheffler with iterative Hirshfeld partitioning,
             MBD@rSC, dDsC, Dion's vdW-DF, DF2, optPBE, optB88, optB86b and
             rVV10.
+        use_structure_charge (bool): If set to True, then the public
+            variable used for setting the overall charge of the
+            structure (structure.charge) is used to set the NELECT
+            variable in the INCAR
+            Default is False (structure's overall charge is not used)
     """
 
     def __init__(self, structure, config_dict,
@@ -255,7 +260,8 @@ class DictSet(VaspInputSet):
                  user_kpoints_settings=None, user_potcar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  potcar_functional="PBE", force_gamma=False,
-                 reduce_structure=None, vdw=None):
+                 reduce_structure=None, vdw=None,
+                 use_structure_charge=False):
         if reduce_structure:
             structure = structure.get_reduced_structure(reduce_structure)
         if sort_structure:
@@ -272,6 +278,7 @@ class DictSet(VaspInputSet):
         self.user_kpoints_settings = user_kpoints_settings
         self.user_potcar_settings = user_potcar_settings
         self.vdw = vdw.lower() if vdw is not None else None
+        self.use_structure_charge = use_structure_charge
         if self.vdw:
             vdw_par = loadfn(os.path.join(MODULE_DIR, "vdW_parameters.yaml"))
             try:
@@ -363,8 +370,8 @@ class DictSet(VaspInputSet):
                            for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
 
-        if self.structure._charge:
-            incar["NELECT"] = self.nelect + self.structure._charge
+        if self.use_structure_charge:
+            incar["NELECT"] = self.nelect
 
         return incar
 
@@ -377,10 +384,19 @@ class DictSet(VaspInputSet):
         """
         Gets the default number of electrons for a given structure.
         """
-        return int(round(
-            sum([self.structure.composition.element_composition[ps.element]
-                 * ps.ZVAL
-                 for ps in self.potcar])))
+        #if structure is not sorted this can cause problems, so must take care to
+        #remove redundant symbols when counting electrons
+        site_symbols = list(set(self.poscar.site_symbols))
+        nelect = 0.
+        for ps in self.potcar:
+            if ps.element in site_symbols:
+                site_symbols.remove(ps.element)
+                nelect += self.structure.composition.element_composition[ps.element] * ps.ZVAL
+
+        if self.use_structure_charge:
+            return nelect - self.structure.charge
+        else:
+            return nelect
 
     @property
     def kpoints(self):
@@ -583,9 +599,12 @@ class MPStaticSet(MPRelaxSet):
         self._config_dict["KPOINTS"]["reciprocal_density"] = \
             self.reciprocal_density
         kpoints = super(MPStaticSet, self).kpoints
+
         # Prefer to use k-point scheme from previous run
+        # except for when lepsilon = True is specified
         if self.prev_kpoints and self.prev_kpoints.style != kpoints.style:
-            if self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst:
+            if (self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst) \
+                    and (not self.lepsilon):
                 k_div = [kp + 1 if kp % 2 == 1 else kp
                          for kp in kpoints.kpts[0]]
                 kpoints = Kpoints.monkhorst_automatic(k_div)

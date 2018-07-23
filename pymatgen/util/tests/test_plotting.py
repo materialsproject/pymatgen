@@ -3,8 +3,6 @@ from pymatgen.util.plotting import periodic_table_heatmap
 from pymatgen.util.testing import PymatgenTest
 import matplotlib
 
-matplotlib.use("pdf")
-
 
 class FuncTestCase(PymatgenTest):
 

@@ -532,6 +532,14 @@ class Element(Enum):
         return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
+    @unitized("ang")
+    def metallic_radius(self):
+        """
+        Metallic radius of the element. Radius is given in ang.
+        """
+        return self._data["Metallic radius"]
+
+    @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.

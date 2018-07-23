@@ -10,7 +10,7 @@ import json
 from io import open
 
 import matplotlib
-matplotlib.use("pdf")  # Use non-graphical display backend during test.
+matplotlib.use("pdf")
 from monty.os.path import which
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.cohp import CompleteCohp

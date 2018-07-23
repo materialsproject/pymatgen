@@ -1,0 +1,395 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.defects.generators &#8212; pymatgen 2018.7.15 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.defects.generators</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="k">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.core</span> <span class="k">import</span> <span class="n">Vacancy</span><span class="p">,</span> <span class="n">Interstitial</span><span class="p">,</span> <span class="n">Substitution</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.utils</span> <span class="k">import</span> <span class="n">StructureMotifInterstitial</span><span class="p">,</span> <span class="n">TopographyAnalyzer</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Danny Broberg, Shyam Dwaraknath&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Shyam Dwaraknath&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;shyamd@lbl.gov&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Mar 15, 2018&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines classes to generate point defect structures</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DefectGenerator"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.generators.html#pymatgen.analysis.defects.generators.DefectGenerator">[docs]</a><span class="k">class</span> <span class="nc">DefectGenerator</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class for point defects</span>
+<span class="sd">    Implements generator pattern</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return self as this should be an iterator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to return defects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="VacancyGenerator"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.generators.html#pymatgen.analysis.defects.generators.VacancyGenerator">[docs]</a><span class="k">class</span> <span class="nc">VacancyGenerator</span><span class="p">(</span><span class="n">DefectGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple generator for vacancies based on periodically</span>
+<span class="sd">    equivalent sites</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">include_bv_charge</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a Vacancy Generator</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure(Structure): pymatgen structure object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_bv_charge</span> <span class="o">=</span> <span class="n">include_bv_charge</span>
+
+        <span class="c1"># Find equivalent site list</span>
+        <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">equiv_site_seq</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">struct_valences</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_bv_charge</span><span class="p">:</span>
+            <span class="n">bv</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">struct_valences</span> <span class="o">=</span> <span class="n">bv</span><span class="o">.</span><span class="n">get_valences</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the next vacancy in the sequence or</span>
+<span class="sd">        raises StopIteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equiv_site_seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">vac_site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equiv_site_seq</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_valences</span><span class="p">:</span>
+                <span class="n">site_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">vac_site</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">charge</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_valences</span><span class="p">[</span><span class="n">site_index</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="n">Vacancy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">vac_site</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+
+
+<div class="viewcode-block" id="SubstitutionGenerator"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.generators.html#pymatgen.analysis.defects.generators.SubstitutionGenerator">[docs]</a><span class="k">class</span> <span class="nc">SubstitutionGenerator</span><span class="p">(</span><span class="n">DefectGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple generator for substitution based on periodically</span>
+<span class="sd">    equivalent sites</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a Substitution Generator</span>
+<span class="sd">        note: an Antisite is considered a type of substitution</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure(Structure): pymatgen structure object</span>
+<span class="sd">            element (str or Element or Specie): element for the substitution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">element</span>
+
+        <span class="c1"># Find equivalent site list</span>
+        <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">equiv_sub</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">equiv_site_set</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">):</span>
+            <span class="n">vac_site</span> <span class="o">=</span> <span class="n">equiv_site_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># make sure you compare with specie symbol or Element type</span>
+                <span class="n">vac_specie</span> <span class="o">=</span> <span class="n">vac_site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vac_specie</span> <span class="o">=</span> <span class="n">vac_site</span><span class="o">.</span><span class="n">specie</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="o">!=</span> <span class="n">vac_specie</span><span class="p">:</span>
+                <span class="n">defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">vac_site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">sub</span> <span class="o">=</span> <span class="n">Substitution</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">defect_site</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">equiv_sub</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the next Substitution in the sequence or</span>
+<span class="sd">        raises StopIteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equiv_sub</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equiv_sub</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+
+
+<div class="viewcode-block" id="InterstitialGenerator"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.generators.html#pymatgen.analysis.defects.generators.InterstitialGenerator">[docs]</a><span class="k">class</span> <span class="nc">InterstitialGenerator</span><span class="p">(</span><span class="n">DefectGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generator for interstitials at positions</span>
+<span class="sd">    where the interstitialcy is coordinated by nearest neighbors</span>
+<span class="sd">    in a way that resembles basic structure motifs</span>
+<span class="sd">    (e.g., tetrahedra, octahedra).  The algorithm is called InFiT</span>
+<span class="sd">    (Interstitialcy Finding Tool), it was introducted by</span>
+<span class="sd">    Nils E. R. Zimmermann, Matthew K. Horton, Anubhav Jain,</span>
+<span class="sd">    and Maciej Haranczyk (Front. Mater., 4, 34, 2017),</span>
+<span class="sd">    and it is used by the Python Charged Defect Toolkit</span>
+<span class="sd">    (PyCDT: D. Broberg et al., Comput. Phys. Commun., in press, 2018).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes an Interstitial generator using structure motifs</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): pymatgen structure object</span>
+<span class="sd">            element (str or Element or Specie): element for the interstitial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="n">interstitial_finder</span> <span class="o">=</span> <span class="n">StructureMotifInterstitial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defect_sites</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">interstitial_finder</span><span class="o">.</span><span class="n">enumerate_defectsites</span><span class="p">())</span>
+
+        <span class="c1"># for multiplicity, neccessary to get prim_structure</span>
+        <span class="n">spa</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+        <span class="n">prim_struct</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">get_primitive_standard_structure</span><span class="p">()</span>
+        <span class="n">conv_prim_rat</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span> <span class="o">/</span> <span class="n">prim_struct</span><span class="o">.</span><span class="n">num_sites</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiplicities</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">interstitial_finder</span><span class="o">.</span><span class="n">get_defectsite_multiplicity</span><span class="p">(</span><span class="n">def_ind</span><span class="p">)</span> <span class="o">/</span> <span class="n">conv_prim_rat</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">def_ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defect_sites</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count_def</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># for counting the index of the generated defect</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the next interstitial or</span>
+<span class="sd">        raises StopIteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defect_sites</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">int_site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">mult</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplicities</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count_def</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">site_name</span> <span class="o">=</span> <span class="s1">&#39;InFiT&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_def</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Interstitial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">int_site</span><span class="p">,</span> <span class="n">site_name</span><span class="o">=</span><span class="n">site_name</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="n">mult</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+
+
+<div class="viewcode-block" id="VoronoiInterstitialGenerator"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.generators.html#pymatgen.analysis.defects.generators.VoronoiInterstitialGenerator">[docs]</a><span class="k">class</span> <span class="nc">VoronoiInterstitialGenerator</span><span class="p">(</span><span class="n">DefectGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generator for interstitials based on a simple Voronoi analysis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes an Interstitial generator using Voronoi sites</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Structure): pymatgen structure object</span>
+<span class="sd">            element (str or Element or Specie): element for the interstitial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">element</span>
+
+        <span class="n">framework</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">symbol_set</span><span class="p">)</span>
+        <span class="n">get_voronoi</span> <span class="o">=</span> <span class="n">TopographyAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="p">[],</span> <span class="n">check_volume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">get_voronoi</span><span class="o">.</span><span class="n">cluster_nodes</span><span class="p">()</span>
+        <span class="n">get_voronoi</span><span class="o">.</span><span class="n">remove_collisions</span><span class="p">()</span>
+
+        <span class="c1"># trim equivalent nodes with symmetry analysis</span>
+        <span class="n">struct_to_trim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">poss_inter</span> <span class="ow">in</span> <span class="n">get_voronoi</span><span class="o">.</span><span class="n">vnodes</span><span class="p">:</span>
+            <span class="n">struct_to_trim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="n">poss_inter</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">symmetry_finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">struct_to_trim</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">)</span>
+        <span class="n">equiv_sites_list</span> <span class="o">=</span> <span class="n">symmetry_finder</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span><span class="o">.</span><span class="n">equivalent_sites</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">equiv_site_seq</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">poss_site_list</span> <span class="ow">in</span> <span class="n">equiv_sites_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">poss_site_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">equiv_site_seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poss_site_list</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">count_def</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># for counting the index of the generated defect</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the next interstitial or</span>
+<span class="sd">        raises StopIteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equiv_site_seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">inter_site_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equiv_site_seq</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">count_def</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">site_name</span> <span class="o">=</span> <span class="s1">&#39;Voronoi&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_def</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Interstitial</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="n">inter_site_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">site_name</span><span class="o">=</span><span class="n">site_name</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">inter_site_list</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+
+
+<div class="viewcode-block" id="SimpleChargeGenerator"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.generators.html#pymatgen.analysis.defects.generators.SimpleChargeGenerator">[docs]</a><span class="k">class</span> <span class="nc">SimpleChargeGenerator</span><span class="p">(</span><span class="n">DefectGenerator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Does an extremely simple/limited charge generation scheme (only one charge generated)</span>
+
+<span class="sd">    for vacancies: use bond valence method to assign oxidation states and consider</span>
+<span class="sd">                    negative of the vacant site&#39;s oxidation state as single charge to try</span>
+<span class="sd">    for antisites and subs: use bond valence method to assign oxidation states and consider</span>
+<span class="sd">                    negative of the vacant site&#39;s oxidation state as single charge to try +</span>
+<span class="sd">                    added to likely charge of substitutional site (closest to zero)</span>
+<span class="sd">    for interstitial: charge zero</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defect</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            defect(Defect): pymatgen Defect object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defect</span> <span class="o">=</span> <span class="n">defect</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bv</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">()</span>
+            <span class="n">struct_valences</span> <span class="o">=</span> <span class="n">bv</span><span class="o">.</span><span class="n">get_valences</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">bulk_structure</span><span class="p">)</span>
+            <span class="n">site_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">bulk_structure</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">def_site_valence</span> <span class="o">=</span> <span class="n">struct_valences</span><span class="p">[</span><span class="n">site_index</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># sometimes valences cant be assigned</span>
+            <span class="n">def_site_valence</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">Vacancy</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">charges</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">def_site_valence</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">Substitution</span><span class="p">):</span>
+            <span class="c1">#(minimize difference with host site specie)</span>
+            <span class="n">probable_chgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ox</span> <span class="o">-</span> <span class="n">def_site_valence</span> <span class="k">for</span> <span class="n">ox</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">oxidation_states</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">charges</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">probable_chgs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">abs</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">Interstitial</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">charges</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Defect Type not recognized.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the next defect type with the correct charge appended</span>
+<span class="sd">        raises StopIteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charges</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">charge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charges</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">defect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defect</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">defect</span><span class="o">.</span><span class="n">set_charge</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">defect</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
