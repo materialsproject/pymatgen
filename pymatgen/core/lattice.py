@@ -549,7 +549,7 @@ class Lattice(MSONable):
         (lengths, angles) = other_lattice.lengths_and_angles
         (alpha, beta, gamma) = angles
 
-        frac, dist, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+        frac, dist, _, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                   max(lengths) * (1 + ltol),
                                                   zip_results=False)
         cart = self.get_cartesian_coords(frac)
@@ -990,36 +990,43 @@ class Lattice(MSONable):
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index) ...] since most of the time, subsequent
-                processing requires the distance.
+                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds
+                fcoords, dists, inds, image
         """
         # TODO: refactor to use lll matrix (nmax will be smaller)
+        # Determine the maximum number of supercells in each direction
+        #  required to contain a sphere of radius n
         recp_len = np.array(self.reciprocal_lattice.abc) / (2 * pi)
         nmax = float(r) * recp_len + 0.01
 
+        # Get the fractional coordinates of the center of the sphere
         pcoords = self.get_fractional_coords(center)
         center = np.array(center)
 
+        # Prepare the list of output atoms
         n = len(frac_points)
         fcoords = np.array(frac_points) % 1
         indices = np.arange(n)
 
+        # Generate all possible images that could be within `r` of `center`
         mins = np.floor(pcoords - nmax)
         maxes = np.ceil(pcoords + nmax)
-        arange = np.arange(start=mins[0], stop=maxes[0])
-        brange = np.arange(start=mins[1], stop=maxes[1])
-        crange = np.arange(start=mins[2], stop=maxes[2])
-        arange = arange[:, None] * np.array([1, 0, 0])[None, :]
-        brange = brange[:, None] * np.array([0, 1, 0])[None, :]
-        crange = crange[:, None] * np.array([0, 0, 1])[None, :]
+        arange = np.arange(start=mins[0], stop=maxes[0], dtype=np.int)
+        brange = np.arange(start=mins[1], stop=maxes[1], dtype=np.int)
+        crange = np.arange(start=mins[2], stop=maxes[2], dtype=np.int)
+        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int)[None, :]
+        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int)[None, :]
+        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int)[None, :]
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
+        # Generate the coordinates of all atoms within these images
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
 
+        # Determine distance from `center`
         cart_coords = self.get_cartesian_coords(fcoords)
         cart_images = self.get_cartesian_coords(images)
         coords = cart_coords[:, None, None, None, :] + \
@@ -1028,13 +1035,19 @@ class Lattice(MSONable):
         coords **= 2
         d_2 = np.sum(coords, axis=4)
 
+        # Determine which points are within `r` of `center`
         within_r = np.where(d_2 <= r ** 2)
+        #  `within_r` now contains the coordinates of each image that is
+        #    inside of the cutoff distance. It has 4 coordinates:
+        #   0 - index of the image within `frac_points`
+        #   1,2,3 - index of the supercell which holds the images in the x, y, z directions
+
         if zip_results:
             return list(zip(shifted_coords[within_r], np.sqrt(d_2[within_r]),
-                            indices[within_r[0]]))
+                            indices[within_r[0]], images[within_r[1:]]))
         else:
             return shifted_coords[within_r], np.sqrt(d_2[within_r]), \
-                indices[within_r[0]]
+                indices[within_r[0]], images[within_r[1:]]
 
     def get_all_distances(self, fcoords1, fcoords2):
         """

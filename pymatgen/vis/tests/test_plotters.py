@@ -9,7 +9,6 @@ import json
 from monty.json import MontyDecoder
 import numpy as np
 import matplotlib
-matplotlib.use("pdf")
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.xas.spectrum import XANES

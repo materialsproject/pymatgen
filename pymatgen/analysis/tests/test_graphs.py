@@ -8,7 +8,6 @@ import unittest
 import os
 import copy
 import matplotlib
-matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
@@ -17,8 +16,10 @@ from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
 try:
     import openbabel as ob
+    import networkx as nx
 except ImportError:
     ob = None
+    nx = None
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -374,6 +375,9 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def tearDown(self):
         warnings.resetwarnings()
+        del self.ethylene
+        del self.butadiene
+        del self.cyclohexene
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")
@@ -386,6 +390,19 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertTrue(isinstance(self.cyclohexene.get_connected_sites(0)[0].site, Site))
         self.assertEqual(str(self.cyclohexene.get_connected_sites(0)[0].site.specie), 'H')
 
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
+    def test_set_node_attributes(self):
+        self.ethylene.set_node_attributes()
+
+        specie = nx.get_node_attributes(self.ethylene.graph, "specie")
+        coords = nx.get_node_attributes(self.ethylene.graph, "coords")
+
+        self.assertEqual(str(specie[0]), str(self.ethylene.molecule[0].specie))
+        self.assertEqual(str(specie[0]), "C")
+        self.assertEqual(coords[0][0], self.ethylene.molecule[0].coords[0])
+        self.assertEqual(coords[0][1], self.ethylene.molecule[0].coords[1])
+        self.assertEqual(coords[0][2], self.ethylene.molecule[0].coords[2])
+
     def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
 
@@ -395,7 +412,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(self.cyclohexene.get_coordination_of_site(0), 4)
 
     def test_edge_editing(self):
-        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo":"bar"})
+        self.cyclohexene.alter_edge(0, 1, new_weight=0.0, new_edge_properties={"foo": "bar"})
         new_edge = self.cyclohexene.graph.get_edge_data(0, 1)[0]
         self.assertEqual(new_edge["weight"], 0.0)
         self.assertEqual(new_edge["foo"], "bar")
@@ -423,13 +440,32 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
-        self.assertEqual(sorted(rings[0]), [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
+        self.assertEqual(sorted(rings[0]),
+                         [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
 
+    def test_equivalent_to(self):
+        ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__),
+                                                   "..", "..", "..",
+                                                   "test_files/graphs/ethylene.xyz"))
+        # switch carbons
+        ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
+
+        eth_copy = MoleculeGraph.with_empty_graph(ethylene,
+                                                  edge_weight_name="strength",
+                                                  edge_weight_units="")
+        eth_copy.add_edge(0, 1, weight=2.0)
+        eth_copy.add_edge(1, 2, weight=1.0)
+        eth_copy.add_edge(1, 3, weight=1.0)
+        eth_copy.add_edge(0, 4, weight=1.0)
+        eth_copy.add_edge(0, 5, weight=1.0)
+
+        self.assertTrue(self.ethylene.equivalent_to(eth_copy))
+        self.assertFalse(self.ethylene.equivalent_to(self.butadiene))
+
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
-        string = "methyl"
         molgraph = MoleculeGraph.with_empty_graph(molecule,
                                                   edge_weight_name="strength",
                                                   edge_weight_units="")
@@ -439,8 +475,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
         eth_mol = copy.deepcopy(self.ethylene)
         eth_str = copy.deepcopy(self.ethylene)
-        eth_mol.substitute_group(5, molecule)
-        eth_str.substitute_group(5, string)
+        eth_mol.substitute_group(5, molecule, MinimumDistanceNN)
+        eth_str.substitute_group(5, "methyl", MinimumDistanceNN)
         self.assertEqual(eth_mol, eth_str)
 
         graph_dict = {(0, 1): {"weight": 1.0},
@@ -450,8 +486,8 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_mg = copy.deepcopy(self.ethylene)
         eth_graph = copy.deepcopy(self.ethylene)
 
-        eth_graph.substitute_group(5, molecule, graph_dict=graph_dict)
-        eth_mg.substitute_group(5, molgraph)
+        eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
+        eth_mg.substitute_group(5, molgraph, MinimumDistanceNN)
         self.assertEqual(eth_graph.graph.get_edge_data(5, 6)[0]["weight"], 1.0)
         self.assertEqual(eth_mg, eth_graph)
 

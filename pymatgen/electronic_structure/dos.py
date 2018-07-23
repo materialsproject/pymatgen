@@ -4,7 +4,9 @@
 
 from __future__ import division, unicode_literals
 import numpy as np
+
 import six
+import warnings
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.periodic_table import get_el_sp
@@ -336,7 +338,7 @@ class Dos(MSONable):
         Returns:
             (cbm, vbm): float in eV corresponding to the gap
         """
-        #determine tolerance
+        # determine tolerance
         tdos = self.get_densities(spin)
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
@@ -431,6 +433,7 @@ class FermiDos(Dos):
         bandgap (float): if set, the energy values are scissored so that the
             electronic band gap matches this value.
     """
+
     def __init__(self, dos, structure=None, nelecs=None, bandgap=None):
         super(FermiDos, self).__init__(
             dos.efermi, energies=dos.energies,
@@ -448,13 +451,17 @@ class FermiDos(Dos):
         tdos = np.array(self.get_densities())
         nelecs = nelecs or self.structure.composition.total_electrons
         # normalize total density of states based on integral at 0K
-        self.tdos = tdos*nelecs / (tdos*self.de)[self.energies <= self.efermi].sum()
+        self.tdos = tdos * nelecs / (tdos * self.de)[self.energies <= self.efermi].sum()
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = np.argmin(abs(self.energies - evbm))
         self.idx_cbm = np.argmin(abs(self.energies - ecbm))
         self.A_to_cm = 1e-8
         if bandgap:
-            idx_fermi = np.argmin(abs(self.energies - self.efermi))
+            if self.efermi < ecbm and self.efermi > evbm:
+                eref = self.efermi
+            else:
+                eref = (evbm + ecbm) / 2.0
+            idx_fermi = np.argmin(abs(self.energies - eref))
             self.energies[:idx_fermi] -= (bandgap - (ecbm - evbm)) / 2.0
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
@@ -471,13 +478,55 @@ class FermiDos(Dos):
         Returns (float): in units 1/cm3. If negative it means that the majority
             carriers are electrons (n-type doping) and if positive holes/p-type
         """
-        cb_integral = np.sum(self.tdos[self.idx_cbm:]\
-                             * f0(self.energies[self.idx_cbm:], fermi, T)\
+        cb_integral = np.sum(self.tdos[self.idx_cbm:]
+                             * f0(self.energies[self.idx_cbm:], fermi, T)
                              * self.de[self.idx_cbm:], axis=0)
-        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1]\
-                             * (1-f0(self.energies[:self.idx_vbm+1], fermi, T))\
-                             * self.de[:self.idx_vbm + 1],axis=0)
-        return (vb_integral-cb_integral) / (self.volume*self.A_to_cm**3)
+        vb_integral = np.sum(self.tdos[:self.idx_vbm + 1]
+                             * (1 - f0(self.energies[:self.idx_vbm + 1], fermi, T))
+                             * self.de[:self.idx_vbm + 1], axis=0)
+        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
+
+    def get_fermi_interextrapolated(self, c, T, warn=True, c_ref=1e10, **kwargs):
+        """
+        Similar to get_fermi except that when get_fermi fails to converge,
+        an interpolated or extrapolated fermi (depending on c) is returned with
+        the assumption that the fermi level changes linearly with log(abs(c)).
+
+        Args:
+            c (float): doping concentration in 1/cm3. c<0 represents n-type
+                doping and c>0 p-type doping (i.e. majority carriers are holes)
+            T (float): absolute temperature in Kelvin
+            warn (bool): whether to warn for the first time when no fermi can
+                be found.
+            c_ref (float): a doping concentration where get_fermi returns a
+                value without error for both c_ref and -c_ref
+            **kwargs: see keyword arguments of the get_fermi function
+
+        Returns (float): the fermi level that is possibly interapolated or
+            extrapolated and must be used with caution.
+        """
+        try:
+            return self.get_fermi(c, T, **kwargs)
+        except ValueError as e:
+            if warn:
+                warnings.warn(str(e))
+            if abs(c) < c_ref:
+                if abs(c) < 1e-10:
+                    c = 1e-10
+                # max(10, ) is to avoid log(0<x<1) and log(1+x) both of which are slow
+                f2 = self.get_fermi_interextrapolated(max(10, abs(c)*10.), T, warn=False, **kwargs)
+                f1  = self.get_fermi_interextrapolated(-max(10, abs(c)*10.), T, warn=False, **kwargs)
+                c2 = np.log(abs(1+self.get_doping(f2, T)))
+                c1 = -np.log(abs(1+self.get_doping(f1, T)))
+                slope = (f2-f1)/(c2-c1)
+                return f2 + slope * (np.sign(c)*np.log(abs(1+c)) - c2)
+            else:
+                f_ref = self.get_fermi_interextrapolated(np.sign(c)*c_ref, T, warn=False, **kwargs)
+                f_new = self.get_fermi_interextrapolated(c/10., T, warn=False, **kwargs)
+                clog = np.sign(c)*np.log(abs(c))
+                c_newlog = np.sign(c)*np.log(abs(self.get_doping(f_new, T)))
+                slope = (f_new - f_ref) / (c_newlog - np.sign(c)*10.)
+                return f_new + slope * (clog - c_newlog)
 
     def get_fermi(self, c, T, rtol=0.01, nstep=50, step=0.1, precision=8):
         """
@@ -498,16 +547,16 @@ class FermiDos(Dos):
         Returns (float): the fermi level. Note that this is different from the
             default dos.efermi.
         """
-        fermi = self.efermi # initialize target fermi
+        fermi = self.efermi  # initialize target fermi
         for _ in range(precision):
-            frange = np.arange(-nstep, nstep+1) * step + fermi
+            frange = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(f, T) for f in frange])
-            relative_error = abs(calc_doping/c - 1.0)
+            relative_error = abs(calc_doping / c - 1.0)
             fermi = frange[np.argmin(relative_error)]
             step /= 10.0
         if min(relative_error) > rtol:
             raise ValueError('Could not find fermi within {}% of c={}'.format(
-                    rtol*100, c))
+                rtol * 100, c))
         return fermi
 
 
@@ -532,6 +581,7 @@ class CompleteDos(Dos):
 
         Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
     """
+
     def __init__(self, structure, total_dos, pdoss):
         super(CompleteDos, self).__init__(
             total_dos.efermi, energies=total_dos.energies,
@@ -775,4 +825,4 @@ def f0(E, fermi, T):
         fermi (float): the fermi level in eV
         T (float): the temperature in kelvin
     """
-    return 1./ ( 1.+np.exp((E-fermi)/(_cd("Boltzmann constant in eV/K") * T)) )
+    return 1. / (1. + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))

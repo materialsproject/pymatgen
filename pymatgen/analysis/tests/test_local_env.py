@@ -12,13 +12,21 @@ import os
 from monty.os.path import which
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-    VoronoiNN, JMolNN, MinimumDistanceNN, MinimumOKeeffeNN, MinimumVIRENN, \
+    VoronoiNN, JMolNN, MinimumDistanceNN, OpenBabelNN, MinimumOKeeffeNN,\
+    MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
     BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
     Critic2NN, solid_angle
-from pymatgen import Element, Structure, Lattice
+from pymatgen import Element, Molecule, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
+
+try:
+    import openbabel as ob
+    import pybel as pb
+except ImportError:
+    pb = None
+    ob = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -225,6 +233,50 @@ class JMolNNTest(PymatgenTest):
     def tearDown(self):
         del self.jmol
         del self.jmol_update
+
+
+class OpenBabelNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+
+    @unittest.skipIf((not (ob and pb)) or (not which("babel")),
+                     "OpenBabel not installed.")
+    def test_nn_orders(self):
+        strat = OpenBabelNN()
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertEqual(acetylene[0]["weight"], 3)
+        self.assertEqual(acetylene[1]["weight"], 1)
+
+        # Currently, benzene bonds register either as double or single,
+        # not aromatic
+        # Instead of searching for aromatic bonds, we check that bonds are
+        # detected in the same way from both sides
+        self.assertEqual(strat.get_nn_info(self.benzene, 0)[0]["weight"],
+                         strat.get_nn_info(self.benzene, 1)[0]["weight"])
+
+    @unittest.skipIf((not (ob and pb)) or (not which("babel")),
+                     "OpenBabel not installed.")
+    def test_nn_length(self):
+        strat = OpenBabelNN(order=False)
+
+        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+
+        c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
+        h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
+
+        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
+        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
+
+        self.assertAlmostEqual(strat.get_nn_info(self.acetylene, 0)[0]["weight"],
+                               1.19,
+                               2)
+
+    def tearDown(self):
+        del self.benzene
+        del self.acetylene
 
 
 class MiniDistNNTest(PymatgenTest):
@@ -644,6 +696,18 @@ class LocalStructOrderParamsTest(PymatgenTest):
             [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
+        self.sq_face_capped_trig_pris = Structure(
+            Lattice.from_lengths_and_angles(
+            [30, 30, 30], [90, 90, 90]),
+            ["H", "H", "H", "H", "H", "H", "H", "H"],
+            [[0, 0, 0], [-0.6546536707079771, -0.37796447300922725, 0.6546536707079771],
+            [0.6546536707079771, -0.37796447300922725, 0.6546536707079771],
+            [0.0, 0.7559289460184545, 0.6546536707079771],
+            [-0.6546536707079771, -0.37796447300922725, -0.6546536707079771],
+            [0.6546536707079771, -0.37796447300922725, -0.6546536707079771],
+            [0.0, 0.7559289460184545, -0.6546536707079771], [0.0, -1.0, 0.0]],
+            validate_proximity=False, to_unit_cell=False,
+            coords_are_cartesian=True, site_properties=None)
 
     def test_init(self):
         self.assertIsNotNone(
@@ -662,7 +726,7 @@ class LocalStructOrderParamsTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
-            "pent_plan_max", "cuboct_max", "tet_max"]
+            "pent_plan_max", "cuboct_max", "tet_max", "sq_face_cap_trig_pris"]
         op_params = [None for i in range(len(op_types))]
         op_params[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
         op_params[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
@@ -840,6 +904,12 @@ class LocalStructOrderParamsTest(PymatgenTest):
         op_vals = ops_101.get_order_parameters(
             self.hexagonal_planar, 0, indices_neighs=[1,2,3,4,5,6])
         self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)
+
+        # Square face capped trigonal prism.
+        op_vals = ops_101.get_order_parameters(
+            self.sq_face_capped_trig_pris, 0,
+            indices_neighs=[i for i in range(1, 8)])
+        self.assertAlmostEqual(int(op_vals[34] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])
