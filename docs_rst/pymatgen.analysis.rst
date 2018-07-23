@@ -30,6 +30,7 @@ Submodules
    pymatgen.analysis.ewald
    pymatgen.analysis.excitation
    pymatgen.analysis.find_dimension
+   pymatgen.analysis.functional_groups
    pymatgen.analysis.graphs
    pymatgen.analysis.interface_reactions
    pymatgen.analysis.local_env
