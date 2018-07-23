@@ -3,19 +3,107 @@ from __future__ import division, unicode_literals
 __author__ = 'Xiang-Guo Li'
 __copyright__ = 'Copyright 2018, The Materials Virtual Lab'
 __email__ = 'xil110@eng.ucsd.edu'
-__date__ = '05/18/18'
+__date__ = '07/30/18'
 
 from pymatgen.util.testing import PymatgenTest
 import os
 import numpy as np
 from pymatgen import Structure
-from pymatgen.io.gb.grain_boundary_generator import GBGenerator
+from pymatgen.io.gb.gb import Gb, GBGenerator
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "grain_boundary")
 
 
-class Test_grain_boundary_generator(PymatgenTest):
+class Test_Gb(PymatgenTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
+                                                       "Cu_mp-30_conventional_standard.cif"))
+        GB_Cu_conv = GBGenerator(cls.Cu_conv)
+        cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
+                                                   expand_times=4, vacuum_thickness=1.5,
+                                                   ab_shift=[0.0, 0.0], plane=[1, 3, 1])
+        cls.Cu_GB2 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
+                                                   expand_times=4, vacuum_thickness=1.5,
+                                                   ab_shift=[0.2, 0.2])
+
+    def test_init(self):
+        self.assertAlmostEqual(self.Cu_GB1.rotation_angle, 123.74898859588858)
+        self.assertAlmostEqual(self.Cu_GB1.vacuum_thickness, 1.5)
+        self.assertListEqual(self.Cu_GB2.rotation_axis, [1, 2, 3])
+        self.assertArrayAlmostEqual(np.array(self.Cu_GB1.ab_shift),
+                                    np.array([0.0, 0.0]))
+        self.assertArrayAlmostEqual(np.array(self.Cu_GB2.ab_shift),
+                                    np.array([0.2, 0.2]))
+        self.assertListEqual(self.Cu_GB1.gb_plane, [1, 3, 1])
+        self.assertListEqual(self.Cu_GB2.gb_plane, [1, 2, 3])
+        self.assertArrayAlmostEqual(np.array(self.Cu_GB1.init_cell.lattice.matrix),
+                                    np.array(self.Cu_conv.lattice.matrix))
+
+    def test_copy(self):
+        Cu_GB1_copy = self.Cu_GB1.copy()
+        self.assertAlmostEqual(Cu_GB1_copy.sigma, self.Cu_GB1.sigma)
+        self.assertAlmostEqual(Cu_GB1_copy.rotation_angle, self.Cu_GB1.rotation_angle)
+        self.assertListEqual(Cu_GB1_copy.rotation_axis, self.Cu_GB1.rotation_axis)
+        self.assertListEqual(Cu_GB1_copy.gb_plane, self.Cu_GB1.gb_plane)
+        self.assertArrayAlmostEqual(Cu_GB1_copy.init_cell.lattice.matrix,
+                                    self.Cu_GB1.init_cell.lattice.matrix)
+        self.assertArrayAlmostEqual(Cu_GB1_copy.oriented_unit_cell.lattice.matrix,
+                                    self.Cu_GB1.oriented_unit_cell.lattice.matrix)
+        self.assertArrayAlmostEqual(Cu_GB1_copy.lattice.matrix,
+                                    self.Cu_GB1.lattice.matrix)
+
+    def test_sigma(self):
+        self.assertAlmostEqual(self.Cu_GB1.sigma, 9)
+        self.assertAlmostEqual(self.Cu_GB2.sigma, 9)
+
+    def test_top_grain(self):
+        self.assertAlmostEqual(self.Cu_GB1.num_sites, self.Cu_GB1.top_grain.num_sites * 2)
+        self.assertArrayAlmostEqual(self.Cu_GB1.lattice.matrix,
+                                    self.Cu_GB1.top_grain.lattice.matrix)
+        self.assertArrayAlmostEqual(np.array(self.Cu_GB1.frac_coords[-1]),
+                                    np.array(self.Cu_GB1.top_grain.frac_coords[-1]))
+
+    def test_bottom_grain(self):
+        self.assertAlmostEqual(self.Cu_GB1.num_sites, self.Cu_GB1.bottom_grain.num_sites * 2)
+        self.assertArrayAlmostEqual(self.Cu_GB1.lattice.matrix,
+                                    self.Cu_GB1.bottom_grain.lattice.matrix)
+        self.assertArrayAlmostEqual(np.array(self.Cu_GB1.frac_coords[0]),
+                                    np.array(self.Cu_GB1.bottom_grain.frac_coords[0]))
+
+    def test_coincidents(self):
+        self.assertAlmostEqual(self.Cu_GB1.num_sites / self.Cu_GB1.sigma, len(self.Cu_GB1.coincidents))
+        self.assertAlmostEqual(self.Cu_GB2.num_sites / self.Cu_GB2.sigma, len(self.Cu_GB2.coincidents))
+
+    def test_as_dict_and_from_dict(self):
+        d1 = self.Cu_GB1.as_dict()
+        d2 = self.Cu_GB2.as_dict()
+        Cu_GB1_new = Gb.from_dict(d1)
+        Cu_GB2_new = Gb.from_dict(d2)
+        self.assertAlmostEqual(Cu_GB1_new.sigma, self.Cu_GB1.sigma)
+        self.assertAlmostEqual(Cu_GB1_new.rotation_angle, self.Cu_GB1.rotation_angle)
+        self.assertListEqual(Cu_GB1_new.rotation_axis, self.Cu_GB1.rotation_axis)
+        self.assertListEqual(Cu_GB1_new.gb_plane, self.Cu_GB1.gb_plane)
+        self.assertArrayAlmostEqual(Cu_GB1_new.init_cell.lattice.matrix,
+                                    self.Cu_GB1.init_cell.lattice.matrix)
+        self.assertArrayAlmostEqual(Cu_GB1_new.oriented_unit_cell.lattice.matrix,
+                                    self.Cu_GB1.oriented_unit_cell.lattice.matrix)
+        self.assertArrayAlmostEqual(Cu_GB1_new.lattice.matrix,
+                                    self.Cu_GB1.lattice.matrix)
+        self.assertAlmostEqual(Cu_GB2_new.sigma, self.Cu_GB2.sigma)
+        self.assertAlmostEqual(Cu_GB2_new.rotation_angle, self.Cu_GB2.rotation_angle)
+        self.assertListEqual(Cu_GB2_new.rotation_axis, self.Cu_GB2.rotation_axis)
+        self.assertListEqual(Cu_GB2_new.gb_plane, self.Cu_GB2.gb_plane)
+        self.assertArrayAlmostEqual(Cu_GB2_new.init_cell.lattice.matrix,
+                                    self.Cu_GB2.init_cell.lattice.matrix)
+        self.assertArrayAlmostEqual(Cu_GB2_new.oriented_unit_cell.lattice.matrix,
+                                    self.Cu_GB2.oriented_unit_cell.lattice.matrix)
+        self.assertArrayAlmostEqual(Cu_GB2_new.lattice.matrix,
+                                    self.Cu_GB2.lattice.matrix)
+
+
+class Test_GBGenerator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.Cu_prim = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_primitive.cif"))
@@ -142,16 +230,6 @@ class Test_grain_boundary_generator(PymatgenTest):
                                                     expand_times=4)
         vol_ratio = gb_Bi_120_1.volume / self.Bi.volume
         self.assertAlmostEqual(vol_ratio, 59 * 2 * 4)
-
-    def test_gb_from_matrices(self):
-        mat1 = np.array([[30, -11, -41], [20, 3, -48], [-7, -1, 17]])
-        mat2 = np.array([[10, -31, 41], [20, -31, 20], [-7, 11, -7]])
-        gb_Br_111_1 = self.GB_Br.gb_from_matrices(mat1, mat2, expand_times=4,
-                                                  vacuum_thickness=3)
-        lat_conv = self.Br.lattice.matrix
-        lat_mat1 = np.rint(np.matmul(gb_Br_111_1.lattice.matrix, np.linalg.inv(lat_conv))).astype(int)
-        self.assertListEqual(list(lat_mat1[0]), list(mat1[0]))
-        self.assertListEqual(list(lat_mat1[1]), list(mat1[1]))
 
     def test_get_ratio(self):
         # hexagnal
