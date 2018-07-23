@@ -1100,8 +1100,13 @@ class WavecarTest(unittest.TestCase):
         self.assertEqual(self.w.band_energy[0].shape, (self.w.nb, 3))
         self.assertLessEqual(len(self.w.Gpoints[0]), 257)
 
-        with self.assertRaises(ValueError):
-            Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        self.assertEqual(len(self.w.coeffs), 2)
+        self.assertEqual(len(self.w.band_energy), 2)
+        self.assertEqual(len(self.w.kpoints), self.w.nk)
+        self.assertEqual(len(self.w.Gpoints), self.w.nk)
+        self.assertEqual(len(self.w.coeffs[0][0]), self.w.nb)
+        self.assertEqual(len(self.w.band_energy[0]), self.w.nk)
 
         temp_ggp = Wavecar._generate_G_points
         try:
