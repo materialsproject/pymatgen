@@ -142,6 +142,21 @@ class VoronoiNNTest(PymatgenTest):
                                np.sum([x['weight'] for x in nns if x['site_index'] == 0]),
                                places=3)
 
+    def test_adj_neighbors(self):
+        # Make a simple cubic structure
+        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
+
+        # Compute the NNs with adjacency
+        self.nn.targets = None
+        neighbors = self.nn.get_voronoi_polyhedra(s, 0)
+
+        # Each neighbor has 4 adjacent neighbors, all orthogonal
+        for nn_key, nn_info in neighbors.items():
+            self.assertEquals(4, len(nn_info['adj_neighbors']))
+
+            for adj_key in nn_info['adj_neighbors']:
+                self.assertEquals(0, np.dot(nn_info['normal'], neighbors[adj_key]['normal']))
+
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
         all_sites = self.nn.get_all_voronoi_polyhedra(self.s)
