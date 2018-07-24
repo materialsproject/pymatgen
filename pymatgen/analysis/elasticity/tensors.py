@@ -609,6 +609,13 @@ class TensorCollection(collections.Sequence):
             [t.convert_to_ieee(structure, initial_fit, refine_rotation)
              for t in self])
 
+    def round(self, *args, **kwargs):
+        return self.__class__([t.round(*args, **kwargs) for t in self])
+
+    @property
+    def voigt_symmetrized(self):
+        return self.__class__([t.voigt_symmetrized for t in self])
+
 
 class SquareTensor(Tensor):
     """
