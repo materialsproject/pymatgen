@@ -6,7 +6,7 @@ from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
 from pymatgen.analysis.elasticity.tensors import Tensor, \
-    TensorCollection, get_uvec
+    TensorCollection, get_uvec, SquareTensor
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.core.units import Unit
@@ -583,7 +583,7 @@ class ElasticTensorExpansion(TensorCollection):
                    + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
         return result
 
-    def get_tgt(self, temperature = None, structure=None, quad=None):
+    def get_tgt(self, temperature=None, structure=None, quad=None):
         """
         Gets the thermodynamic Gruneisen tensor (TGT) by via an
         integration of the GGT weighted by the directional heat
@@ -623,7 +623,7 @@ class ElasticTensorExpansion(TensorCollection):
                     c = self.get_heat_capacity(temperature, structure, p, u)
                 num += c*self.get_ggt(p, u) * w
                 denom += c * w
-        return num / denom
+        return SquareTensor(num / denom)
 
     def get_gruneisen_parameter(self, temperature=None, structure=None,
                                 quad=None):
@@ -710,8 +710,10 @@ class ElasticTensorExpansion(TensorCollection):
             cv = 3 * 8.314
         else:
             raise ValueError("Mode must be debye or dulong-petit")
-        alpha = self.get_tgt() * cv / (soec.k_vrh * 1e9 * v0 * 6.022e23)
-        return alpha
+        tgt = self.get_tgt(temperature, structure)
+        alpha = np.einsum('ijkl,ij', soec.compliance_tensor, tgt)
+        alpha *= cv / (1e9 * v0 * 6.022e23)
+        return SquareTensor(alpha)
 
     def get_compliance_expansion(self):
         """
