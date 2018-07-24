@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.graphs &#8212; pymatgen 2018.7.15 documentation</title>
+    <title>pymatgen.analysis.graphs &#8212; pymatgen 2018.7.23 documentation</title>
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -69,13 +69,10 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">KDTree</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
-    <span class="kn">from</span> <span class="nn">networkx.readwrite</span> <span class="k">import</span> <span class="n">json_graph</span>
-    <span class="kn">from</span> <span class="nn">networkx.drawing.nx_agraph</span> <span class="k">import</span> <span class="n">write_dot</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;This module requires the NetworkX &quot;</span>
-                      <span class="s2">&quot;graph library to be installed.&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">networkx.readwrite</span> <span class="k">import</span> <span class="n">json_graph</span>
+<span class="kn">from</span> <span class="nn">networkx.drawing.nx_agraph</span> <span class="k">import</span> <span class="n">write_dot</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -1170,20 +1167,20 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">graph_data</span><span class="o">=</span><span class="n">graph_data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MoleculeGraph.with_local_env_strategy"><a class="viewcode-back" href="../../../pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.MoleculeGraph.with_local_env_strategy">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">with_local_env_strategy</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">extend_structure</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for MoleculeGraph, using a strategy</span>
 <span class="sd">        from :Class: `pymatgen.analysis.local_env`.</span>
-
-<span class="sd">        Molecules will be put into a large artificial box for calculation</span>
-<span class="sd">        of bonds using a NearNeighbor strategy, since some strategies</span>
-<span class="sd">        assume periodic boundary conditions.</span>
 
 <span class="sd">        :param molecule: Molecule object</span>
 <span class="sd">        :param strategy: an instance of a</span>
 <span class="sd">            :Class: `pymatgen.analysis.local_env.NearNeighbors` object</span>
 <span class="sd">        :param reorder: bool, representing if graph nodes need to be reordered</span>
-<span class="sd">        following the application of the local_env strategy</span>
+<span class="sd">            following the application of the local_env strategy</span>
+<span class="sd">        :param extend_structure: If True (default), then a large artificial box</span>
+<span class="sd">            will be placed around the Molecule, because some strategies assume</span>
+<span class="sd">            periodic boundary conditions.</span>
 <span class="sd">        :return: mg, a MoleculeGraph</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1195,11 +1192,12 @@
         <span class="c1"># molecules have to be boxed first</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">cart_coords</span>
 
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+        <span class="k">if</span> <span class="n">extend_structure</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">100</span>
 
-        <span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">no_cross</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">no_cross</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecule</span><span class="p">)):</span>
             <span class="n">neighbors</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
@@ -1313,7 +1311,7 @@
 
         <span class="n">species</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
             <span class="n">species</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span>
             <span class="n">coords</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span>
         <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="s2">&quot;specie&quot;</span><span class="p">)</span>
@@ -2161,7 +2159,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.15 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.23 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -2169,7 +2167,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.6.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

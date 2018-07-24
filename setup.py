@@ -97,7 +97,7 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2018.7.15",
+    version="2018.7.23",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "six", "requests", "ruamel.yaml>=0.15.6",
@@ -150,6 +150,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
