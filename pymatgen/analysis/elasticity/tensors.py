@@ -11,6 +11,8 @@ import itertools
 import warnings
 import collections
 import string
+from monty.json import MSONable
+
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -38,7 +40,7 @@ reverse_voigt_map = np.array([[0, 5, 4],
                               [4, 3, 2]])
 
 
-class Tensor(np.ndarray):
+class Tensor(np.ndarray, MSONable):
     """
     Base class for doing useful general operations on Nth order tensors,
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
@@ -546,8 +548,37 @@ class Tensor(np.ndarray):
                           "with max diff of {}".format(max_diff))
         return self.__class__(test_new)
 
+    def as_dict(self, voigt=False):
+        """
+        Serializes the tensor object
 
-class TensorCollection(collections.Sequence):
+        Args:
+            voigt (bool): flag for whether to store entries in
+                voigt-notation.  Defaults to false, as information
+                may be lost in conversion.
+
+        Returns (Dict):
+            serialized format tensor object
+
+        """
+        input_array = self.voigt if voigt else self
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "input_array": input_array.tolist()}
+        if voigt:
+            d.update({"voigt": voigt})
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        voigt = d.get('voigt')
+        if voigt:
+            return cls.from_voigt(d["input_array"])
+        else:
+            return cls(d["input_array"])
+
+
+class TensorCollection(collections.Sequence, MSONable):
     """
     A sequence of tensors that can be used for fitting data
     or for having a tensor expansion
@@ -615,6 +646,23 @@ class TensorCollection(collections.Sequence):
     @property
     def voigt_symmetrized(self):
         return self.__class__([t.voigt_symmetrized for t in self])
+
+    def as_dict(self, voigt=False):
+        tensor_list = self.voigt if voigt else self
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "tensor_list": [t.tolist() for t in tensor_list]}
+        if voigt:
+            d.update({"voigt": voigt})
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        voigt = d.get('voigt')
+        if voigt:
+            return cls.from_voigt(d["tensor_list"])
+        else:
+            return cls(d["tensor_list"])
 
 
 class SquareTensor(Tensor):

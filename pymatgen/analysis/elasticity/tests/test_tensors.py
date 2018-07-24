@@ -4,13 +4,11 @@ import unittest
 import math
 import os
 
-import numpy as np
-from monty.serialization import loadfn
+from monty.serialization import loadfn, MontyDecoder
 from pymatgen.analysis.elasticity.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
-from pymatgen import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -371,6 +369,17 @@ class TensorTest(PymatgenTest):
         self.assertAlmostEqual(et[4, 4], 73.48)
         self.assertAlmostEqual(et[5, 5], 73.48)
 
+    def test_serialization(self):
+        # Test base serialize-deserialize
+        d = self.symm_rank2.as_dict()
+        new = Tensor.from_dict(d)
+        self.assertArrayAlmostEqual(new, self.symm_rank2)
+
+        d = self.symm_rank3.as_dict(voigt=True)
+        new = Tensor.from_dict(d)
+        self.assertArrayAlmostEqual(new, self.symm_rank3)
+
+
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
         self.seq_tc = [t for t in np.arange(4*3**3).reshape((4, 3, 3, 3))]
@@ -454,6 +463,22 @@ class TensorCollectionTest(PymatgenTest):
         tc = TensorCollection.from_voigt(tc_input)
         for t_input, t in zip(tc_input, tc):
             self.assertArrayAlmostEqual(Tensor.from_voigt(t_input), t)
+
+    def test_serialization(self):
+        # Test base serialize-deserialize
+        d = self.seq_tc.as_dict()
+        new = TensorCollection.from_dict(d)
+        for t, t_new in zip(self.seq_tc, new):
+            self.assertArrayAlmostEqual(t, t_new)
+
+        # Suppress vsym warnings and test voigt
+        with warnings.catch_warnings(record=True) as w:
+            vsym = self.rand_tc.voigt_symmetrized
+            d = vsym.as_dict(voigt=True)
+            new_vsym = TensorCollection.from_dict(d)
+            for t, t_new in zip(vsym, new_vsym):
+                self.assertArrayAlmostEqual(t, t_new)
+
 
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
@@ -560,6 +585,24 @@ class SquareTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(np.dot(u, p), self.rand_sqtensor)
         self.assertArrayAlmostEqual(np.eye(3),
                                     np.dot(u, np.conjugate(np.transpose(u))))
+
+    def test_serialization(self):
+        # Test base serialize-deserialize
+        d = self.rand_sqtensor.as_dict()
+        new = SquareTensor.from_dict(d)
+        self.assertArrayAlmostEqual(new, self.rand_sqtensor)
+        self.assertIsInstance(new, SquareTensor)
+
+        # Ensure proper object-independent deserialization
+        obj = MontyDecoder().process_decoded(d)
+        self.assertIsInstance(obj, SquareTensor)
+
+        with warnings.catch_warnings(record=True) as w:
+            vsym = self.rand_sqtensor.voigt_symmetrized
+            d_vsym = vsym.as_dict(voigt=True)
+            new_voigt = Tensor.from_dict(d_vsym)
+            self.assertArrayAlmostEqual(vsym, new_voigt)
+
 
 if __name__ == '__main__':
     unittest.main()
