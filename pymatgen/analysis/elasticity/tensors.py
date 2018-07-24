@@ -179,8 +179,8 @@ class Tensor(np.ndarray, MSONable):
         Returns a "voigt"-symmetrized tensor, i. e. a voigt-notation
         tensor such that it is invariant wrt permutation of indices
         """
-        if not (self.rank % 2 == 0 and self.rank > 2):
-            raise ValueError("V-symmetrization requires rank even and > 2")
+        if not (self.rank % 2 == 0 and self.rank >= 2):
+            raise ValueError("V-symmetrization requires rank even and >= 2")
 
         v = self.voigt
         perms = list(itertools.permutations(range(len(v.shape))))
