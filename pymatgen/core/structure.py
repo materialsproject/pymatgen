@@ -3026,6 +3026,13 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = sites
 
+    def set_charge(self,new_charge=0.):
+        """
+        Sets the overall structure charge
+        Args:
+            charge (float): new charge to set
+        """
+        self._charge = new_charge
 
 class Molecule(IMolecule, collections.MutableSequence):
     """

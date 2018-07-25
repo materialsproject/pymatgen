@@ -596,11 +596,13 @@ class VoronoiNN(NearNeighbors):
         weight (string) - Statistic used to weigh neighbors (see the statistics
             available in get_voronoi_polyhedra)
         extra_nn_info (bool) - Add all polyhedron info to `get_nn_info`
+        compute_adj_neighbors (bool) - Whether to compute which neighbors are adjacent. Turn off
+            for faster performance
     """
 
     def __init__(self, tol=0, targets=None, cutoff=10.0,
                  allow_pathological=False, weight='solid_angle',
-                 extra_nn_info=True):
+                 extra_nn_info=True, compute_adj_neighbors=True):
         super(VoronoiNN, self).__init__()
         self.tol = tol
         self.cutoff = cutoff
@@ -608,6 +610,7 @@ class VoronoiNN(NearNeighbors):
         self.targets = targets
         self.weight = weight
         self.extra_nn_info = extra_nn_info
+        self.compute_adj_neighbors = compute_adj_neighbors
 
     def get_voronoi_polyhedra(self, structure, n):
         """
@@ -665,7 +668,8 @@ class VoronoiNN(NearNeighbors):
                 cutoff = min(cutoff * 2, max_cutoff + 0.001)
 
         # Extract data about the site in question
-        return self._extract_cell_info(structure, 0, neighbors, targets, voro)
+        return self._extract_cell_info(structure, 0, neighbors, targets, voro,
+                                       self.compute_adj_neighbors)
 
     def get_all_voronoi_polyhedra(self, structure):
         """Get the Voronoi polyhedra for all site in a simulation cell
@@ -725,7 +729,8 @@ class VoronoiNN(NearNeighbors):
         voro = Voronoi(qvoronoi_input)
 
         # Get the information for each neighbor
-        return [self._extract_cell_info(structure, i, sites, targets, voro)
+        return [self._extract_cell_info(structure, i, sites, targets,
+                                        voro, self.compute_adj_neighbors)
                 for i in root_images.tolist()]
 
     def _get_elements(self, site):
@@ -760,7 +765,7 @@ class VoronoiNN(NearNeighbors):
                 return False
         return True
 
-    def _extract_cell_info(self, structure, site_idx, sites, targets, voro):
+    def _extract_cell_info(self, structure, site_idx, sites, targets, voro, compute_adj_neighbors=False):
         """Get the information about a certain atom from the results of a tessellation
 
         Args:
@@ -769,6 +774,7 @@ class VoronoiNN(NearNeighbors):
             sites ([Site]) - List of all sites in the tessellation
             targets ([Element]) - Target elements
             voro - Output of qvoronoi
+            compute_adj_neighbors (boolean) - Whether to compute which neighbors are adjacent
         Returns:
             A dict of sites sharing a common Voronoi facet. Key is facet id
              (not useful) and values are dictionaries containing statistics
@@ -781,6 +787,7 @@ class VoronoiNN(NearNeighbors):
                 - face_dist - Distance between site n and the facet
                 - volume - Volume of Voronoi cell for this face
                 - n_verts - Number of vertices on the facet
+                - adj_neighbors - Facet id's for the adjacent neighbors
         """
         # Get the coordinates of every vertex
         all_vertices = voro.vertices
@@ -826,15 +833,24 @@ class VoronoiNN(NearNeighbors):
                 # Compute the area of the face (knowing V=Ad/3)
                 face_area = 3 * volume / face_dist
 
+                # Compute the normal of the facet
+                normal = np.subtract(sites[other_site].coords, center_coords)
+                normal /= np.linalg.norm(normal)
+
                 # Store by face index
                 results[other_site] = {
                     'site': sites[other_site],
+                    'normal': normal,
                     'solid_angle': angle,
                     'volume': volume,
                     'face_dist': face_dist,
                     'area': face_area,
                     'n_verts': len(vind)
                 }
+
+                # If we are computing which neighbors are adjacent, store the vertices
+                if compute_adj_neighbors:
+                    results[other_site]['verts'] = vind
 
         # Get only target elements
         resultweighted = {}
@@ -848,6 +864,32 @@ class VoronoiNN(NearNeighbors):
                 for disordered_sp in nn.species_and_occu.keys():
                     if disordered_sp in targets:
                         resultweighted[nn_index] = nstats
+
+        # If desired, determine which neighbors are adjacent
+        if compute_adj_neighbors:
+            # Initialize storage for the adjacent neighbors
+            adj_neighbors = dict((i, []) for i in resultweighted.keys())
+
+            # Find the neighbors that are adjacent by finding those
+            #  that contain exactly two vertices
+            for a_ind, a_nninfo in resultweighted.items():
+                # Get the indices for this site
+                a_verts = set(a_nninfo['verts'])
+
+                # Loop over all neighbors that have an index lower that this one
+                #  The goal here is to exploit the fact that neighbor adjacency is symmetric
+                #  (if A is adj to B, B is adj to A)
+                for b_ind, b_nninfo in resultweighted.items():
+                    if b_ind > a_ind:
+                        continue
+                    if len(a_verts.intersection(b_nninfo['verts'])) == 2:
+                        adj_neighbors[a_ind].append(b_ind)
+                        adj_neighbors[b_ind].append(a_ind)
+
+            # Store the results in the nn_info
+            for key, neighbors in adj_neighbors.items():
+                resultweighted[key]['adj_neighbors'] = neighbors
+
         return resultweighted
 
     def get_nn_info(self, structure, n):

@@ -9,7 +9,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.testing import PymatgenTest
 import matplotlib as mpl
-mpl.use("pdf")
 
 
 """

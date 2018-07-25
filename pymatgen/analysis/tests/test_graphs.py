@@ -8,7 +8,6 @@ import unittest
 import os
 import copy
 import matplotlib
-matplotlib.use("pdf")
 
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
@@ -17,8 +16,10 @@ from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
 try:
     import openbabel as ob
+    import networkx as nx
 except ImportError:
     ob = None
+    nx = None
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
 __version__ = "0.1"
@@ -388,6 +389,19 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(len(self.cyclohexene.get_connected_sites(0)), 4)
         self.assertTrue(isinstance(self.cyclohexene.get_connected_sites(0)[0].site, Site))
         self.assertEqual(str(self.cyclohexene.get_connected_sites(0)[0].site.specie), 'H')
+
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
+    def test_set_node_attributes(self):
+        self.ethylene.set_node_attributes()
+
+        specie = nx.get_node_attributes(self.ethylene.graph, "specie")
+        coords = nx.get_node_attributes(self.ethylene.graph, "coords")
+
+        self.assertEqual(str(specie[0]), str(self.ethylene.molecule[0].specie))
+        self.assertEqual(str(specie[0]), "C")
+        self.assertEqual(coords[0][0], self.ethylene.molecule[0].coords[0])
+        self.assertEqual(coords[0][1], self.ethylene.molecule[0].coords[1])
+        self.assertEqual(coords[0][2], self.ethylene.molecule[0].coords[2])
 
     def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
