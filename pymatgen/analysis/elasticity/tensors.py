@@ -24,15 +24,15 @@ basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
 
-__author__ = "Maarten de Jong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = ("Joseph Montoya, Shyam Dwaraknath, Wei Chen, "
+__author__ = "Joseph Montoya"
+__copyright__ = "Copyright 2017, The Materials Project"
+__credits__ = ("Maarten de Jong, Shyam Dwaraknath, Wei Chen, "
                "Mark Asta, Anubhav Jain, Terence Lew")
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 22, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 reverse_voigt_map = np.array([[0, 5, 4],

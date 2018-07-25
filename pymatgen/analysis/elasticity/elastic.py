@@ -30,15 +30,15 @@ stress-strain data
 """
 
 
-__author__ = "Maarten de Jong, Joseph Montoya"
+__author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = ("Ian Winter, Shyam Dwaraknath, "
+__credits__ = ("Maarten de Jong, Ian Winter, Shyam Dwaraknath, "
                "Mark Asta, Anubhav Jain")
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 22, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 
 class NthOrderElasticTensor(Tensor):
