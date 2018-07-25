@@ -511,7 +511,7 @@ class SquareTensorTest(PymatgenTest):
         bad_matrix = [[0.1, 0.2],
                       [0.2, 0.3, 0.4],
                       [0.2, 0.3, 0.5]]
-        too_high_rank = np.zeros((3,3,3))
+        too_high_rank = np.zeros((3, 3, 3))
         self.assertRaises(ValueError, SquareTensor, non_sq_matrix)
         self.assertRaises(ValueError, SquareTensor, bad_matrix)
         self.assertRaises(ValueError, SquareTensor, too_high_rank)

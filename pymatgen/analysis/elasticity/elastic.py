@@ -881,7 +881,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
         hvec = data["strains"][:, strain_state.index(1)]
         for i in range(1, order):
             coef = get_diff_coeff(hvec, i)
-            dei_dsi[i-1, :, n] = np.dot(coef, data["stresses"])
+            dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
 
     m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
     for i in range(1, order):
@@ -963,7 +963,9 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
         mstresses = vstresses[mode]
         mstrains = vstrains[mode]
         # Get "strain state", i.e. ratio of each value to minimum strain
-        strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
+        min_nonzero_ind = np.argmin(np.abs(np.take(mstrains[-1], ind)))
+        min_nonzero_val = np.take(mstrains[-1], ind)[min_nonzero_ind]
+        strain_state = mstrains[-1] / min_nonzero_val
         strain_state = tuple(strain_state)
 
         if add_eq:

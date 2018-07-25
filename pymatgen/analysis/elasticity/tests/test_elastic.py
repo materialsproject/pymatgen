@@ -459,7 +459,8 @@ class DiffFitTest(PymatgenTest):
                                               self.data_dict["eq_stress"],
                                               order=3)
             self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
-            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"], decimal=5)
+            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"],
+                                        decimal=5)
             self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
