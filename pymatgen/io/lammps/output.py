@@ -26,14 +26,10 @@ from io import open, StringIO
 
 import numpy as np
 
-from monty.json import MSONable
+# from monty.json import MSONable
 from monty.io import zopen
 
-from pymatgen.core.periodic_table import _pt_data
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer
-from pymatgen.io.lammps.data import LammpsBox, LammpsData
+from pymatgen.io.lammps.data import LammpsBox
 
 __author__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"
@@ -41,7 +37,7 @@ __credits__ = "Navnidhi Rajput, Michael Humbert"
 
 
 # TODO write parser for one and multi thermo_styles
-class LammpsLog(MSONable):
+class LammpsLog(object):
     """
     Parser for LAMMPS log file.
     """
@@ -118,36 +114,10 @@ class LammpsLog(MSONable):
         self.fixes = fixes
         self.dangerous_builds = d_build
 
-    def as_dict(self):
-        d = {}
-        for attrib in [a for a in dir(self)
-                       if not a.startswith('__') and not callable(getattr(self, a))]:
-            d[attrib] = getattr(self, attrib)
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
 
-    # not really needed ?
-    @classmethod
-    def from_dict(cls, d):
-        return cls(log_file=d["log_file"])
-
-
-class LammpsDump(MSONable):
+class LammpsDump(object):
     """
     Dump file parser.
-
-    .. attribute:: steps
-
-        All steps in the dump as a list of
-        {"timestep": current timestep,
-         "natoms": no. of atoms,
-         "box": simulation box (optional),
-         "atoms_data": dumped data for atoms as 2D np.array}
-
-    .. attribute:: timesteps
-
-        List of timesteps in sequence.
 
     """
 
@@ -167,34 +137,40 @@ class LammpsDump(MSONable):
         self.parse_box = parse_box
         self.dtype = dtype
 
-        fnames = glob.glob(self.filename)
-        if len(fnames) > 1:
+        files = glob.glob(self.filename)
+        if len(files) > 1:
             pattern = r"%s" % filename.replace("*", "([0-9]+)")
             pattern = pattern.replace("\\", "\\\\")
-            fnames = sorted(fnames,
-                            key=lambda f: int(re.match(pattern, f).group(1)))
-        steps = []
-        for fname in fnames:
+            files = sorted(files,
+                           key=lambda f: int(re.match(pattern, f).group(1)))
+        self.all_files = files
+
+    def read(self):
+        """
+        Generator that yields data (dict) for each timestep.
+
+        Yields:
+            {"timestep" (int): current timestep,
+             "natoms" (int): no. of atoms,
+             "box" (LammpsBox): simulation box (can be ignored if
+                parse_box=False),
+             "data" (np.array): dumped atomic data.}
+
+        """
+        for fname in self.all_files:
             with zopen(fname, "rt") as f:
                 run = f.read()
             dumps = run.split("ITEM: TIMESTEP")[1:]
-            steps.extend([self._parse_timestep(d) for d in dumps])
-        self.steps = steps
-        self.timesteps = [s["timestep"] for s in self.steps]
-
-    def __len__(self):
-        return len(self.timesteps)
-
-    def __getitem__(self, ind):
-        return self.steps[ind]
+            for d in dumps:
+                yield self._parse_timestep(d)
 
     def _parse_timestep(self, dump):
         step = {}
         lines = dump.split("\n")
         step["timestep"] = int(lines[1])
         step["natoms"] = int(lines[3])
-        step["atoms_data"] = np.loadtxt(StringIO("\n".join(lines[9:])),
-                                        dtype=self.dtype)
+        step["data"] = np.loadtxt(StringIO("\n".join(lines[9:])),
+                                  dtype=self.dtype)
         if self.parse_box:
             box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
             bounds = box_arr[:, :2]
@@ -207,17 +183,3 @@ class LammpsDump(MSONable):
                                     [0, 0]])
             step["box"] = LammpsBox(bounds, tilt)
         return step
-
-    def as_dict(self):
-        d = {"filename": self.filename}
-        json_steps = []
-        for step in self.steps:
-            json_step = {"timestep": step["timestep"],
-                         "natoms": step["natoms"]}
-            json_step["atoms_data"] = step["atoms_data"].tolist()
-            if self.parse_box:
-                json_step["box"] = step["box"].as_dict()
-            json_steps.append(json_step)
-        d["steps"] = json_steps
-        return d
-
