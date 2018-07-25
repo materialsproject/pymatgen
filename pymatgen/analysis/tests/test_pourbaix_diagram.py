@@ -109,6 +109,14 @@ class PourbaixDiagramTest(unittest.TestCase):
                          {"Zn(HO)2(aq)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"})
 
     def test_multicomponent(self):
+        # Assure no ions get filtered at high concentration
+        ag_n = [e for e in self.test_data['Ag-Te-N']
+                if not "Te" in e.composition]
+        highconc = PourbaixDiagram(ag_n, filter_solids=True,
+                                   conc_dict={"Ag": 1e-5, "N": 1})
+        entry_sets = [set(e.entry_id) for e in highconc.stable_entries]
+        self.assertIn({"mp-124", "ion-17"}, entry_sets)
+
         # Binary system
         pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
                                     comp_dict={"Ag": 0.5, "Te": 0.5},
