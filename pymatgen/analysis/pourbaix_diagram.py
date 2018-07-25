@@ -434,7 +434,6 @@ class PourbaixDiagram(object):
             entries_HO = [ComputedEntry('H', 0), ComputedEntry('O', 2.46)]
             solid_pd = PhaseDiagram(solid_entries + entries_HO)
             solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
-            # import nose; nose.tools.set_trace()
 
         if len(comp_dict) > 1:
             self._multielement = True
@@ -604,7 +603,6 @@ class PourbaixDiagram(object):
                          for indices in ConvexHull(points).simplices]
             pourbaix_domains[entry] = simplices
             pourbaix_domain_vertices[entry] = points
-        # import nose; nose.tools.set_trace()
 
         return pourbaix_domains, pourbaix_domain_vertices
 
