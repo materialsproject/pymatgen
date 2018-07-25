@@ -302,7 +302,9 @@ class ElasticTensorExpansionTest(PymatgenTest):
                                                        mode="dulong-petit")
         alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300,
                                                           mode="debye")
-        self.assertArrayAlmostEqual(21.4533472e-06 * np.eye(3), alpha_debye)
+        alpha_comp = 5.9435148e-7 * np.ones((3, 3))
+        alpha_comp[np.diag_indices(3)] = 21.4533472e-06
+        self.assertArrayAlmostEqual(alpha_comp, alpha_debye)
 
     def test_get_compliance_expansion(self):
         ce_exp = self.exp_cu.get_compliance_expansion()
