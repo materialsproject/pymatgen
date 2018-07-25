@@ -4,13 +4,11 @@ import unittest
 import math
 import os
 
-import numpy as np
-from monty.serialization import loadfn
+from monty.serialization import loadfn, MontyDecoder
 from pymatgen.analysis.elasticity.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
-from pymatgen import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -311,6 +309,13 @@ class TensorTest(PymatgenTest):
         for tens_1, tens_2 in zip(tkdv, reduced[tbs[0]]):
             self.assertAlmostEqual(tens_1, tens_2)
 
+    def test_set_tkd_value(self):
+        tbs = [Tensor.from_voigt(row) for row in np.eye(6)*0.01]
+        reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
+        tval = Tensor.from_values_indices([0.01], [(0, 0)])
+        set_tkd_value(reduced, tval, 'test_val')
+        self.assertEqual(get_tkd_value(reduced, tval), 'test_val')
+
     def test_populate(self):
         test_data = loadfn(os.path.join(test_dir, 'test_toec_data.json'))
 
@@ -363,6 +368,17 @@ class TensorTest(PymatgenTest):
         self.assertAlmostEqual(et[1, 2], 160.71)
         self.assertAlmostEqual(et[4, 4], 73.48)
         self.assertAlmostEqual(et[5, 5], 73.48)
+
+    def test_serialization(self):
+        # Test base serialize-deserialize
+        d = self.symm_rank2.as_dict()
+        new = Tensor.from_dict(d)
+        self.assertArrayAlmostEqual(new, self.symm_rank2)
+
+        d = self.symm_rank3.as_dict(voigt=True)
+        new = Tensor.from_dict(d)
+        self.assertArrayAlmostEqual(new, self.symm_rank3)
+
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
@@ -448,6 +464,22 @@ class TensorCollectionTest(PymatgenTest):
         for t_input, t in zip(tc_input, tc):
             self.assertArrayAlmostEqual(Tensor.from_voigt(t_input), t)
 
+    def test_serialization(self):
+        # Test base serialize-deserialize
+        d = self.seq_tc.as_dict()
+        new = TensorCollection.from_dict(d)
+        for t, t_new in zip(self.seq_tc, new):
+            self.assertArrayAlmostEqual(t, t_new)
+
+        # Suppress vsym warnings and test voigt
+        with warnings.catch_warnings(record=True):
+            vsym = self.rand_tc.voigt_symmetrized
+            d = vsym.as_dict(voigt=True)
+            new_vsym = TensorCollection.from_dict(d)
+            for t, t_new in zip(vsym, new_vsym):
+                self.assertArrayAlmostEqual(t, t_new)
+
+
 class SquareTensorTest(PymatgenTest):
     def setUp(self):
         self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
@@ -479,7 +511,7 @@ class SquareTensorTest(PymatgenTest):
         bad_matrix = [[0.1, 0.2],
                       [0.2, 0.3, 0.4],
                       [0.2, 0.3, 0.5]]
-        too_high_rank = np.zeros((3,3,3))
+        too_high_rank = np.zeros((3, 3, 3))
         self.assertRaises(ValueError, SquareTensor, non_sq_matrix)
         self.assertRaises(ValueError, SquareTensor, bad_matrix)
         self.assertRaises(ValueError, SquareTensor, too_high_rank)
@@ -553,6 +585,24 @@ class SquareTensorTest(PymatgenTest):
         self.assertArrayAlmostEqual(np.dot(u, p), self.rand_sqtensor)
         self.assertArrayAlmostEqual(np.eye(3),
                                     np.dot(u, np.conjugate(np.transpose(u))))
+
+    def test_serialization(self):
+        # Test base serialize-deserialize
+        d = self.rand_sqtensor.as_dict()
+        new = SquareTensor.from_dict(d)
+        self.assertArrayAlmostEqual(new, self.rand_sqtensor)
+        self.assertIsInstance(new, SquareTensor)
+
+        # Ensure proper object-independent deserialization
+        obj = MontyDecoder().process_decoded(d)
+        self.assertIsInstance(obj, SquareTensor)
+
+        with warnings.catch_warnings(record=True):
+            vsym = self.rand_sqtensor.voigt_symmetrized
+            d_vsym = vsym.as_dict(voigt=True)
+            new_voigt = Tensor.from_dict(d_vsym)
+            self.assertArrayAlmostEqual(vsym, new_voigt)
+
 
 if __name__ == '__main__':
     unittest.main()
