@@ -114,6 +114,9 @@ class LammpsBox(MSONable):
     def __str__(self):
         return self.get_string()
 
+    def __repr__(self):
+        return self.get_string()
+
     @property
     def volume(self):
         """
@@ -268,6 +271,9 @@ class LammpsData(MSONable):
         self.atom_style = atom_style
 
     def __str__(self):
+        return self.get_string()
+
+    def __repr__(self):
         return self.get_string()
 
     @property
