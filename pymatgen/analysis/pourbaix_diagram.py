@@ -510,8 +510,6 @@ class PourbaixDiagram(object):
             # their charge state.
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
-            # thresh = np.array([pe.concentration if pe.phase_type == "Ion"
-            #                    else 1e-3 for pe in entry_list])
             coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
             # Return None if reaction coeff threshold is not met
             # TODO: this filtration step might be put somewhere else
