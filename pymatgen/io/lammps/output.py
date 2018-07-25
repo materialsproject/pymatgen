@@ -20,11 +20,11 @@ This module implements classes for processing Lammps output files:
 """
 
 import re
-import os
 import glob
-from io import open, StringIO
+from io import StringIO
 
 import numpy as np
+import pandas as pd
 
 # from monty.json import MSONable
 from monty.io import zopen
@@ -36,83 +36,70 @@ __email__ = "kmathew@lbl.gov"
 __credits__ = "Navnidhi Rajput, Michael Humbert"
 
 
-# TODO write parser for one and multi thermo_styles
 class LammpsLog(object):
     """
-    Parser for LAMMPS log file.
+    Log file parser with focus on thermo data. Both one and multi line
+    formats are supported.
+
+    Notes:
+        SHAKE stats printed with thermo data are not supported yet.
+        They are ignored in multi line format, while they may cause
+        issues with dataframe parsing in one line format.
+
+    Attributes:
+        runs ([pd.DataFrame]): Thermo data in a DataFrame for each run.
+
     """
 
-    def __init__(self, log_file="log.lammps"):
+    def __init__(self, filename="log.lammps"):
         """
         Args:
-            log_file (string): path to the log file
+            filename (str): Filename to parse.
+
         """
-        self.log_file = os.path.abspath(log_file)
-        self.timestep = -1
-        self._parse_log()
+        self.filename = filename
+        with open(self.filename) as f:
+            lines = f.readlines()
+        begin_flag = ("Memory usage per processor =",
+                      "Per MPI rank memory allocation (min/avg/max) =")
+        end_flag = "Loop time of"
+        begins, ends = [], []
+        for i, l in enumerate(lines):
+            if l.startswith(begin_flag):
+                begins.append(i)
+            elif l.startswith(end_flag):
+                ends.append(i)
 
-    def _parse_log(self):
-        """
-        Parse the log file for run and thermodynamic data.
-        Sets the thermodynamic data as a structured numpy array with field names
-        taken from the custom thermo_style command. thermo_style one and multi
-        are not supported yet
-        """
+        self.runs =[]
+        for b, e in zip(begins, ends):
+            self.runs.append(self._parse(lines[b + 1:e]))
 
-        thermo_data = []
-        fixes = []
-        d_build = None
-        thermo_pattern = None
-        with open(self.log_file, 'r') as logfile:
-            for line in logfile:
-                # timestep, the unit depedns on the 'units' command
-                time = re.search(r'timestep\s+([0-9]+)', line)
-                if time and not d_build:
-                    self.timestep = float(time.group(1))
-                # total number md steps
-                steps = re.search(r'run\s+([0-9]+)', line)
-                if steps and not d_build:
-                    self.nmdsteps = int(steps.group(1))
-                # simulation info
-                fix = re.search(r'fix.+', line)
-                if fix and not d_build:
-                    fixes.append(fix.group())
-                # dangerous builds
-                danger = re.search(r'Dangerous builds\s+([0-9]+)', line)
-                if danger and not d_build:
-                    d_build = int(steps.group(1))
-                # logging interval
-                thermo = re.search(r'thermo\s+([0-9]+)', line)
-                if thermo and not d_build:
-                    self.interval = float(thermo.group(1))
-                # thermodynamic data, set by the thermo_style command
-                fmt = re.search(r'thermo_style.+', line)
-                if fmt and not d_build:
-                    thermo_type = fmt.group().split()[1]
-                    fields = fmt.group().split()[2:]
-                    no_parse = ["one", "multi"]
-                    if thermo_type in no_parse:
-                        thermo_data.append("cannot parse thermo_style")
-                    else:
-                        thermo_pattern_string = r"\s*([0-9eE\.+-]+)" + "".join(
-                            [r"\s+([0-9eE\.+-]+)" for _ in range(len(fields) - 1)])
-                        thermo_pattern = re.compile(thermo_pattern_string)
-                if thermo_pattern:
-                    if thermo_pattern.search(line):
-                        m = thermo_pattern.search(line)
-                        thermo_data.append(tuple([float(x) for x in m.groups()]))
-
-        if thermo_data:
-            if isinstance(thermo_data[0], str):
-                self.thermo_data = [thermo_data]
-            else:
-                # numpy arrays are easier to reshape, previously we used np.array with dtypes
-                self.thermo_data = {
-                    fields[i]: [thermo_data[j][i] for j in range(len(thermo_data))]
-                    for i in range(len(fields))}
-
-        self.fixes = fixes
-        self.dangerous_builds = d_build
+    @staticmethod
+    def _parse(lines):
+        multi_pattern = r"-+\s+Step\s+([0-9]+)\s+-+"
+        # multi line thermo data
+        if re.match(multi_pattern, lines[0]):
+            timestep_marks = [i for i, l in enumerate(lines)
+                              if re.match(multi_pattern, l)]
+            timesteps = np.split(lines, timestep_marks)[1:]
+            dicts = []
+            kv_pattern = r"([0-9A-Za-z_\[\]]+)\s+=\s+([0-9eE\.+-]+)"
+            for ts in timesteps:
+                data = {}
+                data["Step"] = int(re.match(multi_pattern, ts[0]).group(1))
+                data.update({k: float(v) for k, v
+                             in re.findall(kv_pattern, "".join(ts[1:]))})
+                dicts.append(data)
+            df = pd.DataFrame(dicts)
+            # rearrange the sequence of columns
+            columns = ["Step"] + [k for k, v in
+                                  re.findall(kv_pattern,
+                                             "".join(timesteps[0][1:]))]
+            df = df[columns]
+        # one line thermo data
+        else:
+            df = pd.read_csv(StringIO("".join(lines)), delim_whitespace=True)
+        return df
 
 
 class LammpsDump(object):
