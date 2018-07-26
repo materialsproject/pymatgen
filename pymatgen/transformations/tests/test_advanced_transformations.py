@@ -24,7 +24,7 @@ from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
-from pymatgen.analysis.gb.gb import Gb, GBGenerator
+from pymatgen.analysis.gb.gb import GBGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
 
