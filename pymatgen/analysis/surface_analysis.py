@@ -96,7 +96,7 @@ class SlabEntry(ComputedStructureEntry):
 
     def __init__(self, structure, energy, miller_index, correction=0.0,
                  parameters=None, data=None, entry_id=None, label=None,
-                 adsorbates=None, clean_entry=None):
+                 adsorbates=None, clean_entry=None, marker=None, color=None):
 
         """
         Make a SlabEntry containing all relevant surface thermodynamics data.
@@ -121,6 +121,8 @@ class SlabEntry(ComputedStructureEntry):
             clean_entry (ComputedStructureEntry): If the SlabEntry is for an
                 adsorbed slab, this is the corresponding SlabEntry for the
                 clean slab
+            marker (str): Custom marker for gamma plots ("--" and "-" are typical)
+            color (str or rgba): Custom color for gamma plots
         """
 
         self.miller_index = miller_index
@@ -129,6 +131,8 @@ class SlabEntry(ComputedStructureEntry):
         self.clean_entry = clean_entry
         self.ads_entries_dict = {str(list(ads.composition.as_dict().keys())[0]): \
                                      ads for ads in self.adsorbates}
+        self.mark = marker
+        self.color = color
 
         super(SlabEntry, self).__init__(
             structure, energy, correction=correction,
@@ -503,7 +507,7 @@ class SurfaceEnergyPlotter(object):
         return WulffShape(latt, miller_list, e_surf_list, symprec=symprec)
 
     def area_frac_vs_chempot_plot(self, ref_delu, chempot_range, delu_dict=None,
-                                  delu_default=0, increments=10):
+                                  delu_default=0, increments=10, no_clean=False, no_doped=False):
         """
         1D plot. Plots the change in the area contribution
         of each facet as a function of chemical potential.
@@ -537,8 +541,8 @@ class SurfaceEnergyPlotter(object):
         # Get plot points for each Miller index
         for u in all_chempots:
             delu_dict[ref_delu] = u
-            wulffshape = self.wulff_from_chempot(delu_dict=delu_dict,
-                                                 delu_default=delu_default)
+            wulffshape = self.wulff_from_chempot(delu_dict=delu_dict, no_clean=no_clean,
+                                                 no_doped=no_doped, delu_default=delu_default)
 
             for hkl in wulffshape.area_fraction_dict.keys():
                 hkl_area_dict[hkl].append(wulffshape.area_fraction_dict[hkl])
@@ -810,6 +814,8 @@ class SurfaceEnergyPlotter(object):
             clean_comp = s.composition.reduced_composition
         else:
             clean_comp = entry.composition.reduced_composition
+
+
         mark = '--' if ucell_comp != clean_comp else '-'
 
         delu_dict = set_all_variables(entry, delu_dict, delu_default)
@@ -828,8 +834,9 @@ class SurfaceEnergyPlotter(object):
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
             if JPERM2 else gamma_range
 
-        plt.plot(chempot_range, se_range, mark,
-                 color=self.color_dict[entry], label=label)
+        mark = entry.mark if entry.mark else mark
+        c = entry.color if entry.color else self.color_dict[entry]
+        plt.plot(chempot_range, se_range, mark, color=c, label=label)
 
         return plt
 
@@ -994,6 +1001,7 @@ class SurfaceEnergyPlotter(object):
             ylim (ylim parameter):
 
         return (Plot): Modified plot with addons.
+        return (Plot): Modified plot with addons.
         """
 
         # Make the figure look nice
@@ -1070,7 +1078,7 @@ class SurfaceEnergyPlotter(object):
     def surface_chempot_range_map(self, elements, miller_index, ranges,
                                   incr=50, no_doped=False, no_clean=False,
                                   delu_dict=None, plt=None, annotate=True,
-                                  show_unphyiscal_only=False):
+                                  show_unphyiscal_only=False, fontsize=10):
         """
         Adapted from the get_chempot_range_map() method in the PhaseDiagram
             class. Plot the chemical potential range map based on surface
@@ -1179,7 +1187,7 @@ class SurfaceEnergyPlotter(object):
                 x = np.mean([max(xvals), min(xvals)])
                 y = np.mean([max(yvals), min(yvals)])
                 label = entry.label if entry.label else entry.composition.reduced_formula
-                plt.annotate(label, xy=[x, y], xytext=[x, y])
+                plt.annotate(label, xy=[x, y], xytext=[x, y], fontsize=fontsize)
 
         # Label plot
         plt.xlim(range1)
