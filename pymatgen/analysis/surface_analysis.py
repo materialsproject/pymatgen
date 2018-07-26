@@ -426,6 +426,16 @@ class SurfaceEnergyPlotter(object):
             entry_dict_from_list(all_slab_entries)
         self.color_dict = self.color_palette_dict()
 
+        se_dict = {}
+        for hkl in all_slab_entries.keys():
+            for clean in all_slab_entries[hkl].keys():
+                se_dict[clean] = clean.surface_energy(self.ucell_entry,
+                                                      ref_entries=self.ref_entries)
+                for dope in all_slab_entries[hkl][clean]:
+                    se_dict[dope] = dope.surface_energy(self.ucell_entry,
+                                                        ref_entries=self.ref_entries)
+        self.surfe_dict = se_dict
+
     def get_stable_entry_at_u(self, miller_index, delu_dict=None, delu_default=0,
                               no_doped=False, no_clean=False):
         """
@@ -450,19 +460,20 @@ class SurfaceEnergyPlotter(object):
         all_entries, all_gamma = [], []
         for entry in self.all_slab_entries[miller_index].keys():
             all_delu_dict = set_all_variables(entry, delu_dict, delu_default)
-            gamma = entry.surface_energy(self.ucell_entry,
-                                         ref_entries=self.ref_entries)
+            gamma = self.surfe_dict[entry]
+
             if not no_clean:
                 all_entries.append(entry)
                 if type(gamma).__name__ == "float":
                     all_gamma.append(gamma)
                 else:
+
                     all_gamma.append(gamma.subs(all_delu_dict))
-            for ads_entry in self.all_slab_entries[miller_index][entry]:
-                all_delu_dict = set_all_variables(ads_entry, delu_dict, delu_default)
-                gamma = ads_entry.surface_energy(self.ucell_entry,
-                                                 ref_entries=self.ref_entries)
-                if not no_doped:
+
+            if not no_doped:
+                for ads_entry in self.all_slab_entries[miller_index][entry]:
+                    all_delu_dict = set_all_variables(ads_entry, delu_dict, delu_default)
+                    gamma = self.surfe_dict[ads_entry]
                     all_entries.append(ads_entry)
                     if type(gamma).__name__ == "float":
                         all_gamma.append(gamma)
@@ -592,8 +603,7 @@ class SurfaceEnergyPlotter(object):
         all_parameters = []
         all_eqns = []
         for slab_entry in slab_entries:
-            se = slab_entry.surface_energy(self.ucell_entry,
-                                           ref_entries=self.ref_entries)
+            se = self.surfe_dict[slab_entry]
 
             # remove the free chempots we wish to keep constant and
             # set the equation to 0 (subtract gamma from both sides)
@@ -673,8 +683,7 @@ class SurfaceEnergyPlotter(object):
                 stable_urange_dict[entries_in_hkl[0]] = chempot_range
                 u1, u2 = delu_dict.copy(), delu_dict.copy()
                 u1[ref_delu], u2[ref_delu] = chempot_range[0], chempot_range[1]
-                se = entries_in_hkl[0].surface_energy(self.ucell_entry,
-                                                      ref_entries=self.ref_entries)
+                se = self.surfe_dict[entries_in_hkl[0]]
                 se_dict[entries_in_hkl[0]] = [se.subs(u1), se.subs(u2)]
                 continue
 
@@ -722,8 +731,7 @@ class SurfaceEnergyPlotter(object):
                     continue
                 if se_dict[entry][0] * se_dict[entry][1] < 0:
                     # solve for gamma=0
-                    se = entry.surface_energy(self.ucell_entry,
-                                              ref_entries=self.ref_entries)
+                    se = self.surfe_dict[entry]
                     se_dict[entry].append(0)
                     stable_urange_dict[entry].append(solve(se.subs(delu_dict), ref_delu)[0])
 
@@ -820,13 +828,11 @@ class SurfaceEnergyPlotter(object):
 
         delu_dict = set_all_variables(entry, delu_dict, delu_default)
         delu_dict[ref_delu] = chempot_range[0]
-        gamma_min = entry.surface_energy(self.ucell_entry,
-                                         ref_entries=self.ref_entries)
+        gamma_min = self.surfe_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == \
                                  "float" else gamma_min.subs(delu_dict)
         delu_dict[ref_delu] = chempot_range[1]
-        gamma_max = entry.surface_energy(self.ucell_entry,
-                                         ref_entries=self.ref_entries)
+        gamma_max = self.surfe_dict[entry]
         gamma_max = gamma_max if type(gamma_max).__name__ == \
                                  "float" else gamma_max.subs(delu_dict)
         gamma_range = [gamma_min, gamma_max]
@@ -1052,9 +1058,7 @@ class SurfaceEnergyPlotter(object):
             for clean_entry in self.all_slab_entries[hkl].keys():
                 all_delu_dict = set_all_variables(clean_entry, delu_dict, delu_default)
                 if self.all_slab_entries[hkl][clean_entry]:
-
-                    clean_se = clean_entry.surface_energy(self.ucell_entry,
-                                                          ref_entries=self.ref_entries)
+                    clean_se = self.surfe_dict[clean_entry]
                     se = clean_se.subs(all_delu_dict)
                     for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         ml = ads_entry.get_monolayer
@@ -1755,7 +1759,23 @@ class NanoscaleStability(object):
         #     def __init__(self, entry):
         #         self.entry = entry
 
+def sub_chempots(gamma, chempots):
+    """
+    Uses dot product of numpy array to sub chemical potentials
+        into the surface grand potential. This is much faster
+        than using the subs function in sympy.
+    Args:
+        gamma (sympy Add): Surface grand potential equation
+        chempots (dict): Dictionary assigning each chemical
+            potential (key) in gamma a value
+    Returns:
+        Surface energy as a float
+    """
 
+    gamma_dict = gamma.as_coefficients_dict()
+    coeffs = [gamma_dict[k] for k in gamma_dict.keys()]
+    chempot_vals = [chempots[k] if k != 1 else 1 for k in gamma_dict.keys()]
+    return np.dot(coeffs, chempot_vals)
 
 def set_all_variables(entry, delu_dict, delu_default):
     """
