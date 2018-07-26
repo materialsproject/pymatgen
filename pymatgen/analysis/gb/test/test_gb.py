@@ -9,7 +9,7 @@ from pymatgen.util.testing import PymatgenTest
 import os
 import numpy as np
 from pymatgen import Structure
-from pymatgen.io.gb.gb import Gb, GBGenerator
+from pymatgen.analysis.gb.gb import Gb, GBGenerator
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "grain_boundary")

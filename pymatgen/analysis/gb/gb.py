@@ -14,8 +14,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import logging
 
-#This module implements representations of grain boundaries, as well as
-#algorithms for generating them. 
+# This module implements representations of grain boundaries, as well as
+# algorithms for generating them.
 
 __author__ = "Xiang-Guo Li"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -113,6 +113,26 @@ class Gb(Structure):
             optionally sanitized.
         """
         return Gb(self.lattice, self.species_and_occu, self.frac_coords,
+                  self.rotation_axis, self.rotation_angle, self.gb_plane,
+                  self.init_cell, self.vacuum_thickness, self.ab_shift,
+                  self.site_properties, self.oriented_unit_cell)
+
+    def get_sorted_structure(self, key=None, reverse=False):
+        """
+        Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species. Note that Slab has to override this
+        because of the different __init__ args.
+        Args:
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
+        """
+        sites = sorted(self, key=key, reverse=reverse)
+        s = Structure.from_sites(sites)
+        return Gb(s.lattice, s.species_and_occu, s.frac_coords,
                   self.rotation_axis, self.rotation_angle, self.gb_plane,
                   self.init_cell, self.vacuum_thickness, self.ab_shift,
                   self.site_properties, self.oriented_unit_cell)
