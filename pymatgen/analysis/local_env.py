@@ -982,10 +982,10 @@ class VoronoiNN_modified(VoronoiNN):
                                                  weight, extra_nn_info)
 
 
-class JMolNN(NearNeighbors):
+class JmolNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using an emulation
-    of JMol's default autoBond() algorithm. This version of the algorithm
+    of Jmol's default autoBond() algorithm. This version of the algorithm
     does not take into account any information regarding known charge
     states.
 
@@ -1011,7 +1011,7 @@ class JMolNN(NearNeighbors):
 
     def get_max_bond_distance(self, el1_sym, el2_sym, constant=0.56):
         """
-        Use JMol algorithm to determine bond length from atomic parameters
+        Use Jmol algorithm to determine bond length from atomic parameters
         Args:
             el1_sym: (str) symbol of atom 1
             el2_sym: (str) symbol of atom 2
@@ -1023,11 +1023,12 @@ class JMolNN(NearNeighbors):
         return sqrt(
             (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
 
+
     def get_nn_info(self, structure, n):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the bond identification
-        algorithm underlying JMol.
+        algorithm underlying Jmol.
 
         Args:
             structure (Structure): input structure.
