@@ -810,7 +810,7 @@ class LammpsData(MSONable):
         encode_df = lambda df: df.to_json(orient="split")
         d = dict()
         d["@module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@class"] = self.__class__.__name__
         d["box"] = self.box.as_dict()
         d["masses"] = encode_df(self.masses)
         d["atoms"] = encode_df(self.atoms)
