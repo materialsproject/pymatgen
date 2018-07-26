@@ -5,57 +5,68 @@
 from __future__ import division, print_function, unicode_literals, \
     absolute_import
 
-import os
 import unittest
+import os
+import re
+import filecmp
+import shutil
 
-from pymatgen.io.lammps.input import LammpsInput
+import pandas as pd
+from pymatgen.io.lammps.data import LammpsData
 
-__author__ = 'Kiran Mathew'
-__email__ = 'kmathew@lbl.gov'
+from pymatgen.io.lammps.input import write_lammps_inputs
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
 
 
-class TestLammpsInput(unittest.TestCase):
+class FuncTest(unittest.TestCase):
 
-    def setUp(self):
-        self.template_file = os.path.join(test_dir, "in.peptide.template")
-        self.settings = {
-            "pair_style": "lj/charmm/coul/long 8.0 10.0 10.0",
-            "kspace_style": "pppm 0.0001",
-            "fix_1": "1 all nvt temp 275.0 275.0 100.0 tchain 1",
-            "fix_2": "2 all shake 0.0001 10 100 b 4 6 8 10 12 14 18 a 31"
-        }
-        self.lammps_input = LammpsInput.from_file(self.template_file, self.settings)
+    def test_write_lammps_inputs(self):
+        # script template
+        with open(os.path.join(test_dir, "kappa.txt")) as f:
+            kappa_template = f.read()
+        kappa_settings = {"method": "heat"}
+        write_lammps_inputs(output_dir="heat", script_template=kappa_template,
+                            settings=kappa_settings)
+        with open(os.path.join("heat", "in.lammps")) as f:
+            kappa_script = f.read()
+        fix_hot = re.search(r"fix\s+hot\s+all\s+([^\s]+)\s+", kappa_script)
+        # placeholders supposed to be filled
+        self.assertEqual(fix_hot.group(1), "heat")
+        fix_cold = re.search(r"fix\s+cold\s+all\s+([^\s]+)\s+", kappa_script)
+        self.assertEqual(fix_cold.group(1), "heat")
+        lattice = re.search(r"lattice\s+fcc\s+(.*)\n", kappa_script)
+        # parentheses not supposed to be filled
+        self.assertEqual(lattice.group(1), "${rho}")
+        pair_style = re.search(r"pair_style\slj/cut\s+(.*)\n", kappa_script)
+        self.assertEqual(pair_style.group(1), "${rc}")
 
-    def test_as_dict(self):
-        d = self.lammps_input.as_dict()
-        d.pop("@class")
-        d.pop("@module")
-        d_test = {}
-        with open(os.path.join(test_dir, "in.peptide.template.with_read_data"), "r") as f:
-            d_test["contents"] = f.read() + "\nlog $${log_file}"
-        d_test["settings"] = self.settings
-        d_test["settings"]["data_file"] = "data.peptide"
-        d_test["delimiter"] = "$$"
-        self.assertDictEqual(d, d_test)
+        with open(os.path.join(test_dir, "in.peptide")) as f:
+            peptide_script = f.read()
+        # copy data file
+        src = os.path.join(test_dir, "data.quartz")
+        write_lammps_inputs(output_dir="path", script_template=peptide_script,
+                            data=src)
+        dst = os.path.join("path", "data.peptide")
+        self.assertTrue(filecmp.cmp(src, dst, shallow=False))
+        # write data file from obj
+        obj = LammpsData.from_file(src, atom_style="atomic")
+        write_lammps_inputs(output_dir="obj", script_template=peptide_script,
+                            data=obj)
+        obj_read = LammpsData.from_file(os.path.join("obj", "data.peptide"),
+                                        atom_style="atomic")
+        pd.testing.assert_frame_equal(obj_read.masses, obj.masses)
+        pd.testing.assert_frame_equal(obj_read.atoms, obj.atoms)
 
-    def test_read_data_placeholder(self):
-        self.assertIn("data_file", self.lammps_input.settings)
-        self.assertEqual(self.lammps_input.settings["data_file"], "data.peptide")
+    @classmethod
+    def tearDownClass(cls):
+        temp_dirs = ["heat", "path", "obj"]
+        for td in temp_dirs:
+            if os.path.exists(td):
+                shutil.rmtree(td)
 
-    def test_log_placeholder(self):
-        self.assertIn("log_file", self.lammps_input.settings)
-        self.assertEqual(self.lammps_input.settings["log_file"], "log.lammps")
-
-    def test_string_representation(self):
-        input_file = os.path.join(test_dir, "in.peptide")
-        input_file_lines = str(self.lammps_input).split("\n")
-        with open(input_file) as f:
-            input_file_lines_ans = f.readlines() + ["", "log log.lammps"]
-            for l1, l2 in zip(input_file_lines, input_file_lines_ans):
-                self.assertEqual(l1.strip(), l2.strip())
 
 if __name__ == "__main__":
     unittest.main()

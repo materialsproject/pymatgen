@@ -5,68 +5,63 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 
 """
-This module implements classes for reading and generating Lammps input.
+This module implements methods for writing LAMMPS input files.
+
 """
 
+import os
+import re
+import shutil
+import warnings
 from string import Template
 
-from monty.json import MSONable
-
-__author__ = "Kiran Mathew, Brandon Wood"
-__email__ = "kmathew@lbl.gov, b.wood@berkeley.edu"
-__credits__ = "Navnidhi Rajput"
+from pymatgen.io.lammps.data import LammpsData
 
 
-class LammpsInput(MSONable):
+def write_lammps_inputs(output_dir, script_template, settings=None,
+                        data=None, script_filename="in.lammps",
+                        make_dir_if_not_present=True, **kwargs):
+    """
+    Writes input files for a LAMMPS run. Input script is constructed
+    from a str template with placeholders to be filled by custom
+    settings. Optional data file is either written from a LammpsData
+    instance or copied from an existing file.
 
-    def __init__(self, contents, settings, delimiter):
-        self.contents = contents
-        self.settings = settings or {}
-        self.delimiter = delimiter
-        # make read_data configurable i.e "read_data $${data_file}"
-        self._map_param_to_identifier("read_data", "data_file")
-        # log $${log_file}
-        self._map_param_to_identifier("log", "log_file")
+    Args:
+        output_dir (str): Directory to output the input files.
+        script_template (str): String template for input script with
+            placeholders. The format for placeholders has to be
+            '$variable_name', e.g., '$temperature'
+        settings (dict): Contains values to be written to the
+            placeholders, e.g., {'temperature': 1}. Default to None.
+        data (LammpsData or str): Data file as a LammpsData instance or
+            path to an existing data file. Default to None, i.e., no
+            data file supplied.
+        script_filename (str): Filename for the input script.
+        make_dir_if_not_present (bool): Set to True if you want the
+            directory (and the whole path) to be created if it is not
+            present.
+        **kwargs: kwargs supported by LammpsData.write_file.
 
-    def _map_param_to_identifier(self, param, identifier):
-        delimited_identifier = self.delimiter+"{"+identifier+"}"
-        if delimited_identifier not in self.contents:
-            i = self.contents.find(param)
-            if i >= 0:
-                self.settings[identifier] = self.contents[i:].split()[1]
-                self.contents = \
-                    self.contents.replace(self.settings[identifier],
-                                          delimited_identifier, 1)
-            # if log is missing add it to the input
-            elif param == "log":
-                self.contents = self.contents+"\nlog {}".format(delimited_identifier)
-                self.settings[identifier] = "log.lammps"
+    Returns:
 
-    def __str__(self):
-        template = self.get_template(self.__class__.__name__,
-                                     delimiter=self.delimiter)
-        template_string = template(self.contents)
+    """
+    vars = {} if settings is None else settings
+    template = Template(script_template)
+    input_script = template.safe_substitute(**vars)
+    if make_dir_if_not_present and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    with open(os.path.join(output_dir, script_filename), "w") as f:
+        f.write(input_script)
+    read_data = re.search(r"read_data\s+(.*)\n", input_script)
+    if read_data:
+        data_filename = read_data.group(1).split()[0]
+        if isinstance(data, LammpsData):
+            data.write_file(os.path.join(output_dir, data_filename), **kwargs)
+        elif isinstance(data, str) and os.path.exists(data):
+            shutil.copyfile(data, os.path.join(output_dir, data_filename))
+        else:
+            warnings.warn("No data file supplied. Skip writing %s."
+                          % data_filename)
 
-        unclean_template = template_string.safe_substitute(self.settings)
 
-        clean_template = filter(lambda l: self.delimiter not in l,
-                                unclean_template.split('\n'))
-
-        return '\n'.join(clean_template)
-
-    @classmethod
-    def from_string(cls, input_string, settings=None, delimiter="$$"):
-        return cls(input_string, settings, delimiter)
-
-    @classmethod
-    def from_file(cls, input_file, settings=None, delimiter="$$"):
-        with open(input_file) as f:
-            return cls.from_string(f.read(), settings, delimiter)
-
-    def write_file(self, filename):
-        with open(filename, 'w') as f:
-            f.write(self.__str__())
-
-    @staticmethod
-    def get_template(name, delimiter):
-        return type(name, (Template,), {"delimiter": delimiter})
