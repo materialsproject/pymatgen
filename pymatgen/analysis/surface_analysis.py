@@ -467,8 +467,7 @@ class SurfaceEnergyPlotter(object):
                 if type(gamma).__name__ == "float":
                     all_gamma.append(gamma)
                 else:
-
-                    all_gamma.append(gamma.subs(all_delu_dict))
+                    all_gamma.append(sub_chempots(gamma, all_delu_dict))
 
             if not no_doped:
                 for ads_entry in self.all_slab_entries[miller_index][entry]:
@@ -478,7 +477,7 @@ class SurfaceEnergyPlotter(object):
                     if type(gamma).__name__ == "float":
                         all_gamma.append(gamma)
                     else:
-                        all_gamma.append(gamma.subs(all_delu_dict))
+                        all_gamma.append(sub_chempots(gamma, all_delu_dict))
 
         return all_entries[all_gamma.index(min(all_gamma))], float(min(all_gamma))
 
@@ -610,7 +609,8 @@ class SurfaceEnergyPlotter(object):
             if type(se).__name__ == "float":
                 all_eqns.append(se - Symbol("gamma"))
             else:
-                se = se.subs(delu_dict) if delu_dict else se
+
+                se = sub_chempots(se, delu_dict) if delu_dict else se
                 all_eqns.append(se - Symbol("gamma"))
                 all_parameters.extend([p for p in list(se.free_symbols)
                                        if p not in all_parameters])
@@ -684,7 +684,7 @@ class SurfaceEnergyPlotter(object):
                 u1, u2 = delu_dict.copy(), delu_dict.copy()
                 u1[ref_delu], u2[ref_delu] = chempot_range[0], chempot_range[1]
                 se = self.surfe_dict[entries_in_hkl[0]]
-                se_dict[entries_in_hkl[0]] = [se.subs(u1), se.subs(u2)]
+                se_dict[entries_in_hkl[0]] = [sub_chempots(se, u1), sub_chempots(se, u2)]
                 continue
 
             for pair in itertools.combinations(entries_in_hkl, 2):
@@ -733,7 +733,8 @@ class SurfaceEnergyPlotter(object):
                     # solve for gamma=0
                     se = self.surfe_dict[entry]
                     se_dict[entry].append(0)
-                    stable_urange_dict[entry].append(solve(se.subs(delu_dict), ref_delu)[0])
+                    stable_urange_dict[entry].append(solve(sub_chempots(se, delu_dict),
+                                                           ref_delu)[0])
 
         # sort the chempot ranges for each facet
         for entry in stable_urange_dict.keys():
@@ -830,11 +831,11 @@ class SurfaceEnergyPlotter(object):
         delu_dict[ref_delu] = chempot_range[0]
         gamma_min = self.surfe_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == \
-                                 "float" else gamma_min.subs(delu_dict)
+                                 "float" else sub_chempots(gamma_min, delu_dict)
         delu_dict[ref_delu] = chempot_range[1]
         gamma_max = self.surfe_dict[entry]
         gamma_max = gamma_max if type(gamma_max).__name__ == \
-                                 "float" else gamma_max.subs(delu_dict)
+                                 "float" else sub_chempots(gamma_max, delu_dict)
         gamma_range = [gamma_min, gamma_max]
 
         se_range = np.array(gamma_range) * EV_PER_ANG2_TO_JOULES_PER_M2 \
@@ -1059,7 +1060,7 @@ class SurfaceEnergyPlotter(object):
                 all_delu_dict = set_all_variables(clean_entry, delu_dict, delu_default)
                 if self.all_slab_entries[hkl][clean_entry]:
                     clean_se = self.surfe_dict[clean_entry]
-                    se = clean_se.subs(all_delu_dict)
+                    se = sub_chempots(clean_se, all_delu_dict)
                     for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         ml = ads_entry.get_monolayer
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
@@ -1774,7 +1775,15 @@ def sub_chempots(gamma, chempots):
 
     gamma_dict = gamma.as_coefficients_dict()
     coeffs = [gamma_dict[k] for k in gamma_dict.keys()]
-    chempot_vals = [chempots[k] if k != 1 else 1 for k in gamma_dict.keys()]
+    chempot_vals = []
+    for k in gamma_dict.keys():
+        if k not in chempots.keys():
+            chempot_vals.append(k)
+        elif k == 1:
+            chempot_vals.append(1)
+        else:
+            chempot_vals.append(chempots[k])
+
     return np.dot(coeffs, chempot_vals)
 
 def set_all_variables(entry, delu_dict, delu_default):
