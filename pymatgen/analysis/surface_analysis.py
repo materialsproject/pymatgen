@@ -63,7 +63,6 @@ consider citing the following works::
         for determining adsorption energies on solid surfaces. Npj
         Computational Materials, 3(1), 14.
         https://doi.org/10.1038/s41524-017-0017-z
-
 """
 
 
@@ -429,11 +428,17 @@ class SurfaceEnergyPlotter(object):
         se_dict = {}
         for hkl in all_slab_entries.keys():
             for clean in all_slab_entries[hkl].keys():
-                se_dict[clean] = clean.surface_energy(self.ucell_entry,
-                                                      ref_entries=self.ref_entries)
+                se = clean.surface_energy(self.ucell_entry, ref_entries=self.ref_entries)
+                if type(se).__name__ == "float":
+                    se_dict[clean] = se
+                else:
+                    se_dict[clean] = se.as_coefficients_dict()
                 for dope in all_slab_entries[hkl][clean]:
-                    se_dict[dope] = dope.surface_energy(self.ucell_entry,
-                                                        ref_entries=self.ref_entries)
+                    se = dope.surface_energy(self.ucell_entry, ref_entries=self.ref_entries)
+                    if type(se).__name__ == "float":
+                        se_dict[dope] = se
+                    else:
+                        se_dict[dope] = se.as_coefficients_dict()
         self.surfe_dict = se_dict
 
     def get_stable_entry_at_u(self, miller_index, delu_dict=None, delu_default=0,
@@ -1750,7 +1755,6 @@ class NanoscaleStability(object):
 
         return plt
 
-
         # class GetChempotRange(object):
         #     def __init__(self, entry):
         #         self.entry = entry
@@ -1760,20 +1764,20 @@ class NanoscaleStability(object):
         #     def __init__(self, entry):
         #         self.entry = entry
 
-def sub_chempots(gamma, chempots):
+def sub_chempots(gamma_dict, chempots):
     """
     Uses dot product of numpy array to sub chemical potentials
         into the surface grand potential. This is much faster
         than using the subs function in sympy.
     Args:
-        gamma (sympy Add): Surface grand potential equation
+        gamma_dict (dict): Surface grand potential equation
+            as a coefficient dictionary
         chempots (dict): Dictionary assigning each chemical
             potential (key) in gamma a value
     Returns:
         Surface energy as a float
     """
 
-    gamma_dict = gamma.as_coefficients_dict()
     coeffs = [gamma_dict[k] for k in gamma_dict.keys()]
     chempot_vals = []
     for k in gamma_dict.keys():
