@@ -443,7 +443,7 @@ class SurfaceEnergyPlotter(object):
 
         list_of_chempots = []
         for k in self.surfe_dict.keys():
-            for du in self.surfe_dict.keys():
+            for du in self.surfe_dict[k].keys():
                 if du not in list_of_chempots:
                     list_of_chempots.append(du)
         self.list_of_chempots = list_of_chempots
@@ -469,27 +469,28 @@ class SurfaceEnergyPlotter(object):
             SlabEntry, surface_energy (float)
         """
 
-        all_entries, all_gamma = [], []
-        for entry in self.all_slab_entries[miller_index].keys():
-            all_delu_dict = self.set_all_variables(delu_dict, delu_default)
-            gamma = self.surfe_dict[entry]
+        all_delu_dict = self.set_all_variables(delu_dict, delu_default)
+        def get_coeffs(e):
+            coeffs = []
+            for du in all_delu_dict.keys():
+                if du in self.surfe_dict[e].keys():
+                    coeffs.append(self.surfe_dict[e][du])
+                else:
+                    coeffs.append(0)
+            return np.array(coeffs)
 
+        all_entries, all_coeffs = [], []
+        for entry in self.all_slab_entries[miller_index].keys():
             if not no_clean:
                 all_entries.append(entry)
-                if type(gamma).__name__ == "float":
-                    all_gamma.append(gamma)
-                else:
-                    all_gamma.append(sub_chempots(gamma, all_delu_dict))
-
+                all_coeffs.append(get_coeffs(entry))
             if not no_doped:
                 for ads_entry in self.all_slab_entries[miller_index][entry]:
-                    all_delu_dict = self.set_all_variables(delu_dict, delu_default)
-                    gamma = self.surfe_dict[ads_entry]
                     all_entries.append(ads_entry)
-                    if type(gamma).__name__ == "float":
-                        all_gamma.append(gamma)
-                    else:
-                        all_gamma.append(sub_chempots(gamma, all_delu_dict))
+                    all_coeffs.append(get_coeffs(ads_entry))
+
+        du_vals = np.array(list(all_delu_dict.values()))
+        all_gamma = list(np.dot(all_coeffs, du_vals.T))
 
         return all_entries[all_gamma.index(min(all_gamma))], float(min(all_gamma))
 
@@ -1236,6 +1237,8 @@ class SurfaceEnergyPlotter(object):
         for du in self.list_of_chempots:
             if delu_dict and du in delu_dict.keys():
                 all_delu_dict[du] = delu_dict[du]
+            elif du == 1:
+                all_delu_dict[du] = du
             else:
                 all_delu_dict[du] = delu_default
 
