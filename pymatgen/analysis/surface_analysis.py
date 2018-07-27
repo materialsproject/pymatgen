@@ -441,6 +441,13 @@ class SurfaceEnergyPlotter(object):
                         se_dict[dope] = se.as_coefficients_dict()
         self.surfe_dict = se_dict
 
+        list_of_chempots = []
+        for k in self.surfe_dict.keys():
+            for du in self.surfe_dict.keys():
+                if du not in list_of_chempots:
+                    list_of_chempots.append(du)
+        self.list_of_chempots = list_of_chempots
+
     def get_stable_entry_at_u(self, miller_index, delu_dict=None, delu_default=0,
                               no_doped=False, no_clean=False):
         """
@@ -464,7 +471,7 @@ class SurfaceEnergyPlotter(object):
 
         all_entries, all_gamma = [], []
         for entry in self.all_slab_entries[miller_index].keys():
-            all_delu_dict = set_all_variables(entry, delu_dict, delu_default)
+            all_delu_dict = self.set_all_variables(delu_dict, delu_default)
             gamma = self.surfe_dict[entry]
 
             if not no_clean:
@@ -476,7 +483,7 @@ class SurfaceEnergyPlotter(object):
 
             if not no_doped:
                 for ads_entry in self.all_slab_entries[miller_index][entry]:
-                    all_delu_dict = set_all_variables(ads_entry, delu_dict, delu_default)
+                    all_delu_dict = self.set_all_variables(delu_dict, delu_default)
                     gamma = self.surfe_dict[ads_entry]
                     all_entries.append(ads_entry)
                     if type(gamma).__name__ == "float":
@@ -832,7 +839,7 @@ class SurfaceEnergyPlotter(object):
 
         mark = '--' if ucell_comp != clean_comp else '-'
 
-        delu_dict = set_all_variables(entry, delu_dict, delu_default)
+        delu_dict = self.set_all_variables(delu_dict, delu_default)
         delu_dict[ref_delu] = chempot_range[0]
         gamma_min = self.surfe_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == \
@@ -1062,7 +1069,7 @@ class SurfaceEnergyPlotter(object):
         plt = pretty_plot(width=8, height=7)
         for hkl in self.all_slab_entries.keys():
             for clean_entry in self.all_slab_entries[hkl].keys():
-                all_delu_dict = set_all_variables(clean_entry, delu_dict, delu_default)
+                all_delu_dict = self.set_all_variables(delu_dict, delu_default)
                 if self.all_slab_entries[hkl][clean_entry]:
                     clean_se = self.surfe_dict[clean_entry]
                     se = sub_chempots(clean_se, all_delu_dict)
@@ -1207,6 +1214,32 @@ class SurfaceEnergyPlotter(object):
         plt.xticks(rotation=60)
 
         return plt
+
+    def set_all_variables(self, delu_dict, delu_default):
+        """
+        Sets all chemical potential values and returns a dictionary where
+            the key is a sympy Symbol and the value is a float (chempot).
+
+        Args:
+            entry (SlabEntry): Computed structure entry of the slab
+            delu_dict (Dict): Dictionary of the chemical potentials to be set as
+                constant. Note the key should be a sympy Symbol object of the
+                format: Symbol("delu_el") where el is the name of the element.
+            delu_default (float): Default value for all unset chemical potentials
+
+        Returns:
+            Dictionary of set chemical potential values
+        """
+
+        # Set up the variables
+        all_delu_dict = {}
+        for du in self.list_of_chempots:
+            if delu_dict and du in delu_dict.keys():
+                all_delu_dict[du] = delu_dict[du]
+            else:
+                all_delu_dict[du] = delu_default
+
+        return all_delu_dict
 
 
         # def surface_phase_diagram(self, y_param, x_param, miller_index):
@@ -1790,28 +1823,3 @@ def sub_chempots(gamma_dict, chempots):
 
     return np.dot(coeffs, chempot_vals)
 
-def set_all_variables(entry, delu_dict, delu_default):
-    """
-    Sets all chemical potential values and returns a dictionary where
-        the key is a sympy Symbol and the value is a float (chempot).
-
-    Args:
-        entry (SlabEntry): Computed structure entry of the slab
-        delu_dict (Dict): Dictionary of the chemical potentials to be set as
-            constant. Note the key should be a sympy Symbol object of the
-            format: Symbol("delu_el") where el is the name of the element.
-        delu_default (float): Default value for all unset chemical potentials
-
-    Returns:
-        Dictionary of set chemical potential values
-    """
-
-    # Set up the variables
-    all_delu_dict = {}
-    for el in entry.composition.as_dict().keys():
-        if delu_dict and Symbol("delu_%s" % (el)) in delu_dict.keys():
-            all_delu_dict[Symbol("delu_%s" % (el))] = delu_dict[Symbol("delu_%s" % (el))]
-        else:
-            all_delu_dict[Symbol("delu_%s" % (el))] = delu_default
-
-    return all_delu_dict
