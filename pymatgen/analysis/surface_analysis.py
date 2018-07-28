@@ -21,7 +21,7 @@ import numpy as np
 import itertools
 import warnings
 import random, copy
-from sympy import Symbol, Number
+from sympy import Symbol, Number, Add
 from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
@@ -425,25 +425,32 @@ class SurfaceEnergyPlotter(object):
             entry_dict_from_list(all_slab_entries)
         self.color_dict = self.color_palette_dict()
 
-        se_dict = {}
+        se_dict, as_coeffs_dict = {}, {}
         for hkl in all_slab_entries.keys():
             for clean in all_slab_entries[hkl].keys():
                 se = clean.surface_energy(self.ucell_entry, ref_entries=self.ref_entries)
                 if type(se).__name__ == "float":
                     se_dict[clean] = se
+                    as_coeffs_dict[clean] = {1: se}
                 else:
-                    se_dict[clean] = se.as_coefficients_dict()
+                    se_dict[clean] = se
+                    as_coeffs_dict[clean] = se.as_coefficients_dict()
                 for dope in all_slab_entries[hkl][clean]:
                     se = dope.surface_energy(self.ucell_entry, ref_entries=self.ref_entries)
                     if type(se).__name__ == "float":
                         se_dict[dope] = se
+                        as_coeffs_dict[dope] = {1: se}
                     else:
-                        se_dict[dope] = se.as_coefficients_dict()
+                        se_dict[dope] = se
+                        as_coeffs_dict[dope] = se.as_coefficients_dict()
         self.surfe_dict = se_dict
+        self.as_coeffs_dict = as_coeffs_dict
 
         list_of_chempots = []
-        for k in self.surfe_dict.keys():
-            for du in self.surfe_dict[k].keys():
+        for k in self.as_coeffs_dict.keys():
+            if type(self.as_coeffs_dict[k]).__name__ == "float":
+                continue
+            for du in self.as_coeffs_dict[k].keys():
                 if du not in list_of_chempots:
                     list_of_chempots.append(du)
         self.list_of_chempots = list_of_chempots
@@ -473,8 +480,10 @@ class SurfaceEnergyPlotter(object):
         def get_coeffs(e):
             coeffs = []
             for du in all_delu_dict.keys():
-                if du in self.surfe_dict[e].keys():
-                    coeffs.append(self.surfe_dict[e][du])
+                if type(self.as_coeffs_dict[e]).__name__ == 'float':
+                    coeffs.append(self.as_coeffs_dict[e])
+                elif du in self.as_coeffs_dict[e].keys():
+                    coeffs.append(self.as_coeffs_dict[e][du])
                 else:
                     coeffs.append(0)
             return np.array(coeffs)
@@ -610,7 +619,6 @@ class SurfaceEnergyPlotter(object):
             (array): Array containing a solution to x equations with x
                 variables (x-1 chemical potential and 1 surface energy)
         """
-
         # Generate all possible coefficients
         all_parameters = []
         all_eqns = []
@@ -696,7 +704,8 @@ class SurfaceEnergyPlotter(object):
                 stable_urange_dict[entries_in_hkl[0]] = chempot_range
                 u1, u2 = delu_dict.copy(), delu_dict.copy()
                 u1[ref_delu], u2[ref_delu] = chempot_range[0], chempot_range[1]
-                se = self.surfe_dict[entries_in_hkl[0]]
+                se = self.as_coeffs_dict[entries_in_hkl[0]]
+                print(se)
                 se_dict[entries_in_hkl[0]] = [sub_chempots(se, u1), sub_chempots(se, u2)]
                 continue
 
@@ -744,7 +753,7 @@ class SurfaceEnergyPlotter(object):
                     continue
                 if se_dict[entry][0] * se_dict[entry][1] < 0:
                     # solve for gamma=0
-                    se = self.surfe_dict[entry]
+                    se = self.as_coeffs_dict[entry]
                     se_dict[entry].append(0)
                     stable_urange_dict[entry].append(solve(sub_chempots(se, delu_dict),
                                                            ref_delu)[0])
@@ -842,11 +851,12 @@ class SurfaceEnergyPlotter(object):
 
         delu_dict = self.set_all_variables(delu_dict, delu_default)
         delu_dict[ref_delu] = chempot_range[0]
-        gamma_min = self.surfe_dict[entry]
+        gamma_min = self.as_coeffs_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == \
                                  "float" else sub_chempots(gamma_min, delu_dict)
+        print(chempot_range)
         delu_dict[ref_delu] = chempot_range[1]
-        gamma_max = self.surfe_dict[entry]
+        gamma_max = self.as_coeffs_dict[entry]
         gamma_max = gamma_max if type(gamma_max).__name__ == \
                                  "float" else sub_chempots(gamma_max, delu_dict)
         gamma_range = [gamma_min, gamma_max]
@@ -1072,7 +1082,7 @@ class SurfaceEnergyPlotter(object):
             for clean_entry in self.all_slab_entries[hkl].keys():
                 all_delu_dict = self.set_all_variables(delu_dict, delu_default)
                 if self.all_slab_entries[hkl][clean_entry]:
-                    clean_se = self.surfe_dict[clean_entry]
+                    clean_se = self.as_coeffs_dict[clean_entry]
                     se = sub_chempots(clean_se, all_delu_dict)
                     for ads_entry in self.all_slab_entries[hkl][clean_entry]:
                         ml = ads_entry.get_monolayer
