@@ -373,6 +373,20 @@ class VasprunTest(unittest.TestCase):
                 {"Si": ["s"]})
             self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
 
+            # test hybrid band structures
+            vasprun.actual_kpoints_weights[-1] = 0.
+            bs = vasprun.get_band_structure(kpoints_filename=os.path.join(test_dir,
+                                                                          'KPOINTS_Si_bands'))
+            cbm = bs.get_cbm()
+            vbm = bs.get_vbm()
+            self.assertEqual(cbm['kpoint_index'], [0])
+            self.assertAlmostEqual(cbm['energy'], 6.3676)
+            self.assertEqual(cbm['kpoint'].label, None)
+            self.assertEqual(vbm['kpoint_index'], [0])
+            self.assertAlmostEqual(vbm['energy'], 2.8218)
+            self.assertEqual(vbm['kpoint'].label, None)
+
+
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
         # with warnings.catch_warnings(record=True) as w:
@@ -1100,8 +1114,13 @@ class WavecarTest(unittest.TestCase):
         self.assertEqual(self.w.band_energy[0].shape, (self.w.nb, 3))
         self.assertLessEqual(len(self.w.Gpoints[0]), 257)
 
-        with self.assertRaises(ValueError):
-            Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        self.assertEqual(len(self.w.coeffs), 2)
+        self.assertEqual(len(self.w.band_energy), 2)
+        self.assertEqual(len(self.w.kpoints), self.w.nk)
+        self.assertEqual(len(self.w.Gpoints), self.w.nk)
+        self.assertEqual(len(self.w.coeffs[0][0]), self.w.nb)
+        self.assertEqual(len(self.w.band_energy[0]), self.w.nk)
 
         temp_ggp = Wavecar._generate_G_points
         try:
