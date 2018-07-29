@@ -3865,9 +3865,10 @@ class Wavecar:
     .. attribute:: coeffs
 
         The list of coefficients for each k-point and band for reconstructing
-        the wavefunction. The first index corresponds to the kpoint and the
-        second corresponds to the band (e.g. self.coeffs[kp][b] corresponds
-        to k-point kp and band b).
+        the wavefunction. For non-spin-polarized, the first index corresponds
+        to the kpoint and the second corresponds to the band (e.g.
+        self.coeffs[kp][b] corresponds to k-point kp and band b). For
+        spin-polarized calculations, the first index is for the spin.
 
     Acknowledgments:
         This code is based upon the Fortran program, WaveTrans, written by
@@ -3900,10 +3901,11 @@ class Wavecar:
             if verbose:
                 print('recl={}, spin={}, rtag={}'.format(recl, spin, rtag))
             recl8 = int(recl / 8)
+            self.spin = spin
 
             # check that ISPIN wasn't set to 2
-            if spin == 2:
-                raise ValueError('spin polarization not currently supported')
+            # if spin == 2:
+            #     raise ValueError('spin polarization not currently supported')
 
             # check to make sure we have precision correct
             if rtag != 45200 and rtag != 45210:
@@ -3952,10 +3954,15 @@ class Wavecar:
             # reading records
             # np.set_printoptions(precision=7, suppress=True)
             self.Gpoints = [None for _ in range(self.nk)]
-            self.coeffs = [[None for i in range(self.nb)]
-                           for j in range(self.nk)]
             self.kpoints = []
-            self.band_energy = []
+            if spin == 2:
+                self.coeffs = [[[None for i in range(self.nb)]
+                                for j in range(self.nk)] for _ in range(spin)]
+                self.band_energy = [[] for _ in range(spin)]
+            else:
+                self.coeffs = [[None for i in range(self.nb)]
+                               for j in range(self.nk)]
+                self.band_energy = []
             for ispin in range(spin):
                 if verbose:
                     print('reading spin {}'.format(ispin))
@@ -3963,7 +3970,12 @@ class Wavecar:
                     # information for this kpoint
                     nplane = int(np.fromfile(f, dtype=np.float64, count=1)[0])
                     kpoint = np.fromfile(f, dtype=np.float64, count=3)
-                    self.kpoints.append(kpoint)
+
+                    if ispin == 0:
+                        self.kpoints.append(kpoint)
+                    else:
+                        assert np.allclose(self.kpoints[ink], kpoint)
+
                     if verbose:
                         print('kpoint {: 4} with {: 5} plane waves at {}'
                               .format(ink, nplane, kpoint))
@@ -3971,7 +3983,11 @@ class Wavecar:
                     # energy and occupation information
                     enocc = np.fromfile(f, dtype=np.float64,
                                         count=3 * self.nb).reshape((self.nb, 3))
-                    self.band_energy.append(enocc)
+                    if spin == 2:
+                        self.band_energy[ispin].append(enocc)
+                    else:
+                        self.band_energy.append(enocc)
+
                     if verbose:
                         print(enocc[:, [0, 2]])
 
@@ -3987,19 +4003,18 @@ class Wavecar:
                     # extract coefficients
                     for inb in range(self.nb):
                         if rtag == 45200:
-                            self.coeffs[ink][inb] = \
-                                np.fromfile(f, dtype=np.complex64,
-                                            count=nplane)
-                            np.fromfile(f, dtype=np.float64,
-                                        count=recl8 - nplane)
+                            data = np.fromfile(f, dtype=np.complex64, count=nplane)
+                            np.fromfile(f, dtype=np.float64, count=recl8 - nplane)
                         elif rtag == 45210:
                             # this should handle double precision coefficients
                             # but I don't have a WAVECAR to test it with
-                            self.coeffs[ink][inb] = \
-                                np.fromfile(f, dtype=np.complex128,
-                                            count=nplane)
-                            np.fromfile(f, dtype=np.float64,
-                                        count=recl8 - 2 * nplane)
+                            data = np.fromfile(f, dtype=np.complex128, count=nplane)
+                            np.fromfile(f, dtype=np.float64, count=recl8 - 2 * nplane)
+
+                        if spin == 2:
+                            self.coeffs[ispin][ink][inb] = data
+                        else:
+                            self.coeffs[ink][inb] = data
 
     def _generate_nbmax(self):
         """
@@ -4074,7 +4089,7 @@ class Wavecar:
                         gpoints.append(G)
         return np.array(gpoints, dtype=np.float64)
 
-    def evaluate_wavefunc(self, kpoint, band, r):
+    def evaluate_wavefunc(self, kpoint, band, r, spin=0):
         r"""
         Evaluates the wavefunction for a given position, r.
 
@@ -4097,16 +4112,19 @@ class Wavecar:
             band (int): the index of the band where the wavefunction will be
                             evaluated
             r (np.array): the position where the wavefunction will be evaluated
+            spin (int):  spin index for the desired wavefunction (only for
+                            ISPIN = 2, default = 0)
         Returns:
             a complex value corresponding to the evaluation of the wavefunction
         """
         v = self.Gpoints[kpoint] + self.kpoints[kpoint]
         u = np.dot(np.dot(v, self.b), r)
-        c = self.coeffs[kpoint][band]
+        c = self.coeffs[spin][kpoint][band] if self.spin == 2 else \
+            self.coeffs[kpoint][band]
         return np.sum(np.dot(c, np.exp(1j * u, dtype=np.complex64))) / \
             np.sqrt(self.vol)
 
-    def fft_mesh(self, kpoint, band, shift=True):
+    def fft_mesh(self, kpoint, band, spin=0, shift=True):
         """
         Places the coefficients of a wavefunction onto an fft mesh.
 
@@ -4123,13 +4141,17 @@ class Wavecar:
                             will be evaluated
             band (int): the index of the band where the wavefunction will be
                             evaluated
+            spin (int):  the spin of the wavefunction for the desired
+                            wavefunction (only for ISPIN = 2, default = 0)
             shift (bool): determines if the zero frequency coefficient is
                             placed at index (0, 0, 0) or centered
         Returns:
             a numpy ndarray representing the 3D mesh of coefficients
         """
         mesh = np.zeros(tuple(self.ng), dtype=np.complex)
-        for gp, coeff in zip(self.Gpoints[kpoint], self.coeffs[kpoint][band]):
+        tcoeffs = self.coeffs[spin][kpoint][band] if self.spin == 2 else \
+            self.coeffs[kpoint][band]
+        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
             t = tuple(gp.astype(np.int) + (self.ng / 2).astype(np.int))
             mesh[t] = coeff
         if shift:
