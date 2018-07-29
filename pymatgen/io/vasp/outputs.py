@@ -789,7 +789,8 @@ class Vasprun(MSONable):
         # check if we have an hybrid band structure computation
         # for this we look at the presence of the LHFCALC tag
         hybrid_band = False
-        if self.parameters.get('LHFCALC', False):
+        if self.parameters.get('LHFCALC', False) or \
+                0. in self.actual_kpoints_weights:
             hybrid_band = True
 
         if kpoint_file is not None:
