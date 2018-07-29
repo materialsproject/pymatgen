@@ -991,12 +991,12 @@ class JmolNN(NearNeighbors):
 
     Args:
         tol (float): tolerance parameter for bond determination
-            (default: 1E-3).
+            (default: 0.56).
         el_radius_updates: (dict) symbol->float to override default atomic 
             radii table values 
     """
 
-    def __init__(self, tol=1E-3, el_radius_updates=None):
+    def __init__(self, tol=0.56, el_radius_updates=None):
         self.tol = tol
 
         # Load elemental radii table
@@ -1009,19 +1009,18 @@ class JmolNN(NearNeighbors):
         if el_radius_updates:
             self.el_radius.update(el_radius_updates)
 
-    def get_max_bond_distance(self, el1_sym, el2_sym, constant=0.56):
+    def get_max_bond_distance(self, el1_sym, el2_sym):
         """
         Use Jmol algorithm to determine bond length from atomic parameters
         Args:
             el1_sym: (str) symbol of atom 1
             el2_sym: (str) symbol of atom 2
-            constant: (float) factor to tune model
 
         Returns: (float) max bond length
 
         """
         return sqrt(
-            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
+            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + self.tol) ** 2)
 
 
     def get_nn_info(self, structure, n):
