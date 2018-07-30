@@ -112,6 +112,8 @@ class BondDissociationEnergies(MSONable):
         self.ring_bonds = []
         self.bad_pairs = []
         self.mol_graph = build_MoleculeGraph(target_molecule)#, self.all_bonds)
+        print(self.mol_graph)
+        print(self.fragment_entries)
         for bond in self.mol_graph.graph.edges: #switch to all_bonds?
             bonds = [(bond[0],bond[1])]
             self.fragment_and_process(bonds)
