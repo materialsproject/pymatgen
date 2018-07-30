@@ -494,6 +494,13 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
         self.assertEqual(vasprun.structures[0].charge, 1)
 
+        vpath = os.path.join(test_dir, 'vasprun.split.charged.xml')
+        potcar_path = os.path.join(test_dir, 'POTCAR.split.charged.gz')
+        vasprun = Vasprun(vpath, parse_potcar_file=False)
+        vasprun.update_charge_from_potcar(potcar_path)
+        self.assertEqual(vasprun.parameters.get('NELECT', 0), 7)
+        self.assertEqual(vasprun.structures[-1].charge, 1)
+
 
 class OutcarTest(PymatgenTest):
 
