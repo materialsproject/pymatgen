@@ -17,6 +17,7 @@ from monty.json import MSONable, MontyDecoder
 
 import numpy as np
 
+from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import edges_from_babel, build_MoleculeGraph, is_isomorphic
 import networkx as nx
 
