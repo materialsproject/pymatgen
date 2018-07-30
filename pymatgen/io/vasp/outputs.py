@@ -905,8 +905,16 @@ class Vasprun(MSONable):
 
         if potcar and self.incar.get("ALGO", "") not in ["GW0", "G0W0", "GW", "BSE"]:
             nelect = self.parameters["NELECT"]
-            potcar_nelect = sum([self.initial_structure.composition.element_composition[
-                                ps.element] * ps.ZVAL for ps in potcar])
+            if len(potcar) == len(self.initial_structure
+                                  .composition.element_composition):
+                potcar_nelect = sum([self.initial_structure.composition
+                                     .element_composition[ps.element] * ps.ZVAL
+                                     for ps in potcar])
+            else:
+                nums = [len(list(g)) for _, g in
+                        itertools.groupby(self.atomic_symbols)]
+                potcar_nelect = sum(ps.ZVAL * num for ps, num in
+                                    zip(potcar, nums))
             charge = nelect - potcar_nelect
 
             if charge:
