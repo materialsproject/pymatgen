@@ -126,42 +126,42 @@ class BondDissociationEnergies(MSONable):
         self.solve_ring_bonds()
         return self.bond_dissociation_energies
 
-        def fragment_and_process(self, bonds):
-            try:
-                frags = self.mol_graph.split_molecule_subgraphs(bonds,allow_reverse=True)
-                frag_success = True
-            except RuntimeError:
-                if len(bonds) == 1:
-                    self.ring_bonds += bonds
-                elif len(bonds) == 2:
-                    self.bad_pairs += bonds
-                else:
-                    print('No reason to try and break more than two bonds at once! Exiting...')
-                    raise ValueError
-                frag_success = False
-            if frag_success:
-                frag1_entries = self.search_fragment_entries(frags[0])[0]
-                frag2_entries = self.search_fragment_entries(frags[1])[0]
-                for frag1 in frag1_entries:
-                    for frag2 in frag2_entries:
-                        if frag1["output"]["optimized_molecule"].charge + frag2["output"]["optimized_molecule"].charge == self.molecule_entry["output"]["optimized_molecule"].charge:
-                            new_entry = [bonds, self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), frag1["output"]["final_energy"], frag1["output"]["optimized_molecule"].charge, frag2["output"]["final_energy"], frag2["output"]["optimized_molecule"].charge]
-                            self.bond_dissociation_energies += new_entry
+    def fragment_and_process(self, bonds):
+        try:
+            frags = self.mol_graph.split_molecule_subgraphs(bonds,allow_reverse=True)
+            frag_success = True
+        except RuntimeError:
+            if len(bonds) == 1:
+                self.ring_bonds += bonds
+            elif len(bonds) == 2:
+                self.bad_pairs += bonds
+            else:
+                print('No reason to try and break more than two bonds at once! Exiting...')
+                raise ValueError
+            frag_success = False
+        if frag_success:
+            frag1_entries = self.search_fragment_entries(frags[0])[0]
+            frag2_entries = self.search_fragment_entries(frags[1])[0]
+            for frag1 in frag1_entries:
+                for frag2 in frag2_entries:
+                    if frag1["output"]["optimized_molecule"].charge + frag2["output"]["optimized_molecule"].charge == self.molecule_entry["output"]["optimized_molecule"].charge:
+                        new_entry = [bonds, self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), frag1["output"]["final_energy"], frag1["output"]["optimized_molecule"].charge, frag2["output"]["final_energy"], frag2["output"]["optimized_molecule"].charge]
+                        self.bond_dissociation_energies += new_entry
 
-        def search_fragment_entries(self, frag):
-            entries = []
-            initial_entries = []
-            final_entries = []
-            for entry in self.fragment_entries:
-                initial_graph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"])).graph
-                final_graph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["optimized_molecule"])).graph
-                if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
-                    entries += entry
-                elif is_isomorphic(frag.graph, initial_graph):
-                    initial_entries += entry
-                elif is_isomorphic(frag.graph, final_graph):
-                    final_entries += entry
-            return [entries, initial_entries, final_entries]
+    def search_fragment_entries(self, frag):
+        entries = []
+        initial_entries = []
+        final_entries = []
+        for entry in self.fragment_entries:
+            initial_graph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"])).graph
+            final_graph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["optimized_molecule"])).graph
+            if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
+                entries += entry
+            elif is_isomorphic(frag.graph, initial_graph):
+                initial_entries += entry
+            elif is_isomorphic(frag.graph, final_graph):
+                final_entries += entry
+        return [entries, initial_entries, final_entries]
 
-        def solve_ring_bonds(self):
-            pass
+    def solve_ring_bonds(self):
+        pass
