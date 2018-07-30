@@ -111,7 +111,7 @@ class BondDissociationEnergies(MSONable):
         # self.all_bonds = edges_from_babel(target_molecule)
         self.ring_bonds = []
         self.bad_pairs = []
-        self.mol_graph = build_MoleculeGraph(target_molecule)#, self.all_bonds)
+        self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["output"]["optimized_molecule"]))#, self.all_bonds)
         for bond in self.mol_graph.graph.edges: #switch to all_bonds?
             bonds = [(bond[0],bond[1])]
             self.fragment_and_process(bonds)
@@ -152,8 +152,8 @@ class BondDissociationEnergies(MSONable):
             initial_entries = []
             final_entries = []
             for entry in self.fragment_entries:
-                initial_graph = build_MoleculeGraph(entry["input"]["initial_molecule"]).graph
-                final_graph = build_MoleculeGraph(entry["output"]["optimized_molecule"]).graph
+                initial_graph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"])).graph
+                final_graph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["optimized_molecule"])).graph
                 if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
                     entries += entry
                 elif is_isomorphic(frag.graph, initial_graph):
