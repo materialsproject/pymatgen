@@ -20,13 +20,13 @@ import numpy as np
 from pymatgen.io.qchem.outputs import edges_from_babel, build_MoleculeGraph, is_isomorphic
 import networkx as nx
 
-have_babel = True
-try:
-    from pymatgen.io.babel import BabelMolAdaptor
-    import openbabel as ob
-except ImportError:
-    print("Cannot find OpenBabel! Thus, bonds must be provided by the user.")
-    have_babel = False
+# have_babel = True
+# try:
+#     from pymatgen.io.babel import BabelMolAdaptor
+#     import openbabel as ob
+# except ImportError:
+#     print("Cannot find OpenBabel! Thus, bonds must be provided by the user.")
+#     have_babel = False
 
 
 """
