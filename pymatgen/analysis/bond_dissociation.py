@@ -144,8 +144,8 @@ class BondDissociationEnergies(MSONable):
             frag2_entries = self.search_fragment_entries(frags[1])[0]
             for frag1 in frag1_entries:
                 for frag2 in frag2_entries:
-                    if frag1["input"]["rem"] == frag2["input"]["rem"]:
-                        if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["input"]["rem"] == frag1["input"]["rem"]:
+                    if frag1["input"]["rem"]["method"] == frag2["input"]["rem"]["method"] and frag1["input"]["rem"]["basis"] == frag2["input"]["rem"]["basis"]: # Add PCM check?
+                        if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["input"]["rem"]["basis"] == frag1["input"]["rem"]["basis"] and self.molecule_entry["input"]["rem"]["method"] == frag1["input"]["rem"]["method"]:
                             new_entry = [bonds, self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), frag1["output"]["final_energy"], frag1["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"], frag2["output"]["initial_molecule"]["charge"]]
                             self.bond_dissociation_energies += [new_entry]
 
