@@ -240,6 +240,12 @@ class TaskDefectBuilder(object):
                 print('\tWARNING bulk structure in defect object is correct fit but appears to have shifted basis'
                       'for {}_chg{}...will not append to list. '
                       'See bad bulk sites:\n{}'.format( defect.name, defect.charge, bad_site_compare_list))
+                print('bcf:\n')
+                for u in bulk_calc_fin:
+                    print('\n',u)
+                print('\n\n-------\nbdc:\n')
+                for u in bulk_def_compare:
+                    print('\n',u)
                 continue
             elif not sm.fit( bulk_calc_fin, bulk_def_compare):
                 print('\tFATAL ERROR bulk structure is not equivalent type between defect and bulk calculation '
