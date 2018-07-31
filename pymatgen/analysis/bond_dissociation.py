@@ -144,7 +144,7 @@ class BondDissociationEnergies(MSONable):
             frag2_entries = self.search_fragment_entries(frags[1])[0]
             for frag1 in frag1_entries:
                 for frag2 in frag2_entries:
-                    if frag1["input"]["rem"] == frag2["input"]["rem"]
+                    if frag1["input"]["rem"] == frag2["input"]["rem"]:
                         if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["input"]["rem"] == frag1["input"]["rem"]:
                             new_entry = [bonds, self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), frag1["output"]["final_energy"], frag1["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"], frag2["output"]["initial_molecule"]["charge"]]
                             self.bond_dissociation_energies += [new_entry]
