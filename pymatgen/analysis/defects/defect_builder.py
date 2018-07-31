@@ -32,11 +32,9 @@ def standardize_sc_matrix(sc_mat):
 class TaskDefectBuilder(object):
     """
     This does not have same format as a standard Builder, but it does everything we would want
-    the defect builder to do.
+    a defect builder to do.
 
     Input is a list of tasks from database...
-
-    Right now it makes use of dumping to json files to savetime... future should use database pushing...
     """
     def __init__(self, list_of_tasks, compatibility=DefectCompatibility()):
         self.list_of_tasks = list_of_tasks
@@ -50,10 +48,9 @@ class TaskDefectBuilder(object):
         defect_task_list = []
         mpid_checked = False
 
+        print('Running builder for {} tasks'.format(len(self.list_of_tasks)))
         for task in self.list_of_tasks:
-            print('checking builder for ',task['task_label'])
             #call it a dielectric calculation if LEPSILON and LPEAD are in incar
-            #TODO: figure out a better way to figure out if this is dielectric calculation?
             if ('LEPSILON' in task['input']['incar'].keys()) and ('LPEAD' in task['input']['incar'].keys()):
                 #process dielectric data
                 eps_ionic = task['output']['epsilon_ionic']
@@ -69,25 +66,9 @@ class TaskDefectBuilder(object):
                 diel_data.update( {'epsilon_ionic': eps_ionic, 'epsilon_static':  eps_static,
                                    'dielectric': eps_total})
 
-            #assume that hybrid level band structure information is given by task which has 'HFSCREEN' in incar...
-            #TODO: be smarter about this information?
-            elif 'HFSCREEN' in task['input']['incar'].keys():
-                hybrid_cbm = task['output']['cbm']
-                hybrid_vbm = task['output']['vbm']
-                hybrid_gap = task['output']['bandgap']
-
-                #this is a check up to see if hybrid task already loaded? for danny...
-                if hybrid_level_data:
-                    raise ValueError("Hybrid level data already parsed? How to deal with this?")
-
-                hybrid_level_data.update( {'hybrid_cbm': hybrid_cbm, 'hybrid_vbm': hybrid_vbm,
-                                           'hybrid_gap': hybrid_gap})
-
-            #call it a bulk calculation if transformation class is a SupercellTranformation
-            #TODO: figure out a better way to figure out if it is a bulk calculation?
+            #call it a bulk calculation if transformation class is just a SupercellTranformation
             elif 'SupercellTransformation' == task['transformations']['history'][0]['@class']:
                 #process bulk task information
-                # bstruct = Structure.from_dict(task['input']['structure'])
                 bstruct = Structure.from_dict(task['transformations']['history'][0]['input_structure'])
 
                 #check if mpid exists for this structure (only need to do once)
@@ -145,6 +126,19 @@ class TaskDefectBuilder(object):
             elif 'defect' in task['transformations']['history'][0].keys():
                 defect_task_list.append(task)
 
+            #assume that hybrid level band structure information is given by task which has 'HFSCREEN' in incar...
+            #TODO: figure out a better way to see if a hybrid BS caclulation is being suppled for band edge corrections?
+            elif 'HFSCREEN' in task['input']['incar'].keys():
+                hybrid_cbm = task['output']['cbm']
+                hybrid_vbm = task['output']['vbm']
+                hybrid_gap = task['output']['bandgap']
+
+                #this is a check up to see if hybrid task already loaded? for danny...
+                if hybrid_level_data:
+                    raise ValueError("Hybrid level data already parsed? How to deal with this?")
+
+                hybrid_level_data.update( {'hybrid_cbm': hybrid_cbm, 'hybrid_vbm': hybrid_vbm,
+                                           'hybrid_gap': hybrid_gap})
 
         # """TO BE REMOVED WHEN FULL DATABASE APPROACH USED"""
         # if os.path.exists('corr_history_temp.json'):
@@ -172,7 +166,7 @@ class TaskDefectBuilder(object):
             #get defect object
             defect = MontyDecoder().process_decoded( defect_task['transformations']['history'][0]['defect'])
 
-            #get essential information for parsing
+            #get essential information for parsing with corrections
             defect_energy = defect_task['output']['energy']
             deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
             defect_planar_averages = [deflpt[str(ax)] for ax in range(3)]
@@ -212,8 +206,6 @@ class TaskDefectBuilder(object):
                       'for {}...will not append to list'.format( defect_task['task_label']))
                 continue
 
-            # print(defect_task['task_label'],'\n',bulk_calc_fin,'\n', bulk_def_compare,'_________________________\n\n')
-
             #create list that maps site indices from bulk structure to defect structure (needed by Kumagai correction)
             defect_struct_sc = defect.generate_defect_structure( scaling_matrix)
             site_matching_indices = []
@@ -224,10 +216,10 @@ class TaskDefectBuilder(object):
                     site_matching_indices.append( [bulkindex, dindex])
 
             if 'bandstructure' in task['calcs_reversed'][0].keys():
+                #TODO: add this functionality
                 raise ValueError("DANNY: you havent figured out hwo to do this yet...")
             else:
                 """HACK RIGHT HERE BECAUSE INSUFFICIENT DATA IN DATABASE FOR BANDFILLING"""
-                #TODO: this data exists in bandstructure task; REPLACE
                 fw_loc = task['dir_name'].split(':')[-1]
                 vrpath = os.path.join(fw_loc, 'vasprun.xml')
                 if not os.path.exists(vrpath):
