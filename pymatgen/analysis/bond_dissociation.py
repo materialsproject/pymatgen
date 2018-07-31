@@ -155,6 +155,7 @@ class BondDissociationEnergies(MSONable):
         initial_entries = []
         final_entries = []
         for entry in self.fragment_entries:
+            print(entry)
             initial_graph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"])).graph
             final_graph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"])).graph
             if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
