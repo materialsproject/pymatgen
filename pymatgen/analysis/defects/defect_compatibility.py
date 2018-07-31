@@ -191,6 +191,27 @@ class DefectCompatibility(MSONable):
         else:
             defect_entry = self.perform_kumagai( defect_entry)
 
+        # add potalign based on preferred correction setting if it does not already exist in defect entry
+        if 'potalign' not in defect_entry.parameters.keys():
+            if (self.preferred_cc == 'freysoldt'):
+                if 'freysoldt_meta' in defect_entry.parameters.keys():
+                    potalign = defect_entry.parameters['freysoldt_meta']['freysoldt_potalign']
+                    defect_entry.parameters['potalign'] = potalign
+                elif 'kumagai_meta' in defect_entry.parameters.keys():
+                    print('WARNING: was not able to use potalign from Freysoldt correction, '
+                          'using Kumagai value for purposes of band filling correction.')
+                    potalign = defect_entry.parameters['kumagai_meta']['kumagai_potalign']
+                    defect_entry.parameters['potalign'] = potalign
+            else:
+                if 'kumagai_meta' in defect_entry.parameters.keys():
+                    potalign = defect_entry.parameters['kumagai_meta']['kumagai_potalign']
+                    defect_entry.parameters['potalign'] = potalign
+                elif 'freysoldt_meta' in defect_entry.parameters.keys():
+                    print('WARNING: was not able to use potalign from Kumagai correction, '
+                          'using Freysoldt value for purposes of band filling correction.')
+                    potalign = defect_entry.parameters['freysoldt_meta']['freysoldt_potalign']
+                    defect_entry.parameters['potalign'] = potalign
+
         # consider running band filling correction
         required_bandfilling_params = ["eigenvalues", "kpoint_weights", "potalign", "vbm", "cbm"]
         run_bandfilling = True if len( set(defect_entry.parameters.keys()).intersection(required_bandfilling_params)) \
@@ -199,7 +220,6 @@ class DefectCompatibility(MSONable):
             print('Insufficient DefectEntry parameters exist for BandFilling Correction.')
         # elif 'bandfilling_meta' not in defect_entry.parameters.keys():
         else:
-            # TODO: add ability to modify the potalign value to prefer kumagai or freysoldt?
             defect_entry = self.perform_bandfilling( defect_entry)
 
         # consider running band edge shifting correction
