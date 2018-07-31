@@ -142,8 +142,6 @@ class BondDissociationEnergies(MSONable):
         if frag_success:
             frag1_entries = self.search_fragment_entries(frags[0])[0]
             frag2_entries = self.search_fragment_entries(frags[1])[0]
-            print(frag1_entries)
-            print(frag2_entries)
             for frag1 in frag1_entries:
                 for frag2 in frag2_entries:
                     if frag1["output"]["optimized_molecule"].charge + frag2["output"]["optimized_molecule"].charge == self.molecule_entry["output"]["optimized_molecule"].charge:
@@ -155,6 +153,7 @@ class BondDissociationEnergies(MSONable):
         initial_entries = []
         final_entries = []
         for entry in self.fragment_entries:
+            print(entry)
             initial_graph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"])).graph
             final_graph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["optimized_molecule"])).graph
             if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
