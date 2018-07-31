@@ -55,14 +55,13 @@ __all__ = [
     "EphTask",
     "OpticTask",
     "AnaddbTask",
-    "set_user_config_taskmanager"
+    "set_user_config_taskmanager",
 ]
 
 import logging
 logger = logging.getLogger(__name__)
 
 # Tools and helper functions.
-
 
 def straceback():
     """Returns a string with the traceback."""
@@ -75,7 +74,6 @@ def lennone(PropperOrNone):
         return 0
     else:
         return len(PropperOrNone)
-
 
 
 def nmltostring(nml):
@@ -182,8 +180,6 @@ class ParalConf(AttrDict):
         pprint(self, stream=stream)
         return stream.getvalue()
 
-    # TODO: Change name in abinit
-    # Remove tot_ncpus from Abinit
     @property
     def num_cores(self):
         return self.mpi_procs * self.omp_threads
@@ -577,7 +573,7 @@ batch_adapter:
     def from_user_config(cls):
         """
         Initialize the :class:`TaskManager` from the YAML file 'manager.yaml'.
-        Search first in the working directory and then in the abipy configuration directory.
+        Search first in the working directory and then in the AbiPy configuration directory.
 
         Raises:
             RuntimeError if file is not found.
@@ -595,7 +591,7 @@ batch_adapter:
             raise RuntimeError(colored(
 		"\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
-                "To use abipy to run jobs this file must be present\n"
+                "To use AbiPy to run jobs this file must be present\n"
                 "It provides a description of the cluster/computer you are running on\n"
                 "Examples are provided in abipy/data/managers." % (cls.YAML_FILE, path), color="red"))
 
@@ -966,14 +962,12 @@ batch_adapter:
         task.build()
 
         # Pass information on the time limit to Abinit (we always assume ndtset == 1)
-        #if False and isinstance(task, AbinitTask):
         if isinstance(task, AbinitTask):
             args = kwargs.get("exec_args", [])
             if args is None: args = []
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
-            #logger.info("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -1101,7 +1095,7 @@ class AbinitBuild(object):
 
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
-            print("stderr:", process.stderr.read())
+            print("stderr:\n", process.stderr.read())
             #print("stdout:", process.stdout.read())
 
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
@@ -1310,7 +1304,10 @@ class TaskRestartError(TaskError):
 
 
 class Task(six.with_metaclass(abc.ABCMeta, Node)):
-    """A Task is a node that performs some kind of calculation."""
+    """
+    A Task is a node that performs some kind of calculation.
+    This is base class providing low-level methods.
+    """
     # Use class attributes for TaskErrors so that we don't have to import them.
     Error = TaskError
     RestartError = TaskRestartError
@@ -2146,7 +2143,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     # in this case, indeed we may have replaced the file pointer with the
                     # previous output file of the present task.
                     if os.path.realpath(dest) != path and self.num_restarts == 0:
-                        raise self.Error("dest %s does not point to path %s" % (dest, path))
+                        raise self.Error("\nDestination:\n %s\ndoes not point to path:\n %s" % (dest, path))
 
     @abc.abstractmethod
     def setup(self):
@@ -3547,7 +3544,7 @@ class RelaxTask(GsTask, ProduceHist):
 
 class DfptTask(AbinitTask):
     """
-    Base class for DFPT tasks (Phonons, ...)
+    Base class for DFPT tasks (Phonons, DdeTask, DdkTask, ElasticTask ...)
     Mainly used to implement methods that are common to DFPT calculations with Abinit.
     Provide the method `open_ddb` that reads and return a Ddb file.
 
@@ -3555,6 +3552,12 @@ class DfptTask(AbinitTask):
 
         This class should not be instantiated directly.
     """
+    # TODO:
+    # for the time being we don't discern between GS and PhononCalculations.
+    CRITICAL_EVENTS = [
+        events.ScfConvergenceWarning,
+    ]
+
     def __repr__(self):
         # Get info about DFT perturbation from input file.
         qpt = self.input.get("qpt", [0, 0, 0])
@@ -3608,61 +3611,21 @@ class DfptTask(AbinitTask):
             logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
             return None
 
-
-class DdeTask(DfptTask):
-    """Task for DDE calculations."""
-
     def make_links(self):
-        """Replace the default behaviour of make_links"""
+        """
+        Replace the default behaviour of make_links. More specifically, this method
+        implements the logic required to connect DFPT calculation to `DDK` files.
+        Remember that DDK is an extension introduced in AbiPy to deal with the
+        irddkk input variable and the fact that the 3 files with du/dk produced by Abinit
+        have a file extension constructed from the number of atom (e.g. 1WF[3natom +1]).
 
-        for dep in self.deps:
-            if dep.exts == ["DDK"]:
-                ddk_task = dep.node
-                out_ddk = ddk_task.outdir.has_abiext("DDK")
-                if not out_ddk:
-                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
-
-                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
-                rfdir = list(ddk_task.input["rfdir"])
-                if rfdir.count(1) != 1:
-                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
-
-                idir = rfdir.index(1) + 1
-                ddk_case = idir +  3 * len(ddk_task.input.structure)
-
-                infile = self.indir.path_in("in_1WF%d" % ddk_case)
-                os.symlink(out_ddk, infile)
-
-            elif dep.exts == ["WFK"]:
-                gs_task = dep.node
-                out_wfk = gs_task.outdir.has_abiext("WFK")
-                if not out_wfk:
-                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-                if not os.path.exists(self.indir.path_in("in_WFK")):
-                    os.symlink(out_wfk, self.indir.path_in("in_WFK"))
-
-            else:
-                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
-
-
-    def get_results(self, **kwargs):
-        results = super(DdeTask, self).get_results(**kwargs)
-        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
-
-
-class DteTask(DfptTask):
-    """Task for DTE calculations."""
-
-    # @check_spectator
-    def start(self, **kwargs):
-        kwargs['autoparal'] = False
-        return super(DteTask, self).start(**kwargs)
-
-    def make_links(self):
-        """Replace the default behaviour of make_links"""
-
+        AbiPy uses the user-friendly syntax deps={node: "DDK"} to specify that
+        the children will read the DDK from `node` but this also means that
+        we have to implement extract logic to handle this case at runtime.
+        """
         for dep in self.deps:
             for d in dep.exts:
+
                 if d == "DDK":
                     ddk_task = dep.node
                     out_ddk = ddk_task.outdir.has_abiext("DDK")
@@ -3688,12 +3651,11 @@ class DteTask(DfptTask):
                     if not os.path.exists(self.indir.path_in("in_WFK")):
                         os.symlink(out_wfk, self.indir.path_in("in_WFK"))
 
-
                 elif d == "DEN":
                     gs_task = dep.node
                     out_wfk = gs_task.outdir.has_abiext("DEN")
                     if not out_wfk:
-                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                        raise RuntimeError("%s didn't produce the DEN file" % gs_task)
                     if not os.path.exists(self.indir.path_in("in_DEN")):
                         os.symlink(out_wfk, self.indir.path_in("in_DEN"))
 
@@ -3710,13 +3672,30 @@ class DteTask(DfptTask):
                     gs_task = dep.node
                     out_wfk = gs_task.outdir.has_abiext("DEN")
                     if not out_wfk:
-                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                        raise RuntimeError("%s didn't produce the 1DEN file" % gs_task)
                     dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
                     if not os.path.exists(dest):
                         os.symlink(out_wfk, dest)
 
                 else:
                     raise ValueError("Don't know how to handle extension: %s" % str(dep.exts))
+
+
+class DdeTask(DfptTask):
+    """Task for DDE calculations."""
+
+    def get_results(self, **kwargs):
+        results = super(DdeTask, self).get_results(**kwargs)
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
+class DteTask(DfptTask):
+    """Task for DTE calculations."""
+
+    # @check_spectator
+    def start(self, **kwargs):
+        kwargs['autoparal'] = False
+        return super(DteTask, self).start(**kwargs)
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
@@ -3731,10 +3710,11 @@ class DdkTask(DfptTask):
     #@check_spectator
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
-        # Copy instead of removing, otherwise optic tests fail
-        # Fixing this problem requires a rationalization of file extensions.
-        #if self.outdir.rename_abiext('1WF', 'DDK') > 0:
-        #if self.outdir.copy_abiext('1WF', 'DDK') > 0:
+        # Client code expects to find du/dk in DDK file.
+        # Here I create a symbolic link out_1WF13 --> out_DDK
+        # so that we can use deps={ddk_task: "DDK"} in the high-level API.
+        # The price to pay is that we have to handle the DDK extension in make_links.
+        # See DfptTask.make_links
         self.outdir.symlink_abiext('1WF', 'DDK')
 
     def get_results(self, **kwargs):
@@ -3752,51 +3732,12 @@ class BecTask(DfptTask):
 
     color_rgb = np.array((122, 122, 255)) / 255
 
-    def make_links(self):
-        """Replace the default behaviour of make_links"""
-        #print("In BEC make_links")
-
-        for dep in self.deps:
-            if dep.exts == ["DDK"]:
-                ddk_task = dep.node
-                out_ddk = ddk_task.outdir.has_abiext("DDK")
-                if not out_ddk:
-                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
-
-                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
-                rfdir = list(ddk_task.input["rfdir"])
-                if rfdir.count(1) != 1:
-                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
-
-                idir = rfdir.index(1) + 1
-                ddk_case = idir +  3 * len(ddk_task.input.structure)
-
-                infile = self.indir.path_in("in_1WF%d" % ddk_case)
-                os.symlink(out_ddk, infile)
-
-            elif dep.exts == ["WFK"]:
-                gs_task = dep.node
-                out_wfk = gs_task.outdir.has_abiext("WFK")
-                if not out_wfk:
-                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-
-                os.symlink(out_wfk, self.indir.path_in("in_WFK"))
-
-            else:
-                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
-
 
 class PhononTask(DfptTask):
     """
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WF|1DEN) files
     """
-    # TODO:
-    # for the time being we don't discern between GS and PhononCalculations.
-    CRITICAL_EVENTS = [
-        events.ScfConvergenceWarning,
-    ]
-
     color_rgb = np.array((0, 150, 250)) / 255
 
     def restart(self):
@@ -3857,20 +3798,12 @@ class PhononTask(DfptTask):
         results = super(PhononTask, self).get_results(**kwargs)
         return results.register_gridfs_files(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
-    def make_links(self):
-        super(PhononTask, self).make_links()
-        # fix the problem that abinit uses the 1WF extension for the DDK output file but reads it with the irdddk flag
-        #if self.indir.has_abiext('DDK'):
-        #    self.indir.rename_abiext('DDK', '1WF')
 
-
-# Inherit from PhononTask because the logic is similar (add common super?)
-class ElasticTask(PhononTask):
+class ElasticTask(DfptTask):
     """
     DFPT calculations for a single strain perturbation (uniaxial or shear strain).
     Provide support for in-place restart via (1WF|1DEN) files
     """
-
     color_rgb = np.array((75, 150, 250)) / 255
 
 
