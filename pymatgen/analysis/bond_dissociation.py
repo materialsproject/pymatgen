@@ -124,7 +124,7 @@ class BondDissociationEnergies(MSONable):
         for bond_pair in self.bond_pairs:
             self.fragment_and_process(bond_pair)
         self.solve_ring_bonds()
-        return self.bond_dissociation_energies
+        # return self.bond_dissociation_energies
 
     def fragment_and_process(self, bonds):
         try:
