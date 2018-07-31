@@ -148,7 +148,7 @@ class BondDissociationEnergies(MSONable):
                         if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["method"] == frag1["calcs_reversed"][-1]["input"]["rem"]["method"]:
                             coords = nx.get_node_attributes(self.mol_graph.graph, "coords")
                             specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-                            new_entry = [bonds, specie[bonds[0]], specie[bonds[1]], coords[bonds[0]], coords[bonds[1]], self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), frag1["output"]["final_energy"], frag1["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"], frag2["output"]["initial_molecule"]["charge"]]
+                            new_entry = [bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0]], coords[bonds[1]], self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), frag1["output"]["final_energy"], frag1["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"], frag2["output"]["initial_molecule"]["charge"]]
                             self.bond_dissociation_energies += [new_entry]
 
     def search_fragment_entries(self, frag):
