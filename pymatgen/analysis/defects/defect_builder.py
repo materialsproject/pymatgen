@@ -231,7 +231,7 @@ class TaskDefectBuilder(object):
             #compare site coords and compare
             bad_bulk_flag = False
             bad_site_compare_list = []
-            for bc_site, bd_site in zip(bulk_calc_fin.sites, bulk_struct_sc.sites):
+            for bc_site, bd_site in zip(bulk_calc_fin.sites, bulk_def_compare.sites):
                 if np.linalg.norm( np.subtract(bc_site.coords, bd_site.coords)) > 0.001: #then something is wrong...
                     bad_bulk_flag = True
                     bad_site_compare_list.append( [bc_site, bd_site])
@@ -240,12 +240,6 @@ class TaskDefectBuilder(object):
                 print('\tWARNING bulk structure in defect object is correct fit but appears to have shifted basis'
                       'for {}_chg{}...will not append to list. '
                       'See bad bulk sites:\n{}'.format( defect.name, defect.charge, bad_site_compare_list))
-                print('bcf:\n')
-                for u in bulk_calc_fin:
-                    print('\n',u)
-                print('\n\n-------\nbdc:\n')
-                for u in bulk_def_compare:
-                    print('\n',u)
                 continue
             elif not sm.fit( bulk_calc_fin, bulk_def_compare):
                 print('\tFATAL ERROR bulk structure is not equivalent type between defect and bulk calculation '
