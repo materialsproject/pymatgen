@@ -631,7 +631,7 @@ def build_MoleculeGraph(molecule, edges=None):
     mol_graph = MoleculeGraph.with_empty_graph(molecule)
     for edge in edges:
         mol_graph.add_edge(edge[0], edge[1])
-    mol_graph.graph = mol_graph.graph.to_undirected()
+    # mol_graph.graph = mol_graph.graph.to_undirected()
     species = {}
     coords = {}
     for node in mol_graph.graph:
@@ -647,4 +647,4 @@ def _node_match(node, othernode):
 
 
 def is_isomorphic(graph1, graph2):
-    return nx.is_isomorphic(graph1, graph2, node_match=_node_match)
+    return nx.is_isomorphic(graph1.to_undirected(), graph2.to_undirected(), node_match=_node_match)
