@@ -25,7 +25,7 @@ from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
-from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, DdkTask,
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, ElasticTask, DdkTask,
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
                     DteTask, EphTask, CollinearThenNonCollinearScfTask)
 
@@ -396,6 +396,11 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
     def register_phonon_task(self, *args, **kwargs):
         """Register a phonon task."""
         kwargs["task_class"] = PhononTask
+        return self.register_task(*args, **kwargs)
+
+    def register_elastic_task(self, *args, **kwargs):
+        """Register an elastic task."""
+        kwargs["task_class"] = ElasticTask
         return self.register_task(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
@@ -1274,11 +1279,14 @@ class QptdmWork(Work):
 class MergeDdb(object):
     """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
-    def merge_ddb_files(self):
+    def merge_ddb_files(self, delete_source_ddbs=True):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Work`.
+
+        Args:
+            delete_source_ddbs: True if input DDB should be removed once final DDB is created.
 
         Returns:
             path to the output DDB file
@@ -1301,15 +1309,16 @@ class MergeDdb(object):
             # Call mrgddb
             desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
             mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=0)
-            mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+            mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc,
+                         delete_source_ddbs=delete_source_ddbs)
 
         return out_ddb
 
 
 class PhononWork(Work, MergeDdb):
     """
-    This work usually consists of one GS + nirred Phonon tasks where nirred is
-    the number of irreducible perturbations for a given q-point.
+    This work consists of nirred Phonon tasks where nirred is
+    the number of irreducible atomic perturbations for a given set of q-points.
     It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
     all the partial DDB (POT) files produced. The two files are available in the
     output directory of the Work.

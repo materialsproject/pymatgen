@@ -18,7 +18,6 @@ import numpy as np
 from pprint import pprint
 from itertools import product
 from six.moves import map, zip, StringIO
-#from monty.dev import deprecated
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -3560,10 +3559,17 @@ class DfptTask(AbinitTask):
         # Get info about DFT perturbation from input file.
         qpt = self.input.get("qpt", [0, 0, 0])
         rfphon = self.input.get("rfphon", 0)
-        rfdir = self.input.get("rfdir", [0, 0, 0])
         rfatpol = self.input.get("rfatpol", [1, 1])
-        dfpt_info = "rfphon: {}, qpt: {}, rfatpol: {}, rfdir: {}".format(
-                rfphon, qpt, rfatpol, rfdir)
+        rfeld = self.input.get("rfeld", 0)
+        rfstr = self.input.get("rfstr", 0)
+        rfdir = self.input.get("rfdir", [0, 0, 0])
+
+        if rfphon != 0:
+            dfpt_info = "qpt: {}, rfphon: {}, rfatpol: {}, rfeld: {} rfstr: {}, rfdir: {}".format(
+                    qpt, rfphon, rfatpol, rfeld, rfstr, rfdir)
+        else:
+            dfpt_info = "qpt: {}, rfphon: {}, rfeld: {} rfstr: {}, rfdir: {}".format(
+                    qpt, rfphon, rfeld, rfstr, rfdir)
         try:
             return "<%s, node_id=%s, workdir=%s, %s>" % (
                 self.__class__.__name__, self.node_id, self.relworkdir, dfpt_info)
@@ -3856,6 +3862,16 @@ class PhononTask(DfptTask):
         # fix the problem that abinit uses the 1WF extension for the DDK output file but reads it with the irdddk flag
         #if self.indir.has_abiext('DDK'):
         #    self.indir.rename_abiext('DDK', '1WF')
+
+
+# Inherit from PhononTask because the logic is similar (add common super?)
+class ElasticTask(PhononTask):
+    """
+    DFPT calculations for a single strain perturbation (uniaxial or shear strain).
+    Provide support for in-place restart via (1WF|1DEN) files
+    """
+
+    color_rgb = np.array((75, 150, 250)) / 255
 
 
 class EphTask(AbinitTask):
