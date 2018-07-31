@@ -250,8 +250,14 @@ class TaskDefectBuilder(object):
             if 'locpot' in defect_task['calcs_reversed'][0]['output'].keys():
                 deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
                 defect_planar_averages = [deflpt[ax] for ax in range(3)]
+                abc = bulk_struct_sc.lattice.abc
+                axis_grid = []
+                for ax in range(3):
+                    num_pts = len(defect_planar_averages[ax])
+                    axis_grid.append( [i / num_pts * abc[ax] for i in range(num_pts)] )
 
-                parameters.update( {'defect_planar_averages': defect_planar_averages} )
+                parameters.update( {'axis_grid': axis_grid,
+                                    'defect_planar_averages': defect_planar_averages} )
             else:
                 print('ERR: defect  {}_{} does not have locpot values for parsing Freysoldt'.format(defect.name, defect.charge))
 
@@ -260,14 +266,9 @@ class TaskDefectBuilder(object):
             if 'outcar' in defect_task['calcs_reversed'][0]['output'].keys():
                 defoutcar = defect_task['calcs_reversed'][0]['output']['outcar']
                 defect_atomic_site_averages = defoutcar['electrostatic_potential']
-                abc = bulk_struct_sc.lattice.abc
                 #NOTE: since I am not adding dim then Kumagai correction is not being performed in compatibility.
                 #TODO: once Kumagai correction is fixed can modify this to allow for Kumagai correction be done.
-                # dim = defoutcar['ngf']
-                # axis_grid = []
-                # for ax in range(3):
-                #     num_pts = dim[ax]
-                #     axis_grid.append( [i / num_pts * abc[ax] for i in range(num_pts)] )
+                dim = defoutcar['ngf']
 
                 #create list that maps site indices from bulk structure to defect structure (needed by Kumagai correction)
                 site_matching_indices = []
@@ -286,7 +287,6 @@ class TaskDefectBuilder(object):
                 sampling_radius = min(dist)
 
                 parameters.update( {#'dim': dim,
-                                    #'axis_grid': axis_grid,
                                     'defect_atomic_site_averages': defect_atomic_site_averages,
                                     'site_matching_indices': site_matching_indices,
                                     'sampling_radius': sampling_radius} )
@@ -304,7 +304,7 @@ class TaskDefectBuilder(object):
                 parameters.update( {'eigenvalues': eigenvalues,
                                     'kpoint_weights': kpoint_weights} )
             else:
-                print('ERR: defect {}_{} does not ahve eigenvalue data for parsing bandfilling.'.format(defect.name, defect.charge))
+                print('ERR: defect {}_{} does not have eigenvalue data for parsing bandfilling.'.format(defect.name, defect.charge))
 
 
 
