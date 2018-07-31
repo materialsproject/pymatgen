@@ -210,32 +210,53 @@ class TaskDefectBuilder(object):
             parameters.update( hybrid_level_data)
             parameters.update( {'scaling_matrix': scaling_matrix})
 
-            #get defect object
+            #get defect object, energy and related structures
             defect = MontyDecoder().process_decoded( defect_task['transformations']['history'][0]['defect'])
-
-            #get essential information for parsing with corrections
             defect_energy = defect_task['output']['energy']
+            bulk_struct_sc = parameters['bulk_structure'].copy()
+            bulk_struct_sc.make_supercell( scaling_matrix)
+            initial_defect_structure = defect.generate_defect_structure( scaling_matrix)
+            final_defect_structure = Structure.from_dict( defect_task['output']['structure'])
 
-            parameters.update( {'defect_energy': defect_energy} )
+            parameters.update( {'defect_energy': defect_energy,
+                                'final_defect_structure': final_defect_structure,
+                                'initial_defect_structure': initial_defect_structure} )
 
+
+            # check to make sure that the bulk system which the defect is modeled after is the same as the bulk
+            # calculation... this sometimes is inconsistent because a second calculation was set up with a structure
+            # which was symmetrized slightly different (for example some atoms are shifted to the origin)
+            bulk_calc_fin = parameters['bulk_structure'].copy() #non-supercell structure
+            bulk_def_compare = defect.bulk_structure.copy() #non-supercell structure
+            #compare site coords and compare
+            bad_bulk_flag = False
+            bad_site_compare_list = []
+            for bc_site, bd_site in zip(bulk_calc_fin.sites, bulk_struct_sc.sites):
+                if np.linalg.norm( np.subtract(bc_site.coords, bd_site.coords)) > 0.001: #then something is wrong...
+                    bad_bulk_flag = True
+                    bad_site_compare_list.append( [bc_site, bd_site])
+            sm = StructureMatcher( primitive_cell=False, scale=False, attempt_supercell=False, allow_subset=False)
+            if bad_bulk_flag and sm.fit( bulk_calc_fin, bulk_def_compare):
+                print('\tWARNING bulk structure in defect object is correct fit but appears to have shifted basis'
+                      'for {}_chg{}...will not append to list. '
+                      'See bad bulk sites:\n{}'.format( defect.name, defect.charge, bad_site_compare_list))
+                continue
+            elif not sm.fit( bulk_calc_fin, bulk_def_compare):
+                print('\tFATAL ERROR bulk structure is not equivalent type between defect and bulk calculation '
+                      'for {}_chg{}...will not append to list'.format( defect.name, defect.charge))
+                continue
+
+            #Load information for Freysoldt related parsing
             if 'locpot' in defect_task['calcs_reversed'][0]['output'].keys():
                 deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
                 defect_planar_averages = [deflpt[ax] for ax in range(3)]
-                # bulk_data[repr(scaling_matrix)]['bulk_planar_averages'] = bulk_planar_averages
 
                 parameters.update( {'defect_planar_averages': defect_planar_averages} )
             else:
                 print('ERR: defect  {}_{} does not have locpot values for parsing Freysoldt'.format(defect.name, defect.charge))
 
 
-            bulk_struct_sc = parameters['bulk_structure'].copy()
-            bulk_struct_sc.make_supercell( scaling_matrix)
-            defect_struct_sc = defect.generate_defect_structure( scaling_matrix)
-            final_defect_structure = Structure.from_dict( defect_task['output']['structure'])
-
-            parameters.update( {'final_defect_structure': final_defect_structure,
-                                'initial_defect_structure': defect_struct_sc} )
-
+            #Load information for Kumagai related parsing
             if 'outcar' in defect_task['calcs_reversed'][0]['output'].keys():
                 defoutcar = defect_task['calcs_reversed'][0]['output']['outcar']
                 defect_atomic_site_averages = defoutcar['electrostatic_potential']
@@ -250,14 +271,14 @@ class TaskDefectBuilder(object):
 
                 #create list that maps site indices from bulk structure to defect structure (needed by Kumagai correction)
                 site_matching_indices = []
-                for dindex, dsite in enumerate(defect_struct_sc.sites):
+                for dindex, dsite in enumerate(initial_defect_structure.sites):
                     if np.linalg.norm( np.subtract(dsite.coords, defect.site.coords)) > 0.001: #exclude the defect site..
                         poss_deflist = sorted(bulk_struct_sc.get_sites_in_sphere(dsite.coords, 1, include_index=True), key=lambda x: x[1])
                         bulkindex = poss_deflist[0][2]
                         site_matching_indices.append( [bulkindex, dindex])
 
                 # assuming Wigner-Seitz radius for sampling radius
-                wz = defect_struct_sc.lattice.get_wigner_seitz_cell()
+                wz = initial_defect_structure.lattice.get_wigner_seitz_cell()
                 dist = []
                 for facet in wz:
                     midpt = np.mean(np.array(facet), axis=0)
@@ -273,6 +294,7 @@ class TaskDefectBuilder(object):
                 print('ERR: defect {}_{} does not have outcar values for parsing Kumagai'.format(defect.name, defect.charge))
 
 
+            #Load information for Bandfilling related parsing
             if 'vr_eigenvalue_dict' not in task['calcs_reversed'][0]['output'].keys():
                 task = add_vr_eigenvalue_dict( task)
 
@@ -285,28 +307,6 @@ class TaskDefectBuilder(object):
                 print('ERR: defect {}_{} does not ahve eigenvalue data for parsing bandfilling.'.format(defect.name, defect.charge))
 
 
-            #now check to make sure that the bulk system which the defect is modeled after is the same as the bulk
-            # calculation... this sometimes is inconsistent because a second calculation was set up with a structure
-            # which was symmetrized slightly different (for example some atoms are shifted to the origin)
-            bulk_calc_fin = parameters['bulk_structure'].copy()
-            bulk_def_compare = defect.bulk_structure.copy()
-            #compare site coords and compare
-            bad_bulk_flag = False
-            bad_site_compare_list = []
-            for bc_site, bd_site in zip(bulk_calc_fin.sites, bulk_def_compare.sites):
-                if np.linalg.norm( np.subtract(bc_site.coords, bd_site.coords)) > 0.001: #then something is wrong...
-                    bad_bulk_flag = True
-                    bad_site_compare_list.append( [bc_site, bd_site])
-            sm = StructureMatcher( primitive_cell=False, scale=False, attempt_supercell=False, allow_subset=False)
-            if bad_bulk_flag and sm.fit( bulk_calc_fin, bulk_def_compare):
-                print('\tWARNING bulk structure is correct types but appears to have shifted basis'
-                      'for {}...will not append to list. '
-                      'See bad bulk sites:\n{}'.format( defect_task['task_label'], bad_site_compare_list))
-                continue
-            elif not sm.fit( bulk_calc_fin, bulk_def_compare):
-                print('\tFATAL ERROR bulk structure is not equivalent type between defect and bulk calculation '
-                      'for {}...will not append to list'.format( defect_task['task_label']))
-                continue
 
             defect_entry = DefectEntry( defect, parameters['defect_energy'] - parameters['bulk_energy'],
                                         corrections = {}, parameters = parameters)
