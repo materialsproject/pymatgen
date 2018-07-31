@@ -1,7 +1,7 @@
-pymatgen.io.qchem\_io.outputs module
+pymatgen.io.qchem\_deprecated module
 ====================================
 
-.. automodule:: pymatgen.io.qchem_io.outputs
+.. automodule:: pymatgen.io.qchem_deprecated
     :members:
     :undoc-members:
     :show-inheritance:

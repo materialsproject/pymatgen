@@ -302,7 +302,9 @@ class ElasticTensorExpansionTest(PymatgenTest):
                                                        mode="dulong-petit")
         alpha_debye = self.exp_cu.thermal_expansion_coeff(self.cu, 300,
                                                           mode="debye")
-        self.assertArrayAlmostEqual(21.4533472e-06 * np.eye(3), alpha_debye)
+        alpha_comp = 5.9435148e-7 * np.ones((3, 3))
+        alpha_comp[np.diag_indices(3)] = 21.4533472e-06
+        self.assertArrayAlmostEqual(alpha_comp, alpha_debye)
 
     def test_get_compliance_expansion(self):
         ce_exp = self.exp_cu.get_compliance_expansion()
@@ -408,6 +410,10 @@ class DiffFitTest(PymatgenTest):
             for strain, stress in zip(data["strains"], data["stresses"]):
                 self.assertArrayAlmostEqual(Stress.from_voigt(stress),
                                             strain_dict[Strain.from_voigt(strain).tostring()])
+        # Add test to ensure zero strain state doesn't cause issue
+        strains, stresses = [Strain.from_voigt([-0.01] + [0]*5)], [Stress(np.eye(3))]
+        ss_dict = get_strain_state_dict(strains, stresses)
+        self.assertArrayAlmostEqual(list(ss_dict.keys()), [[1, 0, 0, 0, 0, 0]])
 
     def test_find_eq_stress(self):
         test_strains = deepcopy(self.strains)
@@ -455,7 +461,8 @@ class DiffFitTest(PymatgenTest):
                                               self.data_dict["eq_stress"],
                                               order=3)
             self.assertArrayAlmostEqual(c2.voigt, self.data_dict["C2_raw"])
-            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"], decimal=5)
+            self.assertArrayAlmostEqual(c3.voigt, self.data_dict["C3_raw"],
+                                        decimal=5)
             self.assertArrayAlmostEqual(c2, c2_red, decimal=0)
             self.assertArrayAlmostEqual(c3, c3_red, decimal=-1)
 
