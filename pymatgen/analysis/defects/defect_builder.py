@@ -29,6 +29,41 @@ def standardize_sc_matrix(sc_mat):
     else:
         return sc_mat
 
+
+def add_vr_eigenvalue_dict( task):
+    """
+    This takes a task object from drone output and
+    does an additional vr_eigenvalue_dict key
+    addition to the output key of the most
+    recent calcs_reversed
+
+    This is likely a temporary hack until
+    I add this functionality to the VaspDrone?
+
+    """
+    task_dir = task['calcs_reversed'][0]['dir_name']
+    vrpath = os.path.join( task_dir, 'vasprun.xml')
+    if not os.path.exists(vrpath):
+        vrpath += '.gz'
+    if not os.path.exists(vrpath):
+        vrpath = os.path.join(task_dir, 'vasprun.xml.relax2')
+    if not os.path.exists(vrpath):
+        vrpath += '.gz'
+    if not os.path.exists(vrpath):
+        print("ERROR: Could not find Vasprun file path at {}. This is needed for "
+              "doing band filling correction.".format(task_dir))
+        return task
+
+    vr = Vasprun( vrpath)
+    eigenvalues = {cnt:v for cnt, v in enumerate(vr.eigenvalues.values())}
+    kpoint_weights = vr.actual_kpoints_weights
+
+    vr_eigenvalue_dict = {'eigenvalues': eigenvalues, 'kpoint_weights': kpoint_weights}
+
+    task['calcs_reversed'][0]['output']['vr_eigenvalue_dict'] = vr_eigenvalue_dict
+    return task
+
+
 class TaskDefectBuilder(object):
     """
     This does not have same format as a standard Builder, but it does everything we would want
@@ -106,27 +141,39 @@ class TaskDefectBuilder(object):
 
                 scaling_matrix = standardize_sc_matrix( task['transformations']['history'][0]['scaling_matrix'])
                 bulk_energy = task['output']['energy']
-                bulklpt = task['calcs_reversed'][0]['output']['locpot']
-                bulk_planar_averages = [bulklpt[str(ax)] for ax in range(3)]
-                bulkoutcar = task['calcs_reversed'][0]['output']['outcar']
-                bulk_atomic_site_averages = bulkoutcar['electrostatic_potential']
 
-                #this is a check up to see if bulk task of this size already loaded? for danny...
+                #check to see if bulk task of this size already loaded
                 if repr(scaling_matrix) in list(bulk_data.keys()):
                     raise ValueError("Multiple bulk tasks with scaling matrix {} exist? "
                                      "How to handle??".format( scaling_matrix))
 
                 bulk_data.update( {repr(scaling_matrix): {'bulk_energy':bulk_energy,
-                                                    'bulk_planar_averages': bulk_planar_averages,
-                                                    'bulk_atomic_site_averages': bulk_atomic_site_averages,
                                                     'bulk_structure': bstruct.copy(), 'mpid': mpid,
                                                     "cbm": cbm, "vbm": vbm, "gga_gap": gga_gap,
                                                     "band_stats_from_MP": band_stats_from_MP} } )
 
+                if 'locpot' in task['calcs_reversed'][0]['output'].keys():
+                    bulklpt = task['calcs_reversed'][0]['output']['locpot']
+                    bulk_planar_averages = [bulklpt[ax] for ax in range(3)]
+                    bulk_data[repr(scaling_matrix)]['bulk_planar_averages'] = bulk_planar_averages
+                else:
+                    print('bulk supercell {} does not have locpot values for parsing'.format(scaling_matrix))
+
+
+                if 'outcar' in task['calcs_reversed'][0]['output'].keys():
+                    bulkoutcar = task['calcs_reversed'][0]['output']['outcar']
+                    bulk_atomic_site_averages = bulkoutcar['electrostatic_potential']
+                    bulk_data[repr(scaling_matrix)]['bulk_atomic_site_averages'] = bulk_atomic_site_averages
+                else:
+                    print('bulk supercell {} does not have outcar values for parsing'.format(scaling_matrix))
+
+
+
             elif 'defect' in task['transformations']['history'][0].keys():
                 defect_task_list.append(task)
 
-            #assume that hybrid level band structure information is given by task which has 'HFSCREEN' in incar...
+            #assume that if not already identified as a defect , then a hybrid level calculation will yield additional
+            # band structure information is given by task which has 'HFSCREEN' in incar...
             #TODO: figure out a better way to see if a hybrid BS caclulation is being suppled for band edge corrections?
             elif 'HFSCREEN' in task['input']['incar'].keys():
                 hybrid_cbm = task['output']['cbm']
@@ -157,7 +204,7 @@ class TaskDefectBuilder(object):
         for defect_task in defect_task_list:
             #figure out size of bulk calculation and initialize it for parameters, along with dielectric data
             scaling_matrix = standardize_sc_matrix( defect_task['transformations']['history'][0]['scaling_matrix'])
-            # print('bulkdatakeys: ',bulk_data.keys(), 'compare with ',repr(scaling_matrix))
+
             parameters = bulk_data[repr(scaling_matrix)].copy()
             parameters.update( diel_data)
             parameters.update( hybrid_level_data)
@@ -168,20 +215,75 @@ class TaskDefectBuilder(object):
 
             #get essential information for parsing with corrections
             defect_energy = defect_task['output']['energy']
-            deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
-            defect_planar_averages = [deflpt[str(ax)] for ax in range(3)]
-            defoutcar = defect_task['calcs_reversed'][0]['output']['outcar']
-            dim = defoutcar['ngf']
+
+            parameters.update( {'defect_energy': defect_energy} )
+
+            if 'locpot' in defect_task['calcs_reversed'][0]['output'].keys():
+                deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
+                defect_planar_averages = [deflpt[ax] for ax in range(3)]
+                # bulk_data[repr(scaling_matrix)]['bulk_planar_averages'] = bulk_planar_averages
+
+                parameters.update( {'defect_planar_averages': defect_planar_averages} )
+            else:
+                print('ERR: defect  {}_{} does not have locpot values for parsing Freysoldt'.format(defect.name, defect.charge))
+
+
             bulk_struct_sc = parameters['bulk_structure'].copy()
             bulk_struct_sc.make_supercell( scaling_matrix)
-            abc = bulk_struct_sc.lattice.abc
-            axis_grid = []
-            for ax in range(3):
-                num_pts = dim[ax]
-                axis_grid.append( [i / num_pts * abc[ax] for i in range(num_pts)] )
-            defect_atomic_site_averages = defoutcar['electrostatic_potential']
+            defect_struct_sc = defect.generate_defect_structure( scaling_matrix)
             final_defect_structure = Structure.from_dict( defect_task['output']['structure'])
-            initial_defect_structure = defect.generate_defect_structure( scaling_matrix)
+
+            parameters.update( {'final_defect_structure': final_defect_structure,
+                                'initial_defect_structure': defect_struct_sc} )
+
+            if 'outcar' in defect_task['calcs_reversed'][0]['output'].keys():
+                defoutcar = defect_task['calcs_reversed'][0]['output']['outcar']
+                defect_atomic_site_averages = defoutcar['electrostatic_potential']
+                abc = bulk_struct_sc.lattice.abc
+                #NOTE: since I am not adding dim then Kumagai correction is not being performed in compatibility.
+                #TODO: once Kumagai correction is fixed can modify this to allow for Kumagai correction be done.
+                # dim = defoutcar['ngf']
+                # axis_grid = []
+                # for ax in range(3):
+                #     num_pts = dim[ax]
+                #     axis_grid.append( [i / num_pts * abc[ax] for i in range(num_pts)] )
+
+                #create list that maps site indices from bulk structure to defect structure (needed by Kumagai correction)
+                site_matching_indices = []
+                for dindex, dsite in enumerate(defect_struct_sc.sites):
+                    if np.linalg.norm( np.subtract(dsite.coords, defect.site.coords)) > 0.001: #exclude the defect site..
+                        poss_deflist = sorted(bulk_struct_sc.get_sites_in_sphere(dsite.coords, 1, include_index=True), key=lambda x: x[1])
+                        bulkindex = poss_deflist[0][2]
+                        site_matching_indices.append( [bulkindex, dindex])
+
+                # assuming Wigner-Seitz radius for sampling radius
+                wz = defect_struct_sc.lattice.get_wigner_seitz_cell()
+                dist = []
+                for facet in wz:
+                    midpt = np.mean(np.array(facet), axis=0)
+                    dist.append(np.linalg.norm(midpt))
+                sampling_radius = min(dist)
+
+                parameters.update( {#'dim': dim,
+                                    #'axis_grid': axis_grid,
+                                    'defect_atomic_site_averages': defect_atomic_site_averages,
+                                    'site_matching_indices': site_matching_indices,
+                                    'sampling_radius': sampling_radius} )
+            else:
+                print('ERR: defect {}_{} does not have outcar values for parsing Kumagai'.format(defect.name, defect.charge))
+
+
+            if 'vr_eigenvalue_dict' not in task['calcs_reversed'][0]['output'].keys():
+                task = add_vr_eigenvalue_dict( task)
+
+            if 'vr_eigenvalue_dict' in task['calcs_reversed'][0]['output'].keys():
+                eigenvalues = task['calcs_reversed'][0]['bandstructure']['output']['vr_eigenvalue_dict']['eigenvalues']
+                kpoint_weights = task['calcs_reversed'][0]['bandstructure']['output']['vr_eigenvalue_dict']['kpoint_weights']
+                parameters.update( {'eigenvalues': eigenvalues,
+                                    'kpoint_weights': kpoint_weights} )
+            else:
+                print('ERR: defect {}_{} does not ahve eigenvalue data for parsing bandfilling.'.format(defect.name, defect.charge))
+
 
             #now check to make sure that the bulk system which the defect is modeled after is the same as the bulk
             # calculation... this sometimes is inconsistent because a second calculation was set up with a structure
@@ -205,58 +307,6 @@ class TaskDefectBuilder(object):
                 print('\tFATAL ERROR bulk structure is not equivalent type between defect and bulk calculation '
                       'for {}...will not append to list'.format( defect_task['task_label']))
                 continue
-
-            #create list that maps site indices from bulk structure to defect structure (needed by Kumagai correction)
-            defect_struct_sc = defect.generate_defect_structure( scaling_matrix)
-            site_matching_indices = []
-            for dindex, dsite in enumerate(defect_struct_sc.sites):
-                if np.linalg.norm( np.subtract(dsite.coords, defect.site.coords)) > 0.001: #exclude the defect site..
-                    poss_deflist = sorted(bulk_struct_sc.get_sites_in_sphere(dsite.coords, 1, include_index=True), key=lambda x: x[1])
-                    bulkindex = poss_deflist[0][2]
-                    site_matching_indices.append( [bulkindex, dindex])
-
-            if 'bandstructure' in task['calcs_reversed'][0].keys():
-                #TODO: add this functionality
-                raise ValueError("DANNY: you havent figured out hwo to do this yet...")
-            else:
-                """HACK RIGHT HERE BECAUSE INSUFFICIENT DATA IN DATABASE FOR BANDFILLING"""
-                fw_loc = task['dir_name'].split(':')[-1]
-                vrpath = os.path.join(fw_loc, 'vasprun.xml')
-                if not os.path.exists(vrpath):
-                    vrpath += '.gz'
-                if not os.path.exists(vrpath):
-                    vrpath = os.path.join(fw_loc, 'vasprun.xml.relax2')
-                if not os.path.exists(vrpath):
-                    vrpath += '.gz'
-                if not os.path.exists(vrpath):
-                    raise ValueError("Could not find Vasprun file path. This is needed for doing band filling correction")
-                vr = Vasprun(os.path.join( vrpath))
-                eigenvalues = {cnt:v for cnt, v in enumerate(vr.eigenvalues.values())}
-                kpoint_weights = vr.actual_kpoints_weights
-                """END HACK FOR DATABASE"""
-
-            # assuming Wigner-Seitz radius for sampling radius
-            wz = initial_defect_structure.lattice.get_wigner_seitz_cell()
-            dist = []
-            for facet in wz:
-                midpt = np.mean(np.array(facet), axis=0)
-                dist.append(np.linalg.norm(midpt))
-            sampling_radius = min(dist)
-
-            #NOTE: since I am not adding dim then Kumagai correction is not being performed in compatibility.
-            #TODO: once Kumagai correction is fixed can modify this to allow for Kumagai correction be done.
-            parameters.update( {
-                                # 'dim': dim,
-                                'defect_energy': defect_energy,
-                                'axis_grid': axis_grid,
-                                'defect_planar_averages': defect_planar_averages,
-                                'defect_atomic_site_averages': defect_atomic_site_averages,
-                                'final_defect_structure': final_defect_structure,
-                                'initial_defect_structure': initial_defect_structure,
-                                'sampling_radius': sampling_radius,
-                                'site_matching_indices': site_matching_indices,
-                                'eigenvalues': eigenvalues,
-                                'kpoint_weights': kpoint_weights} )
 
             defect_entry = DefectEntry( defect, parameters['defect_energy'] - parameters['bulk_energy'],
                                         corrections = {}, parameters = parameters)
