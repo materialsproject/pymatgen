@@ -155,15 +155,14 @@ class BondDissociationEnergies(MSONable):
         initial_entries = []
         final_entries = []
         for entry in self.fragment_entries:
-            print(entry)
             initial_graph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"])).graph
             final_graph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"])).graph
             if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
-                entries += entry
+                entries += [entry]
             elif is_isomorphic(frag.graph, initial_graph):
-                initial_entries += entry
+                initial_entries += [entry]
             elif is_isomorphic(frag.graph, final_graph):
-                final_entries += entry
+                final_entries += [entry]
         return [entries, initial_entries, final_entries]
 
     def solve_ring_bonds(self):
