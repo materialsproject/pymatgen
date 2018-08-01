@@ -47,7 +47,8 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
         self._structure = structure
         self._charge = charge
         self._defect_site = defect_site
-        #TODO: confirm that structure and defect_site lattices are the same
+        if structure.lattice != defect_site.lattice:
+            raise ValueError("defect_site lattice must be same as structure lattice.")
 
     @property
     def bulk_structure(self):
