@@ -872,16 +872,26 @@ class PointDefectComparatorTest(PymatgenTest):
         vol_scaled_I_vac_sublatt1_defect2 = Vacancy( vol_scaled_s_struc, vol_scaled_s_struc[5])
         vol_scaled_I_vac_sublatt2_defect = Vacancy( vol_scaled_s_struc, vol_scaled_s_struc[6])
 
-        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0],  #trivially same defect
+        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0],  #trivially same defect (but vol change)
                                          vol_scaled_I_vac_sublatt1_defect1))
         self.assertTrue( vol_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0],
                                                      vol_scaled_I_vac_sublatt1_defect1))
-        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0],  # same defect, different sublattice
+        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0],  # same defect, different sublattice (and vol change)
                                          vol_scaled_I_vac_sublatt1_defect2))
         self.assertTrue( vol_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0],
                                                      vol_scaled_I_vac_sublatt1_defect2))
         self.assertFalse( vol_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0], #different defect (wrong sublattice)
                                                       vol_scaled_I_vac_sublatt2_defect))
+
+        #test identical defect which has had entire lattice shifted
+        shift_s_struc = s_struc.copy()
+        shift_s_struc.translate_sites(range(len(s_struc)), [0.2, 0.3, 0.4], frac_coords=True, to_unit_cell=True)
+        shifted_identical_Cs_vacs = [Vacancy(shift_s_struc, shift_s_struc[0]),
+                                     Vacancy(shift_s_struc, shift_s_struc[1])]
+        self.assertTrue( pdc.are_equal( identical_Cs_vacs[0],   #trivially same defect (but shifted)
+                                        shifted_identical_Cs_vacs[0]))
+        self.assertTrue( pdc.are_equal( identical_Cs_vacs[0],   #same defect on different subnlattice (and shifted)
+                                        shifted_identical_Cs_vacs[1]))
 
 if __name__ == '__main__':
     unittest.main()
