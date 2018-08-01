@@ -121,6 +121,8 @@ class BondDissociationEnergies(MSONable):
             for jj in range(ii+1,len(self.ring_bonds)):
                 bond_pair = [bond, self.ring_bonds[jj]]
                 self.bond_pairs += [bond_pair]
+        if len(self.bond_pairs) > 0:
+            print("Ring bonds detected!")
         for bond_pair in self.bond_pairs:
             self.fragment_and_process(bond_pair)
         self.solve_ring_bonds()
