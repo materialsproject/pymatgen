@@ -521,8 +521,9 @@ _USER_CONFIG_TASKMANAGER = None
 
 
 def set_user_config_taskmanager(manager):
-    global USER_CONFIG_TASKMANAGER
-    USER_CONFIG_TASKMANAGER  = manager
+    """Change the default manager returned by TaskManager.from_user_config."""
+    global _USER_CONFIG_TASKMANAGER
+    _USER_CONFIG_TASKMANAGER  = manager
 
 
 class TaskManager(MSONable):

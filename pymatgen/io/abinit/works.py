@@ -1301,7 +1301,7 @@ class MergeDdb(object):
         if exclude_tasks:
             my_tasks = [task for task in self if task not in exclude_tasks]
         elif include_tasks:
-            my_tasks = [task for task in self if task in exclude_tasks]
+            my_tasks = [task for task in self if task in include_tasks]
         else:
             my_tasks = [task for task in self]
 
