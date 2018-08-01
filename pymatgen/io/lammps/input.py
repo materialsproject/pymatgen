@@ -5,11 +5,6 @@
 from __future__ import division, print_function, unicode_literals,\
     absolute_import
 
-"""
-This module implements methods for writing LAMMPS input files.
-
-"""
-
 import os
 import re
 import shutil
@@ -17,6 +12,18 @@ import warnings
 from string import Template
 
 from pymatgen.io.lammps.data import LammpsData
+
+"""
+This module implements methods for writing LAMMPS input files.
+
+"""
+
+__author__ = "Kiran Mathew, Brandon Wood, Zhi Deng"
+__copyright__ = "Copyright 2018, The Materials Virtual Lab"
+__version__ = "1.0"
+__maintainer__ = "Zhi Deng"
+__email__ = "z4deng@eng.ucsd.edu"
+__date__ = "Aug 1, 2018"
 
 
 def write_lammps_inputs(output_dir, script_template, settings=None,

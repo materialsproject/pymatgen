@@ -5,12 +5,6 @@
 from __future__ import division, print_function, unicode_literals,\
     absolute_import
 
-"""
-This module implements classes and methods for processing LAMMPS output
-files (log and dump).
-
-"""
-
 import re
 import glob
 from io import StringIO
@@ -22,6 +16,19 @@ from monty.json import MSONable
 from monty.io import zopen
 
 from pymatgen.io.lammps.data import LammpsBox
+
+"""
+This module implements classes and methods for processing LAMMPS output
+files (log and dump).
+
+"""
+
+__author__ = "Kiran Mathew, Zhi Deng"
+__copyright__ = "Copyright 2018, The Materials Virtual Lab"
+__version__ = "1.0"
+__maintainer__ = "Zhi Deng"
+__email__ = "z4deng@eng.ucsd.edu"
+__date__ = "Aug 1, 2018"
 
 
 class LammpsDump(MSONable):
