@@ -245,6 +245,11 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(len(th_entry.structure), 4)
         self.assertEqual(len(th_entry_initial.structure), 2)
 
+        # Test if the polymorphs of Fe are properly sorted
+        # by e_above_hull when sort_by_e_above_hull=True
+        Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
+        self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
+
 
     def test_get_pourbaix_entries(self):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe"])

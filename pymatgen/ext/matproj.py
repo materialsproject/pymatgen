@@ -313,7 +313,7 @@ class MPRester(object):
 
     def get_entries(self, chemsys_formula_id_criteria, compatible_only=True,
                     inc_structure=None, property_data=None,
-                    conventional_unit_cell=False):
+                    conventional_unit_cell=False, sort_by_e_above_hull=False):
         """
         Get a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
@@ -338,6 +338,8 @@ class MPRester(object):
                 supported_properties.
             conventional_unit_cell (bool): Whether to get the standard
                 conventional unit cell
+            sort_by_e_above_hull (bool): Whether to sort the list of entries by
+                e_above_hull (will query e_above_hull as a property_data if True).
 
         Returns:
             List of ComputedEntry or ComputedStructureEntry objects.
@@ -347,6 +349,11 @@ class MPRester(object):
         params = ["run_type", "is_hubbard", "pseudo_potential", "hubbards",
                   "potcar_symbols", "oxide_type"]
         props = ["energy", "unit_cell_formula", "task_id"] + params
+        if sort_by_e_above_hull:
+            if property_data and "e_above_hull" not in property_data:
+                property_data.append("e_above_hull")
+            elif not property_data:
+                property_data = ["e_above_hull"]
         if property_data:
             props += property_data
         if inc_structure:
@@ -397,6 +404,8 @@ class MPRester(object):
             from pymatgen.entries.compatibility import \
                 MaterialsProjectCompatibility
             entries = MaterialsProjectCompatibility().process_entries(entries)
+        if sort_by_e_above_hull:
+            entries = sorted(entries, key=lambda entry: entry.data["e_above_hull"])
         return entries
 
     def get_pourbaix_entries(self, chemsys):
