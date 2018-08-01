@@ -1279,7 +1279,8 @@ class QptdmWork(Work):
 class MergeDdb(object):
     """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
-    def merge_ddb_files(self, delete_source_ddbs=True):
+    def merge_ddb_files(self, delete_source_ddbs=True, only_dfpt_tasks=True,
+            exclude_tasks=None, include_tasks=None):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
@@ -1287,12 +1288,28 @@ class MergeDdb(object):
 
         Args:
             delete_source_ddbs: True if input DDB should be removed once final DDB is created.
+            only_dfpt_tasks: False to merge all DDB files produced by the tasks of the work
+                Useful e.g. for finite stress corrections in which the stress in the
+                initial configuration should be merged in the final DDB.
+            exclude_tasks: List of tasks that should be excluded when merging the partial DDB files.
+            include_tasks: List of tasks that should be included when merging the partial DDB files.
+                Mutually exclusive with exclude_tasks.
 
         Returns:
             path to the output DDB file
         """
-        ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self \
+        if exclude_tasks:
+            my_tasks = [task for task in self if task not in exclude_tasks]
+        elif include_tasks:
+            my_tasks = [task for task in self if task in exclude_tasks]
+        else:
+            my_tasks = [task for task in self]
+
+        if only_dfpt_tasks:
+            ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks \
                                        if isinstance(task, DfptTask)]))
+        else:
+            ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks]))
 
         self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
         # DDB files are always produces so this should never happen!

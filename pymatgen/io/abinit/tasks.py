@@ -1006,7 +1006,7 @@ batch_adapter:
 
     def increase_ncpus(self):
         """
-        increase the number of cpus, first ask the current quadapter, if that one raises a QadapterIncreaseError
+        increase the number of cpus, first ask the current qadapter, if that one raises a QadapterIncreaseError
         switch to the next qadapter. If all fail raise an ManagerIncreaseError
         """
         try:
@@ -2023,7 +2023,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # It may also be that an innocent message was written to qerr, so we wait for a while
                 # it is set to QCritical, we will attempt to fix it by running on more resources
 
-        # 8) analizing the err files and abinit output did not identify a problem
+        # 8) analyzing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
         if lennone(err_msg) > 0:
             msg = 'found error message:\n %s' % str(err_msg)
@@ -2224,7 +2224,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         # Check whether the process completed.
         if self.returncode is None:
-            raise self.Error("return code is None, you should call wait, communitate or poll")
+            raise self.Error("return code is None, you should call wait, communicate or poll")
 
         if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
@@ -2473,7 +2473,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def start_and_wait(self, *args, **kwargs):
         """
-        Helper method to start the task and wait for completetion.
+        Helper method to start the task and wait for completion.
 
         Mainly used when we are submitting the task via the shell without passing through a queue manager.
         """
@@ -2863,7 +2863,7 @@ class AbinitTask(Task):
         # Finalization
         ##############
         # Reset the status, remove garbage files ...
-        self.set_status(self.S_INIT, msg='finished autoparallel run')
+        self.set_status(self.S_INIT, msg='finished autoparal run')
 
         # Remove the output file since Abinit likes to create new files
         # with extension .outA, .outB if the file already exists.
@@ -3101,7 +3101,7 @@ class AbinitTask(Task):
                     except DecreaseDemandsError:
                         self.history.warning('decreasing demands failed')
 
-                    msg = ('Memory error detected but the memory could not be increased neigther could the\n'
+                    msg = ('Memory error detected but the memory could not be increased neither could the\n'
                            'memory demand be decreased. Unrecoverable error.')
                     self.set_status(self.S_ERROR, msg)
                     raise FixQueueCriticalError
@@ -3407,7 +3407,7 @@ class RelaxTask(GsTask, ProduceHist):
         """
         Restart the structural relaxation.
 
-        Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
+        Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file
         from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         Prefer WFK over other files since we can reuse the wavefunctions.
 
@@ -3563,16 +3563,24 @@ class DfptTask(AbinitTask):
         qpt = self.input.get("qpt", [0, 0, 0])
         rfphon = self.input.get("rfphon", 0)
         rfatpol = self.input.get("rfatpol", [1, 1])
-        rfeld = self.input.get("rfeld", 0)
-        rfstr = self.input.get("rfstr", 0)
+        rfelfd = self.input.get("rfelfd", 0)
+        rfstrs = self.input.get("rfstrs", 0)
         rfdir = self.input.get("rfdir", [0, 0, 0])
+        irdddk = self.input.get("irdddk", 0)
 
+        dfpt_info = ""
         if rfphon != 0:
-            dfpt_info = "qpt: {}, rfphon: {}, rfatpol: {}, rfeld: {} rfstr: {}, rfdir: {}".format(
-                    qpt, rfphon, rfatpol, rfeld, rfstr, rfdir)
-        else:
-            dfpt_info = "qpt: {}, rfphon: {}, rfeld: {} rfstr: {}, rfdir: {}".format(
-                    qpt, rfphon, rfeld, rfstr, rfdir)
+            dfpt_info = "qpt: {}, rfphon: {}, rfatpol: {}, rfdir: {}, irdddk: {}".format(
+                    qpt, rfphon, rfatpol, rfdir, irdddk)
+
+        elif rfelfd != 0:
+            dfpt_info = "qpt: {}, rfelfd: {} rfdir: {}, irdddk: {}".format(
+                    qpt, rfelfd, rfdir, irdddk)
+
+        elif rfstrs != 0:
+            dfpt_info = "qpt: {}, rfstrs: {}, rfdir: {}, irdddk: {}".format(
+                    qpt, rfstrs, rfdir, irdddk)
+
         try:
             return "<%s, node_id=%s, workdir=%s, %s>" % (
                 self.__class__.__name__, self.node_id, self.relworkdir, dfpt_info)
@@ -3616,7 +3624,7 @@ class DfptTask(AbinitTask):
         Replace the default behaviour of make_links. More specifically, this method
         implements the logic required to connect DFPT calculation to `DDK` files.
         Remember that DDK is an extension introduced in AbiPy to deal with the
-        irddkk input variable and the fact that the 3 files with du/dk produced by Abinit
+        irdddk input variable and the fact that the 3 files with du/dk produced by Abinit
         have a file extension constructed from the number of atom (e.g. 1WF[3natom +1]).
 
         AbiPy uses the user-friendly syntax deps={node: "DDK"} to specify that
@@ -3684,6 +3692,8 @@ class DfptTask(AbinitTask):
 class DdeTask(DfptTask):
     """Task for DDE calculations."""
 
+    color_rgb = np.array((61, 158, 255)) / 255
+
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
@@ -3691,6 +3701,7 @@ class DdeTask(DfptTask):
 
 class DteTask(DfptTask):
     """Task for DTE calculations."""
+    color_rgb = np.array((204, 0, 204)) / 255
 
     # @check_spectator
     def start(self, **kwargs):
@@ -3698,14 +3709,13 @@ class DteTask(DfptTask):
         return super(DteTask, self).start(**kwargs)
 
     def get_results(self, **kwargs):
-        results = super(DdeTask, self).get_results(**kwargs)
+        results = super(DteTask, self).get_results(**kwargs)
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
 class DdkTask(DfptTask):
     """Task for DDK calculations."""
-
-    color_rgb = np.array((61, 158, 255)) / 255
+    color_rgb = np.array((0, 204, 204)) / 255
 
     #@check_spectator
     def _on_ok(self):
@@ -3729,7 +3739,6 @@ class BecTask(DfptTask):
     bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
     bec_deps.update({scf_task: "WFK"})
     """
-
     color_rgb = np.array((122, 122, 255)) / 255
 
 
@@ -3804,7 +3813,7 @@ class ElasticTask(DfptTask):
     DFPT calculations for a single strain perturbation (uniaxial or shear strain).
     Provide support for in-place restart via (1WF|1DEN) files
     """
-    color_rgb = np.array((75, 150, 250)) / 255
+    color_rgb = np.array((255, 204, 255)) / 255
 
 
 class EphTask(AbinitTask):
@@ -4326,7 +4335,7 @@ class OpticTask(Task):
                     except DecreaseDemandsError:
                         logger.warning('decreasing demands failed')
 
-                    msg = ('Memory error detected but the memory could not be increased neigther could the\n'
+                    msg = ('Memory error detected but the memory could not be increased neither could the\n'
                            'memory demand be decreased. Unrecoverable error.')
                     self.set_status(self.S_ERROR, msg)
                     raise FixQueueCriticalError
@@ -4339,7 +4348,7 @@ class OpticTask(Task):
                         self.set_status(self.S_READY, msg='increased wall time')
                         return
                     except ManagerIncreaseError:
-                        logger.warning('increasing the waltime failed')
+                        logger.warning('increasing the walltime failed')
 
                     # if this fails ask the qadapter to increase the number of cpus
                     if self.load_scales:
