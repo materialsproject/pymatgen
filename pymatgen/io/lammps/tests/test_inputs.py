@@ -14,7 +14,7 @@ import shutil
 import pandas as pd
 from pymatgen.io.lammps.data import LammpsData
 
-from pymatgen.io.lammps.input import write_lammps_inputs
+from pymatgen.io.lammps.inputs import write_lammps_inputs
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",

@@ -12,7 +12,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from pymatgen.io.lammps.output import LammpsDump, parse_lammps_dumps,\
+from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps,\
     parse_lammps_log
 
 
