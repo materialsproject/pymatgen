@@ -70,9 +70,6 @@ class WulffShapeTest(PymatgenTest):
 
     @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
-        import matplotlib
-
-        matplotlib.use('Agg')
         # Basic test, not really a unittest.
         self.wulff_Ti.get_plot()
         self.wulff_Nb.get_plot()
