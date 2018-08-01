@@ -147,7 +147,7 @@ class BondDissociationEnergies(MSONable):
                     print(frag1)
                     print()
                     print(frag2)
-                    if frag1["calcs_reversed"][-1]["input"]["rem"]["method"] == frag2["calcs_reversed"][-1]["input"]["rem"]["method"] and frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag2["calcs_reversed"][-1]["input"]["rem"]["basis"] and frag1["output"]["final_energy"] != "unstable" and frag2["output"]["final_energy"] != "unstable": # Add PCM check?
+                    if frag1["calcs_reversed"][-1]["input"]["rem"]["method"] == frag2["calcs_reversed"][-1]["input"]["rem"]["method"] and frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag2["calcs_reversed"][-1]["input"]["rem"]["basis"]: #and frag1["output"]["final_energy"] != "unstable" and frag2["output"]["final_energy"] != "unstable": # Add PCM check?
                         if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["method"] == frag1["calcs_reversed"][-1]["input"]["rem"]["method"]:
                             coords = nx.get_node_attributes(self.mol_graph.graph, "coords")
                             specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
