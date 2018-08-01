@@ -251,6 +251,7 @@ class VoronoiInterstitialGenerator(DefectGenerator):
         else:
             raise StopIteration
 
+
 class MidpointInterstitialGenerator(DefectGenerator):
     """
     Generator for interstitials based on a simple Midpoint/sublattice analysis
@@ -259,7 +260,7 @@ class MidpointInterstitialGenerator(DefectGenerator):
         i) consider all pairs of atoms and find mid point between the pairs
         ii) trim mid point list such that there are no standard atomic overlap
             errors caused when appending the site
-                < OPTIONAL > do this based on size of atom being considered?
+                < OPTIONAL > do this based on size of atom being considered
         iii) use sublattice generation approach to see if number of sublattice sites
             generated is (strictly) less than half the number of symmetry operations
             for the host's space group.
