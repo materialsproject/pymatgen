@@ -21,7 +21,7 @@ import numpy as np
 import itertools
 import warnings
 import random, copy
-from sympy import Symbol, Number, Add
+from sympy import Symbol, Number
 from sympy.solvers import linsolve, solve
 
 from pymatgen.core.composition import Composition
@@ -705,7 +705,6 @@ class SurfaceEnergyPlotter(object):
                 u1, u2 = delu_dict.copy(), delu_dict.copy()
                 u1[ref_delu], u2[ref_delu] = chempot_range[0], chempot_range[1]
                 se = self.as_coeffs_dict[entries_in_hkl[0]]
-                print(se)
                 se_dict[entries_in_hkl[0]] = [sub_chempots(se, u1), sub_chempots(se, u2)]
                 continue
 
@@ -854,7 +853,6 @@ class SurfaceEnergyPlotter(object):
         gamma_min = self.as_coeffs_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == \
                                  "float" else sub_chempots(gamma_min, delu_dict)
-        print(chempot_range)
         delu_dict[ref_delu] = chempot_range[1]
         gamma_max = self.as_coeffs_dict[entry]
         gamma_max = gamma_max if type(gamma_max).__name__ == \
@@ -1423,8 +1421,6 @@ class WorkFunctionAnalyzer(object):
         """
 
         plt = pretty_plot() if not plt else plt
-        ax = list(plt.subplots())[1]
-        ax.spines['top'].set_visible(False)
 
         # plot the raw locpot signal along c
         plt.plot(self.along_c, self.locpot_along_c, 'b--')
