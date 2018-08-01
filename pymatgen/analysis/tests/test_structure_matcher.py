@@ -754,7 +754,7 @@ class PointDefectComparatorTest(PymatgenTest):
         sub_Cs_on_I_sublattice1_set1 = PeriodicSite('Cs', identical_I_vacs_sublattice1[0].site.frac_coords, s_struc.lattice)
         sub_Cs_on_I_sublattice1_set2= PeriodicSite('Cs', identical_I_vacs_sublattice1[1].site.frac_coords, s_struc.lattice)
         sub_Cs_on_I_sublattice2 = PeriodicSite('Cs', identical_I_vacs_sublattice2[0].site.frac_coords, s_struc.lattice)
-        sub_Rb_on_I_sublattice1 = PeriodicSite('Rb', identical_I_vacs_sublattice2[0].site.frac_coords, s_struc.lattice)
+        sub_Rb_on_I_sublattice2 = PeriodicSite('Rb', identical_I_vacs_sublattice2[0].site.frac_coords, s_struc.lattice)
 
         self.assertTrue( pdc.are_equal(          #trivial substitution test
             Substitution(s_struc, sub_Cs_on_I_sublattice1_set1),
@@ -765,8 +765,8 @@ class PointDefectComparatorTest(PymatgenTest):
             Substitution(s_struc, sub_Cs_on_I_sublattice1_set2)
                          ))
         self.assertFalse( pdc.are_equal(          #different subs (wrong specie)
-            Substitution(s_struc, sub_Cs_on_I_sublattice1_set1),
-            Substitution(s_struc, sub_Rb_on_I_sublattice1)
+            Substitution(s_struc, sub_Cs_on_I_sublattice2),
+            Substitution(s_struc, sub_Rb_on_I_sublattice2)
                          ))
         self.assertFalse( pdc.are_equal(          #different subs (wrong sublattice)
             Substitution(s_struc, sub_Cs_on_I_sublattice1_set1),
@@ -807,11 +807,8 @@ class PointDefectComparatorTest(PymatgenTest):
         ns_struc = PymatgenTest.get_mp_structure('mp-23287') #CuCl
         ns_inter_H_sublattice1_set1 = PeriodicSite('H', [0.06924513, 0.06308959, 0.86766528], ns_struc.lattice)
         ns_inter_H_sublattice1_set2 = PeriodicSite('H', [0.43691041, 0.36766528, 0.06924513], ns_struc.lattice)
-        ns_inter_H_sublattice2 = PeriodicSite('H', [0.07247383, 0.12699193, 0.8614949 ], ns_struc.lattice)
-        ns_inter_H_sublattice3 = PeriodicSite('H', [0.10859638, 0.99682082, 0.7924609 ], ns_struc.lattice)
-        ns_inter_H_sublattice4 = PeriodicSite('H', [0.15051428, 0.05588886, 0.71235137], ns_struc.lattice)
-        ns_inter_H_sublattice5 = PeriodicSite('H', [0.06022109, 0.60196031, 0.1621814 ], ns_struc.lattice)
-        ns_inter_He_sublattice5 = PeriodicSite('He', [0.06022109, 0.60196031, 0.1621814 ], ns_struc.lattice)
+        ns_inter_H_sublattice2 = PeriodicSite('H', [0.06022109, 0.60196031, 0.1621814 ], ns_struc.lattice)
+        ns_inter_He_sublattice2 = PeriodicSite('He', [0.06022109, 0.60196031, 0.1621814 ], ns_struc.lattice)
 
         self.assertTrue( pdc.are_equal(          #trivial interstitial test
             Interstitial(ns_struc, ns_inter_H_sublattice1_set1),
@@ -821,15 +818,12 @@ class PointDefectComparatorTest(PymatgenTest):
             Interstitial(ns_struc, ns_inter_H_sublattice1_set1),
             Interstitial(ns_struc, ns_inter_H_sublattice1_set2)
                          ))
-        diff_inter_def_sets = [ns_inter_H_sublattice1_set1, #different interstitials (wrong sublattice)
-                               ns_inter_H_sublattice2, ns_inter_H_sublattice3,
-                               ns_inter_H_sublattice4, ns_inter_H_sublattice5]
-        for d1, d2 in itertools.combinations( diff_inter_def_sets, 2):
-            self.assertFalse(  pdc.are_equal(Interstitial(s_struc,d1),
-                                             Interstitial(s_struc,d2)))
+        self.assertFalse(  pdc.are_equal(
+            Interstitial(ns_struc, ns_inter_H_sublattice1_set1), #different interstitials (wrong sublattice)
+            Interstitial(ns_struc, ns_inter_H_sublattice2)))
         self.assertFalse( pdc.are_equal(          #different interstitials (wrong specie)
-            Interstitial(ns_struc, ns_inter_H_sublattice5),
-            Interstitial(ns_struc, ns_inter_He_sublattice5)
+            Interstitial(ns_struc, ns_inter_H_sublattice2),
+            Interstitial(ns_struc, ns_inter_He_sublattice2)
                          ))
 
         #test influence of charge on defect matching (default is to be charge agnostic)
@@ -873,7 +867,7 @@ class PointDefectComparatorTest(PymatgenTest):
         #(default is to not allow these to be equal, but check_lattice_scale=True allows for this)
         vol_agnostic_pdc = PointDefectComparator(check_lattice_scale=True)
         vol_scaled_s_struc = s_struc.copy()
-        vol_scaled_s_struc.scale_lattice(s_struc.volume * 0.85)
+        vol_scaled_s_struc.scale_lattice(s_struc.volume * 0.95)
         vol_scaled_I_vac_sublatt1_defect1 = Vacancy( vol_scaled_s_struc, vol_scaled_s_struc[4])
         vol_scaled_I_vac_sublatt1_defect2 = Vacancy( vol_scaled_s_struc, vol_scaled_s_struc[5])
         vol_scaled_I_vac_sublatt2_defect = Vacancy( vol_scaled_s_struc, vol_scaled_s_struc[6])
@@ -888,7 +882,6 @@ class PointDefectComparatorTest(PymatgenTest):
                                                      vol_scaled_I_vac_sublatt1_defect2))
         self.assertFalse( vol_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0], #different defect (wrong sublattice)
                                                       vol_scaled_I_vac_sublatt2_defect))
-
 
 if __name__ == '__main__':
     unittest.main()

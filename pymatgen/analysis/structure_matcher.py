@@ -1125,7 +1125,7 @@ class PointDefectComparator(MSONable):
                 if charges are identical.
                 Default is False (different charged defects can be same)
             check_primitive_cell (bool): Gives option to
-                compare primitive cells of bulk_structure,
+                compare different supercells of bulk_structure,
                 rather than directly compare supercell sizes
                 Default is False (requires supercells to be same size)
             check_lattice_scale (bool): Gives option to scale volumes of
@@ -1148,6 +1148,8 @@ class PointDefectComparator(MSONable):
         Returns:
             True if defects are identical in type and sublattice.
         """
+        d1 = d1.copy()
+        d2 = d2.copy()
         if (type(d1) != type(d2)):
             return False
         elif d1.site.specie != d2.site.specie:
@@ -1155,52 +1157,28 @@ class PointDefectComparator(MSONable):
         elif self.check_charge and (d1.charge != d2.charge):
             return False
 
-        sm = StructureMatcher( primitive_cell=self.check_primitive_cell,
+        sm = StructureMatcher( ltol=0.01,
+                               primitive_cell=self.check_primitive_cell,
                                scale=self.check_lattice_scale)
+
         if not sm.fit(d1.bulk_structure, d2.bulk_structure):
             return False
 
-        if type(d1) != Interstitial:
-            d1_structure = d1.bulk_structure.copy()
-            d2_structure = d2.bulk_structure.copy()
-        else:
-            # for interstitials use sublattice generator to
-            # return decorated structure with sublattice given
-            # based on space group symmetry.
-            d1_structure = create_saturated_interstitial_structure( d1)
-            d2_structure = create_saturated_interstitial_structure( d2)
+        if self.check_primitive_cell or self.check_lattice_scale:
+            # if allowing for base structure volume or supercell modifications, then need to
+            # preprocess defect objects to allow for matching
+            d1_mod_bulk_structure, d2_mod_bulk_structure, _, _  = sm._preprocess( d1.bulk_structure, d2.bulk_structure)
+            d1_defect_site = PeriodicSite( d1.site.specie, d1.site.coords,
+                                           d1_mod_bulk_structure.lattice,
+                                           to_unit_cell=True, coords_are_cartesian=True)
+            d2_defect_site = PeriodicSite( d2.site.specie, d2.site.coords,
+                                           d2_mod_bulk_structure.lattice,
+                                           to_unit_cell=True, coords_are_cartesian=True)
 
-        #if lattice needed to be scaled for matching, then site coordinates must also be scaled accordingly
-        if self.check_lattice_scale:
-            d1_structure, d2_structure, _, _  = sm._preprocess( d1_structure, d2_structure)
+            d1._structure = d1_mod_bulk_structure
+            d2._structure = d2_mod_bulk_structure
+            d1._defect_site = d1_defect_site
+            d2._defect_site = d2_defect_site
 
-        # find all equivalent sites for each defect and compare to
-        # see if there is a non-zero intersection
-        #NOTE: below may occasionally not work if lattices are sufficiently different and check_lattice_scale=True
-        sga1 = SpacegroupAnalyzer( d1_structure).get_symmetrized_structure()
-        poss_deflist1 = sorted(
-            sga1.get_sites_in_sphere(
-                d1.site.coords, 2, include_index=True), key=lambda x: x[1])
-        def1index = poss_deflist1[0][2]
-        equiv_d1_sites = sga1.find_equivalent_sites( sga1[def1index])
-
-        sga2 = SpacegroupAnalyzer( d2_structure).get_symmetrized_structure()
-        poss_deflist2 = sorted(
-            sga2.get_sites_in_sphere(
-                d2.site.coords, 2, include_index=True), key=lambda x: x[1])
-        def2index = poss_deflist2[0][2]
-        equiv_d2_sites = sga2.find_equivalent_sites( sga2[def2index])
-
-        #only comparing cartesian coords since lattices might be different for two sites
-        intersect_sites = []
-        for ts1, ts2 in list(itertools.product(equiv_d1_sites,equiv_d2_sites)):
-            if (ts1.distance_from_point(ts2.coords) < 0.001) or (ts2.distance_from_point(ts1.coords) < 0.001):
-                intersect_sites.append(ts1.coords)
-
-        if len(intersect_sites):
-            return True
-        else:
-            return False
-
-
-
+        return sm.fit( d1.generate_defect_structure(), d2.generate_defect_structure())
+    
