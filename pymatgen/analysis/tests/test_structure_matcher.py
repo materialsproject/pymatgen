@@ -745,7 +745,7 @@ class PointDefectComparatorTest(PymatgenTest):
             self.assertTrue( pdc.are_equal(identical_I_vacs_sublattice1[i], identical_I_vacs_sublattice1[j]))
         self.assertTrue( pdc.are_equal(identical_I_vacs_sublattice2[0],
                                        identical_I_vacs_sublattice2[1]))
-        self.assertFalse( pdc.are_equal(identical_Cs_vacs[0],  #both vacancies, but different types
+        self.assertFalse( pdc.are_equal(identical_Cs_vacs[0],  #both vacancies, but different specie types
                                         identical_I_vacs_sublattice1[0]))
         self.assertFalse( pdc.are_equal(identical_I_vacs_sublattice1[0],  #same specie type, different sublattice
                                         identical_I_vacs_sublattice2[0]))
@@ -760,7 +760,7 @@ class PointDefectComparatorTest(PymatgenTest):
             Substitution(s_struc, sub_Cs_on_I_sublattice1_set1),
             Substitution(s_struc, sub_Cs_on_I_sublattice1_set1)
                          ))
-        self.assertTrue( pdc.are_equal(          #same sub, different sublattice
+        self.assertTrue( pdc.are_equal(          #same sublattice, different coords
             Substitution(s_struc, sub_Cs_on_I_sublattice1_set1),
             Substitution(s_struc, sub_Cs_on_I_sublattice1_set2)
                          ))
@@ -785,7 +785,7 @@ class PointDefectComparatorTest(PymatgenTest):
             Interstitial(s_struc, inter_H_sublattice1_set1),
             Interstitial(s_struc, inter_H_sublattice1_set1)
                          ))
-        self.assertTrue( pdc.are_equal(          #same interstitial, different sublattice
+        self.assertTrue( pdc.are_equal(          #same sublattice, different coords
             Interstitial(s_struc, inter_H_sublattice1_set1),
             Interstitial(s_struc, inter_H_sublattice1_set2)
                          ))
@@ -814,7 +814,7 @@ class PointDefectComparatorTest(PymatgenTest):
             Interstitial(ns_struc, ns_inter_H_sublattice1_set1),
             Interstitial(ns_struc, ns_inter_H_sublattice1_set1)
                          ))
-        self.assertTrue( pdc.are_equal(          #same interstitial, different sublattice
+        self.assertTrue( pdc.are_equal(          #same sublattice, different coords
             Interstitial(ns_struc, ns_inter_H_sublattice1_set1),
             Interstitial(ns_struc, ns_inter_H_sublattice1_set2)
                          ))
@@ -852,11 +852,11 @@ class PointDefectComparatorTest(PymatgenTest):
                                          sc_scaled_I_vac_sublatt1_defect1))
         self.assertTrue( sc_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0],
                                                      sc_scaled_I_vac_sublatt1_defect1))
-        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[1], #same defect but different sublattice
+        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[1], #same coords, different lattice structure
                                          sc_scaled_I_vac_sublatt1_defect1))
         self.assertTrue( sc_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[1],
                                                      sc_scaled_I_vac_sublatt1_defect1))
-        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0], #same defect but different sublattice
+        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0], #same sublattice, different coords
                                          sc_scaled_I_vac_sublatt1_defect2))
         self.assertTrue( sc_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0],
                                                      sc_scaled_I_vac_sublatt1_defect2))
@@ -876,7 +876,7 @@ class PointDefectComparatorTest(PymatgenTest):
                                          vol_scaled_I_vac_sublatt1_defect1))
         self.assertTrue( vol_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0],
                                                      vol_scaled_I_vac_sublatt1_defect1))
-        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0],  # same defect, different sublattice (and vol change)
+        self.assertFalse( pdc.are_equal( identical_I_vacs_sublattice1[0],  # same defect, different sublattice point (and vol change)
                                          vol_scaled_I_vac_sublatt1_defect2))
         self.assertTrue( vol_agnostic_pdc.are_equal( identical_I_vacs_sublattice1[0],
                                                      vol_scaled_I_vac_sublatt1_defect2))
@@ -890,8 +890,49 @@ class PointDefectComparatorTest(PymatgenTest):
                                      Vacancy(shift_s_struc, shift_s_struc[1])]
         self.assertTrue( pdc.are_equal( identical_Cs_vacs[0],   #trivially same defect (but shifted)
                                         shifted_identical_Cs_vacs[0]))
-        self.assertTrue( pdc.are_equal( identical_Cs_vacs[0],   #same defect on different subnlattice (and shifted)
+        self.assertTrue( pdc.are_equal( identical_Cs_vacs[0],   #same defect on different sublattice point (and shifted)
                                         shifted_identical_Cs_vacs[1]))
+
+        #test uniform lattice shift within non-symmorphic structure
+        shift_ns_struc = ns_struc.copy()
+        shift_ns_struc.translate_sites(range(len(ns_struc)), [0., 0.6, 0.3], frac_coords=True, to_unit_cell=True)
+
+        shift_ns_inter_H_sublattice1_set1 = PeriodicSite( 'H', ns_inter_H_sublattice1_set1.frac_coords + [0., 0.6, 0.3],
+                                                          shift_ns_struc.lattice)
+        shift_ns_inter_H_sublattice1_set2 = PeriodicSite( 'H', ns_inter_H_sublattice1_set2.frac_coords + [0., 0.6, 0.3],
+                                                          shift_ns_struc.lattice)
+        self.assertTrue( pdc.are_equal( Interstitial(ns_struc, ns_inter_H_sublattice1_set1), #trivially same defect (but shifted)
+                                        Interstitial(shift_ns_struc, shift_ns_inter_H_sublattice1_set1)))
+        self.assertTrue( pdc.are_equal( Interstitial(ns_struc, ns_inter_H_sublattice1_set1), #same defect on different sublattice point (and shifted)
+                                        Interstitial(shift_ns_struc, shift_ns_inter_H_sublattice1_set2)))
+
+        #test a rotational + supercell type structure transformation (requires check_primitive_cell=True)
+        rotated_s_struc = s_struc.copy()
+        rotated_s_struc.make_supercell([[2, 1, 0], [-1, 3, 0], [0, 0, 2]])
+        rotated_identical_Cs_vacs = [Vacancy(rotated_s_struc, rotated_s_struc[0]),
+                                     Vacancy(rotated_s_struc, rotated_s_struc[1])]
+        self.assertFalse( pdc.are_equal( identical_Cs_vacs[0],   #trivially same defect (but rotated)
+                                        rotated_identical_Cs_vacs[0]))
+        self.assertTrue( sc_agnostic_pdc.are_equal( identical_Cs_vacs[0],
+                                        rotated_identical_Cs_vacs[0]))
+        self.assertFalse( pdc.are_equal( identical_Cs_vacs[0],   #same defect on different sublattice (and rotated)
+                                        rotated_identical_Cs_vacs[1]))
+        self.assertTrue( sc_agnostic_pdc.are_equal( identical_Cs_vacs[0],  #same defect on different sublattice point (and rotated)
+                                        rotated_identical_Cs_vacs[1]))
+
+        #test a rotational + supercell + shift type structure transformation for non-symmorphic structure
+        rotANDshift_ns_struc = ns_struc.copy()
+        rotANDshift_ns_struc.translate_sites(range(len(ns_struc)), [0., 0.6, 0.3], frac_coords=True, to_unit_cell=True)
+        rotANDshift_ns_struc.make_supercell([[2, 1, 0], [-1, 3, 0], [0, 0, 2]])
+
+        ns_vac_Cs_set1 = Vacancy( ns_struc, ns_struc[0])
+        rotANDshift_ns_vac_Cs_set1 = Vacancy( rotANDshift_ns_struc, rotANDshift_ns_struc[0])
+        rotANDshift_ns_vac_Cs_set2 = Vacancy( rotANDshift_ns_struc, rotANDshift_ns_struc[1])
+
+        self.assertTrue( sc_agnostic_pdc.are_equal(ns_vac_Cs_set1, #trivially same defect (but rotated and sublattice shifted)
+                                                   rotANDshift_ns_vac_Cs_set1))
+        self.assertTrue( sc_agnostic_pdc.are_equal(ns_vac_Cs_set1, #same defect on different sublattice point (shifted and rotated)
+                                                   rotANDshift_ns_vac_Cs_set2))
 
 if __name__ == '__main__':
     unittest.main()

@@ -1127,7 +1127,7 @@ class PointDefectComparator(MSONable):
             check_primitive_cell (bool): Gives option to
                 compare different supercells of bulk_structure,
                 rather than directly compare supercell sizes
-                Default is False (requires supercells to be same size)
+                Default is False (requires bulk_structure in each defect to be same size)
             check_lattice_scale (bool): Gives option to scale volumes of
                 structures to each other identical lattice constants.
                 Default is False (enforces same
@@ -1181,4 +1181,4 @@ class PointDefectComparator(MSONable):
             d2._defect_site = d2_defect_site
 
         return sm.fit( d1.generate_defect_structure(), d2.generate_defect_structure())
-    
+
