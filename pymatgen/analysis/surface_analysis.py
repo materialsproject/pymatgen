@@ -1420,7 +1420,7 @@ class WorkFunctionAnalyzer(object):
         Returns plt of the locpot vs c axis
         """
 
-        plt = pretty_plot() if not plt else plt
+        plt = pretty_plot(width=6, height=4) if not plt else plt
 
         # plot the raw locpot signal along c
         plt.plot(self.along_c, self.locpot_along_c, 'b--')
