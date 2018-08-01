@@ -15,14 +15,14 @@ import math
 import numpy as np
 import warnings
 
-__author__ = "Maarten de Jong"
+__author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Joseph Montoya, Mark Asta, Anubhav Jain"
+__credits__ = "Maarten de Jong, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 22, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 
 class Stress(SquareTensor):
