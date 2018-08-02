@@ -16,7 +16,8 @@ jobs:
             conda install --quiet --yes -c clinicalgraphics vtk
             conda update --quiet --all
             mkdir coverage_reports
-            pip install --quiet -r requirements.txt -r requirements-optional.txt
+            pip install --upgrade pip
+            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
