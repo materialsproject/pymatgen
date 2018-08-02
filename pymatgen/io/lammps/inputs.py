@@ -32,8 +32,10 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
     """
     Writes input files for a LAMMPS run. Input script is constructed
     from a str template with placeholders to be filled by custom
-    settings. Optional data file is either written from a LammpsData
-    instance or copied from an existing file.
+    settings. Data file is either written from a LammpsData
+    instance or copied from an existing file if read_data cmd is
+    inspected in the input script. Other supporting files are not
+    handled at the moment.
 
     Args:
         output_dir (str): Directory to output the input files.
@@ -44,14 +46,63 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
             placeholders, e.g., {'temperature': 1}. Default to None.
         data (LammpsData or str): Data file as a LammpsData instance or
             path to an existing data file. Default to None, i.e., no
-            data file supplied.
+            data file supplied. Useful only when read_data cmd is in
+            the script.
         script_filename (str): Filename for the input script.
         make_dir_if_not_present (bool): Set to True if you want the
             directory (and the whole path) to be created if it is not
             present.
         **kwargs: kwargs supported by LammpsData.write_file.
 
-    Returns:
+    Examples:
+        >>> eam_template = '''units           metal
+        ... atom_style      atomic
+        ...
+        ... lattice         fcc 3.615
+        ... region          box block 0 20 0 20 0 20
+        ... create_box      1 box
+        ... create_atoms    1 box
+        ...
+        ... pair_style      eam
+        ... pair_coeff      1 1 Cu_u3.eam
+        ...
+        ... velocity        all create $temperature 376847 loop geom
+        ...
+        ... neighbor        1.0 bin
+        ... neigh_modify    delay 5 every 1
+        ...
+        ... fix             1 all nvt $temperature $ temperature 0.1
+        ...
+        ... timestep        0.005
+        ...
+        ... run             $nsteps'''
+        >>> write_lammps_inputs('.', eam_template, settings={'temperature': 1600.0, 'nsteps': 100})
+        >>> with open('in.lammps') as f:
+        ...     script = f.read()
+        ...
+        >>> print(script)
+        units           metal
+        atom_style      atomic
+
+        lattice         fcc 3.615
+        region          box block 0 20 0 20 0 20
+        create_box      1 box
+        create_atoms    1 box
+
+        pair_style      eam
+        pair_coeff      1 1 Cu_u3.eam
+
+        velocity        all create 1600.0 376847 loop geom
+
+        neighbor        1.0 bin
+        neigh_modify    delay 5 every 1
+
+        fix             1 all nvt 1600.0 1600.0 0.1
+
+        timestep        0.005
+
+        run             100
+
 
     """
     variables = {} if settings is None else settings
@@ -71,5 +122,4 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
         else:
             warnings.warn("No data file supplied. Skip writing %s."
                           % data_filename)
-
 

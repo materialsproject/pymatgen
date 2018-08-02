@@ -33,6 +33,11 @@ __date__ = "Aug 1, 2018"
 
 class LammpsDump(MSONable):
 
+    """
+    Object for representing dump data for a single snapshot.
+
+    """
+
     def __init__(self, timestep, natoms, box, data):
         """
         Base constructor.
