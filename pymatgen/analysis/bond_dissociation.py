@@ -178,10 +178,18 @@ class BondDissociationEnergies(MSONable):
             if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
                 entries += [entry]
             elif is_isomorphic(frag.graph, initial_graph):
-                print(entry)
+                print(entry["task_id"])
                 initial_entries += [entry]
+                if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(final_graph.to_undirected()):
+                    print("unconnected_fragments")
+                elif final_graph.number_of_edges() < initial_graph.number_of_edges():
+                    print("fewer_bonds")
+                elif final_graph.number_of_edges() > initial_graph.number_of_edges():
+                    print("more_bonds")
+                else:
+                    print("bond_change")
             elif is_isomorphic(frag.graph, final_graph):
-                print(entry)
+                print(entry["task_id"])
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
 
