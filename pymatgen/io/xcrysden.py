@@ -87,7 +87,7 @@ class XSF(object):
                 for j in range(i+2, i+2+num_sites):
                     tokens = lines[j].split()
                     species.append(int(tokens[0]))
-                    coords.append([float(j) for j in tokens[1:]])
+                    coords.append([float(j) for j in tokens[1:4]])
                 break
         else:
             raise ValueError("Invalid XSF data")
