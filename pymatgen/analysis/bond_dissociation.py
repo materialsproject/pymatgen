@@ -142,18 +142,22 @@ class BondDissociationEnergies(MSONable):
                 raise ValueError
             frag_success = False
         if frag_success:
-            frag1_entries = self.search_fragment_entries(frags[0])[0]
-            frag2_entries = self.search_fragment_entries(frags[1])[0]
+            frag1_entries = self.search_fragment_entries(frags[0])
+            frag2_entries = self.search_fragment_entries(frags[1])
             if bonds == [(0, 14)] or bonds == [(6, 10)]:
                 print()
                 print(bonds)
                 print()
-                print(frag1_entries)
+                print(frag1_entries[1])
                 print()
-                print(frag2_entries)
+                print(frag1_entries[2])
                 print()
-            for frag1 in frag1_entries:
-                for frag2 in frag2_entries:
+                print(frag2_entries[1])
+                print()
+                print(frag2_entries[2])
+                print()
+            for frag1 in frag1_entries[0]:
+                for frag2 in frag2_entries[0]:
                     if frag1["calcs_reversed"][-1]["input"]["rem"]["method"] == frag2["calcs_reversed"][-1]["input"]["rem"]["method"] and frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag2["calcs_reversed"][-1]["input"]["rem"]["basis"]: # Add PCM check?
                         if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["method"] == frag1["calcs_reversed"][-1]["input"]["rem"]["method"]:
                             coords = nx.get_node_attributes(self.mol_graph.graph, "coords")
