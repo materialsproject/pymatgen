@@ -299,7 +299,7 @@ class TaskDefectBuilder(object):
                 defect_task = add_vr_eigenvalue_dict( defect_task)
 
             if 'vr_eigenvalue_dict' in defect_task['calcs_reversed'][0]['output'].keys():
-                eigenvalues = defect_task['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['eigenvalues'][:]
+                eigenvalues = defect_task['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['eigenvalues']
                 kpoint_weights = defect_task['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['kpoint_weights']
                 parameters.update( {'eigenvalues': eigenvalues,
                                     'kpoint_weights': kpoint_weights} )
