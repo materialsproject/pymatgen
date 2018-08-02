@@ -144,18 +144,18 @@ class BondDissociationEnergies(MSONable):
         if frag_success:
             frag1_entries = self.search_fragment_entries(frags[0])
             frag2_entries = self.search_fragment_entries(frags[1])
-            if bonds == [(0, 14)] or bonds == [(6, 10)]:
-                # print()
-                # print(bonds)
-                # print()
-                # print(frag1_entries[1])
-                # print()
-                # print(frag1_entries[2])
-                # print()
-                # print(frag2_entries[1])
-                # print()
-                # print(frag2_entries[2])
-                # print()
+            # if bonds == [(0, 14)] or bonds == [(6, 10)]:
+            #     print()
+            #     print(bonds)
+            #     print()
+            #     print(frag1_entries[1])
+            #     print()
+            #     print(frag1_entries[2])
+            #     print()
+            #     print(frag2_entries[1])
+            #     print()
+            #     print(frag2_entries[2])
+            #     print()
             for frag1 in frag1_entries[0]:
                 for frag2 in frag2_entries[0]:
                     if frag1["calcs_reversed"][-1]["input"]["rem"]["method"] == frag2["calcs_reversed"][-1]["input"]["rem"]["method"] and frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag2["calcs_reversed"][-1]["input"]["rem"]["basis"]: # Add PCM check?
