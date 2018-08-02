@@ -125,7 +125,11 @@ class TaskDefectBuilder(object):
                             mpstruct = mp.get_structure_by_material_id(trial_mpid)
                         if StructureMatcher(scale=False).fit(bstruct, mpstruct):
                             if mpid:
-                                ValueError("Trouble Matching mp-ids. Multiple possible mpids exist?")
+                                print("Trouble Matching mp-ids. Multiple possible mpids exist "
+                                      "within this list:\n {}\nSwitching to "
+                                      "band_stats_from_MP=False option".format(str(mplist)))
+                                mpid = None
+                                break
                             else:
                                 mpid = trial_mpid
 
