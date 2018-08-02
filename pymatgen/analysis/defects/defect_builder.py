@@ -101,6 +101,13 @@ class TaskDefectBuilder(object):
                 diel_data.update( {'epsilon_ionic': eps_ionic, 'epsilon_static':  eps_static,
                                    'dielectric': eps_total})
 
+            elif 'history' not in task['transformations'].keys() and ('HFSCREEN' not in task['input']['incar'].keys()):
+                # Had to add the HFSCREEN piece too because hybrids might not have transformations in them...
+                # if it is a defect hybrid run and doesnt have a history in transformations,
+                # then user is really wrong about how to use this...
+                print("ERROR: task with directory\n{}\ndoes not have a transformations history. "
+                      "cannot parse this with defect_builder.".format(task['dir_name']))
+
             #call it a bulk calculation if transformation class is just a SupercellTranformation
             elif 'SupercellTransformation' == task['transformations']['history'][0]['@class']:
                 #process bulk task information
@@ -304,8 +311,8 @@ class TaskDefectBuilder(object):
                 parameters.update( {'eigenvalues': eigenvalues,
                                     'kpoint_weights': kpoint_weights} )
             else:
-                print('ERR: defect {}_{} does not have eigenvalue data for parsing bandfilling.'.format(defect.name, defect.charge))
-
+                print('ERR: defect {}_{} does not have eigenvalue data for parsing '
+                      'bandfilling.'.format(defect.name, defect.charge))
 
 
             defect_entry = DefectEntry( defect, parameters['defect_energy'] - parameters['bulk_energy'],
