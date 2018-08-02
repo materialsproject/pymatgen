@@ -996,8 +996,9 @@ class JmolNN(NearNeighbors):
             radii table values 
     """
 
-    def __init__(self, tol=0.56, el_radius_updates=None):
+    def __init__(self, tol=0.56, min_bond_distance=0.4, el_radius_updates=None):
         self.tol = tol
+        self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -1055,7 +1056,7 @@ class JmolNN(NearNeighbors):
         siw = []
         for neighb, dist in structure.get_neighbors(site, max_rad):
             # Confirm neighbor based on bond length specific to atom pair
-            if dist <= bonds[(site.specie, neighb.specie)] + self.tol:
+            if dist <= bonds[(site.specie, neighb.specie)] + self.tol and dist > self.min_bond_distance:
                 weight = min_rad / dist
                 siw.append({'site': neighb,
                             'image': self._get_image(neighb.frac_coords),
