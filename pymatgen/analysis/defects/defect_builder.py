@@ -295,12 +295,12 @@ class TaskDefectBuilder(object):
 
 
             #Load information for Bandfilling related parsing
-            if 'vr_eigenvalue_dict' not in task['calcs_reversed'][0]['output'].keys():
-                task = add_vr_eigenvalue_dict( task)
+            if 'vr_eigenvalue_dict' not in defect_task['calcs_reversed'][0]['output'].keys():
+                defect_task = add_vr_eigenvalue_dict( defect_task)
 
-            if 'vr_eigenvalue_dict' in task['calcs_reversed'][0]['output'].keys():
-                eigenvalues = task['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['eigenvalues']
-                kpoint_weights = task['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['kpoint_weights']
+            if 'vr_eigenvalue_dict' in defect_task['calcs_reversed'][0]['output'].keys():
+                eigenvalues = defect_task['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['eigenvalues'][:]
+                kpoint_weights = defect_task['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['kpoint_weights']
                 parameters.update( {'eigenvalues': eigenvalues,
                                     'kpoint_weights': kpoint_weights} )
             else:
