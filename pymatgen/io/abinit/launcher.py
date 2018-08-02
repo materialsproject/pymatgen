@@ -296,8 +296,9 @@ class PyFlowScheduler(object):
             use_dynamic_manager: "yes" if the :class:`TaskManager` must be re-initialized from
                 file before launching the jobs. (DEFAULT: "no")
             max_njobs_inqueue: Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)
-            remindme_s: The scheduler will send an email to the user specified by `mailto` every `remindme_s` seconds.
-                (int, DEFAULT: 1 day).
+            max_ncores_used: Maximum number of cores that can be used by the scheduler.
+            remindme_s: The scheduler will send an email to the user specified
+                by `mailto` every `remindme_s` seconds. (int, DEFAULT: 1 day).
             max_num_pyexcs: The scheduler will exit if the number of python exceptions is > max_num_pyexcs
                 (int, DEFAULT: 0)
             max_num_abierrs: The scheduler will exit if the number of errored tasks is > max_num_abierrs
