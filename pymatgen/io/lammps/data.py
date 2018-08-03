@@ -36,8 +36,11 @@ more info.
 """
 
 __author__ = "Kiran Mathew, Zhi Deng"
-__email__ = "kmathew@lbl.gov, z4deng@eng.ucsd.edu"
-__credits__ = "Brandon Wood"
+__copyright__ = "Copyright 2018, The Materials Virtual Lab"
+__version__ = "1.0"
+__maintainer__ = "Zhi Deng"
+__email__ = "z4deng@eng.ucsd.edu"
+__date__ = "Aug 1, 2018"
 
 
 SECTION_KEYWORDS = {"atom": ["Atoms", "Velocities", "Masses",
@@ -112,6 +115,9 @@ class LammpsBox(MSONable):
         self._matrix = matrix
 
     def __str__(self):
+        return self.get_string()
+
+    def __repr__(self):
         return self.get_string()
 
     @property
@@ -268,6 +274,9 @@ class LammpsData(MSONable):
         self.atom_style = atom_style
 
     def __str__(self):
+        return self.get_string()
+
+    def __repr__(self):
         return self.get_string()
 
     @property
@@ -804,7 +813,7 @@ class LammpsData(MSONable):
         encode_df = lambda df: df.to_json(orient="split")
         d = dict()
         d["@module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
+        d["@class"] = self.__class__.__name__
         d["box"] = self.box.as_dict()
         d["masses"] = encode_df(self.masses)
         d["atoms"] = encode_df(self.atoms)
