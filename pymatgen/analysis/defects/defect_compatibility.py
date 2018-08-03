@@ -215,6 +215,11 @@ class DefectCompatibility(MSONable):
         required_bandfilling_params = ["eigenvalues", "kpoint_weights", "potalign", "vbm", "cbm"]
         run_bandfilling = True if len( set(defect_entry.parameters.keys()).intersection(required_bandfilling_params)) \
                                 == len(required_bandfilling_params) else False
+        if run_bandfilling:
+            if (type(defect_entry.parameters['vbm']) != float) or (type(defect_entry.parameters['cbm']) != float) \
+                    or (type(defect_entry.parameters['potalign']) != float):
+                run_bandfilling = False
+
         if not run_bandfilling:
             print('Insufficient DefectEntry parameters exist for BandFilling Correction.')
         # elif 'bandfilling_meta' not in defect_entry.parameters.keys():
