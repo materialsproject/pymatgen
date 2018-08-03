@@ -3,8 +3,6 @@ from __future__ import division, unicode_literals
 import warnings
 import unittest as unittest
 import numpy as np
-import matplotlib
-matplotlib.use('pdf')
 
 from pymatgen import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
