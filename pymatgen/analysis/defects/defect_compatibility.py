@@ -129,38 +129,29 @@ class DefectCompatibility(MSONable):
             corrections.update({'bandfilling_correction': 0.})
 
 
-        if self.use_bandedgeshift:
-            if "bandshift_meta" in defect_entry.parameters.keys():
-                bandfill_meta = defect_entry.parameters["bandshift_meta"]
-                bes_corr = bandfill_meta["vbm_shift_correction"] + bandfill_meta["hole_vbm_shift_correction"] + \
-                    bandfill_meta["elec_cbm_shift_correction"]
-                corrections.update({'bandedgeshifting_correction': bes_corr})
+        if self.use_bandedgeshift and ("bandshift_meta" in defect_entry.parameters.keys()):
+            bandfill_meta = defect_entry.parameters["bandshift_meta"]
+            bes_corr = bandfill_meta["vbm_shift_correction"] + bandfill_meta["hole_vbm_shift_correction"] + \
+                bandfill_meta["elec_cbm_shift_correction"]
+            corrections.update({'bandedgeshifting_correction': bes_corr})
 
-                # also want to update relevant data for phase diagram
-                defect_entry.parameters.update({
-                    'phasediagram_meta': {
-                        'vbm': defect_entry.parameters['hybrid_vbm'],
-                        'gap': defect_entry.parameters['hybrid_cbm'] - defect_entry.parameters['hybrid_vbm']
-                    }
-                })
-            else:
-                print("Could not use band edge shifting correction because insufficient metadata was supplied.")
-                defect_entry.parameters.update({
-                'phasediagram_meta': {
-                    'vbm': defect_entry.parameters['vbm'],
-                    'gap': defect_entry.parameters['cbm'] - defect_entry.parameters['vbm']
-                    }
-                })
-
-
-        else:  # if not using bandedge shift -> still want to have vbm and gap ready for phase diagram
-            corrections.update({'bandedgeshifting_correction': 0.})
+            # also want to update relevant data for phase diagram
             defect_entry.parameters.update({
                 'phasediagram_meta': {
-                    'vbm': defect_entry.parameters['vbm'],
-                    'gap': defect_entry.parameters['cbm'] - defect_entry.parameters['vbm']
+                    'vbm': defect_entry.parameters['hybrid_vbm'],
+                    'gap': defect_entry.parameters['hybrid_cbm'] - defect_entry.parameters['hybrid_vbm']
                 }
             })
+        else:
+            corrections.update({'bandedgeshifting_correction': 0.})
+            if (type(defect_entry.parameters['vbm']) == float) and (type(defect_entry.parameters['cbm']) == float):
+                # still want to have vbm and gap ready for phase diagram
+                defect_entry.parameters.update({
+                'phasediagram_meta': {
+                    'vbm': defect_entry.parameters['vbm'],
+                    'gap': defect_entry.parameters['cbm'] - defect_entry.parameters['vbm']
+                    }
+                })
 
         defect_entry.corrections.update(corrections)
 
