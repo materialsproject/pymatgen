@@ -12,13 +12,76 @@ import filecmp
 import shutil
 
 import pandas as pd
+from pymatgen import Lattice, Structure
 from pymatgen.io.lammps.data import LammpsData
 
-from pymatgen.io.lammps.inputs import write_lammps_inputs
+from pymatgen.io.lammps.inputs import LammpsRun, write_lammps_inputs
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
+
+
+class LammpsRunTest(unittest.TestCase):
+
+    maxDiff = None
+
+    def test_md(self):
+        s = Structure.from_spacegroup(225, Lattice.cubic(3.62126),
+                                      ["Cu"], [[0, 0, 0]])
+        ld = LammpsData.from_structure(s, atom_style="atomic")
+        ff = "\n".join(["pair_style eam", "pair_coeff * * Cu_u3.eam"])
+        md = LammpsRun.md(data=ld, force_field=ff, temperature=1600.0,
+                          nsteps=10000)
+        md.write_inputs(output_dir="md")
+        with open(os.path.join("md", "in.md")) as f:
+            md_script = f.read()
+        script_string = """# Sample input script template for MD
+
+# Initialization
+
+units           metal
+atom_style      atomic
+
+# Atom definition
+
+read_data       md.data
+#read_restart    md.restart
+
+# Force field settings (consult official document for detailed formats)
+
+pair_style eam
+pair_coeff * * Cu_u3.eam
+
+# Create velocities
+velocity        all create 1600.0 142857 mom yes rot yes dist gaussian
+
+# Ensemble constraints
+#fix             1 all nve
+fix             1 all nvt temp 1600.0 1600.0 0.1
+#fix             1 all npt temp 1600.0 1600.0 0.1 iso $pressure $pressure 1.0
+
+# Various operations within timestepping
+#fix             ...
+#compute         ...
+
+# Output settings
+#thermo_style    custom ...  # control the thermo data type to output
+thermo          100  # output thermo data every N steps
+#dump            1 all atom 100 traj.*.gz  # dump a snapshot every 100 steps
+
+# Actions
+run             10000
+"""
+        self.assertEqual(md_script, script_string)
+        self.assertTrue(os.path.exists(os.path.join("md", "md.data")))
+
+    @classmethod
+    def tearDownClass(cls):
+        temp_dirs = ["md"]
+        for td in temp_dirs:
+            if os.path.exists(td):
+                shutil.rmtree(td)
 
 
 class FuncTest(unittest.TestCase):

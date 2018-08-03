@@ -11,6 +11,7 @@ import shutil
 import warnings
 from string import Template
 
+from monty.json import MSONable
 from pymatgen.io.lammps.data import LammpsData
 
 """
@@ -24,6 +25,84 @@ __version__ = "1.0"
 __maintainer__ = "Zhi Deng"
 __email__ = "z4deng@eng.ucsd.edu"
 __date__ = "Aug 1, 2018"
+
+
+class LammpsRun(MSONable):
+    """
+    Examples for various simple LAMMPS runs with given simulation box,
+    force field and a few more settings. Experience LAMMPS users should
+    consider using write_lammps_inputs method with more sophisticated
+    templates.
+
+    """
+
+    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "templates")
+
+    def __init__(self, script_template, settings, data,
+                 script_filename):
+        """
+        Base constructor.
+
+        Args:
+            script_template (str): String template for input script
+                with placeholders. The format for placeholders has to
+                be '$variable_name', e.g., '$temperature'
+            settings (dict): Contains values to be written to the
+                placeholders, e.g., {'temperature': 1}.
+            data (LammpsData or str): Data file as a LammpsData
+                instance or path to an existing data file. Default to
+                None, i.e., no data file supplied. Useful only when
+                read_data cmd is in the script.
+            script_filename (str): Filename for the input script.
+
+        """
+        self.script_template = script_template
+        self.settings = settings
+        self.data = data
+        self.script_filename = script_filename
+
+    def write_inputs(self, output_dir, **kwargs):
+        """
+        Writes all input files (input script, and data if needed).
+        Other supporting files are not handled at this moment.
+
+        Args:
+            output_dir (str): Directory to output the input files.
+            **kwargs: kwargs supported by LammpsData.write_file.
+
+        """
+        write_lammps_inputs(output_dir=output_dir,
+                            script_template=self.script_template,
+                            settings=self.settings, data=self.data,
+                            script_filename=self.script_filename, **kwargs)
+
+    @classmethod
+    def md(cls, data, force_field, temperature, nsteps,
+           other_settings=None):
+        """
+        Example for a simple MD run based on template md.txt.
+
+        Args:
+            data (LammpsData or str): Data file as a LammpsData
+                instance or path to an existing data file.
+            force_field (str): Combined force field related cmds. For
+                example, 'pair_style eam\npair_coeff * * Cu_u3.eam'.
+            temperature (float): Simulation temperature.
+            nsteps (int): No. of steps to run.
+            other_settings (dict): other settings to be filled into
+                placeholders.
+
+        """
+        template_path = os.path.join(cls.template_dir, "md.txt")
+        with open(template_path) as f:
+            script_template = f.read()
+        settings = other_settings.copy() if other_settings is not None else {}
+        settings.update({'force_field': force_field,
+                         "temperature": temperature, "nsteps": nsteps})
+        script_filename = "in.md"
+        return cls(script_template=script_template,
+                   settings=settings, data=data, script_filename=script_filename)
 
 
 def write_lammps_inputs(output_dir, script_template, settings=None,
@@ -71,7 +150,7 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
         ... neighbor        1.0 bin
         ... neigh_modify    delay 5 every 1
         ...
-        ... fix             1 all nvt $temperature $ temperature 0.1
+        ... fix             1 all nvt temp $temperature $temperature 0.1
         ...
         ... timestep        0.005
         ...
@@ -97,7 +176,7 @@ def write_lammps_inputs(output_dir, script_template, settings=None,
         neighbor        1.0 bin
         neigh_modify    delay 5 every 1
 
-        fix             1 all nvt 1600.0 1600.0 0.1
+        fix             1 all nvt temp 1600.0 1600.0 0.1
 
         timestep        0.005
 
