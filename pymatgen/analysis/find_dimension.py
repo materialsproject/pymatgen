@@ -18,10 +18,10 @@ import itertools
 import copy
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.local_env import JMolNN
+from pymatgen.analysis.local_env import JmolNN
 from pymatgen.core.periodic_table import Specie
 
-def find_connected_atoms(struct, tolerance=0.45, ldict=JMolNN().el_radius):
+def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
 	"""
 	Finds the list of bonded atoms.
 
@@ -114,7 +114,7 @@ def find_clusters(struct, connected_list):
 	return [max_cluster, min_cluster, clusters]
 
 
-def find_dimension(structure_raw, tolerance=0.45, ldict=JMolNN().el_radius, standardize=True):
+def find_dimension(structure_raw, tolerance=0.45, ldict=JmolNN().el_radius, standardize=True):
 	"""
 	Algorithm for finding the dimensions of connected subunits in a crystal structure.
 	This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.
