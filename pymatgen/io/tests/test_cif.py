@@ -1288,6 +1288,54 @@ loop_
         self.assertAlmostEqual(list_magmoms[1][0], -5.1234749999999991)
         self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
 
+        # test creating an structure without oxidation state doesn't raise errors
+        s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"],[[0, 0, 0], [0.5, 0.5, 0.5]])
+        s_manual.add_spin_by_site([1, -1])
+        cw = CifWriter(s_manual, write_magmoms=True)
+
+        # check oxidation state
+        cw_manual_oxi_string = """# generated using pymatgen
+data_CsCl
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   4.20000000
+_cell_length_b   4.20000000
+_cell_length_c   4.20000000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   CsCl
+_chemical_formula_sum   'Cs1 Cl1'
+_cell_volume   74.08800000
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_type_symbol
+ _atom_type_oxidation_number
+  Cs+  1.0
+  Cl+  1.0
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Cs+  Cs1  1  0.000000  0.000000  0.000000  1
+  Cl+  Cl2  1  0.500000  0.500000  0.500000  1
+loop_
+ _atom_site_moment_label
+ _atom_site_moment_crystalaxis_x
+ _atom_site_moment_crystalaxis_y
+ _atom_site_moment_crystalaxis_z
+"""
+        s_manual.add_oxidation_state_by_site([1,1])
+        cw = CifWriter(s_manual, write_magmoms=True)
+        self.assertEqual(cw.__str__(), cw_manual_oxi_string)
 
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):
