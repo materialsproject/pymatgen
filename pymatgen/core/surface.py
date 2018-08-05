@@ -646,7 +646,7 @@ class Slab(Structure):
     def symmetrically_remove_atoms(self, indices):
 
         """
-        Class method for removing a site at a specified point in a slab.
+        Class method for removing sites corresponding to a list of indices.
             Will remove the corresponding site on the other side of the
             slab to maintain equivalent surfaces.
 
@@ -1475,7 +1475,10 @@ class ReconstructionGenerator(object):
                 for p in pts_to_rm:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
                                                                top_site[2]+p[2]*d])[2]
-                    slab = self.symmetrically_remove_atom(slab, p)
+                    cart_point = self.lattice.get_cartesian_coords(p)
+                    dist = [site.distance_from_point(cart_point) for site in slab]
+                    site1 = dist.index(min(dist))
+                    slab.symmetrically_remove_atoms([site1])
 
             # Add any specified sites
             if "points_to_add" in self.reconstruction_json.keys():
@@ -1483,7 +1486,7 @@ class ReconstructionGenerator(object):
                 for p in pts_to_add:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
                                                                top_site[2]+p[2]*d])[2]
-                    slab = self.symmetrically_add_atom(slab, p)
+                    slab.symmetrically_add_atom(slab[0].specie, p)
 
             slab.reconstruction = self.name
             setattr(slab, "recon_trans_matrix", self.trans_matrix)
@@ -1495,65 +1498,6 @@ class ReconstructionGenerator(object):
             recon_slabs.append(slab)
 
         return recon_slabs
-
-    def symmetrically_remove_atom(self, slab, point):
-
-        """
-        Class method for removing a site at a specified point in a slab.
-            Will remove the corresponding site on the other side of the
-            slab to maintain equivalent surfaces.
-
-        Arg:
-            slab (Slab): The slab to modify
-            point (frac coord): The fractional coordinate of the site
-                in the slab to remove.
-
-        Returns:
-            (Slab): The modified slab
-        """
-
-        # Get the index of the original site on top
-        cart_point = slab.lattice.get_cartesian_coords(point)
-        dist = [site.distance_from_point(cart_point) for site in slab]
-        site1 = dist.index(min(dist))
-
-        # Get the index of the corresponding site at the bottom
-        point2 = slab.get_symmetric_site(point)
-        cart_point = slab.lattice.get_cartesian_coords(point2)
-        dist = [site.distance_from_point(cart_point) for site in slab]
-        site2 = dist.index(min(dist))
-
-        slab.remove_sites([site1, site2])
-
-        return slab
-
-    def symmetrically_add_atom(self, slab, point):
-
-        """
-        Class method for adding a site at a specified point in a slab.
-            Will add the corresponding site on the other side of the
-            slab to maintain equivalent surfaces.
-
-        Arg:
-            point (frac coord): The fractional coordinate of the site
-                in the slab to add.
-
-        Returns:
-            (Slab): The modified slab
-        """
-
-        # For now just use the species of the
-        # surface atom as the element to add
-        el = sorted(slab, key=lambda site: \
-            site.frac_coords[2])[-1].species_string
-
-        # Get the index of the corresponding site at the bottom
-        point2 = slab.get_symmetric_site(point)
-
-        slab.append(el, point)
-        slab.append(el, point2)
-
-        return slab
 
     def get_unreconstructed_slabs(self):
 
