@@ -426,8 +426,8 @@ class SurfaceEnergyPlotter(object):
         self.color_dict = self.color_palette_dict()
 
         se_dict, as_coeffs_dict = {}, {}
-        for hkl in all_slab_entries.keys():
-            for clean in all_slab_entries[hkl].keys():
+        for hkl in self.all_slab_entries.keys():
+            for clean in self.all_slab_entries[hkl].keys():
                 se = clean.surface_energy(self.ucell_entry, ref_entries=self.ref_entries)
                 if type(se).__name__ == "float":
                     se_dict[clean] = se
@@ -435,7 +435,7 @@ class SurfaceEnergyPlotter(object):
                 else:
                     se_dict[clean] = se
                     as_coeffs_dict[clean] = se.as_coefficients_dict()
-                for dope in all_slab_entries[hkl][clean]:
+                for dope in self.all_slab_entries[hkl][clean]:
                     se = dope.surface_energy(self.ucell_entry, ref_entries=self.ref_entries)
                     if type(se).__name__ == "float":
                         se_dict[dope] = se
