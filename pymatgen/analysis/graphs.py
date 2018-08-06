@@ -1435,7 +1435,8 @@ class MoleculeGraph(MSONable):
 
             return sub_mols
 
-    def substitute_group(self, index, func_grp, strategy, bond_order=1, graph_dict=None, strategy_params=None):
+    def substitute_group(self, index, func_grp, strategy, bond_order=1,
+                         graph_dict=None, strategy_params=None):
         """
         Builds off of Molecule.substitute to replace an atom in self.molecule
         with a functional group. This method also amends self.graph to
@@ -1465,7 +1466,7 @@ class MoleculeGraph(MSONable):
         :param bond_order: A specified bond order to calculate the bond
                 length between the attached functional group and the nearest
                 neighbor site. Defaults to 1.
-        :param grp_graph: Dictionary representing the bonds of the functional
+        :param graph_dict: Dictionary representing the bonds of the functional
                 group (format: {(u, v): props}, where props is a dictionary of
                 properties, including weight. If None, then the algorithm
                 will attempt to automatically determine bonds using one of
@@ -1555,20 +1556,15 @@ class MoleculeGraph(MSONable):
         """
         Find ring structures in the MoleculeGraph.
 
-        NOTE: Currently, this function behaves as
-        expected for single rings, but fails (miserably)
-        on molecules with more than one ring.
-
         :param including: list of site indices. If
         including is not None, then find_rings will
         only return those rings including the specified
         sites. By default, this parameter is None, and
         all rings will be returned.
         :return: dict {index:cycle}. Each
-        entry will be a ring (cycle, in graph
-        theory terms) including the index found in the Molecule.
-        If there is no cycle including an index, the value will
-        be an empty list.
+        entry will be a ring (cycle, in graph theory terms) including the index
+        found in the Molecule. If there is no cycle including an index, the
+        value will be an empty list.
         """
 
         # Copies self.graph such that all edges (u, v) matched by edges (v, u)
