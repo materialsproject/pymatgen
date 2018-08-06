@@ -25,7 +25,7 @@ from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
-from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, DdkTask,
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, ElasticTask, DdkTask,
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
                     DteTask, EphTask, CollinearThenNonCollinearScfTask)
 
@@ -396,6 +396,11 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
     def register_phonon_task(self, *args, **kwargs):
         """Register a phonon task."""
         kwargs["task_class"] = PhononTask
+        return self.register_task(*args, **kwargs)
+
+    def register_elastic_task(self, *args, **kwargs):
+        """Register an elastic task."""
+        kwargs["task_class"] = ElasticTask
         return self.register_task(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
@@ -1274,17 +1279,37 @@ class QptdmWork(Work):
 class MergeDdb(object):
     """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
-    def merge_ddb_files(self):
+    def merge_ddb_files(self, delete_source_ddbs=True, only_dfpt_tasks=True,
+            exclude_tasks=None, include_tasks=None):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Work`.
 
+        Args:
+            delete_source_ddbs: True if input DDB should be removed once final DDB is created.
+            only_dfpt_tasks: False to merge all DDB files produced by the tasks of the work
+                Useful e.g. for finite stress corrections in which the stress in the
+                initial configuration should be merged in the final DDB.
+            exclude_tasks: List of tasks that should be excluded when merging the partial DDB files.
+            include_tasks: List of tasks that should be included when merging the partial DDB files.
+                Mutually exclusive with exclude_tasks.
+
         Returns:
             path to the output DDB file
         """
-        ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self \
+        if exclude_tasks:
+            my_tasks = [task for task in self if task not in exclude_tasks]
+        elif include_tasks:
+            my_tasks = [task for task in self if task in include_tasks]
+        else:
+            my_tasks = [task for task in self]
+
+        if only_dfpt_tasks:
+            ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks \
                                        if isinstance(task, DfptTask)]))
+        else:
+            ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks]))
 
         self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
         # DDB files are always produces so this should never happen!
@@ -1301,15 +1326,16 @@ class MergeDdb(object):
             # Call mrgddb
             desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
             mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=0)
-            mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+            mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc,
+                         delete_source_ddbs=delete_source_ddbs)
 
         return out_ddb
 
 
 class PhononWork(Work, MergeDdb):
     """
-    This work usually consists of one GS + nirred Phonon tasks where nirred is
-    the number of irreducible perturbations for a given q-point.
+    This work consists of nirred Phonon tasks where nirred is
+    the number of irreducible atomic perturbations for a given set of q-points.
     It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
     all the partial DDB (POT) files produced. The two files are available in the
     output directory of the Work.

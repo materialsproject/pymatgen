@@ -11,6 +11,8 @@ import itertools
 import warnings
 import collections
 import string
+from monty.json import MSONable
+
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -22,15 +24,15 @@ basic tensor manipulation.  It also provides a class, SquareTensor,
 that provides basic methods for creating and manipulating rank 2 tensors
 """
 
-__author__ = "Maarten de Jong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = ("Joseph Montoya, Shyam Dwaraknath, Wei Chen, "
+__author__ = "Joseph Montoya"
+__copyright__ = "Copyright 2017, The Materials Project"
+__credits__ = ("Maarten de Jong, Shyam Dwaraknath, Wei Chen, "
                "Mark Asta, Anubhav Jain, Terence Lew")
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 22, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 reverse_voigt_map = np.array([[0, 5, 4],
@@ -38,7 +40,7 @@ reverse_voigt_map = np.array([[0, 5, 4],
                               [4, 3, 2]])
 
 
-class Tensor(np.ndarray):
+class Tensor(np.ndarray, MSONable):
     """
     Base class for doing useful general operations on Nth order tensors,
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
@@ -177,8 +179,8 @@ class Tensor(np.ndarray):
         Returns a "voigt"-symmetrized tensor, i. e. a voigt-notation
         tensor such that it is invariant wrt permutation of indices
         """
-        if not (self.rank % 2 == 0 and self.rank > 2):
-            raise ValueError("V-symmetrization requires rank even and > 2")
+        if not (self.rank % 2 == 0 and self.rank >= 2):
+            raise ValueError("V-symmetrization requires rank even and >= 2")
 
         v = self.voigt
         perms = list(itertools.permutations(range(len(v.shape))))
@@ -546,8 +548,37 @@ class Tensor(np.ndarray):
                           "with max diff of {}".format(max_diff))
         return self.__class__(test_new)
 
+    def as_dict(self, voigt=False):
+        """
+        Serializes the tensor object
 
-class TensorCollection(collections.Sequence):
+        Args:
+            voigt (bool): flag for whether to store entries in
+                voigt-notation.  Defaults to false, as information
+                may be lost in conversion.
+
+        Returns (Dict):
+            serialized format tensor object
+
+        """
+        input_array = self.voigt if voigt else self
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "input_array": input_array.tolist()}
+        if voigt:
+            d.update({"voigt": voigt})
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        voigt = d.get('voigt')
+        if voigt:
+            return cls.from_voigt(d["input_array"])
+        else:
+            return cls(d["input_array"])
+
+
+class TensorCollection(collections.Sequence, MSONable):
     """
     A sequence of tensors that can be used for fitting data
     or for having a tensor expansion
@@ -608,6 +639,30 @@ class TensorCollection(collections.Sequence):
         return self.__class__(
             [t.convert_to_ieee(structure, initial_fit, refine_rotation)
              for t in self])
+
+    def round(self, *args, **kwargs):
+        return self.__class__([t.round(*args, **kwargs) for t in self])
+
+    @property
+    def voigt_symmetrized(self):
+        return self.__class__([t.voigt_symmetrized for t in self])
+
+    def as_dict(self, voigt=False):
+        tensor_list = self.voigt if voigt else self
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "tensor_list": [t.tolist() for t in tensor_list]}
+        if voigt:
+            d.update({"voigt": voigt})
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        voigt = d.get('voigt')
+        if voigt:
+            return cls.from_voigt(d["tensor_list"])
+        else:
+            return cls(d["tensor_list"])
 
 
 class SquareTensor(Tensor):
@@ -785,3 +840,11 @@ def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     for tkey, value in tensor_keyed_dict.items():
         if np.allclose(tensor, tkey, **allclose_kwargs):
             return value
+
+def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
+    if allclose_kwargs is None:
+        allclose_kwargs = {}
+    for tkey in tensor_keyed_dict.keys():
+        if np.allclose(tensor, tkey, **allclose_kwargs):
+            tensor_keyed_dict[tkey] = set_value
+            return

@@ -434,7 +434,6 @@ class PourbaixDiagram(object):
             entries_HO = [ComputedEntry('H', 0), ComputedEntry('O', 2.46)]
             solid_pd = PhaseDiagram(solid_entries + entries_HO)
             solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
-            # import nose; nose.tools.set_trace()
 
         if len(comp_dict) > 1:
             self._multielement = True
@@ -485,7 +484,7 @@ class PourbaixDiagram(object):
         return processed_entries
 
     @staticmethod
-    def process_multientry(entry_list, prod_comp):
+    def process_multientry(entry_list, prod_comp, coeff_threshold=1e-4):
         """
         Static method for finding a multientry based on
         a list of entries and a product composition.
@@ -497,8 +496,11 @@ class PourbaixDiagram(object):
         Args:
             entry_list ([Entry]): list of entries from which to
                 create a MultiEntry
-            comp (Composition): composition constraint for setting
+            prod_comp (Composition): composition constraint for setting
                 weights of MultiEntry
+            coeff_threshold (float): threshold of stoichiometric
+                coefficients to filter, if weights are lower than
+                this value, the entry is not returned
         """
         dummy_oh = [Composition("H"), Composition("O")]
         try:
@@ -508,11 +510,10 @@ class PourbaixDiagram(object):
             # their charge state.
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
-            thresh = np.array([pe.concentration if pe.phase_type == "Ion"
-                               else 1e-3 for pe in entry_list])
             coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
-            if (coeffs > thresh).all():
-                # import nose; nose.tools.set_trace()
+            # Return None if reaction coeff threshold is not met
+            # TODO: this filtration step might be put somewhere else
+            if (coeffs > coeff_threshold).all():
                 return MultiEntry(entry_list, weights=coeffs.tolist())
             else:
                 return None
@@ -600,7 +601,6 @@ class PourbaixDiagram(object):
                          for indices in ConvexHull(points).simplices]
             pourbaix_domains[entry] = simplices
             pourbaix_domain_vertices[entry] = points
-        # import nose; nose.tools.set_trace()
 
         return pourbaix_domains, pourbaix_domain_vertices
 
