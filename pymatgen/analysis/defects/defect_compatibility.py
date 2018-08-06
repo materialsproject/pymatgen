@@ -207,8 +207,8 @@ class DefectCompatibility(MSONable):
         run_bandfilling = True if len( set(defect_entry.parameters.keys()).intersection(required_bandfilling_params)) \
                                 == len(required_bandfilling_params) else False
         if run_bandfilling:
-            if (type(defect_entry.parameters['vbm']) != float) or (type(defect_entry.parameters['cbm']) != float) \
-                    or (type(defect_entry.parameters['potalign']) != float):
+            if (defect_entry.parameters['vbm'] == None) or (defect_entry.parameters['cbm'] == None) \
+                    or (defect_entry.parameters['potalign'] == None):
                 run_bandfilling = False
 
         if not run_bandfilling:
