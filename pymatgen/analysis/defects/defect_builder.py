@@ -137,19 +137,25 @@ class TaskDefectBuilder(object):
                     with MPRester() as mp:
                         mplist = mp.find_structure(bstruct)
 
-                    mpid = None
+                    mpid_fit_list = []
                     for trial_mpid in mplist:
                         with MPRester() as mp:
                             mpstruct = mp.get_structure_by_material_id(trial_mpid)
                         if StructureMatcher(scale=False).fit(bstruct, mpstruct):
-                            if mpid:
-                                print("Trouble Matching mp-ids. Multiple possible mpids exist "
-                                      "within this list:\n {}\nSwitching to "
-                                      "band_stats_from_MP=False option".format(str(mplist)))
-                                mpid = None
-                                break
-                            else:
-                                mpid = trial_mpid
+                            mpid_fit_list.append( trial_mpid)
+
+                    if len(mpid_fit_list) == 1:
+                        mpid = mpid_fit_list[0]
+                    elif len(mpid_fit_list) > 1:
+                        num_mpid_list = [int(mp.split('-')[1]) for mp in mpid_fit_list]
+                        num_mpid_list.sort()
+                        mpid  = 'mp-'+str(num_mpid_list[0])
+                        print("Multiple mp-ids found for bulk structure:{}\nWill use lowest number mpid "
+                              "for bulk band structure = {}.".format(str(mpid_fit_list), mpid))
+                    else:
+                        print("Could not find bulk structure in MP database after tying the following list:\n{}"
+                              "Continuing with band_status_from_MP=False.".format( mplist))
+                        mpid = None
 
                     if mpid:
                         with MPRester() as mp:
