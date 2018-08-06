@@ -75,7 +75,13 @@ class TaskDefectBuilder(object):
         self.list_of_tasks = list_of_tasks
         self.compatibility = compatibility
 
-    def process_entries(self, run_compatibility=False):
+    def process_entries(self, run_compatibility=False, gga_run=True):
+        """
+
+        :param run_compatibility:
+        :param gga_run:  needed to determine whether MP entry is relevant for parsing or not
+        :return:
+        """
         #first load up bulk and dielectric information
         bulk_data = {} #has keys based on scaling_matrix, values contain essential information needed for each defect entry
         diel_data = {}
@@ -155,6 +161,10 @@ class TaskDefectBuilder(object):
                     else:
                         print("Could not find bulk structure in MP database after tying the following list:\n{}"
                               "Continuing with band_status_from_MP=False.".format( mplist))
+                        mpid = None
+
+                    if not gga_run:
+                        print("This is NOT a gga run! So forcing band_status_from_MP=False.")
                         mpid = None
 
                     if mpid:
