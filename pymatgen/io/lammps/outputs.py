@@ -120,10 +120,15 @@ def parse_lammps_dumps(file_pattern):
 
     for fname in files:
         with zopen(fname, "rt") as f:
-            run = f.read()
-        dumps = run.split("ITEM: TIMESTEP")[1:]
-        for d in dumps:
-            yield LammpsDump.from_string(d)
+            dump_cache = []
+            for line in f:
+                if line.startswith("ITEM: TIMESTEP"):
+                    if len(dump_cache) > 0:
+                        yield LammpsDump.from_string("".join(dump_cache))
+                    dump_cache = [line]
+                else:
+                    dump_cache.append(line)
+            yield LammpsDump.from_string("".join(dump_cache))
 
 
 def parse_lammps_log(filename="log.lammps"):
