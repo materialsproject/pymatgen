@@ -1560,6 +1560,10 @@ class MoleculeGraph(MSONable):
         """
         Find ring structures in the MoleculeGraph.
 
+        NOTE: Currently, this function behaves as
+        expected for single rings, but fails (miserably)
+        on molecules with more than one ring.
+
         :param including: list of site indices. If
         including is not None, then find_rings will
         only return those rings including the specified
