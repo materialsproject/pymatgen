@@ -165,7 +165,7 @@ class TaskDefectBuilder(object):
 
                 if 'locpot' in task['calcs_reversed'][0]['output'].keys():
                     bulklpt = task['calcs_reversed'][0]['output']['locpot']
-                    bulk_planar_averages = [bulklpt[ax] for ax in range(3)]
+                    bulk_planar_averages = [bulklpt[str(ax)] for ax in range(3)]
                     bulk_data[repr(scaling_matrix)]['bulk_planar_averages'] = bulk_planar_averages
                 else:
                     print('bulk supercell {} does not have locpot values for parsing'.format(scaling_matrix))
@@ -260,7 +260,7 @@ class TaskDefectBuilder(object):
             #Load information for Freysoldt related parsing
             if 'locpot' in defect_task['calcs_reversed'][0]['output'].keys():
                 deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
-                defect_planar_averages = [deflpt[ax] for ax in range(3)]
+                defect_planar_averages = [deflpt[str(ax)] for ax in range(3)]
                 abc = bulk_struct_sc.lattice.abc
                 axis_grid = []
                 for ax in range(3):
