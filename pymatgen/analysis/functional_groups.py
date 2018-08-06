@@ -290,16 +290,15 @@ class FunctionalGroupExtractor:
                         num_deviants += 1
 
                 if num_deviants <= 1:
-                    hydrogens = set()
                     for node in ring:
                         neighbors = self.molgraph.graph[node]
 
                         # Add hydrogens to the functional group
                         for neighbor in neighbors.keys():
                             if neighbor in hydrogens:
-                                hydrogens.add(neighbor)
+                                ring.add(neighbor)
 
-                    results.append(ring.union(hydrogens))
+                    results.append(ring)
 
         return results
 
