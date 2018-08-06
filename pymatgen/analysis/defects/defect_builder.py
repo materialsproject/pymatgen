@@ -101,12 +101,30 @@ class TaskDefectBuilder(object):
                 diel_data.update( {'epsilon_ionic': eps_ionic, 'epsilon_static':  eps_static,
                                    'dielectric': eps_total})
 
-            elif 'history' not in task['transformations'].keys() and ('HFSCREEN' not in task['input']['incar'].keys()):
+            #assume that if not already identified as a defect , then a hybrid level calculation will yield additional
+            # band structure information is given by task which has 'HFSCREEN' in incar...
+            #TODO: figure out a better way to see if a hybrid BS caclulation is being suppled for band edge corrections?
+            elif 'history' not in task['transformations'].keys() and 'HFSCREEN' in task['input']['incar'].keys():
+                hybrid_cbm = task['output']['cbm']
+                hybrid_vbm = task['output']['vbm']
+                hybrid_gap = task['output']['bandgap']
+
+                #this is a check up to see if hybrid task already loaded? for danny...
+                if hybrid_level_data:
+                    raise ValueError("Hybrid level data already parsed? How to deal with this?")
+
+                hybrid_level_data.update( {'hybrid_cbm': hybrid_cbm, 'hybrid_vbm': hybrid_vbm,
+                                           'hybrid_gap': hybrid_gap})
+
+            elif 'history' not in task['transformations'].keys():
                 # Had to add the HFSCREEN piece too because hybrids might not have transformations in them...
                 # if it is a defect hybrid run and doesnt have a history in transformations,
                 # then user is really wrong about how to use this...
                 print("ERROR: task with directory\n{}\ndoes not have a transformations history. "
                       "cannot parse this with defect_builder.".format(task['dir_name']))
+
+            elif 'defect' in task['transformations']['history'][0].keys():
+                defect_task_list.append(task)
 
             #call it a bulk calculation if transformation class is just a SupercellTranformation
             elif 'SupercellTransformation' == task['transformations']['history'][0]['@class']:
@@ -178,25 +196,6 @@ class TaskDefectBuilder(object):
                 else:
                     print('bulk supercell {} does not have outcar values for parsing'.format(scaling_matrix))
 
-
-
-            elif 'defect' in task['transformations']['history'][0].keys():
-                defect_task_list.append(task)
-
-            #assume that if not already identified as a defect , then a hybrid level calculation will yield additional
-            # band structure information is given by task which has 'HFSCREEN' in incar...
-            #TODO: figure out a better way to see if a hybrid BS caclulation is being suppled for band edge corrections?
-            elif 'HFSCREEN' in task['input']['incar'].keys():
-                hybrid_cbm = task['output']['cbm']
-                hybrid_vbm = task['output']['vbm']
-                hybrid_gap = task['output']['bandgap']
-
-                #this is a check up to see if hybrid task already loaded? for danny...
-                if hybrid_level_data:
-                    raise ValueError("Hybrid level data already parsed? How to deal with this?")
-
-                hybrid_level_data.update( {'hybrid_cbm': hybrid_cbm, 'hybrid_vbm': hybrid_vbm,
-                                           'hybrid_gap': hybrid_gap})
 
         # """TO BE REMOVED WHEN FULL DATABASE APPROACH USED"""
         # if os.path.exists('corr_history_temp.json'):
