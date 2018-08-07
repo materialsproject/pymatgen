@@ -1503,7 +1503,7 @@ class IStructure(SiteCollection, MSONable):
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
             \*\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
-                the passing of parameters like symprec to the to
+                the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric cifs.
 
         Returns:
@@ -1530,29 +1530,23 @@ class IStructure(SiteCollection, MSONable):
             if filename:
                 with zopen(filename, "wt") as f:
                     f.write("%s" % s)
-                return
-            else:
-                return s
+            return s
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
             from pymatgen.io.xcrysden import XSF
+            s = XSF(self).to_string()
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    s = XSF(self).to_string()
                     f.write(s)
-                    return s
-            else:
-                return XSF(self).to_string()
+            return s
         elif fmt == 'mcsqs' or fnmatch(fname, "*rndstr.in*") \
                 or fnmatch(fname, "*lat.in*") \
                 or fnmatch(fname, "*bestsqs*"):
             from pymatgen.io.atat import Mcsqs
+            s = Mcsqs(self).to_string()
             if filename:
                 with zopen(fname, "wt", encoding='ascii') as f:
-                    s = Mcsqs(self).to_string()
                     f.write(s)
-                    return
-            else:
-                return Mcsqs(self).to_string()
+            return s
         else:
             import ruamel.yaml as yaml
             if filename:
