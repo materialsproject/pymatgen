@@ -554,14 +554,14 @@ class QCOutput(MSONable):
         """
         temp_dict = read_pattern(
             self.text, {
-                "final_energy_sp":
+                "final_energy":
                     r"\s*SCF\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
             })
 
-        if temp_dict.get('final_energy_sp') == None:
-            self.data['final_energy_sp'] = None
+        if temp_dict.get('final_energy') == None:
+            self.data['final_energy'] = None
         else:
-            self.data['final_energy_sp'] = float(temp_dict.get('final_energy_sp')[-1][0])
+            self.data['final_energy'] = float(temp_dict.get('final_energy')[-1][0])
 
     def _read_pcm_information(self):
         """

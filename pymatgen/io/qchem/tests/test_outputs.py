@@ -57,7 +57,6 @@ property_list = {"errors",
                  "frequencies",
                  "IR_intens",
                  "IR_active",
-                 "final_energy_sp",
                  "g_electrostatic",
                  "g_cavitation",
                  "g_dispersion",
@@ -119,7 +118,7 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/1746.qout",
                         "new_qchem_files/1570.qout",
                         "new_qchem_files/1570_2.qout",
-                        "new_qchem_files/single_point.qout.sp"}
+                        "new_qchem_files/single_point.qout"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
                        "new_qchem_files/VC_solv_eps10.qcout",
@@ -161,11 +160,11 @@ class TestQCOutput(PymatgenTest):
         dumpfn(multi_job_dict, "multi_job.json")
 
     def _test_property(self, key, single_outs, multi_outs):
-        for name, output in single_outs.items():
+        for name, outdata in single_outs.items():
             try:
-                self.assertEqual(output.data.get(key), single_job_dict[name].get(key))
+                self.assertEqual(outdata.get(key), single_job_dict[name].get(key))
             except ValueError:
-                self.assertArrayEqual(output.data.get(key), single_job_dict[name].get(key))
+                self.assertArrayEqual(outdata.get(key), single_job_dict[name].get(key))
         for name, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
@@ -176,7 +175,7 @@ class TestQCOutput(PymatgenTest):
     def test_all(self):
         single_outs = dict()
         for file in single_job_out_names:
-            single_outs[file] = QCOutput(os.path.join(test_dir, file))
+            single_outs[file] = QCOutput(os.path.join(test_dir, file)).data
 
         multi_outs = dict()
         for file in multi_job_out_names:
