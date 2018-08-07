@@ -98,7 +98,7 @@ class QChemDictSet(QCInput):
         if self.pcm_dielectric is not None and self.smd_solvent is not None:
             raise ValueError("Only one of pcm or smd may be used for solvation.")
 
-        if self.pcm_dielectric != None:
+        if self.pcm_dielectric is not None:
             mypcm = pcm_defaults
             mysolvent["dielectric"] = self.pcm_dielectric
             myrem["solvent_method"] = 'pcm'
