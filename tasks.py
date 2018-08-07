@@ -253,7 +253,7 @@ def release(ctx, notest=False):
         ctx.run("nosetests")
     publish(ctx)
     log_ver(ctx)
-    update_doc(ctx)
+    # update_doc(ctx)
     merge_stable(ctx)
     release_github(ctx)
 
