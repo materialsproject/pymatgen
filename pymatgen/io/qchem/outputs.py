@@ -537,6 +537,67 @@ class QCOutput(MSONable):
 
             self.data["frequency_mode_vectors"] = freq_mode_vecs
 
+    def _read_single_point_data(self):
+        """
+        Parses final free energy information from single-point calculations.
+        """
+        temp_dict = read_pattern(
+            self.text, {
+                "final_energy":
+                    r"\s*SCF\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
+            })
+
+        if temp_dict.get('final_energy') == None:
+            self.data['final_energy_sp'] = None
+        else:
+            self.data['final_energy_sp'] = float(temp_dict.get('final_energy')[-1][0])
+
+    def _read_pcm_information(self):
+        """
+        Parses information from PCM solvent calculations.
+        """
+
+        temp_dict = read_pattern(
+            self.text, {
+                "g_electrostatic": r"\s*G_electrostatic\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "g_cavitation": r"\s*G_cavitation\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "g_dispersion": r"\s*G_dispersion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "g_repulsion": r"\s*G_repulsion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "total_contribution_pcm": r"\s*Total\s+=\s+([\d\-\.]+)\s+hartree\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "total_free_energy_pcm": r"\s*Total Free Energy \(H0 \+ V/2 \+ non-elec\)\s+=\s+([\d\-\.]+)\s+hartree\s*\n\s+=\s+([\d\-\.]+)\s+kcal/mol\s*"
+            }
+        )
+
+        if temp_dict.get("g_electrostatic") is None:
+            self.data["g_electrostatic"] = []
+        else:
+            self.data["g_electrostatic"] = float(temp_dict.get("g_electrostatic")[0][0])
+
+        if temp_dict.get("g_cavitation") is None:
+            self.data["g_cavitation"] = []
+        else:
+            self.data["g_cavitation"] = float(temp_dict.get("g_cavitation")[0][0])
+
+        if temp_dict.get("g_dispersion") is None:
+            self.data["g_dispersion"] = []
+        else:
+            self.data["g_dispersion"] = float(temp_dict.get("g_dispersion")[0][0])
+
+        if temp_dict.get("g_repulsion") is None:
+            self.data["g_repulsion"] = []
+        else:
+            self.data["g_repulsion"] = float(temp_dict.get("g_repulsion")[0][0])
+
+        if temp_dict.get("total_contribution_pcm") is None:
+            self.data["total_contribution_pcm"] = []
+        else:
+            self.data["total_contribution_pcm"] = float(temp_dict.get("total_contribution_pcm")[0][0])
+
+        if temp_dict.get("total_free_energy_pcm") is None:
+            self.data["total_free_energy_pcm"] = []
+        else:
+            self.data["total_free_energy_pcm"] = float(temp_dict.get("total_free_energy_pcm")[0][0])
+
     def _check_optimization_errors(self):
         """
         Parses three potential optimization errors: failing to converge within the allowed number
