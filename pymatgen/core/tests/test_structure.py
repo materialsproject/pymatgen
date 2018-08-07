@@ -414,6 +414,8 @@ class IStructureTest(PymatgenTest):
             self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
             self.assertIsInstance(ss, IStructure)
 
+        self.assertTrue("Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1))
+
         self.struct.to(filename="POSCAR.testing")
         self.assertTrue(os.path.exists("POSCAR.testing"))
         os.remove("POSCAR.testing")
