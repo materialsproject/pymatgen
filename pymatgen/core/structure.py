@@ -1490,7 +1490,7 @@ class IStructure(SiteCollection, MSONable):
         charge = d.get("charge", None)
         return cls.from_sites(sites, charge=charge)
 
-    def to(self, fmt=None, filename=None, **kwargs):
+    def to(self, fmt=None, filename=None, symprec=None, **kwargs):
         """
         Outputs the structure to a file or string.
 
@@ -1502,6 +1502,9 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
+            symprec (float): If not none, finds the symmetry of the structure
+                and writes the cif with symmetry information. Passes symprec
+                to the SpacegroupAnalyzer. Only used when saving to cif
 
         Returns:
             (str) if filename is None. None otherwise.
@@ -1516,7 +1519,7 @@ class IStructure(SiteCollection, MSONable):
         fname = os.path.basename(filename)
 
         if fmt == "cif" or fnmatch(fname, "*.cif*"):
-            writer = CifWriter(self)
+            writer = CifWriter(self, symprec=symprec)
         elif fmt == "mcif" or fnmatch(fname, "*.mcif*"):
             writer = CifWriter(self, write_magmoms=True)
         elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):

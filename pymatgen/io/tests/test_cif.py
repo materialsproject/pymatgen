@@ -1337,6 +1337,90 @@ loop_
         cw = CifWriter(s_manual, write_magmoms=True)
         self.assertEqual(cw.__str__(), cw_manual_oxi_string)
 
+        lattice = Lattice.cubic(4.2)
+        s_simmetry = Structure(lattice, ["Cs", "Cl"],[[0, 0, 0], [0.5, 0.5, 0.5]])
+        cw = CifWriter(s_simmetry, symprec=0.01)
+
+        # check oxidation state
+        cw_simmetry = """# generated using pymatgen
+data_CsCl
+_symmetry_space_group_name_H-M   Pm-3m
+_cell_length_a   4.20000000
+_cell_length_b   4.20000000
+_cell_length_c   4.20000000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   221
+_chemical_formula_structural   CsCl
+_chemical_formula_sum   'Cs1 Cl1'
+_cell_volume   74.08800000
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-y, x, z'
+  4  'y, -x, -z'
+  5  '-x, -y, z'
+  6  'x, y, -z'
+  7  'y, -x, z'
+  8  '-y, x, -z'
+  9  'x, -y, -z'
+  10  '-x, y, z'
+  11  '-y, -x, -z'
+  12  'y, x, z'
+  13  '-x, y, -z'
+  14  'x, -y, z'
+  15  'y, x, -z'
+  16  '-y, -x, z'
+  17  'z, x, y'
+  18  '-z, -x, -y'
+  19  'z, -y, x'
+  20  '-z, y, -x'
+  21  'z, -x, -y'
+  22  '-z, x, y'
+  23  'z, y, -x'
+  24  '-z, -y, x'
+  25  '-z, x, -y'
+  26  'z, -x, y'
+  27  '-z, -y, -x'
+  28  'z, y, x'
+  29  '-z, -x, y'
+  30  'z, x, -y'
+  31  '-z, y, x'
+  32  'z, -y, -x'
+  33  'y, z, x'
+  34  '-y, -z, -x'
+  35  'x, z, -y'
+  36  '-x, -z, y'
+  37  '-y, z, -x'
+  38  'y, -z, x'
+  39  '-x, z, y'
+  40  'x, -z, -y'
+  41  '-y, -z, x'
+  42  'y, z, -x'
+  43  '-x, -z, -y'
+  44  'x, z, y'
+  45  'y, -z, -x'
+  46  '-y, z, x'
+  47  'x, -z, y'
+  48  '-x, z, -y'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Cs  Cs1  1  0.000000  0.000000  0.000000  1
+  Cl  Cl2  1  0.500000  0.500000  0.500000  1
+"""
+
+        self.assertEqual(cw.__str__(), cw_simmetry)
+
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):
 
