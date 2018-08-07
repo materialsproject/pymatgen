@@ -451,7 +451,7 @@ class QCOutput(MSONable):
         if is_isomorphic(initial_graph, last_graph):
             self.data["structure_change"] = "no_change"
         else:
-            if nx.is_connected(initial_graph) and not nx.is_connected(last_graph):
+            if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
                 self.data["structure_change"] = "unconnected_fragments"
             elif last_graph.number_of_edges() < initial_graph.number_of_edges():
                 self.data["structure_change"] = "fewer_bonds"
@@ -631,7 +631,7 @@ def build_MoleculeGraph(molecule, edges=None):
     mol_graph = MoleculeGraph.with_empty_graph(molecule)
     for edge in edges:
         mol_graph.add_edge(edge[0], edge[1])
-    mol_graph.graph = mol_graph.graph.to_undirected()
+    # mol_graph.graph = mol_graph.graph.to_undirected()
     species = {}
     coords = {}
     for node in mol_graph.graph:
@@ -647,4 +647,4 @@ def _node_match(node, othernode):
 
 
 def is_isomorphic(graph1, graph2):
-    return nx.is_isomorphic(graph1, graph2, node_match=_node_match)
+    return nx.is_isomorphic(graph1.to_undirected(), graph2.to_undirected(), node_match=_node_match)
