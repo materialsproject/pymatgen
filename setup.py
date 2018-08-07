@@ -119,6 +119,7 @@ setup(
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.analysis.hhi": ["*.csv"],
                   "pymatgen.io.vasp": ["*.yaml"],
+                  "pymatgen.io.lammps": ["templates/*.*"],
                   "pymatgen.io.feff": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml", "*.json"],
                   "pymatgen.entries": ["*.yaml"],
