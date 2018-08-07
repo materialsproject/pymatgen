@@ -51,6 +51,7 @@ __all__ = [
     "RelaxTask",
     "DdkTask",
     "PhononTask",
+    "ElasticTask",
     "SigmaTask",
     "EphTask",
     "OpticTask",
