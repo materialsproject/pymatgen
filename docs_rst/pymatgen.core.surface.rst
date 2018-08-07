@@ -1,5 +1,5 @@
-pymatgen.core.surface module
-============================
+pymatgen\.core\.surface module
+==============================
 
 .. automodule:: pymatgen.core.surface
     :members:

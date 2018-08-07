@@ -1,5 +1,5 @@
-pymatgen.io.atat module
-=======================
+pymatgen\.io\.atat module
+=========================
 
 .. automodule:: pymatgen.io.atat
     :members:

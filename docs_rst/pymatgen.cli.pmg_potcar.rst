@@ -1,5 +1,5 @@
-pymatgen.cli.pmg\_potcar module
-===============================
+pymatgen\.cli\.pmg\_potcar module
+=================================
 
 .. automodule:: pymatgen.cli.pmg_potcar
     :members:
