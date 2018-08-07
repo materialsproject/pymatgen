@@ -4,21 +4,12 @@
 
 from __future__ import division, unicode_literals
 
-import re
-import csv
-import collections
-import itertools
-from io import open
-import math
-from six.moves import zip
 import logging
 
-from monty.json import MSONable, MontyDecoder
-
-import numpy as np
+from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchem.outputs import edges_from_babel, build_MoleculeGraph, is_isomorphic
+from pymatgen.io.qchem.outputs import build_MoleculeGraph, is_isomorphic
 import networkx as nx
 
 # have_babel = True
@@ -29,10 +20,6 @@ import networkx as nx
 #     print("Cannot find OpenBabel! Thus, bonds must be provided by the user.")
 #     have_babel = False
 
-
-"""
-This module defines tools to calculate bond dissocation energies.
-"""
 
 __author__ = "Samuel Blau"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -58,7 +45,7 @@ class BondDissociationEnergies(MSONable):
         Get list of all bonds in target molecule
         Build molecule graph of target molecule
         Loop through bonds aka edges and attempt to split into disconnected subgraphs
-            On success: 
+            On success:
                 Search through fragments: find entries with initial OR final molecules which are isomorphic
                 Should be three entires per fragment: original charge, OC+1, OC-1
                 If there are too few entries:
@@ -96,11 +83,11 @@ class BondDissociationEnergies(MSONable):
                     Calculate E_frag1(+1) + E_frag2(-2)?
                 Don't limit - just make final charge add to original charge
                 Save E_molecule - calculated values associated with bond indices & charges in some data structure
-            On failure: 
+            On failure:
                 Track bonds that do not break to yield subgraphs as ring bonds
         Make all possible pairs of ring bonds
         Loop through ring bond pairs and attempt to split into disconnected subgraphs
-            Same success/failure procedure as above. Should be wrapped in a function. 
+            Same success/failure procedure as above. Should be wrapped in a function.
         Resolve individual rings
         Attempt to solve for single ring bond dissociation energies, careful with charge
 
