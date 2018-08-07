@@ -1253,6 +1253,52 @@ class MoleculeGraph(MSONable):
             self.graph.add_edge(from_index, to_index,
                                 **edge_properties)
 
+    def insert_node(self, i, species, coords, validate_proximity=False,
+                    site_properties=None, edges=None):
+        """
+        A wrapper around Molecule.insert(), which also incorporates the new
+        site into the MoleculeGraph.
+
+        :param i: Index at which to insert the new site
+        :param species: Species for the new site
+        :param coords: 3x1 array representing coordinates of the new site
+        :param validate_proximity: For Molecule.insert(); if True (default
+            False), distance will be checked to ensure that site can be safely
+            added.
+        :param site_properties: Site properties for Molecule
+        :param edges: List of dicts representing edges to be added to the
+            MoleculeGraph. These edges must include the index of the new site i,
+            and all indices used for these edges should reflect the
+            MoleculeGraph AFTER the insertion, NOT before. Each dict should at
+            least have a "to_index" and "from_index" key, and can also have a
+            "weight" and a "properties" key.
+        :return:
+        """
+
+        self.molecule.insert(i, species, coords,
+                             validate_proximity=validate_proximity,
+                             properties=site_properties)
+
+        mapping = {}
+        for j, s in enumerate(self.molecule):
+            if j < i:
+                mapping[j] = j
+            else:
+                mapping[j] = j + 1
+        nx.relabel_nodes(self.graph, mapping)
+
+        self.graph.add_node(i)
+        self.set_node_attributes()
+
+        if edges is not None:
+            for edge in edges:
+                try:
+                    self.add_edge(edge["from_index"], edge["to_index"],
+                                  weight=edge.get("weight", None),
+                                  edge_properties=edge.get("properties", None))
+                except KeyError:
+                    raise RuntimeError("Some edges are invalid.")
+
     def set_node_attributes(self):
         """
         Gives each node a "specie" and a "coords" attribute, updated with the
@@ -1337,9 +1383,29 @@ class MoleculeGraph(MSONable):
                                 from_index, to_index
                                 ))
 
-    def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
+    def remove_nodes(self, indices):
         """
-        Split MoleculeGraph into two MoleculeGraphs by
+        A wrapper for Molecule.remove_sites().
+
+        :param indices: list of indices in the current Molecule (and graph) to
+            be removed.
+        :return:
+        """
+
+        self.molecule.remove_sites(indices)
+        self.graph.remove_nodes_from(indices)
+
+        mapping = {}
+        for correct, current in enumerate(self.graph.nodes):
+            mapping[current] = correct
+
+        nx.relabel_nodes(self.graph, mapping)
+        self.set_node_attributes()
+
+    def split_molecule_subgraphs(self, bonds, allow_reverse=False,
+                                 alterations=None):
+        """
+        Split MoleculeGraph into two or more MoleculeGraphs by
         breaking a set of bonds. This function uses
         MoleculeGraph.break_edge repeatedly to create
         disjoint graphs (two or more separate molecules).
@@ -1347,8 +1413,8 @@ class MoleculeGraph(MSONable):
         information, but also changes the underlying
         Moledules.
         If the bonds parameter does not include sufficient
-        bonds to separate two bonds, then this function will
-        fail.
+        bonds to separate two molecule fragments, then this
+        function will fail.
         Currently, this function naively assigns the charge
         of the total molecule to a single submolecule. A
         later effort will be to actually accurately assign
@@ -1396,7 +1462,7 @@ class MoleculeGraph(MSONable):
 
             # Had to use nx.weakly_connected_components because of deprecation
             # of nx.weakly_connected_component_subgraphs
-            components = nx. weakly_connected_components(original.graph)
+            components = nx.weakly_connected_components(original.graph)
             subgraphs = [original.graph.subgraph(c) for c in components]
 
             for subg in subgraphs:
@@ -1436,7 +1502,8 @@ class MoleculeGraph(MSONable):
             return sub_mols
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1,
-                         graph_dict=None, strategy_params=None):
+                         graph_dict=None, strategy_params=None, reorder=True,
+                         extend_structure=True):
         """
         Builds off of Molecule.substitute to replace an atom in self.molecule
         with a functional group. This method also amends self.graph to
@@ -1473,6 +1540,11 @@ class MoleculeGraph(MSONable):
                 a list of strategies defined in pymatgen.analysis.local_env.
         :param strategy_params: dictionary of keyword arguments for strategy.
                 If None, default parameters will be used.
+        :param reorder: bool, representing if graph nodes need to be reordered
+                following the application of the local_env strategy
+        :param extend_structure: If True (default), then a large artificial box
+                will be placed around the Molecule, because some strategies assume
+                periodic boundary conditions.
         :return:
         """
 
@@ -1536,7 +1608,8 @@ class MoleculeGraph(MSONable):
                 if strategy_params is None:
                     strategy_params = {}
                 strat = strategy(**strategy_params)
-                graph = self.with_local_env_strategy(func_grp, strat)
+                graph = self.with_local_env_strategy(func_grp, strat, reorder=reorder,
+                                                     extend_structure=extend_structure)
 
                 for (u, v) in list(graph.graph.edges()):
                     edge_props = graph.graph.get_edge_data(u, v)[0]
@@ -1551,6 +1624,91 @@ class MoleculeGraph(MSONable):
 
                     self.add_edge(mapping[u], mapping[v],
                                   weight=weight, edge_properties=edge_props)
+
+    def replace_group(self, index, func_grp, strategy, bond_order=1,
+                      graph_dict=None, strategy_params=None, reorder=True,
+                      extend_structure=True):
+        """
+        Builds off of Molecule.substitute and MoleculeGraph.substitute_group
+        to replace a functional group in self.molecule with a functional group.
+        This method also amends self.graph to incorporate the new functional
+        group.
+
+        TODO: Figure out how to replace into a ring structure.
+
+        :param index: Index of atom to substitute.
+        :param func_grp: Substituent molecule. There are three options:
+
+                1. Providing an actual molecule as the input. The first atom
+                   must be a DummySpecie X, indicating the position of
+                   nearest neighbor. The second atom must be the next
+                   nearest atom. For example, for a methyl group
+                   substitution, func_grp should be X-CH3, where X is the
+                   first site and C is the second site. What the code will
+                   do is to remove the index site, and connect the nearest
+                   neighbor to the C atom in CH3. The X-C bond indicates the
+                   directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                   relevant template in func_groups.json.
+                3. A MoleculeGraph object.
+        :param strategy: Class from pymatgen.analysis.local_env.
+        :param bond_order: A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
+        :param graph_dict: Dictionary representing the bonds of the functional
+                group (format: {(u, v): props}, where props is a dictionary of
+                properties, including weight. If None, then the algorithm
+                will attempt to automatically determine bonds using one of
+                a list of strategies defined in pymatgen.analysis.local_env.
+        :param strategy_params: dictionary of keyword arguments for strategy.
+                If None, default parameters will be used.
+        :param reorder: bool, representing if graph nodes need to be reordered
+                following the application of the local_env strategy
+        :param extend_structure: If True (default), then a large artificial box
+                will be placed around the Molecule, because some strategies assume
+                periodic boundary conditions.
+        :return:
+        """
+
+        self.set_node_attributes()
+        species = nx.get_node_attributes(self.graph, 'specie')
+        neighbors = self.get_connected_sites(index)
+
+        # If the atom at index is terminal
+        if len(neighbors) == 1:
+            self.substitute_group(index, func_grp, strategy,
+                                  bond_order=bond_order, graph_dict=graph_dict,
+                                  strategy_params=strategy_params,
+                                  reorder=reorder,
+                                  extend_structure=extend_structure)
+
+        else:
+            rings = self.find_rings(including=[index])
+            if len(rings) != 0:
+                raise RuntimeError("Currently functional group replacement"
+                                   "cannot occur at an atom within a ring"
+                                   "structure.")
+
+            to_remove = set()
+            sizes = dict()
+            disconnected = self.graph.to_undirected()
+            disconnected.remove_node(index)
+            for neighbor in neighbors:
+                sizes[neighbor[2]] = len(nx.descendants(disconnected, neighbor[2]))
+
+            keep = max(sizes, key=lambda x: sizes[x])
+            for i in sizes.keys():
+                if i != keep:
+                    to_remove.add(i)
+
+            self.remove_nodes(list(to_remove))
+
+            self.substitute_group(index, func_grp, strategy,
+                                  bond_order=bond_order, graph_dict=graph_dict,
+                                  strategy_params=strategy_params,
+                                  reorder=reorder,
+                                  extend_structure=extend_structure)
+
 
     def find_rings(self, including=None):
         """
@@ -1620,18 +1778,30 @@ class MoleculeGraph(MSONable):
         out_edges = [(u, v, d) for u, v, d in self.graph.out_edges(n, data=True)]
         in_edges = [(u, v, d) for u, v, d in self.graph.in_edges(n, data=True)]
 
-        for u, v, d in out_edges + in_edges:
+        print(out_edges + in_edges)
 
-            site = self.molecule[v]
-            dist = self.molecule[u].distance(self.molecule[v])
+        for u, v, d in out_edges + in_edges:
 
             weight = d.get('weight', None)
 
-            connected_site = ConnectedSite(site=site,
-                                           jimage=(0, 0, 0),
-                                           index=v,
-                                           weight=weight,
-                                           dist=dist)
+            if v == n:
+                site = self.molecule[u]
+                dist = self.molecule[v].distance(self.molecule[u])
+
+                connected_site = ConnectedSite(site=site,
+                                               jimage=(0, 0, 0),
+                                               index=u,
+                                               weight=weight,
+                                               dist=dist)
+            else:
+                site = self.molecule[v]
+                dist = self.molecule[u].distance(self.molecule[v])
+
+                connected_site = ConnectedSite(site=site,
+                                               jimage=(0, 0, 0),
+                                               index=v,
+                                               weight=weight,
+                                               dist=dist)
 
             connected_sites.add(connected_site)
 
