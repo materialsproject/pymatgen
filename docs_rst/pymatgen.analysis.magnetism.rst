@@ -1,5 +1,5 @@
-pymatgen.analysis.magnetism package
-===================================
+pymatgen\.analysis\.magnetism package
+=====================================
 
 Submodules
 ----------

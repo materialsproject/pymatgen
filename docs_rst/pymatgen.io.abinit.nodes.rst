@@ -1,5 +1,5 @@
-pymatgen.io.abinit.nodes module
-===============================
+pymatgen\.io\.abinit\.nodes module
+==================================
 
 .. automodule:: pymatgen.io.abinit.nodes
     :members:

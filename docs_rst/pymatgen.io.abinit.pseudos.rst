@@ -1,5 +1,5 @@
-pymatgen.io.abinit.pseudos module
-=================================
+pymatgen\.io\.abinit\.pseudos module
+====================================
 
 .. automodule:: pymatgen.io.abinit.pseudos
     :members:
