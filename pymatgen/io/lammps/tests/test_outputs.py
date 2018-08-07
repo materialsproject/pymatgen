@@ -67,18 +67,19 @@ class LammpsDumpTest(unittest.TestCase):
 
 class FuncTest(unittest.TestCase):
 
-    @staticmethod
-    def test_parse_lammps_dumps():
+    def test_parse_lammps_dumps(self):
         # gzipped
         rdx_10_pattern = os.path.join(test_dir, "dump.rdx.gz")
         rdx_10 = list(parse_lammps_dumps(file_pattern=rdx_10_pattern))
         timesteps_10 = [d.timestep for d in rdx_10]
         np.testing.assert_array_equal(timesteps_10, np.arange(0, 101, 10))
+        self.assertTupleEqual(rdx_10[-1].data.shape, (21, 5))
         # wildcard
         rdx_25_pattern = os.path.join(test_dir, "dump.rdx_wc.*")
         rdx_25 = list(parse_lammps_dumps(file_pattern=rdx_25_pattern))
         timesteps_25 = [d.timestep for d in rdx_25]
         np.testing.assert_array_equal(timesteps_25, np.arange(0, 101, 25))
+        self.assertTupleEqual(rdx_25[-1].data.shape, (21, 5))
 
     def test_parse_lammps_log(self):
         comb_file = "log.5Oct16.comb.Si.elastic.g++.1"

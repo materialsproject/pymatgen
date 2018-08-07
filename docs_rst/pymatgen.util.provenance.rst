@@ -1,5 +1,5 @@
-pymatgen.util.provenance module
-===============================
+pymatgen\.util\.provenance module
+=================================
 
 .. automodule:: pymatgen.util.provenance
     :members:

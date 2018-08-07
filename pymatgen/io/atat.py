@@ -2,7 +2,6 @@
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
 
-import re
 from pymatgen import Structure, Lattice, Specie, DummySpecie
 import numpy as np
 
@@ -16,6 +15,7 @@ __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
 __status__ = "Production"
 __date__ = "October 2017"
+
 
 class Mcsqs:
 
@@ -52,9 +52,9 @@ class Mcsqs:
                 species_str.append("{}={}".format(sp, occu))
             species_str = ",".join(species_str)
             output.append("{:6f} {:6f} {:6f} {}".format(site.frac_coords[0],
-                                               site.frac_coords[1],
-                                               site.frac_coords[2],
-                                               species_str))
+                                                        site.frac_coords[1],
+                                                        site.frac_coords[2],
+                                                        species_str))
 
         return "\n".join(output)
 
@@ -69,10 +69,10 @@ class Mcsqs:
         """
 
         data = data.splitlines()
-        data = [x.split() for x in data if x] # remove empty lines
+        data = [x.split() for x in data if x]  # remove empty lines
 
         # following specification/terminology given in manual
-        if len(data[0]) == 6: # lattice parameters
+        if len(data[0]) == 6:  # lattice parameters
             a, b, c, alpha, beta, gamma = map(float, data[0])
             coord_system = Lattice.from_parameters(a, b, c,
                                                    alpha, beta, gamma).matrix
@@ -104,9 +104,9 @@ class Mcsqs:
 
             all_coords.append(np.array([l[0], l[1], l[2]], dtype=float))
 
-            species_strs = "".join(l[3:]) # join multiple strings back together
-            species_strs = species_strs.replace(" ", "") # trim any white space
-            species_strs = species_strs.split(",") # comma-delimited
+            species_strs = "".join(l[3:])  # join multiple strings back together
+            species_strs = species_strs.replace(" ", "")  # trim any white space
+            species_strs = species_strs.split(",")  # comma-delimited
 
             species = {}
 

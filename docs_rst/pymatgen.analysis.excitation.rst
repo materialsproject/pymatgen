@@ -1,5 +1,5 @@
-pymatgen.analysis.excitation module
-===================================
+pymatgen\.analysis\.excitation module
+=====================================
 
 .. automodule:: pymatgen.analysis.excitation
     :members:

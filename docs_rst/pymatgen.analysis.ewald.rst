@@ -1,5 +1,5 @@
-pymatgen.analysis.ewald module
-==============================
+pymatgen\.analysis\.ewald module
+================================
 
 .. automodule:: pymatgen.analysis.ewald
     :members:
