@@ -56,7 +56,13 @@ property_list = {"errors",
                  "point_group",
                  "frequencies",
                  "IR_intens",
-                 "IR_active"}
+                 "IR_active",
+                 "final_energy_sp",
+                 "g_electrostatic",
+                 "g_cavitation",
+                 "g_dispersion",
+                 "g_repulsion",
+                 "total_contribution_pcm"}
 
 if have_babel:
     property_list.add("structure_change")
@@ -112,7 +118,8 @@ single_job_out_names = {"unable_to_determine_lambda_in_geom_opt.qcout",
                         "new_qchem_files/2620.qout",
                         "new_qchem_files/1746.qout",
                         "new_qchem_files/1570.qout",
-                        "new_qchem_files/1570_2.qout"}
+                        "new_qchem_files/1570_2.qout",
+                        "new_qchem_files/single_point.qout.sp"}
 
 multi_job_out_names = {"not_enough_total_memory.qcout",
                        "new_qchem_files/VC_solv_eps10.qcout",
@@ -153,29 +160,33 @@ class TestQCOutput(PymatgenTest):
             multi_job_dict[file] = data
         dumpfn(multi_job_dict, "multi_job.json")
 
-    def _test_property(self, key):
-        for file in single_job_out_names:
+    def _test_property(self, key, single_outs, multi_outs):
+        for name, output in single_outs.items():
             try:
-                self.assertEqual(QCOutput(os.path.join(test_dir, file)).data.get(
-                    key), single_job_dict[file].get(key))
+                self.assertEqual(output.data.get(key), single_job_dict[name].get(key))
             except ValueError:
-                self.assertArrayEqual(QCOutput(os.path.join(test_dir, file)).data.get(
-                    key), single_job_dict[file].get(key))
-        for file in multi_job_out_names:
-            outputs = QCOutput.multiple_outputs_from_file(
-                QCOutput, os.path.join(test_dir, file), keep_sub_files=False)
+                self.assertArrayEqual(output.data.get(key), single_job_dict[name].get(key))
+        for name, outputs in multi_outs.items():
             for ii, sub_output in enumerate(outputs):
                 try:
-                    self.assertEqual(sub_output.data.get(
-                        key), multi_job_dict[file][ii].get(key))
+                    self.assertEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
                 except ValueError:
-                    self.assertArrayEqual(sub_output.data.get(
-                        key), multi_job_dict[file][ii].get(key))
+                    self.assertArrayEqual(sub_output.data.get(key), multi_job_dict[name][ii].get(key))
 
     def test_all(self):
+        single_outs = dict()
+        for file in single_job_out_names:
+            single_outs[file] = QCOutput(os.path.join(test_dir, file))
+
+        multi_outs = dict()
+        for file in multi_job_out_names:
+            multi_outs[file] = QCOutput.multiple_outputs_from_file(QCOutput,
+                                                                   os.path.join(test_dir, file),
+                                                                   keep_sub_files=False)
+
         for key in property_list:
             print('Testing ', key)
-            self._test_property(key)
+            self._test_property(key, single_outs, multi_outs)
 
 
 if __name__ == "__main__":

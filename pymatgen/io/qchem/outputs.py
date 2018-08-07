@@ -128,6 +128,9 @@ class QCOutput(MSONable):
         # Parse the Mulliken charges
         self._read_mulliken()
 
+        # Parse PCM information
+        self._read_pcm_information()
+
         # Parse the final energy
         temp_final_energy = read_pattern(
             self.text, {
@@ -217,6 +220,14 @@ class QCOutput(MSONable):
             terminate_on_match=True).get('key')
         if self.data.get('frequency_job', []):
             self._read_frequency_data()
+
+        self.data["single_point_job"] = read_pattern(
+            self.text, {
+                "key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*sp"
+            },
+            terminate_on_match=True).get("key")
+        if self.data.get("single_point_job", []):
+            self._read_single_point_data()
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
         if not self.data.get('completion',
@@ -543,14 +554,14 @@ class QCOutput(MSONable):
         """
         temp_dict = read_pattern(
             self.text, {
-                "final_energy":
+                "final_energy_sp":
                     r"\s*SCF\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
             })
 
-        if temp_dict.get('final_energy') == None:
+        if temp_dict.get('final_energy_sp') == None:
             self.data['final_energy_sp'] = None
         else:
-            self.data['final_energy_sp'] = float(temp_dict.get('final_energy')[-1][0])
+            self.data['final_energy_sp'] = float(temp_dict.get('final_energy_sp')[-1][0])
 
     def _read_pcm_information(self):
         """
@@ -563,8 +574,7 @@ class QCOutput(MSONable):
                 "g_cavitation": r"\s*G_cavitation\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
                 "g_dispersion": r"\s*G_dispersion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
                 "g_repulsion": r"\s*G_repulsion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
-                "total_contribution_pcm": r"\s*Total\s+=\s+([\d\-\.]+)\s+hartree\s+([\d\-\.]+)\s+kcal/mol\s*",
-                "total_free_energy_pcm": r"\s*Total Free Energy \(H0 \+ V/2 \+ non-elec\)\s+=\s+([\d\-\.]+)\s+hartree\s*\n\s+=\s+([\d\-\.]+)\s+kcal/mol\s*"
+                "total_contribution_pcm": r"\s*Total\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
             }
         )
 
@@ -592,11 +602,6 @@ class QCOutput(MSONable):
             self.data["total_contribution_pcm"] = []
         else:
             self.data["total_contribution_pcm"] = float(temp_dict.get("total_contribution_pcm")[0][0])
-
-        if temp_dict.get("total_free_energy_pcm") is None:
-            self.data["total_free_energy_pcm"] = []
-        else:
-            self.data["total_free_energy_pcm"] = float(temp_dict.get("total_free_energy_pcm")[0][0])
 
     def _check_optimization_errors(self):
         """
