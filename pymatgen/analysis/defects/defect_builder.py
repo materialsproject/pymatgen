@@ -199,7 +199,10 @@ class TaskDefectBuilder(object):
 
                 if 'locpot' in task['calcs_reversed'][0]['output'].keys():
                     bulklpt = task['calcs_reversed'][0]['output']['locpot']
-                    bulk_planar_averages = [bulklpt[str(ax)] for ax in range(3)]
+                    try:
+                        bulk_planar_averages = [bulklpt[str(ax)] for ax in range(3)]
+                    except:
+                        bulk_planar_averages = [bulklpt[ax] for ax in range(3)]
                     bulk_data[repr(scaling_matrix)]['bulk_planar_averages'] = bulk_planar_averages
                 else:
                     print('bulk supercell {} does not have locpot values for parsing'.format(scaling_matrix))
