@@ -6,7 +6,7 @@ import logging
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
-# Classes for reading/manipulating/writing QChem ouput files.
+# Classes for reading/manipulating/writing QChem output files.
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
