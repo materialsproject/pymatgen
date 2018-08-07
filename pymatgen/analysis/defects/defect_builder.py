@@ -278,7 +278,10 @@ class TaskDefectBuilder(object):
             #Load information for Freysoldt related parsing
             if 'locpot' in defect_task['calcs_reversed'][0]['output'].keys():
                 deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
-                defect_planar_averages = [deflpt[str(ax)] for ax in range(3)]
+                try:
+                    defect_planar_averages = [deflpt[str(ax)] for ax in range(3)]
+                except:
+                    defect_planar_averages = [deflpt[ax] for ax in range(3)]
                 abc = bulk_struct_sc.lattice.abc
                 axis_grid = []
                 for ax in range(3):
