@@ -1513,18 +1513,18 @@ class IStructure(SiteCollection, MSONable):
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
 
-        if fmt == "cif" or fnmatch(fname, "*.cif*"):
+        if fmt == "cif" or fnmatch(fname.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
             writer = CifWriter(self, **kwargs)
-        elif fmt == "mcif" or fnmatch(fname, "*.mcif*"):
+        elif fmt == "mcif" or fnmatch(fname.lower(), "*.mcif*"):
             from pymatgen.io.cif import CifWriter
             writer = CifWriter(self, write_magmoms=True, **kwargs)
         elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):
             from pymatgen.io.vasp import Poscar
-            writer = Poscar(self)
+            writer = Poscar(self, **kwargs)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
             from pymatgen.io.cssr import Cssr
-            writer = Cssr(self)
+            writer = Cssr(self, **kwargs)
         elif fmt == "json" or fnmatch(fname.lower(), "*.json"):
             s = json.dumps(self.as_dict())
             if filename:
