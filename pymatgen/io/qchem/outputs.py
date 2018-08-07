@@ -180,9 +180,8 @@ class QCOutput(MSONable):
                 # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
                 # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
                 # to be determined.
-                if len(self.data.get("errors")) == 0 and len(
-                        self.data.get('optimized_geometry')) == 0 and len(
-                            self.data.get('optimized_zmat')) == 0:
+                if len(self.data.get("errors")) == 0 and self.data.get('optimized_geometry') is None \
+                        and len(self.data.get('optimized_zmat')) == 0:
                     self._check_optimization_errors()
 
         # Check if the calculation contains a constraint in an $opt section.
@@ -413,7 +412,7 @@ class QCOutput(MSONable):
         parsed_optimized_geometry = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern)
         if parsed_optimized_geometry == [] or None:
-            self.data["optimized_geometry"] = []
+            self.data["optimized_geometry"] = None
             header_pattern = r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
             table_pattern = r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
             footer_pattern = r"^\$end\n"
@@ -443,7 +442,7 @@ class QCOutput(MSONable):
         parsed_last_geometry = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern)
         if parsed_last_geometry == [] or None:
-            self.data["last_geometry"] = []
+            self.data["last_geometry"] = None
         else:
             self.data["last_geometry"] = process_parsed_coords(
                 parsed_last_geometry[0])
@@ -491,7 +490,7 @@ class QCOutput(MSONable):
             })
 
         if temp_dict.get('enthalpy') == None:
-            self.data['enthalpy'] = []
+            self.data['enthalpy'] = None
         else:
             self.data['enthalpy'] = float(temp_dict.get('enthalpy')[0][0])
 
@@ -561,6 +560,8 @@ class QCOutput(MSONable):
         if temp_dict.get('final_energy') == None:
             self.data['final_energy'] = None
         else:
+            # -1 in case of pcm
+            # Two lines will match the above; we want final calculation
             self.data['final_energy'] = float(temp_dict.get('final_energy')[-1][0])
 
     def _read_pcm_information(self):
@@ -579,22 +580,22 @@ class QCOutput(MSONable):
         )
 
         if temp_dict.get("g_electrostatic") is None:
-            self.data["g_electrostatic"] = []
+            self.data["g_electrostatic"] = None
         else:
             self.data["g_electrostatic"] = float(temp_dict.get("g_electrostatic")[0][0])
 
         if temp_dict.get("g_cavitation") is None:
-            self.data["g_cavitation"] = []
+            self.data["g_cavitation"] = None
         else:
             self.data["g_cavitation"] = float(temp_dict.get("g_cavitation")[0][0])
 
         if temp_dict.get("g_dispersion") is None:
-            self.data["g_dispersion"] = []
+            self.data["g_dispersion"] = None
         else:
             self.data["g_dispersion"] = float(temp_dict.get("g_dispersion")[0][0])
 
         if temp_dict.get("g_repulsion") is None:
-            self.data["g_repulsion"] = []
+            self.data["g_repulsion"] = None
         else:
             self.data["g_repulsion"] = float(temp_dict.get("g_repulsion")[0][0])
 
