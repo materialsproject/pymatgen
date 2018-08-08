@@ -423,6 +423,24 @@ class MoleculeGraphTest(unittest.TestCase):
         # Replace the now-broken edge
         self.cyclohexene.add_edge(0, 1, weight=1.0)
 
+    def test_insert_remove(self):
+        mol_copy = copy.deepcopy(self.ethylene.molecule)
+        eth_copy = copy.deepcopy(self.ethylene)
+
+        # Ensure that insert_node appropriately wraps Molecule.insert()
+        mol_copy.insert(1, "O", [0.5, 0.5, 0.5])
+        eth_copy.insert_node(1, "O", [0.5, 0.5, 0.5])
+        self.assertEqual(mol_copy, eth_copy.molecule)
+
+        # Test that removal is also equivalent between Molecule and MoleculeGraph.molecule
+        mol_copy.remove_sites([1])
+        eth_copy.remove_nodes([1])
+        self.assertEqual(mol_copy, eth_copy.molecule)
+
+        eth_copy.insert_node(1, "O", [0.5, 0.5, 0.5], edges=[{"from_index": 1, "to_index": 2},
+                                                             {"from_index": 1, "to_index": 3}])
+        self.assertEqual(eth_copy.get_coordination_of_site(1), 2)
+
     def test_split(self):
         bonds = [(0, 1), (4, 5)]
         alterations = {(2, 3): {"weight": 1.0},
