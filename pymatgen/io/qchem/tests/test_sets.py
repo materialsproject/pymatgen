@@ -144,15 +144,20 @@ class QChemDictSetTest(PymatgenTest):
     def test_double_solvation(self):
         test_molecule = QCInput.from_file(
             os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
-        self.assertRaises(QChemDictSet(
-            molecule=test_molecule,
-            job_type='opt',
-            basis_set='6-31g*',
-            scf_algorithm='diis',
-            dft_rung=1,
-            pcm_dielectric=10.0,
-            smd_solvent="water",
-            max_scf_cycles=35), ValueError)
+        raised_error = False
+        try:
+            dict_set = QChemDictSet(molecule=test_molecule,
+                                    job_type='opt',
+                                    basis_set='6-31g*',
+                                    scf_algorithm='diis',
+                                    dft_rung=1,
+                                    pcm_dielectric=10.0,
+                                    smd_solvent="water",
+                                    max_scf_cycles=35)
+        except ValueError:
+            raised_error = True
+
+        self.assertTrue(raised_error)
 
 
 class OptSetTest(PymatgenTest):
