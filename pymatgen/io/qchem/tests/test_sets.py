@@ -145,6 +145,7 @@ class QChemDictSetTest(PymatgenTest):
         test_molecule = QCInput.from_file(
             os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
         raised_error = False
+        dict_set = None
         try:
             dict_set = QChemDictSet(molecule=test_molecule,
                                     job_type='opt',
@@ -158,6 +159,7 @@ class QChemDictSetTest(PymatgenTest):
             raised_error = True
 
         self.assertTrue(raised_error)
+        self.assertEqual(dict_set, None)
 
 
 class OptSetTest(PymatgenTest):
