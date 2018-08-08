@@ -9,6 +9,8 @@ import os
 import copy
 import matplotlib
 
+from monty.serialization import loadfn#, dumpfn
+
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
 from pymatgen.analysis.graphs import *
@@ -28,6 +30,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
+module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 class StructureGraphTest(unittest.TestCase):
 
@@ -371,6 +374,20 @@ class MoleculeGraphTest(unittest.TestCase):
         self.ethylene.add_edge(1, 4, weight=1.0)
         self.ethylene.add_edge(1, 5, weight=1.0)
 
+        self.pc = Molecule.from_file(
+            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC.xyz"))
+        self.pc_edges = [[5, 10], [5, 12], [5, 11], [5, 3], [3, 7], [3, 4],
+                        [3, 0], [4, 8], [4, 9], [4, 1], [6, 1], [6, 0], [6, 2]]
+        self.pc_frag1 = Molecule.from_file(
+            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC_frag1.xyz"))
+        self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
+        self.tfsi = Molecule.from_file(
+            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "TFSI.xyz"))
+        self.tfsi_edges = [14, 1], [1, 4], [1, 5], [1, 7], [7, 11], [7, 12], [7,
+                                                                             13], [
+                             14, 0], [0, 2], [0, 3], [0, 6], [6, 8], [6, 9], [6,
+                                                                              10]
+
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -378,6 +395,33 @@ class MoleculeGraphTest(unittest.TestCase):
         del self.ethylene
         del self.butadiene
         del self.cyclohexene
+
+    def test_build_MoleculeGraph(self):
+        mol_graph = build_MoleculeGraph(self.pc_frag1, edges=self.pc_frag1_edges)
+        # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
+        ref_mol_graph = loadfn(os.path.join(module_dir, "pc_frag1_mg.json"))
+        self.assertEqual(mol_graph, ref_mol_graph)
+        self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
+        for node in mol_graph.graph:
+            self.assertEqual(mol_graph.graph.node[node]["specie"],
+                             ref_mol_graph.graph.node[node]["specie"])
+            for ii in range(3):
+                self.assertEqual(
+                    mol_graph.graph.node[node]["coords"][ii],
+                    ref_mol_graph.graph.node[node]["coords"]["data"][ii])
+
+        mol_graph = build_MoleculeGraph(self.pc, edges=self.pc_edges)
+        # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_mg.json"))
+        ref_mol_graph = loadfn(os.path.join(module_dir, "pc_mg.json"))
+        self.assertEqual(mol_graph, ref_mol_graph)
+        self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
+        for node in mol_graph.graph:
+            self.assertEqual(mol_graph.graph.node[node]["specie"],
+                             ref_mol_graph.graph.node[node]["specie"])
+            for ii in range(3):
+                self.assertEqual(
+                    mol_graph.graph.node[node]["coords"][ii],
+                    ref_mol_graph.graph.node[node]["coords"]["data"][ii])
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")
@@ -445,7 +489,7 @@ class MoleculeGraphTest(unittest.TestCase):
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
 
-    def test_equivalent_to(self):
+    def test_equivalent_to_isomorphic_to(self):
         ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__),
                                                    "..", "..", "..",
                                                    "test_files/graphs/ethylene.xyz"))
@@ -463,6 +507,11 @@ class MoleculeGraphTest(unittest.TestCase):
 
         self.assertTrue(self.ethylene.equivalent_to(eth_copy))
         self.assertFalse(self.ethylene.equivalent_to(self.butadiene))
+
+        # If they are equal, they must also be isomorphic
+        eth_copy = copy.deepcopy(self.ethylene)
+        self.assertTrue(self.ethylene.isomorphic_to(eth_copy))
+        self.assertFalse(self.butadiene.isomorphic_to(self.ethylene))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]

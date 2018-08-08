@@ -13,7 +13,8 @@ from monty.json import jsanitize
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
-from pymatgen.analysis.graphs import MoleculeGraph
+from pymatgen.analysis.graphs import build_MoleculeGraph
+from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
 from pymatgen.io.babel import BabelMolAdaptor
 try:
@@ -68,7 +69,7 @@ class QCOutput(MSONable):
         # Parse the molecular details: charge, multiplicity,
         # species, and initial geometry.
         self._read_charge_and_multiplicity()
-        if self.data.get('charge') != None:
+        if self.data.get('charge') is not None:
             self._read_species_and_inital_geometry()
 
         # Check if calculation finished
@@ -454,11 +455,17 @@ class QCOutput(MSONable):
                     spin_multiplicity=self.data.get('multiplicity'))
 
     def _check_for_structure_changes(self):
-        initial_mol_graph = build_MoleculeGraph(self.data["initial_molecule"])
+        initial_mol_graph = build_MoleculeGraph(self.data["initial_molecule"],
+                                                strategy=OpenBabelNN,
+                                                reorder=False,
+                                                extend_structure=False)
         initial_graph = initial_mol_graph.graph
-        last_mol_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"])
+        last_mol_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"],
+                                             strategy=OpenBabelNN,
+                                             reorder=False,
+                                             extend_structure=False)
         last_graph = last_mol_graph.graph
-        if is_isomorphic(initial_graph, last_graph):
+        if initial_mol_graph.isomorphic_to(last_mol_graph):
             self.data["structure_change"] = "no_change"
         else:
             if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(last_graph.to_undirected()):
@@ -469,7 +476,6 @@ class QCOutput(MSONable):
                 self.data["structure_change"] = "more_bonds"
             else:
                 self.data["structure_change"] = "bond_change"
-
 
     def _read_frequency_data(self):
         """
@@ -682,36 +688,3 @@ class QCOutput(MSONable):
         d["text"] = self.text
         d["filename"] = self.filename
         return jsanitize(d, strict=True)
-
-
-def edges_from_babel(molecule):
-    babel_mol = BabelMolAdaptor(molecule).openbabel_mol
-    edges = []
-    for obbond in ob.OBMolBondIter(babel_mol):
-        edges += [[obbond.GetBeginAtomIdx() - 1, obbond.GetEndAtomIdx() - 1]]
-    return edges
-
-
-def build_MoleculeGraph(molecule, edges=None):
-    if edges == None:
-        edges = edges_from_babel(molecule)
-    mol_graph = MoleculeGraph.with_empty_graph(molecule)
-    for edge in edges:
-        mol_graph.add_edge(edge[0], edge[1])
-    # mol_graph.graph = mol_graph.graph.to_undirected()
-    species = {}
-    coords = {}
-    for node in mol_graph.graph:
-        species[node] = mol_graph.molecule[node].specie.symbol
-        coords[node] = mol_graph.molecule[node].coords
-    nx.set_node_attributes(mol_graph.graph, species, "specie")
-    nx.set_node_attributes(mol_graph.graph, coords, "coords")
-    return mol_graph
-
-
-def _node_match(node, othernode):
-    return node["specie"] == othernode["specie"]
-
-
-def is_isomorphic(graph1, graph2):
-    return nx.is_isomorphic(graph1.to_undirected(), graph2.to_undirected(), node_match=_node_match)
