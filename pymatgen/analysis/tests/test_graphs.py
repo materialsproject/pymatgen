@@ -430,11 +430,12 @@ class MoleculeGraphTest(unittest.TestCase):
                        (1, 2): {"weight": 2.0},
                        (3, 4): {"weight": 2.0}
                        }
+        # Perform reverse Diels-Alder reaction - turn product into reactants
         reactants = self.cyclohexene.split_molecule_subgraphs(bonds, alterations=alterations)
         self.assertTrue(isinstance(reactants, list))
 
         reactants = sorted(reactants, key=len)
-
+        # After alterations, reactants sholuld be ethylene and butadiene
         self.assertEqual(reactants[0], self.ethylene)
         self.assertEqual(reactants[1], self.butadiene)
 
@@ -475,6 +476,7 @@ class MoleculeGraphTest(unittest.TestCase):
 
         eth_mol = copy.deepcopy(self.ethylene)
         eth_str = copy.deepcopy(self.ethylene)
+        # Ensure that strings and molecules lead to equivalent substitutions
         eth_mol.substitute_group(5, molecule, MinimumDistanceNN)
         eth_str.substitute_group(5, "methyl", MinimumDistanceNN)
         self.assertEqual(eth_mol, eth_str)
@@ -486,10 +488,31 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_mg = copy.deepcopy(self.ethylene)
         eth_graph = copy.deepcopy(self.ethylene)
 
+        # Check that MoleculeGraph input is handled properly
         eth_graph.substitute_group(5, molecule, MinimumDistanceNN, graph_dict=graph_dict)
         eth_mg.substitute_group(5, molgraph, MinimumDistanceNN)
         self.assertEqual(eth_graph.graph.get_edge_data(5, 6)[0]["weight"], 1.0)
         self.assertEqual(eth_mg, eth_graph)
+
+    def test_replace(self):
+        eth_copy_sub = copy.deepcopy(self.ethylene)
+        eth_copy_repl = copy.deepcopy(self.ethylene)
+        # First, perform a substiution as above
+        eth_copy_sub.substitute_group(5, "methyl", MinimumDistanceNN)
+        eth_copy_repl.replace_group(5, "methyl", MinimumDistanceNN)
+        # Test that replacement on a terminal atom is equivalent to substitution
+        self.assertEqual(eth_copy_repl.molecule, eth_copy_sub.molecule)
+        self.assertEqual(eth_copy_repl, eth_copy_sub)
+
+        # Methyl carbon should have coordination 4
+        self.assertEqual(eth_copy_repl.get_coordination_of_site(5), 4)
+        # Now swap one functional group for another
+        eth_copy_repl.replace_group(5, "amine", MinimumDistanceNN)
+        self.assertEqual(["C", "C", "H", "H", "H", "N", "H", "H"],
+                         [str(s) for s in eth_copy_repl.molecule.species])
+        self.assertEqual(len(eth_copy_repl.graph.nodes), 8)
+        # Amine nitrogen should have coordination 3
+        self.assertEqual(eth_copy_repl.get_coordination_of_site(5), 3)
 
     def test_as_from_dict(self):
         d = self.cyclohexene.as_dict()

@@ -1173,8 +1173,17 @@ class MoleculeGraph(MSONable):
             # Reverse order of nodes to match with molecule
             n = len(mg.molecule)
             mapping = {i: (n-i) for i in range(n)}
+            mapping = {i: (j-1) for i, j in mapping.items()}
 
             mg.graph = nx.relabel_nodes(mg.graph, mapping)
+
+        duplicates = []
+        for edge in mg.graph.edges:
+            if edge[2] != 0:
+                duplicates.append(edge)
+
+        for duplicate in duplicates:
+            mg.graph.remove_edge(duplicate[0], duplicate[1], key=duplicate[2])
 
         return mg
 
@@ -1709,7 +1718,6 @@ class MoleculeGraph(MSONable):
                                   reorder=reorder,
                                   extend_structure=extend_structure)
 
-
     def find_rings(self, including=None):
         """
         Find ring structures in the MoleculeGraph.
@@ -1777,8 +1785,6 @@ class MoleculeGraph(MSONable):
 
         out_edges = [(u, v, d) for u, v, d in self.graph.out_edges(n, data=True)]
         in_edges = [(u, v, d) for u, v, d in self.graph.in_edges(n, data=True)]
-
-        print(out_edges + in_edges)
 
         for u, v, d in out_edges + in_edges:
 
