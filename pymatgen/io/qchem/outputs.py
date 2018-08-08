@@ -128,6 +128,9 @@ class QCOutput(MSONable):
         # Parse the Mulliken charges
         self._read_mulliken()
 
+        # Parse PCM information
+        self._read_pcm_information()
+
         # Parse the final energy
         temp_final_energy = read_pattern(
             self.text, {
@@ -177,9 +180,8 @@ class QCOutput(MSONable):
                 # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
                 # idenfied, check to see if the optimization failed to converge or if Lambda wasn't able
                 # to be determined.
-                if len(self.data.get("errors")) == 0 and len(
-                        self.data.get('optimized_geometry')) == 0 and len(
-                            self.data.get('optimized_zmat')) == 0:
+                if len(self.data.get("errors")) == 0 and self.data.get('optimized_geometry') is None \
+                        and len(self.data.get('optimized_zmat')) == 0:
                     self._check_optimization_errors()
 
         # Check if the calculation contains a constraint in an $opt section.
@@ -217,6 +219,14 @@ class QCOutput(MSONable):
             terminate_on_match=True).get('key')
         if self.data.get('frequency_job', []):
             self._read_frequency_data()
+
+        self.data["single_point_job"] = read_pattern(
+            self.text, {
+                "key": r"(?i)\s*job(?:_)*type\s*(?:=)*\s*sp"
+            },
+            terminate_on_match=True).get("key")
+        if self.data.get("single_point_job", []):
+            self._read_single_point_data()
 
         # If the calculation did not finish and no errors have been identified yet, check for other errors
         if not self.data.get('completion',
@@ -402,7 +412,7 @@ class QCOutput(MSONable):
         parsed_optimized_geometry = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern)
         if parsed_optimized_geometry == [] or None:
-            self.data["optimized_geometry"] = []
+            self.data["optimized_geometry"] = None
             header_pattern = r"^\s+\*+\s+OPTIMIZATION CONVERGED\s+\*+\s+\*+\s+Z-matrix\s+Print:\s+\$molecule\s+[\d\-]+\s+[\d\-]+\n"
             table_pattern = r"\s*(\w+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+)(?:\s+(\d+)\s+([\d\-\.]+))*)*)*(?:\s+0)*"
             footer_pattern = r"^\$end\n"
@@ -432,7 +442,7 @@ class QCOutput(MSONable):
         parsed_last_geometry = read_table_pattern(
             self.text, header_pattern, table_pattern, footer_pattern)
         if parsed_last_geometry == [] or None:
-            self.data["last_geometry"] = []
+            self.data["last_geometry"] = None
         else:
             self.data["last_geometry"] = process_parsed_coords(
                 parsed_last_geometry[0])
@@ -480,7 +490,7 @@ class QCOutput(MSONable):
             })
 
         if temp_dict.get('enthalpy') == None:
-            self.data['enthalpy'] = []
+            self.data['enthalpy'] = None
         else:
             self.data['enthalpy'] = float(temp_dict.get('enthalpy')[0][0])
 
@@ -536,6 +546,63 @@ class QCOutput(MSONable):
                                            jj, kk % 3] = float(entry)
 
             self.data["frequency_mode_vectors"] = freq_mode_vecs
+
+    def _read_single_point_data(self):
+        """
+        Parses final free energy information from single-point calculations.
+        """
+        temp_dict = read_pattern(
+            self.text, {
+                "final_energy":
+                    r"\s*SCF\s+energy in the final basis set\s+=\s*([\d\-\.]+)"
+            })
+
+        if temp_dict.get('final_energy') == None:
+            self.data['final_energy'] = None
+        else:
+            # -1 in case of pcm
+            # Two lines will match the above; we want final calculation
+            self.data['final_energy'] = float(temp_dict.get('final_energy')[-1][0])
+
+    def _read_pcm_information(self):
+        """
+        Parses information from PCM solvent calculations.
+        """
+
+        temp_dict = read_pattern(
+            self.text, {
+                "g_electrostatic": r"\s*G_electrostatic\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "g_cavitation": r"\s*G_cavitation\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "g_dispersion": r"\s*G_dispersion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "g_repulsion": r"\s*G_repulsion\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+                "total_contribution_pcm": r"\s*Total\s+=\s+([\d\-\.]+)\s+hartree\s+=\s+([\d\-\.]+)\s+kcal/mol\s*",
+            }
+        )
+
+        if temp_dict.get("g_electrostatic") is None:
+            self.data["g_electrostatic"] = None
+        else:
+            self.data["g_electrostatic"] = float(temp_dict.get("g_electrostatic")[0][0])
+
+        if temp_dict.get("g_cavitation") is None:
+            self.data["g_cavitation"] = None
+        else:
+            self.data["g_cavitation"] = float(temp_dict.get("g_cavitation")[0][0])
+
+        if temp_dict.get("g_dispersion") is None:
+            self.data["g_dispersion"] = None
+        else:
+            self.data["g_dispersion"] = float(temp_dict.get("g_dispersion")[0][0])
+
+        if temp_dict.get("g_repulsion") is None:
+            self.data["g_repulsion"] = None
+        else:
+            self.data["g_repulsion"] = float(temp_dict.get("g_repulsion")[0][0])
+
+        if temp_dict.get("total_contribution_pcm") is None:
+            self.data["total_contribution_pcm"] = []
+        else:
+            self.data["total_contribution_pcm"] = float(temp_dict.get("total_contribution_pcm")[0][0])
 
     def _check_optimization_errors(self):
         """
