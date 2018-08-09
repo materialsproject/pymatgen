@@ -9,6 +9,7 @@ import subprocess
 import numpy as np
 import os.path
 import copy
+from itertools import combinations
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
@@ -23,6 +24,7 @@ from scipy.spatial import KDTree
 
 
 import networkx as nx
+import networkx.algorithms.isomorphism as iso
 from networkx.readwrite import json_graph
 from networkx.drawing.nx_agraph import write_dot
 
@@ -1435,6 +1437,35 @@ class MoleculeGraph(MSONable):
 
             return sub_mols
 
+    def build_unique_fragments(self):
+        """
+        Find all possible fragment combinations of the MoleculeGraphs (in other
+        words, all connected induced subgraphs)
+
+        :return:
+        """
+        self.set_node_attributes()
+
+        graph = self.graph.to_undirected()
+
+        nm = iso.categorical_node_match("specie", "ERROR")
+
+        # find all possible fragments, aka connected induced subgraphs
+        all_fragments = []
+        for ii in range(1, len(self.molecule)):
+            for combination in combinations(graph.nodes, ii):
+                subgraph = nx.subgraph(graph, combination)
+                if nx.is_connected(subgraph):
+                    all_fragments.append(subgraph)
+
+        # narrow to all unique fragments using graph isomorphism
+        unique_fragments = []
+        for fragment in all_fragments:
+            if not [nx.is_isomorphic(fragment, f, node_match=nm)
+                    for f in unique_fragments].count(True) >= 1:
+                unique_fragments.append(fragment)
+        return unique_fragments
+
     def substitute_group(self, index, func_grp, strategy, bond_order=1, graph_dict=None, strategy_params=None):
         """
         Builds off of Molecule.substitute to replace an atom in self.molecule
@@ -1970,6 +2001,23 @@ class MoleculeGraph(MSONable):
         return (edges == edges_other) and \
                (self.molecule == other_sorted.molecule)
 
+    def isomorphic_to(self, other):
+        """
+        Checks if the graphs of two MoleculeGraphs are isomorphic to one
+        another. In order to prevent problems with misdirected edges, both
+        graphs are converted into undirected nx.Graph objects.
+
+        :param other: MoleculeGraph object to be compared.
+        :return: bool
+        """
+
+        self_undir = self.graph.to_undirected()
+        other_undir = other.graph.to_undirected()
+
+        nm = iso.categorical_node_match("specie", "ERROR")
+
+        return nx.is_isomorphic(self_undir, other_undir, node_match=nm)
+
     def equivalent_to(self, other):
         """
         A weaker equality function that evaluates isomorphisms between two
@@ -2079,3 +2127,44 @@ class MoleculeGraph(MSONable):
             'both': edges.intersection(edges_other),
             'dist': jaccard_dist
         }
+
+
+def build_MoleculeGraph(molecule, edges=None, strategy=None,
+                        strategy_params=None, reorder=True,
+                        extend_structure=True):
+    """
+    General out-of-class constructor for MoleculeGraph.
+
+    :param molecule: pymatgen.core.Molecule object.
+    :param edges: List of tuples representing nodes in the graph. Default None.
+    :param strat: an instance of a
+            :Class: `pymatgen.analysis.local_env.NearNeighbors` object. Default
+            None.
+    :param strategy_params: dict of parameters to be passed to NearNeighbors
+            strategy.
+    :param reorder: bool, representing if graph nodes need to be reordered
+            following the application of the local_env strategy
+    :param extend_structure: If True (default), then a large artificial box
+            will be placed around the Molecule, because some strategies assume
+            periodic boundary conditions.
+    :return: MoleculeGraph object.
+    """
+
+    if edges is None:
+        if strategy is not None:
+            if strategy_params is None:
+                strategy_params = {}
+            strat = strategy(**strategy_params)
+            mol_graph = MoleculeGraph.with_local_env_strategy(molecule, strat,
+                                                              reorder=reorder,
+                                                              extend_structure=extend_structure)
+        else:
+            raise ValueError("Must supply either edge list or"
+                             " pymatgen.analysis.local_env strategy.")
+    else:
+        mol_graph = MoleculeGraph.with_empty_graph(molecule)
+        for edge in edges:
+            mol_graph.add_edge(edge[0], edge[1])
+
+    mol_graph.set_node_attributes()
+    return mol_graph
