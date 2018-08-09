@@ -42,11 +42,15 @@ def add_vr_eigenvalue_dict( task):
 
     """
     task_dir = task['calcs_reversed'][0]['dir_name']
-    vrpath = os.path.join( task_dir, 'vasprun.xml')
+    vrpath = os.path.join( task_dir, 'vasprun.xml.relax2')
     if not os.path.exists(vrpath):
         vrpath += '.gz'
     if not os.path.exists(vrpath):
-        vrpath = os.path.join(task_dir, 'vasprun.xml.relax2')
+        vrpath = os.path.join(task_dir, 'vasprun.xml.relax1')
+    if not os.path.exists(vrpath):
+        vrpath += '.gz'
+    if not os.path.exists(vrpath):
+        vrpath = os.path.join(task_dir, 'vasprun.xml')
     if not os.path.exists(vrpath):
         vrpath += '.gz'
     if not os.path.exists(vrpath):
