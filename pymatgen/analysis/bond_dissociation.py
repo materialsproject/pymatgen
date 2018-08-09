@@ -169,6 +169,8 @@ class BondDissociationEnergies(MSONable):
             elif is_isomorphic(frag.graph, initial_graph):
                 print(entry["task_id"])
                 print()
+                print(entry["dir_name"])
+                print()
                 print(initial_molgraph.molecule)
                 print()
                 print(final_molgraph.molecule)
