@@ -162,17 +162,17 @@ class BondDissociationEnergies(MSONable):
         for entry in self.fragment_entries:
             initial_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]))
             final_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"]))
-            print()
-            print(initial_molgraph.molecule)
-            print()
-            print(final_molgraph.molecule)
-            print()
             initial_graph = initial_molgraph.graph
             final_graph = final_molgraph.graph
             if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
                 entries += [entry]
             elif is_isomorphic(frag.graph, initial_graph):
                 print(entry["task_id"])
+                print()
+                print(initial_molgraph.molecule)
+                print()
+                print(final_molgraph.molecule)
+                print()
                 initial_entries += [entry]
                 if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(final_graph.to_undirected()):
                     print("unconnected_fragments")
