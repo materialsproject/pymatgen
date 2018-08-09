@@ -19,6 +19,7 @@ from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 try:
     import openbabel as ob
     import networkx as nx
+    import networkx.algorithms.isomorphism as iso
 except ImportError:
     ob = None
     nx = None
@@ -481,6 +482,18 @@ class MoleculeGraphTest(unittest.TestCase):
 
         self.assertEqual(reactants[0], self.ethylene)
         self.assertEqual(reactants[1], self.butadiene)
+
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
+    def test_build_unique_fragments(self):
+        mol_graph = build_MoleculeGraph(self.pc, edges=self.pc_edges)
+        unique_fragments = mol_graph.build_unique_fragments()
+        self.assertEqual(len(unique_fragments), 295)
+        nm = iso.categorical_node_match("specie", "ERROR")
+        for ii in range(295):
+            for jj in range(ii + 1, 295):
+                self.assertEqual(
+                    nx.is_isomorphic(unique_fragments[ii], unique_fragments[jj],
+                                     node_match=nm), False)
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])

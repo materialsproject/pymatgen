@@ -9,6 +9,7 @@ import subprocess
 import numpy as np
 import os.path
 import copy
+from itertools import combinations
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
@@ -1435,6 +1436,35 @@ class MoleculeGraph(MSONable):
                 sub_mols.append(MoleculeGraph(new_mol, graph_data=graph_data))
 
             return sub_mols
+
+    def build_unique_fragments(self):
+        """
+        Find all possible fragment combinations of the MoleculeGraphs (in other
+        words, all connected induced subgraphs)
+
+        :return:
+        """
+        self.set_node_attributes()
+
+        graph = self.graph.to_undirected()
+
+        nm = iso.categorical_node_match("specie", "ERROR")
+
+        # find all possible fragments, aka connected induced subgraphs
+        all_fragments = []
+        for ii in range(1, len(self.molecule)):
+            for combination in combinations(graph.nodes, ii):
+                subgraph = nx.subgraph(graph, combination)
+                if nx.is_connected(subgraph):
+                    all_fragments.append(subgraph)
+
+        # narrow to all unique fragments using graph isomorphism
+        unique_fragments = []
+        for fragment in all_fragments:
+            if not [nx.is_isomorphic(fragment, f, node_match=nm)
+                    for f in unique_fragments].count(True) >= 1:
+                unique_fragments.append(fragment)
+        return unique_fragments
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1, graph_dict=None, strategy_params=None):
         """
