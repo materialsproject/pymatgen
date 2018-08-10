@@ -104,7 +104,7 @@ def loadfn(fname):
         (obj) if *json* (passthrough to monty.serialization.loadfn)
     """
     if (fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or
-            ".cif" in fname.lower()):
+            ".cif" in fname.lower()) or fnmatch(fname, "*.vasp"):
         return Structure.from_file(fname)
     elif fnmatch(fname, "*vasprun*"):
         from pymatgen.io.vasp import Vasprun
