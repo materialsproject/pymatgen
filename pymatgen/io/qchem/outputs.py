@@ -87,12 +87,12 @@ class QCOutput(MSONable):
                     "key":
                     r"Total job time\:\s*([\d\-\.]+)s\(wall\)\,\s*([\d\-\.]+)s\(cpu\)"
                 }).get('key')
-            if temp_timings != None:
+            if temp_timings is not None:
                 self.data["walltime"] = float(temp_timings[0][0])
                 self.data["cputime"] = float(temp_timings[0][1])
             else:
-                self.data["walltime"] = 'nan'
-                self.data["cputime"] = 'nan'
+                self.data["walltime"] = None
+                self.data["cputime"] = None
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
