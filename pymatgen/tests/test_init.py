@@ -39,6 +39,8 @@ class SettingsTestCase(unittest.TestCase):
             self.assertIsInstance(obj, Structure)
             obj = loadfn(os.path.join(test_dir, "POSCAR"))
             self.assertIsInstance(obj, Structure)
+            obj = loadfn(os.path.join(test_dir, "LiFePO4.vasp"))
+            self.assertIsInstance(obj, Structure)
             obj = loadfn(os.path.join(test_dir, "vasprun.xml"))
             self.assertIsInstance(obj, Vasprun)
 
