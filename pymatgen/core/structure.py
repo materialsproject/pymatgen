@@ -722,6 +722,8 @@ class IStructure(SiteCollection, MSONable):
         return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
+        if other is self:
+            return True
         if other is None:
             return False
         if len(self) != len(other):
