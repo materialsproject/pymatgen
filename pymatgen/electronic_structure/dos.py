@@ -15,7 +15,6 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.coord import get_linear_interpolated_value
 from scipy.constants.codata import value as _cd
 
-
 """
 This module defines classes to represent the density of states, etc.
 """
@@ -484,7 +483,7 @@ class FermiDos(Dos):
         vb_integral = np.sum(self.tdos[:self.idx_vbm + 1]
                              * (1 - f0(self.energies[:self.idx_vbm + 1], fermi, T))
                              * self.de[:self.idx_vbm + 1], axis=0)
-        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
+        return (vb_integral - cb_integral) / (self.volume * self.A_to_cm ** 3)
 
     def get_fermi_interextrapolated(self, c, T, warn=True, c_ref=1e10, **kwargs):
         """
@@ -514,18 +513,18 @@ class FermiDos(Dos):
                 if abs(c) < 1e-10:
                     c = 1e-10
                 # max(10, ) is to avoid log(0<x<1) and log(1+x) both of which are slow
-                f2 = self.get_fermi_interextrapolated(max(10, abs(c)*10.), T, warn=False, **kwargs)
-                f1  = self.get_fermi_interextrapolated(-max(10, abs(c)*10.), T, warn=False, **kwargs)
-                c2 = np.log(abs(1+self.get_doping(f2, T)))
-                c1 = -np.log(abs(1+self.get_doping(f1, T)))
-                slope = (f2-f1)/(c2-c1)
-                return f2 + slope * (np.sign(c)*np.log(abs(1+c)) - c2)
+                f2 = self.get_fermi_interextrapolated(max(10, abs(c) * 10.), T, warn=False, **kwargs)
+                f1 = self.get_fermi_interextrapolated(-max(10, abs(c) * 10.), T, warn=False, **kwargs)
+                c2 = np.log(abs(1 + self.get_doping(f2, T)))
+                c1 = -np.log(abs(1 + self.get_doping(f1, T)))
+                slope = (f2 - f1) / (c2 - c1)
+                return f2 + slope * (np.sign(c) * np.log(abs(1 + c)) - c2)
             else:
-                f_ref = self.get_fermi_interextrapolated(np.sign(c)*c_ref, T, warn=False, **kwargs)
-                f_new = self.get_fermi_interextrapolated(c/10., T, warn=False, **kwargs)
-                clog = np.sign(c)*np.log(abs(c))
-                c_newlog = np.sign(c)*np.log(abs(self.get_doping(f_new, T)))
-                slope = (f_new - f_ref) / (c_newlog - np.sign(c)*10.)
+                f_ref = self.get_fermi_interextrapolated(np.sign(c) * c_ref, T, warn=False, **kwargs)
+                f_new = self.get_fermi_interextrapolated(c / 10., T, warn=False, **kwargs)
+                clog = np.sign(c) * np.log(abs(c))
+                c_newlog = np.sign(c) * np.log(abs(self.get_doping(f_new, T)))
+                slope = (f_new - f_ref) / (c_newlog - np.sign(c) * 10.)
                 return f_new + slope * (clog - c_newlog)
 
     def get_fermi(self, c, T, rtol=0.01, nstep=50, step=0.1, precision=8):
@@ -783,12 +782,12 @@ class CompleteDos(Dos):
                 for orb, pdos in self.pdos[at].items():
                     dd[str(orb)] = {"densities": {str(int(spin)): list(dens)
                                                   for spin,
-                                                  dens in pdos.items()}}
+                                                      dens in pdos.items()}}
                 d["pdos"].append(dd)
             d["atom_dos"] = {str(at): dos.as_dict() for at,
-                             dos in self.get_element_dos().items()}
+                                                        dos in self.get_element_dos().items()}
             d["spd_dos"] = {str(orb): dos.as_dict() for orb,
-                            dos in self.get_spd_dos().items()}
+                                                        dos in self.get_spd_dos().items()}
         return d
 
     def __str__(self):
@@ -838,14 +837,11 @@ class LobsterCompleteDos(CompleteDos):
         warnings.warn("Are the orbitals correctly oriented? Are you sure?")
         t2g_dos = []
         eg_dos = []
-        # print(pdos.items())
         for s, atom_dos in self.pdos.items():
             if s == site:
-                # print('test')
-                for orb, pdos in atom_dos.items():
-                    # print(_get_orb(orb))
-                    if _get_orb_lobster(orb) in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
 
+                for orb, pdos in atom_dos.items():
+                    if _get_orb_lobster(orb) in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)
                     elif _get_orb_lobster(orb) in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
@@ -920,7 +916,6 @@ class LobsterCompleteDos(CompleteDos):
         return LobsterCompleteDos(struct, tdos, pdoss)
 
 
-
 def add_densities(density1, density2):
     """
     Method to sum two densities.
@@ -953,6 +948,7 @@ def f0(E, fermi, T):
     """
     return 1. / (1. + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
 
+
 def _get_orb_type_lobster(orb):
     """
     Args:
@@ -969,6 +965,7 @@ def _get_orb_type_lobster(orb):
         return orbital.orbital_type
     except AttributeError:
         print("Orb not in list")
+
 
 def _get_orb_lobster(orb):
     """

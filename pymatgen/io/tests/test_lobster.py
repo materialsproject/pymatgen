@@ -21,7 +21,7 @@ __date__ = "Dec 10, 2017"
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "test_files", "cohp")
 test_dir_doscar = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "..", "..", "..", "test_files", "lobster")
+                               "..", "..", "..", "test_files", "lobster")
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -250,13 +250,12 @@ class DoscarTest(unittest.TestCase):
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, vasprun=vasprun)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, vasprun=vasprun2)
 
-        with open(os.path.join(test_dir_doscar,'structure_KF_lobster.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'structure_KF_lobster.json'), 'r') as f:
             data = json.load(f)
 
         self.structure = Structure.from_dict(data)
 
     def test_completedos(self):
-
         # first for spin polarized version
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
@@ -293,7 +292,6 @@ class DoscarTest(unittest.TestCase):
                              PDOS_F_2px_up)
         self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2p_x'][Spin.down].tolist(),
                              PDOS_F_2px_down)
-
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
@@ -403,9 +401,6 @@ class DoscarTest(unittest.TestCase):
         self.assertTrue(self.DOSCAR_spin_pol.is_spin_polarized)
 
         self.assertFalse(self.DOSCAR_nonspin_pol.is_spin_polarized)
-
-
-
 
 
 if __name__ == "__main__":

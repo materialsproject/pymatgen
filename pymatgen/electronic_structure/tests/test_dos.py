@@ -20,7 +20,7 @@ from pymatgen.util.testing import PymatgenTest
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 test_dir_doscar = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "..", "..", "..", "test_files", "lobster")
+                               "..", "..", "..", "test_files", "lobster")
 
 
 class DosTest(unittest.TestCase):
@@ -52,6 +52,7 @@ class DosTest(unittest.TestCase):
         for spin in Spin:
             self.assertAlmostEqual(sum(dens[spin]), sum(smeared[spin]))
 
+
 class FermiDosTest(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
@@ -61,11 +62,11 @@ class FermiDosTest(unittest.TestCase):
     def test_doping_fermi(self):
         T = 300
         fermi0 = self.dos.efermi
-        frange = [fermi0-0.5, fermi0, fermi0+2.0, fermi0+2.2]
+        frange = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
         dopings = [self.dos.get_doping(fermi=f, T=T) for f in frange]
         ref_dopings = [3.48077e+21, 1.9235e+18, -2.6909e+16, -4.8723e+19]
         for i, c_ref in enumerate(ref_dopings):
-            self.assertLessEqual(abs(dopings[i]/c_ref-1.0), 0.01)
+            self.assertLessEqual(abs(dopings[i] / c_ref - 1.0), 0.01)
 
         calc_fermis = [self.dos.get_fermi(c=c, T=T) for c in ref_dopings]
         for j, f_ref in enumerate(frange):
@@ -86,6 +87,7 @@ class FermiDosTest(unittest.TestCase):
                                -1.6884, 4)
         self.assertAlmostEqual(sci_dos.get_fermi_interextrapolated(0.0, 300),
                                3.2382, 4)
+
 
 class CompleteDosTest(unittest.TestCase):
 
@@ -113,7 +115,7 @@ class CompleteDosTest(unittest.TestCase):
             else:
                 sum_element += pdos
 
-        #The sums of the SPD or the element doses should be the same.
+        # The sums of the SPD or the element doses should be the same.
         self.assertTrue((abs(sum_spd.energies
                              - sum_element.energies) < 0.0001).all())
         self.assertTrue((abs(sum_spd.densities[Spin.up]
@@ -162,7 +164,7 @@ class CompleteDosTest(unittest.TestCase):
             else:
                 sum_element += pdos
 
-        #The sums of the SPD or the element doses should be the same.
+        # The sums of the SPD or the element doses should be the same.
         self.assertTrue((abs(sum_spd.energies
                              - sum_element.energies) < 0.0001).all())
 
@@ -205,7 +207,6 @@ class DOSTest(PymatgenTest):
 class SpinPolarizationTest(unittest.TestCase):
 
     def test_spin_polarization(self):
-
         dos_path = os.path.join(test_dir, "dos_spin_polarization_mp-865805.json")
         dos = loadfn(dos_path)
         self.assertAlmostEqual(dos.spin_polarization, 0.6460514663341762)
@@ -215,29 +216,27 @@ class LobsterCompleteDosTest(unittest.TestCase):
 
     def setUp(self):
 
-
-        with open(os.path.join(test_dir_doscar,'LobsterCompleteDos_spin.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_spin.json'), 'r') as f:
             data_spin = json.load(f)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(os.path.join(test_dir_doscar,'LobsterCompleteDos_nonspin.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_nonspin.json'), 'r') as f:
             data_nonspin = json.load(f)
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(os.path.join(test_dir_doscar,'structure_KF_lobster.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'structure_KF_lobster.json'), 'r') as f:
             data_structure = json.load(f)
         self.structure = Structure.from_dict(data_structure)
 
-        with open(os.path.join(test_dir_doscar,'LobsterCompleteDos_MnO.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_MnO.json'), 'r') as f:
             data_MnO = json.load(f)
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
-        with open(os.path.join(test_dir_doscar,'LobsterCompleteDos_MnO_nonspin.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_MnO_nonspin.json'), 'r') as f:
             data_MnO_nonspin = json.load(f)
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
 
-
-        with open(os.path.join(test_dir_doscar,'structure_MnO.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'structure_MnO.json'), 'r') as f:
             data_MnO = json.load(f)
         self.structure_MnO = Structure.from_dict(data_MnO)
 
@@ -348,9 +347,9 @@ class LobsterCompleteDosTest(unittest.TestCase):
                 Spin.up].tolist(), PDOS_F_2px)
 
     def test_get_site_t2g_eg_resolved_dos(self):
-        #with spin
+        # with spin
         energies = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
-        efermi=0.0
+        efermi = 0.0
         PDOS_Mn_3dxy_up = [0.00000, 0.00001, 0.10301, 0.16070, 0.00070, 0.00060]
         PDOS_Mn_3dxy_down = [0.00000, 0.00000, 0.00380, 0.00996, 0.03012, 0.21890]
         PDOS_Mn_3dyz_up = [0.00000, 0.00001, 0.10301, 0.16070, 0.00070, 0.00060]
@@ -362,26 +361,39 @@ class LobsterCompleteDosTest(unittest.TestCase):
         PDOS_Mn_3dx2_up = [0.00000, 0.00001, 0.09330, 0.17289, 0.00011, 0.00015]
         PDOS_Mn_3dx2_down = [0.00000, 0.00000, 0.00454, 0.00356, 0.07195, 0.18442]
 
-        PDOS_Mn_eg_up=(np.array(PDOS_Mn_3dx2_up)+np.array(PDOS_Mn_3dz2_up)).tolist()
-        PDOS_Mn_eg_down=(np.array(PDOS_Mn_3dx2_down)+np.array(PDOS_Mn_3dz2_down)).tolist()
-        PDOS_Mn_t2g_up=(np.array(PDOS_Mn_3dxy_up)+np.array(PDOS_Mn_3dxz_up)+np.array(PDOS_Mn_3dyz_up)).tolist()
-        PDOS_Mn_t2g_down=(np.array(PDOS_Mn_3dxy_down)+np.array(PDOS_Mn_3dxz_down)+np.array(PDOS_Mn_3dyz_down)).tolist()
+        PDOS_Mn_eg_up = (np.array(PDOS_Mn_3dx2_up) + np.array(PDOS_Mn_3dz2_up)).tolist()
+        PDOS_Mn_eg_down = (np.array(PDOS_Mn_3dx2_down) + np.array(PDOS_Mn_3dz2_down)).tolist()
+        PDOS_Mn_t2g_up = (np.array(PDOS_Mn_3dxy_up) + np.array(PDOS_Mn_3dxz_up) + np.array(PDOS_Mn_3dyz_up)).tolist()
+        PDOS_Mn_t2g_down = (
+                    np.array(PDOS_Mn_3dxy_down) + np.array(PDOS_Mn_3dxz_down) + np.array(PDOS_Mn_3dyz_down)).tolist()
 
-        for iel,el in enumerate(self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].densities[Spin.up].tolist()):
-            self.assertAlmostEqual(el,PDOS_Mn_eg_up[iel])
-        for iel,el in enumerate(self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].densities[Spin.down].tolist()):
-            self.assertAlmostEqual(el,PDOS_Mn_eg_down[iel])
-        for iel,el in enumerate(self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].densities[Spin.up].tolist()):
-            self.assertAlmostEqual(el,PDOS_Mn_t2g_up[iel])
-        for iel,el in enumerate(self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].densities[Spin.down].tolist()):
-            self.assertAlmostEqual(el,PDOS_Mn_t2g_down[iel])
-        self.assertListEqual(energies,self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].energies.tolist())
-        self.assertListEqual(energies,self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].energies.tolist())
-        self.assertEqual(efermi,self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].efermi)
-        self.assertEqual(efermi,self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].efermi)
+        for iel, el in enumerate(
+                self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].densities[
+                    Spin.up].tolist()):
+            self.assertAlmostEqual(el, PDOS_Mn_eg_up[iel])
+        for iel, el in enumerate(
+                self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].densities[
+                    Spin.down].tolist()):
+            self.assertAlmostEqual(el, PDOS_Mn_eg_down[iel])
+        for iel, el in enumerate(
+                self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].densities[
+                    Spin.up].tolist()):
+            self.assertAlmostEqual(el, PDOS_Mn_t2g_up[iel])
+        for iel, el in enumerate(
+                self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].densities[
+                    Spin.down].tolist()):
+            self.assertAlmostEqual(el, PDOS_Mn_t2g_down[iel])
+        self.assertListEqual(energies, self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+            'e_g'].energies.tolist())
+        self.assertListEqual(energies, self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+            't2g'].energies.tolist())
+        self.assertEqual(efermi,
+                         self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].efermi)
+        self.assertEqual(efermi,
+                         self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].efermi)
 
         # self.structure_MnO
-        #withoutspin
+        # withoutspin
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         PDOS_Mn_3dxy = [0.00000, 0.00000, 0.02032, 0.16094, 0.33659, 0.01291]
         PDOS_Mn_3dyz = [0.00000, 0.00000, 0.02032, 0.16126, 0.33628, 0.01290]
@@ -389,26 +401,29 @@ class LobsterCompleteDosTest(unittest.TestCase):
         PDOS_Mn_3dxz = [0.00000, 0.00000, 0.02484, 0.28501, 0.21541, 0.00663]
         PDOS_Mn_3dx2 = [0.00000, 0.00000, 0.02817, 0.37594, 0.12669, 0.00194]
 
-        PDOS_Mn_eg=(np.array(PDOS_Mn_3dx2)+np.array(PDOS_Mn_3dz2)).tolist()
-        PDOS_Mn_t2g=(np.array(PDOS_Mn_3dxy)+np.array(PDOS_Mn_3dxz)+np.array(PDOS_Mn_3dyz)).tolist()
+        PDOS_Mn_eg = (np.array(PDOS_Mn_3dx2) + np.array(PDOS_Mn_3dz2)).tolist()
+        PDOS_Mn_t2g = (np.array(PDOS_Mn_3dxy) + np.array(PDOS_Mn_3dxz) + np.array(PDOS_Mn_3dyz)).tolist()
 
-        for iel,el in enumerate(self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].densities[Spin.up].tolist()):
-            self.assertAlmostEqual(el,PDOS_Mn_eg[iel])
-        for iel,el in enumerate(self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].densities[Spin.up].tolist()):
-            self.assertAlmostEqual(el,PDOS_Mn_t2g[iel])
-        self.assertListEqual(energies_nonspin,self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].energies.tolist())
-        self.assertListEqual(energies_nonspin,self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].energies.tolist())
-        self.assertEqual(efermi,self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['e_g'].efermi)
-        self.assertEqual(efermi,self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].efermi)
-
-
-
-
-
-
-
-
-
+        for iel, el in enumerate(
+                self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+                    'e_g'].densities[Spin.up].tolist()):
+            self.assertAlmostEqual(el, PDOS_Mn_eg[iel])
+        for iel, el in enumerate(
+                self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+                    't2g'].densities[Spin.up].tolist()):
+            self.assertAlmostEqual(el, PDOS_Mn_t2g[iel])
+        self.assertListEqual(energies_nonspin,
+                             self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+                                 'e_g'].energies.tolist())
+        self.assertListEqual(energies_nonspin,
+                             self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+                                 't2g'].energies.tolist())
+        self.assertEqual(efermi,
+                         self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+                             'e_g'].efermi)
+        self.assertEqual(efermi,
+                         self.LobsterCompleteDOS_MnO_nonspin.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])[
+                             't2g'].efermi)
 
     def test_get_spd_dos(self):
         # with spin
@@ -445,7 +460,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
         self.assertListEqual(self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].energies.tolist(),
                              energies_spin)
         self.assertEqual(self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].efermi,
-                             fermi)
+                         fermi)
 
         for ilistel, listel in enumerate(
                 self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].densities[Spin.up].tolist()):
@@ -554,9 +569,6 @@ class LobsterCompleteDosTest(unittest.TestCase):
 
         self.assertAlmostEqual(
             self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element('F'))[OrbitalType(0)].efermi, efermi)
-
-
-
 
 
 if __name__ == '__main__':

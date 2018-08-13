@@ -10,7 +10,7 @@ from monty.io import zopen
 from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.electronic_structure.dos import  Dos, LobsterCompleteDos
+from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
 
 """
 Module for reading Lobster output files. For more information
@@ -59,11 +59,12 @@ class Cohpcar(object):
 
          Boolean to indicate if the calculation is spin polarized.
     """
+
     def __init__(self, are_coops=False, filename=None):
         self.are_coops = are_coops
         if filename is None:
             filename = "COOPCAR.lobster" if are_coops \
-                        else "COHPCAR.lobster"
+                else "COHPCAR.lobster"
 
         with zopen(filename, "rt") as f:
             contents = f.read().split("\n")
@@ -83,21 +84,21 @@ class Cohpcar(object):
 
         # The COHP data start in row num_bonds + 3
         data = np.array([np.array(row.split(), dtype=float)
-                         for row in contents[num_bonds+3:]]).transpose()
+                         for row in contents[num_bonds + 3:]]).transpose()
         self.energies = data[0]
 
-        cohp_data = {"average": {"COHP": {spin: data[1+2*s*(num_bonds+1)]
+        cohp_data = {"average": {"COHP": {spin: data[1 + 2 * s * (num_bonds + 1)]
                                           for s, spin in enumerate(spins)},
-                                 "ICOHP": {spin: data[2+2*s*(num_bonds+1)]
+                                 "ICOHP": {spin: data[2 + 2 * s * (num_bonds + 1)]
                                            for s, spin in enumerate(spins)}}}
         orb_cohp = {}
         for bond in range(num_bonds):
-            bond_data = self._get_bond_data(contents[3+bond])
+            bond_data = self._get_bond_data(contents[3 + bond])
             label = bond_data["label"]
             orbs = bond_data["orbitals"]
-            cohp = {spin: data[2*(bond+s*(num_bonds+1))+3]
+            cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3]
                     for s, spin in enumerate(spins)}
-            icohp = {spin: data[2*(bond+s*(num_bonds+1))+4]
+            icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4]
                      for s, spin in enumerate(spins)}
             if orbs is None:
                 cohp_data[label] = {"COHP": cohp, "ICOHP": icohp,
@@ -105,8 +106,8 @@ class Cohpcar(object):
                                     "sites": bond_data["sites"]}
             elif label in orb_cohp:
                 orb_cohp[label].update({bond_data["orb_label"]:
-                                        {"COHP": cohp, "ICOHP": icohp,
-                                         "orbitals": orbs}})
+                                            {"COHP": cohp, "ICOHP": icohp,
+                                             "orbitals": orbs}})
             else:
                 if label not in cohp_data:
                     cohp_data[label] = {"COHP": None, "ICOHP": None,
@@ -194,11 +195,12 @@ class Icohplist(object):
                   "number_of_bonds": number of bonds
                   "icohp": {Spin.up: ICOHP(Ef) spin up, Spin.down: ...}}
     """
+
     def __init__(self, are_coops=False, filename=None):
         self.are_coops = are_coops
         if filename is None:
             filename = "ICOOPLIST.lobster" if are_coops \
-                        else "ICOHPLIST.lobster"
+                else "ICOHPLIST.lobster"
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
@@ -210,8 +212,8 @@ class Icohplist(object):
 
         # If the calculation is spin polarized, the line in the middle
         # of the file will be another header line.
-        if "distance" in data[len(data)//2]:
-            num_bonds = len(data)//2
+        if "distance" in data[len(data) // 2]:
+            num_bonds = len(data) // 2
             if num_bonds == 0:
                 raise IOError("ICOHPLIST file contains no data.")
             self.is_spin_polarized = True
@@ -229,10 +231,11 @@ class Icohplist(object):
             icohplist[label] = {"length": length, "number_of_bonds": num,
                                 "icohp": {Spin.up: icohp}}
             if self.is_spin_polarized:
-                icohp = float(data[bond+num_bonds+1].split()[4])
+                icohp = float(data[bond + num_bonds + 1].split()[4])
                 icohplist[label]["icohp"][Spin.down] = icohp
 
         self.icohplist = icohplist
+
 
 class Doscar(object):
     """
@@ -271,17 +274,15 @@ class Doscar(object):
 
     def __init__(self, doscar="DOSCAR.lobster", vasprun="vasprun.xml"):
 
-        # in Lobster: energies are always relative to efermi
-
         self._doscar = doscar
         self._vasprun = vasprun
         self._VASPRUN = Vasprun(filename=self._vasprun, ionic_step_skip=None,
-                          ionic_step_offset=0, parse_dos=False,
-                          parse_eigen=False, parse_projected_eigen=False,
-                          parse_potcar_file=False, occu_tol=1e-8,
-                          exception_on_bad_xml=True)
+                                ionic_step_offset=0, parse_dos=False,
+                                parse_eigen=False, parse_projected_eigen=False,
+                                parse_potcar_file=False, occu_tol=1e-8,
+                                exception_on_bad_xml=True)
         self._final_structure = self._VASPRUN.final_structure
-        self._is_spin_polarized=self._VASPRUN.is_spin
+        self._is_spin_polarized = self._VASPRUN.is_spin
         self._parse_doscar()
 
     def _parse_doscar(self):
@@ -291,9 +292,9 @@ class Doscar(object):
         f = open(doscar)
         natoms = int(f.readline().split()[0])
         [f.readline() for nn in range(3)]
-        efermi=float(f.readline().split()[17])
+        efermi = float(f.readline().split()[17])
         dos = []
-        orbitals=[]
+        orbitals = []
         for atom in range(natoms + 1):
             line = f.readline()
             ndos = int(line.split()[2])
@@ -317,36 +318,36 @@ class Doscar(object):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 nrow, ncol = data.shape
-                orbnumber=0
+                orbnumber = 0
                 for j in range(1, ncol):
-                    orb=orbitals[atom + 1][orbnumber]
+                    orb = orbitals[atom + 1][orbnumber]
                     pdos[orb][spin] = data[:, j]
-                    orbnumber=orbnumber + 1
+                    orbnumber = orbnumber + 1
                 pdoss.append(pdos)
         else:
             tdensities[Spin.up] = doshere[:, 1]
-            tdensities[Spin.down] =doshere[:,2]
+            tdensities[Spin.down] = doshere[:, 2]
             pdoss = []
             for atom in range(natoms):
                 pdos = defaultdict(dict)
-                data = dos[atom+1]
+                data = dos[atom + 1]
                 _, ncol = data.shape
-                orbnumber=0
+                orbnumber = 0
                 for j in range(1, ncol):
-                    if j%2==0:
-                        spin=Spin.down
+                    if j % 2 == 0:
+                        spin = Spin.down
                     else:
-                        spin=Spin.up
-                    orb = orbitals[atom+1][orbnumber]
+                        spin = Spin.up
+                    orb = orbitals[atom + 1][orbnumber]
                     pdos[orb][spin] = data[:, j]
-                    if j%2==0:
+                    if j % 2 == 0:
                         orbnumber = orbnumber + 1
                 pdoss.append(pdos)
-        self._efermi=efermi
+        self._efermi = efermi
         self._pdos = pdoss
         self._tdos = Dos(efermi, energies, tdensities)
-        self._energies=energies
-        self._tdensities=tdensities
+        self._energies = energies
+        self._tdensities = tdensities
         final_struct = self._final_structure
 
         pdossneu = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
