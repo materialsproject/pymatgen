@@ -1,5 +1,5 @@
-pymatgen.analysis.ferroelectricity.polarization module
-======================================================
+pymatgen\.analysis\.ferroelectricity\.polarization module
+=========================================================
 
 .. automodule:: pymatgen.analysis.ferroelectricity.polarization
     :members:

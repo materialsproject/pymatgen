@@ -10,7 +10,7 @@ __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2018.7.23"
+__version__ = "2018.8.10"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -104,7 +104,7 @@ def loadfn(fname):
         (obj) if *json* (passthrough to monty.serialization.loadfn)
     """
     if (fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or
-            ".cif" in fname.lower()):
+            ".cif" in fname.lower()) or fnmatch(fname, "*.vasp"):
         return Structure.from_file(fname)
     elif fnmatch(fname, "*vasprun*"):
         from pymatgen.io.vasp import Vasprun

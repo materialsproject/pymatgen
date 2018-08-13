@@ -1,5 +1,5 @@
-pymatgen.io.xr module
-=====================
+pymatgen\.io\.xr module
+=======================
 
 .. automodule:: pymatgen.io.xr
     :members:

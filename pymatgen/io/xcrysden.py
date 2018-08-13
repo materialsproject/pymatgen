@@ -44,14 +44,14 @@ class XSF(object):
         return "\n".join(lines)
 
     @classmethod
-    def from_string(self, input_string, cls=None):
+    def from_string(cls, input_string, cls_=None):
         """
         Initialize a `Structure` object from a string with data in XSF format.
 
         Args:
             input_string: String with the structure in XSF format.
                 See http://www.xcrysden.org/doc/XSF.html
-            cls: Structure class to be created. default: pymatgen structure
+            cls_: Structure class to be created. default: pymatgen structure
 
         """
         # CRYSTAL                                        see (1)
@@ -87,14 +87,14 @@ class XSF(object):
                 for j in range(i+2, i+2+num_sites):
                     tokens = lines[j].split()
                     species.append(int(tokens[0]))
-                    coords.append([float(j) for j in tokens[1:]])
+                    coords.append([float(j) for j in tokens[1:4]])
                 break
         else:
             raise ValueError("Invalid XSF data")
 
-        if cls is None:
+        if cls_ is None:
             from pymatgen.core.structure import Structure
-            cls = Structure
+            cls_ = Structure
 
-        s = cls(lattice, species, coords, coords_are_cartesian=True)
+        s = cls_(lattice, species, coords, coords_are_cartesian=True)
         return XSF(s)
