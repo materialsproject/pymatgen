@@ -27,7 +27,7 @@ def standardize_sc_matrix(sc_mat):
     elif (type( sc_mat[0]) == float) or (type( sc_mat[0]) == int):
         return [[float(sc_mat[0]),0., 0.], [0., float(sc_mat[1]), 0.], [0.,0., float(sc_mat[2])]]
     else:
-        return sc_mat
+        return list(sc_mat)
 
 
 def add_vr_eigenvalue_dict( task):
