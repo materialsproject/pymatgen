@@ -1056,7 +1056,7 @@ class JmolNN(NearNeighbors):
         siw = []
         for neighb, dist in structure.get_neighbors(site, max_rad):
             # Confirm neighbor based on bond length specific to atom pair
-            if dist <= bonds[(site.specie, neighb.specie)] + self.tol and dist > self.min_bond_distance:
+            if dist <= (bonds[(site.specie, neighb.specie)]) and (dist > self.min_bond_distance):
                 weight = min_rad / dist
                 siw.append({'site': neighb,
                             'image': self._get_image(neighb.frac_coords),
