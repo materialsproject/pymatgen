@@ -69,10 +69,10 @@ class Slab(Structure):
     slab. Also has additional methods that returns other information
     about a slab such as the surface area, normal, and atom adsorption.
 
-    Note that all Slabs have the surface normal oriented in the c-direction.
-    This means the lattice vectors a and b are in the surface plane and the c
-    vector is out of the surface plane (though not necessary perpendicular to
-    the surface.)
+    Note that all Slabs have the surface normal oriented perpendicular to the a
+    and b lattice vectors. This means the lattice vectors a and b are in the
+    surface plane and the c vector is out of the surface plane (though not
+    necessarily perpendicular to the surface).
 
     .. attribute:: miller_index
 
