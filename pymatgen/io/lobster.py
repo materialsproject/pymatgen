@@ -317,7 +317,7 @@ class Doscar(object):
             for atom in range(natoms):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
-                nrow, ncol = data.shape
+                _, ncol = data.shape
                 orbnumber = 0
                 for j in range(1, ncol):
                     orb = orbitals[atom + 1][orbnumber]
