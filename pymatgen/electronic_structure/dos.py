@@ -795,6 +795,166 @@ class CompleteDos(Dos):
         return "Complete DOS for " + str(self.structure)
 
 
+class LobsterCompleteDos(CompleteDos):
+    """
+    CompleteDOS for Lobster output
+    LobsterDOS can have different s orbitals in the output of an atom
+    """
+
+    def get_site_orbital_dos(self, site, orbital):
+        """
+        Get the Dos for a particular orbital of a particular site.
+
+        Args:
+            site: Site in Structure associated with CompleteDos.
+            orbital: principal quantum number and orbital in string format, e.g. "4s".
+                    possible orbitals are: "s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                    "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"
+                    In contrast to the Cohpcar and the Cohplist objects, the strings from the Lobster files are used
+
+        Returns:
+            Dos containing densities for orbital of site.
+        """
+        if orbital[1:] not in ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2", "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)",
+                               "f_xyz",
+                               "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]:
+            raise ValueError('orbital is not correct')
+        else:
+            return Dos(self.efermi, self.energies, self.pdos[site][orbital])
+
+    def get_site_t2g_eg_resolved_dos(self, site):
+        """
+        Get the t2g, eg projected DOS for a particular site.
+        Only works for octahedral coordination environments?!?
+        Args:
+            site: Site in Structure associated with CompleteDos.
+
+        Returns:
+            A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS
+            for the site.
+
+        """
+
+        warnings.warn("Are the orbitals correctly oriented? Are you sure?")
+        t2g_dos = []
+        eg_dos = []
+        # print(pdos.items())
+        for s, atom_dos in self.pdos.items():
+            if s == site:
+                # print('test')
+                for orb, pdos in atom_dos.items():
+                    # print(_get_orb(orb))
+                    if self._get_orb(orb) in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
+
+                        t2g_dos.append(pdos)
+                    elif self._get_orb(orb) in (Orbital.dx2, Orbital.dz2):
+                        eg_dos.append(pdos)
+        return {"t2g": Dos(self.efermi, self.energies,
+                           six.moves.reduce(add_densities, t2g_dos)),
+                "e_g": Dos(self.efermi, self.energies,
+                           six.moves.reduce(add_densities, eg_dos))}
+
+    def get_spd_dos(self):
+        """
+        Get orbital projected Dos.
+        For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital projected DOS
+
+        Returns:
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
+        """
+        spd_dos = {}
+        for atom_dos in self.pdos.values():
+            for orb, pdos in atom_dos.items():
+                orbital_type = self._get_orb_type(orb)
+                if orbital_type not in spd_dos:
+                    spd_dos[orbital_type] = pdos
+                else:
+                    spd_dos[orbital_type] = \
+                        add_densities(spd_dos[orbital_type], pdos)
+
+        return {orb: Dos(self.efermi, self.energies, densities)
+                for orb, densities in spd_dos.items()}
+
+    def get_element_spd_dos(self, el):
+        """
+        Get element and spd projected Dos
+
+
+        Args:
+            el: Element in Structure.composition associated with CompleteDos
+
+        Returns:
+            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+        """
+        el = get_el_sp(el)
+        el_dos = {}
+        for site, atom_dos in self.pdos.items():
+            if site.specie == el:
+                for orb, pdos in atom_dos.items():
+                    orbital_type = self._get_orb_type(orb)
+                    if orbital_type not in el_dos:
+                        el_dos[orbital_type] = pdos
+                    else:
+                        el_dos[orbital_type] = \
+                            add_densities(el_dos[orbital_type], pdos)
+
+        return {orb: Dos(self.efermi, self.energies, densities)
+                for orb, densities in el_dos.items()}
+
+    @classmethod
+    def from_dict(cls, d):
+        """
+        Returns: CompleteDos object from dict representation.
+        """
+        tdos = Dos.from_dict(d)
+        struct = Structure.from_dict(d["structure"])
+        pdoss = {}
+        for i in range(len(d["pdos"])):
+            at = struct[i]
+            orb_dos = {}
+            for orb_str, odos in d["pdos"][i].items():
+                orb = orb_str
+                orb_dos[orb] = {Spin(int(k)): v
+                                for k, v in odos["densities"].items()}
+            pdoss[at] = orb_dos
+        return LobsterCompleteDos(struct, tdos, pdoss)
+
+    def _get_orb_type(self, orb):
+        """
+        Args:
+         orb: string representation of orbital
+        Returns:
+         OrbitalType
+        """
+        orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                    "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
+
+        try:
+            orbital = Orbital(orb_labs.index(orb[1:]))
+            return orbital.orbital_type
+        except AttributeError:
+            print("Orb not in list")
+
+    def _get_orb(self, orb):
+        """
+        Args:
+            orb: string representation of orbital
+        Returns:
+             Orbital
+        """
+        orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                    "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
+
+        try:
+            orbital = Orbital(orb_labs.index(orb[1:]))
+            return orbital
+        except AttributeError:
+            print("Orb not in list")
+
+
 def add_densities(density1, density2):
     """
     Method to sum two densities.

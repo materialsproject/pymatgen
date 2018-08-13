@@ -6,9 +6,11 @@ from __future__ import division, unicode_literals
 
 import re
 import numpy as np
-
 from monty.io import zopen
+from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.io.vasp.outputs import Vasprun
+from pymatgen.electronic_structure.dos import  Dos, LobsterCompleteDos
 
 """
 Module for reading Lobster output files. For more information
@@ -231,3 +233,152 @@ class Icohplist(object):
                 icohplist[label]["icohp"][Spin.down] = icohp
 
         self.icohplist = icohplist
+
+class Doscar(object):
+    """
+    Class to deal with Lobster's projected DOS and local projected DOS.
+    The beforehand quantum-chemical calculation was performed with VASP
+
+    Args:
+        doscar: DOSCAR filename, typically "DOSCAR.lobster"
+        vasprun: vasprun filename, typically "vasprun.xml"
+
+    .. attribute:: completedos
+
+        LobsterCompleteDos Object
+
+    .. attribute:: pdos
+        List of Dict including numpy arrays with pdos. Access as pdos[atomindex]['orbitalstring']['Spin.up/Spin.down']
+
+    .. attribute:: tdos
+        Dos Object of the total density of states
+
+    .. attribute:: energies
+        numpy array of the energies at which the DOS was calculated (in eV, relative to Efermi)
+
+    .. attribute:: tdensities
+        tdensities[Spin.up]: numpy array of the total density of states for the Spin.up contribution at each of the energies
+        tdensities[Spin.down]: numpy array of the total density of states for the Spin.down contribution at each of the energies
+
+        if is_spin_polarized=False:
+        tdensities[Spin.up]: numpy array of the total density of states
+
+    .. attribute:: is_spin_polarized
+        Boolean. Tells if the system is spin polarized
+
+
+    """
+
+    def __init__(self, doscar="DOSCAR.lobster", vasprun="vasprun.xml"):
+
+        # in Lobster: energies are always relative to efermi
+
+        self._doscar = doscar
+        self._vasprun = vasprun
+        self._VASPRUN = Vasprun(filename=self._vasprun, ionic_step_skip=None,
+                          ionic_step_offset=0, parse_dos=False,
+                          parse_eigen=False, parse_projected_eigen=False,
+                          parse_potcar_file=False, occu_tol=1e-8,
+                          exception_on_bad_xml=True)
+        self._final_structure = self._VASPRUN.final_structure
+        self._is_spin_polarized=self._VASPRUN.is_spin
+        self._parse_doscar()
+
+    def _parse_doscar(self):
+        orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+                    "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
+        doscar = self._doscar
+
+
+        tdensities = {}
+        f = open(doscar)
+        natoms = int(f.readline().split()[0])
+        [f.readline() for nn in range(3)]
+        #print(f.readline().split())
+        efermi=float(f.readline().split()[17])
+        #print(efermi)
+        dos = []
+        orbitals=[]
+        for atom in range(natoms + 1):
+            line = f.readline()
+            ndos = int(line.split()[2])
+            orbitals.append(line.split(';')[-1].split())
+            line = f.readline().split()
+            cdos = np.zeros((ndos, len(line)))
+            cdos[0] = np.array(line)
+            for nd in range(1, ndos):
+                line = f.readline().split()
+                cdos[nd] = np.array(line)
+            dos.append(cdos)
+        f.close()
+
+        doshere = np.array(dos[0])
+        energies = doshere[:, 0]
+        if not self._is_spin_polarized:
+            tdensities[Spin.up] = doshere[:, 1]
+            pdoss = []
+            spin = Spin.up
+            for atom in range(natoms):
+                pdos = defaultdict(dict)
+                data = dos[atom + 1]
+                nrow, ncol = data.shape
+                orbnumber=0
+                for j in range(1, ncol):
+                    orb=orbitals[atom + 1][orbnumber]
+                    pdos[orb][spin] = data[:, j]
+                    orbnumber=orbnumber + 1
+                pdoss.append(pdos)
+        else:
+            tdensities[Spin.up] = doshere[:, 1]
+            tdensities[Spin.down] =doshere[:,2]
+            pdoss = []
+            for atom in range(natoms):
+                pdos = defaultdict(dict)
+                data = dos[atom+1]
+                nrow, ncol = data.shape
+                orbnumber=0
+                for j in range(1, ncol):
+                    if j%2==0:
+                        spin=Spin.down
+                    else:
+                        spin=Spin.up
+                    orb = orbitals[atom+1][orbnumber]
+                    pdos[orb][spin] = data[:, j]
+                    if j%2==0:
+                        orbnumber = orbnumber + 1
+                pdoss.append(pdos)
+        self._efermi=efermi
+        self._pdos = pdoss
+        self._tdos = Dos(efermi, energies, tdensities)
+        self._energies=energies
+        self._tdensities=tdensities
+        final_struct = self._final_structure
+
+        pdossneu = {final_struct[i]: pdos for i, pdos in enumerate(self._pdos)}
+
+        self._completedos = LobsterCompleteDos(final_struct, self._tdos, pdossneu)
+
+    @property
+    def completedos(self):
+        return self._completedos
+
+    @property
+    def pdos(self):
+        return self._pdos
+
+    @property
+    def tdos(self):
+        return self._tdos
+
+    @property
+    def energies(self):
+        return self._energies
+
+    @property
+    def tdensities(self):
+        return self._tdensities
+
+    @property
+    def is_spin_polarized(self):
+        return self._is_spin_polarized
