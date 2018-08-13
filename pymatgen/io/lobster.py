@@ -285,19 +285,13 @@ class Doscar(object):
         self._parse_doscar()
 
     def _parse_doscar(self):
-        orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
-                    "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
-                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
         doscar = self._doscar
-
 
         tdensities = {}
         f = open(doscar)
         natoms = int(f.readline().split()[0])
         [f.readline() for nn in range(3)]
-        #print(f.readline().split())
         efermi=float(f.readline().split()[17])
-        #print(efermi)
         dos = []
         orbitals=[]
         for atom in range(natoms + 1):
@@ -336,7 +330,7 @@ class Doscar(object):
             for atom in range(natoms):
                 pdos = defaultdict(dict)
                 data = dos[atom+1]
-                nrow, ncol = data.shape
+                _, ncol = data.shape
                 orbnumber=0
                 for j in range(1, ncol):
                     if j%2==0:

@@ -444,6 +444,8 @@ class LobsterCompleteDosTest(unittest.TestCase):
             PDOS_K_3py_down) + np.array(PDOS_K_3pz_down) + np.array(PDOS_K_3px_down)).tolist()
         self.assertListEqual(self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].energies.tolist(),
                              energies_spin)
+        self.assertEqual(self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].efermi,
+                             fermi)
 
         for ilistel, listel in enumerate(
                 self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(0)].densities[Spin.up].tolist()):
@@ -553,17 +555,6 @@ class LobsterCompleteDosTest(unittest.TestCase):
         self.assertAlmostEqual(
             self.LobsterCompleteDOS_nonspin.get_element_spd_dos(el=Element('F'))[OrbitalType(0)].efermi, efermi)
 
-    def test_get_orb_type(self):
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb_type(orb='2s'), OrbitalType(0))
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb_type(orb='4p_x'), OrbitalType(1))
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb_type(orb='3d_x^2-y^2'), OrbitalType(2))
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb_type(orb='4f_z(x^2-y^2)'), OrbitalType(3))
-
-    def test_get_orb(self):
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb(orb='2s'), Orbital(0))
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb(orb='4p_x'), Orbital(3))
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb(orb='3d_x^2-y^2'), Orbital(8))
-        self.assertEqual(self.LobsterCompleteDOS_spin._get_orb(orb='4f_z(x^2-y^2)'), Orbital(14))
 
 
 
