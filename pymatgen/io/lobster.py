@@ -291,8 +291,7 @@ class Doscar(object):
         tdensities = {}
         f = open(doscar)
         natoms = int(f.readline().split()[0])
-        [f.readline() for nn in range(3)]
-        efermi = float(f.readline().split()[17])
+        efermi=float([f.readline() for nn in range(4)][3].split()[17])
         dos = []
         orbitals = []
         for atom in range(natoms + 1):
