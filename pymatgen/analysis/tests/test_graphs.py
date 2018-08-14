@@ -7,7 +7,6 @@ from __future__ import division, unicode_literals
 import unittest
 import os
 import copy
-import matplotlib
 
 from monty.serialization import loadfn#, dumpfn
 
@@ -423,6 +422,10 @@ class MoleculeGraphTest(unittest.TestCase):
                 self.assertEqual(
                     mol_graph.graph.node[node]["coords"][ii],
                     ref_mol_graph.graph.node[node]["coords"]["data"][ii])
+
+        mol_graph_edges = build_MoleculeGraph(self.pc, edges=self.pc_edges)
+        mol_graph_strat = build_MoleculeGraph(self.pc, strategy=MinimumDistanceNN)
+        self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")

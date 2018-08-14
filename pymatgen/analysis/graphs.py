@@ -1178,6 +1178,14 @@ class MoleculeGraph(MSONable):
 
             mg.graph = nx.relabel_nodes(mg.graph, mapping)
 
+        duplicates = []
+        for edge in mg.graph.edges:
+            if edge[2] != 0:
+                duplicates.append(edge)
+
+        for duplicate in duplicates:
+            mg.graph.remove_edge(duplicate[0], duplicate[1], key=duplicate[2])
+
         return mg
 
     @property
