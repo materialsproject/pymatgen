@@ -293,6 +293,178 @@ class StructureGraph(MSONable):
                                 to_jimage=to_jimage,
                                 **edge_properties)
 
+    def insert_node(self, i, species, coords, coords_are_cartesian=False,
+                    validate_proximity=False, site_properties=None, edges=None):
+        """
+        A wrapper around Molecule.insert(), which also incorporates the new
+        site into the MoleculeGraph.
+
+        :param i: Index at which to insert the new site
+        :param species: Species for the new site
+        :param coords: 3x1 array representing coordinates of the new site
+        :param coords_are_cartesian: Whether coordinates are cartesian.
+                Defaults to False.
+        :param validate_proximity: For Molecule.insert(); if True (default
+            False), distance will be checked to ensure that site can be safely
+            added.
+        :param site_properties: Site properties for Molecule
+        :param edges: List of dicts representing edges to be added to the
+            MoleculeGraph. These edges must include the index of the new site i,
+            and all indices used for these edges should reflect the
+            MoleculeGraph AFTER the insertion, NOT before. Each dict should at
+            least have a "to_index" and "from_index" key, and can also have a
+            "weight" and a "properties" key.
+        :return:
+        """
+
+        self.structure.insert(i, species, coords,
+                              coords_are_cartesian=coords_are_cartesian,
+                              validate_proximity=validate_proximity,
+                              properties=site_properties)
+
+        mapping = {}
+        for j, s in enumerate(self.structure):
+            if j < i:
+                mapping[j] = j
+            else:
+                mapping[j] = j + 1
+        nx.relabel_nodes(self.graph, mapping)
+
+        self.graph.add_node(i)
+        self.set_node_attributes()
+
+        if edges is not None:
+            for edge in edges:
+                try:
+                    self.add_edge(edge["from_index"], edge["to_index"],
+                                  from_jimage=(0, 0, 0),
+                                  to_jimage=edge["to_jimage"],
+                                  weight=edge.get("weight", None),
+                                  edge_properties=edge.get("properties", None))
+                except KeyError:
+                    raise RuntimeError("Some edges are invalid.")
+
+    def set_node_attributes(self):
+        """
+        Gives each node a "specie" and a "coords" attribute, updated with the
+        current species and coordinates.
+
+        :return:
+        """
+
+        species = {}
+        coords = {}
+        for node in self.graph.nodes():
+            species[node] = self.structure[node].specie.symbol
+            coords[node] = self.structure[node].coords
+        nx.set_node_attributes(self.graph, species, "specie")
+        nx.set_node_attributes(self.graph, coords, "coords")
+
+    def alter_edge(self, from_index, to_index, to_jimage=None,
+                   new_weight=None, new_edge_properties=None):
+        """
+        Alters either the weight or the edge_properties of
+        an edge in the StructureGraph.
+
+        :param from_index: int
+        :param to_index: int
+        :param to_jimage: tuple
+        :param new_weight: alter_edge does not require
+        that weight be altered. As such, by default, this
+        is None. If weight is to be changed, it should be a
+        float.
+        :param new_edge_properties: alter_edge does not require
+        that edge_properties be altered. As such, by default,
+        this is None. If any edge properties are to be changed,
+        it should be a dictionary of edge properties to be changed.
+        :return:
+        """
+
+        existing_edges = self.graph.get_edge_data(from_index, to_index)
+
+        # ensure that edge exists before attempting to change it
+        if not existing_edges:
+            raise ValueError("Edge between {} and {} cannot be altered;\
+                                no edge exists between those sites.".format(
+                                from_index, to_index
+                                ))
+
+        if to_jimage is None:
+            edge_index = 0
+        else:
+            for i, properties in existing_edges.items():
+                if properties["to_jimage"] == to_jimage:
+                    edge_index = i
+
+        if new_weight is not None:
+            self.graph[from_index][to_index][edge_index]['weight'] = new_weight
+
+        if new_edge_properties is not None:
+            for prop in list(new_edge_properties.keys()):
+                self.graph[from_index][to_index][edge_index][prop] = new_edge_properties[prop]
+
+    def break_edge(self, from_index, to_index, to_jimage=None, allow_reverse=False):
+        """
+        Remove an edge from the StructureGraph. If no image is given, this method will fail.
+
+        :param from_index: int
+        :param to_index: int
+        :param to_jimage: tuple
+        :param allow_reverse: If allow_reverse is True, then break_edge will
+        attempt to break both (from_index, to_index) and, failing that,
+        will attempt to break (to_index, from_index).
+        :return:
+        """
+
+        # ensure that edge exists before attempting to remove it
+        existing_edges = self.graph.get_edge_data(from_index, to_index)
+        existing_reverse = None
+
+        if to_jimage is None:
+            raise ValueError("Image must be supplied, to avoid ambiguity.")
+
+        if existing_edges:
+            for i, properties in existing_edges.items():
+                if properties["to_jimage"] == to_jimage:
+                    edge_index = i
+
+            self.graph.remove_edge(from_index, to_index, edge_index)
+
+        else:
+            if allow_reverse:
+                existing_reverse = self.graph.get_edge_data(to_index, from_index)
+
+            if existing_reverse:
+                for i, properties in existing_reverse.items():
+                    if properties["to_jimage"] == to_jimage:
+                        edge_index = i
+
+                self.graph.remove_edge(to_index, from_index, edge_index)
+            else:
+                raise ValueError("Edge cannot be broken between {} and {};\
+                                no edge exists between those sites.".format(
+                                from_index, to_index
+                                ))
+
+    def remove_nodes(self, indices):
+        """
+        A wrapper for Molecule.remove_sites().
+
+        :param indices: list of indices in the current Molecule (and graph) to
+            be removed.
+        :return:
+        """
+
+        self.structure.remove_sites(indices)
+        self.graph.remove_nodes_from(indices)
+
+        mapping = {}
+        for correct, current in enumerate(self.graph.nodes):
+            mapping[current] = correct
+
+        nx.relabel_nodes(self.graph, mapping)
+        self.set_node_attributes()
+
     def get_connected_sites(self, n, jimage=(0, 0, 0)):
         """
         Returns a named tuple of neighbors of site n:
