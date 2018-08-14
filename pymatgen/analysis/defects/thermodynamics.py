@@ -8,6 +8,8 @@ from scipy.spatial import HalfspaceIntersection
 from scipy.optimize import bisect
 from itertools import groupby, chain
 
+from pymatgen.electronic_structure.dos import FermiDos
+
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"
@@ -75,7 +77,7 @@ class DefectPhaseDiagram(MSONable):
         # E_fermi = { -1 eV to band gap+1}
         # the 1 eV padding provides
         # E_formation. = { -21 eV to 20 eV}
-        limits = [[-1, self.band_gap + 1], [-21, 20]]
+        limits = [[-1, self.band_gap + 1], [-200, 200]]
 
         stable_entries = {}
         finished_charges = {}
@@ -106,18 +108,31 @@ class DefectPhaseDiagram(MSONable):
                                      ints_and_facets)
             # sort based on transition level
             ints_and_facets = list(sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0]))
-            # Unpack into lists
-            _, facets = zip(*ints_and_facets)
-            # Map of transition level: charge states
 
-            transition_level_map[defects[0].name] = {
-                intersection[0]: [defects[i].charge for i in facet]
-                for intersection, facet in ints_and_facets
-            }
+            if len(ints_and_facets):
+                # Unpack into lists
+                _, facets = zip(*ints_and_facets)
+                # Map of transition level: charge states
 
-            stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
+                transition_level_map[defects[0].name] = {
+                    intersection[0]: [defects[i].charge for i in facet]
+                    for intersection, facet in ints_and_facets
+                }
 
-            finished_charges[defects[0].name] = [defect.charge for defect in defects]
+                stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
+
+                finished_charges[defects[0].name] = [defect.charge for defect in defects]
+            else:
+                # if ints_and_facets is empty, then there is likely only one defect...
+                if len(defects) != 1:
+                    raise ValueError("ints and facets was empty but more than one defect exists... why?")
+
+                transition_level_map[defects[0].name] = {}
+
+                stable_entries[defects[0].name] = list([defects[0]])
+
+                finished_charges[defects[0].name] = [defects[0].charge]
+
 
         self.transition_level_map = transition_level_map
         self.transition_levels = {
@@ -233,10 +248,10 @@ class DefectPhaseDiagram(MSONable):
 
             qd_tot = sum([
                 d['charge'] * d['conc']
-                for d in self.list_defect_concentrations(
+                for d in self.defect_concentrations(
                     chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=ef)
             ])
-            qd_tot += fdos.get_doping(fermi=ef, T=temperature)
+            qd_tot += fdos.get_doping(fermi=ef + self.vbm, T=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
