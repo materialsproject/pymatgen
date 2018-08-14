@@ -12,14 +12,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import build_MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
-
-# have_babel = True
-# try:
-#     from pymatgen.io.babel import BabelMolAdaptor
-#     import openbabel as ob
-# except ImportError:
-#     print("Cannot find OpenBabel! Thus, bonds must be provided by the user.")
-#     have_babel = False
+import networkx.algorithms.isomorphism as iso
 
 
 __author__ = "Samuel Blau"
@@ -104,7 +97,7 @@ class BondDissociationEnergies(MSONable):
                                              strategy=OpenBabelNN,
                                              reorder=False,
                                              extend_structure=False)
-        for bond in self.mol_graph.graph.edges: 
+        for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0],bond[1])]
             self.fragment_and_process(bonds)
         self.bond_pairs = []
