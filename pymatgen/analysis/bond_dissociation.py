@@ -9,7 +9,8 @@ import logging
 from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchem.outputs import build_MoleculeGraph, is_isomorphic
+from pymatgen.analysis.graphs import build_MoleculeGraph
+from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
 
 # have_babel = True
@@ -99,8 +100,11 @@ class BondDissociationEnergies(MSONable):
         # self.all_bonds = edges_from_babel(target_molecule)
         self.ring_bonds = []
         self.bad_pairs = []
-        self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["output"]["optimized_molecule"]))#, self.all_bonds)
-        for bond in self.mol_graph.graph.edges: #switch to all_bonds?
+        self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["output"]["optimized_molecule"]),
+                                             strategy=OpenBabelNN,
+                                             reorder=False,
+                                             extend_structure=False)
+        for bond in self.mol_graph.graph.edges: 
             bonds = [(bond[0],bond[1])]
             self.fragment_and_process(bonds)
         self.bond_pairs = []
@@ -159,14 +163,22 @@ class BondDissociationEnergies(MSONable):
         entries = []
         initial_entries = []
         final_entries = []
+        node_match = iso.categorical_node_match("specie", "ERROR")
         for entry in self.fragment_entries:
-            initial_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]))
-            final_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"]))
-            initial_graph = initial_molgraph.graph
-            final_graph = final_molgraph.graph
-            if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
+            initial_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]),
+                               strategy=OpenBabelNN,
+                               reorder=False,
+                               extend_structure=False)
+            final_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"]),
+                             strategy=OpenBabelNN,
+                             reorder=False,
+                             extend_structure=False)
+            initial_graph = initial_molgraph.graph.to_undirected()
+            final_graph = final_molgraph.graph.to_undirected()
+            frag_graph = frag.graph.to_undirected()
+            if nx.is_isomorphic(frag_graph, initial_graph, nm=node_match) and nx.is_isomorphic(frag_graph, final_graph):
                 entries += [entry]
-            elif is_isomorphic(frag.graph, initial_graph):
+            elif nx.is_isomorphic(frag_graph, initial_graph, nm=node_match):
                 print(entry["task_id"])
                 print()
                 print(entry["dir_name"])
@@ -176,7 +188,7 @@ class BondDissociationEnergies(MSONable):
                 print(final_molgraph.molecule)
                 print()
                 initial_entries += [entry]
-                if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(final_graph.to_undirected()):
+                if nx.is_connected(initial_molgraph) and not nx.is_connected(final_graph):
                     print("unconnected_fragments")
                 elif final_graph.number_of_edges() < initial_graph.number_of_edges():
                     print("fewer_bonds")
@@ -184,7 +196,7 @@ class BondDissociationEnergies(MSONable):
                     print("more_bonds")
                 else:
                     print("bond_change")
-            elif is_isomorphic(frag.graph, final_graph):
+            elif nx.is_isomorphic(frag_graph, final_graph, nm=node_match):
                 print(entry["task_id"])
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
