@@ -181,7 +181,7 @@ class BondDissociationEnergies(MSONable):
                 print(final_molgraph.molecule)
                 print()
                 initial_entries += [entry]
-                if nx.is_connected(initial_molgraph) and not nx.is_connected(final_graph):
+                if nx.is_connected(initial_graph) and not nx.is_connected(final_graph):
                     print("unconnected_fragments")
                 elif final_graph.number_of_edges() < initial_graph.number_of_edges():
                     print("fewer_bonds")
