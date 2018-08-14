@@ -1174,9 +1174,18 @@ class MoleculeGraph(MSONable):
         if reorder:
             # Reverse order of nodes to match with molecule
             n = len(mg.molecule)
-            mapping = {i: (n-i) for i in range(n)}
+            mapping = {i: (n - i) for i in range(n)}
+            mapping = {i: (j - 1) for i, j in mapping.items()}
 
             mg.graph = nx.relabel_nodes(mg.graph, mapping)
+
+        duplicates = []
+        for edge in mg.graph.edges:
+            if edge[2] != 0:
+                duplicates.append(edge)
+
+        for duplicate in duplicates:
+            mg.graph.remove_edge(duplicate[0], duplicate[1], key=duplicate[2])
 
         return mg
 
