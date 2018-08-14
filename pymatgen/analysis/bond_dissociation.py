@@ -156,7 +156,7 @@ class BondDissociationEnergies(MSONable):
         entries = []
         initial_entries = []
         final_entries = []
-        node_match = iso.categorical_node_match("specie", "ERROR")
+        nm = iso.categorical_node_match("specie", "ERROR")
         for entry in self.fragment_entries:
             initial_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]),
                                strategy=OpenBabelNN,
@@ -169,9 +169,9 @@ class BondDissociationEnergies(MSONable):
             initial_graph = initial_molgraph.graph.to_undirected()
             final_graph = final_molgraph.graph.to_undirected()
             frag_graph = frag.graph.to_undirected()
-            if nx.is_isomorphic(frag_graph, initial_graph, nm=node_match) and nx.is_isomorphic(frag_graph, final_graph):
+            if nx.is_isomorphic(frag_graph, initial_graph, node_match=nm) and nx.is_isomorphic(frag_graph, final_graph, node_match=nm):
                 entries += [entry]
-            elif nx.is_isomorphic(frag_graph, initial_graph, nm=node_match):
+            elif nx.is_isomorphic(frag_graph, initial_graph, node_match=nm):
                 print(entry["task_id"])
                 print()
                 print(entry["dir_name"])
@@ -189,7 +189,7 @@ class BondDissociationEnergies(MSONable):
                     print("more_bonds")
                 else:
                     print("bond_change")
-            elif nx.is_isomorphic(frag_graph, final_graph, nm=node_match):
+            elif nx.is_isomorphic(frag_graph, final_graph, node_match=nm):
                 print(entry["task_id"])
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
