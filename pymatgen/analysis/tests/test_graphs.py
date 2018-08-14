@@ -13,7 +13,7 @@ from monty.serialization import loadfn#, dumpfn
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
 from pymatgen.analysis.graphs import *
-from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
+from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN, OpenBabelNN
 
 try:
     import openbabel as ob
@@ -396,6 +396,7 @@ class MoleculeGraphTest(unittest.TestCase):
         del self.butadiene
         del self.cyclohexene
 
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_build_MoleculeGraph(self):
         mol_graph = build_MoleculeGraph(self.pc_frag1, edges=self.pc_frag1_edges)
         # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
@@ -424,7 +425,7 @@ class MoleculeGraphTest(unittest.TestCase):
                     ref_mol_graph.graph.node[node]["coords"]["data"][ii])
 
         mol_graph_edges = build_MoleculeGraph(self.pc, edges=self.pc_edges)
-        mol_graph_strat = build_MoleculeGraph(self.pc, strategy=MinimumDistanceNN)
+        mol_graph_strat = build_MoleculeGraph(self.pc, strategy=OpenBabelNN, reorder=False, extend_structure=False)
         self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
 
     def test_properties(self):

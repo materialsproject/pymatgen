@@ -1174,7 +1174,8 @@ class MoleculeGraph(MSONable):
         if reorder:
             # Reverse order of nodes to match with molecule
             n = len(mg.molecule)
-            mapping = {i: (n-i) for i in range(n)}
+            mapping = {i: (n - i) for i in range(n)}
+            mapping = {i: (j - 1) for i, j in mapping.items()}
 
             mg.graph = nx.relabel_nodes(mg.graph, mapping)
 
