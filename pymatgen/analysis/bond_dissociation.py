@@ -172,25 +172,26 @@ class BondDissociationEnergies(MSONable):
             if nx.is_isomorphic(frag_graph, initial_graph, node_match=nm) and nx.is_isomorphic(frag_graph, final_graph, node_match=nm):
                 entries += [entry]
             elif nx.is_isomorphic(frag_graph, initial_graph, node_match=nm):
-                print(entry["task_id"])
-                print()
-                print(entry["dir_name"])
-                print()
-                print(initial_molgraph.molecule)
-                print()
-                print(final_molgraph.molecule)
-                print()
+                # print(entry["task_id"])
+                # print()
+                # print(entry["dir_name"])
+                # print()
+                # print(initial_molgraph.molecule)
+                # print()
+                # print(final_molgraph.molecule)
+                # print()
+                entries += [entry]
                 initial_entries += [entry]
-                if nx.is_connected(initial_graph) and not nx.is_connected(final_graph):
-                    print("unconnected_fragments")
-                elif final_graph.number_of_edges() < initial_graph.number_of_edges():
-                    print("fewer_bonds")
-                elif final_graph.number_of_edges() > initial_graph.number_of_edges():
-                    print("more_bonds")
-                else:
-                    print("bond_change")
+                # if nx.is_connected(initial_graph) and not nx.is_connected(final_graph):
+                #     print("unconnected_fragments")
+                # elif final_graph.number_of_edges() < initial_graph.number_of_edges():
+                #     print("fewer_bonds")
+                # elif final_graph.number_of_edges() > initial_graph.number_of_edges():
+                #     print("more_bonds")
+                # else:
+                #     print("bond_change")
             elif nx.is_isomorphic(frag_graph, final_graph, node_match=nm):
-                print(entry["task_id"])
+                # print(entry["task_id"])
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
 
