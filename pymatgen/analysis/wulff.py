@@ -615,9 +615,9 @@ class WulffShape(object):
             Useful for identifying catalytically active sites.
         """
         all_edges = []
-        for facet in wulff.facets:
+        for facet in self.facets:
             edges = []
-            pt = wulff.get_lines_in_facet(facet)
+            pt = self.get_lines_in_facet(facet)
 
             lines = []
             for i, p in enumerate(pt):
