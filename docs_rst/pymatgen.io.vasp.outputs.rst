@@ -1,5 +1,5 @@
-pymatgen.io.vasp.outputs module
-===============================
+pymatgen\.io\.vasp\.outputs module
+==================================
 
 .. automodule:: pymatgen.io.vasp.outputs
     :members:
