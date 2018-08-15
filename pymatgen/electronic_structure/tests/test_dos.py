@@ -241,7 +241,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
         self.structure_MnO = Structure.from_dict(data_MnO)
 
     def test_get_site_orbital_dos(self):
-        # with spin
+        # with spin polarization
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         fermi = 0.0
 
@@ -303,7 +303,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
         self.assertAlmostEqual(
             self.LobsterCompleteDOS_spin.get_site_orbital_dos(site=self.structure[0], orbital='2p_x').efermi, fermi)
 
-        # without spin
+        # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
         PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
@@ -347,7 +347,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
                 Spin.up].tolist(), PDOS_F_2px)
 
     def test_get_site_t2g_eg_resolved_dos(self):
-        # with spin
+        # with spin polarization
         energies = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         efermi = 0.0
         PDOS_Mn_3dxy_up = [0.00000, 0.00001, 0.10301, 0.16070, 0.00070, 0.00060]
@@ -392,8 +392,8 @@ class LobsterCompleteDosTest(unittest.TestCase):
         self.assertEqual(efermi,
                          self.LobsterCompleteDOS_MnO.get_site_t2g_eg_resolved_dos(self.structure_MnO[1])['t2g'].efermi)
 
-        # self.structure_MnO
-        # withoutspin
+
+        # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         PDOS_Mn_3dxy = [0.00000, 0.00000, 0.02032, 0.16094, 0.33659, 0.01291]
         PDOS_Mn_3dyz = [0.00000, 0.00000, 0.02032, 0.16126, 0.33628, 0.01290]
@@ -426,7 +426,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
                              't2g'].efermi)
 
     def test_get_spd_dos(self):
-        # with spin
+        # with spin polarization
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         fermi = 0.0
 
@@ -439,7 +439,6 @@ class LobsterCompleteDosTest(unittest.TestCase):
         PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
         PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
 
-        # K
         PDOS_K_3s_up = [0.00000, 0.00000, 0.00000, 0.00008, 0.00000, 0.00007]
         PDOS_K_3s_down = [0.00000, 0.00000, 0.00000, 0.00008, 0.00000, 0.00007]
         PDOS_K_4s_up = [0.00000, 0.00018, 0.00000, 0.02035, 0.00000, 0.02411]
@@ -475,7 +474,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
                 self.LobsterCompleteDOS_spin.get_spd_dos()[OrbitalType(1)].densities[Spin.down].tolist()):
             self.assertAlmostEqual(listel, PDOS_p_down[ilistel])
 
-        # without spin
+        # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
         PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
@@ -504,7 +503,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
             self.assertAlmostEqual(listel, PDOS_p[ilistel])
 
     def test_get_element_spd_dos(self):
-        # with spin
+        # with spin polarization
         energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         fermi = 0.0
 
@@ -544,7 +543,7 @@ class LobsterCompleteDosTest(unittest.TestCase):
         self.assertAlmostEqual(self.LobsterCompleteDOS_spin.get_element_spd_dos(el=Element('F'))[OrbitalType(0)].efermi,
                                fermi)
 
-        # without spin
+        # without spin polarization
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         efermi = 0.0
         PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
