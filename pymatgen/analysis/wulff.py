@@ -617,7 +617,7 @@ class WulffShape(object):
         all_edges = []
         for facet in self.facets:
             edges = []
-            pt = self.get_lines_in_facet(facet)
+            pt = self.get_line_in_facet(facet)
 
             lines = []
             for i, p in enumerate(pt):

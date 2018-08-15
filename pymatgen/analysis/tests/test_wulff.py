@@ -180,7 +180,7 @@ class WulffShapeTest(PymatgenTest):
         self.assertArrayEqual(self.cube.tot_corner_sites, 8)
         self.assertArrayEqual(self.cube.tot_edges, 12)
         self.assertArrayEqual(self.hex_prism.tot_corner_sites, 12)
-        self.assertArrayEqual(self.cube.tot_edges, 18)
+        self.assertArrayEqual(self.hex_prism.tot_edges, 18)
 
 if __name__ == "__main__":
     unittest.main()
