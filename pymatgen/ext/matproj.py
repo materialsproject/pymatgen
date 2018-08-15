@@ -26,7 +26,6 @@ from pymatgen.entries.exp_entries import ExpEntry
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
@@ -109,10 +108,10 @@ class MPRester(object):
                 from pybtex import __version__
             except ImportError:
                 warnings.warn("If you query for structure data encoded using MP's "
-                            "Structure Notation Language (SNL) format and you use "
-                            "`mp_decode=True` (the default) for MPRester queries, "
-                            "you should install dependencies via "
-                            "`pip install pymatgen[matproj.snl]`.")
+                              "Structure Notation Language (SNL) format and you use "
+                              "`mp_decode=True` (the default) for MPRester queries, "
+                              "you should install dependencies via "
+                              "`pip install pymatgen[matproj.snl]`.")
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
@@ -153,7 +152,7 @@ class MPRester(object):
                               .format(response.status_code))
 
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content)\
+            msg = "{}. Content: {}".format(str(ex), response.content) \
                 if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
 
@@ -386,11 +385,11 @@ class MPRester(object):
                                   entry_id=d["task_id"])
 
             else:
-                prim = d["initial_structure"] if inc_structure == "initial"\
+                prim = d["initial_structure"] if inc_structure == "initial" \
                     else d["structure"]
                 if conventional_unit_cell:
                     s = SpacegroupAnalyzer(prim).get_conventional_standard_structure()
-                    energy = d["energy"]*(len(s)/len(prim))
+                    energy = d["energy"] * (len(s) / len(prim))
                 else:
                     s = prim.copy()
                     energy = d["energy"]
@@ -420,7 +419,7 @@ class MPRester(object):
         from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, IonEntry
         from pymatgen.analysis.phase_diagram import PhaseDiagram
         from pymatgen.core.ion import Ion
-        from pymatgen.entries.compatibility import\
+        from pymatgen.entries.compatibility import \
             MaterialsProjectAqueousCompatibility
 
         pbx_entries = []
@@ -448,23 +447,23 @@ class MPRester(object):
                 raise ValueError("Reference solid not contained in entry list")
             stable_ref = sorted(refs, key=lambda x: x.data['e_above_hull'])[0]
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
-            solid_diff = ion_ref_pd.get_form_energy(stable_ref)\
+            solid_diff = ion_ref_pd.get_form_energy(stable_ref) \
                          - i_d['Reference solid energy'] * rf
             elt = i_d['Major_Elements'][0]
-            correction_factor = ion_entry.ion.composition[elt]\
+            correction_factor = ion_entry.ion.composition[elt] \
                                 / stable_ref.composition[elt]
             ion_entry.energy += solid_diff * correction_factor
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
             # import nose; nose.tools.set_trace()
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
-        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys}\
-            - {Element('H'), Element('O')}
+        extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} \
+                     - {Element('H'), Element('O')}
         for entry in ion_ref_entries:
             entry_elts = set(entry.composition.elements)
             # Ensure no OH chemsys or extraneous elements from ion references
             if not (entry_elts <= {Element('H'), Element('O')} or \
-                    extra_elts.intersection(entry_elts)):
+                            extra_elts.intersection(entry_elts)):
                 # replace energy with formation energy, use dict to
                 # avoid messing with the ion_ref_pd and to keep all old params
                 form_e = ion_ref_pd.get_form_energy(entry)
@@ -499,7 +498,7 @@ class MPRester(object):
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
         if conventional_unit_cell:
-            data[0][prop] = SpacegroupAnalyzer(data[0][prop]).\
+            data[0][prop] = SpacegroupAnalyzer(data[0][prop]). \
                 get_conventional_standard_structure()
         return data[0][prop]
 
@@ -992,6 +991,31 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
+    def get_cohesive_energy(self, material_id, per_atom=False):
+        """
+        Gets the cohesive for a material (eV per formula unit). Cohesive energy
+            is defined as the difference between the bulk energy and the sum of
+            total DFT energy of isolated atoms for atom elements in the bulk.
+        Args:
+            material_id (str): Materials Project material_id, e.g. 'mp-123'.
+            per_atom (bool): Whether or not to return cohesive energy per atom
+        Returns:
+            Cohesive energy (eV).
+        """
+        entry = self.get_entry_by_material_id(material_id)
+        ebulk = entry.energy / \
+                entry.composition.get_integer_formula_and_factor()[1]
+        comp_dict = entry.composition.reduced_composition.as_dict()
+
+        isolated_atom_e_sum, n = 0, 0
+        for el in comp_dict.keys():
+            e = self._make_request("/element/%s/tasks/isolated_atom" % (el),
+                                  mp_decode=False)[0]
+            isolated_atom_e_sum += e['output']["final_energy"] * comp_dict[el]
+            n += comp_dict[el]
+        ecoh_per_formula = isolated_atom_e_sum - ebulk
+        return ecoh_per_formula/n if per_atom else ecoh_per_formula
+
     def get_reaction(self, reactants, products):
         """
         Gets a reaction from the Materials Project.
@@ -1080,7 +1104,7 @@ class MPRester(object):
         miller_energy_map = {}
         for surf in surfaces:
             miller = tuple(surf["miller_index"])
-             # Prefer reconstructed surfaces, which have lower surface energies.
+            # Prefer reconstructed surfaces, which have lower surface energies.
             if (miller not in miller_energy_map) or surf["is_reconstructed"]:
                 miller_energy_map[miller] = surf["surface_energy"]
         millers, energies = zip(*miller_energy_map.items())
