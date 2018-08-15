@@ -796,8 +796,7 @@ class CompleteDos(Dos):
 
 class LobsterCompleteDos(CompleteDos):
     """
-    CompleteDOS for Lobster output
-    LobsterDOS can have different s orbitals in the output of an atom
+    Extended CompleteDOS for Lobster
     """
 
     def get_site_orbital_dos(self, site, orbital):
@@ -813,7 +812,7 @@ class LobsterCompleteDos(CompleteDos):
                     In contrast to the Cohpcar and the Cohplist objects, the strings from the Lobster files are used
 
         Returns:
-            Dos containing densities for orbital of site.
+            Dos containing densities of an orbital of a specific site.
         """
         if orbital[1:] not in ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2", "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)",
                                "f_xyz",
@@ -877,7 +876,7 @@ class LobsterCompleteDos(CompleteDos):
 
 
         Args:
-            el: Element in Structure.composition associated with CompleteDos
+            el: Element in Structure.composition associated with LobsterCompleteDos
 
         Returns:
             dict of {Element: {"S": densities, "P": densities, "D": densities}}
