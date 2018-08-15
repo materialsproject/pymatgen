@@ -673,7 +673,8 @@ class Slab(Structure):
             for i2 in eq_indices:
                 if i2 == i1:
                     continue
-
+                if slabcopy[i2].frac_coords[2] == slabcopy[i1].frac_coords[2]:
+                    continue
                 # Test site remove to see if it results in symmetric slab
                 s = self.copy()
                 s.remove_sites([i1, i2])
@@ -1475,7 +1476,7 @@ class ReconstructionGenerator(object):
                 for p in pts_to_rm:
                     p[2] = slab.lattice.get_fractional_coords([top_site[0], top_site[1],
                                                                top_site[2]+p[2]*d])[2]
-                    cart_point = self.lattice.get_cartesian_coords(p)
+                    cart_point = slab.lattice.get_cartesian_coords(p)
                     dist = [site.distance_from_point(cart_point) for site in slab]
                     site1 = dist.index(min(dist))
                     slab.symmetrically_remove_atoms([site1])
