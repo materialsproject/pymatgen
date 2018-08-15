@@ -126,13 +126,14 @@ class BondDissociationEnergies(MSONable):
         if frag_success:
             frags_done = False
             for frag_pair in self.done_frag_pairs:
-                if not frags_done:
-                    if frag_pair[0].isomorphic_to(frags[0]):
-                        if frag_pair[1].isomorphic_to(frags[1]):
-                            frags_done = True
-                    elif frag_pair[1].isomorphic_to(frags[0]):
-                        if frag_pair[0].isomorphic_to(frags[1]):
-                            frags_done = True
+                if frag_pair[0].isomorphic_to(frags[0]):
+                    if frag_pair[1].isomorphic_to(frags[1]):
+                        frags_done = True
+                        break
+                elif frag_pair[1].isomorphic_to(frags[0]):
+                    if frag_pair[0].isomorphic_to(frags[1]):
+                        frags_done = True
+                        break
             if not frags_done:
                 self.done_frag_pairs += [frags]
                 frag1_entries = self.search_fragment_entries(frags[0])
