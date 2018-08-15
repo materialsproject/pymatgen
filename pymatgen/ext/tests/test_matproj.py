@@ -333,6 +333,10 @@ class MPResterTest(unittest.TestCase):
         ws = self.rester.get_wulff_shape("mp-126")
         self.assertTrue(isinstance(ws, WulffShape))
 
+    def test_get_cohesive_energy(self):
+        ecoh = self.rester.get_cohesive_energy("mp-13")
+        self.assertTrue(ecoh, 5.04543279)
+
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
         self.assertTrue(len(kinks) > 0)
