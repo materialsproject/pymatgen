@@ -12,7 +12,6 @@ from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import build_MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
-import networkx.algorithms.isomorphism as iso
 
 
 __author__ = "Samuel Blau"
@@ -93,7 +92,7 @@ class BondDissociationEnergies(MSONable):
         self.done_frag_pairs = []
         self.ring_bonds = []
         self.bad_pairs = []
-        self.nm = iso.categorical_node_match("specie", "ERROR")
+        self.nm = 
         self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["output"]["optimized_molecule"]),
                                              strategy=OpenBabelNN,
                                              reorder=False,
@@ -128,11 +127,11 @@ class BondDissociationEnergies(MSONable):
         if frag_success:
             frags_done = False
             for frag_pair in self.done_frag_pairs:
-                if nx.is_isomorphic(frag_pair[0], frags[0], node_match=self.nm):
-                    if nx.is_isomorphic(frag_pair[1], frags[1], node_match=self.nm):
+                if frag_pair[0].isomorphic_to(frags[0]):
+                    if frag_pair[1].isomorphic_to(frags[1]):
                         frags_done = True
-                elif nx.is_isomorphic(frag_pair[1], frags[0], node_match=self.nm):
-                    if nx.is_isomorphic(frag_pair[0], frags[1], node_match=self.nm):
+                elif frag_pair[1].isomorphic_to(frags[0]):
+                    if frag_pair[0].isomorphic_to(frags[1]):
                         frags_done = True
             if not frags_done:
                 self.done_frag_pairs += [frags]
@@ -155,23 +154,20 @@ class BondDissociationEnergies(MSONable):
         initial_entries = []
         final_entries = []
         for entry in self.fragment_entries:
-            initial_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]),
-                               strategy=OpenBabelNN,
-                               reorder=False,
-                               extend_structure=False)
-            final_molgraph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"]),
-                             strategy=OpenBabelNN,
-                             reorder=False,
-                             extend_structure=False)
-            initial_graph = initial_molgraph.graph.to_undirected()
-            final_graph = final_molgraph.graph.to_undirected()
-            frag_graph = frag.graph.to_undirected()
-            if nx.is_isomorphic(frag_graph, initial_graph, node_match=self.nm) and nx.is_isomorphic(frag_graph, final_graph, node_match=self.nm):
+            initial = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]),
+                                          strategy=OpenBabelNN,
+                                          reorder=False,
+                                          extend_structure=False)
+            final = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"]),
+                                        strategy=OpenBabelNN,
+                                        reorder=False,
+                                        extend_structure=False)
+            if frag.isomorphic_to(initial) and frag.isomorphic_to(final):
                 entries += [entry]
-            elif nx.is_isomorphic(frag_graph, initial_graph, node_match=self.nm):
+            elif frag.isomorphic_to(initial):
                 entries += [entry]
                 initial_entries += [entry]
-            elif nx.is_isomorphic(frag_graph, final_graph, node_match=self.nm):
+            elif frag.isomorphic_to(final):
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
 
