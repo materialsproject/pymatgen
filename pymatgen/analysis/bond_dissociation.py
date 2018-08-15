@@ -92,7 +92,6 @@ class BondDissociationEnergies(MSONable):
         self.done_frag_pairs = []
         self.ring_bonds = []
         self.bad_pairs = []
-        self.nm = 
         self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["output"]["optimized_molecule"]),
                                              strategy=OpenBabelNN,
                                              reorder=False,
