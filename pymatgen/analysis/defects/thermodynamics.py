@@ -77,7 +77,7 @@ class DefectPhaseDiagram(MSONable):
         # E_fermi = { -1 eV to band gap+1}
         # the 1 eV padding provides
         # E_formation. = { -21 eV to 20 eV}
-        limits = [[-1, self.band_gap + 1], [-200, 200]]
+        limits = [[-1, self.band_gap + 1], [-21, 20]]
 
         stable_entries = {}
         finished_charges = {}
