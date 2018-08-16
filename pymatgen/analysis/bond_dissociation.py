@@ -144,10 +144,14 @@ class BondDissociationEnergies(MSONable):
                             if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["method"] == frag1["calcs_reversed"][-1]["input"]["rem"]["method"]:
                                 coords = nx.get_node_attributes(self.mol_graph.graph, "coords")
                                 specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
+                                frag1_comp = Molecule.from_dict(frag1["output"]["initial_molecule"]).composition.reduced_formula
+                                frag1_charge = frag1["output"]["initial_molecule"]["charge"]
+                                frag2_comp = Molecule.from_dict(frag2["output"]["initial_molecule"]).composition.reduced_formul
+                                frag2_charge = frag2["output"]["initial_molecule"]["charge"]
                                 if frag1["output"]["final_energy"] == "unstable" or frag2["output"]["final_energy"] == "unstable":
-                                    new_entry = ["unstable", bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], Molecule.from_dict(frag1["output"]["initial_molecule"]).composition.reduced_formula, frag1["output"]["initial_molecule"]["charge"], frag1["output"]["final_energy"], Molecule.from_dict(frag2["output"]["initial_molecule"]).composition.reduced_formula, frag2["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"]]
+                                    new_entry = ["unstable", bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["output"]["final_energy"], frag2["smiles"], frag2_charge, frag2["output"]["final_energy"]]
                                 else:
-                                    new_entry = [self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], Molecule.from_dict(frag1["output"]["initial_molecule"]).composition.reduced_formula, frag1["output"]["initial_molecule"]["charge"], frag1["output"]["final_energy"], Molecule.from_dict(frag2["output"]["initial_molecule"]).composition.reduced_formula, frag2["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"]]
+                                    new_entry = [self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["output"]["final_energy"], frag2["smiles"], frag2_charge, frag2["output"]["final_energy"]]
                                 self.bond_dissociation_energies += [new_entry]
 
     def search_fragment_entries(self, frag):
