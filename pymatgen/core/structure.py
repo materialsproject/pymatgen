@@ -722,6 +722,8 @@ class IStructure(SiteCollection, MSONable):
         return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
+        if other is self:
+            return True
         if other is None:
             return False
         if len(self) != len(other):
@@ -1502,53 +1504,51 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
+            \*\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
+                the passing of parameters like symprec to the
+                CifWriter.__init__ method for generation of symmetric cifs.
 
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.cif import CifWriter
-        from pymatgen.io.vasp import Poscar
-        from pymatgen.io.cssr import Cssr
-        from pymatgen.io.xcrysden import XSF
-        from pymatgen.io.atat import Mcsqs
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
 
-        if fmt == "cif" or fnmatch(fname, "*.cif*"):
-            writer = CifWriter(self)
-        elif fmt == "mcif" or fnmatch(fname, "*.mcif*"):
-            writer = CifWriter(self, write_magmoms=True)
+        if fmt == "cif" or fnmatch(fname.lower(), "*.cif*"):
+            from pymatgen.io.cif import CifWriter
+            writer = CifWriter(self, **kwargs)
+        elif fmt == "mcif" or fnmatch(fname.lower(), "*.mcif*"):
+            from pymatgen.io.cif import CifWriter
+            writer = CifWriter(self, write_magmoms=True, **kwargs)
         elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):
-            writer = Poscar(self)
+            from pymatgen.io.vasp import Poscar
+            writer = Poscar(self, **kwargs)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
-            writer = Cssr(self)
+            from pymatgen.io.cssr import Cssr
+            writer = Cssr(self, **kwargs)
         elif fmt == "json" or fnmatch(fname.lower(), "*.json"):
             s = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as f:
                     f.write("%s" % s)
-                return
-            else:
-                return s
+            return s
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
+            from pymatgen.io.xcrysden import XSF
+            s = XSF(self).to_string()
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    s = XSF(self).to_string()
                     f.write(s)
-                    return s
-            else:
-                return XSF(self).to_string()
+            return s
         elif fmt == 'mcsqs' or fnmatch(fname, "*rndstr.in*") \
                 or fnmatch(fname, "*lat.in*") \
                 or fnmatch(fname, "*bestsqs*"):
+            from pymatgen.io.atat import Mcsqs
+            s = Mcsqs(self).to_string()
             if filename:
                 with zopen(fname, "wt", encoding='ascii') as f:
-                    s = Mcsqs(self).to_string()
                     f.write(s)
-                    return
-            else:
-                return Mcsqs(self).to_string()
+            return s
         else:
             import ruamel.yaml as yaml
             if filename:
@@ -1657,7 +1657,7 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
-        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*"):
+        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
             s = cls.from_str(contents, fmt="poscar",
                              primitive=primitive, sort=sort,
                              merge_tol=merge_tol)

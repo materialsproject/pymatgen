@@ -4,16 +4,27 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.cif &#8212; pymatgen 2018.7.23 documentation</title>
+    
+    <title>pymatgen.io.cif &#8212; pymatgen 2018.8.10 documentation</title>
+    
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2018.8.10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -24,7 +35,8 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
+  </head>
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -34,7 +46,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1256,20 +1268,17 @@
         <span class="n">loops</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;_symmetry_equiv_pos_site_id&quot;</span><span class="p">,</span>
                       <span class="s2">&quot;_symmetry_equiv_pos_as_xyz&quot;</span><span class="p">])</span>
 
-        <span class="n">contains_oxidation</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">symbol_to_oxinum</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
                 <span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(),</span>
                  <span class="nb">float</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">oxi_state</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">)])</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">symbol_to_oxinum</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span>
-                                            <span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">)])</span>
-            <span class="n">contains_oxidation</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">contains_oxidation</span><span class="p">:</span>
             <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_atom_type_symbol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">symbol_to_oxinum</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="n">block</span><span class="p">[</span><span class="s2">&quot;_atom_type_oxidation_number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">symbol_to_oxinum</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
             <span class="n">loops</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;_atom_type_symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;_atom_type_oxidation_number&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">symbol_to_oxinum</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">el</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span>
+                                            <span class="nb">sorted</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">elements</span><span class="p">)])</span>
 
         <span class="n">atom_site_type_symbol</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">atom_site_symmetry_multiplicity</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1398,14 +1407,12 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1421,7 +1428,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.7.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1429,7 +1436,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

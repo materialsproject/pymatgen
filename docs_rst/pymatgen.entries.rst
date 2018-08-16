@@ -1,5 +1,5 @@
-pymatgen.entries package
-========================
+pymatgen\.entries package
+=========================
 
 Subpackages
 -----------

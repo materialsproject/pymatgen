@@ -1,5 +1,5 @@
-pymatgen.io.lmto module
-=======================
+pymatgen\.io\.lmto module
+=========================
 
 .. automodule:: pymatgen.io.lmto
     :members:
