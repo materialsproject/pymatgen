@@ -146,7 +146,7 @@ class BondDissociationEnergies(MSONable):
                                 specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
                                 frag1_comp = Molecule.from_dict(frag1["output"]["initial_molecule"]).composition.reduced_formula
                                 frag1_charge = frag1["output"]["initial_molecule"]["charge"]
-                                frag2_comp = Molecule.from_dict(frag2["output"]["initial_molecule"]).composition.reduced_formul
+                                frag2_comp = Molecule.from_dict(frag2["output"]["initial_molecule"]).composition.reduced_formula
                                 frag2_charge = frag2["output"]["initial_molecule"]["charge"]
                                 if frag1["output"]["final_energy"] == "unstable" or frag2["output"]["final_energy"] == "unstable":
                                     new_entry = ["unstable", bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["output"]["final_energy"], frag2["smiles"], frag2_charge, frag2["output"]["final_energy"]]
