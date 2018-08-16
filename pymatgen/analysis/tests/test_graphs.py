@@ -111,6 +111,50 @@ class StructureGraphTest(unittest.TestCase):
             self.assertEqual(self.bc_square_sg.get_coordination_of_site(n),
                              self.bc_square_sg_r.get_coordination_of_site(n))
 
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
+    def test_set_node_attributes(self):
+        self.square_sg.set_node_attributes()
+
+        specie = nx.get_node_attributes(self.square_sg.graph, "specie")
+        coords = nx.get_node_attributes(self.square_sg.graph, "coords")
+
+        self.assertEqual(str(specie[0]), str(self.square_sg.structure[0].specie))
+        self.assertEqual(str(specie[0]), "H")
+        self.assertEqual(coords[0][0], self.square_sg.structure[0].coords[0])
+        self.assertEqual(coords[0][1], self.square_sg.structure[0].coords[1])
+        self.assertEqual(coords[0][2], self.square_sg.structure[0].coords[2])
+
+    def test_edge_editing(self):
+        square = copy.deepcopy(self.square_sg)
+
+        square.alter_edge(0, 0, to_jimage=(1, 0, 0),  new_weight=0.0,
+                                  new_edge_properties={"foo": "bar"})
+        new_edge = square.graph.get_edge_data(0, 0)[0]
+        self.assertEqual(new_edge["weight"], 0.0)
+        self.assertEqual(new_edge["foo"], "bar")
+
+        square.break_edge(0, 0, to_jimage=(1, 0, 0))
+        self.assertEqual(len(square.graph.get_edge_data(0, 0)), 3)
+
+    def test_insert_remove(self):
+        struct_copy = copy.deepcopy(self.square_sg.structure)
+        square_copy = copy.deepcopy(self.square_sg)
+
+        # Ensure that insert_node appropriately wraps Structure.insert()
+        struct_copy.insert(1, "O", [0.5, 0.5, 0.5])
+        square_copy.insert_node(1, "O", [0.5, 0.5, 0.5])
+        self.assertEqual(struct_copy, square_copy.structure)
+
+        # Test that removal is also equivalent between Structure and StructureGraph.structure
+        struct_copy.remove_sites([1])
+        square_copy.remove_nodes([1])
+        self.assertEqual(struct_copy, square_copy.structure)
+
+        square_copy.insert_node(1, "O", [0.5, 0.5, 0.5], edges=[{"from_index": 1,
+                                                                 "to_index": 0,
+                                                                 "to_jimage": (0, 0, 0)}])
+        self.assertEqual(square_copy.get_coordination_of_site(1), 1)
+
     def test_auto_image_detection(self):
 
         sg = StructureGraph.with_empty_graph(self.structure)
@@ -463,25 +507,6 @@ class MoleculeGraphTest(unittest.TestCase):
                          [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
-
-    def test_equivalent_to(self):
-        ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__),
-                                                   "..", "..", "..",
-                                                   "test_files/graphs/ethylene.xyz"))
-        # switch carbons
-        ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
-
-        eth_copy = MoleculeGraph.with_empty_graph(ethylene,
-                                                  edge_weight_name="strength",
-                                                  edge_weight_units="")
-        eth_copy.add_edge(0, 1, weight=2.0)
-        eth_copy.add_edge(1, 2, weight=1.0)
-        eth_copy.add_edge(1, 3, weight=1.0)
-        eth_copy.add_edge(0, 4, weight=1.0)
-        eth_copy.add_edge(0, 5, weight=1.0)
-
-        self.assertTrue(self.ethylene.equivalent_to(eth_copy))
-        self.assertFalse(self.ethylene.equivalent_to(self.butadiene))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
