@@ -19,8 +19,6 @@ from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-test_dir_doscar = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               "..", "..", "..", "test_files", "lobster")
 
 
 class DosTest(unittest.TestCase):
@@ -216,27 +214,27 @@ class LobsterCompleteDosTest(unittest.TestCase):
 
     def setUp(self):
 
-        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_spin.json'), 'r') as f:
+        with open(os.path.join(test_dir, 'LobsterCompleteDos_spin.json'), 'r') as f:
             data_spin = json.load(f)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_nonspin.json'), 'r') as f:
+        with open(os.path.join(test_dir, 'LobsterCompleteDos_nonspin.json'), 'r') as f:
             data_nonspin = json.load(f)
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(os.path.join(test_dir_doscar, 'structure_KF_lobster.json'), 'r') as f:
+        with open(os.path.join(test_dir, 'structure_KF.json'), 'r') as f:
             data_structure = json.load(f)
         self.structure = Structure.from_dict(data_structure)
 
-        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_MnO.json'), 'r') as f:
+        with open(os.path.join(test_dir, 'LobsterCompleteDos_MnO.json'), 'r') as f:
             data_MnO = json.load(f)
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
-        with open(os.path.join(test_dir_doscar, 'LobsterCompleteDos_MnO_nonspin.json'), 'r') as f:
+        with open(os.path.join(test_dir, 'LobsterCompleteDos_MnO_nonspin.json'), 'r') as f:
             data_MnO_nonspin = json.load(f)
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
 
-        with open(os.path.join(test_dir_doscar, 'structure_MnO.json'), 'r') as f:
+        with open(os.path.join(test_dir, 'structure_MnO.json'), 'r') as f:
             data_MnO = json.load(f)
         self.structure_MnO = Structure.from_dict(data_MnO)
 

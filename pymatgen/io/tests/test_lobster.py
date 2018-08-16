@@ -21,7 +21,7 @@ __date__ = "Dec 10, 2017"
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "test_files", "cohp")
 test_dir_doscar = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               "..", "..", "..", "test_files", "lobster")
+                               "..", "..", "..", "test_files")
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -243,14 +243,14 @@ class DoscarTest(unittest.TestCase):
     def setUp(self):
         # first for spin polarized version
         doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
-        vasprun = os.path.join(test_dir_doscar, "vasprun.xml.lobster_spin")
+        vasprun = os.path.join(test_dir_doscar, "vasprun.xml.lobster.spin")
         doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
-        vasprun2 = os.path.join(test_dir_doscar, "vasprun.xml.lobster_nonspin")
+        vasprun2 = os.path.join(test_dir_doscar, "vasprun.xml.lobster.nonspin")
 
         self.DOSCAR_spin_pol = Doscar(doscar=doscar, vasprun=vasprun)
         self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, vasprun=vasprun2)
 
-        with open(os.path.join(test_dir_doscar, 'structure_KF_lobster.json'), 'r') as f:
+        with open(os.path.join(test_dir_doscar, 'structure_KF.json'), 'r') as f:
             data = json.load(f)
 
         self.structure = Structure.from_dict(data)
