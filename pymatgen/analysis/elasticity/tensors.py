@@ -163,6 +163,33 @@ class Tensor(np.ndarray, MSONable):
         einsum_args = [self] + list(other_arrays)
         return np.einsum(einsum_string, *einsum_args)
 
+    def project(self, n):
+        """
+        Convenience method for projection of a tensor into a
+        vector.  Returns the tensor dotted into a unit vector
+        along the input n.
+
+        Args:
+            n (3x1 array-like): direction to project onto
+
+        Returns (float):
+            scalar value corresponding to the projection of
+            the tensor into the vector
+
+        """
+        n = get_uvec(n)
+        return self.einsum_sequence([n] * self.rank)
+
+    def average_over_unit_sphere(self):
+        """
+        Convenience method for taking the projection
+        of
+
+        Returns:
+
+        """
+        pass
+
     @property
     def symmetrized(self):
         """
