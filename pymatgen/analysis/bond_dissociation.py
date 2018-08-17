@@ -141,17 +141,16 @@ class BondDissociationEnergies(MSONable):
                 frag2_entries = self.search_fragment_entries(frags[1])
                 for frag1 in frag1_entries[0]:
                     for frag2 in frag2_entries[0]:
-                        if frag1["calcs_reversed"][-1]["input"]["rem"]["method"] == frag2["calcs_reversed"][-1]["input"]["rem"]["method"] and frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag2["calcs_reversed"][-1]["input"]["rem"]["basis"]: # Add PCM check?
-                            if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["method"] == frag1["calcs_reversed"][-1]["input"]["rem"]["method"]:
-                                coords = nx.get_node_attributes(self.mol_graph.graph, "coords")
-                                specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-                                frag1_charge = frag1["output"]["initial_molecule"]["charge"]
-                                frag2_charge = frag2["output"]["initial_molecule"]["charge"]
-                                if frag1["output"]["final_energy"] == "unstable" or frag2["output"]["final_energy"] == "unstable":
-                                    new_entry = ["unstable", bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["output"]["final_energy"], frag2["smiles"], frag2_charge, frag2["output"]["final_energy"]]
-                                else:
-                                    new_entry = [self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["output"]["final_energy"], frag2["smiles"], frag2_charge, frag2["output"]["final_energy"]]
-                                self.bond_dissociation_energies += [new_entry]
+                        if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"]:
+                            coords = nx.get_node_attributes(self.mol_graph.graph, "coords")
+                            specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
+                            frag1_charge = frag1["output"]["initial_molecule"]["charge"]
+                            frag2_charge = frag2["output"]["initial_molecule"]["charge"]
+                            if frag1["output"]["final_energy"] == "unstable" or frag2["output"]["final_energy"] == "unstable":
+                                new_entry = ["unstable", bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["output"]["final_energy"], frag2["smiles"], frag2_charge, frag2["output"]["final_energy"]]
+                            else:
+                                new_entry = [self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["output"]["final_energy"], frag2["smiles"], frag2_charge, frag2["output"]["final_energy"]]
+                            self.bond_dissociation_energies += [new_entry]
 
     def search_fragment_entries(self, frag):
         entries = []
@@ -183,7 +182,6 @@ class BondDissociationEnergies(MSONable):
                                         extend_structure=False)
             found_similar_entry = False
             for ii,filtered_entry in enumerate(self.filtered_entries):
-                # if filtered_entry["doc"]["smiles"] == entry["smiles"]:
                 if filtered_entry["doc"]["formula_pretty"] == entry["formula_pretty"]:
                     if filtered_entry["initial"].isomorphic_to(this_dict["initial"]) and filtered_entry["final"].isomorphic_to(this_dict["final"]) and filtered_entry["doc"]["input"]["initial_molecule"]["charge"] == entry["input"]["initial_molecule"]["charge"]:
                         found_similar_entry = True
