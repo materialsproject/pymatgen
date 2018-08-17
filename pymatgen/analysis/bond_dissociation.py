@@ -170,7 +170,7 @@ class BondDissociationEnergies(MSONable):
     def filter_fragment_entries(self,fragment_entries):
         self.filtered_entries = []
         for entry in fragment_entries:
-            print(self.filtered_entries)
+            # print(self.filtered_entries)
             this_dict = {}
             this_dict["doc"] = entry
             this_dict["initial"] = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]),
@@ -183,6 +183,14 @@ class BondDissociationEnergies(MSONable):
                                         extend_structure=False)
             found_similar_entry = False
             for filtered_entry,ii in enumerate(self.filtered_entries):
+                print(filtered_entry["initial"])
+                print(this_dict["initial"])
+                print(filtered_entry["initial"].isomorphic_to(this_dict["initial"]))
+                print(filtered_entry["final"])
+                print(this_dict["final"])
+                print(filtered_entry["final"].isomorphic_to(this_dict["final"]))
+                print(filtered_entry["doc"]["input"]["initial_molecule"]["charge"])
+                print(entry["input"]["initial_molecule"]["charge"])
                 if filtered_entry["initial"].isomorphic_to(this_dict["initial"]) and filtered_entry["final"].isomorphic_to(this_dict["final"]) and filtered_entry["doc"]["input"]["initial_molecule"]["charge"] == entry["input"]["initial_molecule"]["charge"]:
                     found_similar_entry = True
                     if entry["output"]["final_energy"] < filtered_entry["doc"]["output"]["final_energy"]:
