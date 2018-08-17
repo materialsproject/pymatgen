@@ -192,11 +192,12 @@ class BondDissociationEnergies(MSONable):
                 # print(filtered_entry["final"].isomorphic_to(this_dict["final"]))
                 # print(filtered_entry["doc"]["input"]["initial_molecule"]["charge"])
                 # print(entry["input"]["initial_molecule"]["charge"])
-                if filtered_entry["initial"].isomorphic_to(this_dict["initial"]) and filtered_entry["final"].isomorphic_to(this_dict["final"]) and filtered_entry["doc"]["input"]["initial_molecule"]["charge"] == entry["input"]["initial_molecule"]["charge"]:
-                    found_similar_entry = True
-                    if entry["output"]["final_energy"] < filtered_entry["doc"]["output"]["final_energy"]:
-                        self.filtered_entries[ii] = this_dict
-                    break
+                if filtered_entry["doc"]["smiles"] == entry["smiles"]:
+                    if filtered_entry["initial"].isomorphic_to(this_dict["initial"]) and filtered_entry["final"].isomorphic_to(this_dict["final"]) and filtered_entry["doc"]["input"]["initial_molecule"]["charge"] == entry["input"]["initial_molecule"]["charge"]:
+                        found_similar_entry = True
+                        if entry["output"]["final_energy"] < filtered_entry["doc"]["output"]["final_energy"]:
+                            self.filtered_entries[ii] = this_dict
+                        break
             if not found_similar_entry:
                 self.filtered_entries += [this_dict]
 
