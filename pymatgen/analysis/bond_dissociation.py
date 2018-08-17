@@ -183,6 +183,7 @@ class BondDissociationEnergies(MSONable):
                                         extend_structure=False)
             found_similar_entry = False
             for filtered_entry,ii in enumerate(self.filtered_entries):
+                print(filtered_entry)
                 print(filtered_entry["initial"])
                 print(this_dict["initial"])
                 print(filtered_entry["initial"].isomorphic_to(this_dict["initial"]))
