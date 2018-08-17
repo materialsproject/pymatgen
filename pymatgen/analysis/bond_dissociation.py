@@ -170,7 +170,7 @@ class BondDissociationEnergies(MSONable):
     def filter_fragment_entries(self,fragment_entries):
         self.filtered_entries = []
         for entry in fragment_entries:
-            # print(self.filtered_entries)
+            print(len(self.filtered_entries))
             this_dict = {}
             this_dict["doc"] = entry
             this_dict["initial"] = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"]),
