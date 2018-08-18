@@ -172,7 +172,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
     def test_multielement_parallel(self):
         test_entries = self.test_data["Ag-Te-N"]
-        pbx = PourbaixDiagram(test_entries, nproc=7)
+        pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=7)
         # Get all pourbaix entries corresponding to the Al-O-H chemical system.
 
     def test_quaternary(self):
