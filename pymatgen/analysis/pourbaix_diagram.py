@@ -451,20 +451,6 @@ class PourbaixDiagram(object):
 
         self._analysis_entries = solid_entries + ion_entries
 
-        # # Find the stable entries in each unary pourbaix diagram
-        # if filter_multielement and len(comp_dict) > 1:
-        #     stable_unary_entries = []
-        #     for elt in self._elt_comp:
-        #         unary_elt_entries = [e for e in entries
-        #                              if tuple(e.non_oh_elts) == (Element(elt),)]
-        #         stable_unary_entries.extend(
-        #             PourbaixDiagram(unary_elt_entries).stable_entries)
-        #     self._analysis_entries = stable_unary_entries\
-        #         + [e for e in entries if len(e.non_oh_elts) > 1]
-        # else:
-        #     self._analysis_entries = solid_entries + ion_entries
-
-
         if len(comp_dict) > 1:
             self._multielement = True
             self._processed_entries = self._generate_multielement_entries(
