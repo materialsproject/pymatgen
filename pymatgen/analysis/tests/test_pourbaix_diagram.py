@@ -10,6 +10,7 @@ import os
 from monty.serialization import loadfn
 import warnings
 import numpy as np
+import multiprocessing
 
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry,\
     PourbaixPlotter, IonEntry, MultiEntry
@@ -171,15 +172,10 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.pbx.get_decomposition_energy(entry, ph, v)
 
     def test_multielement_parallel(self):
+        # Simple test to ensure that multiprocessing is working
         test_entries = self.test_data["Ag-Te-N"]
-        pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=7)
-        # Get all pourbaix entries corresponding to the Al-O-H chemical system.
-
-    def test_quaternary(self):
-        from pymatgen import MPRester
-        mpr = MPRester()
-        entries = mpr.get_pourbaix_entries(["Fe", "C", "F", "Bi"])
-        pd = PourbaixDiagram(entries, nproc=7, filter_solids=True)
+        nproc = multiprocessing.cpu_count()
+        pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=nproc)
 
     @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
                      "PMG_MAPI_KEY environment variable not set.")
