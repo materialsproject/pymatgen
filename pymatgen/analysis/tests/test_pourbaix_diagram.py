@@ -112,6 +112,14 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertEqual(len(self.pbx.unstable_entries), 2)
 
     def test_multicomponent(self):
+        # Assure no ions get filtered at high concentration
+        ag_n = [e for e in self.test_data['Ag-Te-N']
+                if not "Te" in e.composition]
+        highconc = PourbaixDiagram(ag_n, filter_solids=True,
+                                   conc_dict={"Ag": 1e-5, "N": 1})
+        entry_sets = [set(e.entry_id) for e in highconc.stable_entries]
+        self.assertIn({"mp-124", "ion-17"}, entry_sets)
+
         # Binary system
         pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
                                     comp_dict={"Ag": 0.5, "Te": 0.5},
@@ -187,7 +195,7 @@ class PourbaixDiagramTest(unittest.TestCase):
                               conc_dict={"Ag": 1e-8, "Te": 1e-8})
         self.assertEqual(len(pbx.stable_entries), 30)
         test_entry = pbx.find_stable_entry(8, 2)
-        self.assertAlmostEqual(test_entry.energy, 2.393900378500001)
+        self.assertAlmostEqual(test_entry.energy, 2.3936747835000016, 3)
 
         # Test custom ions
         entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])
@@ -196,7 +204,8 @@ class PourbaixDiagramTest(unittest.TestCase):
         pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
                               comp_dict={"Na": 1, "Sn": 12, "C": 24})
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
-                               8.31082110278154)
+                               8.31202738629504, 2)
+
 
     def test_nofilter(self):
         entries = self.test_data['Ag-Te-N']

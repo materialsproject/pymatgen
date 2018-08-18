@@ -4,10 +4,17 @@
 
 from __future__ import division, unicode_literals
 
-"""
-TODO: Modify module doc.
-"""
+import unittest
+import os
+import json
 
+from pymatgen.core.structure import Molecule
+from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
+
+"""
+This module supports the generation and parsing of input and output file for
+nwchem.
+"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -16,16 +23,9 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/6/13"
 
-import unittest
-import os
-import json
-
-from pymatgen.core.structure import Molecule
-from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files', "molecules")
+                        'test_files', "nwchem")
 
 
 coords = [[0.000000, 0.000000, 0.000000],
@@ -308,7 +308,7 @@ task dft energy
         d = self.nwi.as_dict()
         nwi = NwInput.from_dict(d)
         self.assertIsInstance(nwi, NwInput)
-        #Ensure it is json-serializable.
+        # Ensure it is json-serializable.
         json.dumps(d)
         d = self.nwi_symm.as_dict()
         nwi_symm = NwInput.from_dict(d)
@@ -387,87 +387,101 @@ task dft energy
         self.assertEqual(nwi_symm.tasks[-1].basis_set["C"], "6-311++G**")
 
 
-
 class NwOutputTest(unittest.TestCase):
     def test_read(self):
         nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
         nwo_cosmo = NwOutput(os.path.join(test_dir, "N2O4.nwout"))
 
-        self.assertEqual(0, nwo.data[0]["charge"])
-        self.assertEqual(-1, nwo.data[-1]["charge"])
-        self.assertAlmostEqual(-1102.6224491715582, nwo.data[0]["energies"][-1], 2)
-        self.assertAlmostEqual(-1102.9986291578023, nwo.data[2]["energies"][-1])
+        self.assertEqual(0, nwo[0]["charge"])
+        self.assertEqual(-1, nwo[-1]["charge"])
+        self.assertEqual(len(nwo), 5)
+        self.assertAlmostEqual(-1102.6224491715582, nwo[0]["energies"][-1], 2)
+        self.assertAlmostEqual(-1102.9986291578023, nwo[2]["energies"][-1])
         self.assertAlmostEqual(-11156.354030653656,
-                               nwo_cosmo.data[5]["energies"][0]["cosmo scf"])
+                               nwo_cosmo[5]["energies"][0]["cosmo scf"])
         self.assertAlmostEqual(-11153.374133394364,
-                               nwo_cosmo.data[5]["energies"][0]["gas phase"])
+                               nwo_cosmo[5]["energies"][0]["gas phase"])
         self.assertAlmostEqual(-11156.353632962995,
-                               nwo_cosmo.data[5]["energies"][0]["sol phase"], 2)
+                               nwo_cosmo[5]["energies"][0]["sol phase"], 2)
         self.assertAlmostEqual(-11168.818934311605,
-                               nwo_cosmo.data[6]["energies"][0]["cosmo scf"], 2)
+                               nwo_cosmo[6]["energies"][0]["cosmo scf"], 2)
         self.assertAlmostEqual(-11166.3624424611462,
-                               nwo_cosmo.data[6]["energies"][0]['gas phase'], 2)
+                               nwo_cosmo[6]["energies"][0]['gas phase'], 2)
         self.assertAlmostEqual(-11168.818934311605,
-                               nwo_cosmo.data[6]["energies"][0]['sol phase'], 2)
+                               nwo_cosmo[6]["energies"][0]['sol phase'], 2)
         self.assertAlmostEqual(-11165.227959110889,
-                               nwo_cosmo.data[7]["energies"][0]['cosmo scf'], 2)
+                               nwo_cosmo[7]["energies"][0]['cosmo scf'], 2)
         self.assertAlmostEqual(-11165.025443612385,
-                               nwo_cosmo.data[7]["energies"][0]['gas phase'], 2)
+                               nwo_cosmo[7]["energies"][0]['gas phase'], 2)
         self.assertAlmostEqual(-11165.227959110154,
-                               nwo_cosmo.data[7]["energies"][0]['sol phase'], 2)
+                               nwo_cosmo[7]["energies"][0]['sol phase'], 2)
 
-        self.assertAlmostEqual(nwo.data[1]["hessian"][0][0], 4.60187e+01)
-        self.assertAlmostEqual(nwo.data[1]["hessian"][1][2], -1.14030e-08)
-        self.assertAlmostEqual(nwo.data[1]["hessian"][2][3], 2.60819e+01)
-        self.assertAlmostEqual(nwo.data[1]["hessian"][6][6], 1.45055e+02)
-        self.assertAlmostEqual(nwo.data[1]["hessian"][11][14], 1.35078e+01)
+        self.assertAlmostEqual(nwo[1]["hessian"][0][0], 4.60187e+01)
+        self.assertAlmostEqual(nwo[1]["hessian"][1][2], -1.14030e-08)
+        self.assertAlmostEqual(nwo[1]["hessian"][2][3], 2.60819e+01)
+        self.assertAlmostEqual(nwo[1]["hessian"][6][6], 1.45055e+02)
+        self.assertAlmostEqual(nwo[1]["hessian"][11][14], 1.35078e+01)
 
         # CH4.nwout, line 722
-        self.assertAlmostEqual(nwo.data[0]["forces"][0][3], -0.001991)
+        self.assertAlmostEqual(nwo[0]["forces"][0][3], -0.001991)
 
         # N2O4.nwout, line 1071
-        self.assertAlmostEqual(nwo_cosmo.data[0]["forces"][0][4], 0.011948)
+        self.assertAlmostEqual(nwo_cosmo[0]["forces"][0][4], 0.011948)
 
         # There should be four DFT gradients.
-        self.assertEqual(len(nwo_cosmo.data[0]["forces"]), 4)
+        self.assertEqual(len(nwo_cosmo[0]["forces"]), 4)
 
-        ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
-        ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
+        ie = (nwo[4]["energies"][-1] - nwo[2]["energies"][-1])
+        ea = (nwo[2]["energies"][-1] - nwo[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358648355177, ie)
         self.assertAlmostEqual(-14.997877958701338, ea)
-        self.assertEqual(nwo.data[4]["basis_set"]["C"]["description"],
+        self.assertEqual(nwo[4]["basis_set"]["C"]["description"],
                          "6-311++G**")
 
         nwo = NwOutput(os.path.join(test_dir, "H4C3O3_1.nwout"))
-        self.assertTrue(nwo.data[-1]["has_error"])
-        self.assertEqual(nwo.data[-1]["errors"][0], "Bad convergence")
+        self.assertTrue(nwo[-1]["has_error"])
+        self.assertEqual(nwo[-1]["errors"][0], "Bad convergence")
 
         nwo = NwOutput(os.path.join(test_dir, "CH3CH2O.nwout"))
-        self.assertTrue(nwo.data[-1]["has_error"])
-        self.assertEqual(nwo.data[-1]["errors"][0], "Bad convergence")
+        self.assertTrue(nwo[-1]["has_error"])
+        self.assertEqual(nwo[-1]["errors"][0], "Bad convergence")
 
         nwo = NwOutput(os.path.join(test_dir, "C1N1Cl1_1.nwout"))
-        self.assertTrue(nwo.data[-1]["has_error"])
-        self.assertEqual(nwo.data[-1]["errors"][0], "autoz error")
+        self.assertTrue(nwo[-1]["has_error"])
+        self.assertEqual(nwo[-1]["errors"][0], "autoz error")
 
         nwo = NwOutput(os.path.join(test_dir,
                        "anthrachinon_wfs_16_ethyl.nwout"))
-        self.assertTrue(nwo.data[-1]["has_error"])
-        self.assertEqual(nwo.data[-1]["errors"][0],
+        self.assertTrue(nwo[-1]["has_error"])
+        self.assertEqual(nwo[-1]["errors"][0],
                          "Geometry optimization failed")
         nwo = NwOutput(os.path.join(test_dir,
                        "anthrachinon_wfs_15_carboxyl.nwout"))
-        self.assertEqual(nwo.data[1]['frequencies'][0][0], -70.47)
-        self.assertEqual(len(nwo.data[1]['frequencies'][0][1]), 27)
-        self.assertEqual(nwo.data[1]['frequencies'][-1][0], 3696.74)
-        self.assertEqual(nwo.data[1]['frequencies'][-1][1][-1],
+        self.assertEqual(nwo[1]['frequencies'][0][0], -70.47)
+        self.assertEqual(len(nwo[1]['frequencies'][0][1]), 27)
+        self.assertEqual(nwo[1]['frequencies'][-1][0], 3696.74)
+        self.assertEqual(nwo[1]['frequencies'][-1][1][-1],
                          (0.20498, -0.94542, -0.00073))
-        self.assertEqual(nwo.data[1]["normal_frequencies"][1][0], -70.72)
-        self.assertEqual(nwo.data[1]["normal_frequencies"][3][0], -61.92)
-        self.assertEqual(nwo.data[1]["normal_frequencies"][1][1][-1],
+        self.assertEqual(nwo[1]["normal_frequencies"][1][0], -70.72)
+        self.assertEqual(nwo[1]["normal_frequencies"][3][0], -61.92)
+        self.assertEqual(nwo[1]["normal_frequencies"][1][1][-1],
                          (0.00056, 0.00042, 0.06781))
 
+    def test_parse_tddft(self):
+        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        roots = nwo.parse_tddft()
+        self.assertEqual(len(roots["singlet"]), 20)
+        self.assertAlmostEqual(roots["singlet"][0]["energy"], 3.9291)
+        self.assertAlmostEqual(roots["singlet"][0]["osc_strength"], 0.0)
+        self.assertAlmostEqual(roots["singlet"][1]["osc_strength"], 0.00177)
 
+    def test_get_excitation_spectrum(self):
+        nwo = NwOutput(os.path.join(test_dir, "phen_tddft.log"))
+        spectrum = nwo.get_excitation_spectrum()
+        self.assertEqual(len(spectrum.x), 2000)
+        self.assertAlmostEqual(spectrum.x[0], 1.9291)
+        self.assertAlmostEqual(spectrum.y[0], 0.0)
+        self.assertAlmostEqual(spectrum.y[1000], 0.0007423569947114812)
 
 
 if __name__ == "__main__":

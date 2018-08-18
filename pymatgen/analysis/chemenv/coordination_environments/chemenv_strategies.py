@@ -22,7 +22,6 @@ __date__ = "Feb 20, 2016"
 
 import abc
 import os
-import json
 from monty.json import MSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp

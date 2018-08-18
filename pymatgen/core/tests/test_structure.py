@@ -252,6 +252,15 @@ class IStructureTest(PymatgenTest):
             self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
             self.assertArrayAlmostEqual(s1[3].frac_coords, s[3].frac_coords)
 
+        # Test non-hexagonal setting.
+        lattice = Lattice.rhombohedral(4.0718, 89.459)
+        species = [{'S': 1.0}, {'Ni': 1.0}]
+        coordinate = [(0.252100, 0.252100, 0.252100),
+                      (0.500000, 0.244900, -0.244900)]
+        s = Structure.from_spacegroup('R32:R', lattice, species, coordinate)
+        self.assertEqual(s.formula, "Ni3 S2")
+
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -358,13 +367,14 @@ class IStructureTest(PymatgenTest):
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
-                                       include_index=True)
+                                      include_index=True, include_image=True)
         self.assertEqual(len(nn), 47)
-        self.assertEqual(nn[0][-1], 0)
+        self.assertEqual(nn[0][-2], 0)
 
         r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors(r, True)
+        all_nn = s.get_all_neighbors(r, True, True)
         for i in range(len(s)):
+            self.assertEqual(4, len(all_nn[i][0]))
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
 
         for site, nns in zip(s, all_nn):
@@ -376,7 +386,6 @@ class IStructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
         s.make_supercell([2,2,2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
-
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -404,6 +413,8 @@ class IStructureTest(PymatgenTest):
                 self.struct.lattice.lengths_and_angles, decimal=5)
             self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
             self.assertIsInstance(ss, IStructure)
+
+        self.assertTrue("Fd-3m" in self.struct.to(fmt="CIF", symprec=0.1))
 
         self.struct.to(filename="POSCAR.testing")
         self.assertTrue(os.path.exists("POSCAR.testing"))
@@ -667,6 +678,22 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.frac_coords[0],
                                     [1.00187517, 1.25665291, 1.15946374])
 
+    def test_rotate_sites(self):
+        self.structure.rotate_sites(indices=[1],
+                                    theta=2.*np.pi/3.,
+                                    anchor=self.structure.sites[0].coords,
+                                    to_unit_cell=False)
+        self.assertArrayAlmostEqual(self.structure.frac_coords[1],
+                                    [-1.25, 1.5, 0.75],
+                                    decimal=6)
+        self.structure.rotate_sites(indices=[1],
+                                    theta=2.*np.pi/3.,
+                                    anchor=self.structure.sites[0].coords,
+                                    to_unit_cell=True)
+        self.assertArrayAlmostEqual(self.structure.frac_coords[1],
+                                    [0.75, 0.5, 0.75],
+                                    decimal=6)
+
     def test_mul(self):
         self.structure *= [2, 1, 1]
         self.assertEqual(self.structure.formula, "Si4")
@@ -888,6 +915,9 @@ class StructureTest(PymatgenTest):
         self.assertIn("Overall Charge: +1", str(s),"String representation not adding charge")
         sorted_s = super_cell.get_sorted_structure()
         self.assertEqual(sorted_s.charge,27,"Overall charge is not properly copied during structure sorting")
+        super_cell.set_charge(25)
+        self.assertEqual(super_cell.charge,25,"Set charge not properly modifying _charge")
+
 
     def test_vesta_lattice_matrix(self):
         silica_zeolite = Molecule.from_file(os.path.join(test_dir, "CON_vesta.xyz"))

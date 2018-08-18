@@ -1,5 +1,5 @@
-pymatgen.analysis.surface\_analysis module
-==========================================
+pymatgen\.analysis\.surface\_analysis module
+============================================
 
 .. automodule:: pymatgen.analysis.surface_analysis
     :members:

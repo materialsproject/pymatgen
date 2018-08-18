@@ -573,7 +573,7 @@ class BandStructure(object):
         d['projections'] = {}
         if len(self.projections) != 0:
             d['structure'] = self.structure.as_dict()
-            d['projections'] = {str(int(spin)): v.tolist()
+            d['projections'] = {str(int(spin)): np.array(v).tolist()
                                 for spin, v in self.projections.items()}
         return d
 
@@ -879,7 +879,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 'fcoords']
         if len(self.projections) != 0:
             d['structure'] = self.structure.as_dict()
-            d['projections'] = {str(int(spin)): v.tolist()
+            d['projections'] = {str(int(spin)): np.array(v).tolist()
                                 for spin, v in self.projections.items()}
         return d
 

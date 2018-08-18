@@ -32,12 +32,13 @@ class AseAtomsAdaptor(object):
     """
 
     @staticmethod
-    def get_atoms(structure):
+    def get_atoms(structure, **kwargs):
         """
         Returns ASE Atoms object from pymatgen structure.
 
         Args:
             structure: pymatgen.core.structure.Structure
+            **kwargs: other keyword args to pass into the ASE Atoms constructor
 
         Returns:
             ASE Atoms object
@@ -47,7 +48,8 @@ class AseAtomsAdaptor(object):
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         cell = structure.lattice.matrix
-        return Atoms(symbols=symbols, positions=positions, pbc=True, cell=cell)
+        return Atoms(symbols=symbols, positions=positions, pbc=True,
+                     cell=cell, **kwargs)
 
     @staticmethod
     def get_structure(atoms, cls=None):

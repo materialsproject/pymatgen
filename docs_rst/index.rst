@@ -35,11 +35,22 @@ reports. Please report any bugs and issues at pymatgen's `Github Issues
 page <https://github.com/materialsproject/pymatgen/issues>`_. For news, tips
 and help with pymatgen, please check out the following official pymatgen
 resources:
+
 * `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
 * `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
 * `pymatgen's Google Groups`_. Post questions that are not covered by examples.
 
     *The code is mightier than the pen.*
+
+Offline docs
+============
+
+If you would like to have an offline version of the docs for reference, there
+are two options:
+
+1. Clone the Github repo and the latest html docs are in the "docs" folder.
+2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to 
+   "User Contributed Docsets", search for pymatgen and install.
 
 Development News
 ================

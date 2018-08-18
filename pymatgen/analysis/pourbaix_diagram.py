@@ -8,7 +8,6 @@ import logging
 import numpy as np
 import itertools
 import re
-from copy import deepcopy
 from functools import cmp_to_key, partial
 from monty.json import MSONable
 from six.moves import zip
@@ -25,6 +24,12 @@ from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDEntry
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    tqdm = lambda x: x
+
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -444,18 +449,21 @@ class PourbaixDiagram(object):
             solid_pd = PhaseDiagram(solid_entries + entries_HO)
             solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
 
-        # Find the stable entries in each unary pourbaix diagram
-        if filter_multielement and len(comp_dict) > 1:
-            stable_unary_entries = []
-            for elt in self._elt_comp:
-                unary_elt_entries = [e for e in entries
-                                     if tuple(e.non_oh_elts) == (Element(elt),)]
-                stable_unary_entries.extend(
-                    PourbaixDiagram(unary_elt_entries).stable_entries)
-            self._analysis_entries = stable_unary_entries\
-                + [e for e in entries if len(e.non_oh_elts) > 1]
-        else:
-            self._analysis_entries = solid_entries + ion_entries
+        self._analysis_entries = solid_entries + ion_entries
+
+        # # Find the stable entries in each unary pourbaix diagram
+        # if filter_multielement and len(comp_dict) > 1:
+        #     stable_unary_entries = []
+        #     for elt in self._elt_comp:
+        #         unary_elt_entries = [e for e in entries
+        #                              if tuple(e.non_oh_elts) == (Element(elt),)]
+        #         stable_unary_entries.extend(
+        #             PourbaixDiagram(unary_elt_entries).stable_entries)
+        #     self._analysis_entries = stable_unary_entries\
+        #         + [e for e in entries if len(e.non_oh_elts) > 1]
+        # else:
+        #     self._analysis_entries = solid_entries + ion_entries
+
 
         if len(comp_dict) > 1:
             self._multielement = True
@@ -463,8 +471,7 @@ class PourbaixDiagram(object):
                     self._analysis_entries, nproc=nproc)
         else:
             self._multielement = False
-            self._analysis_entries = entries
-            self._processed_entries = entries
+            self._processed_entries = self._analysis_entries
 
         self._stable_domains, self._stable_domain_vertices = \
             self.get_pourbaix_domains(self._analysis_entries)
@@ -504,16 +511,12 @@ class PourbaixDiagram(object):
         processed_entries = []
         # Serial processing
         if nproc is not None:
-            import tqdm
-            # pool = Pool(nproc)
             total = sum([comb(len(entries), j + 1 - len(forced_include))
                          for j in range(N)])
             f = partial(self.process_multientry, prod_comp=total_comp)
-            # entry_combos = list(entry_combos)
             with Pool(nproc) as p:
-                processed_entries = list(tqdm.tqdm(p.imap(f, entry_combos),
-                                                   total=total))
-            # processed_entries = p.imap(f, entry_combos)
+                processed_entries = list(tqdm(p.imap(f, entry_combos),
+                                              total=total))
             processed_entries = filter(bool, processed_entries)
         else:
             for entry_combo in entry_combos:
@@ -524,7 +527,7 @@ class PourbaixDiagram(object):
         return processed_entries
 
     @staticmethod
-    def process_multientry(entry_list, prod_comp):
+    def process_multientry(entry_list, prod_comp, coeff_threshold=1e-4):
         """
         Static method for finding a multientry based on
         a list of entries and a product composition.
@@ -536,8 +539,11 @@ class PourbaixDiagram(object):
         Args:
             entry_list ([Entry]): list of entries from which to
                 create a MultiEntry
-            comp (Composition): composition constraint for setting
+            prod_comp (Composition): composition constraint for setting
                 weights of MultiEntry
+            coeff_threshold (float): threshold of stoichiometric
+                coefficients to filter, if weights are lower than
+                this value, the entry is not returned
         """
         dummy_oh = [Composition("H"), Composition("O")]
         try:
@@ -547,11 +553,10 @@ class PourbaixDiagram(object):
             # their charge state.
             entry_comps = [e.composition for e in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
-            thresh = np.array([pe.concentration if pe.phase_type == "Ion"
-                               else 1e-3 for pe in entry_list])
             coeffs = -np.array([rxn.get_coeff(comp) for comp in entry_comps])
-            if (coeffs > thresh).all():
-                # import nose; nose.tools.set_trace()
+            # Return None if reaction coeff threshold is not met
+            # TODO: this filtration step might be put somewhere else
+            if (coeffs > coeff_threshold).all():
                 return MultiEntry(entry_list, weights=coeffs.tolist())
             else:
                 return None
@@ -639,7 +644,6 @@ class PourbaixDiagram(object):
                          for indices in ConvexHull(points).simplices]
             pourbaix_domains[entry] = simplices
             pourbaix_domain_vertices[entry] = points
-        # import nose; nose.tools.set_trace()
 
         return pourbaix_domains, pourbaix_domain_vertices
 

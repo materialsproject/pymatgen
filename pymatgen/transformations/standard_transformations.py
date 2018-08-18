@@ -420,17 +420,21 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         symmetrized_structures (bool): Whether the input structures are
             instances of SymmetrizedStructure, and that their symmetry
             should be used for the grouping of sites.
+        no_oxi_states (bool): Whether to remove oxidation states prior to
+            ordering.
     """
 
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False):
+    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False,
+                 no_oxi_states=False):
         self.algo = algo
         self._all_structures = []
+        self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
-
+        
     def apply_transformation(self, structure, return_ranked_list=False):
         """
         For this transformation, the apply_transformation method will return
@@ -464,6 +468,12 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         num_to_return = max(1, num_to_return)
 
+        if self.no_oxi_states:
+            structure = Structure.from_sites(structure)
+            for i, site in enumerate(structure):
+                structure[i] = {"%s0+" % k.symbol: v
+                                for k, v in site.species_and_occu.items()}
+
         equivalent_sites = []
         exemplars = []
         # generate list of equivalent sites to order
@@ -490,6 +500,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         # generate the list of manipulations and input structure
         s = Structure.from_sites(structure)
+
         m_list = []
         for g in equivalent_sites:
             total_occupancy = sum([structure[i].species_and_occu for i in g],
@@ -537,6 +548,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     s_copy[manipulation[0]] = manipulation[1]
             s_copy.remove_sites(del_indices)
+
+            if self.no_oxi_states:
+                s_copy.remove_oxidation_states()
+
             self._all_structures.append(
                 {"energy": output[0],
                  "energy_above_minimum":
@@ -654,22 +669,23 @@ class DeformStructureTransformation(AbstractTransformation):
         deformation (array): deformation gradient for the transformation
     """
 
-    def __init__(self, deformation):
-        self.deformation = Deformation(deformation)
+    def __init__(self, deformation=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
+        self._deform = Deformation(deformation)
+        self.deformation = self._deform.tolist()
 
     def apply_transformation(self, structure):
-        return self.deformation.apply_to_structure(structure)
+        return self._deform.apply_to_structure(structure)
 
     def __str__(self):
         return "DeformStructureTransformation : " + \
-            "Deformation = {}".format(str(self.deformation.tolist()))
+            "Deformation = {}".format(str(self.deformation))
 
     def __repr__(self):
         return self.__str__()
 
     @property
     def inverse(self):
-        return DeformStructureTransformation(self.deformation.inv())
+        return DeformStructureTransformation(self._deform.inv())
 
     @property
     def is_one_to_many(self):
@@ -742,6 +758,39 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class ChargedCellTransformation(AbstractTransformation):
+    """
+    The ChargedCellTransformation applies a charge to a structure (or defect object).
+
+    Args:
+        charge: A integer charge to apply to the structure.
+            Defaults to zero. Has to be a single integer. e.g. 2
+    """
+
+    def __init__(self, charge=0):
+        self.charge = charge
+
+    def apply_transformation(self, structure):
+        s = structure.copy()
+        s.set_charge(self.charge)
+        return s
+
+    def __str__(self):
+        return "Structure with charge " + \
+            "{}".format(self.charge)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        raise NotImplementedError()
 
     @property
     def is_one_to_many(self):

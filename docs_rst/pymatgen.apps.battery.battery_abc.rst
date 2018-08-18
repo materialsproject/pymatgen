@@ -1,5 +1,5 @@
-pymatgen.apps.battery.battery\_abc module
-=========================================
+pymatgen\.apps\.battery\.battery\_abc module
+============================================
 
 .. automodule:: pymatgen.apps.battery.battery_abc
     :members:

@@ -103,10 +103,10 @@ class StrategyWeightsTest(PymatgenTest):
         nadw11 = NormalizedAngleDistanceNbSetWeight(average_type='geometric', aa=1, bb=2)
         nadw12 = NormalizedAngleDistanceNbSetWeight(average_type='geometric', aa=2, bb=1)
         self.assertNotEqual(nadw11, nadw12)
-        with self.assertRaisesRegexp(ValueError, 'Both exponents are 0.'):
+        with self.assertRaisesRegex(ValueError, 'Both exponents are 0.'):
             NormalizedAngleDistanceNbSetWeight(average_type='arithmetic', aa=0, bb=0)
-        with self.assertRaisesRegexp(ValueError, 'Average type is "arithmetix" '
-                                                 'while it should be "geometric" or "arithmetic"'):
+        with self.assertRaisesRegex(ValueError, 'Average type is "arithmetix" '
+                                                'while it should be "geometric" or "arithmetic"'):
             NormalizedAngleDistanceNbSetWeight(average_type='arithmetix', aa=1, bb=1)
 
         fake_nb_set.normalized_distances = [1.2632574171572457, 1.1231971151388764, 1.0,
@@ -147,7 +147,7 @@ class StrategyWeightsTest(PymatgenTest):
                                                               5: 4.1, 6: 4.2, 7: 4.3, 8: 4.4,
                                                               9: 4.5, 10: 4.6, 11: 4.6, 12: 4.7,
                                                               13: 4.8})
-        with self.assertRaisesRegexp(ValueError, 'Weights should be provided for CN 1 to 13'):
+        with self.assertRaisesRegex(ValueError, 'Weights should be provided for CN 1 to 13'):
             CNBiasNbSetWeight.explicit(cn_weights={1: 1.0, 13: 2.0})
 
         fake_nb_set.cn = 1

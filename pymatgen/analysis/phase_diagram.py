@@ -667,6 +667,25 @@ class PhaseDiagram(MSONable):
         facet = self._get_facet_and_simplex(comp)[0]
         return self._get_facet_chempots(facet)
 
+    def get_all_chempots(self, comp):
+        #note the top part takes from format of _get_facet_and_simplex,
+        #   but wants to return all facets rather than the first one that meets this criteria
+        c = self.pd_coords(comp)
+        allfacets = []
+        for f, s in zip(self.facets, self.simplexes):
+            if s.in_simplex(c, PhaseDiagram.numerical_tol / 10):
+                allfacets.append(f)
+
+        if not len(allfacets):
+            raise RuntimeError("No facets found for comp = {}".format(comp))
+        else:
+            chempots = {}
+            for facet in allfacets:
+                facet_elt_list = [self.qhull_entries[j].name for j in facet]
+                facet_name = '-'.join(facet_elt_list)
+                chempots[facet_name] = self._get_facet_chempots(facet)
+            return chempots
+
     def get_transition_chempots(self, element):
         """
         Get the critical chemical potentials for an element in the Phase
@@ -853,16 +872,19 @@ class PhaseDiagram(MSONable):
 
     def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
         """
-        returns a set of chemical potentials corresponding to the vertices of the simplex
-        in the chemical potential phase diagram.
-        The simplex is built using all elements in the target_composition except dep_elt.
-        The chemical potential of dep_elt is computed from the target composition energy.
+        returns a set of chemical potentials corresponding to the vertices of
+        the simplex in the chemical potential phase diagram.
+        The simplex is built using all elements in the target_composition
+        except dep_elt.
+        The chemical potential of dep_elt is computed from the target
+        composition energy.
         This method is useful to get the limiting conditions for
         defects computations for instance.
 
         Args:
             target_comp: A Composition object
-            dep_elt: the element for which the chemical potential is computed from the energy of
+            dep_elt: the element for which the chemical potential is computed
+                from the energy of
             the stable phase at the target composition
             tol_en: a tolerance on the energy to set
 
@@ -910,7 +932,7 @@ class PhaseDiagram(MSONable):
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
         """
-        returns a set of chemical potentials correspoding to the max and min
+        returns a set of chemical potentials corresponding to the max and min
         chemical potential of the open element for a given composition. It is
         quite common to have for instance a ternary oxide (e.g., ABO3) for
         which you want to know what are the A and B chemical potential leading

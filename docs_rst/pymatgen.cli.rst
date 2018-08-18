@@ -1,5 +1,5 @@
-pymatgen.cli package
-====================
+pymatgen\.cli package
+=====================
 
 Submodules
 ----------
@@ -18,7 +18,6 @@ Submodules
    pymatgen.cli.pmg_potcar
    pymatgen.cli.pmg_query
    pymatgen.cli.pmg_structure
-   pymatgen.cli.pydii
 
 Module contents
 ---------------

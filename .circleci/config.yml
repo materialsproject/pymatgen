@@ -9,17 +9,19 @@ jobs:
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
-            conda create --quiet --yes --name test_env python
+            conda create --quiet --yes --name test_env python=3.6
             source activate test_env
-            conda install --quiet --yes numpy scipy matplotlib sympy pandas
+            conda install --quiet --yes numpy scipy matplotlib sympy pandas cython
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda update --quiet --all
             mkdir coverage_reports
-            pip install --quiet -r requirements.txt -r requirements-optional.txt
+            pip install --upgrade pip
+            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
+            export MPLBACKEND=Agg
             pip install --quiet -e .
             nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports
             # Command line tests

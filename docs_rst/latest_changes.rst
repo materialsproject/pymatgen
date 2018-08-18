@@ -1,6 +1,6 @@
 Change log
 ==========
 
-v2018.3.22
+v2018.8.10
 ----------
-* Bug fixes to phase diagram module, enumlib adaptor, local env analysis.
+* Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.
