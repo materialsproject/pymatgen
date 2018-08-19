@@ -2338,6 +2338,23 @@ class Flow(Node, NodeContainer, MSONable):
         return fg
 
     @add_fig_kwargs
+    def graphviz_imshow(self, ax=None, fmt="png", figsize=None, dpi=300, **kwargs):
+        graph = self.get_graphviz(**kwargs)
+        graph.format = fmt
+        graph.attr(dpi=str(dpi))
+        #print(graph)
+        fd, tmpname = tempfile.mkstemp()
+        #tmpname = "foo"
+        #print(tmpname)
+        path = graph.render(tmpname, view=False, cleanup=True)
+        ax, fig, plt = get_ax_fig_plt(ax=ax, figsize=None, dpi=dpi)
+        import matplotlib.image as mpimg
+        ax.imshow(mpimg.imread(path, format="png")) #, interpolation="none")
+        ax.axis("off")
+
+        return fig
+
+    @add_fig_kwargs
     def plot_networkx(self, mode="network", with_edge_labels=False, ax=None, arrows=False,
                       node_size="num_cores", node_label="name_class", layout_type="spring", **kwargs):
         """

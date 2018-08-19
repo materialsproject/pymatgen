@@ -1531,7 +1531,7 @@ class DteWork(Work, MergeDdb):
             dde_task = new.register_dde_task(dde_inp, deps=dde_deps)
             dde_tasks.append(dde_task)
 
-        #DTE calculations
+        # DTE calculations
         dte_deps = {scf_task: "WFK DEN"}
         dte_deps.update({dde_task: "1WF 1DEN" for dde_task in dde_tasks})
 

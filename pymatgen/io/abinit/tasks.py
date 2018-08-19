@@ -3692,7 +3692,7 @@ class DfptTask(AbinitTask):
 
 
 class DdeTask(DfptTask):
-    """Task for DDE calculations."""
+    """Task for DDE calculations (perturbation wrt electric field)."""
 
     color_rgb = np.array((61, 158, 255)) / 255
 
