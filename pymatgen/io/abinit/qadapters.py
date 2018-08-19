@@ -1763,12 +1763,17 @@ $${qverbatim}
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
         QueueAdapter.set_mpi_procs(self, mpi_procs)
+
         num_nodes, rest_cores = self.hw.divmod_node(mpi_procs, omp_threads=1)
-        if rest_cores != 0:
-            # Pack cores as much as possible.
-            num_nodes += 1
-        self.qparams["nodes"] = num_nodes
-        self.qparams["ppn"] = self.hw.cores_per_node
+        if num_nodes == 0:
+            self.qparams["nodes"] = 1
+            self.qparams["ppn"] = mpi_procs
+        else:
+            if rest_cores != 0:
+                # Pack cores as much as possible.
+                num_nodes += 1
+            self.qparams["nodes"] = num_nodes
+            self.qparams["ppn"] = self.hw.cores_per_node
 
     def exclude_nodes(self, nodes):
         raise self.Error('qadapter failed to exclude nodes, not implemented yet in torque')
