@@ -195,7 +195,7 @@ class PourbaixDiagramTest(unittest.TestCase):
 
         # Test custom ions
         entries = mpr.get_pourbaix_entries(["Sn", "C", "Na"])
-        ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -76.5812)#-161.676)
+        ion = IonEntry(Ion.from_formula("NaO28H80Sn12C24+"), -161.676)
         custom_ion_entry = PourbaixEntry(ion, entry_id='my_ion')
         pbx = PourbaixDiagram(entries + [custom_ion_entry], filter_solids=True,
                               comp_dict={"Na": 1, "Sn": 12, "C": 24})
@@ -204,18 +204,13 @@ class PourbaixDiagramTest(unittest.TestCase):
 
 
     def test_nofilter(self):
-        entries = self.test_data['Ag-Te-N']
+        entries = self.test_data['Ag-Te']
         pbx = PourbaixDiagram(entries)
         pbx.get_decomposition_energy(entries[0], 0, 0)
 
     def test_solid_filter(self):
         entries = self.test_data['Ag-Te-N']
         pbx = PourbaixDiagram(entries, filter_solids=True)
-        pbx.get_decomposition_energy(entries[0], 0, 0)
-
-    def test_multielement_filter(self):
-        entries = self.test_data['Ag-Te-N']
-        pbx = PourbaixDiagram(entries, filter_multielement=True)
         pbx.get_decomposition_energy(entries[0], 0, 0)
 
 
