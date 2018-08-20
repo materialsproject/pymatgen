@@ -12,6 +12,7 @@ from functools import cmp_to_key, partial
 from monty.json import MSONable
 from six.moves import zip
 from multiprocessing import Pool
+import warnings
 
 from scipy.spatial import ConvexHull, HalfspaceIntersection
 from scipy.misc import comb
@@ -407,8 +408,7 @@ class PourbaixDiagram(object):
             in parallel.  Defaults to None (serial processing)
     """
     def __init__(self, entries, comp_dict=None, conc_dict=None,
-                 filter_solids=False, filter_multielement=False,
-                 nproc=None):
+                 filter_solids=False, nproc=None):
 
         # Get non-OH elements
         pbx_elts = set(itertools.chain.from_iterable(
@@ -430,14 +430,18 @@ class PourbaixDiagram(object):
                        if entry.phase_type == "Ion"]
 
         # If a conc_dict is specified, override individual entry concentrations
-        if conc_dict:
-            for entry in ion_entries:
-                if len(entry.non_oh_elts) == 1:
-                    entry.concentration = conc_dict[entry.non_oh_elts[0].symbol]\
-                                          * entry.normalization_factor
-                elif len(entry.non_oh_elts) > 1 and not entry.concentration:
-                    raise ValueError("Elemental concentration not compatible "
-                                     "with multi-element ions")
+        for entry in ion_entries:
+            ion_elts = list(set(entry.composition.elements) - elements_HO)
+            # TODO: the logic here for ion concentration setting is in two
+            #       places, in PourbaixEntry and here, should be consolidated
+            if len(ion_elts) == 1:
+                entry.concentration = conc_dict[ion_elts[0].symbol] \
+                                      * entry.normalization_factor
+            elif len(ion_elts) > 1 and not entry.concentration:
+                raise ValueError("Elemental concentration not compatible "
+                                 "with multi-element ions")
+
+        self._unprocessed_entries = solid_entries + ion_entries
 
         if not len(solid_entries + ion_entries) == len(entries):
             raise ValueError("All supplied entries must have a phase type of "
@@ -449,18 +453,18 @@ class PourbaixDiagram(object):
             solid_pd = PhaseDiagram(solid_entries + entries_HO)
             solid_entries = list(set(solid_pd.stable_entries) - set(entries_HO))
 
-        self._analysis_entries = solid_entries + ion_entries
+        self._filtered_entries = solid_entries + ion_entries
 
         if len(comp_dict) > 1:
             self._multielement = True
             self._processed_entries = self._generate_multielement_entries(
-                    self._analysis_entries, nproc=nproc)
+                    self._filtered_entries, nproc=nproc)
         else:
+            self._processed_entries = self._filtered_entries
             self._multielement = False
-            self._processed_entries = self._analysis_entries
 
         self._stable_domains, self._stable_domain_vertices = \
-            self.get_pourbaix_domains(self._analysis_entries)
+            self.get_pourbaix_domains(self._processed_entries)
 
 
     def _generate_multielement_entries(self, entries, forced_include=None,
@@ -484,7 +488,7 @@ class PourbaixDiagram(object):
         total_comp = Composition(self._elt_comp)
         forced_include = forced_include or []
 
-        # generate all possible combinations of compounds that have all elts
+        # generate all combinations of compounds that have all elements
         entry_combos = [itertools.combinations(
             entries, j + 1 - len(forced_include)) for j in range(N)]
         entry_combos = itertools.chain.from_iterable(entry_combos)
@@ -495,15 +499,20 @@ class PourbaixDiagram(object):
 
         # Generate and filter entries
         processed_entries = []
-        # Serial processing
+        total = sum([comb(len(entries), j + 1 - len(forced_include))
+                     for j in range(N)])
+        if total > 1e6:
+            warnings.warn("Your pourbaix diagram includes {} entries and may "
+                          "take a long time to generate.".format(total))
+
+        # Parallel processing of multi-entry generation
         if nproc is not None:
-            total = sum([comb(len(entries), j + 1 - len(forced_include))
-                         for j in range(N)])
             f = partial(self.process_multientry, prod_comp=total_comp)
             with Pool(nproc) as p:
                 processed_entries = list(tqdm(p.imap(f, entry_combos),
                                               total=total))
-            processed_entries = filter(bool, processed_entries)
+            processed_entries = list(filter(bool, processed_entries))
+        # Serial processing of multi-entry generation
         else:
             for entry_combo in entry_combos:
                 processed_entry = self.process_multientry(entry_combo, total_comp)
@@ -663,7 +672,7 @@ class PourbaixDiagram(object):
         # Find representative multientry
         if self._multielement and not isinstance(entry, MultiEntry):
             possible_entries = self._generate_multielement_entries(
-               self._analysis_entries, forced_include=[entry])
+               self._filtered_entries, forced_include=[entry])
 
             # Filter to only include materials where the entry is only solid
             if entry.phase_type == "solid":
