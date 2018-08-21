@@ -9,7 +9,7 @@ import numpy as np
 import itertools
 import re
 from copy import deepcopy
-from functools import cmp_to_key, partial
+from functools import cmp_to_key, partial, lru_cache
 from monty.json import MSONable, MontyDecoder
 from six.moves import zip
 from multiprocessing import Pool
@@ -253,6 +253,7 @@ class MultiEntry(PourbaixEntry):
             self.weights = weights
         self.entry_list = entry_list
 
+    @lru_cache()
     def __getattr__(self, item):
         """
         Because most of the attributes here are just weighted
