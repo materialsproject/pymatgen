@@ -5,8 +5,10 @@
 from __future__ import division, unicode_literals
 import unittest
 import os
+import json
 import numpy as np
-from pymatgen.io.lobster import Cohpcar, Icohplist
+from pymatgen import Structure
+from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
 
@@ -18,6 +20,9 @@ __date__ = "Dec 10, 2017"
 
 test_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "..", "..", "..", "test_files", "cohp")
+test_dir_doscar = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "..", "..", "..", "test_files")
+
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -232,6 +237,171 @@ class IcohplistTest(unittest.TestCase):
 
     def tearDown(self):
         os.chdir(this_dir)
+
+
+class DoscarTest(unittest.TestCase):
+    def setUp(self):
+        # first for spin polarized version
+        doscar = os.path.join(test_dir_doscar, "DOSCAR.lobster.spin")
+        vasprun = os.path.join(test_dir_doscar, "vasprun.xml.lobster.spin")
+        doscar2 = os.path.join(test_dir_doscar, "DOSCAR.lobster.nonspin")
+        vasprun2 = os.path.join(test_dir_doscar, "vasprun.xml.lobster.nonspin")
+
+        self.DOSCAR_spin_pol = Doscar(doscar=doscar, vasprun=vasprun)
+        self.DOSCAR_nonspin_pol = Doscar(doscar=doscar2, vasprun=vasprun2)
+
+        with open(os.path.join(test_dir_doscar, 'structure_KF.json'), 'r') as f:
+            data = json.load(f)
+
+        self.structure = Structure.from_dict(data)
+
+    def test_completedos(self):
+        # first for spin polarized version
+        energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
+        tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
+        tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
+        fermi = 0.0
+
+        PDOS_F_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        PDOS_F_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        PDOS_F_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
+        PDOS_F_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
+        PDOS_F_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
+        PDOS_F_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
+        PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
+        PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
+
+        self.assertListEqual(energies_spin, self.DOSCAR_spin_pol.completedos.energies.tolist())
+        self.assertListEqual(tdos_up, self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist())
+        self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist())
+        self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.completedos.efermi)
+        self.assertDictEqual(self.DOSCAR_spin_pol.completedos.structure.as_dict(), self.structure.as_dict())
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2s'][Spin.up].tolist(),
+                             PDOS_F_2s_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2s'][Spin.down].tolist(),
+                             PDOS_F_2s_down)
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2p_y'][Spin.up].tolist(),
+                             PDOS_F_2py_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2p_y'][Spin.down].tolist(),
+                             PDOS_F_2py_down)
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2p_z'][Spin.up].tolist(),
+                             PDOS_F_2pz_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2p_z'][Spin.down].tolist(),
+                             PDOS_F_2pz_down)
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2p_x'][Spin.up].tolist(),
+                             PDOS_F_2px_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.completedos.pdos[self.structure[0]]['2p_x'][Spin.down].tolist(),
+                             PDOS_F_2px_down)
+
+        energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
+        tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
+        PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
+        PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
+        PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
+        PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
+
+        self.assertListEqual(energies_nonspin, self.DOSCAR_nonspin_pol.completedos.energies.tolist())
+
+        self.assertListEqual(tdos_nonspin, self.DOSCAR_nonspin_pol.completedos.densities[Spin.up].tolist())
+
+        self.assertAlmostEqual(fermi, self.DOSCAR_nonspin_pol.completedos.efermi)
+        self.assertDictEqual(self.DOSCAR_nonspin_pol.completedos.structure.as_dict(), self.structure.as_dict())
+
+        self.assertListEqual(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]['2s'][Spin.up].tolist(),
+                             PDOS_F_2s)
+        self.assertListEqual(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]['2p_y'][Spin.up].tolist(),
+                             PDOS_F_2py)
+        self.assertListEqual(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]['2p_z'][Spin.up].tolist(),
+                             PDOS_F_2pz)
+        self.assertListEqual(self.DOSCAR_nonspin_pol.completedos.pdos[self.structure[0]]['2p_x'][Spin.up].tolist(),
+                             PDOS_F_2px)
+
+    def test_pdos(self):
+        # first for spin polarized version
+
+        PDOS_F_2s_up = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        PDOS_F_2s_down = [0.00000, 0.00159, 0.00000, 0.00011, 0.00000, 0.00069]
+        PDOS_F_2py_up = [0.00000, 0.00160, 0.00000, 0.25801, 0.00000, 0.00029]
+        PDOS_F_2py_down = [0.00000, 0.00161, 0.00000, 0.25819, 0.00000, 0.00029]
+        PDOS_F_2pz_up = [0.00000, 0.00161, 0.00000, 0.25823, 0.00000, 0.00029]
+        PDOS_F_2pz_down = [0.00000, 0.00160, 0.00000, 0.25795, 0.00000, 0.00029]
+        PDOS_F_2px_up = [0.00000, 0.00160, 0.00000, 0.25805, 0.00000, 0.00029]
+        PDOS_F_2px_down = [0.00000, 0.00161, 0.00000, 0.25814, 0.00000, 0.00029]
+
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2s'][Spin.up].tolist(),
+                             PDOS_F_2s_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2s'][Spin.down].tolist(),
+                             PDOS_F_2s_down)
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2p_y'][Spin.up].tolist(),
+                             PDOS_F_2py_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2p_y'][Spin.down].tolist(),
+                             PDOS_F_2py_down)
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2p_z'][Spin.up].tolist(),
+                             PDOS_F_2pz_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2p_z'][Spin.down].tolist(),
+                             PDOS_F_2pz_down)
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2p_x'][Spin.up].tolist(),
+                             PDOS_F_2px_up)
+        self.assertListEqual(self.DOSCAR_spin_pol.pdos[0]['2p_x'][Spin.down].tolist(),
+                             PDOS_F_2px_down)
+
+        # non spin
+        PDOS_F_2s = [0.00000, 0.00320, 0.00000, 0.00017, 0.00000, 0.00060]
+        PDOS_F_2py = [0.00000, 0.00322, 0.00000, 0.51635, 0.00000, 0.00037]
+        PDOS_F_2pz = [0.00000, 0.00322, 0.00000, 0.51636, 0.00000, 0.00037]
+        PDOS_F_2px = [0.00000, 0.00322, 0.00000, 0.51634, 0.00000, 0.00037]
+
+        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]['2s'][Spin.up].tolist(), PDOS_F_2s)
+        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]['2p_y'][Spin.up].tolist(), PDOS_F_2py)
+        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]['2p_z'][Spin.up].tolist(), PDOS_F_2pz)
+        self.assertListEqual(self.DOSCAR_nonspin_pol.pdos[0]['2p_x'][Spin.up].tolist(), PDOS_F_2px)
+
+    def test_tdos(self):
+        # first for spin polarized version
+        energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
+        tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
+        tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
+        fermi = 0.0
+
+        self.assertListEqual(energies_spin, self.DOSCAR_spin_pol.tdos.energies.tolist())
+        self.assertListEqual(tdos_up, self.DOSCAR_spin_pol.tdos.densities[Spin.up].tolist())
+        self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.tdos.densities[Spin.down].tolist())
+        self.assertAlmostEqual(fermi, self.DOSCAR_spin_pol.tdos.efermi)
+
+        energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
+        tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
+        fermi = 0.0
+
+        self.assertListEqual(energies_nonspin, self.DOSCAR_nonspin_pol.tdos.energies.tolist())
+        self.assertListEqual(tdos_nonspin, self.DOSCAR_nonspin_pol.tdos.densities[Spin.up].tolist())
+        self.assertAlmostEqual(fermi, self.DOSCAR_nonspin_pol.tdos.efermi)
+
+    def test_energies(self):
+        # first for spin polarized version
+        energies_spin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
+
+        self.assertListEqual(energies_spin, self.DOSCAR_spin_pol.energies.tolist())
+
+        energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
+        self.assertListEqual(energies_nonspin, self.DOSCAR_nonspin_pol.energies.tolist())
+
+    def test_tdensities(self):
+        # first for spin polarized version
+        tdos_up = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02577]
+        tdos_down = [0.00000, 0.79999, 0.00000, 0.79999, 0.00000, 0.02586]
+
+        self.assertListEqual(tdos_up, self.DOSCAR_spin_pol.tdensities[Spin.up].tolist())
+        self.assertListEqual(tdos_down, self.DOSCAR_spin_pol.tdensities[Spin.down].tolist())
+
+        tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
+        self.assertListEqual(tdos_nonspin, self.DOSCAR_nonspin_pol.tdensities[Spin.up].tolist())
+
+    def test_is_spin_polarized(self):
+        # first for spin polarized version
+        self.assertTrue(self.DOSCAR_spin_pol.is_spin_polarized)
+
+        self.assertFalse(self.DOSCAR_nonspin_pol.is_spin_polarized)
+
 
 if __name__ == "__main__":
     unittest.main()

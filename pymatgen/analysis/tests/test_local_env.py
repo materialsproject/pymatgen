@@ -184,6 +184,18 @@ class VoronoiNNTest(PymatgenTest):
 
             self.assertArrayAlmostEqual(all_weights, by_one_weights)
 
+    def test_Cs2O(self):
+        """A problematic structure in the Materials Project"""
+        strc = Structure([[4.358219, 0.192833, 6.406960], [2.114414, 3.815824, 6.406960],
+                          [0.311360, 0.192833, 7.742498]],
+                         ['O', 'Cs', 'Cs'],
+                         [[0, 0, 0], [0.264318, 0.264318, 0.264318], [0.735682, 0.735682, 0.735682]],
+                         coords_are_cartesian=False)
+
+        # Compute the voronoi tessellation
+        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        self.assertEqual(3, len(result))
+
     def test_filtered(self):
         nn = VoronoiNN(weight='area')
 
