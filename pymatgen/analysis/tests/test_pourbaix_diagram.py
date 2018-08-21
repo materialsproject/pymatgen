@@ -141,6 +141,12 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 2, -1), 0)
         self.assertAlmostEqual(pd_ternary.get_decomposition_energy(ag, 10, -2), 0)
 
+        # Test invocation of pourbaix diagram from ternary data
+        new_ternary = PourbaixDiagram(pd_ternary.all_entries)
+        self.assertEqual(len(new_ternary.stable_entries), 49)
+        self.assertAlmostEqual(new_ternary.get_decomposition_energy(ag, 2, -1), 0)
+        self.assertAlmostEqual(new_ternary.get_decomposition_energy(ag, 10, -2), 0)
+
     def test_get_pourbaix_domains(self):
         domains = PourbaixDiagram.get_pourbaix_domains(self.test_data['Zn'])
         self.assertEqual(len(domains[0]), 7)
@@ -177,6 +183,14 @@ class PourbaixDiagramTest(unittest.TestCase):
         nproc = multiprocessing.cpu_count()
         pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=nproc)
 
+    # def test_big_multielement_parallel(self):
+    #     from pymatgen import MPRester
+    #     mpr = MPRester()
+    #     data = mpr.get_pourbaix_entries(["Sr", "Cu", "S", "F"])
+    #     nproc = multiprocessing.cpu_count()
+    #     pbx = PourbaixDiagram(data, filter_solids=True, nproc=nproc)
+
+
     @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
                      "PMG_MAPI_KEY environment variable not set.")
     def test_mpr_pipeline(self):
@@ -202,7 +216,6 @@ class PourbaixDiagramTest(unittest.TestCase):
         self.assertAlmostEqual(pbx.get_decomposition_energy(custom_ion_entry, 5, 2),
                                8.31202738629504, 2)
 
-
     def test_nofilter(self):
         entries = self.test_data['Ag-Te']
         pbx = PourbaixDiagram(entries)
@@ -212,6 +225,29 @@ class PourbaixDiagramTest(unittest.TestCase):
         entries = self.test_data['Ag-Te-N']
         pbx = PourbaixDiagram(entries, filter_solids=True)
         pbx.get_decomposition_energy(entries[0], 0, 0)
+
+    def test_serialization(self):
+        d = self.pbx.as_dict()
+        new = PourbaixDiagram.from_dict(d)
+        self.assertEqual(set([e.name for e in new.stable_entries]),
+                         {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)"},
+                         "List of stable entries does not match")
+
+        # Test with unprocessed entries included, this should result in the
+        # previously filtered entries being included
+        d = self.pbx.as_dict(include_unprocessed_entries=True)
+        new = PourbaixDiagram.from_dict(d)
+        self.assertEqual(
+            set([e.name for e in new.stable_entries]),
+            {"ZnO(s)", "Zn[2+]", "ZnHO2[-]", "ZnO2[2-]", "Zn(s)", "ZnO2(s)", "ZnH(s)"},
+            "List of stable entries for unfiltered pbx does not match")
+
+        pd_binary = PourbaixDiagram(self.test_data['Ag-Te'], filter_solids=True,
+                                    comp_dict={"Ag": 0.5, "Te": 0.5},
+                                    conc_dict={"Ag": 1e-8, "Te": 1e-8})
+        new_binary = PourbaixDiagram.from_dict(pd_binary.as_dict())
+        self.assertEqual(len(pd_binary.stable_entries),
+                         len(new_binary.stable_entries))
 
 
 class PourbaixPlotterTest(unittest.TestCase):
