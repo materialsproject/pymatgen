@@ -465,6 +465,106 @@ class StructureGraph(MSONable):
         nx.relabel_nodes(self.graph, mapping)
         self.set_node_attributes()
 
+    def substitute_group(self, index, func_grp, strategy, bond_order=1,
+                         graph_dict=None, strategy_params=None):
+        """
+        Builds off of Structure.substitute to replace an atom in self.structure
+        with a functional group. This method also amends self.graph to
+        incorporate the new functional group.
+
+        NOTE: Care must be taken to ensure that the functional group that is
+        substituted will not place atoms to close to each other, or violate the
+        dimensions of the Lattice.
+
+        :param index: Index of atom to substitute.
+        :param func_grp: Substituent molecule. There are two options:
+
+                1. Providing an actual Molecule as the input. The first atom
+                   must be a DummySpecie X, indicating the position of
+                   nearest neighbor. The second atom must be the next
+                   nearest atom. For example, for a methyl group
+                   substitution, func_grp should be X-CH3, where X is the
+                   first site and C is the second site. What the code will
+                   do is to remove the index site, and connect the nearest
+                   neighbor to the C atom in CH3. The X-C bond indicates the
+                   directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                   relevant template in func_groups.json.
+        :param strategy: Class from pymatgen.analysis.local_env.
+        :param bond_order: A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
+        :param graph_dict: Dictionary representing the bonds of the functional
+                group (format: {(u, v): props}, where props is a dictionary of
+                properties, including weight. If None, then the algorithm
+                will attempt to automatically determine bonds using one of
+                a list of strategies defined in pymatgen.analysis.local_env.
+        :param strategy_params: dictionary of keyword arguments for strategy.
+                If None, default parameters will be used.
+        :return:
+        """
+
+        def map_indices(grp):
+            grp_map = {}
+
+            # Get indices now occupied by functional group
+            # Subtracting 1 because the dummy atom X should not count
+            atoms = len(grp) - 1
+            offset = len(self.structure) - atoms
+
+            for i in range(atoms):
+                grp_map[i] = i + offset
+
+            return grp_map
+
+        if isinstance(func_grp, Molecule):
+            func_grp = copy.deepcopy(func_grp)
+        else:
+            try:
+                func_grp = copy.deepcopy(FunctionalGroups[func_grp])
+            except:
+                raise RuntimeError("Can't find functional group in list. "
+                                   "Provide explicit coordinate instead")
+
+        self.structure.substitute(index, func_grp, bond_order=bond_order)
+
+        mapping = map_indices(func_grp)
+
+        # Remove dummy atom "X"
+        func_grp.remove_species("X")
+
+        if graph_dict is not None:
+            for (u, v) in graph_dict.keys():
+                edge_props = graph_dict[(u, v)]
+                if "to_jimage" in edge_props.keys():
+                    to_jimage = edge_props["to_jimage"]
+                    del edge_props["to_jimage"]
+                else:
+                    # By default, assume that all edges should stay remain
+                    # inside the initial image
+                    to_jimage = (0, 0, 0)
+                if "weight" in edge_props.keys():
+                    weight = edge_props["weight"]
+                    del edge_props["weight"]
+                self.add_edge(mapping[u], mapping[v], to_jimage=to_jimage,
+                              weight=weight, edge_properties=edge_props)
+
+        else:
+            if strategy_params is None:
+                strategy_params = {}
+            strat = strategy(**strategy_params)
+
+            for site in mapping.values():
+                neighbors = strat.get_nn_info(self.structure, site)
+
+                for neighbor in neighbors:
+                    self.add_edge(from_index=site,
+                                  from_jimage=(0, 0, 0),
+                                  to_index=neighbor['site_index'],
+                                  to_jimage=neighbor['image'],
+                                  weight=neighbor['weight'],
+                                  warn_duplicates=False)
+
     def get_connected_sites(self, n, jimage=(0, 0, 0)):
         """
         Returns a named tuple of neighbors of site n:

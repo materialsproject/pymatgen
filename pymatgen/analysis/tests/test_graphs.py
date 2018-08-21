@@ -155,6 +155,40 @@ class StructureGraphTest(unittest.TestCase):
                                                                  "to_jimage": (0, 0, 0)}])
         self.assertEqual(square_copy.get_coordination_of_site(1), 1)
 
+    def test_substitute(self):
+        structure = Structure.from_file(os.path.join(os.path.dirname(__file__),
+                                                     "..", "..", "..",
+                                                     "test_files", "Li2O.cif"))
+        molecule = FunctionalGroups["methyl"]
+
+        structure_copy = copy.deepcopy(structure)
+        structure_copy_graph = copy.deepcopy(structure)
+
+        sg = StructureGraph.with_local_env_strategy(structure, MinimumDistanceNN())
+        sg_copy = copy.deepcopy(sg)
+
+        # Ensure that strings and molecules lead to equivalent substitutions
+        sg.substitute_group(1, molecule, MinimumDistanceNN)
+        sg_copy.substitute_group(1, "methyl", MinimumDistanceNN)
+        self.assertEqual(sg, sg_copy)
+
+        # Ensure that the underlying structure has been modified as expected
+        structure_copy.substitute(1, "methyl")
+        self.assertEqual(structure_copy, sg.structure)
+
+        # Test inclusion of graph dictionary
+        graph_dict = {(0, 1): {"weight": 0.5},
+                      (0, 2): {"weight": 0.5},
+                      (0, 3): {"weight": 0.5},
+                      }
+
+        sg_with_graph = StructureGraph.with_local_env_strategy(structure_copy_graph,
+                                                               MinimumDistanceNN())
+        sg_with_graph.substitute_group(1, "methyl", MinimumDistanceNN,
+                                       graph_dict=graph_dict)
+        edge = sg_with_graph.graph.get_edge_data(11, 13)[0]
+        self.assertEqual(edge["weight"], 0.5)
+
     def test_auto_image_detection(self):
 
         sg = StructureGraph.with_empty_graph(self.structure)

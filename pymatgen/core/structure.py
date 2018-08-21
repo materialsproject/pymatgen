@@ -2667,8 +2667,13 @@ class Structure(IStructure, collections.MutableSequence):
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
-        bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
-                             bond_order=bond_order)
+        try:
+            bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
+                                 bond_order=bond_order)
+        # Catches for case of incompatibility between Element(s) and Specie(s)
+        except TypeError:
+            bl = None
+
         if bl is not None:
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
