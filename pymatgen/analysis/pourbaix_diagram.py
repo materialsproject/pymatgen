@@ -32,7 +32,6 @@ try:
 except ImportError:
     tqdm = lambda x: x
 
-
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.3"
@@ -386,10 +385,9 @@ elements_HO = {Element('H'), Element('O')}
 
 # TODO: create a from_phase_diagram class method for non-formation energy
 #       invocation
-
 # TODO: invocation from a MultiEntry entry list could be a bit more robust
 # TODO: serialization is still a bit rough around the edges
-class PourbaixDiagram(object):
+class PourbaixDiagram(MSONable):
     """
     Class to create a Pourbaix diagram from entries
 
