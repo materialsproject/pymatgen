@@ -182,6 +182,7 @@ class PourbaixDiagramTest(unittest.TestCase):
         test_entries = self.test_data["Ag-Te-N"]
         nproc = multiprocessing.cpu_count()
         pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=nproc)
+        self.assertEqual(len(pbx.stable_entries), 49)
 
     @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
                      "PMG_MAPI_KEY environment variable not set.")
