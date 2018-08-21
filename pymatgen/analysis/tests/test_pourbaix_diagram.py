@@ -183,14 +183,6 @@ class PourbaixDiagramTest(unittest.TestCase):
         nproc = multiprocessing.cpu_count()
         pbx = PourbaixDiagram(test_entries, filter_solids=True, nproc=nproc)
 
-    # def test_big_multielement_parallel(self):
-    #     from pymatgen import MPRester
-    #     mpr = MPRester()
-    #     data = mpr.get_pourbaix_entries(["Sr", "Cu", "S", "F"])
-    #     nproc = multiprocessing.cpu_count()
-    #     pbx = PourbaixDiagram(data, filter_solids=True, nproc=nproc)
-
-
     @unittest.skipIf(not SETTINGS.get("PMG_MAPI_KEY"),
                      "PMG_MAPI_KEY environment variable not set.")
     def test_mpr_pipeline(self):
