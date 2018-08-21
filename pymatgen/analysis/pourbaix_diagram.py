@@ -8,6 +8,7 @@ import logging
 import numpy as np
 import itertools
 import re
+from copy import deepcopy
 from functools import cmp_to_key, partial
 from monty.json import MSONable, MontyDecoder
 from six.moves import zip
@@ -408,6 +409,7 @@ class PourbaixDiagram(object):
     """
     def __init__(self, entries, comp_dict=None, conc_dict=None,
                  filter_solids=False, nproc=None):
+        entries = deepcopy(entries)
 
         # Get non-OH elements
         pbx_elts = set(itertools.chain.from_iterable(
