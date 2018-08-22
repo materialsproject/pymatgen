@@ -288,7 +288,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Molecules, while PBC is taken into account for periodic structures.
 
         Args:
-            tol (float): Distance tolerance. Default is 0.01A.
+            tol (float): Distance tolerance. Default is 0.5A.
 
         Returns:
             (bool) True if SiteCollection does not contain atoms that are too
