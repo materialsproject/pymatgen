@@ -1,5 +1,5 @@
-pymatgen.apps.battery.plotter module
-====================================
+pymatgen\.apps\.battery\.plotter module
+=======================================
 
 .. automodule:: pymatgen.apps.battery.plotter
     :members:

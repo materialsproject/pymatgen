@@ -1,5 +1,5 @@
-pymatgen.electronic\_structure package
-======================================
+pymatgen\.electronic\_structure package
+=======================================
 
 Subpackages
 -----------

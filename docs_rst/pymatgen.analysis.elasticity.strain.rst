@@ -1,5 +1,5 @@
-pymatgen.analysis.elasticity.strain module
-==========================================
+pymatgen\.analysis\.elasticity\.strain module
+=============================================
 
 .. automodule:: pymatgen.analysis.elasticity.strain
     :members:

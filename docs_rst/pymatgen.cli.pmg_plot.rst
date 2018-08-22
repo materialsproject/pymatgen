@@ -1,5 +1,5 @@
-pymatgen.cli.pmg\_plot module
-=============================
+pymatgen\.cli\.pmg\_plot module
+===============================
 
 .. automodule:: pymatgen.cli.pmg_plot
     :members:

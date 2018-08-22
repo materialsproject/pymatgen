@@ -702,8 +702,13 @@ class VoronoiNN(NearNeighbors):
         else:
             targets = self.targets
 
-        sites = []
-        indices = []
+        # Initialize the list of sites with the atoms in the origin unit cell
+        #  The `get_all_neighbors` function returns neighbors for each site's image in the
+        #   original unit cell. We start off with these central atoms to ensure they are
+        #   included in the tessellation
+        sites = [x.to_unit_cell for x in structure]
+        indices = [(i, 0, 0, 0) for i, _ in enumerate(structure)]
+
         # Get all neighbors within a certain cutoff
         #   Record both the list of these neighbors, and the site indices
         all_neighs = structure.get_all_neighbors(self.cutoff,
@@ -722,6 +727,7 @@ class VoronoiNN(NearNeighbors):
         #   Exploit the fact that the array is sorted by the unique operation such that
         #   the images associated with atom 0 are first, followed by atom 1, etc.
         root_images, = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)
+
         del indices  # Save memory (tessellations can be costly)
 
         # Run the tessellation

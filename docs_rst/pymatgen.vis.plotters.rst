@@ -1,5 +1,5 @@
-pymatgen.vis.plotters module
-============================
+pymatgen\.vis\.plotters module
+==============================
 
 .. automodule:: pymatgen.vis.plotters
     :members:

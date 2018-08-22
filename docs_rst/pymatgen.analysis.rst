@@ -1,5 +1,5 @@
-pymatgen.analysis package
-=========================
+pymatgen\.analysis package
+==========================
 
 Subpackages
 -----------
@@ -12,6 +12,7 @@ Subpackages
     pymatgen.analysis.diffraction
     pymatgen.analysis.elasticity
     pymatgen.analysis.ferroelectricity
+    pymatgen.analysis.gb
     pymatgen.analysis.hhi
     pymatgen.analysis.magnetism
     pymatgen.analysis.structure_prediction

@@ -1,5 +1,5 @@
-pymatgen.analysis.chemenv package
-=================================
+pymatgen\.analysis\.chemenv package
+===================================
 
 Subpackages
 -----------
