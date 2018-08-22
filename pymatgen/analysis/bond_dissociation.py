@@ -174,7 +174,7 @@ class BondDissociationEnergies(MSONable):
                                           strategy=OpenBabelNN,
                                           reorder=False,
                                           extend_structure=False)
-            entry["final_molgraph"] = build_MoleculeGraph(Molecule.from_dict(entry["initial_molecule"]),
+            entry["final_molgraph"] = build_MoleculeGraph(Molecule.from_dict(entry["final_molecule"]),
                                         strategy=OpenBabelNN,
                                         reorder=False,
                                         extend_structure=False)
