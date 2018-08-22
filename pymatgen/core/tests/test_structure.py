@@ -486,7 +486,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s[0].species_string, "Si")
         self.assertEqual(s[1].species_string, "F")
 
-    def test_append_insert_remove_replace(self):
+    def test_append_insert_remove_replace_substitute(self):
         s = self.structure
         s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
@@ -523,11 +523,20 @@ class StructureTest(PymatgenTest):
         with self.assertRaises(AttributeError):
             s.ntypesp
 
-        s.remove_species(["Si"])
-        self.assertEqual(s.formula, "Ge0.25 N1 O1")
+        s.replace_species({"Ge": "Si"})
+        s.substitute(1, "hydroxyl")
+        self.assertEqual(s.formula, "Si1 H1 N1 O1")
+        self.assertTrue(s.symbol_set == ("Si", "N", "O", "H"))
+        # Distance between O and H
+        self.assertAlmostEqual(s.get_distance(2, 3), 0.96)
+        # Distance between Si and H
+        self.assertAlmostEqual(s.get_distance(0, 3), 2.09840889)
+
+        s.remove_species(["H"])
+        self.assertEqual(s.formula, "Si1 N1 O1")
 
         s.remove_sites([1, 2])
-        self.assertEqual(s.formula, "Ge0.25")
+        self.assertEqual(s.formula, "Si1")
 
     def test_add_remove_site_property(self):
         s = self.structure

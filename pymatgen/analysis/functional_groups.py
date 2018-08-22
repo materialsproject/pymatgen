@@ -19,7 +19,7 @@ except ImportError:
 __author__ = "Evan Spotte-Smith"
 __version__ = "0.1"
 __maintainer__ = "Evan Spotte-Smith"
-__email__ = "ewcspottesmith@lbl.gov"
+__email__ = "espottesmith@gmail.com"
 __status__ = "Beta"
 __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
