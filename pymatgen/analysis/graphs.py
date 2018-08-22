@@ -323,7 +323,7 @@ class StructureGraph(MSONable):
                               properties=site_properties)
 
         mapping = {}
-        for j, s in enumerate(self.structure):
+        for j in range(len(self.structure)):
             if j < i:
                 mapping[j] = j
             else:
@@ -1561,7 +1561,7 @@ class MoleculeGraph(MSONable):
                              properties=site_properties)
 
         mapping = {}
-        for j, s in enumerate(self.molecule):
+        for j in range(len(self.molecule)):
             if j < i:
                 mapping[j] = j
             else:
@@ -1952,7 +1952,6 @@ class MoleculeGraph(MSONable):
         """
 
         self.set_node_attributes()
-        species = nx.get_node_attributes(self.graph, 'specie')
         neighbors = self.get_connected_sites(index)
 
         # If the atom at index is terminal
