@@ -12,8 +12,8 @@ import os
 from monty.os.path import which
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-    VoronoiNN, JMolNN, MinimumDistanceNN, OpenBabelNN, MinimumOKeeffeNN,\
-    MinimumVIRENN, \
+    VoronoiNN, JMolNN, MinimumDistanceNN, OpenBabelNN, CovalentBondNN, \
+    MinimumOKeeffeNN, MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
     BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
@@ -152,10 +152,10 @@ class VoronoiNNTest(PymatgenTest):
 
         # Each neighbor has 4 adjacent neighbors, all orthogonal
         for nn_key, nn_info in neighbors.items():
-            self.assertEquals(4, len(nn_info['adj_neighbors']))
+            self.assertEqual(4, len(nn_info['adj_neighbors']))
 
             for adj_key in nn_info['adj_neighbors']:
-                self.assertEquals(0, np.dot(nn_info['normal'], neighbors[adj_key]['normal']))
+                self.assertEqual(0, np.dot(nn_info['normal'], neighbors[adj_key]['normal']))
 
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
@@ -300,6 +300,41 @@ class OpenBabelNNTest(PymatgenTest):
         self.assertAlmostEqual(strat.get_nn_info(self.acetylene, 0)[0]["weight"],
                                1.19,
                                2)
+
+    def tearDown(self):
+        del self.benzene
+        del self.acetylene
+
+
+class CovalentBondNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+
+    def test_nn_orders(self):
+        strat = CovalentBondNN()
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertEqual(acetylene[0]["weight"], 3)
+        self.assertEqual(acetylene[1]["weight"], 1)
+
+        benzene = strat.get_nn_info(self.benzene, 0)
+        self.assertAlmostEqual(benzene[0]["weight"], 1.6596, places=4)
+
+    def test_nn_length(self):
+        strat = CovalentBondNN(order=False)
+
+        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+
+        c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
+        h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
+
+        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
+        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
 
     def tearDown(self):
         del self.benzene
