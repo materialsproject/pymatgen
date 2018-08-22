@@ -722,6 +722,8 @@ class IStructure(SiteCollection, MSONable):
         return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
+        if other is self:
+            return True
         if other is None:
             return False
         if len(self) != len(other):
@@ -1655,7 +1657,7 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
-        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*"):
+        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
             s = cls.from_str(contents, fmt="poscar",
                              primitive=primitive, sort=sort,
                              merge_tol=merge_tol)

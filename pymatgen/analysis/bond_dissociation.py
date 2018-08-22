@@ -9,16 +9,9 @@ import logging
 from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchem.outputs import build_MoleculeGraph, is_isomorphic
+from pymatgen.analysis.graphs import build_MoleculeGraph
+from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
-
-# have_babel = True
-# try:
-#     from pymatgen.io.babel import BabelMolAdaptor
-#     import openbabel as ob
-# except ImportError:
-#     print("Cannot find OpenBabel! Thus, bonds must be provided by the user.")
-#     have_babel = False
 
 
 __author__ = "Samuel Blau"
@@ -94,13 +87,17 @@ class BondDissociationEnergies(MSONable):
         """
 
         self.molecule_entry = molecule_entry
-        self.fragment_entries = fragment_entries
+        self.filter_fragment_entries(fragment_entries)
+        print(str(len(self.filtered_entries)) + " filtered entries")
         self.bond_dissociation_energies = []
-        # self.all_bonds = edges_from_babel(target_molecule)
+        self.done_frag_pairs = []
         self.ring_bonds = []
         self.bad_pairs = []
-        self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["output"]["optimized_molecule"]))#, self.all_bonds)
-        for bond in self.mol_graph.graph.edges: #switch to all_bonds?
+        self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["final_molecule"]),
+                                             strategy=OpenBabelNN,
+                                             reorder=False,
+                                             extend_structure=False)
+        for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0],bond[1])]
             self.fragment_and_process(bonds)
         self.bond_pairs = []
@@ -113,7 +110,6 @@ class BondDissociationEnergies(MSONable):
         for bond_pair in self.bond_pairs:
             self.fragment_and_process(bond_pair)
         self.solve_ring_bonds()
-        # return self.bond_dissociation_energies
 
     def fragment_and_process(self, bonds):
         try:
@@ -129,56 +125,69 @@ class BondDissociationEnergies(MSONable):
                 raise ValueError
             frag_success = False
         if frag_success:
-            frag1_entries = self.search_fragment_entries(frags[0])
-            frag2_entries = self.search_fragment_entries(frags[1])
-            # if bonds == [(0, 14)] or bonds == [(6, 10)]:
-            #     print()
-            #     print(bonds)
-            #     print()
-            #     print(frag1_entries[1])
-            #     print()
-            #     print(frag1_entries[2])
-            #     print()
-            #     print(frag2_entries[1])
-            #     print()
-            #     print(frag2_entries[2])
-            #     print()
-            for frag1 in frag1_entries[0]:
-                for frag2 in frag2_entries[0]:
-                    if frag1["calcs_reversed"][-1]["input"]["rem"]["method"] == frag2["calcs_reversed"][-1]["input"]["rem"]["method"] and frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag2["calcs_reversed"][-1]["input"]["rem"]["basis"]: # Add PCM check?
-                        if frag1["output"]["initial_molecule"]["charge"] + frag2["output"]["initial_molecule"]["charge"] == self.molecule_entry["output"]["optimized_molecule"]["charge"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["basis"] == frag1["calcs_reversed"][-1]["input"]["rem"]["basis"] and self.molecule_entry["calcs_reversed"][-1]["input"]["rem"]["method"] == frag1["calcs_reversed"][-1]["input"]["rem"]["method"]:
+            frags_done = False
+            for frag_pair in self.done_frag_pairs:
+                if frag_pair[0].isomorphic_to(frags[0]):
+                    if frag_pair[1].isomorphic_to(frags[1]):
+                        frags_done = True
+                        break
+                elif frag_pair[1].isomorphic_to(frags[0]):
+                    if frag_pair[0].isomorphic_to(frags[1]):
+                        frags_done = True
+                        break
+            if not frags_done:
+                self.done_frag_pairs += [frags]
+                frag1_entries = self.search_fragment_entries(frags[0])
+                frag2_entries = self.search_fragment_entries(frags[1])
+                for frag1 in frag1_entries[0]:
+                    for frag2 in frag2_entries[0]:
+                        if frag1["initial_molecule"]["charge"] + frag2["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
                             coords = nx.get_node_attributes(self.mol_graph.graph, "coords")
                             specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-                            if frag1["output"]["final_energy"] == "unstable" or frag2["output"]["final_energy"] == "unstable":
-                                new_entry = ["unstable", bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], Molecule.from_dict(frag1["output"]["initial_molecule"]).composition.reduced_formula, frag1["output"]["initial_molecule"]["charge"], frag1["output"]["final_energy"], Molecule.from_dict(frag2["output"]["initial_molecule"]).composition.reduced_formula, frag2["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"]]
+                            frag1_charge = frag1["initial_molecule"]["charge"]
+                            frag2_charge = frag2["initial_molecule"]["charge"]
+                            if frag1["final_energy"] == "unstable" or frag2["final_energy"] == "unstable":
+                                new_entry = ["unstable", bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["final_energy"], frag2["smiles"], frag2_charge, frag2["final_energy"]]
                             else:
-                                new_entry = [self.molecule_entry["output"]["final_energy"] - (frag1["output"]["final_energy"] + frag2["output"]["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], Molecule.from_dict(frag1["output"]["initial_molecule"]).composition.reduced_formula, frag1["output"]["initial_molecule"]["charge"], frag1["output"]["final_energy"], Molecule.from_dict(frag2["output"]["initial_molecule"]).composition.reduced_formula, frag2["output"]["initial_molecule"]["charge"], frag2["output"]["final_energy"]]
+                                new_entry = [self.molecule_entry["final_energy"] - (frag1["final_energy"] + frag2["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], coords[bonds[0][0]], coords[bonds[0][1]], frag1["smiles"], frag1_charge, frag1["final_energy"], frag2["smiles"], frag2_charge, frag2["final_energy"]]
                             self.bond_dissociation_energies += [new_entry]
 
     def search_fragment_entries(self, frag):
         entries = []
         initial_entries = []
         final_entries = []
-        for entry in self.fragment_entries:
-            initial_graph = build_MoleculeGraph(Molecule.from_dict(entry["input"]["initial_molecule"])).graph
-            final_graph = build_MoleculeGraph(Molecule.from_dict(entry["output"]["initial_molecule"])).graph
-            if is_isomorphic(frag.graph, initial_graph) and is_isomorphic(frag.graph, final_graph):
+        for entry in self.filtered_entries:
+            if frag.isomorphic_to(entry["initial_molgraph"]) and frag.isomorphic_to(entry["final_molgraph"]):
                 entries += [entry]
-            elif is_isomorphic(frag.graph, initial_graph):
-                print(entry["task_id"])
+            elif frag.isomorphic_to(entry["initial_molgraph"]):
+                entries += [entry]
                 initial_entries += [entry]
-                if nx.is_connected(initial_graph.to_undirected()) and not nx.is_connected(final_graph.to_undirected()):
-                    print("unconnected_fragments")
-                elif final_graph.number_of_edges() < initial_graph.number_of_edges():
-                    print("fewer_bonds")
-                elif final_graph.number_of_edges() > initial_graph.number_of_edges():
-                    print("more_bonds")
-                else:
-                    print("bond_change")
-            elif is_isomorphic(frag.graph, final_graph):
-                print(entry["task_id"])
+            elif frag.isomorphic_to(entry["final_molgraph"]):
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
+
+    def filter_fragment_entries(self,fragment_entries):
+        self.filtered_entries = []
+        for entry in fragment_entries:
+            print(len(self.filtered_entries))
+            entry["initial_molgraph"] = build_MoleculeGraph(Molecule.from_dict(entry["initial_molecule"]),
+                                          strategy=OpenBabelNN,
+                                          reorder=False,
+                                          extend_structure=False)
+            entry["final_molgraph"] = build_MoleculeGraph(Molecule.from_dict(entry["initial_molecule"]),
+                                        strategy=OpenBabelNN,
+                                        reorder=False,
+                                        extend_structure=False)
+            found_similar_entry = False
+            for ii,filtered_entry in enumerate(self.filtered_entries):
+                if filtered_entry["formula_pretty"] == entry["formula_pretty"]:
+                    if filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"]) and filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"]) and filtered_entry["initial_molecule"]["charge"] == entry["initial_molecule"]["charge"]:
+                        found_similar_entry = True
+                        if entry["final_energy"] < filtered_entry["final_energy"]:
+                            self.filtered_entries[ii] = entry
+                        break
+            if not found_similar_entry:
+                self.filtered_entries += [entry]
 
     def solve_ring_bonds(self):
         pass
