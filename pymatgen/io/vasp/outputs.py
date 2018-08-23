@@ -2569,8 +2569,7 @@ class Outcar(MSONable):
         return aps
 
     def as_dict(self):
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__, "efermi": self.efermi,
+        d = {"efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
              "nelect": self.nelect, "is_stopped": self.is_stopped,
