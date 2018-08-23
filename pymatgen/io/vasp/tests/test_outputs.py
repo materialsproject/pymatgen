@@ -593,6 +593,17 @@ class OutcarTest(PymatgenTest):
         self.assertEqual(outcar.magnetization, expected_mag,
                          "Wrong vector magnetization read from Outcar for SOC calculation")
 
+    def test_msonable(self):
+        filepath = os.path.join(test_dir, "OUTCAR")
+        outcar = Outcar(filepath)
+
+        outcar_dict = outcar.as_dict()
+        self.assertIsNotNone(outcar_dict)
+        self.assertNotIn("@class",outcar_dict)
+        self.assertNotIn("@module",outcar_dict)
+        with self.assertRaises(NotImplementedError):
+            Outcar.from_dict(outcar_dict)
+
     def test_polarization(self):
         filepath = os.path.join(test_dir, "OUTCAR.BaTiO3.polar")
         outcar = Outcar(filepath)
