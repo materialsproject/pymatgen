@@ -1,0 +1,320 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.lammps.inputs &#8212; pymatgen 2018.8.10 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2018.8.10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.io.lammps.inputs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span><span class="p">,</span>\
+    <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="k">import</span> <span class="n">Template</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.lammps.data</span> <span class="k">import</span> <span class="n">LammpsData</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements methods for writing LAMMPS input files.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Kiran Mathew, Brandon Wood, Zhi Deng&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2018, The Materials Virtual Lab&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Zhi Deng&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;z4deng@eng.ucsd.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Aug 1, 2018&quot;</span>
+
+
+<div class="viewcode-block" id="LammpsRun"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsRun">[docs]</a><span class="k">class</span> <span class="nc">LammpsRun</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Examples for various simple LAMMPS runs with given simulation box,</span>
+<span class="sd">    force field and a few more settings. Experience LAMMPS users should</span>
+<span class="sd">    consider using write_lammps_inputs method with more sophisticated</span>
+<span class="sd">    templates.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+                                <span class="s2">&quot;templates&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_template</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
+                 <span class="n">script_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base constructor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            script_template (str): String template for input script</span>
+<span class="sd">                with placeholders. The format for placeholders has to</span>
+<span class="sd">                be &#39;$variable_name&#39;, e.g., &#39;$temperature&#39;</span>
+<span class="sd">            settings (dict): Contains values to be written to the</span>
+<span class="sd">                placeholders, e.g., {&#39;temperature&#39;: 1}.</span>
+<span class="sd">            data (LammpsData or str): Data file as a LammpsData</span>
+<span class="sd">                instance or path to an existing data file. Default to</span>
+<span class="sd">                None, i.e., no data file supplied. Useful only when</span>
+<span class="sd">                read_data cmd is in the script.</span>
+<span class="sd">            script_filename (str): Filename for the input script.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_template</span> <span class="o">=</span> <span class="n">script_template</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_filename</span> <span class="o">=</span> <span class="n">script_filename</span>
+
+<div class="viewcode-block" id="LammpsRun.write_inputs"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsRun.write_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">write_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes all input files (input script, and data if needed).</span>
+<span class="sd">        Other supporting files are not handled at this moment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_dir (str): Directory to output the input files.</span>
+<span class="sd">            **kwargs: kwargs supported by LammpsData.write_file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">write_lammps_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                            <span class="n">script_template</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">script_template</span><span class="p">,</span>
+                            <span class="n">settings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                            <span class="n">script_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">script_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LammpsRun.md"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.LammpsRun.md">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">md</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">force_field</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span>
+           <span class="n">other_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Example for a simple MD run based on template md.txt.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (LammpsData or str): Data file as a LammpsData</span>
+<span class="sd">                instance or path to an existing data file.</span>
+<span class="sd">            force_field (str): Combined force field related cmds. For</span>
+<span class="sd">                example, &#39;pair_style eam\npair_coeff * * Cu_u3.eam&#39;.</span>
+<span class="sd">            temperature (float): Simulation temperature.</span>
+<span class="sd">            nsteps (int): No. of steps to run.</span>
+<span class="sd">            other_settings (dict): other settings to be filled into</span>
+<span class="sd">                placeholders.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span> <span class="s2">&quot;md.txt&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">script_template</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">other_settings</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">other_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;force_field&#39;</span><span class="p">:</span> <span class="n">force_field</span><span class="p">,</span>
+                         <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="n">temperature</span><span class="p">,</span> <span class="s2">&quot;nsteps&quot;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">})</span>
+        <span class="n">script_filename</span> <span class="o">=</span> <span class="s2">&quot;in.md&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">script_template</span><span class="o">=</span><span class="n">script_template</span><span class="p">,</span>
+                   <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">script_filename</span><span class="o">=</span><span class="n">script_filename</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="write_lammps_inputs"><a class="viewcode-back" href="../../../../pymatgen.io.lammps.inputs.html#pymatgen.io.lammps.inputs.write_lammps_inputs">[docs]</a><span class="k">def</span> <span class="nf">write_lammps_inputs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">script_template</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">script_filename</span><span class="o">=</span><span class="s2">&quot;in.lammps&quot;</span><span class="p">,</span>
+                        <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Writes input files for a LAMMPS run. Input script is constructed</span>
+<span class="sd">    from a str template with placeholders to be filled by custom</span>
+<span class="sd">    settings. Data file is either written from a LammpsData</span>
+<span class="sd">    instance or copied from an existing file if read_data cmd is</span>
+<span class="sd">    inspected in the input script. Other supporting files are not</span>
+<span class="sd">    handled at the moment.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output_dir (str): Directory to output the input files.</span>
+<span class="sd">        script_template (str): String template for input script with</span>
+<span class="sd">            placeholders. The format for placeholders has to be</span>
+<span class="sd">            &#39;$variable_name&#39;, e.g., &#39;$temperature&#39;</span>
+<span class="sd">        settings (dict): Contains values to be written to the</span>
+<span class="sd">            placeholders, e.g., {&#39;temperature&#39;: 1}. Default to None.</span>
+<span class="sd">        data (LammpsData or str): Data file as a LammpsData instance or</span>
+<span class="sd">            path to an existing data file. Default to None, i.e., no</span>
+<span class="sd">            data file supplied. Useful only when read_data cmd is in</span>
+<span class="sd">            the script.</span>
+<span class="sd">        script_filename (str): Filename for the input script.</span>
+<span class="sd">        make_dir_if_not_present (bool): Set to True if you want the</span>
+<span class="sd">            directory (and the whole path) to be created if it is not</span>
+<span class="sd">            present.</span>
+<span class="sd">        **kwargs: kwargs supported by LammpsData.write_file.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; eam_template = &#39;&#39;&#39;units           metal</span>
+<span class="sd">        ... atom_style      atomic</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... lattice         fcc 3.615</span>
+<span class="sd">        ... region          box block 0 20 0 20 0 20</span>
+<span class="sd">        ... create_box      1 box</span>
+<span class="sd">        ... create_atoms    1 box</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... pair_style      eam</span>
+<span class="sd">        ... pair_coeff      1 1 Cu_u3.eam</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... velocity        all create $temperature 376847 loop geom</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... neighbor        1.0 bin</span>
+<span class="sd">        ... neigh_modify    delay 5 every 1</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... fix             1 all nvt temp $temperature $temperature 0.1</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... timestep        0.005</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... run             $nsteps&#39;&#39;&#39;</span>
+<span class="sd">        &gt;&gt;&gt; write_lammps_inputs(&#39;.&#39;, eam_template, settings={&#39;temperature&#39;: 1600.0, &#39;nsteps&#39;: 100})</span>
+<span class="sd">        &gt;&gt;&gt; with open(&#39;in.lammps&#39;) as f:</span>
+<span class="sd">        ...     script = f.read()</span>
+<span class="sd">        ...</span>
+<span class="sd">        &gt;&gt;&gt; print(script)</span>
+<span class="sd">        units           metal</span>
+<span class="sd">        atom_style      atomic</span>
+
+<span class="sd">        lattice         fcc 3.615</span>
+<span class="sd">        region          box block 0 20 0 20 0 20</span>
+<span class="sd">        create_box      1 box</span>
+<span class="sd">        create_atoms    1 box</span>
+
+<span class="sd">        pair_style      eam</span>
+<span class="sd">        pair_coeff      1 1 Cu_u3.eam</span>
+
+<span class="sd">        velocity        all create 1600.0 376847 loop geom</span>
+
+<span class="sd">        neighbor        1.0 bin</span>
+<span class="sd">        neigh_modify    delay 5 every 1</span>
+
+<span class="sd">        fix             1 all nvt temp 1600.0 1600.0 0.1</span>
+
+<span class="sd">        timestep        0.005</span>
+
+<span class="sd">        run             100</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">settings</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">settings</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">script_template</span><span class="p">)</span>
+    <span class="n">input_script</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="o">**</span><span class="n">variables</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">make_dir_if_not_present</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">script_filename</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">input_script</span><span class="p">)</span>
+    <span class="n">read_data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;read_data\s+(.*)\n&quot;</span><span class="p">,</span> <span class="n">input_script</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">read_data</span><span class="p">:</span>
+        <span class="n">data_filename</span> <span class="o">=</span> <span class="n">read_data</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">LammpsData</span><span class="p">):</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No data file supplied. Skip writing </span><span class="si">%s</span><span class="s2">.&quot;</span>
+                          <span class="o">%</span> <span class="n">data_filename</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

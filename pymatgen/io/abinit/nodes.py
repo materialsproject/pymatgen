@@ -809,7 +809,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """
         import pandas as pd
         if self.is_task:
-            return pd.DataFrame([{v: self.input.get(v, None) for v in varnames}], index=[self.name], columns=varnames)
+            df = pd.DataFrame([{v: self.input.get(v, None) for v in varnames}], index=[self.name], columns=varnames)
+            df["class"] = self.__class__.__name__
+            return df
 
         elif self.is_work:
             frames = [task.get_vars_dataframe(*varnames) for task in self]

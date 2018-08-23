@@ -154,7 +154,7 @@ def update_doc(ctx):
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel")
-    ctx.run("twine upload dist/*")
+    ctx.run("twine upload -u Shyue.Ping.Ong dist/*")
 
 
 @task
@@ -253,7 +253,7 @@ def release(ctx, notest=False):
         ctx.run("nosetests")
     publish(ctx)
     log_ver(ctx)
-    update_doc(ctx)
+    # update_doc(ctx)
     merge_stable(ctx)
     release_github(ctx)
 

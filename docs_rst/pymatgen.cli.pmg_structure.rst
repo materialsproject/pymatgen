@@ -1,5 +1,5 @@
-pymatgen.cli.pmg\_structure module
-==================================
+pymatgen\.cli\.pmg\_structure module
+====================================
 
 .. automodule:: pymatgen.cli.pmg_structure
     :members:

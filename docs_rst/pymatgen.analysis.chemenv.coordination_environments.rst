@@ -1,5 +1,5 @@
-pymatgen.analysis.chemenv.coordination\_environments package
-============================================================
+pymatgen\.analysis\.chemenv\.coordination\_environments package
+===============================================================
 
 Subpackages
 -----------

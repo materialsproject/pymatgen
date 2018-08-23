@@ -1,0 +1,282 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.lammps.inputs module &#8212; pymatgen 2018.8.10 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2018.8.10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.io.lammps.inputs">
+<span id="pymatgen-io-lammps-inputs-module"></span><h1>pymatgen.io.lammps.inputs module<a class="headerlink" href="#module-pymatgen.io.lammps.inputs" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.io.lammps.inputs.LammpsRun">
+<em class="property">class </em><code class="descname">LammpsRun</code><span class="sig-paren">(</span><em>script_template</em>, <em>settings</em>, <em>data</em>, <em>script_filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Examples for various simple LAMMPS runs with given simulation box,
+force field and a few more settings. Experience LAMMPS users should
+consider using write_lammps_inputs method with more sophisticated
+templates.</p>
+<p>Base constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>script_template</strong> (<em>str</em>) – String template for input script
+with placeholders. The format for placeholders has to
+be ‘$variable_name’, e.g., ‘$temperature’</li>
+<li><strong>settings</strong> (<em>dict</em>) – Contains values to be written to the
+placeholders, e.g., {‘temperature’: 1}.</li>
+<li><strong>data</strong> (<a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><em>LammpsData</em></a><em> or </em><em>str</em>) – Data file as a LammpsData
+instance or path to an existing data file. Default to
+None, i.e., no data file supplied. Useful only when
+read_data cmd is in the script.</li>
+<li><strong>script_filename</strong> (<em>str</em>) – Filename for the input script.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="pymatgen.io.lammps.inputs.LammpsRun.md">
+<em class="property">classmethod </em><code class="descname">md</code><span class="sig-paren">(</span><em>data</em>, <em>force_field</em>, <em>temperature</em>, <em>nsteps</em>, <em>other_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun.md"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.md" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Example for a simple MD run based on template md.txt.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>data (LammpsData or str): Data file as a LammpsData</dt>
+<dd>instance or path to an existing data file.</dd>
+<dt>force_field (str): Combined force field related cmds. For</dt>
+<dd>example, ‘pair_style eam</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>pair_coeff * * Cu_u3.eam’.</dt>
+<dd><p class="first">temperature (float): Simulation temperature.
+nsteps (int): No. of steps to run.
+other_settings (dict): other settings to be filled into</p>
+<blockquote class="last">
+<div>placeholders.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.lammps.inputs.LammpsRun.template_dir">
+<code class="descname">template_dir</code><em class="property"> = ‘/Users/shyue/repos/pymatgen/pymatgen/io/lammps/templates’</em><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.template_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.lammps.inputs.LammpsRun.write_inputs">
+<code class="descname">write_inputs</code><span class="sig-paren">(</span><em>output_dir</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#LammpsRun.write_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.LammpsRun.write_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes all input files (input script, and data if needed).
+Other supporting files are not handled at this moment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_dir</strong> (<em>str</em>) – Directory to output the input files.</li>
+<li><strong>**kwargs</strong> – kwargs supported by LammpsData.write_file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.lammps.inputs.write_lammps_inputs">
+<code class="descname">write_lammps_inputs</code><span class="sig-paren">(</span><em>output_dir</em>, <em>script_template</em>, <em>settings=None</em>, <em>data=None</em>, <em>script_filename=’in.lammps’</em>, <em>make_dir_if_not_present=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/inputs.html#write_lammps_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.inputs.write_lammps_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes input files for a LAMMPS run. Input script is constructed
+from a str template with placeholders to be filled by custom
+settings. Data file is either written from a LammpsData
+instance or copied from an existing file if read_data cmd is
+inspected in the input script. Other supporting files are not
+handled at the moment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_dir</strong> (<em>str</em>) – Directory to output the input files.</li>
+<li><strong>script_template</strong> (<em>str</em>) – String template for input script with
+placeholders. The format for placeholders has to be
+‘$variable_name’, e.g., ‘$temperature’</li>
+<li><strong>settings</strong> (<em>dict</em>) – Contains values to be written to the
+placeholders, e.g., {‘temperature’: 1}. Default to None.</li>
+<li><strong>data</strong> (<a class="reference internal" href="pymatgen.io.lammps.data.html#pymatgen.io.lammps.data.LammpsData" title="pymatgen.io.lammps.data.LammpsData"><em>LammpsData</em></a><em> or </em><em>str</em>) – Data file as a LammpsData instance or
+path to an existing data file. Default to None, i.e., no
+data file supplied. Useful only when read_data cmd is in
+the script.</li>
+<li><strong>script_filename</strong> (<em>str</em>) – Filename for the input script.</li>
+<li><strong>make_dir_if_not_present</strong> (<em>bool</em>) – Set to True if you want the
+directory (and the whole path) to be created if it is not
+present.</li>
+<li><strong>**kwargs</strong> – kwargs supported by LammpsData.write_file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eam_template</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;units           metal</span>
+<span class="gp">... </span><span class="s1">atom_style      atomic</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">lattice         fcc 3.615</span>
+<span class="gp">... </span><span class="s1">region          box block 0 20 0 20 0 20</span>
+<span class="gp">... </span><span class="s1">create_box      1 box</span>
+<span class="gp">... </span><span class="s1">create_atoms    1 box</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">pair_style      eam</span>
+<span class="gp">... </span><span class="s1">pair_coeff      1 1 Cu_u3.eam</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">velocity        all create $temperature 376847 loop geom</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">neighbor        1.0 bin</span>
+<span class="gp">... </span><span class="s1">neigh_modify    delay 5 every 1</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">fix             1 all nvt temp $temperature $temperature 0.1</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">timestep        0.005</span>
+<span class="gp">...</span><span class="s1"></span>
+<span class="gp">... </span><span class="s1">run             $nsteps&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">write_lammps_inputs</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">eam_template</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mf">1600.0</span><span class="p">,</span> <span class="s1">&#39;nsteps&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;in.lammps&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">script</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+<span class="go">units           metal</span>
+<span class="go">atom_style      atomic</span>
+</pre></div>
+</div>
+<p>lattice         fcc 3.615
+region          box block 0 20 0 20 0 20
+create_box      1 box
+create_atoms    1 box</p>
+<p>pair_style      eam
+pair_coeff      1 1 Cu_u3.eam</p>
+<p>velocity        all create 1600.0 376847 loop geom</p>
+<p>neighbor        1.0 bin
+neigh_modify    delay 5 every 1</p>
+<p>fix             1 all nvt temp 1600.0 1600.0 0.1</p>
+<p>timestep        0.005</p>
+<p>run             100</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.io.lammps.inputs.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

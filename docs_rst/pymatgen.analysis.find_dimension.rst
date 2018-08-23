@@ -1,5 +1,5 @@
-pymatgen.analysis.find\_dimension module
-========================================
+pymatgen\.analysis\.find\_dimension module
+==========================================
 
 .. automodule:: pymatgen.analysis.find_dimension
     :members:
