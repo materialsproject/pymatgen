@@ -1,5 +1,5 @@
-pymatgen.analysis.chemenv.utils.chemenv\_errors module
-======================================================
+pymatgen\.analysis\.chemenv\.utils\.chemenv\_errors module
+==========================================================
 
 .. automodule:: pymatgen.analysis.chemenv.utils.chemenv_errors
     :members:

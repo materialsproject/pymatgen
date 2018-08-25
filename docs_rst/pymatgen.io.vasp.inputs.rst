@@ -1,5 +1,5 @@
-pymatgen.io.vasp.inputs module
-==============================
+pymatgen\.io\.vasp\.inputs module
+=================================
 
 .. automodule:: pymatgen.io.vasp.inputs
     :members:

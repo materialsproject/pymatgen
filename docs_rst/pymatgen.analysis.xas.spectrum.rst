@@ -1,5 +1,5 @@
-pymatgen.analysis.xas.spectrum module
-=====================================
+pymatgen\.analysis\.xas\.spectrum module
+========================================
 
 .. automodule:: pymatgen.analysis.xas.spectrum
     :members:

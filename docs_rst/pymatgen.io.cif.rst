@@ -1,5 +1,5 @@
-pymatgen.io.cif module
-======================
+pymatgen\.io\.cif module
+========================
 
 .. automodule:: pymatgen.io.cif
     :members:

@@ -1,5 +1,5 @@
-pymatgen.core.operations module
-===============================
+pymatgen\.core\.operations module
+=================================
 
 .. automodule:: pymatgen.core.operations
     :members:

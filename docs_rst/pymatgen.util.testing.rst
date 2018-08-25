@@ -1,5 +1,5 @@
-pymatgen.util.testing module
-============================
+pymatgen\.util\.testing module
+==============================
 
 .. automodule:: pymatgen.util.testing
     :members:
