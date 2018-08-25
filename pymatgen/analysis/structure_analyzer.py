@@ -401,7 +401,7 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
         ordered by Z.
     """
     #jmc = JMolCoordFinder(el_radius_updates)
-    jmnn = JmolNN(el_radius_updates)
+    jmnn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
     els = sorted(structure.composition.elements, key=lambda x: x.Z)
