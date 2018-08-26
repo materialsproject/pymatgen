@@ -12,7 +12,7 @@ import os
 from monty.os.path import which
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-    VoronoiNN, JMolNN, MinimumDistanceNN, OpenBabelNN, CovalentBondNN, \
+    VoronoiNN, JmolNN, MinimumDistanceNN, OpenBabelNN, CovalentBondNN,\
     MinimumOKeeffeNN, MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
@@ -227,11 +227,11 @@ class VoronoiNNTest(PymatgenTest):
         del self.nn
 
 
-class JMolNNTest(PymatgenTest):
+class JmolNNTest(PymatgenTest):
 
     def setUp(self):
-        self.jmol = JMolNN()
-        self.jmol_update = JMolNN(el_radius_updates={"Li": 1})
+        self.jmol = JmolNN()
+        self.jmol_update = JmolNN(el_radius_updates={"Li": 1})
 
     def test_get_nn(self):
         s = self.get_structure('LiFePO4')

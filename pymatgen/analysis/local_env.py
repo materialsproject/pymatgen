@@ -988,22 +988,23 @@ class VoronoiNN_modified(VoronoiNN):
                                                  weight, extra_nn_info)
 
 
-class JMolNN(NearNeighbors):
+class JmolNN(NearNeighbors):
     """
     Determine near-neighbor sites and coordination number using an emulation
-    of JMol's default autoBond() algorithm. This version of the algorithm
+    of Jmol's default autoBond() algorithm. This version of the algorithm
     does not take into account any information regarding known charge
     states.
 
     Args:
         tol (float): tolerance parameter for bond determination
-            (default: 1E-3).
+            (default: 0.56).
         el_radius_updates: (dict) symbol->float to override default atomic 
             radii table values 
     """
 
-    def __init__(self, tol=1E-3, el_radius_updates=None):
+    def __init__(self, tol=0.56, min_bond_distance=0.4, el_radius_updates=None):
         self.tol = tol
+        self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
         bonds_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -1015,25 +1016,25 @@ class JMolNN(NearNeighbors):
         if el_radius_updates:
             self.el_radius.update(el_radius_updates)
 
-    def get_max_bond_distance(self, el1_sym, el2_sym, constant=0.56):
+    def get_max_bond_distance(self, el1_sym, el2_sym):
         """
-        Use JMol algorithm to determine bond length from atomic parameters
+        Use Jmol algorithm to determine bond length from atomic parameters
         Args:
             el1_sym: (str) symbol of atom 1
             el2_sym: (str) symbol of atom 2
-            constant: (float) factor to tune model
 
         Returns: (float) max bond length
 
         """
         return sqrt(
-            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + constant) ** 2)
+            (self.el_radius[el1_sym] + self.el_radius[el2_sym] + self.tol) ** 2)
+
 
     def get_nn_info(self, structure, n):
         """
         Get all near-neighbor sites as well as the associated image locations
         and weights of the site with index n using the bond identification
-        algorithm underlying JMol.
+        algorithm underlying Jmol.
 
         Args:
             structure (Structure): input structure.
@@ -1061,7 +1062,7 @@ class JMolNN(NearNeighbors):
         siw = []
         for neighb, dist in structure.get_neighbors(site, max_rad):
             # Confirm neighbor based on bond length specific to atom pair
-            if dist <= bonds[(site.specie, neighb.specie)] + self.tol:
+            if dist <= (bonds[(site.specie, neighb.specie)]) and (dist > self.min_bond_distance):
                 weight = min_rad / dist
                 siw.append({'site': neighb,
                             'image': self._get_image(neighb.frac_coords),

@@ -404,9 +404,9 @@ atoms. Defaults to 10.0.</li>
 </dd></dl>
 
 <dl class="class">
-<dt id="pymatgen.analysis.local_env.JMolNN">
-<em class="property">class </em><code class="descname">JMolNN</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JMolNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JMolNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dt id="pymatgen.analysis.local_env.JmolNN">
+<em class="property">class </em><code class="descname">JmolNN</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using an emulation
 of JMol’s default autoBond() algorithm. This version of the algorithm
 does not take into account any information regarding known charge
@@ -426,8 +426,8 @@ radii table values</li>
 </tbody>
 </table>
 <dl class="method">
-<dt id="pymatgen.analysis.local_env.JMolNN.get_max_bond_distance">
-<code class="descname">get_max_bond_distance</code><span class="sig-paren">(</span><em>el1_sym</em>, <em>el2_sym</em>, <em>constant=0.56</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JMolNN.get_max_bond_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JMolNN.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.local_env.JmolNN.get_max_bond_distance">
+<code class="descname">get_max_bond_distance</code><span class="sig-paren">(</span><em>el1_sym</em>, <em>el2_sym</em>, <em>constant=0.56</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN.get_max_bond_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use JMol algorithm to determine bond length from atomic parameters
 :param el1_sym: (str) symbol of atom 1
 :param el2_sym: (str) symbol of atom 2
@@ -436,8 +436,8 @@ radii table values</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.local_env.JMolNN.get_nn_info">
-<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JMolNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JMolNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.local_env.JmolNN.get_nn_info">
+<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n using the bond identification
 algorithm underlying JMol.</p>
