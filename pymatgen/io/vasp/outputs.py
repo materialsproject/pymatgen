@@ -2569,8 +2569,7 @@ class Outcar(object):
         return aps
 
     def as_dict(self):
-        d = {"@module": self.__class__.__module__,
-             "@class": self.__class__.__name__, "efermi": self.efermi,
+        d = {"efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
              "charge": self.charge, "total_magnetization": self.total_mag,
              "nelect": self.nelect, "is_stopped": self.is_stopped,
@@ -2610,6 +2609,14 @@ class Outcar(object):
                                   "parameters":   self.data["efg"]}})
 
         return d
+
+    @classmethod
+    def from_dict(cls, outcar_dict):
+        """
+        Outcar does not support being generated from a dictionary.
+        This object is only designed to parse Outcar files
+        """
+        raise NotImplementedError("Outcar class is not designed to be instantiated from a dictionary. This class is only designed to parse a file")
 
     def read_fermi_contact_shift(self):
         '''
