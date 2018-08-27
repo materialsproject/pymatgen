@@ -1354,7 +1354,7 @@ class BSVasprun(Vasprun):
         return jsanitize(d, strict=True)
 
 
-class Outcar(MSONable):
+class Outcar(object):
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 
