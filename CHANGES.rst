@@ -1,23 +1,290 @@
 Change log
 ==========
 
+v2018.8.10
+----------
+* Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.
+
+v2018.8.7
+---------
+* Massive refactoring of LAMMPS support. (@adengz)
+* Allow kwargs passthrough for Structure.to.
+* Updates to ABINIT support (@gmatteo)
+* GrainBoundaryTransformation class. (@Tinaatucsd)
+
+v2018.7.15
+----------
+* Grain boundary generator (Xiangguo Li @ucsdlxg)
+* Massive updates to defect code and new DefectTransformation  
+  (@shyamd)
+* Bug fix for OUTCAR parsing with more than one space in 
+  electrostatic potential. 
+* get_fermi_interextrapolated to support wider range of 
+  input doping (@albalu)
+* Update to cython compile to support Py3.7.
+* Update VoronoiNN cutoff dynamically (@computron)
+
+v2018.6.27
+----------
+* Improved local_env and MoleculeGraph (@WardLT, @espottesmith) 
+* Improve BabelMolAdaptor with conformer search and other functions (@Qi-Max)
+* Improved surface analysis (@richardtran415)
+
+v2018.6.11
+----------
+* Updates to ABINIT support for 8.1.3
+* Updates to Interface analyzer.
+* Fix bug in deserialization of ComputedStructureEntry.
+* Misc bug fixes.
+
+v2018.5.22
+----------
+* Misc bug fixes.
+
+v2018.5.21
+----------
+* Bug-fix for missing HHI data file.
+* Misc bug fixes.
+
+v2018.5.14
+----------
+* Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
+  for details.
+* Better CrystalNN. (Anubhav Jain)
+* Fixes for elastic module. (Joseph Montoya)
+
+v2018.5.3
+---------
+* Improvements to qchem (@samblau).
+* Improvements to nwchem to support tddft input and parsing (@shyuep).
+* Improvements to CrystalNN (@computron).
+* Add methods for getting phonon BS, DOS, and DDB output (@dwinston).
+
+v2018.4.20
+----------
+* Neutron diffraciton calculator (Yuta)
+* Non-existent electronegativity (e.g., He and Ne) are now returned as NaN
+  instead of infinity.
+* CifParser now handles Elements that are in all caps, which is found in some
+  databases. (Gpretto)
+* Improvements to local_env (Anubhav Jain)
+* Improvements to Qchem ()
+* Inputs sets for NMR (Shyam)
+* New ChargeDensityAnalyzer class to find interstitial sites from charge density (Hanmei)
+
+v2018.4.6
+---------
+* Updated debye temperature formulation (Joey Montoya)
+* Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)
+* Improved Pourbaix code (Joey Montoya)
+* Local env code improvements (Nils)
+
+v2018.3.22
+----------
+* Bug fixes to structure, phase diagram module, enumlib adaptor, local env analysis.
+
+v2018.3.14
+----------
+* ReactionDiagram for calculating possible reactions between two compositions.
+* Misc bug fixes for EnumlibAdaptor and MagOrderingTransformation
+
+v2018.3.13
+----------
+* Support for VESTA lattice vector definitions.
+* GaussianOutput read now bond_orders of a NBO calculations (@gVallverdu)
+* Bug fixes to phonons, abinit support.
+
+v2018.3.2
+---------
+* Various algorithms for nearest neighbor analysis (Hillary Pan)
+* Cleanup of local_env modules (Nils)
+* Enhancements to surface packages (Richard)
+* Misc bud fixes
+
+v2018.2.13
+----------
+* Improved chemenv parameters and bug fixes (David Waroquiers).
+* Improved Qchem IO (Shyam).
+* Improved interfacial reactions.
+* local_env update (Nils).
+* Improved ABINIT support (@gmatteo).
+* Misc bug fixes.
+
+v2018.1.29
+----------
+* Improvements to local_env (Nils)
+* Term symbols for Element (Weike Ye).
+* Timeout for enumlib (Horton).
+
+v2018.1.19
+----------
+* Phonon plotting and analysis improvements (Guido Petretto).
+* Voronoi site finder (Hanmei Tang)
+* Some bug fixes for Gaussian (Marco Esters)
+* Misc improvements.
+
+v2017.12.30
+-----------
+* Added detailed Shannon radii information and method.
+* Magoms for lanthanides (Weike Ye)
+* Chemenv improvements (David Waroquiers)
+* Ewald summation improvements (Logan Ward)
+* Update to ABINIT support (G Matteo)
+
+v2017.12.16
+-----------
+* Add optical absorption coefficient method
+* Improve plot_element_profile
+
+v2017.12.15
+-----------
+* Deprecated methods cleanup for 2018. Note that this may break some legacy
+  code. Please make sure you update your code!
+* Better dielectric parsing for VASP 5.4.4 to include both density-density and
+  velocity-velocity functions.
+* Orbital-resolved COHPs support (Macro Esters)
+* Convenient plot_element_profile method in PDPlotter.
+* Input set for SCAN functional calculations.
+* Misc bug fixes and code improvements.
+
+v2017.12.8
+----------
+* Pymatgen no longer depends on pyhull.
+* MPRester method to get interface reaction kinks between two reactants.
+* Misc improvements.
+
+v2017.12.6
+----------
+* Support for HDF5 output for VolumetricData (CHGCAR, LOCPOT, etc.).
+* Support for Crystal Orbital Hamilton Populations (COHPs) (@marcoesters)
+* REST interface for Pourbaix data
+* Support for optical property parsing in Vasprun.
+* Improvements to LammpsData
+* Misc bug fixes.
+
+v2017.11.30
+-----------
+* Fix for severe enumlib_caller bug. This causes enumerations not to be carried
+  out properly due to bad accounting of symmetry of ordered sites. It results
+  in too few orderings.
+* New method to extract clusters of atoms from a Molecule based on bonds.
+
+v2017.11.27
+-----------
+* Improvements to FEFF
+* MPRester now supports surface data.
+* Improvement to DiscretizeOccupanciesTransformation.
+
+v2017.11.9
+----------
+* Massive rewrite of LAMMPSData to support more functionality (Zhi Deng)
+* Misc bug fixes.
+
+v2017.11.6
+----------
+* Better exception handling in EnumlibAdaptor and
+  EnumerateStructureTransformation.
+* Allow bypassing of ewald calculation in EnumerateStructureTransformation.
+* get_symmetry_operations API convenience method for PointGroupAnalyzer.
+* New DiscretizeOccupanciesTransformation to help automate ordering of
+  disordered structures.
+* Fix POTCAR check for POSCAR.
+* Minor updates to periodic table data.
+* Misc bug fixes.
+
+v2017.10.16
+-----------
+* Added many more OPs and made normalization procedure more robust (Nils Zimmermann)
+* Molecular orbitals functionality in Element (Maxwell Dylla)
+* Improvements in chemenv (David Waroquiers)
+* Add I/O for ATAT’s mcsqs lattice format (Matthew Horton)
+
+v2017.9.29
+----------
+* critic2 command line caller for topological analysis (M. Horton)
+* Refactor coord_util -> coord.
+
+v2017.9.23
+----------
+* Gibbs free energy of a material with respect to Pourbaix stable domains.
+* Phonopy io now supports structure conversions.
+* EnumerateStructureTransformation now implements a useful occupancy rounding.
+* MVLNPTMDSet
+* Improved PDPlotter options.
+* Misc bug fixes.
+
+v2017.9.3
+---------
+* VDW support (Marco Esters)
+* Bug fix release.
+
+v2017.9.1
+---------
+* Massive refactoring of PhaseDiagram. Now, PDAnalyzer is completely defunct
+  and all analysis is carried out within PhaseDiagram itself, e.g.,
+  pd.get_e_above_hull as opposed to PDAnalyzer(pd).get_e_above_hull.
+* Refactoring of structure prediction. Now in
+  pymatgen.analysis.structure_prediction.
+* New core Spectrum object and associated pymatgen.vis.plotters.SpectrumPlotter.
+* Parsing energies from gen_scfman module in Qchem 5 (Brandon Wood)
+* Improvements to LAMMPSData, vasp IO.
+
+v2017.8.21
+----------
+* Minor bug fixes.
+
+v2017.8.20
+----------
+* Input sets for GW and BSE calculations (Zhenbin Wang) and grain boundary
+  calculations (Hui Zheng). Input sets now support overriding of POTCAR
+  settings.
+* Haven ratio calculation (Iek-Heng Chu).
+* LAMMPS io updates (Kiran Matthews).
+* Oxidation state guessing algorithms based on ICSD data (Anubhav Jain).
+* New local_env module for local environment analysis. (Nils Zimmerman).
+* pymatgen.util.plotting.periodic_table_heatmap (Iek-Heng Chu).
+* Improvements to surface code for tasker 3 to 2 reconstructions.
+* pymatgen.analysis.interface_reactions.py for analyzing interfacial reactions
+  (Yihan Xiao).
+
+v2017.8.16
+----------
+* PointGroupAnalyzer now allows for symmetrization of molecules. (@mcocdawc)
+* QuasiharmonicDebyeApprox with anharmonic contribution. (Brandon)
+* Improvements to LAMMPS io. (Kiran)
+* Misc bug fixes.
+
+v2017.8.14
+----------
+* Fixes and minor improvements to elastic, bader and defect analyses.
+
+v2017.8.4
+---------
+* Major refactoring and improvements to lammps io. (Kiran)
+* Major improvements to BaderAnalysis. (Joey and Zhi)
+* Major improvements to Magmom support in cifs, SOC calculations, etc.
+  (Matthew Horton)
+* Add remove_site_property function. Add magmom for Eu3+ and Eu2+.
+* BoltztrapAnalyzer/Plotter support for seebeck effective mass and complexity
+  factor (fraricci)
+
 v2017.7.21
 ----------
-* Misc bug fixes to elastic (J. Montaya), 
-* Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be 
+* Misc bug fixes to elastic (J. Montaya),
+* Decrease default symprec in SpacegroupAnalyzer to 0.01, which should be
   sufficiently flexible for a lot of non-DFT applications.
 
 v2017.7.4
 ---------
 * Bug fixes for oxide corrections for MP queried entries, and pickling of Potcars.
-* Default to LPEAD=T for LEPSILON=T. 
+* Default to LPEAD=T for LEPSILON=T.
 
 v2017.6.24
 ----------
 * New package pymatgen.ext supporting external interfaces. Materials Project
   REST interface has been moved to pymatgen.ext.matproj. Backwards compatibility
   will be maintained until 2018.
-* Two new interfaces have been added: i) Support for John Hopkin's Mueller 
+* Two new interfaces have been added: i) Support for John Hopkin's Mueller
   group's efficient k-point servelet (J Montaya). ii) Support for
   Crystallography Open Database structure queries and downloads. (S. P. Ong).
   See the examples page for usage in getting structures from online sources.
@@ -376,7 +643,7 @@ v3.3.6
 * Update to use enum.x instead of multienum.x.
 * Minor robustness fixes to VaspInputSet serialization.
 * Add a reciprocal density parameter to vasp sets.
-* Minor bug fixes to Vasprun parsing. 
+* Minor bug fixes to Vasprun parsing.
 
 v3.3.5
 ------
@@ -484,12 +751,12 @@ v3.2.4
 
 v3.2.3
 ------
-* Massive update to abinit support. Note that pymatgen.io.abinitio has 
+* Massive update to abinit support. Note that pymatgen.io.abinitio has
   been refactored to pymatgen.io.abinit. (Matteo, Setten)
-* NwOutput now supports parsing of Hessian matrices (contributed by Xin 
+* NwOutput now supports parsing of Hessian matrices (contributed by Xin
   Chen)
 * Gaussian support now has the ability to read potential energy surface
-  and electronic transitions computed with TD-DFT (Germain Salvato 
+  and electronic transitions computed with TD-DFT (Germain Salvato
   Vallverdu)
 * Bug fixes for CifWriter with symmetry.
 * Bug fixes for surface generation and reactions.
@@ -499,7 +766,7 @@ v3.2.1
 ------
 * Fix wrong U value for Ce and Eu.
 * Properly handle empty multiline strings in Cif
-* Add ability to get specific data in MPRester.get_entries. Make all get_entry 
+* Add ability to get specific data in MPRester.get_entries. Make all get_entry
   methods consistent  in kwargs.
 
 v3.2.0
@@ -522,12 +789,12 @@ v3.1.6
 ------
 * Rudimentary PWSCF output reading.
 * Fix ASE support.
-* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
+* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml.
   (Miguel Dias Costa)
 
 v3.1.5
 ------
-* Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with 
+* Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with
   vaspio.vasp_*put
 
 v3.1.4
@@ -544,7 +811,7 @@ v3.1.3
   removed in pymatgen 4.0. Pls migrate code when you see the deprecation
   messages.
 * Make Composition.anonymized_formula truly chemistry independent (No A2B2
-  for peroxides or A2 for diatomic gasses) 
+  for peroxides or A2 for diatomic gasses)
 * Allowing CIF data_* header to be prefixed with spaces and tabulations.
 
 v3.1.2
@@ -600,7 +867,7 @@ v3.0.9
 ------
 * Major bug fixes for CIF parsing (Will Richards).
 * Support for {Li,Na} syntax in parse_criteria for MPRester.
-* Additional example notebook for ordering and enumeration. 
+* Additional example notebook for ordering and enumeration.
 * More robust checking for oxidation states in EnumerateStructureTRansformation.
 * Improvements to Slab polarity checking.
 

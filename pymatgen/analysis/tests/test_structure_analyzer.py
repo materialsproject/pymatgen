@@ -8,10 +8,10 @@ import numpy as np
 import unittest
 import os
 
-from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
-    solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
-    oxide_type, sulfide_type, OrderParameters, average_coordination_number, \
-    VoronoiAnalyzer, JMolCoordFinder, get_dimensionality
+from pymatgen.analysis.structure_analyzer import solid_angle, \
+    contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
+    oxide_type, sulfide_type, average_coordination_number, \
+    VoronoiAnalyzer, get_dimensionality
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen import Element, Structure, Lattice
@@ -19,22 +19,6 @@ from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
-
-
-class VoronoiCoordFinderTest(PymatgenTest):
-    def setUp(self):
-        s = self.get_structure('LiFePO4')
-        self.finder = VoronoiCoordFinder(s, [Element("O")])
-
-    def test_get_voronoi_polyhedra(self):
-        self.assertEqual(len(self.finder.get_voronoi_polyhedra(0).items()), 8)
-
-    def test_get_coordination_number(self):
-        self.assertAlmostEqual(self.finder.get_coordination_number(0),
-                               5.809265748999465, 7)
-
-    def test_get_coordinated_sites(self):
-        self.assertEqual(len(self.finder.get_coordinated_sites(0)), 8)
 
 
 class VoronoiAnalyzerTest(PymatgenTest):
@@ -56,35 +40,6 @@ class VoronoiAnalyzerTest(PymatgenTest):
                                               most_frequent_polyhedra=10)
         self.assertIn(('[1 3 4 7 1 0 0 0]', 3),
                       ensemble, "Cannot find the right polyhedron in ensemble.")
-
-
-class JMolCoordFinderTest(PymatgenTest):
-
-    def test_get_coordination_number(self):
-        s = self.get_structure('LiFePO4')
-
-        # test the default coordination finder
-        finder = JMolCoordFinder()
-        nsites_checked = 0
-
-        for site_idx, site in enumerate(s):
-            if site.specie == Element("Li"):
-                self.assertEqual(finder.get_coordination_number(s, site_idx), 0)
-                nsites_checked += 1
-            elif site.specie == Element("Fe"):
-                self.assertEqual(finder.get_coordination_number(s, site_idx), 6)
-                nsites_checked += 1
-            elif site.specie == Element("P"):
-                self.assertEqual(finder.get_coordination_number(s, site_idx), 4)
-                nsites_checked += 1
-        self.assertEqual(nsites_checked, 12)
-
-        # test a user override that would cause Li to show up as 6-coordinated
-        finder = JMolCoordFinder({"Li": 1})
-        self.assertEqual(finder.get_coordination_number(s, 0), 6)
-
-        # verify get_coordinated_sites function works
-        self.assertEqual(len(finder.get_coordinated_sites(s, 0)), 6)
 
 
 class GetDimensionalityTest(PymatgenTest):
@@ -306,212 +261,6 @@ class MiscFunctionTest(PymatgenTest):
         struct = Structure.from_spacegroup(36, latt, species, coords)
         self.assertEqual(sulfide_type(struct), "sulfide")
 
-
-class OrderParametersTest(PymatgenTest):
-    def setUp(self):
-        self.linear = Structure(
-            Lattice.from_lengths_and_angles(
-            [10, 10, 10], [90, 90, 90]),
-            ["H", "H", "H"], [[1, 0, 0], [0, 0, 0], [2, 0, 0]],
-            validate_proximity=False,
-            to_unit_cell=False, coords_are_cartesian=True,
-            site_properties=None)
-        self.bent45 = Structure(
-            Lattice.from_lengths_and_angles(
-            [10, 10, 10], [90, 90, 90]), ["H", "H", "H"],
-            [[0, 0, 0], [0.707, 0.707, 0], [0.707, 0, 0]],
-            validate_proximity=False,
-            to_unit_cell=False, coords_are_cartesian=True,
-            site_properties=None)
-        self.cubic = Structure(
-            Lattice.from_lengths_and_angles(
-            [1, 1, 1], [90, 90, 90]),
-            ["H"], [[0, 0, 0]], validate_proximity=False,
-            to_unit_cell=False, coords_are_cartesian=False,
-            site_properties=None)
-        self.bcc = Structure(
-            Lattice.from_lengths_and_angles(
-            [1, 1, 1], [90, 90, 90]),
-            ["H", "H"], [[0, 0, 0], [0.5, 0.5, 0.5]],
-            validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=False, site_properties=None)
-        self.fcc = Structure(
-            Lattice.from_lengths_and_angles(
-            [1, 1, 1], [90, 90, 90]), ["H", "H", "H", "H"],
-            [[0, 0, 0], [0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0]],
-            validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=False, site_properties=None)
-        self.hcp = Structure(
-            Lattice.from_lengths_and_angles(
-            [1, 1, 1.633], [90, 90, 120]), ["H", "H"],
-            [[0.3333, 0.6667, 0.25], [0.6667, 0.3333, 0.75]],
-            validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=False, site_properties=None)
-        self.diamond = Structure(
-            Lattice.from_lengths_and_angles(
-            [1, 1, 1], [90, 90, 90]), ["H", "H", "H", "H", "H", "H", "H", "H"],
-            [[0, 0, 0.5], [0.75, 0.75, 0.75], [0, 0.5, 0], [0.75, 0.25, 0.25],
-            [0.5, 0, 0], [0.25, 0.75, 0.25], [0.5, 0.5, 0.5],
-            [0.25, 0.25, 0.75]], validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=False, site_properties=None)
-        self.regular_triangle = Structure(
-            Lattice.from_lengths_and_angles(
-            [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H"],
-            [[15, 15.28867, 15.65], [14.5, 15, 15], [15.5, 15, 15], \
-            [15, 15.866, 15]], validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=True, site_properties=None)
-        self.square = Structure(
-            Lattice.from_lengths_and_angles(
-            [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H", "H"],
-            [[15, 15, 15.707], [14.75, 14.75, 15], [14.75, 15.25, 15], \
-            [15.25, 14.75, 15], [15.25, 15.25, 15]],
-            validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=True, site_properties=None)
-        self.square_pyramid = Structure(
-            Lattice.from_lengths_and_angles(
-            [30, 30, 30], [90, 90, 90]), ["H", "H", "H", "H", "H", "H"],
-            [[15, 15, 15], [15, 15, 15.3535], [14.75, 14.75, 15],
-            [14.75, 15.25, 15], [15.25, 14.75, 15], [15.25, 15.25, 15]],
-            validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=True, site_properties=None)
-        self.pentagonal_planar = Structure(
-            Lattice.from_lengths_and_angles(
-            [30, 30, 30], [90, 90, 90]), ["Xe", "F", "F", "F", "F", "F"],
-            [[0, -1.6237, 0], [1.17969, 0, 0], [-1.17969, 0, 0], \
-            [1.90877, -2.24389, 0], [-1.90877, -2.24389, 0], [0, -3.6307, 0]],
-            validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=True, site_properties=None)
-        self.trigonal_bipyramidal = Structure(
-            Lattice.from_lengths_and_angles(
-            [30, 30, 30], [90, 90, 90]), ["P", "Cl", "Cl", "Cl", "Cl", "Cl"],
-            [[0, 0, 0], [0, 0, 2.14], [0, 2.02, 0],
-            [1.74937, -1.01, 0], [-1.74937, -1.01, 0], [0, 0, -2.14]],
-            validate_proximity=False, to_unit_cell=False,
-            coords_are_cartesian=True, site_properties=None)
-
-    def test_init(self):
-        self.assertIsNotNone(OrderParameters(["cn"], [[]], 0.99))
-
-    def test_get_order_parameters(self):
-        # Set up everything.
-        op_types = ["cn", "lin", "bent", "tet", "oct", "bcc", "q2", "q4", \
-                "q6", "reg_tri", "sq", "sq_pyr", "tri_bipyr"]
-        op_paras = [[], [], [], [], [], [], [], [], [], [], [], [], []]
-        op_paras = [[], [], [45.0, 0.0667], [], [], [], [], [], [], [], [], [], []]
-        ops_044 = OrderParameters(op_types, op_paras, 0.44)
-        ops_071 = OrderParameters(op_types, op_paras, 0.71)
-        ops_087 = OrderParameters(op_types, op_paras, 0.87)
-        ops_099 = OrderParameters(op_types, op_paras, 0.99)
-        ops_101 = OrderParameters(op_types, op_paras, 1.01)
-        ops_voro = OrderParameters(op_types, op_paras)
-
-        # Linear motif.
-        op_vals = ops_101.get_order_parameters(self.linear, 0)
-        self.assertAlmostEqual(int(op_vals[1] * 1000), 1000)
-
-        # 45 degrees-bent motif.
-        op_vals = ops_101.get_order_parameters(self.bent45, 0)
-        self.assertAlmostEqual(int(op_vals[2] * 1000), 1000)
-
-        # Cubic structure.
-        op_vals = ops_099.get_order_parameters(self.cubic, 0)
-        self.assertAlmostEqual(op_vals[0], 0.0)
-        self.assertIsNone(op_vals[3])
-        self.assertIsNone(op_vals[4])
-        self.assertIsNone(op_vals[5])
-        self.assertIsNone(op_vals[6])
-        self.assertIsNone(op_vals[7])
-        self.assertIsNone(op_vals[8])
-        op_vals = ops_101.get_order_parameters(self.cubic, 0)
-        self.assertAlmostEqual(op_vals[0], 6.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), -14)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 1000)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), 333)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 763)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 353)
-
-        # Bcc structure.
-        op_vals = ops_087.get_order_parameters(self.bcc, 0)
-        self.assertAlmostEqual(op_vals[0], 8.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 140)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), 42)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), 975)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
-
-        # Fcc structure.
-        op_vals = ops_071.get_order_parameters(self.fcc, 0)
-        self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), -18)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), -81)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 190)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 574)
-
-        # Hcp structure.
-        op_vals = ops_101.get_order_parameters(self.hcp, 0)
-        self.assertAlmostEqual(op_vals[0], 12.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), -8)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), -59)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), -38)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 97)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 484)
-
-        # Diamond structure.
-        op_vals = ops_044.get_order_parameters(self.diamond, 0)
-        self.assertAlmostEqual(op_vals[0], 4.0)
-        self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
-        self.assertAlmostEqual(int(op_vals[4] * 1000), -39)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), 727)
-        self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
-        self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
-        self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
-
-        # Regular triangle motif.
-        op_vals = ops_101.get_order_parameters(self.regular_triangle, 0)
-        self.assertAlmostEqual(int(op_vals[9] * 1000), 999)
-
-        # Square motif.
-        op_vals = ops_101.get_order_parameters(self.square, 0)
-        self.assertAlmostEqual(int(op_vals[10] * 1000), 1000)
-
-        # Pentagonal planar.
-        op_vals = ops_101.get_order_parameters(
-                self.pentagonal_planar.sites, 0, indeces_neighs=[1,2,3,4,5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000), 100)
-
-        # Square pyramid motif.
-        op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
-        self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 500)
-
-        # Trigonal bipyramidal.
-        op_vals = ops_101.get_order_parameters(
-                self.trigonal_bipyramidal.sites, 0, indeces_neighs=[1,2,3,4,5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 1000)
-
-        # Test providing explicit neighbor lists.
-        op_vals = ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[1])
-        self.assertIsNotNone(op_vals[0])
-        self.assertIsNone(op_vals[3])
-        with self.assertRaises(ValueError):
-            ops_101.get_order_parameters(self.bcc, 0, indeces_neighs=[2])
-
-    def tearDown(self):
-        del self.linear
-        del self.bent45
-        del self.cubic
-        del self.fcc
-        del self.bcc
-        del self.hcp
-        del self.diamond
-        del self.regular_triangle
-        del self.square
-        del self.square_pyramid
 
 if __name__ == '__main__':
     unittest.main()

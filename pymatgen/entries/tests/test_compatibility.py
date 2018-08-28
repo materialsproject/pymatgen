@@ -3,7 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
-
+import warnings
 """
 Created on Mar 19, 2012
 """
@@ -19,6 +19,7 @@ __date__ = "Mar 19, 2012"
 import os
 import unittest
 
+from monty.json import MontyDecoder
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
     MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry, \
@@ -66,6 +67,10 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_process_entry(self):
         #Correct parameters
@@ -94,7 +99,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertIsNotNone(self.compat.process_entry(entry))
 
     def test_correction_values(self):
-        #test_corrections
+        # test_corrections
         self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction,
                                - 2.733 * 2 - 0.70229 * 3)
 
@@ -226,10 +231,21 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                                self.entry3])
         self.assertEqual(len(entries), 2)
 
+    def test_msonable(self):
+
+        compat_dict = self.compat.as_dict()
+        decoder = MontyDecoder()
+        temp_compat = decoder.process_decoded(compat_dict)
+        self.assertIsInstance(temp_compat,MaterialsProjectCompatibility)
+
+
 
 class MITCompatibilityTest(unittest.TestCase):
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def setUp(self):
+        warnings.simplefilter("ignore")
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.ggacompat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
@@ -433,6 +449,13 @@ class MITCompatibilityTest(unittest.TestCase):
         d = compat.get_explanation_dict(entry)
         self.assertEqual('MITRelaxSet Potcar Correction', d["corrections"][0][
             "name"])
+
+    def test_msonable(self):
+
+        compat_dict = self.compat.as_dict()
+        decoder = MontyDecoder()
+        temp_compat = decoder.process_decoded(compat_dict)
+        self.assertIsInstance(temp_compat,MITCompatibility)
         
 
 class OxideTypeCorrectionTest(unittest.TestCase):
@@ -723,6 +746,13 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
 
         self.assertIsNone(compat.process_entry(lioh_entry))
+
+    def test_msonable(self):
+
+        compat_dict = self.aqcompat.as_dict()
+        decoder = MontyDecoder()
+        temp_compat = decoder.process_decoded(compat_dict)
+        self.assertIsInstance(temp_compat,MITAqueousCompatibility)
 
 
 if __name__ == "__main__":

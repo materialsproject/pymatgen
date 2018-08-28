@@ -6,6 +6,8 @@ from __future__ import division, unicode_literals
 
 import unittest
 import pickle
+import warnings
+import math
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
@@ -25,6 +27,11 @@ class ElementTestCase(PymatgenTest):
 
         # Test caching
         self.assertEqual(id(Element("Fe")), id(Element("Fe")))
+
+    def test_nan_X(self):
+        self.assertTrue(math.isnan(Element.He.X))
+        els = sorted([Element.He, Element.H, Element.F])
+        self.assertEqual(els, [Element.H, Element.F, Element.He])
 
     def test_dict(self):
         fe = Element.Fe
@@ -50,6 +57,56 @@ class ElementTestCase(PymatgenTest):
         for k, v in testsets.items():
             self.assertEqual(Element(k).full_electronic_structure, v)
 
+    def test_valence(self):
+        testsets = {"O": (1, 4),
+                    "Fe": (2, 6),
+                    "Li": (0, 1)}
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).valence, v)
+
+        with self.assertRaises(ValueError):
+            Element("U").valence
+
+    def test_term_symbols(self):
+        testsets = {"Li": [['2S0.5']],  # s1
+                    "C": [['1D2.0'],
+                          ['3P0.0', '3P1.0', '3P2.0'],
+                          ['1S0.0']],  # p2
+                    "Ti": [['1G4.0'],
+                           ['3F2.0', '3F3.0', '3F4.0'],
+                           ['1D2.0'],
+                           ['3P0.0', '3P1.0', '3P2.0'],
+                           ['1S0.0']],  # d2
+                    "Pr": [['2L7.5', '2L8.5'],
+                           ['2K6.5', '2K7.5'],
+                           ['4I4.5', '4I5.5', '4I6.5', '4I7.5'],
+                           ['2I5.5', '2I6.5'],
+                           ['2H4.5', '2H5.5'],
+                           ['2H4.5', '2H5.5'],
+                           ['4G2.5', '4G3.5', '4G4.5', '4G5.5'],
+                           ['2G3.5', '2G4.5'],
+                           ['2G3.5', '2G4.5'],
+                           ['4F1.5', '4F2.5', '4F3.5', '4F4.5'],
+                           ['2F2.5', '2F3.5'],
+                           ['2F2.5', '2F3.5'],
+                           ['4D0.5', '4D1.5', '4D2.5', '4D3.5'],
+                           ['2D1.5', '2D2.5'],
+                           ['2D1.5', '2D2.5'],
+                           ['2P0.5', '2P1.5'],
+                           ['4S1.5']]  # f3
+                    }
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).term_symbols, v)
+
+    def test_ground_state_term_symbol(self):
+        testsets = {"Li": '2S0.5',  # s1
+                    "C": '3P0.0',  # p2
+                    "O": '3P2.0',  # p4
+                    "Ti": '3F2.0',  # d2
+                    "Pr": '4I4.5'}  # f3
+        for k, v in testsets.items():
+            self.assertEqual(Element(k).ground_state_term_symbol, v)
+
     def test_attributes(self):
         is_true = {("Xe", "Kr"): "is_noble_gas",
                    ("Fe", "Ni"): "is_transition_metal",
@@ -65,7 +122,7 @@ class ElementTestCase(PymatgenTest):
             for sym in k:
                 self.assertTrue(getattr(Element(sym), v), sym + " is false")
 
-        keys = ["name", "mendeleev_no", "atomic_mass",
+        keys = ["mendeleev_no", "atomic_mass",
                 "electronic_structure", "atomic_radius",
                 "min_oxidation_state", "max_oxidation_state",
                 "electrical_resistivity", "velocity_of_sound", "reflectivity",
@@ -75,10 +132,10 @@ class ElementTestCase(PymatgenTest):
                 "superconduction_temperature",
                 "bulk_modulus", "youngs_modulus", "brinell_hardness",
                 "rigidity_modulus", "mineral_hardness",
-                "vickers_hardness", "density_of_solid",
-                "coefficient_of_linear_thermal_expansion", "oxidation_states",
+                "vickers_hardness", "density_of_solid", "atomic_orbitals"
+                                                        "coefficient_of_linear_thermal_expansion", "oxidation_states",
                 "common_oxidation_states", "average_ionic_radius",
-                "ionic_radii"]
+                "ionic_radii", "long_name", "metallic_radius"]
 
         # Test all elements up to Uranium
         for i in range(1, 104):
@@ -88,6 +145,8 @@ class ElementTestCase(PymatgenTest):
                 k_str = k.capitalize().replace("_", " ")
                 if k_str in d and (not str(d[k_str]).startswith("no data")):
                     self.assertIsNotNone(getattr(el, k))
+                elif k == "long_name":
+                    self.assertEqual(getattr(el, "long_name"), d["Name"])
             el = Element.from_Z(i)
             if len(el.oxidation_states) > 0:
                 self.assertEqual(max(el.oxidation_states),
@@ -104,6 +163,7 @@ class ElementTestCase(PymatgenTest):
         el = Element.Fe
         self.assertEqual(el.oxidation_states, (-2, -1, 1, 2, 3, 4, 5, 6))
         self.assertEqual(el.common_oxidation_states, (2, 3))
+        self.assertEqual(el.icsd_oxidation_states, (2, 3))
 
     def test_deepcopy(self):
         el1 = Element.Fe
@@ -137,12 +197,15 @@ class ElementTestCase(PymatgenTest):
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
 
-        #Test all elements up to Uranium
+        # Test all elements up to Uranium
         for i in range(1, 93):
             self.serialize_with_pickle(Element.from_Z(i), test_eq=True)
 
     def test_print_periodic_table(self):
         Element.print_periodic_table()
+
+    def test_is(self):
+        self.assertTrue(Element("Bi").is_post_transition_metal, True)
 
 
 class SpecieTestCase(PymatgenTest):
@@ -155,10 +218,6 @@ class SpecieTestCase(PymatgenTest):
 
     def test_init(self):
         self.assertRaises(ValueError, Specie, "Fe", 2, {"magmom": 5})
-
-    def test_cached(self):
-        specie5 = Specie("Fe", 2)
-        self.assertEqual(id(specie5), id(self.specie3))
 
     def test_ionic_radius(self):
         self.assertEqual(self.specie2.ionic_radius, 78.5 / 100)
@@ -193,7 +252,19 @@ class SpecieTestCase(PymatgenTest):
     def test_pickle(self):
         self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
         for i in range(1, 5):
-            self.serialize_with_pickle(getattr(self, "specie%d" % i) , test_eq=True)
+            self.serialize_with_pickle(getattr(self, "specie%d" % i), test_eq=True)
+        cs = Specie("Cs", 1)
+        cl = Specie("Cl", 1)
+
+        with open('cscl.pickle', 'wb') as f:
+            pickle.dump((cs, cl), f)
+
+        with open('cscl.pickle', 'rb') as f:
+            d = pickle.load(f)
+            self.assertEqual(d, (cs, cl))
+
+        import os
+        os.remove('cscl.pickle')
 
     def test_get_crystal_field_spin(self):
         self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
@@ -222,6 +293,34 @@ class SpecieTestCase(PymatgenTest):
         s = Specie("Co", 3).get_crystal_field_spin("tet", spin_config="low")
         self.assertEqual(s, 2)
 
+    def test_get_nmr_mom(self):
+        self.assertEqual(Specie("H").get_nmr_quadrupole_moment(), 2.860)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment(), -0.808)
+        self.assertEqual(Specie("Li").get_nmr_quadrupole_moment("Li-7"), -40.1)
+        self.assertEqual(Specie("Si").get_nmr_quadrupole_moment(), 0.0)
+        self.assertRaises(ValueError, Specie("Li").get_nmr_quadrupole_moment,
+                          "Li-109")
+
+    def test_get_shannon_radius(self):
+        self.assertEqual(Specie("Li", 1).get_shannon_radius("IV"), 0.59)
+        mn2 = Specie("Mn", 2)
+        self.assertEqual(mn2.get_shannon_radius("IV", "High Spin"), 0.66)
+        self.assertEqual(mn2.get_shannon_radius("V", "High Spin"), 0.75)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            r = mn2.get_shannon_radius("V")
+            # Verify some things
+            self.assertEqual(len(w), 1)
+            self.assertIs(w[-1].category, UserWarning)
+            self.assertEqual(r, 0.75)
+
+        self.assertEqual(mn2.get_shannon_radius("VI", "Low Spin"), 0.67)
+        self.assertEqual(mn2.get_shannon_radius("VI", "High Spin"), 0.83)
+        self.assertEqual(mn2.get_shannon_radius("VII", "High Spin"), 0.9)
+        self.assertEqual(mn2.get_shannon_radius("VIII"), 0.96)
+
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
         self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4),
@@ -229,13 +328,17 @@ class SpecieTestCase(PymatgenTest):
 
     def test_to_from_string(self):
         fe3 = Specie("Fe", 3, {"spin": 5})
-        self.assertEqual(str(fe3), "Fe3+spin=5")
-        fe = Specie.from_string("Fe3+spin=5")
+        self.assertEqual(str(fe3), "Fe3+,spin=5")
+        fe = Specie.from_string("Fe3+,spin=5")
         self.assertEqual(fe.spin, 5)
         mo0 = Specie("Mo", 0, {"spin": 5})
-        self.assertEqual(str(mo0), "Mo0+spin=5")
-        mo = Specie.from_string("Mo0+spin=4")
+        self.assertEqual(str(mo0), "Mo0+,spin=5")
+        mo = Specie.from_string("Mo0+,spin=4")
         self.assertEqual(mo.spin, 4)
+
+    def test_no_oxidation_state(self):
+        mo0 = Specie("Mo", None, {"spin": 5})
+        self.assertEqual(str(mo0), "Mo,spin=5")
 
 
 class DummySpecieTestCase(unittest.TestCase):
@@ -247,11 +350,6 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, DummySpecie, "Vac")
         self.specie2 = DummySpecie("X", 2, {"spin": 3})
         self.assertEqual(self.specie2.spin, 3)
-
-    def test_cached(self):
-        sp1 = DummySpecie("X", 2)
-        sp2 = DummySpecie("X", 2)
-        self.assertEqual(id(sp1), id(sp2))
 
     def test_eq(self):
         self.assertFalse(DummySpecie("Xg") == DummySpecie("Xh"))
@@ -292,6 +390,9 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(get_el_sp("U"), Element.U)
         self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
         self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
+        self.assertEqual(get_el_sp(["Li+", "Mn3+"]),
+                         [Specie("Li", 1), Specie("Mn", 3)])
+
 
 if __name__ == "__main__":
     unittest.main()

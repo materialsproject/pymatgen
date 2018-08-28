@@ -4,14 +4,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This module defines the FeffInputSet abstract base class and a concrete
-implementation for the Materials Project.  The basic concept behind an input
-set is to specify a scheme to generate a consistent set of Feff inputs from a
-structure without further user intervention. This ensures comparability across
-runs.
-"""
-
 import sys
 import os
 import abc
@@ -21,9 +13,19 @@ import logging
 
 from monty.serialization import loadfn
 from monty.json import MSONable
+from monty.os.path import zpath
 
 from pymatgen.io.feff.inputs import Atoms, Tags, Potential, Header
+from pymatgen import Structure
+import numpy as np
 
+"""
+This module defines the FeffInputSet abstract base class and a concrete
+implementation for the Materials Project.  The basic concept behind an input
+set is to specify a scheme to generate a consistent set of Feff inputs from a
+structure without further user intervention. This ensures comparability across
+runs.
+"""
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -31,7 +33,6 @@ __version__ = "1.1"
 __maintainer__ = "Kiran Mathew"
 __email__ = "kmathew@lbl.gov"
 __date__ = "Sept 10, 2016"
-
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -58,7 +59,8 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def atoms(self):
         """
         Returns Atoms string from a structure that goes in feff.inp file.
@@ -68,14 +70,16 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
         """
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def tags(self):
         """
         Returns standard calculation parameters.
         """
         return
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def potential(self):
         """
         Returns POTENTIAL section used in feff.inp from a structure.
@@ -132,7 +136,8 @@ class FEFFDictSet(AbstractFeffInputSet):
     """
 
     def __init__(self, absorbing_atom, structure, radius, config_dict,
-                 edge="K", spectrum="EXAFS", nkpts=1000, user_tag_settings=None):
+                 edge="K", spectrum="EXAFS", nkpts=1000,
+                 user_tag_settings=None):
         """
 
         Args:
@@ -167,7 +172,8 @@ class FEFFDictSet(AbstractFeffInputSet):
             del self.config_dict["_del"]
         # k-space feff only for small systems. The hardcoded system size in
         # feff is around 14 atoms.
-        self.small_system = True if len(self.structure) < 14 else False
+        self.small_system = True if (len(self.structure) < 14 and \
+                                     'EXAFS' not in self.config_dict) else False
 
     def header(self, source='', comment=''):
         """
@@ -204,7 +210,8 @@ class FEFFDictSet(AbstractFeffInputSet):
                     mult = (self.nkpts * abc[0] * abc[1] * abc[2]) ** (1 / 3)
                     self.config_dict["KMESH"] = [int(round(mult / l)) for l in abc]
             else:
-                logger.warning("Large system(>=14 atoms), removing K-space settings")
+                logger.warning("Large system(>=14 atoms) or EXAFS calculation, \
+                                removing K-space settings")
                 del self.config_dict["RECIPROCAL"]
                 self.config_dict.pop("CIF", None)
                 self.config_dict.pop("TARGET", None)
@@ -239,6 +246,64 @@ class FEFFDictSet(AbstractFeffInputSet):
                        for k, v in six.iteritems(self.config_dict)])
         output.append("")
         return "\n".join(output)
+
+    @staticmethod
+    def from_directory(input_dir):
+        """
+        Read in a set of FEFF input files from a directory, which is
+        useful when existing FEFF input needs some adjustment.
+        """
+        sub_d = {}
+        for fname, ftype in [("HEADER", Header), ("PARAMETERS", Tags)]:
+            fullzpath = zpath(os.path.join(input_dir, fname))
+            sub_d[fname.lower()] = ftype.from_file(fullzpath)
+
+        # Generation of FEFFDict set requires absorbing atom, need to search
+        # the index of absorption atom in the structure according to the
+        # distance matrix and shell species information contained in feff.inp
+
+        absorber_index = []
+        radius = None
+        feffinp = zpath(os.path.join(input_dir, 'feff.inp'))
+
+        if "RECIPROCAL" not in sub_d["parameters"]:
+            input_atoms = Atoms.cluster_from_file(feffinp)
+            shell_species = np.array([x.species_string for x in input_atoms])
+
+            # First row of distance matrix represents the distance from the absorber to
+            # the rest atoms
+            distance_matrix = input_atoms.distance_matrix[0, :]
+
+            # Get radius value
+            from math import ceil
+            radius = int(ceil(input_atoms.get_distance(input_atoms.index(input_atoms[0]),
+                                                       input_atoms.index(input_atoms[-1]))))
+
+            for site_index, site in enumerate(sub_d['header'].struct):
+
+                if site.specie == input_atoms[0].specie:
+                    site_atoms = Atoms(sub_d['header'].struct, absorbing_atom=site_index,
+                                       radius=radius)
+                    site_distance = np.array(site_atoms.get_lines())[:, 5].astype(np.float64)
+                    site_shell_species = np.array(site_atoms.get_lines())[:, 4]
+                    shell_overlap = min(shell_species.shape[0], site_shell_species.shape[0])
+
+                    if np.allclose(distance_matrix[:shell_overlap], site_distance[:shell_overlap]) and \
+                            np.all(site_shell_species[:shell_overlap] == shell_species[:shell_overlap]):
+                        absorber_index.append(site_index)
+
+        if "RECIPROCAL" in sub_d["parameters"]:
+            absorber_index = sub_d["parameters"]["TARGET"]
+            absorber_index[0] = int(absorber_index[0]) - 1
+
+        # Generate the input set
+        if 'XANES' in sub_d["parameters"]:
+            CONFIG = loadfn(os.path.join(MODULE_DIR, "MPXANESSet.yaml"))
+            if radius is None:
+                radius = 10
+            return FEFFDictSet(absorber_index[0], sub_d['header'].struct, radius=radius,
+                               config_dict=CONFIG, edge=sub_d["parameters"]["EDGE"],
+                               nkpts=1000, user_tag_settings=sub_d["parameters"])
 
 
 class MPXANESSet(FEFFDictSet):

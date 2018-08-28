@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.electronic_structure.dos module &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,9 +70,9 @@ manually.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>structure</strong> &#8211; Structure associated with this particular DOS.</li>
-<li><strong>total_dos</strong> &#8211; total Dos for structure</li>
-<li><strong>pdoss</strong> &#8211; The pdoss are supplied as an {Site:{Orbital:{
+<li><strong>structure</strong> – Structure associated with this particular DOS.</li>
+<li><strong>total_dos</strong> – total Dos for structure</li>
+<li><strong>pdoss</strong> – The pdoss are supplied as an {Site:{Orbital:{
 Spin:Densities}}}</li>
 </ul>
 </td>
@@ -127,9 +127,9 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> &#8211; Element in Structure.composition associated with CompleteDos</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> – Element in Structure.composition associated with CompleteDos</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{&#8220;S&#8221;: densities, &#8220;P&#8221;: densities, &#8220;D&#8221;: densities}}</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{“S”: densities, “P”: densities, “D”: densities}}</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of {Element</td>
 </tr>
@@ -145,7 +145,7 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site in Structure associated with CompleteDos.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos containing summed orbital densities for site.</td>
 </tr>
@@ -162,8 +162,8 @@ Spin:Densities}}}</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</li>
-<li><strong>orbital</strong> &#8211; Orbital in the site.</li>
+<li><strong>site</strong> – Site in Structure associated with CompleteDos.</li>
+<li><strong>orbital</strong> – Orbital in the site.</li>
 </ul>
 </td>
 </tr>
@@ -182,9 +182,9 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site in Structure associated with CompleteDos.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {&#8220;s&#8221;: Dos object, ...}</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {“s”: Dos object, …}</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
 </tr>
@@ -200,12 +200,12 @@ Spin:Densities}}}</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> &#8211; Site in Structure associated with CompleteDos.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>site</strong> – Site in Structure associated with CompleteDos.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos, &#8220;t2g&#8221;: Dos} containing summed e_g and t2g DOS
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dos, “t2g”: Dos} containing summed e_g and t2g DOS
 for the site.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">A dict {&#8220;e_g&#8221;</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">A dict {“e_g”</td>
 </tr>
 </tbody>
 </table>
@@ -219,9 +219,139 @@ for the site.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {&#8220;s&#8221;: Dos object, ...}</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {“s”: Dos object, …}</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.spin_polarization">
+<code class="descname">spin_polarization</code><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.spin_polarization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates spin polarization at Fermi level.</p>
+<p>See Sanvito et al., doi: 10.1126/sciadv.1602241 for
+an example usage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return (float):</th><td class="field-body">spin polarization in range [0, 1],</td>
+</tr>
+</tbody>
+</table>
+<p>will also return NaN if spin polarization ill-defined
+(e.g. for insulator)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.DOS">
+<em class="property">class </em><code class="descname">DOS</code><span class="sig-paren">(</span><em>energies</em>, <em>densities</em>, <em>efermi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.spectrum.html#pymatgen.core.spectrum.Spectrum" title="pymatgen.core.spectrum.Spectrum"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.spectrum.Spectrum</span></code></a></p>
+<p>Replacement basic DOS object. All other DOS objects are extended versions
+of this object. Work in progress.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>energies</strong> – A sequence of energies</li>
+<li><strong>densities</strong> (<em>ndarray</em>) – Either a Nx1 or a Nx2 array. If former, it is
+interpreted as a Spin.up only density. Otherwise, the first column
+is interpreted as Spin.up and the other is Spin.down.</li>
+<li><strong>efermi</strong> – Fermi level energy.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.DOS.XLABEL">
+<code class="descname">XLABEL</code><em class="property"> = ‘Energy’</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.XLABEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.DOS.YLABEL">
+<code class="descname">YLABEL</code><em class="property"> = ‘Density’</em><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.YLABEL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.DOS.get_cbm_vbm">
+<code class="descname">get_cbm_vbm</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the cbm and vbm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">float in eV corresponding to the gap</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(cbm, vbm)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.DOS.get_gap">
+<code class="descname">get_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">gap in eV</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.DOS.get_interpolated_gap">
+<code class="descname">get_interpolated_gap</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#DOS.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.DOS.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – Set to True for an absolute tolerance and False for a
+relative one.</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
+densities, Up - finds the gap in the up spin channel,
+Down - finds the gap in the down spin channel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Tuple of floats in eV corresponding to the gap, cbm and vbm.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(gap, cbm, vbm)</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -240,9 +370,9 @@ object.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>efermi</strong> &#8211; Fermi level energy</li>
-<li><strong>energies</strong> &#8211; A sequences of energies</li>
-<li><strong></strong><strong>(</strong><strong>{Spin</strong> (<em>densities</em>) &#8211; np.array}): representing the density of states
+<li><strong>efermi</strong> – Fermi level energy</li>
+<li><strong>energies</strong> – A sequences of energies</li>
+<li><strong>(</strong><strong>{Spin</strong> (<em>densities</em>) – np.array}): representing the density of states
 for each Spin.</li>
 </ul>
 </td>
@@ -270,9 +400,9 @@ for each Spin.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
-<li><strong>abs_tol</strong> &#8211; An absolute tolerance (True) and a relative one (False)</li>
-<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
 densities, Up - finds the gap in the up spin channel,
 Down - finds the gap in the down spin channel.</li>
 </ul>
@@ -296,7 +426,7 @@ Down - finds the gap in the down spin channel.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spin</strong> &#8211; Spin</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spin</strong> – Spin</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns the density of states for a particular spin. If Spin is
 None, the sum of all spins is returned.</td>
@@ -314,9 +444,9 @@ None, the sum of all spins is returned.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
-<li><strong>abs_tol</strong> &#8211; An absolute tolerance (True) and a relative one (False)</li>
-<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – An absolute tolerance (True) and a relative one (False)</li>
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
 densities, Up - finds the gap in the up spin channel,
 Down - finds the gap in the down spin channel.</li>
 </ul>
@@ -338,10 +468,10 @@ Down - finds the gap in the down spin channel.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tol</strong> &#8211; tolerance in occupations for determining the gap</li>
-<li><strong>abs_tol</strong> &#8211; Set to True for an absolute tolerance and False for a
+<li><strong>tol</strong> – tolerance in occupations for determining the gap</li>
+<li><strong>abs_tol</strong> – Set to True for an absolute tolerance and False for a
 relative one.</li>
-<li><strong>spin</strong> &#8211; Possible values are None - finds the gap in the summed
+<li><strong>spin</strong> – Possible values are None - finds the gap in the summed
 densities, Up - finds the gap in the up spin channel,
 Down - finds the gap in the down spin channel.</li>
 </ul>
@@ -365,7 +495,7 @@ Down - finds the gap in the down spin channel.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>energy</strong> &#8211; Energy to return the density for.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>energy</strong> – Energy to return the density for.</td>
 </tr>
 </tbody>
 </table>
@@ -381,12 +511,124 @@ level.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> &#8211; Std dev of Gaussian smearing function.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sigma</strong> – Std dev of Gaussian smearing function.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Dict of Gaussian-smeared densities.</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.FermiDos">
+<em class="property">class </em><code class="descname">FermiDos</code><span class="sig-paren">(</span><em>dos</em>, <em>structure=None</em>, <em>nelecs=None</em>, <em>bandgap=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></code></a></p>
+<p>This wrapper class helps relates the density of states, doping levels
+(i.e. carrier concentrations) and corresponding fermi levels. A negative
+doping concentration (c) means that the majority carriers are electrons
+(n-type doping) and positive c represents holes or p-type doping.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dos</strong> (<em>pymatgen Dos class</em>) – density of states at corresponding energy levels</li>
+<li><strong>structure</strong> (<em>pymatgen Structure class</em>) – provided either as input or
+inside Dos (e.g. if CompleteDos used)</li>
+<li><strong>nelecs</strong> (<em>float</em>) – the number of electrons included in the energy range of
+dos. It is used for normalizing the densities. Default is the total
+number of electrons in the structure.</li>
+<li><strong>bandgap</strong> (<em>float</em>) – if set, the energy values are scissored so that the
+electronic band gap matches this value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.FermiDos.get_doping">
+<code class="descname">get_doping</code><span class="sig-paren">(</span><em>fermi</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_doping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_doping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the doping (majority carrier concentration) at a given fermi
+level and temperature. A simple Left Riemann sum is used for integrating
+the density of states over energy &amp; equilibrium Fermi-Dirac distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fermi</strong> (<em>float</em>) – the fermi level in eV</li>
+<li><strong>T</strong> (<em>float</em>) – the temperature in Kelvin</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (float): in units 1/cm3. If negative it means that the majority</dt>
+<dd>carriers are electrons (n-type doping) and if positive holes/p-type</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.FermiDos.get_fermi">
+<code class="descname">get_fermi</code><span class="sig-paren">(</span><em>c</em>, <em>T</em>, <em>rtol=0.01</em>, <em>nstep=50</em>, <em>step=0.1</em>, <em>precision=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the fermi level at which the doping concentration at the given
+temperature (T) is equal to c. A greedy algorithm is used where the
+relative error is minimized by calculating the doping at a grid which
+is continuously become finer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>c</strong> (<em>float</em>) – doping concentration. c&lt;0 represents n-type doping and
+c&gt;0 represents p-type doping (i.e. majority carriers are holes)</li>
+<li><strong>T</strong> (<em>float</em>) – absolute temperature in Kelvin</li>
+<li><strong>rtol</strong> (<em>float</em>) – maximum acceptable relative error</li>
+<li><strong>nstep</strong> (<em>int</em>) – number of steps checked around a given fermi level</li>
+<li><strong>step</strong> (<em>float</em>) – initial step in fermi level when searching</li>
+<li><strong>precision</strong> (<em>int</em>) – essentially the decimal places of calculated fermi</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (float): the fermi level. Note that this is different from the</dt>
+<dd>default dos.efermi.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated">
+<code class="descname">get_fermi_interextrapolated</code><span class="sig-paren">(</span><em>c</em>, <em>T</em>, <em>warn=True</em>, <em>c_ref=10000000000.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#FermiDos.get_fermi_interextrapolated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.FermiDos.get_fermi_interextrapolated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to get_fermi except that when get_fermi fails to converge,
+an interpolated or extrapolated fermi (depending on c) is returned with
+the assumption that the fermi level changes linearly with log(abs(c)).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>c</strong> (<em>float</em>) – doping concentration in 1/cm3. c&lt;0 represents n-type
+doping and c&gt;0 p-type doping (i.e. majority carriers are holes)</li>
+<li><strong>T</strong> (<em>float</em>) – absolute temperature in Kelvin</li>
+<li><strong>warn</strong> (<em>bool</em>) – whether to warn for the first time when no fermi can
+be found.</li>
+<li><strong>c_ref</strong> (<em>float</em>) – a doping concentration where get_fermi returns a
+value without error for both c_ref and -c_ref</li>
+<li><strong>**kwargs</strong> – see keyword arguments of the get_fermi function</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (float): the fermi level that is possibly interapolated or</dt>
+<dd>extrapolated and must be used with caution.</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -400,8 +642,8 @@ level.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>density1</strong> &#8211; First density.</li>
-<li><strong>density2</strong> &#8211; Second density.</li>
+<li><strong>density1</strong> – First density.</li>
+<li><strong>density2</strong> – Second density.</li>
 </ul>
 </td>
 </tr>
@@ -413,6 +655,18 @@ level.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.dos.f0">
+<code class="descname">f0</code><span class="sig-paren">(</span><em>E</em>, <em>fermi</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#f0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.f0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the equilibrium fermi-dirac.
+:param E: energy in eV
+:type E: float
+:param fermi: the fermi level in eV
+:type fermi: float
+:param T: the temperature in kelvin
+:type T: float</p>
 </dd></dl>
 
 </div>
@@ -453,13 +707,13 @@ level.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

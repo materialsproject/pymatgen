@@ -3,6 +3,14 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+from pymatgen.analysis.energy_models import EwaldElectrostaticModel, \
+    SymmetryModel, IsingModel
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+
+import os
+import unittest
+import warnings
 
 """
 TODO: Modify module doc.
@@ -16,20 +24,17 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "11/19/13"
 
-from pymatgen.analysis.energy_models import EwaldElectrostaticModel, \
-    SymmetryModel, IsingModel
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-
-import os
-import unittest
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
 class EwaldElectrostaticModelTest(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
 
     def test_get_energy(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5],
@@ -45,7 +50,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
         m = EwaldElectrostaticModel()
         # large tolerance because scipy constants changed between 0.16.1 and 0.17
-        self.assertAlmostEqual(m.get_energy(s), -59.322817600353616, 4)
+        self.assertAlmostEqual(m.get_energy(s), -264.66364858, 2)  # Result from GULP
         s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -145.39050015844839, 4)
 
@@ -54,6 +59,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
         d = m.as_dict()
         self.assertIsInstance(EwaldElectrostaticModel.from_dict(d),
                               EwaldElectrostaticModel)
+
 
 class SymmetryModelTest(unittest.TestCase):
 

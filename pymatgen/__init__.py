@@ -1,14 +1,16 @@
 from __future__ import unicode_literals
 
+import sys
 import os
 import warnings
 import ruamel.yaml as yaml
+from fnmatch import fnmatch
 
 __author__ = "Pymatgen Development Team"
 __email__ ="pymatgen@googlegroups.com"
 __maintainer__ = "Shyue Ping Ong"
 __maintainer_email__ ="shyuep@gmail.com"
-__version__ = "2017.7.21"
+__version__ = "2018.8.10"
 
 
 SETTINGS_FILE = os.path.join(os.path.expanduser("~"), ".pmgrc.yaml")
@@ -37,6 +39,7 @@ def _load_pmg_settings():
         else:
             clean_d[k] = v
     return clean_d
+
 
 SETTINGS = _load_pmg_settings()
 
@@ -69,7 +72,7 @@ def get_structure_from_mp(formula):
             formula.
     """
     m = MPRester()
-    entries = m.get_entries(formula, inc_structure=True)
+    entries = m.get_entries(formula, inc_structure="final")
     if len(entries) == 0:
         raise ValueError("No structure with formula %s in Materials Project!" %
                          formula)
@@ -78,3 +81,34 @@ def get_structure_from_mp(formula):
                       "Project. The lowest energy structure will be returned." %
                       (len(entries), formula))
     return min(entries, key=lambda e: e.energy_per_atom).structure
+
+
+if sys.version_info < (3, 5):
+    warnings.warn("""
+Pymatgen will drop Py2k support from v2019.1.1. Pls consult the documentation
+at https://www.pymatgen.org for more details.""")
+
+
+def loadfn(fname):
+    """
+    Convenience method to perform quick loading of data from a filename. The
+    type of object returned depends the file type.
+
+    Args:
+        fname (string): A filename.
+
+    Returns:
+        Note that fname is matched using unix-style, i.e., fnmatch.
+        (Structure) if *POSCAR*/*CONTCAR*/*.cif
+        (Vasprun) *vasprun*
+        (obj) if *json* (passthrough to monty.serialization.loadfn)
+    """
+    if (fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or
+            ".cif" in fname.lower()) or fnmatch(fname, "*.vasp"):
+        return Structure.from_file(fname)
+    elif fnmatch(fname, "*vasprun*"):
+        from pymatgen.io.vasp import Vasprun
+        return Vasprun(fname)
+    elif fnmatch(fname, "*.json*"):
+        from monty.serialization import loadfn
+        return loadfn(fname)

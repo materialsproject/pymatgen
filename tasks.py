@@ -1,7 +1,11 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""
+Pyinvoke tasks.py file for automating releases and admin stuff.
 
+Author: Shyue Ping Ong
+"""
+
+
+from invoke import task
 import glob
 import os
 import json
@@ -10,23 +14,11 @@ import requests
 import re
 import subprocess
 import datetime
-from invoke import task
 
 from monty.os import cd
 from pymatgen import __version__ as CURRENT_VER
 
 NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
-
-
-"""
-Deployment file to facilitate releases of pymatgen.
-Note that this file is meant to be run from the root directory of the pymatgen
-repo.
-"""
-
-__author__ = "Shyue Ping Ong"
-__email__ = "ongsp@ucsd.edu"
-__date__ = "Sep 1, 2014"
 
 
 @task
@@ -43,12 +35,9 @@ def make_doc(ctx):
     with open("docs_rst/latest_changes.rst", "w") as f:
         f.write(changes)
 
-    with cd("examples"):
-       ctx.run("jupyter nbconvert --to html *.ipynb")
-       ctx.run("mv *.html ../docs_rst/_static")
-
     with cd("docs_rst"):
         ctx.run("cp ../CHANGES.rst change_log.rst")
+        ctx.run("rm pymatgen.*.rst")
         ctx.run("sphinx-apidoc --separate -d 6 -o . -f ../pymatgen")
         ctx.run("rm pymatgen*.tests.*rst")
         for f in glob.glob("*.rst"):
@@ -78,26 +67,94 @@ def make_doc(ctx):
         ctx.run("cp _static/* ../docs/html/_static")
 
     with cd("docs"):
+        ctx.run("rm *.html")
         ctx.run("cp -r html/* .")
         ctx.run("rm -r html")
         ctx.run("rm -r doctrees")
+        ctx.run("rm -r _sources")
+        ctx.run("rm -r _build", warn=True)
 
         # This makes sure pymatgen.org works to redirect to the Gihub page
         ctx.run("echo \"pymatgen.org\" > CNAME")
         # Avoid the use of jekyll so that _dir works as intended.
         ctx.run("touch .nojekyll")
 
+
+@task
+def make_dash(ctx):
+    ctx.run("cp docs_rst/conf-docset.py docs_rst/conf.py")
+    make_doc(ctx)
+    ctx.run('rm docs/_static/pymatgen.docset.tgz', warn=True)
+    ctx.run('doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/')
+    plist = "pymatgen.docset/Contents/Info.plist"
+    xml = []
+    with open(plist, "rt") as f:
+        for l in f:
+            xml.append(l.strip())
+            if l.strip() == "<dict>":
+                xml.append("<key>dashIndexFilePath</key>")
+                xml.append("<string>index.html</string>")
+    with open(plist, "wt") as f:
+        f.write("\n".join(xml))
+    ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
+    xml = []
+    with open("docs/pymatgen.xml") as f:
+        for l in f:
+            l = l.strip()
+            if l.startswith("<version>"):
+                xml.append("<version>%s</version>" % NEW_VER)
+            else:
+                xml.append(l)
+    with open("docs/pymatgen.xml", "wt") as f:
+        f.write("\n".join(xml))
+    ctx.run('rm -r pymatgen.docset')
+    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
+    make_doc(ctx)
+
+
+@task
+def contribute_dash(ctx):
+    make_dash(ctx)
+    ctx.run('cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz')
+    with cd("../Dash-User-Contributions/docsets/pymatgen"):
+        with open("docset.json", "rt") as f:
+            data = json.load(f)
+            data["version"] = NEW_VER
+        with open("docset.json", "wt") as f:
+            json.dump(data, f, indent=4)
+        ctx.run('git commit -a -m "Update to v%s"' % NEW_VER)
+        ctx.run('git push')
+    ctx.run("rm pymatgen.tgz")
+
+@task
+def submit_dash_pr(ctx):
+    with cd("../Dash-User-Contributions/docsets/pymatgen"):
+
+        payload = {
+          "title": "Update pymatgen docset to v%s" % NEW_VER,
+          "body": "Update pymatgen docset to v%s" % NEW_VER,
+          "head": "Dash-User-Contributions:master",
+          "base": "master"
+        }
+        response = requests.post(
+            "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls",
+            data=json.dumps(payload))
+        print(response.text)
+
 @task
 def update_doc(ctx):
     make_doc(ctx)
+    contribute_dash(ctx)
     ctx.run("git add .")
-    ctx.run("git commit -a -m \"Update dev docs\"")
+    ctx.run("git commit -a -m \"Update docs\"")
     ctx.run("git push")
 
 
 @task
 def publish(ctx):
-    ctx.run("python setup.py release")
+    ctx.run("rm dist/*.*", warn=True)
+    ctx.run("python setup.py sdist bdist_wheel")
+    ctx.run("twine upload -u Shyue.Ping.Ong dist/*")
 
 
 @task
@@ -131,8 +188,8 @@ def update_coverage(ctx):
 
 @task
 def merge_stable(ctx):
-    ctx.run("git commit -a -m \"v%s release\"" % NEW_VER)
-    ctx.run("git push")
+    ctx.run("git tag -a v%s -m \"v%s release\"" % (NEW_VER, NEW_VER))
+    ctx.run("git push --tags")
     ctx.run("git checkout stable")
     ctx.run("git pull")
     ctx.run("git merge master")
@@ -177,6 +234,7 @@ def update_changelog(ctx):
     toks.insert(-1, head + "\n".join(lines))
     with open("CHANGES.rst", "w") as f:
         f.write(toks[0] + l + "".join(toks[1:]))
+    ctx.run("open CHANGES.rst")
 
 
 @task
@@ -189,13 +247,13 @@ def log_ver(ctx):
 
 @task
 def release(ctx, notest=False):
-    ctx.run("rm -r dist build pymatgen.egg-info")
+    ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
     log_ver(ctx)
-    update_doc(ctx)
+    # update_doc(ctx)
     merge_stable(ctx)
     release_github(ctx)
 

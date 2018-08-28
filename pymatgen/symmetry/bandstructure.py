@@ -56,6 +56,9 @@ class HighSymmKpath(object):
         self._prim_rec = self._prim.lattice.reciprocal_lattice
         self._kpath = None
 
+        #Note: this warning will be issued for space groups 38-41, since the primitive cell must be 
+        #reformatted to match Setyawan/Curtarolo convention in order to work with the current k-path 
+        #generation scheme.
         if not np.allclose(self._structure.lattice.matrix, self._prim.lattice.matrix, atol=atol):
             warnings.warn("The input structure does not match the expected standard primitive! "
                           "The path can be incorrect. Use at your own risk.")
@@ -105,7 +108,7 @@ class HighSymmKpath(object):
             elif "I" in spg_symbol:
                 self._kpath = self.orci(a, b, c)
 
-            elif "C" in spg_symbol:
+            elif "C" in spg_symbol or "A" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
             else:
                 warn("Unexpected value for spg_symbol: %s" % spg_symbol)
@@ -136,13 +139,13 @@ class HighSymmKpath(object):
                     self._kpath = self.mclc2(a, b, c, alpha * pi / 180)
                 if kgamma < 90:
                     if b * cos(alpha * pi / 180) / c\
-                            + b ** 2 * sin(alpha) ** 2 / a ** 2 < 1:
+                            + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 < 1:
                         self._kpath = self.mclc3(a, b, c, alpha * pi / 180)
                     if b * cos(alpha * pi / 180) / c \
-                            + b ** 2 * sin(alpha) ** 2 / a ** 2 == 1:
+                            + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 == 1:
                         self._kpath = self.mclc4(a, b, c, alpha * pi / 180)
                     if b * cos(alpha * pi / 180) / c \
-                            + b ** 2 * sin(alpha) ** 2 / a ** 2 > 1:
+                            + b ** 2 * sin(alpha * pi / 180) ** 2 / a ** 2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
             else:
                 warn("Unexpected value for spg_symbol: %s" % spg_symbol)

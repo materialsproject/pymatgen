@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.transition_state &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.analysis.transition_state &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -79,6 +79,8 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vasp</span> <span class="k">import</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Outcar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Some reimplementation of Henkelman&#39;s Transition State Analysis utilities,</span>
@@ -141,29 +143,30 @@
 <span class="sd">                be zero.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spline_options</span> <span class="o">=</span> <span class="n">spline_options</span>
+        <span class="n">relative_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">scipy_old_piecewisepolynomial</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline_options</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Option for saddle point not available with&#39;</span>
                                    <span class="s1">&#39;old scipy implementation&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spline</span> <span class="o">=</span> <span class="n">PiecewisePolynomial</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">relative_energies</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
                 <span class="n">orders</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># New scipy implementation for scipy &gt; 0.18.0</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;saddle_point&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;zero_slope&#39;</span><span class="p">:</span>
-                <span class="n">imax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">)</span>
+                <span class="n">imax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">relative_energies</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">spline</span> <span class="o">=</span> <span class="n">CubicSpline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">[:</span><span class="n">imax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
-                                          <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[:</span><span class="n">imax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                          <span class="n">y</span><span class="o">=</span><span class="n">relative_energies</span><span class="p">[:</span><span class="n">imax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
                                           <span class="n">bc_type</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
-                <span class="n">cspline2</span> <span class="o">=</span> <span class="n">CubicSpline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">[</span><span class="n">imax</span><span class="p">:],</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">imax</span><span class="p">:],</span>
+                <span class="n">cspline2</span> <span class="o">=</span> <span class="n">CubicSpline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">[</span><span class="n">imax</span><span class="p">:],</span> <span class="n">y</span><span class="o">=</span><span class="n">relative_energies</span><span class="p">[</span><span class="n">imax</span><span class="p">:],</span>
                                        <span class="n">bc_type</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="n">cspline2</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">cspline2</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">spline</span> <span class="o">=</span> <span class="n">CubicSpline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spline</span> <span class="o">=</span> <span class="n">CubicSpline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">relative_energies</span><span class="p">,</span>
                                           <span class="n">bc_type</span><span class="o">=</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NEBAnalysis.from_outcars"><a class="viewcode-back" href="../../../pymatgen.analysis.transition_state.html#pymatgen.analysis.transition_state.NEBAnalysis.from_outcars">[docs]</a>    <span class="k">def</span> <span class="nf">from_outcars</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">outcars</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NEBAnalysis.from_outcars"><a class="viewcode-back" href="../../../pymatgen.analysis.transition_state.html#pymatgen.analysis.transition_state.NEBAnalysis.from_outcars">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_outcars</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">outcars</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes an NEBAnalysis from Outcar and Structure objects. Use</span>
 <span class="sd">        the static constructors, e.g., :class:`from_dir` instead if you</span>
@@ -202,9 +205,7 @@
             <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcars</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
                 <span class="n">forces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">forces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tangent_force&quot;</span><span class="p">])</span>
-        <span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>
-        <span class="n">energies</span> <span class="o">-=</span> <span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">forces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tangent_force&quot;</span><span class="p">])</span> 
         <span class="n">forces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">energies</span><span class="o">=</span><span class="n">energies</span><span class="p">,</span> <span class="n">forces</span><span class="o">=</span><span class="n">forces</span><span class="p">,</span>
@@ -253,7 +254,8 @@
         <span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">normalize_rxn_coordinate</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">),</span> <span class="mf">0.01</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spline</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span>
+        <span class="n">relative_energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">relative_energies</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span>
                  <span class="n">x</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Reaction coordinate&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Energy (meV)&quot;</span><span class="p">)</span>
@@ -262,15 +264,15 @@
             <span class="n">data</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
             <span class="n">barrier</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">barrier</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">barrier</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">barrier</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;k--&#39;</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.0f</span><span class="s1"> meV&#39;</span> <span class="o">%</span> <span class="n">barrier</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.0f</span><span class="s1"> meV&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span>
                          <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">barrier</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">barrier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.02</span><span class="p">),</span>
                          <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">barrier</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">barrier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.02</span><span class="p">),</span>
                          <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">plt</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="NEBAnalysis.from_dir"><a class="viewcode-back" href="../../../pymatgen.analysis.transition_state.html#pymatgen.analysis.transition_state.NEBAnalysis.from_dir">[docs]</a>    <span class="k">def</span> <span class="nf">from_dir</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">relaxation_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NEBAnalysis.from_dir"><a class="viewcode-back" href="../../../pymatgen.analysis.transition_state.html#pymatgen.analysis.transition_state.NEBAnalysis.from_dir">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dir</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">relaxation_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a NEBAnalysis object from a directory of a NEB run.</span>
 <span class="sd">        Note that OUTCARs must be present in all image directories. For the</span>
@@ -363,6 +365,106 @@
                 <span class="s1">&#39;energies&#39;</span><span class="p">:</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">),</span>
                 <span class="s1">&#39;forces&#39;</span><span class="p">:</span> <span class="n">jsanitize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">),</span>
                 <span class="s1">&#39;structures&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]}</span></div></div>
+
+
+<div class="viewcode-block" id="combine_neb_plots"><a class="viewcode-back" href="../../../pymatgen.analysis.transition_state.html#pymatgen.analysis.transition_state.combine_neb_plots">[docs]</a><span class="k">def</span> <span class="nf">combine_neb_plots</span><span class="p">(</span><span class="n">neb_analyses</span><span class="p">,</span> <span class="n">arranged_neb_analyses</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">reverse_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    neb_analyses: a list of NEBAnalysis objects</span>
+
+<span class="sd">    arranged_neb_analyses: The code connects two end points with the</span>
+<span class="sd">    smallest-energy difference. If all end points have very close energies, it&#39;s</span>
+<span class="sd">    likely to result in an inaccurate connection. Manually arrange neb_analyses</span>
+<span class="sd">    if the combined plot is not as expected compared with all individual plots.</span>
+<span class="sd">    E.g., if there are two NEBAnalysis objects to combine, arrange in such a</span>
+<span class="sd">    way that the end-point energy of the first NEBAnalysis object is the</span>
+<span class="sd">    start-point energy of the second NEBAnalysis object.</span>
+<span class="sd">    Note that the barrier labeled in y-axis in the combined plot might be</span>
+<span class="sd">    different from that in the individual plot due to the reference energy used.</span>
+<span class="sd">    reverse_plot: reverse the plot or percolation direction.</span>
+<span class="sd">    return: a NEBAnalysis object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">neb_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">neb_analyses</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">neb_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">neb1</span> <span class="o">=</span> <span class="n">neb_analyses</span><span class="p">[</span><span class="n">neb_index</span><span class="p">]</span>
+            <span class="n">neb1_energies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1</span><span class="o">.</span><span class="n">energies</span><span class="p">)</span>
+            <span class="n">neb1_structures</span> <span class="o">=</span> <span class="n">neb1</span><span class="o">.</span><span class="n">structures</span>
+            <span class="n">neb1_forces</span> <span class="o">=</span> <span class="n">neb1</span><span class="o">.</span><span class="n">forces</span>
+            <span class="n">neb1_r</span> <span class="o">=</span> <span class="n">neb1</span><span class="o">.</span><span class="n">r</span>
+            <span class="k">continue</span>
+
+        <span class="n">neb2</span> <span class="o">=</span> <span class="n">neb_analyses</span><span class="p">[</span><span class="n">neb_index</span><span class="p">]</span>
+        <span class="n">neb2_energies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">energies</span><span class="p">)</span>
+
+        <span class="n">matching</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">neb1_s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">neb1_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neb1_structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">neb1_s</span><span class="p">,</span> <span class="n">neb2</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> \
+                    <span class="n">x</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">neb1_s</span><span class="p">,</span> <span class="n">neb2</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">matching</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">matching</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;no matched structures for connection!&quot;</span><span class="p">)</span>
+
+        <span class="n">neb1_start_e</span><span class="p">,</span> <span class="n">neb1_end_e</span> <span class="o">=</span> <span class="n">neb1_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neb1_energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">neb2_start_e</span><span class="p">,</span> <span class="n">neb2_end_e</span> <span class="o">=</span> <span class="n">neb2_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neb2_energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">min_e_diff</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(([</span><span class="nb">abs</span><span class="p">(</span><span class="n">neb1_start_e</span> <span class="o">-</span> <span class="n">neb2_start_e</span><span class="p">),</span>
+                         <span class="nb">abs</span><span class="p">(</span><span class="n">neb1_start_e</span> <span class="o">-</span> <span class="n">neb2_end_e</span><span class="p">),</span>
+                         <span class="nb">abs</span><span class="p">(</span><span class="n">neb1_end_e</span> <span class="o">-</span> <span class="n">neb2_start_e</span><span class="p">),</span>
+                         <span class="nb">abs</span><span class="p">(</span><span class="n">neb1_end_e</span> <span class="o">-</span> <span class="n">neb2_end_e</span><span class="p">)]))</span>
+
+        <span class="k">if</span> <span class="n">arranged_neb_analyses</span><span class="p">:</span>
+            <span class="n">neb1_energies</span> <span class="o">=</span> <span class="n">neb1_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">neb1_energies</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> \
+                            <span class="o">+</span> <span class="p">[(</span><span class="n">neb1_energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">neb2_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span> \
+                            <span class="o">+</span> <span class="n">neb2_energies</span><span class="p">[</span>
+                              <span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_structures</span> <span class="o">=</span> <span class="n">neb1_structures</span> <span class="o">+</span> <span class="n">neb2</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_forces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_forces</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">forces</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">neb1_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                     <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">r</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]</span>
+
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">neb1_start_e</span> <span class="o">-</span> <span class="n">neb2_start_e</span><span class="p">)</span> <span class="o">==</span> <span class="n">min_e_diff</span><span class="p">:</span>
+            <span class="n">neb1_energies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">neb1_energies</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">+</span> <span class="n">neb2_energies</span>
+            <span class="n">neb1_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">reversed</span><span class="p">((</span><span class="n">neb1_structures</span><span class="p">[</span><span class="mi">1</span><span class="p">:])))</span> <span class="o">+</span> <span class="n">neb2</span><span class="o">.</span><span class="n">structures</span>
+            <span class="n">neb1_forces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">neb1_forces</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">neb2</span><span class="o">.</span><span class="n">forces</span><span class="p">)</span>
+            <span class="n">neb1_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">neb1_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]))</span> <span class="o">+</span> <span class="p">[</span>
+                         <span class="n">i</span> <span class="o">+</span> <span class="n">neb1_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">r</span><span class="p">)]</span>
+
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">neb1_start_e</span> <span class="o">-</span> <span class="n">neb2_end_e</span><span class="p">)</span> <span class="o">==</span> <span class="n">min_e_diff</span><span class="p">:</span>
+            <span class="n">neb1_energies</span> <span class="o">=</span> <span class="n">neb2_energies</span> <span class="o">+</span> <span class="n">neb1_energies</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_structures</span> <span class="o">=</span> <span class="n">neb2</span><span class="o">.</span><span class="n">structures</span> <span class="o">+</span> <span class="n">neb1_structures</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_forces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">forces</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_forces</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">r</span><span class="p">)]</span> <span class="o">+</span> \
+                     <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">r</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]</span>
+
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">neb1_end_e</span> <span class="o">-</span> <span class="n">neb2_start_e</span><span class="p">)</span> <span class="o">==</span> <span class="n">min_e_diff</span><span class="p">:</span>
+            <span class="n">neb1_energies</span> <span class="o">=</span> <span class="n">neb1_energies</span> <span class="o">+</span> <span class="n">neb2_energies</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_structures</span> <span class="o">=</span> <span class="n">neb1_structures</span> <span class="o">+</span> <span class="n">neb2</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_forces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_forces</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">forces</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">)]</span> <span class="o">+</span> \
+                     <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">neb1_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">r</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">neb1_energies</span> <span class="o">=</span> <span class="n">neb1_energies</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">neb2_energies</span><span class="p">))[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_structures</span> <span class="o">=</span> <span class="n">neb1_structures</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">reversed</span><span class="p">((</span><span class="n">neb2</span><span class="o">.</span><span class="n">structures</span><span class="p">)))[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_forces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_forces</span><span class="p">)</span> <span class="o">+</span> \
+                          <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">forces</span><span class="p">)))[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">neb1_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">reversed</span><span class="p">([</span><span class="n">i</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">r</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb2</span><span class="o">.</span><span class="n">r</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]))</span>
+
+    <span class="k">if</span> <span class="n">reverse_plot</span><span class="p">:</span>
+        <span class="n">na</span> <span class="o">=</span> <span class="n">NEBAnalysis</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">([</span><span class="n">i</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">neb1_r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">)])),</span>
+            <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">neb1_energies</span><span class="p">)),</span>
+            <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">neb1_forces</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">neb1_structures</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">na</span> <span class="o">=</span> <span class="n">NEBAnalysis</span><span class="p">(</span><span class="n">neb1_r</span><span class="p">,</span> <span class="n">neb1_energies</span><span class="p">,</span> <span class="n">neb1_forces</span><span class="p">,</span> <span class="n">neb1_structures</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">na</span></div>
 </pre></div>
 
           </div>
@@ -393,7 +495,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -401,7 +503,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

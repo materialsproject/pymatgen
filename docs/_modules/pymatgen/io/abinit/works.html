@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.abinit.works &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -80,12 +80,12 @@
 <span class="kn">from</span> <span class="nn">monty.itertools</span> <span class="k">import</span> <span class="n">chunks</span>
 <span class="kn">from</span> <span class="nn">monty.functools</span> <span class="k">import</span> <span class="n">lazy_property</span>
 <span class="kn">from</span> <span class="nn">monty.fnmatch</span> <span class="k">import</span> <span class="n">WildCard</span>
-<span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
+<span class="c1">#from monty.dev import deprecated</span>
 <span class="kn">from</span> <span class="nn">pydispatch</span> <span class="k">import</span> <span class="n">dispatcher</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">EnergyArray</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">wrappers</span>
 <span class="kn">from</span> <span class="nn">.nodes</span> <span class="k">import</span> <span class="n">Dependency</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeError</span><span class="p">,</span> <span class="n">NodeResults</span><span class="p">,</span> <span class="n">check_spectator</span>
-<span class="kn">from</span> <span class="nn">.tasks</span> <span class="k">import</span> <span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">AbinitTask</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">,</span> <span class="n">NscfTask</span><span class="p">,</span> <span class="n">DfptTask</span><span class="p">,</span> <span class="n">PhononTask</span><span class="p">,</span> <span class="n">DdkTask</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">.tasks</span> <span class="k">import</span> <span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">AbinitTask</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">,</span> <span class="n">NscfTask</span><span class="p">,</span> <span class="n">DfptTask</span><span class="p">,</span> <span class="n">PhononTask</span><span class="p">,</span> <span class="n">ElasticTask</span><span class="p">,</span> <span class="n">DdkTask</span><span class="p">,</span>
                     <span class="n">BseTask</span><span class="p">,</span> <span class="n">RelaxTask</span><span class="p">,</span> <span class="n">DdeTask</span><span class="p">,</span> <span class="n">BecTask</span><span class="p">,</span> <span class="n">ScrTask</span><span class="p">,</span> <span class="n">SigmaTask</span><span class="p">,</span>
                     <span class="n">DteTask</span><span class="p">,</span> <span class="n">EphTask</span><span class="p">,</span> <span class="n">CollinearThenNonCollinearScfTask</span><span class="p">)</span>
 
@@ -111,6 +111,8 @@
     <span class="s2">&quot;SigmaConvWork&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BseMdfWork&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PhononWork&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BecWork&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DteWork&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -140,7 +142,8 @@
     <span class="n">Results</span> <span class="o">=</span> <span class="n">WorkResults</span>
 
     <span class="c1"># interface modeled after subprocess.Popen</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractproperty</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">processes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of objects that support the `subprocess.Popen` protocol.&quot;&quot;&quot;</span>
 
@@ -315,6 +318,104 @@
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="o">.</span><span class="n">from_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
+    <span class="k">def</span> <span class="nf">get_graphviz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;automatic&quot;</span><span class="p">,</span> <span class="n">graph_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate task graph in the DOT language (only parents and children of this work).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            engine: Layout command used. [&#39;dot&#39;, &#39;neato&#39;, &#39;twopi&#39;, &#39;circo&#39;, &#39;fdp&#39;, &#39;sfdp&#39;, &#39;patchwork&#39;, &#39;osage&#39;]</span>
+<span class="sd">            graph_attr: Mapping of (attribute, value) pairs for the graph.</span>
+<span class="sd">            node_attr: Mapping of (attribute, value) pairs set for all nodes.</span>
+<span class="sd">            edge_attr: Mapping of (attribute, value) pairs set for all edges.</span>
+
+<span class="sd">        Returns: graphviz.Digraph &lt;https://graphviz.readthedocs.io/en/stable/api.html#digraph&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">graphviz</span> <span class="k">import</span> <span class="n">Digraph</span>
+        <span class="n">fg</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">(</span><span class="s2">&quot;work&quot;</span><span class="p">,</span> <span class="c1">#filename=&quot;work_%s.gv&quot; % os.path.basename(self.workdir),</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;fdp&quot;</span> <span class="k">if</span> <span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;automatic&quot;</span> <span class="k">else</span> <span class="n">engine</span><span class="p">)</span>
+
+        <span class="c1"># Set graph attributes.</span>
+        <span class="c1"># https://www.graphviz.org/doc/info/</span>
+        <span class="c1">#fg.attr(label=&quot;%s@%s&quot; % (self.__class__.__name__, self.relworkdir))</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="c1">#fg.attr(fontcolor=&quot;white&quot;, bgcolor=&#39;purple:pink&#39;)</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span> <span class="n">pagedir</span><span class="o">=</span><span class="s2">&quot;BL&quot;</span><span class="p">)</span>
+        <span class="c1">#fg.attr(constraint=&quot;false&quot;, pack=&quot;true&quot;, packMode=&quot;clust&quot;)</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightblue2&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;filled&#39;</span><span class="p">)</span>
+        <span class="c1">#fg.node_attr.update(ranksep=&#39;equally&#39;)</span>
+
+        <span class="c1"># Add input attributes.</span>
+        <span class="k">if</span> <span class="n">graph_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">graph_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">node_attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fg</span><span class="o">.</span><span class="n">edge_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">edge_attr</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">node_kwargs</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="c1">#shape=&quot;circle&quot;,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;pos_str&quot;</span><span class="p">)</span> <span class="k">else</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">pos_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">edge_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">arrowType</span><span class="o">=</span><span class="s2">&quot;vee&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span><span class="p">)</span>
+        <span class="n">cluster_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span> <span class="n">pagedir</span><span class="o">=</span><span class="s2">&quot;BL&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;rounded&quot;</span><span class="p">,</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s2">&quot;azure2&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build cluster with tasks in *this* work</span>
+        <span class="n">cluster_name</span> <span class="o">=</span> <span class="s2">&quot;cluster</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">with</span> <span class="n">fg</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">wg</span><span class="p">:</span>
+            <span class="n">wg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="o">**</span><span class="n">cluster_kwargs</span><span class="p">)</span>
+            <span class="n">wg</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">wg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
+                <span class="c1"># Connect task to children</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">get_children</span><span class="p">():</span>
+                    <span class="c1"># Test if child is in this cluster (self).</span>
+                    <span class="n">myg</span> <span class="o">=</span> <span class="n">wg</span> <span class="k">if</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">else</span> <span class="n">fg</span>
+                    <span class="n">myg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">child</span><span class="p">))</span>
+                    <span class="c1"># Find file extensions required by this task</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                    <span class="n">edge_label</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+                    <span class="n">myg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">edge_label</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+                <span class="c1"># Connect task to parents</span>
+                <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">get_parents</span><span class="p">():</span>
+                    <span class="c1"># Test if parent is in this cluster (self).</span>
+                    <span class="n">myg</span> <span class="o">=</span> <span class="n">wg</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">else</span> <span class="n">fg</span>
+                    <span class="n">myg</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">node_kwargs</span><span class="p">(</span><span class="n">parent</span><span class="p">))</span>
+                    <span class="c1"># Find file extensions required by this task</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="p">[</span><span class="n">dep</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">task</span><span class="o">.</span><span class="n">deps</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+                    <span class="n">edge_label</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">deps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">exts</span><span class="p">)</span>
+                    <span class="n">myg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">edge_label</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">parent</span><span class="o">.</span><span class="n">color_hex</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">edge_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Treat the case in which we have a work producing output for tasks in *this* work.</span>
+        <span class="c1">#for work in self.flow:</span>
+        <span class="c1">#    children = work.get_children()</span>
+        <span class="c1">#    if not children or all(child not in self for child in children):</span>
+        <span class="c1">#        continue</span>
+        <span class="c1">#    cluster_name = &quot;cluster%s&quot; % work.name</span>
+        <span class="c1">#    seen = set()</span>
+        <span class="c1">#    for child in children:</span>
+        <span class="c1">#        if child not in self: continue</span>
+        <span class="c1">#        # This is not needed, too much confusing</span>
+        <span class="c1">#        #fg.edge(cluster_name, child.name, color=work.color_hex, **edge_kwargs)</span>
+        <span class="c1">#        # Find file extensions required by work</span>
+        <span class="c1">#        i = [dep.node for dep in child.deps].index(work)</span>
+        <span class="c1">#        for ext in child.deps[i].exts:</span>
+        <span class="c1">#            out = &quot;%s (%s)&quot; % (ext, work.name)</span>
+        <span class="c1">#            fg.node(out)</span>
+        <span class="c1">#            fg.edge(out, child.name, **edge_kwargs)</span>
+        <span class="c1">#            key = (cluster_name, out)</span>
+        <span class="c1">#            if key not in seen:</span>
+        <span class="c1">#                fg.edge(cluster_name, out, color=work.color_hex, **edge_kwargs)</span>
+        <span class="c1">#                seen.add(key)</span>
+
+        <span class="k">return</span> <span class="n">fg</span>
+
 
 <span class="k">class</span> <span class="nc">NodeContainer</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -355,6 +456,11 @@
     <span class="k">def</span> <span class="nf">register_phonon_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Register a phonon task.&quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task_class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PhononTask</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">register_elastic_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Register an elastic task.&quot;&quot;&quot;</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task_class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ElasticTask</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">register_ddk_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -467,8 +573,8 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span> <span class="o">!=</span> <span class="n">flow</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;self._flow != flow&quot;</span><span class="p">)</span></div>
 
-    <span class="nd">@lazy_property</span>
-<div class="viewcode-block" id="Work.pos"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.pos">[docs]</a>    <span class="k">def</span> <span class="nf">pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Work.pos"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.pos">[docs]</a>    <span class="nd">@lazy_property</span>
+    <span class="k">def</span> <span class="nf">pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The position of self in the :class:`Flow`&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">work</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">work</span><span class="p">:</span>
@@ -493,7 +599,8 @@
         <span class="c1"># that will be used by its children.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;indata&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;outdata&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;tmpdata&quot;</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s2">&quot;tmpdata&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wdir</span> <span class="o">=</span> <span class="n">Directory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Work.chroot"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.Work.chroot">[docs]</a>    <span class="k">def</span> <span class="nf">chroot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_workdir</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">new_workdir</span><span class="p">,</span> <span class="n">chroot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -598,8 +705,8 @@
 <span class="sd">        Registers a new :class:`Task` and add it to the internal list, taking into account possible dependencies.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obj: :class:`AbinitInput` instance.</span>
-<span class="sd">            deps: Dictionary specifying the dependency of this node.</span>
+<span class="sd">            obj: :class:`AbinitInput` instance or `Task` object.</span>
+<span class="sd">            deps: Dictionary specifying the dependency of this node or list of dependencies</span>
 <span class="sd">                  None means that this obj has no dependency.</span>
 <span class="sd">            required_files: List of strings with the path of the files used by the task.</span>
 <span class="sd">                Note that the files must exist when the task is registered.</span>
@@ -629,9 +736,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
-        <span class="c1"># Handle possible dependencies.</span>
+        <span class="c1"># Handle possible dependencies given either as dict or list.</span>
         <span class="k">if</span> <span class="n">deps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dependency</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">exts</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">exts</span> <span class="ow">in</span> <span class="n">deps</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">deps</span><span class="p">,</span> <span class="s2">&quot;items&quot;</span><span class="p">):</span>
+                <span class="n">deps</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dependency</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">exts</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">exts</span> <span class="ow">in</span> <span class="n">deps</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
             <span class="n">task</span><span class="o">.</span><span class="n">add_deps</span><span class="p">(</span><span class="n">deps</span><span class="p">)</span>
 
         <span class="c1"># Handle possible dependencies.</span>
@@ -1228,118 +1336,40 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;mrgscr done&quot;</span><span class="p">,</span> <span class="n">final_scr</span><span class="o">=</span><span class="n">final_scr</span><span class="p">)</span></div></div>
 
 
-<span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">build_oneshot_phononwork</span><span class="p">(</span><span class="n">scf_input</span><span class="p">,</span> <span class="n">ph_inputs</span><span class="p">,</span> <span class="n">workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">work_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a work for the computation of phonon frequencies</span>
-<span class="sd">    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations</span>
-<span class="sd">    are explicitly computed i.e.</span>
-
-<span class="sd">        * rfdir 1 1 1</span>
-<span class="sd">        * rfatpol 1 natom</span>
-
-<span class="sd">    .. warning::</span>
-<span class="sd">        This work is mainly used for simple calculations, e.g. convergence studies.</span>
-<span class="sd">        Use :class:`PhononWork` for better efficiency.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">work_class</span> <span class="o">=</span> <span class="n">OneShotPhononWork</span> <span class="k">if</span> <span class="n">work_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">work_class</span>
-    <span class="n">work</span> <span class="o">=</span> <span class="n">work_class</span><span class="p">(</span><span class="n">workdir</span><span class="o">=</span><span class="n">workdir</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
-    <span class="n">scf_task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">register_scf_task</span><span class="p">(</span><span class="n">scf_input</span><span class="p">)</span>
-    <span class="n">ph_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ph_inputs</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ph_inputs</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">ph_inputs</span>
-
-    <span class="k">for</span> <span class="n">phinp</span> <span class="ow">in</span> <span class="n">ph_inputs</span><span class="p">:</span>
-        <span class="c1"># Check rfdir and rfatpol.</span>
-        <span class="n">rfdir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfdir&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rfdir</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">rfdir</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting rfdir == (1, 1, 1), got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rfdir</span><span class="p">)</span>
-
-        <span class="n">rfatpol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rfatpol&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rfatpol</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">rfatpol</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">phinp</span><span class="o">.</span><span class="n">structure</span><span class="p">))):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expecting rfatpol == (1, natom), got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rfatpol</span><span class="p">)</span>
-
-        <span class="c1"># cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations</span>
-        <span class="n">ph_task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">phinp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="p">{</span><span class="n">scf_task</span><span class="p">:</span> <span class="s2">&quot;WFK&quot;</span><span class="p">})</span>
-
-    <span class="k">return</span> <span class="n">work</span>
-
-
-<span class="k">class</span> <span class="nc">OneShotPhononWork</span><span class="p">(</span><span class="n">Work</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Simple and very inefficient work for the computation of the phonon frequencies</span>
-<span class="sd">    It consists of a GS task and a DFPT calculations for all the independent perturbations.</span>
-<span class="sd">    The main advantage is that one has direct access to the phonon frequencies that</span>
-<span class="sd">    can be computed at the end of the second task without having to call anaddb.</span>
-
-<span class="sd">    Use ``build_oneshot_phononwork`` to construct this work from the input files.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@deprecated</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;This class is deprecated and will be removed in pymatgen 4.0. Use PhononWork&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">read_phonons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read phonon frequencies from the output file.</span>
-
-<span class="sd">        Return:</span>
-<span class="sd">            List of namedtuples. Each `namedtuple` has the following attributes:</span>
-
-<span class="sd">                - qpt: ndarray with the q-point in reduced coordinates.</span>
-<span class="sd">                - freqs: ndarray with 3 x Natom phonon frequencies in meV</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#</span>
-        <span class="c1">#   Phonon wavevector (reduced coordinates) :  0.00000  0.00000  0.00000</span>
-        <span class="c1">#  Phonon energies in Hartree :</span>
-        <span class="c1">#    1.089934E-04  4.990512E-04  1.239177E-03  1.572715E-03  1.576801E-03</span>
-        <span class="c1">#    1.579326E-03</span>
-        <span class="c1">#  Phonon frequencies in cm-1    :</span>
-        <span class="c1"># -  2.392128E+01  1.095291E+02  2.719679E+02  3.451711E+02  3.460677E+02</span>
-        <span class="c1"># -  3.466221E+02</span>
-        <span class="n">BEGIN</span> <span class="o">=</span> <span class="s2">&quot;  Phonon wavevector (reduced coordinates) :&quot;</span>
-        <span class="n">END</span> <span class="o">=</span> <span class="s2">&quot; Phonon frequencies in cm-1    :&quot;</span>
-
-        <span class="n">ph_tasks</span><span class="p">,</span> <span class="n">qpts</span><span class="p">,</span> <span class="n">phfreqs</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">ph_tasks</span><span class="p">:</span>
-
-            <span class="c1"># Parse output file.</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-                <span class="n">qpt</span><span class="p">,</span> <span class="n">inside</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">BEGIN</span><span class="p">):</span>
-                        <span class="n">qpts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">BEGIN</span><span class="p">):]</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
-                        <span class="n">inside</span><span class="p">,</span> <span class="n">omegas</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]</span>
-                    <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">END</span><span class="p">):</span>
-                        <span class="k">break</span>
-                    <span class="k">elif</span> <span class="n">inside</span><span class="p">:</span>
-                        <span class="n">inside</span> <span class="o">+=</span> <span class="mi">1</span>
-                        <span class="k">if</span> <span class="n">inside</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-                            <span class="n">omegas</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find </span><span class="si">%s</span><span class="s2"> in file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">END</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">output_file</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
-
-                <span class="n">phfreqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">omegas</span><span class="p">)</span>
-
-        <span class="c1"># Use namedtuple to store q-point and frequencies in meV</span>
-        <span class="n">phonon</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;phonon&quot;</span><span class="p">,</span> <span class="s2">&quot;qpt freqs&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">phonon</span><span class="p">(</span><span class="n">qpt</span><span class="o">=</span><span class="n">qpt</span><span class="p">,</span> <span class="n">freqs</span><span class="o">=</span><span class="n">freqs_meV</span><span class="p">)</span> <span class="k">for</span> <span class="n">qpt</span><span class="p">,</span> <span class="n">freqs_meV</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">qpts</span><span class="p">,</span> <span class="n">EnergyArray</span><span class="p">(</span><span class="n">phfreqs</span><span class="p">,</span> <span class="s2">&quot;Ha&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;meV&quot;</span><span class="p">)</span> <span class="p">)]</span>
-
-    <span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">OneShotPhononWork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
-        <span class="n">phonons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_phonons</span><span class="p">()</span>
-        <span class="n">results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">phonons</span><span class="o">=</span><span class="n">phonons</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">results</span>
-
-
 <span class="k">class</span> <span class="nc">MergeDdb</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mixin class for Works that have to merge the DDB files produced by the tasks.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">merge_ddb_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">merge_ddb_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete_source_ddbs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">only_dfpt_tasks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">exclude_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called when all the q-points have been computed.</span>
 <span class="sd">        It runs `mrgddb` in sequential on the local machine to produce</span>
 <span class="sd">        the final DDB file in the outdir of the `Work`.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            delete_source_ddbs: True if input DDB should be removed once final DDB is created.</span>
+<span class="sd">            only_dfpt_tasks: False to merge all DDB files produced by the tasks of the work</span>
+<span class="sd">                Useful e.g. for finite stress corrections in which the stress in the</span>
+<span class="sd">                initial configuration should be merged in the final DDB.</span>
+<span class="sd">            exclude_tasks: List of tasks that should be excluded when merging the partial DDB files.</span>
+<span class="sd">            include_tasks: List of tasks that should be included when merging the partial DDB files.</span>
+<span class="sd">                Mutually exclusive with exclude_tasks.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            path to the output DDB file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ddb_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span> \
+        <span class="k">if</span> <span class="n">exclude_tasks</span><span class="p">:</span>
+            <span class="n">my_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_tasks</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">include_tasks</span><span class="p">:</span>
+            <span class="n">my_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">include_tasks</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">my_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">only_dfpt_tasks</span><span class="p">:</span>
+            <span class="n">ddb_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">my_tasks</span> \
                                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">DfptTask</span><span class="p">)]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ddb_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">my_tasks</span><span class="p">]))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will call mrgddb to merge </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ddb_files</span><span class="p">))</span>
         <span class="c1"># DDB files are always produces so this should never happen!</span>
@@ -1356,20 +1386,23 @@
             <span class="c1"># Call mrgddb</span>
             <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;DDB file merged by </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
             <span class="n">mrgddb</span> <span class="o">=</span> <span class="n">wrappers</span><span class="o">.</span><span class="n">Mrgddb</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">manager</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">mrgddb</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ddb_files</span><span class="p">,</span> <span class="n">out_ddb</span><span class="o">=</span><span class="n">out_ddb</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
+            <span class="n">mrgddb</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ddb_files</span><span class="p">,</span> <span class="n">out_ddb</span><span class="o">=</span><span class="n">out_ddb</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span>
+                         <span class="n">delete_source_ddbs</span><span class="o">=</span><span class="n">delete_source_ddbs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_ddb</span>
 
 
 <div class="viewcode-block" id="PhononWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork">[docs]</a><span class="k">class</span> <span class="nc">PhononWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This work usually consists of one GS + nirred Phonon tasks where nirred is</span>
-<span class="sd">    the number of irreducible perturbations for a given q-point.</span>
-<span class="sd">    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced</span>
+<span class="sd">    This work consists of nirred Phonon tasks where nirred is</span>
+<span class="sd">    the number of irreducible atomic perturbations for a given set of q-points.</span>
+<span class="sd">    It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge</span>
+<span class="sd">    all the partial DDB (POT) files produced. The two files are available in the</span>
+<span class="sd">    output directory of the Work.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PhononWork.from_scf_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.from_scf_task">[docs]</a>    <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononWork.from_scf_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.from_scf_task">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">is_ngqpt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct a `PhononWork` from a :class:`ScfTask` object.</span>
 <span class="sd">        The input file for phonons is automatically generated from the input of the ScfTask.</span>
@@ -1377,7 +1410,9 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            scf_task: ScfTask object.</span>
-<span class="sd">            qpoints: q-points in reduced coordinates. Accepts single q-point or list of q-points</span>
+<span class="sd">            qpoints: q-points in reduced coordinates. Accepts single q-point, list of q-points</span>
+<span class="sd">                or three integers defining the q-mesh if `is_ngqpt`.</span>
+<span class="sd">            is_ngqpt: True if `qpoints` should be interpreted as divisions instead of q-points.</span>
 <span class="sd">            tolerance: dict {varname: value} with the tolerance to be used in the DFPT run.</span>
 <span class="sd">                Defaults to {&quot;tolvrs&quot;: 1.0e-10}.</span>
 <span class="sd">            manager: :class:`TaskManager` object.</span>
@@ -1385,7 +1420,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scf_task</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;task </span><span class="si">%s</span><span class="s2"> does not inherit from ScfTask&quot;</span> <span class="o">%</span> <span class="n">scf_task</span><span class="p">)</span>
 
-        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">is_ngqpt</span><span class="p">:</span>
+            <span class="n">qpoints</span> <span class="o">=</span> <span class="n">scf_task</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">abiget_ibz</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="n">qpoints</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kptopt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">points</span>
+
+        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">qpt</span> <span class="ow">in</span> <span class="n">qpoints</span><span class="p">:</span>
@@ -1395,14 +1433,17 @@
 
         <span class="k">return</span> <span class="n">new</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="PhononWork.from_scf_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.from_scf_input">[docs]</a>    <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PhononWork.from_scf_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork.from_scf_input">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">is_ngqpt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to `from_scf_task`, the difference is that this method requires</span>
 <span class="sd">        an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)</span>
 <span class="sd">        are packed in a single Work whereas in the previous case we usually have multiple works.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">is_ngqpt</span><span class="p">:</span>
+            <span class="n">qpoints</span> <span class="o">=</span> <span class="n">scf_input</span><span class="o">.</span><span class="n">abiget_ibz</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="n">qpoints</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kptopt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">points</span>
+
+        <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
         <span class="n">scf_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_scf_task</span><span class="p">(</span><span class="n">scf_input</span><span class="p">)</span>
@@ -1463,7 +1504,7 @@
         <span class="k">return</span> <span class="n">results</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">BecWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
+<div class="viewcode-block" id="BecWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BecWork">[docs]</a><span class="k">class</span> <span class="nc">BecWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Work for the computation of the Born effective charges.</span>
 
@@ -1471,7 +1512,7 @@
 <span class="sd">    It provides the callback method (on_all_ok) that calls mrgddb to merge the</span>
 <span class="sd">    partial DDB files produced by the work.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BecWork.from_scf_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BecWork.from_scf_task">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">ddk_tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build a BecWork from a ground-state task.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scf_task</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">):</span>
@@ -1496,9 +1537,9 @@
         <span class="k">for</span> <span class="n">bec_inp</span> <span class="ow">in</span> <span class="n">bec_inputs</span><span class="p">:</span>
              <span class="n">new</span><span class="o">.</span><span class="n">register_bec_task</span><span class="p">(</span><span class="n">bec_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">bec_deps</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">new</span>
+        <span class="k">return</span> <span class="n">new</span></div>
 
-    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BecWork.on_all_ok"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BecWork.on_all_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called when all the task reach S_OK</span>
 <span class="sd">        Ir runs `mrgddb` in sequential on the local machine to produce</span>
@@ -1509,17 +1550,17 @@
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;DDB merge done&quot;</span><span class="p">)</span>
         <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="n">out_ddb</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">results</span>
+        <span class="k">return</span> <span class="n">results</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">DteWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
+<div class="viewcode-block" id="DteWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.DteWork">[docs]</a><span class="k">class</span> <span class="nc">DteWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Work for the computation of the third derivative of the energy.</span>
 
 <span class="sd">    This work consists of DDK tasks and electric field perturbation.</span>
 <span class="sd">    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DteWork.from_scf_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.DteWork.from_scf_task">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">ddk_tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build a DteWork from a ground-state task.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scf_task</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">):</span>
@@ -1559,9 +1600,9 @@
              <span class="n">dte_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_dte_task</span><span class="p">(</span><span class="n">dte_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">dte_deps</span><span class="p">)</span>
              <span class="n">dte_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dte_task</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">new</span>
+        <span class="k">return</span> <span class="n">new</span></div>
 
-    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DteWork.on_all_ok"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.DteWork.on_all_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called when all the task reach S_OK</span>
 <span class="sd">        Ir runs `mrgddb` in sequential on the local machine to produce</span>
@@ -1573,7 +1614,7 @@
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;DDB merge done&quot;</span><span class="p">)</span>
         <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="n">out_ddb</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">results</span>
+        <span class="k">return</span> <span class="n">results</span></div></div>
 </pre></div>
 
           </div>
@@ -1604,7 +1645,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1612,7 +1653,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

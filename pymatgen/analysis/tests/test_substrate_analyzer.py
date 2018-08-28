@@ -48,9 +48,9 @@ class ZSLGenTest(PymatgenTest):
         self.assertFalse(z.is_same_vectors([[1.01, 2, 0], [0, 2, 0]],
                                            [[1, 0, 0], [0, 2.01, 0]]))
 
-        matches = list(z.generate(film, substrate))
+        matches = list(z(film.lattice.matrix[:2], substrate.lattice.matrix[:2]))
 
-        self.assertEqual(len(matches), 82)
+        self.assertEqual(len(matches), 8)
 
 
 class SubstrateAnalyzerTest(PymatgenTest):
@@ -76,7 +76,7 @@ class SubstrateAnalyzerTest(PymatgenTest):
         s = SubstrateAnalyzer()
 
         matches = list(s.calculate(film,substrate,film_elac))
-        self.assertEqual(len(matches), 82)
+        self.assertEqual(len(matches), 192)
 
 
 if __name__ == '__main__':

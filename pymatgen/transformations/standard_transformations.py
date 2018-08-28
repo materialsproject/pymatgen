@@ -3,7 +3,11 @@
 # Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+
 import logging
+
+from fractions import Fraction
+from numpy import around
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
@@ -405,7 +409,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     tolerance. currently this is .1
 
     For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites
-    4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
+    4, 5, 6, 7 then 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
     will be filled, even though a lower energy combination might be found by
     putting all lithium in sites [4,5,6,7].
 
@@ -416,17 +420,21 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         symmetrized_structures (bool): Whether the input structures are
             instances of SymmetrizedStructure, and that their symmetry
             should be used for the grouping of sites.
+        no_oxi_states (bool): Whether to remove oxidation states prior to
+            ordering.
     """
 
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
 
-    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False):
+    def __init__(self, algo=ALGO_FAST, symmetrized_structures=False,
+                 no_oxi_states=False):
         self.algo = algo
         self._all_structures = []
+        self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
-
+        
     def apply_transformation(self, structure, return_ranked_list=False):
         """
         For this transformation, the apply_transformation method will return
@@ -460,6 +468,12 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         num_to_return = max(1, num_to_return)
 
+        if self.no_oxi_states:
+            structure = Structure.from_sites(structure)
+            for i, site in enumerate(structure):
+                structure[i] = {"%s0+" % k.symbol: v
+                                for k, v in site.species_and_occu.items()}
+
         equivalent_sites = []
         exemplars = []
         # generate list of equivalent sites to order
@@ -486,6 +500,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
         # generate the list of manipulations and input structure
         s = Structure.from_sites(structure)
+
         m_list = []
         for g in equivalent_sites:
             total_occupancy = sum([structure[i].species_and_occu for i in g],
@@ -533,6 +548,10 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 else:
                     s_copy[manipulation[0]] = manipulation[1]
             s_copy.remove_sites(del_indices)
+
+            if self.no_oxi_states:
+                s_copy.remove_oxidation_states()
+
             self._all_structures.append(
                 {"energy": output[0],
                  "energy_above_minimum":
@@ -650,22 +669,128 @@ class DeformStructureTransformation(AbstractTransformation):
         deformation (array): deformation gradient for the transformation
     """
 
-    def __init__(self, deformation):
-        self.deformation = Deformation(deformation)
+    def __init__(self, deformation=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
+        self._deform = Deformation(deformation)
+        self.deformation = self._deform.tolist()
 
     def apply_transformation(self, structure):
-        return self.deformation.apply_to_structure(structure)
+        return self._deform.apply_to_structure(structure)
 
     def __str__(self):
         return "DeformStructureTransformation : " + \
-            "Deformation = {}".format(str(self.deformation.tolist()))
+            "Deformation = {}".format(str(self.deformation))
 
     def __repr__(self):
         return self.__str__()
 
     @property
     def inverse(self):
-        return DeformStructureTransformation(self.deformation.inv())
+        return DeformStructureTransformation(self._deform.inv())
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class DiscretizeOccupanciesTransformation(AbstractTransformation):
+    """
+    Discretizes the site occupancies in a disordered structure; useful for
+    grouping similar structures or as a pre-processing step for order-disorder
+    transformations.
+
+    Args:
+        max_denominator:
+            An integer maximum denominator for discretization. A higher
+            denominator allows for finer resolution in the site occupancies.
+        tol:
+            A float that sets the maximum difference between the original and
+            discretized occupancies before throwing an error. If None, it is
+            set to 1 / (4 * max_denominator).
+        fix_denominator(bool): 
+            If True, will enforce a common denominator for all species. 
+            This prevents a mix of denominators (for example, 1/3, 1/4) 
+            that might require large cell sizes to perform an enumeration.
+            'tol' needs to be > 1.0 in some cases.
+            
+    """
+
+    def __init__(self, max_denominator=5, tol=None, fix_denominator=False):
+        self.max_denominator = max_denominator
+        self.tol = tol if tol is not None else 1 / (4 * max_denominator)
+        self.fix_denominator = fix_denominator
+
+    def apply_transformation(self, structure):
+        """
+        Discretizes the site occupancies in the structure.
+
+        Args:
+            structure: disordered Structure to discretize occupancies
+
+        Returns:
+            A new disordered Structure with occupancies discretized
+        """
+        if structure.is_ordered:
+            return structure
+
+        species = [dict(sp) for sp in structure.species_and_occu]
+
+        for sp in species:
+            for k, v in sp.items():
+                old_occ = sp[k]
+                new_occ = float(
+                    Fraction(old_occ).limit_denominator(self.max_denominator))
+                if self.fix_denominator:
+                    new_occ = around(old_occ*self.max_denominator)\
+                        / self.max_denominator
+                if round(abs(old_occ - new_occ), 6) > self.tol:
+                    raise RuntimeError(
+                        "Cannot discretize structure within tolerance!")
+                sp[k] = new_occ
+
+        return Structure(structure.lattice, species, structure.frac_coords)
+
+    def __str__(self):
+        return "DiscretizeOccupanciesTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class ChargedCellTransformation(AbstractTransformation):
+    """
+    The ChargedCellTransformation applies a charge to a structure (or defect object).
+
+    Args:
+        charge: A integer charge to apply to the structure.
+            Defaults to zero. Has to be a single integer. e.g. 2
+    """
+
+    def __init__(self, charge=0):
+        self.charge = charge
+
+    def apply_transformation(self, structure):
+        s = structure.copy()
+        s.set_charge(self.charge)
+        return s
+
+    def __str__(self):
+        return "Structure with charge " + \
+            "{}".format(self.charge)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        raise NotImplementedError()
 
     @property
     def is_one_to_many(self):

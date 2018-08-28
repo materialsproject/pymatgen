@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.core.xcfunc module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.core.xcfunc module &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -91,9 +91,9 @@ and can be specified in the following ways:</p>
 <dt>[1] Taking the names from the LibXC library. The correlation and exchange names</dt>
 <dd><p class="first">are stripped from their <a href="#id1"><span class="problematic" id="id2">XC_</span></a> part and combined with a + sign.
 Here is an example for an LDA functional:</p>
-<p>&lt;xc_functional type=&#8221;LDA&#8221;, name=&#8221;LDA_X+LDA_C_PW&#8221;/&gt;</p>
+<p>&lt;xc_functional type=”LDA”, name=”LDA_X+LDA_C_PW”/&gt;</p>
 <p>and this is what PBE will look like:</p>
-<p class="last">&lt;xc_functional type=&#8221;GGA&#8221;, name=&#8221;GGA_X_PBE+GGA_C_PBE&#8221;/&gt;</p>
+<p class="last">&lt;xc_functional type=”GGA”, name=”GGA_X_PBE+GGA_C_PBE”/&gt;</p>
 </dd>
 </dl>
 <p>[2] Using one of the following pre-defined aliases:</p>
@@ -111,8 +111,8 @@ GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Ya
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xc</strong> &#8211; LibxcFunc for XC functional.</li>
-<li><strong>c</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site.x" title="pymatgen.core.sites.Site.x"><em>x</em></a><em>,</em><em></em>) &#8211; LibxcFunc for exchange and correlation part. Mutually exclusive with xc.</li>
+<li><strong>xc</strong> – LibxcFunc for XC functional.</li>
+<li><strong>c</strong> (<a class="reference internal" href="pymatgen.core.sites.html#pymatgen.core.sites.Site.x" title="pymatgen.core.sites.Site.x"><em>x</em></a><em>,</em>) – LibxcFunc for exchange and correlation part. Mutually exclusive with xc.</li>
 </ul>
 </td>
 </tr>
@@ -120,7 +120,7 @@ GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Ya
 </table>
 <dl class="attribute">
 <dt id="pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc">
-<code class="descname">abinitixc_to_libxc</code><em class="property"> = {1: {'xc': &lt;LibxcFunc.LDA_XC_TETER93: 20&gt;}, 2: {'x': &lt;LibxcFunc.LDA_X: 1&gt;, 'c': &lt;LibxcFunc.LDA_C_PZ: 9&gt;}, 4: {'x': &lt;LibxcFunc.LDA_X: 1&gt;, 'c': &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;}, 5: {'x': &lt;LibxcFunc.LDA_X: 1&gt;, 'c': &lt;LibxcFunc.LDA_C_HL: 4&gt;}, 7: {'x': &lt;LibxcFunc.LDA_X: 1&gt;, 'c': &lt;LibxcFunc.LDA_C_PW: 12&gt;}, 11: {'x': &lt;LibxcFunc.GGA_X_PBE: 101&gt;, 'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;}, 14: {'x': &lt;LibxcFunc.GGA_X_PBE_R: 102&gt;, 'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;}, 15: {'x': &lt;LibxcFunc.GGA_X_RPBE: 117&gt;, 'c': &lt;LibxcFunc.GGA_C_PBE: 130&gt;}}</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">abinitixc_to_libxc</code><em class="property"> = {1: {‘xc’: &lt;LibxcFunc.LDA_XC_TETER93: 20&gt;}, 2: {‘x’: &lt;LibxcFunc.LDA_X: 1&gt;, ‘c’: &lt;LibxcFunc.LDA_C_PZ: 9&gt;}, 4: {‘x’: &lt;LibxcFunc.LDA_X: 1&gt;, ‘c’: &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;}, 5: {‘x’: &lt;LibxcFunc.LDA_X: 1&gt;, ‘c’: &lt;LibxcFunc.LDA_C_HL: 4&gt;}, 7: {‘x’: &lt;LibxcFunc.LDA_X: 1&gt;, ‘c’: &lt;LibxcFunc.LDA_C_PW: 12&gt;}, 11: {‘x’: &lt;LibxcFunc.GGA_X_PBE: 101&gt;, ‘c’: &lt;LibxcFunc.GGA_C_PBE: 130&gt;}, 14: {‘x’: &lt;LibxcFunc.GGA_X_PBE_R: 102&gt;, ‘c’: &lt;LibxcFunc.GGA_C_PBE: 130&gt;}, 15: {‘x’: &lt;LibxcFunc.GGA_X_RPBE: 117&gt;, ‘c’: &lt;LibxcFunc.GGA_C_PBE: 130&gt;}}</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.abinitixc_to_libxc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -143,7 +143,7 @@ GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Ya
 
 <dl class="attribute">
 <dt id="pymatgen.core.xcfunc.XcFunc.defined_aliases">
-<code class="descname">defined_aliases</code><em class="property"> = OrderedDict([((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW: 12&gt;), type_name(type='LDA', name='PW')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW_MOD: 13&gt;), type_name(type='LDA', name='PW_MOD')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PZ: 9&gt;), type_name(type='LDA', name='PZ')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;), type_name(type='LDA', name='W')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_HL: 4&gt;), type_name(type='LDA', name='HL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_GL: 5&gt;), type_name(type='LDA', name='GL')), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_VWN: 7&gt;), type_name(type='LDA', name='VWN')), ((&lt;LibxcFunc.GGA_X_PW91: 109&gt;, &lt;LibxcFunc.GGA_C_PW91: 134&gt;), type_name(type='GGA', name='PW91')), ((&lt;LibxcFunc.GGA_X_PBE: 101&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='PBE')), ((&lt;LibxcFunc.GGA_X_RPBE: 117&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='RPBE')), ((&lt;LibxcFunc.GGA_X_PBE_R: 102&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type='GGA', name='revPBE')), ((&lt;LibxcFunc.GGA_X_PBE_SOL: 116&gt;, &lt;LibxcFunc.GGA_C_PBE_SOL: 133&gt;), type_name(type='GGA', name='PBEsol')), ((&lt;LibxcFunc.GGA_X_AM05: 120&gt;, &lt;LibxcFunc.GGA_C_AM05: 135&gt;), type_name(type='GGA', name='AM05')), ((&lt;LibxcFunc.GGA_X_B88: 106&gt;, &lt;LibxcFunc.GGA_C_LYP: 131&gt;), type_name(type='GGA', name='BLYP'))])</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.defined_aliases" title="Permalink to this definition">¶</a></dt>
+<code class="descname">defined_aliases</code><em class="property"> = OrderedDict([((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW: 12&gt;), type_name(type=’LDA’, name=’PW’)), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PW_MOD: 13&gt;), type_name(type=’LDA’, name=’PW_MOD’)), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_PZ: 9&gt;), type_name(type=’LDA’, name=’PZ’)), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_WIGNER: 2&gt;), type_name(type=’LDA’, name=’W’)), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_HL: 4&gt;), type_name(type=’LDA’, name=’HL’)), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_GL: 5&gt;), type_name(type=’LDA’, name=’GL’)), ((&lt;LibxcFunc.LDA_X: 1&gt;, &lt;LibxcFunc.LDA_C_VWN: 7&gt;), type_name(type=’LDA’, name=’VWN’)), ((&lt;LibxcFunc.GGA_X_PW91: 109&gt;, &lt;LibxcFunc.GGA_C_PW91: 134&gt;), type_name(type=’GGA’, name=’PW91’)), ((&lt;LibxcFunc.GGA_X_PBE: 101&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type=’GGA’, name=’PBE’)), ((&lt;LibxcFunc.GGA_X_RPBE: 117&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type=’GGA’, name=’RPBE’)), ((&lt;LibxcFunc.GGA_X_PBE_R: 102&gt;, &lt;LibxcFunc.GGA_C_PBE: 130&gt;), type_name(type=’GGA’, name=’revPBE’)), ((&lt;LibxcFunc.GGA_X_PBE_SOL: 116&gt;, &lt;LibxcFunc.GGA_C_PBE_SOL: 133&gt;), type_name(type=’GGA’, name=’PBEsol’)), ((&lt;LibxcFunc.GGA_X_AM05: 120&gt;, &lt;LibxcFunc.GGA_C_AM05: 135&gt;), type_name(type=’GGA’, name=’AM05’)), ((&lt;LibxcFunc.GGA_X_B88: 106&gt;, &lt;LibxcFunc.GGA_C_LYP: 131&gt;), type_name(type=’GGA’, name=’BLYP’))])</em><a class="headerlink" href="#pymatgen.core.xcfunc.XcFunc.defined_aliases" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -223,13 +223,13 @@ the string has the form X_NAME+C_NAME</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

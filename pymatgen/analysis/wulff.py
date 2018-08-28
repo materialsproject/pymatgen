@@ -21,7 +21,7 @@ Tran, R.; Xu, Z.; Radhakrishnan, B.; Winston, D.; Persson, K. A.; Ong, S. P.
 from __future__ import division, unicode_literals
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import get_recp_symmetry_operation
-from pymatgen.util.coord_utils import get_angle
+from pymatgen.util.coord import get_angle
 import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull
@@ -293,7 +293,7 @@ class WulffShape(object):
                                  if plane.outer_lines.count(line) != 2]
         return on_wulff, surface_area
 
-    def _get_colors(self, color_set, alpha, off_color):
+    def _get_colors(self, color_set, alpha, off_color, custom_colors={}):
         """
         assign colors according to the surface energies of on_wulff facets.
 
@@ -323,10 +323,11 @@ class WulffShape(object):
         scalar_map = mpl.cm.ScalarMappable(norm=cnorm, cmap=c_map)
 
         for i, e_surf in e_surf_on_wulff:
-            plane_color = scalar_map.to_rgba(e_surf, alpha=alpha)
-            color_list[i] = plane_color
+            color_list[i] = scalar_map.to_rgba(e_surf, alpha=alpha)
+            if tuple(self.miller_list[i]) in custom_colors.keys():
+                color_list[i] = custom_colors[tuple(self.miller_list[i])]
             color_proxy_on_wulff.append(
-                plt.Rectangle((2, 2), 1, 1, fc=plane_color, alpha=alpha))
+                plt.Rectangle((2, 2), 1, 1, fc=color_list[i], alpha=alpha))
             miller_on_wulff.append(self.input_miller_fig[i])
         scalar_map.set_array([x[1] for x in e_surf_on_wulff])
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha)
@@ -345,10 +346,36 @@ class WulffShape(object):
         """
         self.get_plot(*args, **kwargs).show()
 
+    def get_line_in_facet(self, facet):
+        """
+        Returns the sorted pts in a facet used to draw a line
+        """
+
+        lines = list(facet.outer_lines)
+        pt = []
+        prev = None
+        while len(lines) > 0:
+            if prev is None:
+                l = lines.pop(0)
+            else:
+                for i, l in enumerate(lines):
+                    if prev in l:
+                        l = lines.pop(i)
+                        if l[1] == prev:
+                            l.reverse()
+                        break
+            # make sure the lines are connected one by one.
+            # find the way covering all pts and facets
+            pt.append(self.wulff_pt_list[l[0]].tolist())
+            pt.append(self.wulff_pt_list[l[1]].tolist())
+            prev = l[1]
+
+        return pt
+
     def get_plot(self, color_set='PuBu', grid_off=True, axis_off=True,
                  show_area=False, alpha=1, off_color='red', direction=None,
-                 bar_pos=(0.75, 0.15, 0.05, 0.65), bar_on=False,
-                 legend_on=True, aspect_ratio=(8, 8)):
+                 bar_pos=(0.75, 0.15, 0.05, 0.65), bar_on=False, units_in_JPERM2=True,
+                 legend_on=True, aspect_ratio=(8, 8), custom_colors={}):
         """
         Get the Wulff shape plot.
 
@@ -358,12 +385,17 @@ class WulffShape(object):
             axis_off (bool): default is Ture
             show_area (bool): default is False
             alpha (float): chosen from 0 to 1 (float), default is 1
-            off_color: color_legend for off_wulff facets on show_area legend
+            off_color: Default color for facets not present on the Wulff shape.
             direction: default is (1, 1, 1)
             bar_pos: default is [0.75, 0.15, 0.05, 0.65]
             bar_on (bool): default is False
             legend_on (bool): default is True
             aspect_ratio: default is (8, 8)
+            custom_colors ({(h,k,l}: [r,g,b,alpha}): Customize color of each
+                facet with a dictionary. The key is the corresponding Miller
+                index and value is the color. Undefined facets will use default
+                color site. Note: If you decide to set your own colors, it
+                probably won't make any sense to have the color bar on.
 
         Return:
             (matplotlib.pyplot)
@@ -373,7 +405,7 @@ class WulffShape(object):
         import mpl_toolkits.mplot3d as mpl3
         color_list, color_proxy, color_proxy_on_wulff, \
             miller_on_wulff, e_surf_on_wulff = self._get_colors(
-                color_set, alpha, off_color)
+                color_set, alpha, off_color, custom_colors=custom_colors)
 
         if not direction:
             # If direction is not specified, use the miller indices of
@@ -398,24 +430,7 @@ class WulffShape(object):
             # assign the color for on_wulff facets according to its
             # index and the color_list for on_wulff
             plane_color = color_list[plane.index]
-            lines = list(plane.outer_lines)
-            pt = []
-            prev = None
-            while len(lines) > 0:
-                if prev is None:
-                    l = lines.pop(0)
-                else:
-                    for i, l in enumerate(lines):
-                        if prev in l:
-                            l = lines.pop(i)
-                            if l[1] == prev:
-                                l.reverse()
-                            break
-                # make sure the lines are connected one by one.
-                # find the way covering all pts and facets
-                pt.append(self.wulff_pt_list[l[0]].tolist())
-                pt.append(self.wulff_pt_list[l[1]].tolist())
-                prev = l[1]
+            pt = self.get_lines_in_facet(plane)
             # plot from the sorted pts from [simpx]
             tri = mpl3.art3d.Poly3DCollection([pt])
             tri.set_color(plane_color)
@@ -458,7 +473,8 @@ class WulffShape(object):
                 ax1, cmap=cmap, norm=norm, boundaries=[0] + bounds + [10],
                 extend='both', ticks=bounds[:-1], spacing='proportional',
                 orientation='vertical')
-            cbar.set_label('Surface Energies ($J/m^2$)', fontsize=100)
+            units = "$J/m^2$" if units_in_JPERM2 else "$eV/\AA^2$"
+            cbar.set_label('Surface Energies (%s)' %(units), fontsize=100)
 
         if grid_off:
             ax.grid('off')
@@ -517,11 +533,7 @@ class WulffShape(object):
         Returns:
             sum(surface_energy_hkl * area_hkl)/ sum(area_hkl)
         """
-        tot_area_energy = 0
-        for hkl in self.miller_energy_dict.keys():
-            tot_area_energy += self.miller_energy_dict[hkl] * \
-                               self.miller_area_dict[hkl]
-        return tot_area_energy / self.surface_area
+        return self.total_surface_energy / self.surface_area
 
     @property
     def area_fraction_dict(self):
@@ -561,3 +573,63 @@ class WulffShape(object):
             (float) Shape factor.
         """
         return self.surface_area / (self.volume ** (2 / 3))
+
+
+    @property
+    def effective_radius(self):
+        """
+        Radius of the Wulffshape when the
+        Wulffshape is approximated as a sphere.
+
+        Returns:
+            (float) radius.
+        """
+        return ((3/4)*(self.volume/np.pi)) ** (1 / 3)
+
+    @property
+    def total_surface_energy(self):
+        """
+        Total surface energy of the Wulff shape.
+
+        Returns:
+            (float) sum(surface_energy_hkl * area_hkl)
+        """
+        tot_surface_energy = 0
+        for hkl in self.miller_energy_dict.keys():
+            tot_surface_energy += self.miller_energy_dict[hkl] * \
+                                  self.miller_area_dict[hkl]
+        return tot_surface_energy
+
+    @property
+    def tot_corner_sites(self):
+        """
+        Returns the number of vertices in the convex hull.
+            Useful for identifying catalytically active sites.
+        """
+        return len(self.wulff_convex.vertices)
+
+    @property
+    def tot_edges(self):
+        """
+        Returns the number of edges in the convex hull.
+            Useful for identifying catalytically active sites.
+        """
+        all_edges = []
+        for facet in self.facets:
+            edges = []
+            pt = self.get_line_in_facet(facet)
+
+            lines = []
+            for i, p in enumerate(pt):
+                if i == len(pt) / 2:
+                    break
+                lines.append(tuple(sorted(tuple([tuple(pt[i*2]), tuple(pt[i*2+1])]))))
+
+            for i, p in enumerate(lines):
+                if p not in all_edges:
+                    edges.append(p)
+
+            all_edges.extend(edges)
+
+        return len(all_edges)
+

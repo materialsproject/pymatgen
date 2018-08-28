@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.abinit.qjobs module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.abinit.qjobs module &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,12 +59,12 @@
 <span id="pymatgen-io-abinit-qjobs-module"></span><h1>pymatgen.io.abinit.qjobs module<a class="headerlink" href="#module-pymatgen.io.abinit.qjobs" title="Permalink to this headline">¶</a></h1>
 <p>Objects and methods to contact the resource manager to get info on the status of the job and useful statistics.
 Note that this is not a wrapper for the C API but a collection of simple wrappers around the shell commands
-provided by the resource manager  (qsub, qdel and qstat for PBS, sinfo, squeue... for Slurm).
+provided by the resource manager  (qsub, qdel and qstat for PBS, sinfo, squeue… for Slurm).
 The main goal indeed is providing a simplified common interface for different resource managers without
 having to rely on external libraries.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.BlueGeneJob">
-<em class="property">class </em><code class="descname">BlueGeneJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#BlueGeneJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.BlueGeneJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">BlueGeneJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#BlueGeneJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.BlueGeneJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.qjobs.QueueJob" title="pymatgen.io.abinit.qjobs.QueueJob"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.qjobs.QueueJob</span></code></a></p>
 <p>Not supported</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -72,8 +72,8 @@ having to rely on external libraries.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -81,7 +81,7 @@ having to rely on external libraries.</p>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.BlueGeneJob.QTYPE">
-<code class="descname">QTYPE</code><em class="property"> = 'bluegene'</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.BlueGeneJob.QTYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QTYPE</code><em class="property"> = ‘bluegene’</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.BlueGeneJob.QTYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -124,7 +124,7 @@ SE SPECIAL_EXIT     The job was requeued in a special state. This state can be s
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.MoabJob">
-<em class="property">class </em><code class="descname">MoabJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#MoabJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.MoabJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MoabJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#MoabJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.MoabJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.qjobs.QueueJob" title="pymatgen.io.abinit.qjobs.QueueJob"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.qjobs.QueueJob</span></code></a></p>
 <p>Not supported</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -132,8 +132,8 @@ SE SPECIAL_EXIT     The job was requeued in a special state. This state can be s
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -141,14 +141,14 @@ SE SPECIAL_EXIT     The job was requeued in a special state. This state can be s
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.MoabJob.QTYPE">
-<code class="descname">QTYPE</code><em class="property"> = 'moab'</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.MoabJob.QTYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QTYPE</code><em class="property"> = ‘moab’</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.MoabJob.QTYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.PbsProJob">
-<em class="property">class </em><code class="descname">PbsProJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#PbsProJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.PbsProJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">PbsProJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#PbsProJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.PbsProJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.qjobs.QueueJob" title="pymatgen.io.abinit.qjobs.QueueJob"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.qjobs.QueueJob</span></code></a></p>
 <p>Handler for PbsPro Jobs.</p>
 <p>See also <a class="reference external" href="https://github.com/plediii/pbs_util">https://github.com/plediii/pbs_util</a> for a similar project.</p>
@@ -157,8 +157,8 @@ SE SPECIAL_EXIT     The job was requeued in a special state. This state can be s
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -166,12 +166,12 @@ SE SPECIAL_EXIT     The job was requeued in a special state. This state can be s
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.PbsProJob.PBSSTAT_TO_SLURM">
-<code class="descname">PBSSTAT_TO_SLURM</code><em class="property"> = defaultdict(&lt;function PbsProJob.&lt;lambda&gt;&gt;, {'E': &lt;JobStatus: FAILED, at 4684602952&gt;, 'F': &lt;JobStatus: COMPLETED, at 4684602312&gt;, 'Q': &lt;JobStatus: PENDING, at 4686302984&gt;, 'R': &lt;JobStatus: RUNNING, at 4686301832&gt;, 'S': &lt;JobStatus: SUSPENDED, at 4684603208&gt;})</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.PbsProJob.PBSSTAT_TO_SLURM" title="Permalink to this definition">¶</a></dt>
+<code class="descname">PBSSTAT_TO_SLURM</code><em class="property"> = defaultdict(&lt;function PbsProJob.&lt;lambda&gt;&gt;, {‘E’: &lt;JobStatus: FAILED, at 120956984392&gt;, ‘F’: &lt;JobStatus: COMPLETED, at 120956983368&gt;, ‘Q’: &lt;JobStatus: PENDING, at 120956984328&gt;, ‘R’: &lt;JobStatus: RUNNING, at 120956981896&gt;, ‘S’: &lt;JobStatus: SUSPENDED, at 120956982664&gt;})</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.PbsProJob.PBSSTAT_TO_SLURM" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.PbsProJob.QTYPE">
-<code class="descname">QTYPE</code><em class="property"> = 'pbspro'</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.PbsProJob.QTYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QTYPE</code><em class="property"> = ‘pbspro’</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.PbsProJob.QTYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -188,7 +188,7 @@ SE SPECIAL_EXIT     The job was requeued in a special state. This state can be s
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob">
-<em class="property">class </em><code class="descname">QueueJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#QueueJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">QueueJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#QueueJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This object provides methods to contact the resource manager to get info on the status
 of the job and useful statistics. This is an abstract class.</p>
@@ -197,8 +197,8 @@ of the job and useful statistics. This is an abstract class.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -211,57 +211,57 @@ of the job and useful statistics. This is an abstract class.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_CANCELLED">
-<code class="descname">S_CANCELLED</code><em class="property"> = &lt;JobStatus: CANCELLED, at 4684602696&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_CANCELLED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_CANCELLED</code><em class="property"> = &lt;JobStatus: CANCELLED, at 120956982024&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_CANCELLED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_COMPLETED">
-<code class="descname">S_COMPLETED</code><em class="property"> = &lt;JobStatus: COMPLETED, at 4684602312&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_COMPLETED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_COMPLETED</code><em class="property"> = &lt;JobStatus: COMPLETED, at 120956983368&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_COMPLETED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_FAILED">
-<code class="descname">S_FAILED</code><em class="property"> = &lt;JobStatus: FAILED, at 4684602952&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_FAILED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_FAILED</code><em class="property"> = &lt;JobStatus: FAILED, at 120956984392&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_FAILED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_NODEFAIL">
-<code class="descname">S_NODEFAIL</code><em class="property"> = &lt;JobStatus: NODEFAIL, at 4684602632&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_NODEFAIL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_NODEFAIL</code><em class="property"> = &lt;JobStatus: NODEFAIL, at 120956983048&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_NODEFAIL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_PENDING">
-<code class="descname">S_PENDING</code><em class="property"> = &lt;JobStatus: PENDING, at 4686302984&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_PENDING" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_PENDING</code><em class="property"> = &lt;JobStatus: PENDING, at 120956984328&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_PENDING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_PREEMPTED">
-<code class="descname">S_PREEMPTED</code><em class="property"> = &lt;JobStatus: PREEMPTED, at 4684601864&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_PREEMPTED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_PREEMPTED</code><em class="property"> = &lt;JobStatus: PREEMPTED, at 120956984072&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_PREEMPTED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_RESIZING">
-<code class="descname">S_RESIZING</code><em class="property"> = &lt;JobStatus: RESIZING, at 4684601480&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_RESIZING" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_RESIZING</code><em class="property"> = &lt;JobStatus: RESIZING, at 120956981832&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_RESIZING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_RUNNING">
-<code class="descname">S_RUNNING</code><em class="property"> = &lt;JobStatus: RUNNING, at 4686301832&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_RUNNING" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_RUNNING</code><em class="property"> = &lt;JobStatus: RUNNING, at 120956981896&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_RUNNING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_SUSPENDED">
-<code class="descname">S_SUSPENDED</code><em class="property"> = &lt;JobStatus: SUSPENDED, at 4684603208&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_SUSPENDED" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_SUSPENDED</code><em class="property"> = &lt;JobStatus: SUSPENDED, at 120956982664&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_SUSPENDED" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_TIMEOUT">
-<code class="descname">S_TIMEOUT</code><em class="property"> = &lt;JobStatus: TIMEOUT, at 4684601800&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_TIMEOUT</code><em class="property"> = &lt;JobStatus: TIMEOUT, at 120956984904&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_TIMEOUT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.QueueJob.S_UNKNOWN">
-<code class="descname">S_UNKNOWN</code><em class="property"> = &lt;JobStatus: UNKNOWN, at 4686302856&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_UNKNOWN" title="Permalink to this definition">¶</a></dt>
+<code class="descname">S_UNKNOWN</code><em class="property"> = &lt;JobStatus: UNKNOWN, at 120956984968&gt;</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.QueueJob.S_UNKNOWN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -279,9 +279,9 @@ of the job and useful statistics. This is an abstract class.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>qtype</strong> &#8211; String specifying the Resource manager type.</li>
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>qtype</strong> – String specifying the Resource manager type.</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -388,7 +388,7 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.SgeJob">
-<em class="property">class </em><code class="descname">SgeJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#SgeJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SgeJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SgeJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#SgeJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SgeJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.qjobs.QueueJob" title="pymatgen.io.abinit.qjobs.QueueJob"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.qjobs.QueueJob</span></code></a></p>
 <p>Not supported</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -396,8 +396,8 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -405,14 +405,14 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.SgeJob.QTYPE">
-<code class="descname">QTYPE</code><em class="property"> = 'sge'</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SgeJob.QTYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QTYPE</code><em class="property"> = ‘sge’</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SgeJob.QTYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.ShellJob">
-<em class="property">class </em><code class="descname">ShellJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#ShellJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.ShellJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">ShellJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#ShellJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.ShellJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.qjobs.QueueJob" title="pymatgen.io.abinit.qjobs.QueueJob"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.qjobs.QueueJob</span></code></a></p>
 <p>Handler for Shell jobs.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -420,8 +420,8 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -429,14 +429,14 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.ShellJob.QTYPE">
-<code class="descname">QTYPE</code><em class="property"> = 'shell'</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.ShellJob.QTYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QTYPE</code><em class="property"> = ‘shell’</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.ShellJob.QTYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.SlurmJob">
-<em class="property">class </em><code class="descname">SlurmJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#SlurmJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SlurmJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SlurmJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#SlurmJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SlurmJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.qjobs.QueueJob" title="pymatgen.io.abinit.qjobs.QueueJob"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.qjobs.QueueJob</span></code></a></p>
 <p>Handler for Slurm jobs.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -444,8 +444,8 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -453,7 +453,7 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.SlurmJob.QTYPE">
-<code class="descname">QTYPE</code><em class="property"> = 'slurm'</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SlurmJob.QTYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QTYPE</code><em class="property"> = ‘slurm’</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.SlurmJob.QTYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -475,7 +475,7 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.qjobs.TorqueJob">
-<em class="property">class </em><code class="descname">TorqueJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname='UnknownQueue'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#TorqueJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.TorqueJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">TorqueJob</code><span class="sig-paren">(</span><em>queue_id</em>, <em>qname=’UnknownQueue’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/qjobs.html#TorqueJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.qjobs.TorqueJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.qjobs.QueueJob" title="pymatgen.io.abinit.qjobs.QueueJob"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.qjobs.QueueJob</span></code></a></p>
 <p>Not supported</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -483,8 +483,8 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queue_id</strong> &#8211; Job identifier.</li>
-<li><strong>qname</strong> &#8211; Name of the queue (optional).</li>
+<li><strong>queue_id</strong> – Job identifier.</li>
+<li><strong>qname</strong> – Name of the queue (optional).</li>
 </ul>
 </td>
 </tr>
@@ -492,7 +492,7 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.qjobs.TorqueJob.QTYPE">
-<code class="descname">QTYPE</code><em class="property"> = 'torque'</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.TorqueJob.QTYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">QTYPE</code><em class="property"> = ‘torque’</em><a class="headerlink" href="#pymatgen.io.abinit.qjobs.TorqueJob.QTYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -535,13 +535,13 @@ SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

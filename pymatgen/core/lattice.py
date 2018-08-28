@@ -5,7 +5,6 @@
 from __future__ import division, unicode_literals
 import math
 import itertools
-import warnings
 
 from six.moves import map, zip
 
@@ -14,8 +13,7 @@ from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
 
 from monty.json import MSONable
-from monty.dev import deprecated
-from pymatgen.util.coord_utils import pbc_shortest_vectors
+from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.num import abs_cap
 
 """
@@ -156,6 +154,21 @@ class Lattice(MSONable):
         """
         return dot(cart_coords, self.inv_matrix)
 
+    def d_hkl(self, miller_index):
+        """
+        Returns the distance between the hkl plane and the origin
+
+        Args:
+            miller_index ([h,k,l]): Miller index of plane
+
+        Returns:
+            d_hkl (float)
+        """
+
+        gstar = self.reciprocal_lattice_crystallographic.metric_tensor
+        hkl = np.array(miller_index)
+        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
+
     @staticmethod
     def cubic(a):
         """
@@ -260,7 +273,7 @@ class Lattice(MSONable):
                                        ang[0], ang[1], ang[2])
 
     @staticmethod
-    def from_parameters(a, b, c, alpha, beta, gamma):
+    def from_parameters(a, b, c, alpha, beta, gamma, vesta=False):
         """
         Create a Lattice using unit cell lengths and angles (in degrees).
 
@@ -271,6 +284,7 @@ class Lattice(MSONable):
             alpha (float): *alpha* angle in degrees.
             beta (float): *beta* angle in degrees.
             gamma (float): *gamma* angle in degrees.
+            vesta: True if you import Cartesian coordinates from VESTA.
 
         Returns:
             Lattice with the specified lattice parameters.
@@ -279,16 +293,33 @@ class Lattice(MSONable):
         alpha_r = radians(alpha)
         beta_r = radians(beta)
         gamma_r = radians(gamma)
-        val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
-            / (np.sin(alpha_r) * np.sin(beta_r))
-        # Sometimes rounding errors result in values slightly > 1.
-        val = abs_cap(val)
-        gamma_star = np.arccos(val)
-        vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
-        vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
-                    b * np.sin(alpha_r) * np.sin(gamma_star),
-                    b * np.cos(alpha_r)]
-        vector_c = [0.0, 0.0, float(c)]
+
+        if vesta:
+            cos_alpha = np.cos(alpha_r)
+            cos_beta = np.cos(beta_r)
+            cos_gamma = np.cos(gamma_r)
+            sin_gamma = np.sin(gamma_r)
+
+            c1 = c*cos_beta
+            c2 = (c*(cos_alpha - (cos_beta * cos_gamma))) / sin_gamma
+
+            vector_a = [float(a), 0.0, 0.0]
+            vector_b = [b * cos_gamma, b * sin_gamma,  0]
+            vector_c = [c1,  c2,  math.sqrt(c**2 - c1**2 - c2**2)]
+
+        else:
+            val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
+                / (np.sin(alpha_r) * np.sin(beta_r))
+            # Sometimes rounding errors result in values slightly > 1.
+            val = abs_cap(val)
+            gamma_star = np.arccos(val)
+
+            vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
+            vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
+                        b * np.sin(alpha_r) * np.sin(gamma_star),
+                        b * np.cos(alpha_r)]
+            vector_c = [0.0, 0.0, float(c)]
+
         return Lattice([vector_a, vector_b, vector_c])
 
     @classmethod
@@ -326,7 +357,7 @@ class Lattice(MSONable):
     @property
     def a(self):
         """
-        *a* lattice parameter.ATATClusterExpansion
+        *a* lattice parameter.
         """
         return self._lengths[0]
 
@@ -518,7 +549,7 @@ class Lattice(MSONable):
         (lengths, angles) = other_lattice.lengths_and_angles
         (alpha, beta, gamma) = angles
 
-        frac, dist, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+        frac, dist, _, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                   max(lengths) * (1 + ltol),
                                                   zip_results=False)
         cart = self.get_cartesian_coords(frac)
@@ -677,7 +708,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2):k])
                     q = np.diag(m[(k - 2):k])
-                    result = np.linalg.lstsq(q.T, p.T)[0].T
+                    result = np.linalg.lstsq(q.T, p.T, rcond=-1)[0].T
                     u[k:3, (k - 2):k] = result
 
         return a.T, mapping.T
@@ -959,36 +990,43 @@ class Lattice(MSONable):
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index) ...] since most of the time, subsequent
-                processing requires the distance.
+                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                processing requires the distance, index number of the atom, or index of the image
             else:
-                fcoords, dists, inds
+                fcoords, dists, inds, image
         """
         # TODO: refactor to use lll matrix (nmax will be smaller)
+        # Determine the maximum number of supercells in each direction
+        #  required to contain a sphere of radius n
         recp_len = np.array(self.reciprocal_lattice.abc) / (2 * pi)
         nmax = float(r) * recp_len + 0.01
 
+        # Get the fractional coordinates of the center of the sphere
         pcoords = self.get_fractional_coords(center)
         center = np.array(center)
 
+        # Prepare the list of output atoms
         n = len(frac_points)
         fcoords = np.array(frac_points) % 1
         indices = np.arange(n)
 
+        # Generate all possible images that could be within `r` of `center`
         mins = np.floor(pcoords - nmax)
         maxes = np.ceil(pcoords + nmax)
-        arange = np.arange(start=mins[0], stop=maxes[0])
-        brange = np.arange(start=mins[1], stop=maxes[1])
-        crange = np.arange(start=mins[2], stop=maxes[2])
-        arange = arange[:, None] * np.array([1, 0, 0])[None, :]
-        brange = brange[:, None] * np.array([0, 1, 0])[None, :]
-        crange = crange[:, None] * np.array([0, 0, 1])[None, :]
+        arange = np.arange(start=mins[0], stop=maxes[0], dtype=np.int)
+        brange = np.arange(start=mins[1], stop=maxes[1], dtype=np.int)
+        crange = np.arange(start=mins[2], stop=maxes[2], dtype=np.int)
+        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int)[None, :]
+        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int)[None, :]
+        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int)[None, :]
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
+        # Generate the coordinates of all atoms within these images
         shifted_coords = fcoords[:, None, None, None, :] + \
             images[None, :, :, :, :]
 
+        # Determine distance from `center`
         cart_coords = self.get_cartesian_coords(fcoords)
         cart_images = self.get_cartesian_coords(images)
         coords = cart_coords[:, None, None, None, :] + \
@@ -997,13 +1035,19 @@ class Lattice(MSONable):
         coords **= 2
         d_2 = np.sum(coords, axis=4)
 
+        # Determine which points are within `r` of `center`
         within_r = np.where(d_2 <= r ** 2)
+        #  `within_r` now contains the coordinates of each image that is
+        #    inside of the cutoff distance. It has 4 coordinates:
+        #   0 - index of the image within `frac_points`
+        #   1,2,3 - index of the supercell which holds the images in the x, y, z directions
+
         if zip_results:
             return list(zip(shifted_coords[within_r], np.sqrt(d_2[within_r]),
-                            indices[within_r[0]]))
+                            indices[within_r[0]], images[within_r[1:]]))
         else:
             return shifted_coords[within_r], np.sqrt(d_2[within_r]), \
-                indices[within_r[0]]
+                indices[within_r[0]], images[within_r[1:]]
 
     def get_all_distances(self, fcoords1, fcoords2):
         """
@@ -1037,40 +1081,6 @@ class Lattice(MSONable):
         return (len(right_angles) == 2 and len(hex_angles) == 1
                 and abs(lengths[right_angles[0]] -
                         lengths[right_angles[1]]) < hex_length_tol)
-
-    @deprecated(get_points_in_sphere)
-    def get_all_distance_and_image(self, frac_coords1, frac_coords2):
-        """
-        Gets distance between two frac_coords and nearest periodic images.
-
-        Args:
-            frac_coords1 (3x1 array): Reference fcoords to get distance from.
-            frac_coords2 (3x1 array): fcoords to get distance from.
-
-        Returns:
-            [(distance, jimage)] List of distance and periodic lattice
-            translations of the other site for which the distance applies.
-            This means that the distance between frac_coords1 and (jimage +
-            frac_coords2) is equal to distance.
-        """
-        # The following code is heavily vectorized to maximize speed.
-        # Get the image adjustment necessary to bring coords to unit_cell.
-        adj1 = np.floor(frac_coords1)
-        adj2 = np.floor(frac_coords2)
-        # Shift coords to unitcell
-        coord1 = frac_coords1 - adj1
-        coord2 = frac_coords2 - adj2
-
-        n = self._get_mic_range(coord1, coord2)
-        ranges = [list(range(-i, i + 1)) for i in n]
-        images = np.array(list(itertools.product(*ranges)))
-
-        # Create tiled cartesian coords for computing distances.
-        vec = np.tile(coord2 - coord1, (len(images), 1)) + images
-        vec = self.get_cartesian_coords(vec)
-        # Compute distances manually.
-        dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-        return list(zip(dist, adj1 - adj2 + images))
 
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """
@@ -1107,35 +1117,3 @@ class Lattice(MSONable):
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
-
-    @deprecated(get_points_in_sphere)
-    def _get_mic_range(self, fcoords1, fcoords2):
-
-        if self.is_orthogonal:
-            return 1, 1, 1
-
-        if self._diags is None:
-            self._diags = np.sqrt((np.dot([[1, 1, 1], [-1, 1, 1], [1, -1, 1],
-                                     [-1, -1, 1],
-                                     ], self._matrix) ** 2).sum(1))
-
-        vecs = np.vstack(fcoords1[:, None] - fcoords2[None, :])
-        vecs = vecs - np.round(vecs)
-
-        d = dot(vecs, self._matrix)
-        d = np.sqrt(np.sum(d ** 2, axis=1))
-        d = np.max(d)
-
-        cutoff = min(d, max(self._diags) / 2)
-        n = np.array(np.ceil(cutoff * np.prod(self._lengths) /
-                             (self.volume * self._lengths)))
-
-        if any(n > 50):
-            n_new = np.minimum(n, 50)
-            warnings.warn("Cell is highly skewed and requires a search "
-                          "through image range of +- %s. For efficiency, "
-                          "we will limit the search to %s images. Recommend "
-                          "you do a niggli or LLL reduction of the cell "
-                          "before computing distances" % (n, n_new))
-            n = n_new.astype(dtype=np.int)
-        return n.astype(dtype=int)

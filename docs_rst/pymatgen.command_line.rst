@@ -1,5 +1,5 @@
-pymatgen.command_line package
-=============================
+pymatgen\.command\_line package
+===============================
 
 Subpackages
 -----------
@@ -14,6 +14,7 @@ Submodules
 
    pymatgen.command_line.aconvasp_caller
    pymatgen.command_line.bader_caller
+   pymatgen.command_line.critic2_caller
    pymatgen.command_line.enumlib_caller
    pymatgen.command_line.gulp_caller
 

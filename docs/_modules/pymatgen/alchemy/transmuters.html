@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.alchemy.transmuters &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.alchemy.transmuters &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -85,7 +85,6 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">pymatgen.alchemy.materials</span> <span class="k">import</span> <span class="n">TransformedStructure</span>
@@ -182,7 +181,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncores</span> <span class="ow">and</span> <span class="n">transformation</span><span class="o">.</span><span class="n">use_multiprocessing</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncores</span><span class="p">)</span>
-            <span class="c1">#need to condense arguments into single tuple to use map</span>
+            <span class="c1"># need to condense arguments into single tuple to use map</span>
             <span class="n">z</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">transformation</span><span class="p">,</span> <span class="n">extend_collection</span><span class="p">,</span> <span class="n">clear_redo</span><span class="p">),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">)</span>
@@ -233,16 +232,7 @@
 <span class="sd">        output_dir, following the format output_dir/{formula}_{number}.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            vasp_input_set: pymatgen.io.vaspio_set.VaspInputSet to create</span>
-<span class="sd">                vasp input files from structures</span>
-<span class="sd">            output_dir: Directory to output files</span>
-<span class="sd">            create_directory (bool): Create the directory if not present.</span>
-<span class="sd">                Defaults to True.</span>
-<span class="sd">            subfolder: Callable to create subdirectory name from</span>
-<span class="sd">                transformed_structure. e.g.,</span>
-<span class="sd">                lambda x: x.other_parameters[&quot;tags&quot;][0] to use the first tag.</span>
-<span class="sd">            include_cif (bool): Whether to output a CIF as well. CIF files</span>
-<span class="sd">                are generally better supported in visualization programs.</span>
+<span class="sd">            \\*\\*kwargs: All kwargs supported by batch_write_vasp_input.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">batch_write_vasp_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -292,8 +282,8 @@
                 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">TransformedStructure</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">transformed_structures</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tstructs_or_transmuter</span><span class="p">)</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="StandardTransmuter.from_structures"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures">[docs]</a>    <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extend_collection</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="StandardTransmuter.from_structures"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_structures</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extend_collection</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Alternative constructor from structures rather than</span>
 <span class="sd">        TransformedStructures.</span>
@@ -353,8 +343,8 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">CifTransmuter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">transformed_structures</span><span class="p">,</span>
                                     <span class="n">transformations</span><span class="p">,</span> <span class="n">extend_collection</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="CifTransmuter.from_filenames"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames">[docs]</a>    <span class="k">def</span> <span class="nf">from_filenames</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="CifTransmuter.from_filenames"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_filenames</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                        <span class="n">extend_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a TransformedStructureCollection from a cif, possibly</span>
@@ -395,8 +385,8 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">PoscarTransmuter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="n">tstruct</span><span class="p">],</span> <span class="n">transformations</span><span class="p">,</span>
                                     <span class="n">extend_collection</span><span class="o">=</span><span class="n">extend_collection</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="PoscarTransmuter.from_filenames"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames">[docs]</a>    <span class="k">def</span> <span class="nf">from_filenames</span><span class="p">(</span><span class="n">poscar_filenames</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="PoscarTransmuter.from_filenames"><a class="viewcode-back" href="../../../pymatgen.alchemy.transmuters.html#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_filenames</span><span class="p">(</span><span class="n">poscar_filenames</span><span class="p">,</span> <span class="n">transformations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">extend_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenient constructor to generates a POSCAR transmuter from a list of</span>
@@ -509,7 +499,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2017.7.21 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -517,7 +507,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

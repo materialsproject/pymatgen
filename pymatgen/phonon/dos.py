@@ -4,14 +4,20 @@
 
 from __future__ import division, unicode_literals
 import numpy as np
+import scipy.constants as const
 
 from pymatgen.core.structure import Structure
-from pymatgen.util.coord_utils import get_linear_interpolated_value
+from pymatgen.util.coord import get_linear_interpolated_value
 from monty.json import MSONable
+from monty.functools import lazy_property
 
 """
 This module defines classes to represent the phonon density of states, etc.
 """
+
+
+BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera # Boltzmann constant in THz/K
+THZ_TO_J = const.value("hertz-joule relationship") * const.tera
 
 
 class PhononDos(MSONable):
@@ -61,7 +67,7 @@ class PhononDos(MSONable):
         """
         if not all(np.equal(self.frequencies, other.frequencies)):
             raise ValueError("Frequencies of both DOS are not compatible!")
-        densities = self.frequencies + other.frequencies
+        densities = self.densities + other.densities
         return PhononDos(self.frequencies, densities)
 
     def __radd__(self, other):
@@ -113,6 +119,199 @@ class PhononDos(MSONable):
                 "frequencies": list(self.frequencies),
                 "densities": list(self.densities)}
 
+    @lazy_property
+    def ind_zero_freq(self):
+        """
+        Index of the first point for which the freqencies are equal or greater than zero.
+        """
+        ind = np.searchsorted(self.frequencies, 0)
+        if ind >= len(self.frequencies):
+            raise ValueError("No positive frequencies found")
+        return ind
+
+    @lazy_property
+    def _positive_frequencies(self):
+        """
+        Numpy array containing the list of positive frequencies
+        """
+        return self.frequencies[self.ind_zero_freq:]
+
+    @lazy_property
+    def _positive_densities(self):
+        """
+        Numpy array containing the list of densities corresponding to positive frequencies
+        """
+        return self.densities[self.ind_zero_freq:]
+
+    def cv(self, t, structure=None):
+        """
+        Constant volume specific heat C_v at temperature T obtained from the integration of the DOS.
+        Only positive frequencies will be used.
+        Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
+        of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+        should be divided by the number of unit formulas in the cell. If the structure is provided
+        the division is performed internally and the result is in J/(K*mol)
+
+        Args:
+            t: a temperature in K
+            structure: the structure of the system. If not None it will be used to determine the numer of
+                formula units
+        Returns:
+            Constant volume specific heat C_v
+        """
+
+        if t == 0:
+            return 0
+
+        freqs = self._positive_frequencies
+        dens = self._positive_densities
+
+        csch2 = lambda x: 1.0 / (np.sinh(x) ** 2)
+
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
+        cv = np.trapz(wd2kt ** 2 * csch2(wd2kt) * dens, x=freqs)
+        cv *= const.Boltzmann * const.Avogadro
+
+        if structure:
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
+            cv /= formula_units
+
+        return cv
+
+    def entropy(self, t, structure=None):
+        """
+        Vibrational entropy at temperature T obtained from the integration of the DOS.
+        Only positive frequencies will be used.
+        Result in J/(K*mol-c). A mol-c is the abbreviation of a mole-cell, that is, the number
+        of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+        should be divided by the number of unit formulas in the cell. If the structure is provided
+        the division is performed internally and the result is in J/(K*mol)
+
+        Args:
+            t: a temperature in K
+            structure: the structure of the system. If not None it will be used to determine the numer of
+                formula units
+        Returns:
+            Vibrational entropy
+        """
+
+        if t == 0:
+            return 0
+
+        freqs = self._positive_frequencies
+        dens = self._positive_densities
+
+        coth = lambda x: 1.0 / np.tanh(x)
+
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
+        s = np.trapz((wd2kt * coth(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
+
+        s *= const.Boltzmann * const.Avogadro
+
+        if structure:
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
+            s /= formula_units
+
+        return s
+
+    def internal_energy(self, t, structure=None):
+        """
+        Phonon contribution to the internal energy at temperature T obtained from the integration of the DOS.
+        Only positive frequencies will be used.
+        Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+        of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+        should be divided by the number of unit formulas in the cell. If the structure is provided
+        the division is performed internally and the result is in J/mol
+
+        Args:
+            t: a temperature in K
+            structure: the structure of the system. If not None it will be used to determine the numer of
+                formula units
+        Returns:
+            Phonon contribution to the internal energy
+        """
+
+        if t==0:
+            return self.zero_point_energy(structure=structure)
+
+        freqs = self._positive_frequencies
+        dens = self._positive_densities
+
+        coth = lambda x: 1.0 / np.tanh(x)
+
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
+        e = np.trapz(freqs * coth(wd2kt) * dens, x=freqs) / 2
+
+        e *= THZ_TO_J * const.Avogadro
+
+        if structure:
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
+            e /= formula_units
+
+        return e
+
+    def helmholtz_free_energy(self, t, structure=None):
+        """
+        Phonon contribution to the Helmholtz free energy at temperature T obtained from the integration of the DOS.
+        Only positive frequencies will be used.
+        Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+        of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+        should be divided by the number of unit formulas in the cell. If the structure is provided
+        the division is performed internally and the result is in J/mol
+
+        Args:
+            t: a temperature in K
+            structure: the structure of the system. If not None it will be used to determine the numer of
+                formula units
+        Returns:
+            Phonon contribution to the Helmholtz free energy
+        """
+
+        if t==0:
+            return self.zero_point_energy(structure=structure)
+
+        freqs = self._positive_frequencies
+        dens = self._positive_densities
+
+        wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * t)
+        f = np.trapz(np.log(2 * np.sinh(wd2kt)) * dens, x=freqs)
+
+        f *= const.Boltzmann * const.Avogadro * t
+
+        if structure:
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
+            f /= formula_units
+
+        return f
+
+    def zero_point_energy(self, structure=None):
+        """
+        Zero point energy energy of the system. Only positive frequencies will be used.
+        Result in J/mol-c. A mol-c is the abbreviation of a mole-cell, that is, the number
+        of Avogadro times the atoms in a unit cell. To compare with experimental data the result
+        should be divided by the number of unit formulas in the cell. If the structure is provided
+        the division is performed internally and the result is in J/mol
+
+        Args:
+            t: a temperature in K
+            structure: the structure of the system. If not None it will be used to determine the numer of
+                formula units
+        Returns:
+            Phonon contribution to the internal energy
+        """
+
+        freqs = self._positive_frequencies
+        dens = self._positive_densities
+
+        zpe = 0.5 * np.trapz(freqs * dens, x=freqs)
+        zpe *= THZ_TO_J * const.Avogadro
+
+        if structure:
+            formula_units = structure.composition.num_atoms / structure.composition.reduced_composition.num_atoms
+            zpe /= formula_units
+
+        return zpe
+
 
 class CompletePhononDos(PhononDos):
     """
@@ -130,7 +329,7 @@ class CompletePhononDos(PhononDos):
     def __init__(self, structure, total_dos, pdoss):
         super(CompletePhononDos, self).__init__(
             frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = pdoss
+        self.pdos = {s: np.array(d) for s, d in pdoss.items()}
         self.structure = structure
 
     def get_site_dos(self, site):
@@ -157,9 +356,9 @@ class CompletePhononDos(PhononDos):
         for site, atom_dos in self.pdos.items():
             el = site.specie
             if el not in el_dos:
-                el_dos[el] = atom_dos
+                el_dos[el] = np.array(atom_dos)
             else:
-                el_dos[el] += atom_dos
+                el_dos[el] += np.array(atom_dos)
         return {el: PhononDos(self.frequencies, densities)
                 for el, densities in el_dos.items()}
 

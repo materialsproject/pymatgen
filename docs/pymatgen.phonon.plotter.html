@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.phonon.plotter module &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -58,6 +58,25 @@
   <div class="section" id="module-pymatgen.phonon.plotter">
 <span id="pymatgen-phonon-plotter-module"></span><h1>pymatgen.phonon.plotter module<a class="headerlink" href="#module-pymatgen.phonon.plotter" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
+<dt id="pymatgen.phonon.plotter.FreqUnits">
+<em class="property">class </em><code class="descname">FreqUnits</code><span class="sig-paren">(</span><em>factor</em>, <em>label</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
+<p>Create new instance of FreqUnits(factor, label)</p>
+<dl class="attribute">
+<dt id="pymatgen.phonon.plotter.FreqUnits.factor">
+<code class="descname">factor</code><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.phonon.plotter.FreqUnits.label">
+<code class="descname">label</code><a class="headerlink" href="#pymatgen.phonon.plotter.FreqUnits.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter">
 <em class="property">class </em><code class="descname">PhononBSPlotter</code><span class="sig-paren">(</span><em>bs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
@@ -66,7 +85,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> &#8211; A BandStructureSymmLine object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>bs</strong> – A BandStructureSymmLine object.</td>
 </tr>
 </tbody>
 </table>
@@ -78,7 +97,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">ticks: A dict with the &#8216;distances&#8217; at which there is a qpoint (the
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">ticks: A dict with the ‘distances’ at which there is a qpoint (the
 x axis) and the labels (None if no label)
 frequencies: A list (one element for each branch) of frequencies for
 each qpoint: [branch][qpoint][mode]. The data is
@@ -93,14 +112,18 @@ lattice: The reciprocal lattice.</td>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units=’thz’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib object for the bandstructure plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ylim</strong> &#8211; Specify the y-axis (frequency) limits; by default None let
-the code choose.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
+the code choose.</li>
+<li><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -115,9 +138,9 @@ the code choose.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of distance at which ticks should
-be set and &#8216;label&#8217;: a list of label for each of those ticks.</td>
+be set and ‘label’: a list of label for each of those ticks.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict with &#8216;distance&#8217;</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict with ‘distance’</td>
 </tr>
 </tbody>
 </table>
@@ -140,7 +163,7 @@ the one of the band structure used to build the PhononBSPlotter</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>PhononBSPlotter object defined along the same symmetry lines</strong> (<em>another</em>) &#8211; </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>PhononBSPlotter object defined along the same symmetry lines</strong> (<em>another</em>) – </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a matplotlib object with both band structures</td>
 </tr>
@@ -150,16 +173,17 @@ the one of the band structure used to build the PhononBSPlotter</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.save_plot">
-<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format=’eps’</em>, <em>ylim=None</em>, <em>units=’thz’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; Filename to write to.</li>
-<li><strong>img_format</strong> &#8211; Image format to use. Defaults to EPS.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>filename</strong> – Filename to write to.</li>
+<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
+<li><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</li>
 </ul>
 </td>
 </tr>
@@ -169,14 +193,18 @@ the one of the band structure used to build the PhononBSPlotter</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononBSPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="descname">show</code><span class="sig-paren">(</span><em>ylim=None</em>, <em>units=’thz’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononBSPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononBSPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ylim</strong> &#8211; Specify the y-axis (frequency) limits; by default None let
-the code choose.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ylim</strong> – Specify the y-axis (frequency) limits; by default None let
+the code choose.</li>
+<li><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -207,9 +235,9 @@ DOS. The typical usage is:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stack</strong> &#8211; Whether to plot the DOS as a stacked area graph</li>
-<li><strong>key_sort_func</strong> &#8211; function used to sort the dos_dict keys.</li>
-<li><strong>sigma</strong> &#8211; A float specifying a standard deviation for Gaussian smearing
+<li><strong>stack</strong> – Whether to plot the DOS as a stacked area graph</li>
+<li><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</li>
+<li><strong>sigma</strong> – A float specifying a standard deviation for Gaussian smearing
 the DOS for nicer looking plots. Defaults to None for no
 smearing.</li>
 </ul>
@@ -226,8 +254,8 @@ smearing.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>label</strong> &#8211; label for the DOS. Must be unique.</li>
-<li><strong>dos</strong> &#8211; PhononDos object</li>
+<li><strong>label</strong> – label for the DOS. Must be unique.</li>
+<li><strong>dos</strong> – PhononDos object</li>
 </ul>
 </td>
 </tr>
@@ -245,8 +273,8 @@ keys.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dos_dict</strong> &#8211; dict of {label: Dos}</li>
-<li><strong>key_sort_func</strong> &#8211; function used to sort the dos_dict keys.</li>
+<li><strong>dos_dict</strong> – dict of {label: Dos}</li>
+<li><strong>key_sort_func</strong> – function used to sort the dos_dict keys.</li>
 </ul>
 </td>
 </tr>
@@ -264,8 +292,8 @@ be the smeared densities, not the original densities.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{&#8216;frequencies&#8217;:..,
-&#8216;densities&#8217;: ...}}</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">{‘frequencies’:..,
+‘densities’: …}}</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict of dos data. Generally of the form, {label</td>
 </tr>
@@ -275,16 +303,17 @@ be the smeared densities, not the original densities.</p>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units=’thz’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a matplotlib plot showing the DOS.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
+<li><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</li>
 </ul>
 </td>
 </tr>
@@ -294,18 +323,19 @@ determination.</li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.save_plot">
-<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format='eps'</em>, <em>xlim=None</em>, <em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_plot</code><span class="sig-paren">(</span><em>filename</em>, <em>img_format=’eps’</em>, <em>xlim=None</em>, <em>ylim=None</em>, <em>units=’thz’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; Filename to write to.</li>
-<li><strong>img_format</strong> &#8211; Image format to use. Defaults to EPS.</li>
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>filename</strong> – Filename to write to.</li>
+<li><strong>img_format</strong> – Image format to use. Defaults to EPS.</li>
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
+<li><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1</li>
 </ul>
 </td>
 </tr>
@@ -315,16 +345,17 @@ determination.</li>
 
 <dl class="method">
 <dt id="pymatgen.phonon.plotter.PhononDosPlotter.show">
-<code class="descname">show</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.show" title="Permalink to this definition">¶</a></dt>
+<code class="descname">show</code><span class="sig-paren">(</span><em>xlim=None</em>, <em>ylim=None</em>, <em>units=’thz’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#PhononDosPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.PhononDosPlotter.show" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show the plot using matplotlib.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>xlim</strong> &#8211; Specifies the x-axis limits. Set to None for automatic
+<li><strong>xlim</strong> – Specifies the x-axis limits. Set to None for automatic
 determination.</li>
-<li><strong>ylim</strong> &#8211; Specifies the y-axis limits.</li>
+<li><strong>ylim</strong> – Specifies the y-axis limits.</li>
+<li><strong>units</strong> – units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.</li>
 </ul>
 </td>
 </tr>
@@ -332,6 +363,324 @@ determination.</li>
 </table>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.phonon.plotter.ThermoPlotter">
+<em class="property">class </em><code class="descname">ThermoPlotter</code><span class="sig-paren">(</span><em>dos</em>, <em>structure=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Plotter for thermodynamic properties obtained from phonon DOS.
+If the structure corresponding to the DOS, it will be used to extract the forumla unit and provide
+the plots in units of mol instead of mole-cell</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dos</strong> – A PhononDos object.</li>
+<li><strong>structure</strong> – A Structure object corresponding to the structure used for the calculation.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_cv">
+<code class="descname">plot_cv</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_cv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_cv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the constant volume specific heat C_v in a temperature range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tmin</strong> – minimum temperature</li>
+<li><strong>tmax</strong> – maximum temperature</li>
+<li><strong>ntemp</strong> – number of steps</li>
+<li><strong>ylim</strong> – tuple specifying the y-axis limits.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>ax_grid</td>
+<td>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</td>
+</tr>
+<tr class="row-odd"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_entropy">
+<code class="descname">plot_entropy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the vibrational entrpy in a temperature range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tmin</strong> – minimum temperature</li>
+<li><strong>tmax</strong> – maximum temperature</li>
+<li><strong>ntemp</strong> – number of steps</li>
+<li><strong>ylim</strong> – tuple specifying the y-axis limits.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>ax_grid</td>
+<td>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</td>
+</tr>
+<tr class="row-odd"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy">
+<code class="descname">plot_helmholtz_free_energy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_helmholtz_free_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_helmholtz_free_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the vibrational contribution to the Helmoltz free energy in a temperature range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tmin</strong> – minimum temperature</li>
+<li><strong>tmax</strong> – maximum temperature</li>
+<li><strong>ntemp</strong> – number of steps</li>
+<li><strong>ylim</strong> – tuple specifying the y-axis limits.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>ax_grid</td>
+<td>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</td>
+</tr>
+<tr class="row-odd"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy">
+<code class="descname">plot_internal_energy</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_internal_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_internal_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the vibrational internal energy in a temperature range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tmin</strong> – minimum temperature</li>
+<li><strong>tmax</strong> – maximum temperature</li>
+<li><strong>ntemp</strong> – number of steps</li>
+<li><strong>ylim</strong> – tuple specifying the y-axis limits.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>ax_grid</td>
+<td>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</td>
+</tr>
+<tr class="row-odd"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties">
+<code class="descname">plot_thermodynamic_properties</code><span class="sig-paren">(</span><em>tmin</em>, <em>tmax</em>, <em>ntemp</em>, <em>ylim=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#ThermoPlotter.plot_thermodynamic_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.ThermoPlotter.plot_thermodynamic_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots all the thermodynamic properties in a temperature range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tmin</strong> – minimum temperature</li>
+<li><strong>tmax</strong> – maximum temperature</li>
+<li><strong>ntemp</strong> – number of steps</li>
+<li><strong>ylim</strong> – tuple specifying the y-axis limits.</li>
+<li><strong>kwargs</strong> – kwargs passed to the matplotlib function ‘plot’.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">matplotlib figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Keyword arguments controlling the display of the figure:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">kwargs</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>title</td>
+<td>Title of the plot (Default: None).</td>
+</tr>
+<tr class="row-odd"><td>show</td>
+<td>True to show the figure (default: True).</td>
+</tr>
+<tr class="row-even"><td>savefig</td>
+<td>“abc.png” or “abc.eps” to save the figure to a file.</td>
+</tr>
+<tr class="row-odd"><td>size_kwargs</td>
+<td>Dictionary with options passed to fig.set_size_inches
+e.g. size_kwargs=dict(w=3, h=4)</td>
+</tr>
+<tr class="row-even"><td>ax_grid</td>
+<td>True (False) to add (remove) grid from all axes in fig.
+Default: None i.e. fig is left unchanged.</td>
+</tr>
+<tr class="row-odd"><td>tight_layout</td>
+<td>True to call fig.tight_layout (default: False)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.phonon.plotter.freq_units">
+<code class="descname">freq_units</code><span class="sig-paren">(</span><em>units</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/phonon/plotter.html#freq_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.phonon.plotter.freq_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns conversion factor from THz to the requred units and the label in the form of a namedtuple
+Accepted values: thz, ev, mev, ha, cm-1, cm^-1</p>
 </dd></dl>
 
 </div>
@@ -372,13 +721,13 @@ determination.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

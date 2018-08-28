@@ -2,15 +2,16 @@
 
 from __future__ import division, unicode_literals, print_function
 
+import logging
 import math
 import os
 import subprocess
 import tempfile
-import logging
+import time
 
 import numpy as np
 from monty.dev import requires
-from monty.json import jsanitize
+from monty.json import jsanitize, MSONable
 from monty.os import cd
 from monty.os.path import which
 from scipy import constants
@@ -24,8 +25,6 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-
-
 
 
 """
@@ -56,7 +55,7 @@ __status__ = "Development"
 __date__ = "August 23, 2013"
 
 
-class BoltztrapRunner(object):
+class BoltztrapRunner(MSONable):
     """
     This class is used to run Boltztrap on a band structure object.
 
@@ -138,7 +137,12 @@ class BoltztrapRunner(object):
                 to avoid a "factorization error" in BoltzTraP calculation.
                 If a kmesh that spans the whole Brillouin zone has been used,
                 or to disable all the symmetries, set symprec to None.
-
+            cb_cut: by default 10% of the highest conduction bands are 
+                removed because they are often not accurate. 
+                Tune cb_cut to change the percentage (0-100) of bands 
+                that are removed.
+            timeout: overall time limit (in seconds): mainly to avoid infinite
+                loop when trying to find Fermi levels.
     """
 
     @requires(which('x_trans'),
@@ -151,7 +155,7 @@ class BoltztrapRunner(object):
                  lpfac=10, run_type="BOLTZ", band_nb=None, tauref=0, tauexp=0,
                  tauen=0, soc=False, doping=None, energy_span_around_fermi=1.5,
                  scissor=0.0, kpt_line=None, spin=None, cond_band=False,
-                 tmax=1300, tgrid=50, symprec=1e-3):
+                 tmax=1300, tgrid=50, symprec=1e-3, cb_cut=10, timeout=7200):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -167,6 +171,7 @@ class BoltztrapRunner(object):
         self.tauen = tauen
         self.soc = soc
         self.kpt_line = kpt_line
+        self.cb_cut = cb_cut/100.
         if isinstance(doping, list) and len(doping) > 0:
             self.doping = doping
         else:
@@ -181,6 +186,8 @@ class BoltztrapRunner(object):
         self._symprec = symprec
         if self.run_type in ("DOS", "BANDS"):
             self._auto_set_energy_range()
+        self.timeout = timeout
+        self.start_time = time.time()
 
     def _auto_set_energy_range(self):
         """
@@ -256,7 +263,7 @@ class BoltztrapRunner(object):
                         # use 90% of bottom bands since highest eigenvalues
                         # are usually incorrect
                         # ask Geoffroy Hautier for more details
-                        nb_bands = int(math.floor(self._bs.nb_bands * 0.9))
+                        nb_bands = int(math.floor(self._bs.nb_bands*(1-self.cb_cut)))
                         for j in range(nb_bands):
                             eigs.append(
                                 Energy(self._bs.bands[Spin(spin)][j][i] -
@@ -348,7 +355,7 @@ class BoltztrapRunner(object):
                         for i in range(len(self._bs.kpoints)):
                             tmp_proj = []
                             for j in range(
-                                    int(math.floor(self._bs.nb_bands * 0.9))):
+                                    int(math.floor(self._bs.nb_bands*(1-self.cb_cut)))):
                                 tmp_proj.append(
                                     self._bs.projections[Spin(self.spin)][j][
                                         i][oi][site_nb])
@@ -595,10 +602,16 @@ class BoltztrapRunner(object):
 
             while self.energy_grid >= min_egrid and not converged:
                 self.lpfac = lpfac_start
+                if time.time() - self.start_time > self.timeout:
+                    raise BoltztrapError("no doping convergence after timeout "
+                                         "of {} s".format(self.timeout))
 
                 logging.info("lpfac, energy_grid: {} {}".format(self.lpfac, self.energy_grid))
 
                 while self.lpfac <= max_lpfac and not converged:
+                    if time.time() - self.start_time > self.timeout:
+                        raise BoltztrapError("no doping convergence after "
+                                        "timeout of {} s".format(self.timeout))
 
                     if write_input:
                         self.write_input(path_dir)
@@ -680,6 +693,31 @@ class BoltztrapRunner(object):
                         self.lpfac) + ", energy_grid=" + str(self.energy_grid))
 
             return path_dir
+
+    def as_dict(self):
+        results =  {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "lpfac": self.lpfac,
+                "bs": self.bs.as_dict(),
+                "nelec": self._nelec,
+                "dos_type": self.dos_type,
+                "run_type": self.run_type,
+                "band_nb": self.band_nb,
+                "spin": self.spin,
+                "cond_band": self.cond_band,
+                "tauref": self.tauref,
+                "tauexp": self.tauexp,
+                "tauen": self.tauen,
+                "soc": self.soc,
+                "kpt_line": self.kpt_line,
+                "doping": self.doping,
+                "energy_span_around_fermi": self.energy_span_around_fermi,
+                "scissor": self.scissor,
+                "tmax": self.tmax,
+                "tgrid": self.tgrid,
+                "symprec": self._symprec
+                }
+        return jsanitize(results)
 
 
 class BoltztrapError(Exception):
@@ -2191,7 +2229,7 @@ def read_cube_file(filename):
         energy_data = np.append(energy_data.flatten(),last_line).reshape(n1,n2,n3)
     elif 'boltztrap_BZ.cube' in filename:
         energy_data = np.loadtxt(filename,skiprows=natoms+6).reshape(n1,n2,n3)
-    
+
     energy_data /= Energy(1, "eV").to("Ry")
 
     return energy_data

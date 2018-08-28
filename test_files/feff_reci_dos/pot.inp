@@ -1,0 +1,30 @@
+mpot, nph, ntitle, ihole, ipr1, iafolp, ixc,ispec
+   1   3   8   1   1   0   0   1
+nmix, nohole, jumprm, inters, nscmt, icoul, lfms1, iunf
+   3   2   0   0  30   0   0   0
+comment: None given                                                             
+Source:                                                                         
+Structure Summary:  Na2 O1                                                      
+Reduced formula:  Na2O                                                          
+space group: (Fm-3m), space number:  (225)                                      
+abc:  3.916761   3.916761   3.916761                                            
+angles: 60.000000  60.000000  60.000000                                         
+sites: 3                                                                        
+gamach, rgrd, ca1, ecv, totvol, rfms1, corval_emin
+      0.30899      0.05000      0.20000    -40.00000      0.00000      7.00000    -70.00000
+ iz, lmaxsc, xnatph, xion, folp
+   11    2      1.00000      0.00000      1.15000
+    8    2    100.00000      0.00000      1.15000
+   11    2    100.00000      0.00000      1.15000
+   11    2    100.00000      0.00000      1.15000
+ExternalPot switch, StartFromFile switch
+ F F
+OVERLAP option: novr(iph)
+   0   0   0   0
+ iphovr  nnovr rovr 
+ChSh_Type:
+   0
+ConfigType:
+   1
+Temperature (in eV):
+  0.000000000000000E+000           1

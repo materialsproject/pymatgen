@@ -8,7 +8,6 @@ import json
 
 from monty.json import MontyEncoder, MontyDecoder
 
-from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
 from monty.json import MSONable
 
@@ -29,7 +28,7 @@ __status__ = "Production"
 __date__ = "Apr 30, 2012"
 
 
-class ComputedEntry(PDEntry, MSONable):
+class ComputedEntry(MSONable):
     """
     An lightweight ComputedEntry object containing key computed data
     for many purposes. Extends a PDEntry so that it can be used for phase
@@ -75,16 +74,26 @@ class ComputedEntry(PDEntry, MSONable):
         self.attribute = attribute
 
     @property
+    def is_element(self):
+        return self.composition.is_element
+
+    @property
     def energy(self):
         """
         Returns the *corrected* energy of the entry.
         """
         return self.uncorrected_energy + self.correction
 
+    @property
+    def energy_per_atom(self):
+        return self.energy / self.composition.num_atoms
+
     def __repr__(self):
-        output = ["ComputedEntry {}".format(self.composition.formula),
+        output = ["ComputedEntry {} - {}".format(self.entry_id,
+                                                 self.composition.formula),
                   "Energy = {:.4f}".format(self.uncorrected_energy),
-                  "Correction = {:.4f}".format(self.correction), "Parameters:"]
+                  "Correction = {:.4f}".format(self.correction),
+                  "Parameters:"]
         for k, v in self.parameters.items():
             output.append("{} = {}".format(k, v))
         output.append("Data:")
@@ -99,8 +108,10 @@ class ComputedEntry(PDEntry, MSONable):
     def from_dict(cls, d):
         dec = MontyDecoder()
         return cls(d["composition"], d["energy"], d["correction"],
-                   dec.process_decoded(d.get("parameters", {})),
-                   dec.process_decoded(d.get("data", {})),
+                   parameters={k: dec.process_decoded(v)
+                               for k, v in d.get("parameters", {}).items()},
+                   data={k: dec.process_decoded(v)
+                         for k, v in d.get("data", {}).items()},
                    entry_id=d.get("entry_id", None),
                    attribute=d["attribute"] if "attribute" in d else None)
 
@@ -147,7 +158,8 @@ class ComputedStructureEntry(ComputedEntry):
         self.structure = structure
 
     def __repr__(self):
-        output = ["ComputedStructureEntry {}".format(self.composition.formula),
+        output = ["ComputedStructureEntry {} - {}".format(
+            self.entry_id, self.composition.formula),
                   "Energy = {:.4f}".format(self.uncorrected_energy),
                   "Correction = {:.4f}".format(self.correction), "Parameters:"]
         for k, v in self.parameters.items():
@@ -172,6 +184,8 @@ class ComputedStructureEntry(ComputedEntry):
         dec = MontyDecoder()
         return cls(dec.process_decoded(d["structure"]),
                    d["energy"], d["correction"],
-                   dec.process_decoded(d.get("parameters", {})),
-                   dec.process_decoded(d.get("data", {})),
+                   parameters={k: dec.process_decoded(v)
+                               for k, v in d.get("parameters", {}).items()},
+                   data={k: dec.process_decoded(v)
+                         for k, v in d.get("data", {}).items()},
                    entry_id=d.get("entry_id", None))

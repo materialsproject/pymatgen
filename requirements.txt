@@ -1,13 +1,15 @@
-numpy==1.13.1
+numpy==1.15.0
 pydispatcher==2.0.5
-sympy==1.1
-requests==2.18.1
-monty==1.0.1
-ruamel.yaml==0.15.19
-six==1.10.0
-scipy==0.19.1
-tabulate==0.7.7
-enum34==1.1.6; python_version < '3.5'
-matplotlib==2.0.2
-palettable==3.0.0
-spglib==1.9.9.44
+sympy==1.2
+requests==2.19.1
+monty==1.0.3
+ruamel.yaml==0.15.44
+six==1.11.0
+scipy==1.1.0
+tabulate==0.8.2
+enum34==1.1.6
+matplotlib==2.2.3
+palettable==3.1.1
+spglib==1.10.3.75
+pandas==0.23.4
+networkx==2.1

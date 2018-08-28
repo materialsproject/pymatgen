@@ -1,0 +1,43 @@
+# VASP settings for the various vdW functionals.
+dftd2:
+    IVDW: 1
+dftd3:
+    IVDW: 11
+dftd3-bj: 
+    IVDW: 12
+ts: 
+    IVDW: 2
+ts-hirshfeld:
+    IVDW: 21
+mbd@rsc:
+    IVDW: 202
+ddsc:
+    IVDW: 4
+df:
+    LUSE_VDW: True
+    AGGAC: 0.0
+    GGA: RE
+optpbe:
+    LUSE_VDW: True
+    AGGAC: 0.0
+    GGA: OR
+optb88: 
+    LUSE_VDW: True
+    AGGAC: 0.0
+    GGA: BO
+    PARAM1: 0.18333333
+    PARAM2: 0.22
+optb86b:
+    LUSE_VDW: True
+    AGGAC: 0.0
+    GGA: MK
+    PARAM1: 0.1234
+    PARAM2: 1.0
+df2:
+    LUSE_VDW: True
+    AGGAC: 0.0
+    GGA: ML
+    ZAB_VDW: -1.8867
+rvv10:
+    LUSE_VDW: True
+    BPARAM: 15.7

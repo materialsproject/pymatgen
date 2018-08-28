@@ -1,0 +1,237 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.qchem.utils module &#8212; pymatgen 2018.8.10 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2018.8.10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.io.qchem.utils">
+<span id="pymatgen-io-qchem-utils-module"></span><h1>pymatgen.io.qchem.utils module<a class="headerlink" href="#module-pymatgen.io.qchem.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.lower_and_check_unique">
+<code class="descname">lower_and_check_unique</code><span class="sig-paren">(</span><em>dict_to_check</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#lower_and_check_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.lower_and_check_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a dictionary and makes all the keys lower case. Also replaces
+“jobtype” with “job_type” just so that key specifically can be called
+elsewhere without ambiguity. Finally, ensures that multiple identical
+keys, that differed only due to different capitalizations, are not
+present. If there are multiple equivalent keys, an Exception is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dict_to_check</strong> (<em>dict</em>) – The dictionary to check and standardize</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>An identical dictionary but with all keys made</dt>
+<dd>lower case and no identical keys present.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">to_return (dict)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.process_parsed_coords">
+<code class="descname">process_parsed_coords</code><span class="sig-paren">(</span><em>coords</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#process_parsed_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.process_parsed_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a set of parsed coordinates, which come as an array of strings,
+and returns a numpy array of floats.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.read_pattern">
+<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>text_str</em>, <em>patterns</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class ‘str’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>General pattern reading on an input string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>text_str</strong> (<em>str</em>) – the input string to search for patterns</li>
+<li><strong>patterns</strong> (<em>dict</em>) – A dict of patterns, e.g.,
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”}.</li>
+<li><strong>terminate_on_match</strong> (<em>bool</em>) – Whether to terminate when there is at
+least one match in each key in pattern.</li>
+<li><strong>postprocess</strong> (<em>callable</em>) – A post processing function to convert all
+matches. Defaults to str, i.e., no change.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Renders accessible:</dt>
+<dd>Any attribute in patterns. For example,
+{“energy”: r”energy(sigma-&gt;0)s+=s+([d-.]+)”} will set the
+value of matches[“energy”] = [[-1234], [-3453], …], to the
+results from regex and postprocess. Note that the returned values
+are lists of lists, because you can grep multiple items on one line.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.qchem.utils.read_table_pattern">
+<code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>text_str</em>, <em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;class ‘str’&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/utils.html#read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.utils.read_table_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Parse table-like data. A table composes of three parts: header,
+main body, footer. All the data matches “row pattern” in the main body
+will be returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">text_str (str): the input string to search for patterns
+header_pattern (str): The regular expression pattern matches the</p>
+<blockquote class="last">
+<div>table header. This pattern should match all the text
+immediately before the main body of the table. For multiple
+sections table match the text until the section of
+interest. MULTILINE and DOTALL options are enforced, as a
+result, the “.” meta-character will also match “</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="docutils">
+<dt>” in this</dt>
+<dd><blockquote class="first">
+<div><blockquote>
+<div>section.</div></blockquote>
+<dl class="docutils">
+<dt>row_pattern (str): The regular expression matches a single line in</dt>
+<dd>the table. Capture interested field using regular expression
+groups.</dd>
+<dt>footer_pattern (str): The regular expression matches the end of the</dt>
+<dd>table. E.g. a long dash line.</dd>
+<dt>postprocess (callable): A post processing function to convert all</dt>
+<dd>matches. Defaults to str, i.e., no change.</dd>
+<dt>attribute_name (str): Name of this table. If present the parsed data</dt>
+<dd>will be attached to “data. e.g. self.data[“efg”] = […]</dd>
+<dt>last_one_only (bool): All the tables will be parsed, if this option</dt>
+<dd>is set to True, only the last table will be returned. The
+enclosing list will be removed. i.e. Only a single table will
+be returned. Default to be True.</dd>
+</dl>
+</div></blockquote>
+<dl class="last docutils">
+<dt>Returns:</dt>
+<dd>List of tables. 1) A table is a list of rows. 2) A row if either a list of
+attribute values in case the the capturing group is defined without name in
+row_pattern, or a dict in case that named capturing groups are defined by
+row_pattern.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.io.qchem.utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

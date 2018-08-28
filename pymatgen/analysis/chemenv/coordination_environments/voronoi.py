@@ -10,13 +10,13 @@ import time
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite
 from monty.json import MSONable
-from pymatgen.analysis.structure_analyzer import solid_angle
 from scipy.spatial import Voronoi
 
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import my_solid_angle
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import get_lower_and_upper_f
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rectangle_surface_intersection
 from pymatgen.analysis.chemenv.utils.defs_utils import AdditionalConditions
+from pymatgen.analysis.chemenv.utils.math_utils import normal_cdf_step
 
 """
 This module contains the object used to describe the possible bonded atoms based on a Voronoi analysis
@@ -81,11 +81,13 @@ class DetailedVoronoiContainer(MSONable):
     """
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0
+    default_normalized_distance_tolerance = 1e-5
+    default_normalized_angle_tolerance = 1e-3
 
     def __init__(self, structure=None, voronoi_list=None, voronoi_list2=None,
-                 # neighbors_lists=None,
                  voronoi_cutoff=default_voronoi_cutoff, isites=None,
-                 normalized_distance_tolerance=1e-5, normalized_angle_tolerance=1e-3,
+                 normalized_distance_tolerance=default_normalized_distance_tolerance,
+                 normalized_angle_tolerance=default_normalized_angle_tolerance,
                  additional_conditions=None, valences=None,
                  maximum_distance_factor=None, minimum_angle_factor=None):
         """
@@ -93,7 +95,6 @@ class DetailedVoronoiContainer(MSONable):
         computed, or the different components of the VoronoiContainer are given (used in the from_dict method)
         :param structure: Structure for which the Voronoi is computed
         :param voronoi_list: List of voronoi polyhedrons for each site
-        :param neighbors_list: list of neighbors for each site
         :param voronoi_cutoff: cutoff used for the voronoi
         :param isites: indices of sites for which the Voronoi has to be computed
         :raise: RuntimeError if the Voronoi cannot be constructed
@@ -131,6 +132,7 @@ class DetailedVoronoiContainer(MSONable):
         :raise RuntimeError: If an infinite vertex is found in the voronoi construction
         """
         self.voronoi_list2 = [None] * len(self.structure)
+        self.voronoi_list_coords = [None] * len(self.structure)
         logging.info('Getting all neighbors in structure')
         struct_neighbors = self.structure.get_all_neighbors(voronoi_cutoff, include_index=True)
         t1 = time.clock()
@@ -160,10 +162,7 @@ class DetailedVoronoiContainer(MSONable):
 
                     ridge_point2 = max(ridge_points)
                     facets = [all_vertices[i] for i in ridge_vertices_indices]
-                    try:
-                        sa = solid_angle(site.coords, facets)
-                    except ValueError:
-                        sa = my_solid_angle(site.coords, facets)
+                    sa = my_solid_angle(site.coords, facets)
                     maxangle = max([sa, maxangle])
 
                     mindist = min([mindist, distances[ridge_point2]])
@@ -179,6 +178,7 @@ class DetailedVoronoiContainer(MSONable):
                 dd['normalized_angle'] = dd['angle'] / maxangle
                 dd['normalized_distance'] = dd['distance'] / mindist
             self.voronoi_list2[isite] = results2
+            self.voronoi_list_coords[isite] = np.array([dd['site'].coords for dd in results2])
         t2 = time.clock()
         logging.info('Voronoi list set up in {:.2f} seconds'.format(t2-t1))
 
@@ -599,6 +599,100 @@ class DetailedVoronoiContainer(MSONable):
                 if nb['site'] != nb_other['site']:
                     return False
         return True
+
+    def get_rdf_figure(self, isite, normalized=True, figsize=None,
+                       step_function=None):
+        def dp_func(dp):
+            return 1.0 - 1.0 / np.power(dp, 3.0)
+        import matplotlib.pyplot as plt
+
+        if step_function is None:
+            step_function = {'type': 'normal_cdf', 'scale': 0.0001}
+
+        # Initializes the figure
+        if figsize is None:
+            fig = plt.figure()
+        else:
+            fig = plt.figure(figsize=figsize)
+        subplot = fig.add_subplot(111)
+        if normalized:
+            dists = self.neighbors_normalized_distances[isite]
+        else:
+            dists = self.neighbors_distances[isite]
+
+        if step_function['type'] == 'step_function':
+            isorted = np.argsort([dd['min'] for dd in dists])
+            sorted_dists = [dists[ii]['min'] for ii in isorted]
+            dnb_dists = [len(dists[ii]['dnb_indices']) for ii in isorted]
+            xx = [0.0]
+            yy = [0.0]
+            for idist, dist in enumerate(sorted_dists):
+                xx.append(dist)
+                xx.append(dist)
+                yy.append(yy[-1])
+                yy.append(yy[-1]+dnb_dists[idist])
+            xx.append(1.1*xx[-1])
+            yy.append(yy[-1])
+        elif step_function['type'] == 'normal_cdf':
+            scale = step_function['scale']
+            mydists = [dp_func(dd['min']) for dd in dists]
+            mydcns = [len(dd['dnb_indices']) for dd in dists]
+            xx = np.linspace(0.0, 1.1*max(mydists), num=500)
+            yy = np.zeros_like(xx)
+            for idist, dist in enumerate(mydists):
+                yy += mydcns[idist] * normal_cdf_step(xx, mean=dist, scale=scale)
+        else:
+            raise ValueError('Step function of type "{}" is not allowed'.format(step_function['type']))
+        subplot.plot(xx, yy)
+
+        return fig
+
+    def get_sadf_figure(self, isite, normalized=True, figsize=None,
+                       step_function=None):
+        def ap_func(ap):
+            return np.power(ap, -0.1)
+        import matplotlib.pyplot as plt
+
+        if step_function is None:
+            step_function = {'type': 'step_function', 'scale': 0.0001}
+
+        # Initializes the figure
+        if figsize is None:
+            fig = plt.figure()
+        else:
+            fig = plt.figure(figsize=figsize)
+        subplot = fig.add_subplot(111)
+        if normalized:
+            angs = self.neighbors_normalized_angles[isite]
+        else:
+            angs = self.neighbors_angles[isite]
+
+        if step_function['type'] == 'step_function':
+            isorted = np.argsort([ap_func(aa['min']) for aa in angs])
+            sorted_angs = [ap_func(angs[ii]['min']) for ii in isorted]
+            dnb_angs = [len(angs[ii]['dnb_indices']) for ii in isorted]
+            xx = [0.0]
+            yy = [0.0]
+            for iang, ang in enumerate(sorted_angs):
+                xx.append(ang)
+                xx.append(ang)
+                yy.append(yy[-1])
+                yy.append(yy[-1]+dnb_angs[iang])
+            xx.append(1.1*xx[-1])
+            yy.append(yy[-1])
+        elif step_function['type'] == 'normal_cdf':
+            scale = step_function['scale']
+            myangs = [ap_func(aa['min']) for aa in angs]
+            mydcns = [len(dd['dnb_indices']) for dd in angs]
+            xx = np.linspace(0.0, 1.1*max(myangs), num=500)
+            yy = np.zeros_like(xx)
+            for iang, ang in enumerate(myangs):
+                yy += mydcns[iang] * normal_cdf_step(xx, mean=ang, scale=scale)
+        else:
+            raise ValueError('Step function of type "{}" is not allowed'.format(step_function['type']))
+        subplot.plot(xx, yy)
+
+        return fig
 
     def __eq__(self, other):
         return (self.normalized_angle_tolerance == other.normalized_angle_tolerance and

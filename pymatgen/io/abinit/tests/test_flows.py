@@ -114,10 +114,15 @@ class FlowTest(FlowUnitTest):
         """Testing Flow..."""
         aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         flow = Flow(workdir=self.workdir, manager=self.manager)
+        assert flow.isinstance(Flow)
+        assert not flow.isinstance(None)
+        assert not flow.has_scheduler
 
         # Build a work with a task
         work = flow.register_task(self.fake_input)
-        assert work.is_work
+        atrue(work.is_work)
+        atrue(len(work.color_hex) == 7)
+        atrue(work.color_hex.startswith("#"))
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
         print(task0_w0.status.colored)
@@ -139,6 +144,8 @@ class FlowTest(FlowUnitTest):
         assert len(task0_w0.history) == 0
         assert flow.select_tasks(nids=task0_w0.node_id)[0] == task0_w0
         assert flow.select_tasks(wslice=slice(0,1,1)) == [task0_w0]
+        assert flow.select_tasks(task_class="DfptTask") == []
+        assert flow.get_task_scfcycles() == []
 
         # Build a workflow containing two tasks depending on task0_w0
         work = Work()
@@ -207,8 +214,12 @@ class FlowTest(FlowUnitTest):
         flow.show_inputs()
         flow.show_inputs(varnames="znucl")
 
+        df_vars = flow.get_vars_dataframe("ecut", "acell")
+        atrue("ecut" in df_vars)
+
         # Test show_status
         flow.show_status()
+        flow.show_tricky_tasks()
         flow.show_event_handlers()
 
     def test_workdir(self):
@@ -243,8 +254,13 @@ class TestFlowInSpectatorMode(FlowUnitTest):
         flow = Flow(workdir=self.workdir, manager=self.manager)
 
         work0 = Work()
-        work0.register_scf_task(self.fake_input)
-        work0.register_scf_task(self.fake_input)
+        gs_task = work0.register_scf_task(self.fake_input)
+        assert gs_task.isinstance(ScfTask)
+        assert gs_task.isinstance("ScfTask")
+        task = work0.register_scf_task(self.fake_input)
+        assert task.is_abinit_task
+        assert not task.is_optic_task
+        assert not task.is_anaddb_task
 
         work1 = Work()
         work1.register_scf_task(self.fake_input)

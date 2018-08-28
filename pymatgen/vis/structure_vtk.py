@@ -35,7 +35,7 @@ except ImportError:
 from monty.serialization import loadfn
 from monty.dev import requires
 
-from pymatgen.util.coord_utils import in_coord_list
+from pymatgen.util.coord import in_coord_list
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
 from pymatgen.core.sites import PeriodicSite

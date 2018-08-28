@@ -8,8 +8,8 @@ be available on `PyPI <http://pypi.python.org>`_.
 1. Python 2.7-3.x supported. **It is highly recommended that you use latest
    Python 3.x unless you know you need other dependencies that works with
    Python 2.x only.**
-2. numpy>=1.9
-3. scipy>0.14
+2. numpy>=1.14
+3. scipy>=1.0.1
 4. matplotlib>=1.5+
 5. monty>=0.9.6
 6. requests>=2.0+
@@ -28,19 +28,20 @@ Optional dependencies
 
 Optional libraries that are required if you need certain features.
 
-1. pyhull 1.5.2+: For electronic structure, generation of Pourbaix diagrams.
-2. sympy: For defect generation and analysis.
-3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+1. sympy: For defect generation and analysis.
+2. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
-4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+3. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
    Note that the ASE package is incompatible with Python 3.x at the moment.
-5. OpenBabel with Python bindings (http://openbabel.org): Required for the
+4. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
+5. networkx: For graph analysis associated with critic2 topological analysis
+   of electron charge densities, pygraphviz is also required for visualization.
 6. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
@@ -61,7 +62,7 @@ the moment) required only for certain features:
    EnumerateStructureTransformation. The enum.x and makestr.x
    executables must be in the path. Get it at http://enum.sourceforge.net and
    follow the instructions to compile multienum.x and makestr.x.
-3. bader: For use with :class:`pymatgen.command_line.bader.BaderAnalysis`.
+3. bader: For use with :class:`pymatgen.command_line.bader_caller.BaderAnalysis`.
    This library by Henkelmann et al. provides a robust way to calculate the
    Bader analysis from a CHGCAR. The bader executable must be in the path.
    Get it at http://theory.cm.utexas.edu/bader.
@@ -69,9 +70,15 @@ the moment) required only for certain features:
    which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
    compute empirical defect energies.
 5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
-6. Zeo++ (http://www.maciejharanczyk.info/Zeopp/): For defect structure
+6. Zeo++ (http://zeoplusplus.org): For defect structure
    generation. This is required in addition to installing the zeo Python
    package.
+7. critic2 (https://github.com/aoterodelaroza/critic2): For topological
+   analysis of critical points from electronic charge density. Provides
+   more detailed information compared to bader. For use with
+   :class:`pymatgen.command_line.critic2_caller.Critic2Caller`.
+8. graphviz (http://graphviz.org): For visualization of graphs generated
+   using critic2.
 
 Conda-based install
 ===================
@@ -247,14 +254,17 @@ Linux
 Step 2: Install pymatgen in developmental mode
 ----------------------------------------------
 
-1. Clone the repo at http://github.com/materialsproject/pymatgen.
+1. Make sure you have git and `git-lfs <https://git-lfs.github.com/>`_ installed.
+   Clone the repo at https://github.com/materialsproject/pymatgen.
 
-2. In your root pymatgen repo directory, type (you may need to do this with root
+2. Run `git lfs install` in the cloned repo first.
+
+3. In your root pymatgen repo directory, type (you may need to do this with root
    privileges)::
 
       pip install -e .
 
-3. Install any missing python libraries that are necessary.
+4. Install any missing python libraries that are necessary.
 
 I recommend that you start by reading some of the unittests in the tests
 subdirectory for each package. The unittests demonstrate the expected behavior

@@ -6,18 +6,24 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
-
+import warnings
+import random
 from pymatgen import SETTINGS
 from pymatgen.ext.matproj import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructureSymmLine, BandStructure)
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.phasediagram.maker import PhaseDiagram
-from pymatgen.phasediagram.analyzer import PDAnalyzer
+from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.analysis.pourbaix_diagram import PourbaixEntry, PourbaixDiagram
+from pymatgen.analysis.wulff import WulffShape
+from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.io.cif import CifParser
+from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
+from pymatgen.phonon.dos import CompletePhononDos
 
 """
 Created on Jun 9, 2012
@@ -41,6 +47,16 @@ class MPResterTest(unittest.TestCase):
 
     def setUp(self):
         self.rester = MPRester()
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_get_all_materials_ids_doc(self):
+        mids = self.rester.get_materials_ids("Al2O3")
+        random.shuffle(mids)
+        doc = self.rester.get_doc(mids.pop(0))
+        self.assertEqual(doc["pretty_formula"], "Al2O3")
 
     def test_get_data(self):
         props = ["energy", "energy_per_atom", "formation_energy_per_atom",
@@ -49,28 +65,28 @@ class MPResterTest(unittest.TestCase):
                  "is_compatible", "task_ids",
                  "density", "icsd_ids", "total_magnetization"]
         # unicode literals have been reintroduced in py>3.2
-        expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
-                         28, {k: v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
+
+        expected_vals = [-191.3359011, -6.833425039285714, -2.5515769497278913,
+                         28, {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4},
                          "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
-                         {k: v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
-                         [u'mp-601412', u'mp-19017', u'mp-796535', u'mp-797820',
-                          u'mp-540081', u'mp-797269'],
-                         3.4662026991351147,
+                         {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}, True,
+                         {'mp-19017', 'mp-540081', 'mp-601412'},
+                         3.464840709092822,
                          [159107, 154117, 160776, 99860, 181272, 166815,
                           260571, 92198, 165000, 155580, 38209, 161479, 153699,
                           260569, 260570, 200155, 260572, 181341, 181342,
                           72545, 56291, 97764, 162282, 155635],
-                         16.0002716]
+                         15.9996841]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements',
                             'icsd_ids', 'task_ids']:
                 val = self.rester.get_data("mp-19017", prop=prop)[0][prop]
-                self.assertAlmostEqual(expected_vals[i], val)
+                self.assertAlmostEqual(expected_vals[i], val, places=2)
             elif prop in ["elements", "icsd_ids", "task_ids"]:
-                self.assertEqual(set(expected_vals[i]),
-                                 set(self.rester.get_data("mp-19017",
-                                                          prop=prop)[0][prop]))
+                upstream_vals = set(
+                    self.rester.get_data("mp-19017", prop=prop)[0][prop])
+                self.assertLessEqual(set(expected_vals[i]), upstream_vals)
             else:
                 self.assertEqual(expected_vals[i],
                                  self.rester.get_data("mp-19017",
@@ -156,6 +172,18 @@ class MPResterTest(unittest.TestCase):
     def test_get_bandstructure_by_material_id(self):
         bs = self.rester.get_bandstructure_by_material_id("mp-2254")
         self.assertIsInstance(bs, BandStructureSymmLine)
+        bs_unif = self.rester.get_bandstructure_by_material_id(
+            "mp-2254", line_mode=False)
+        self.assertIsInstance(bs_unif, BandStructure)
+        self.assertNotIsInstance(bs_unif, BandStructureSymmLine)
+
+    def test_get_phonon_data_by_material_id(self):
+        bs = self.rester.get_phonon_bandstructure_by_material_id("mp-661")
+        self.assertIsInstance(bs, PhononBandStructureSymmLine)
+        dos = self.rester.get_phonon_dos_by_material_id("mp-661")
+        self.assertIsInstance(dos, CompletePhononDos)
+        ddb_str = self.rester.get_phonon_ddb_by_material_id("mp-661")
+        self.assertIsInstance(ddb_str, str)
 
     def test_get_structures(self):
         structs = self.rester.get_structures("Mn3O4")
@@ -167,7 +195,7 @@ class MPResterTest(unittest.TestCase):
         for e in entries:
             self.assertEqual(e.composition.reduced_formula, "TiO2")
 
-        entries = self.rester.get_entries("TiO2", inc_structure="final")
+        entries = self.rester.get_entries("TiO2", inc_structure=True)
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
@@ -182,6 +210,60 @@ class MPResterTest(unittest.TestCase):
 
         for e in self.rester.get_entries("CdO2", inc_structure=False):
             self.assertIsNotNone(e.data["oxide_type"])
+
+        # test if it will retrieve the conventional unit cell of Ni
+        entry = self.rester.get_entry_by_material_id(
+            "mp-23", inc_structure=True, conventional_unit_cell=True)
+        Ni = entry.structure
+        self.assertEqual(Ni.lattice.a, Ni.lattice.b)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.c)
+        self.assertEqual(Ni.lattice.alpha, 90)
+        self.assertEqual(Ni.lattice.beta, 90)
+        self.assertEqual(Ni.lattice.gamma, 90)
+
+        # Ensure energy per atom is same
+        primNi = self.rester.get_entry_by_material_id(
+            "mp-23", inc_structure=True, conventional_unit_cell=False)
+        self.assertEqual(primNi.energy_per_atom, entry.energy_per_atom)
+
+        Ni = self.rester.get_structure_by_material_id(
+            "mp-23", conventional_unit_cell=True)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.b)
+        self.assertEqual(Ni.lattice.a, Ni.lattice.c)
+        self.assertEqual(Ni.lattice.alpha, 90)
+        self.assertEqual(Ni.lattice.beta, 90)
+        self.assertEqual(Ni.lattice.gamma, 90)
+
+        # Test case where convs are different from initial and final
+        th = self.rester.get_structure_by_material_id(
+            "mp-37", conventional_unit_cell=True)
+        th_entry = self.rester.get_entry_by_material_id(
+            "mp-37", inc_structure=True, conventional_unit_cell=True)
+        th_entry_initial = self.rester.get_entry_by_material_id(
+            "mp-37", inc_structure="initial", conventional_unit_cell=True)
+        self.assertEqual(th, th_entry.structure)
+        self.assertEqual(len(th_entry.structure), 4)
+        self.assertEqual(len(th_entry_initial.structure), 2)
+
+        # Test if the polymorphs of Fe are properly sorted
+        # by e_above_hull when sort_by_e_above_hull=True
+        Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
+        self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
+
+
+    def test_get_pourbaix_entries(self):
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        for pbx_entry in pbx_entries:
+            self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
+        # Ensure entries are pourbaix compatible
+        pbx = PourbaixDiagram(pbx_entries)
+
+        # Try binary system
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        pbx = PourbaixDiagram(pbx_entries)
+
+        # Test Zn-S, which has Na in reference solids
+        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
@@ -217,14 +299,13 @@ class MPResterTest(unittest.TestCase):
         compat = MaterialsProjectCompatibility()
         all_entries = compat.process_entries(all_entries)
         pd = PhaseDiagram(all_entries)
-        a = PDAnalyzer(pd)
         for e in all_entries:
             if str(e.entry_id).startswith("mod"):
                 for d in rest_ehulls:
                     if d["entry_id"] == e.entry_id:
                         data = d
                         break
-                self.assertAlmostEqual(a.get_e_above_hull(e),
+                self.assertAlmostEqual(pd.get_e_above_hull(e),
                                        data["e_above_hull"])
 
     def test_get_reaction(self):
@@ -235,6 +316,42 @@ class MPResterTest(unittest.TestCase):
         substrate_data = self.rester.get_substrates('mp-123', 5, [1, 0, 0])
         substrates = [sub_dict['sub_id'] for sub_dict in substrate_data]
         self.assertIn("mp-2534", substrates)
+
+    def test_get_surface_data(self):
+        data = self.rester.get_surface_data("mp-126") # Pt
+        self.assertIn("surfaces", data)
+        surfaces = data["surfaces"]
+        self.assertTrue(len(surfaces) > 0)
+        surface = surfaces.pop()
+        self.assertIn("miller_index", surface)
+        self.assertIn("surface_energy", surface)
+        self.assertIn("is_reconstructed", surface)
+        data_inc = self.rester.get_surface_data("mp-126", inc_structures=True)
+        self.assertIn("structure", data_inc["surfaces"][0])
+
+    def test_get_wulff_shape(self):
+        ws = self.rester.get_wulff_shape("mp-126")
+        self.assertTrue(isinstance(ws, WulffShape))
+
+    def test_get_cohesive_energy(self):
+        ecoh = self.rester.get_cohesive_energy("mp-13")
+        self.assertTrue(ecoh, 5.04543279)
+
+    def test_get_interface_reactions(self):
+        kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")
+        self.assertTrue(len(kinks) > 0)
+        kink = kinks[0]
+        self.assertIn("energy", kink)
+        self.assertIn("ratio", kink)
+        self.assertIn("rxn", kink)
+        self.assertTrue(isinstance(kink['rxn'], Reaction))
+        kinks_open_O = self.rester.get_interface_reactions(
+            "LiCoO2", "Li3PS4", open_el="O", relative_mu=-1)
+        self.assertTrue(len(kinks_open_O) > 0)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.filterwarnings("always", message="The reactant.+")
+            self.rester.get_interface_reactions("LiCoO2", "MnO9")
+            self.assertTrue("The reactant" in str(w[-1].message))
 
     def test_parse_criteria(self):
         crit = MPRester.parse_criteria("mp-1234 Li-*")

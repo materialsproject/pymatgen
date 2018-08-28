@@ -19,7 +19,7 @@ import six
 from collections import OrderedDict, defaultdict, namedtuple
 from monty.collections import AttrDict, Namespace
 from tabulate import tabulate
-from monty.dev import deprecated
+#from monty.dev import deprecated
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MSONable, MontyDecoder
@@ -27,7 +27,7 @@ from monty.os.path import find_exts
 from monty.string import list_strings, is_string
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.xcfunc import XcFunc
-from pymatgen.serializers.json_coders import pmg_serialize
+from pymatgen.util.serialization import pmg_serialize
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 
 logger = logging.getLogger(__name__)
@@ -160,7 +160,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
         return "\n".join(lines)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def summary(self):
         """String summarizing the most important properties."""
 
@@ -173,11 +174,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """File basename."""
         return os.path.basename(self.filepath)
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def Z(self):
         """The atomic number of the atom."""
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def Z_val(self):
         """Valence charge."""
 
@@ -198,11 +201,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
         """Element symbol."""
         return self.element.symbol
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def l_max(self):
         """Maximum angular momentum."""
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def l_local(self):
         """Angular momentum used for the local part."""
 
@@ -230,7 +235,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
             m = hashlib.md5(text.encode("utf-8"))
             return m.hexdigest()
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def supports_soc(self):
         """
         True if the pseudo can be used in a calculation with spin-orbit coupling.
@@ -304,7 +310,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, MSONable, object)):
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns a :class:`Hint` object with the suggensted value of ecut [Ha] and
+        Returns a :class:`Hint` object with the suggested value of ecut [Ha] and
         pawecutdg [Ha] for the given accuracy.
         ecut and pawecutdg are set to zero if no hint is available.
 
@@ -382,7 +388,8 @@ class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
     by the concrete classes representing norm-conserving pseudopotentials.
     """
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def nlcc_radius(self):
         """
         Radius at which the core charge vanish (i.e. cut-off in a.u.).
@@ -422,7 +429,8 @@ class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
     #    """True if the pseudo is generated with non-linear core correction."""
     #    return True
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def paw_radius(self):
         """Radius of the PAW sphere in a.u."""
 
@@ -602,7 +610,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
+            msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values: %s" % (line, keys, values)
             raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
@@ -1203,7 +1211,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # In this way, we know that only the first two bound states (with f and n attributes)
         # should be used for constructing an initial guess for the wave functions.
 
-        self.valence_states = {}
+        self.valence_states = OrderedDict()
         for node in root.find("valence_states"):
             attrib = AttrDict(node.attrib)
             assert attrib.id not in self.valence_states
@@ -1227,15 +1235,11 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         return {k: v for k, v in self.__dict__.items() if k not in ["_root"]}
 
-    @property
+    @lazy_property
     def root(self):
-        try:
-            return self._root
-        except AttributeError:
-            from xml.etree import cElementTree as Et
-            tree = Et.parse(self.filepath)
-            self._root = tree.getroot()
-            return self._root
+        from xml.etree import cElementTree as Et
+        tree = Et.parse(self.filepath)
+        return tree.getroot()
 
     @property
     def Z(self):
@@ -1324,72 +1328,59 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
             yield self.rad_grids[grid], values, node.attrib
 
-    @property
+    @lazy_property
     def ae_core_density(self):
         """The all-electron radial density."""
-        try:
-            return self._ae_core_density
+        mesh, values, attrib = self._parse_radfunc("ae_core_density")
+        return RadialFunction(mesh, values)
 
-        except AttributeError:
-            mesh, values, attrib = self._parse_radfunc("ae_core_density")
-            self._ae_core_density = RadialFunction(mesh, values)
-            return self._ae_core_density
-
-    @property
+    @lazy_property
     def pseudo_core_density(self):
         """The pseudized radial density."""
-        try:
-            return self._pseudo_core_density
+        mesh, values, attrib = self._parse_radfunc("pseudo_core_density")
+        return RadialFunction(mesh, values)
 
-        except AttributeError:
-            mesh, values, attrib = self._parse_radfunc("pseudo_core_density")
-            self._pseudo_core_density = RadialFunction(mesh, values)
-            return self._pseudo_core_density
-
-    @property
+    @lazy_property
     def ae_partial_waves(self):
         """Dictionary with the AE partial waves indexed by state."""
-        try:
-            return self._ae_partial_waves
+        ae_partial_waves = OrderedDict()
+        for mesh, values, attrib in self._parse_all_radfuncs("ae_partial_wave"):
+            state = attrib["state"]
+            #val_state = self.valence_states[state]
+            ae_partial_waves[state] = RadialFunction(mesh, values)
 
-        except AttributeError:
-            self._ae_partial_waves = {}
-            for mesh, values, attrib in self._parse_all_radfuncs("ae_partial_wave"):
-                state = attrib["state"]
-                #val_state = self.valence_states[state]
-                self._ae_partial_waves[state] = RadialFunction(mesh, values)
-
-            return self._ae_partial_waves
+        return ae_partial_waves
 
     @property
     def pseudo_partial_waves(self):
         """Dictionary with the pseudo partial waves indexed by state."""
-        try:
-            return self._pseudo_partial_waves
+        pseudo_partial_waves = OrderedDict()
+        for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
+            state = attrib["state"]
+            #val_state = self.valence_states[state]
+            pseudo_partial_waves[state] = RadialFunction(mesh, values)
 
-        except AttributeError:
-            self._pseudo_partial_waves = {}
-            for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
-                state = attrib["state"]
-                #val_state = self.valence_states[state]
-                self._pseudo_partial_waves[state] = RadialFunction(mesh, values)
+        return pseudo_partial_waves
 
-            return self._pseudo_partial_waves
-
-    @property
+    @lazy_property
     def projector_functions(self):
         """Dictionary with the PAW projectors indexed by state."""
-        try:
-            return self._projector_functions
+        projector_functions = OrderedDict()
+        for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
+            state = attrib["state"]
+            #val_state = self.valence_states[state]
+            projector_functions[state] = RadialFunction(mesh, values)
 
-        except AttributeError:
-            self._projector_functions = {}
-            for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
-                state = attrib["state"]
-                #val_state = self.valence_states[state]
-                self._projector_functions[state] = RadialFunction(mesh, values)
+        return projector_functions
 
-            return self._projector_functions
+    def yield_figs(self, **kwargs):  # pragma: no cover
+        """
+        This function *generates* a predefined list of matplotlib figures with minimal input from the user.
+        """
+        yield self.plot_densities(title="PAW densities", show=False)
+        yield self.plot_waves(title="PAW waves", show=False)
+        yield self.plot_projectors(title="PAW projectors", show=False)
+        #yield self.plot_potentials(title="potentials", show=False)
 
     @add_fig_kwargs
     def plot_densities(self, ax=None, **kwargs):
@@ -1410,7 +1401,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         for i, den_name in enumerate(["ae_core_density", "pseudo_core_density"]):
             rden = getattr(self, den_name)
-            label = "$n_c$" if i == 1 else "$\\tilde{n}_c$"
+            label = "$n_c$" if i == 1 else r"$\tilde{n}_c$"
             ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)
 
         ax.legend(loc="best")
@@ -1418,23 +1409,23 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_waves(self, ax=None, **kwargs):
+    def plot_waves(self, ax=None, fontsize=12, **kwargs):
         """
         Plot the AE and the pseudo partial waves.
 
         Args:
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            fontsize: fontsize for legends and titles
 
-        Returns:
-            `matplotlib` figure
+        Returns: `matplotlib` figure
         """
         ax, fig, plt = get_ax_fig_plt(ax)
 
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
-        ax.set_ylabel("$r\\phi,\\, r\\tilde\\phi\\, [Bohr]^{-\\frac{1}{2}}$")
+        ax.set_ylabel(r"$r\phi,\, r\tilde\phi\, [Bohr]^{-\frac{1}{2}}$")
 
-        ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
+        #ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
         #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
         for state, rfunc in self.pseudo_partial_waves.items():
@@ -1443,33 +1434,33 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for state, rfunc in self.ae_partial_waves.items():
             ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state)
 
-        ax.legend(loc="best")
+        ax.legend(loc="best", shadow=True, fontsize=fontsize)
+
         return fig
 
     @add_fig_kwargs
-    def plot_projectors(self, ax=None, **kwargs):
+    def plot_projectors(self, ax=None, fontsize=12, **kwargs):
         """
         Plot the PAW projectors.
 
         Args:
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
-        Returns:
-            `matplotlib` figure
+        Returns: `matplotlib` figure
         """
         ax, fig, plt = get_ax_fig_plt(ax)
         title = kwargs.pop("title", "Projectors")
         ax.grid(True)
         ax.set_xlabel('r [Bohr]')
-        ax.set_ylabel("$r\\tilde p\\, [Bohr]^{-\\frac{1}{2}}$")
+        ax.set_ylabel(r"$r\tilde p\, [Bohr]^{-\frac{1}{2}}$")
 
-        ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
+        #ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
         #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
         for state, rfunc in self.projector_functions.items():
             ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label="TPROJ: " + state)
 
-        ax.legend(loc="best")
+        ax.legend(loc="best", shadow=True, fontsize=fontsize)
 
         return fig
 
@@ -1664,7 +1655,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, MSONable
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
-            k, count = p.element, 1
+            k, count = p.element.name, 1
+            # k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in d:
                 k += k.split("#")[0] + "#" + str(count)

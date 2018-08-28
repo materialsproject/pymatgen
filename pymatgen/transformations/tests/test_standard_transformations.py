@@ -8,9 +8,10 @@ import random
 import unittest
 import json
 import six
+import warnings
 
 from monty.os.path import which
-from pymatgen import Lattice, PeriodicSite
+from pymatgen import Lattice, PeriodicSite, Element
 from monty.json import MontyDecoder
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.transformations.standard_transformations import *
@@ -199,6 +200,13 @@ class OxidationStateRemovalTransformationTest(unittest.TestCase):
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
     def test_apply_transformation(self):
         t = PartialRemoveSpecieTransformation("Li+", 1.0 / 3, 3)
         coords = list()
@@ -298,6 +306,18 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         self.assertEqual(
             type(OrderDisorderedStructureTransformation.from_dict(d)),
             OrderDisorderedStructureTransformation)
+
+    def test_no_oxidation(self):
+        specie = {"Cu1+": 0.5, "Au2+": 0.5}
+        cuau = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3.677),
+                                         [specie], [[0, 0, 0]])
+        trans = OrderDisorderedStructureTransformation()
+        ss = trans.apply_transformation(cuau, return_ranked_list=100)
+        self.assertEqual(ss[0]["structure"].composition["Cu+"], 2)
+        trans = OrderDisorderedStructureTransformation(no_oxi_states=True)
+        ss = trans.apply_transformation(cuau, return_ranked_list=100)
+        self.assertEqual(ss[0]["structure"].composition["Cu+"], 0)
+        self.assertEqual(ss[0]["structure"].composition["Cu"], 2)
 
     def test_symmetrized_structure(self):
         t = OrderDisorderedStructureTransformation(symmetrized_structures=True)
@@ -414,8 +434,8 @@ class PerturbStructureTransformationTest(unittest.TestCase):
 class DeformStructureTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
         t = DeformStructureTransformation([[1., 0., 0.],
-                                           [0., 1., 0.05],
-                                           [0., 0., 1.]])
+                                           [0., 1., 0.],
+                                           [0., 0.05, 1.]])
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.375, 0.375, 0.375])
@@ -436,10 +456,51 @@ class DeformStructureTransformationTest(unittest.TestCase):
         self.assertAlmostEqual(transformed_s.lattice.b, 3.84379750)
         self.assertAlmostEqual(transformed_s.lattice.c, 3.75022981)
 
-        d = t.as_dict()
+        d = json.loads(json.dumps(t.as_dict()))
         self.assertEqual(type(DeformStructureTransformation.from_dict(d)),
                          DeformStructureTransformation)
 
+
+class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        l = Lattice.cubic(4)
+        s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.5)
+        s = dot.apply_transformation(s_orig)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): 0.2,
+                                                       Element("Na"): 0.2,
+                                                       Element("K"): 0.6})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=5, tol=0.01)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig)
+
+        s_orig_2 = Structure(l, [{"Li": 0.5, "Na": 0.25, "K": 0.25}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.25,
+                                                  fix_denominator=False)
+
+        s = dot.apply_transformation(s_orig_2)
+        self.assertEqual(dict(s[0].species_and_occu), {Element("Li"): Fraction(1/2),
+                                                       Element("Na"): Fraction(1/4),
+                                                       Element("K"): Fraction(1/4)})
+
+        dot = DiscretizeOccupanciesTransformation(max_denominator=9, tol=0.05,
+                                                  fix_denominator=True)
+        self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
+
+
+class ChargedCellTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        l = Lattice.cubic(4)
+        s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+        cct = ChargedCellTransformation(charge=3)
+        s = cct.apply_transformation(s_orig)
+        self.assertEqual(s.charge, 3)
 
 if __name__ == "__main__":
     unittest.main()

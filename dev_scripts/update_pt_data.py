@@ -18,8 +18,6 @@ __email__ = "shyue@mit.edu"
 __date__ = "Nov 15, 2011"
 
 
-
-
 def test_yaml():
     with open('periodic_table.yaml', 'r') as f:
         data = yaml.load(f)
@@ -167,6 +165,49 @@ def update_ionic_radii():
         json.dump(data, f)
 
 
+def parse_shannon_radii():
+    with open('periodic_table.yaml', 'r') as f:
+        data = yaml.load(f)
+    from openpyxl import load_workbook
+    import collections
+    wb = load_workbook('Shannon Radii.xlsx')
+    print(wb.get_sheet_names())
+    sheet = wb["Sheet1"]
+    i = 2
+    radii = collections.defaultdict(dict)
+    while sheet["E%d" % i].value:
+        if sheet["A%d" % i].value:
+            el = sheet["A%d" % i].value
+        if sheet["B%d" % i].value:
+            charge = int(sheet["B%d" % i].value)
+            radii[el][charge] = dict()
+        if sheet["C%d" % i].value:
+            cn = sheet["C%d" % i].value
+            if cn not in radii[el][charge]:
+                radii[el][charge][cn] = dict()
+
+        if sheet["D%d" % i].value is not None:
+            spin = sheet["D%d" % i].value
+        else:
+            spin = ""
+        # print("%s - %d - %s" % (el, charge, cn))
+
+        radii[el][charge][cn][spin] = {
+            "crystal_radius": float(sheet["E%d" % i].value),
+            "ionic_radius": float(sheet["F%d" % i].value),
+        }
+        i += 1
+
+    for el in radii.keys():
+        if el in data:
+            data[el]["Shannon radii"] = dict(radii[el])
+
+    with open('periodic_table.yaml', 'w') as f:
+        yaml.safe_dump(data, f)
+    with open('periodic_table.json', 'w') as f:
+        json.dump(data, f)
+
+
 def gen_periodic_table():
     with open('periodic_table.yaml', 'r') as f:
         data = yaml.load(f)
@@ -174,5 +215,7 @@ def gen_periodic_table():
     with open('periodic_table.json', 'w') as f:
         json.dump(data, f)
 
+
 if __name__ == "__main__":
-    gen_periodic_table()
+    parse_shannon_radii()
+    #gen_periodic_table()

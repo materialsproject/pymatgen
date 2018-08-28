@@ -19,14 +19,14 @@ import itertools
 from six.moves import zip
 import collections
 
-__author__ = "Maarten de Jong"
+__author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Joseph Montoya, Mark Asta, Anubhav Jain"
+__credits__ = "Maarten de Jong, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 13, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 
 class Deformation(SquareTensor):
@@ -52,7 +52,7 @@ class Deformation(SquareTensor):
         checks to determine whether the deformation is independent
         """
         return len(self.get_perturbed_indices(tol)) == 1
-    
+
     def get_perturbed_indices(self, tol=1e-8):
         """
         Gets indices of perturbed elements of the deformation gradient,
@@ -78,8 +78,9 @@ class Deformation(SquareTensor):
                 be modified by the deformation
         """
         def_struct = structure.copy()
-        def_struct.modify_lattice(Lattice(np.dot(def_struct.lattice.matrix,
-                                                 self)))
+        old_latt = def_struct.lattice.matrix
+        new_latt = np.transpose(np.dot(self, np.transpose(old_latt)))
+        def_struct.modify_lattice(Lattice(new_latt))
         return def_struct
 
     @classmethod
@@ -146,7 +147,7 @@ class DeformedStructureSet(collections.Sequence):
 
     def __iter__(self):
         return iter(self.deformed_structures)
-    
+
     def __len__(self):
         return len(self.deformed_structures)
 
@@ -217,7 +218,7 @@ class Strain(SquareTensor):
         symmetric strain.
 
         Args:
-            idx (tuple or integer): index to be perturbed, can be voigt or 
+            idx (tuple or integer): index to be perturbed, can be voigt or
                 full-tensor notation
             amount (float): amount to perturb selected index
         """
@@ -255,7 +256,7 @@ def convert_strain_to_deformation(strain, shape="upper"):
     """
     This function converts a strain to a deformation gradient that will
     produce that strain.  Supports three methods:
-    
+
     Args:
         strain (3x3 array-like): strain matrix
         shape: (string): method for determining deformation, supports

@@ -42,6 +42,7 @@ amu_to_kg = const.physical_constants["atomic mass unit-kilogram relationship"][0
 mile_to_meters = const.mile
 bohr_to_angstrom = const.physical_constants["Bohr radius"][0] * 1e10
 bohr_to_ang = bohr_to_angstrom
+ang_to_bohr = 1 / bohr_to_ang
 
 """
 Definitions of supported units. Values below are essentially scaling and
@@ -149,6 +150,10 @@ DERIVED_UNITS = {
     },
     "magnetic_flux": {
         "Wb": {"m": 2, "kg": 1, "s": -2, "A": -1}
+    },
+    "cross_section": {
+        "barn": {"m": 2, 1E-28: 1},
+        "mbarn": {"m": 2, 1E-31: 1}
     }
 }
 
@@ -342,7 +347,7 @@ class FloatWithUnit(float):
         """
         Initialize a FloatWithUnit from a string. Example Memory.from_string("1. Mb")
         """
-        # Extract num and unit string. 
+        # Extract num and unit string.
         s = s.strip()
         for i, char in enumerate(s):
             if char.isalpha() or char.isspace():

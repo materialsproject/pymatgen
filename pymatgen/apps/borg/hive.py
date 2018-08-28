@@ -146,7 +146,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
         entry = vasprun.get_computed_entry(self._inc_structure,
                                            parameters=self._parameters,
                                            data=self._data)
-        entry.parameters["history"] = _get_transformation_history(path)
+
+        # entry.parameters["history"] = _get_transformation_history(path)
         return entry
 
     def get_valid_paths(self, path):
@@ -255,7 +256,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             param["run_type"] = None
             if incar is not None:
                 param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
-            param["history"] = _get_transformation_history(path)
+            # param["history"] = _get_transformation_history(path)
             param["potcar_spec"] = potcar.spec if potcar is not None else None
             energy = oszicar.final_energy if oszicar is not None else 1e10
             structure = contcar.structure if contcar is not None\
@@ -329,8 +330,8 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def __init__(self, inc_structure=False, parameters=None, data=None,
                  file_extensions=(".log",)):
         self._inc_structure = inc_structure
-        self._parameters = {"functional", "basis_set", "charge", "spin_mult",
-                            "route"}
+        self._parameters = {"functional", "basis_set", "charge",
+                            "spin_multiplicity", "route_parameters"}
 
         if parameters:
             self._parameters.update(parameters)

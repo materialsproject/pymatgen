@@ -6,7 +6,7 @@ from __future__ import division, unicode_literals
 import os
 from itertools import product
 from fractions import Fraction
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractmethod
 from collections import Sequence
 import numpy as np
 import warnings
@@ -44,7 +44,8 @@ def get_symm_data(name):
 class SymmetryGroup(Sequence):
     __metaclass__ = ABCMeta
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def symmetry_ops(self):
         pass
 
@@ -390,7 +391,9 @@ class SpaceGroup(SymmetryGroup):
                 and check(angles, [90, 90, 120], angle_tol)
         elif crys_system == "trigonal":
             a = abc[0]
-            return check(abc, [a, a, a], tol)
+            alpha = angles[0]
+            return check(abc, [a, a, a], tol) \
+                   and check(angles, [alpha, alpha, alpha], angle_tol)
         elif crys_system == "tetragonal":
             a = abc[0]
             return check(abc, [a, a, None], tol) and\

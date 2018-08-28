@@ -32,6 +32,9 @@ class Spin(Enum):
     def __int__(self):
         return self.value
 
+    def __float__(self):
+        return float(self.value)
+
     def __str__(self):
         return str(self.value)
 
@@ -405,7 +408,7 @@ class Magmom(MSONable):
         """
         # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
-        moment = np.matmul(moment, unit_m)
+        moment = np.matmul(list(moment), unit_m)
         # round small values to zero
         moment[np.abs(moment) < 1e-8] = 0
         return cls(moment)
@@ -421,6 +424,7 @@ class Magmom(MSONable):
         """
         # get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
+        # note np.matmul() requires numpy version >= 1.10
         moment = np.matmul(self.global_moment, np.linalg.inv(unit_m))
         # round small values to zero
         moment[np.abs(moment) < 1e-8] = 0
@@ -439,6 +443,7 @@ class Magmom(MSONable):
         """
         Equal if 'global' magnetic moments are the same, saxis can differ.
         """
+        other = Magmom(other)
         return np.allclose(self.global_moment, other.global_moment)
 
     def __ne__(self, other):
@@ -446,6 +451,9 @@ class Magmom(MSONable):
 
     def __lt__(self, other):
         return abs(self) < abs(other)
+
+    def __neg__(self):
+        return Magmom(-self.moment, saxis=self.saxis)
 
     def __hash__(self):
         return (tuple(self.moment)+tuple(self.saxis)).__hash__()
@@ -466,6 +474,10 @@ class Magmom(MSONable):
         However, should be used with caution for non-collinear
         structures and might give non-sensical results except in the case
         of only slightly non-collinear structures (e.g. small canting).
+
+        This approach is also used to obtain "diff" VolumetricDensity
+        in pymatgen.io.vasp.outputs.VolumetricDensity when processing
+        Chgcars from SOC calculations.
         """
         return float(self.get_00t_magmom_with_xyz_saxis()[2])
 

@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.cif module &#8212; pymatgen 2017.7.21 documentation</title>
+    <title>pymatgen.io.cif module &#8212; pymatgen 2018.8.10 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017.7.21',
+        VERSION:     '2018.8.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +36,7 @@
 </script>
 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,12 +70,12 @@ attribute.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> &#8211; dict or OrderedDict of data to go into the cif. Values should
+<li><strong>data</strong> – dict or OrderedDict of data to go into the cif. Values should
 be convertible to string, or lists of these if the key is
 in a loop</li>
-<li><strong>loops</strong> &#8211; list of lists of keys, grouped by which loop they should
+<li><strong>loops</strong> – list of lists of keys, grouped by which loop they should
 appear in</li>
-<li><strong>header</strong> &#8211; name of the block (appears after the <a href="#id1"><span class="problematic" id="id2">data_</span></a> on the first
+<li><strong>header</strong> – name of the block (appears after the <a href="#id1"><span class="problematic" id="id2">data_</span></a> on the first
 line)</li>
 </ul>
 </td>
@@ -104,9 +104,9 @@ line)</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data</strong> (<em>OrderedDict</em>) &#8211; Of CifBlock objects.å</li>
-<li><strong>orig_string</strong> (<em>str</em>) &#8211; The original cif string.</li>
-<li><strong>comment</strong> (<em>str</em>) &#8211; Comment string.</li>
+<li><strong>data</strong> (<em>OrderedDict</em>) – Of CifBlock objects.å</li>
+<li><strong>orig_string</strong> (<em>str</em>) – The original cif string.</li>
+<li><strong>comment</strong> (<em>str</em>) – Comment string.</li>
 </ul>
 </td>
 </tr>
@@ -134,10 +134,10 @@ line)</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; Cif filename. bzipped or gzipped cifs are fine too.</li>
-<li><strong>occupancy_tolerance</strong> (<em>float</em>) &#8211; If total occupancy of a site is between 1
+<li><strong>filename</strong> (<em>str</em>) – Cif filename. bzipped or gzipped cifs are fine too.</li>
+<li><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is between 1
 and occupancy_tolerance, the occupancies will be scaled down to 1.</li>
-<li><strong>site_tolerance</strong> (<em>float</em>) &#8211; This tolerance is used to determine if two
+<li><strong>site_tolerance</strong> (<em>float</em>) – This tolerance is used to determine if two
 sites are sitting in the same position, in which case they will be
 combined to a single disordered site. Defaults to 1e-4.</li>
 </ul>
@@ -159,8 +159,8 @@ combined to a single disordered site. Defaults to 1e-4.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cif_string</strong> (<em>str</em>) &#8211; String representation of a CIF.</li>
-<li><strong>occupancy_tolerance</strong> (<em>float</em>) &#8211; If total occupancy of a site is
+<li><strong>cif_string</strong> (<em>str</em>) – String representation of a CIF.</li>
+<li><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is
 between 1 and occupancy_tolerance, the occupancies will be
 scaled down to 1.</li>
 </ul>
@@ -174,16 +174,16 @@ scaled down to 1.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.io.cif.CifParser.get_bibtex_strings">
-<code class="descname">get_bibtex_strings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_bibtex_strings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_bibtex_strings" title="Permalink to this definition">¶</a></dt>
-<dd><p>(Beta) Get BibTeX reference from CIF file.
+<dt id="pymatgen.io.cif.CifParser.get_bibtex_string">
+<code class="descname">get_bibtex_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_bibtex_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_bibtex_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get BibTeX reference from CIF file.
 :param data:
 :return: BibTeX string</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.get_lattice">
-<code class="descname">get_lattice</code><span class="sig-paren">(</span><em>data</em>, <em>length_strings=('a'</em>, <em>'b'</em>, <em>'c')</em>, <em>angle_strings=('alpha'</em>, <em>'beta'</em>, <em>'gamma')</em>, <em>lattice_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_lattice</code><span class="sig-paren">(</span><em>data</em>, <em>length_strings=(‘a’</em>, <em>’b’</em>, <em>’c’)</em>, <em>angle_strings=(‘alpha’</em>, <em>’beta’</em>, <em>’gamma’)</em>, <em>lattice_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the lattice from the provided lattice parameters. In
 the absence of all six lattice parameters, the crystal system
 and necessary parameters are parsed</p>
@@ -206,8 +206,9 @@ conventional cell structure or primitive cell structure is returned.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>primitive</strong> (<em>bool</em>) &#8211; Set to False to return conventional unit cells.
-Defaults to True.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>primitive</strong> (<em>bool</em>) – Set to False to return conventional unit cells.
+Defaults to True. With magnetic CIF files, will return primitive
+magnetic cell which may be larger than nuclear primitive cell.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of Structures.</td>
 </tr>
@@ -222,6 +223,11 @@ Defaults to True.</td>
 operations are parsed. If the symops are not present, the space
 group symbol is parsed, and symops are generated.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.cif.CifParser.has_errors">
+<code class="descname">has_errors</code><a class="headerlink" href="#pymatgen.io.cif.CifParser.has_errors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.parse_magmoms">
@@ -247,11 +253,11 @@ group symbol is parsed, and symops are generated.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) &#8211; structure to write</li>
-<li><strong>symprec</strong> (<em>float</em>) &#8211; If not none, finds the symmetry of the structure
+<li><strong>struct</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to write</li>
+<li><strong>symprec</strong> (<em>float</em>) – If not none, finds the symmetry of the structure
 and writes the cif with symmetry information. Passes symprec
 to the SpacegroupAnalyzer</li>
-<li><strong>write_magmoms</strong> (<em>bool</em>) &#8211; If True, will write magCIF file. Incompatible
+<li><strong>write_magmoms</strong> (<em>bool</em>) – If True, will write magCIF file. Incompatible
 with symprec</li>
 </ul>
 </td>
@@ -310,13 +316,13 @@ with symprec</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2017.7.21 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
