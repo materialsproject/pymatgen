@@ -223,6 +223,9 @@ class BztInterpolator(object):
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
                 derivative related trasport properties (Hall coefficient).
+        Example:
+            data = VasprunLoader().from_file('vasprun.xml')
+            bztInterp = BztInterpolator(data)
     """
         
     def __init__(self, data, lpfac=10, energy_range=1.5,curvature=True):
@@ -357,6 +360,9 @@ class BztTransportProperties(object):
                 (len(temp_r),npts_mu)
             mu_r_eV: array of energies in eV and with E_fermi at 0.0 
                 where all the properties are calculated.
+        
+        Example:
+            bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(100,1400,100))
     """
     def __init__(self, BztInterpolator, temp_r = np.arange(100,1400,100),
                  doping=10.**np.arange(16,23), npts_mu=4000, CRTA=1e-14, margin=None ):
@@ -520,6 +526,8 @@ class BztPlotter(object):
         Plotter to plot transport properties, interpolated bands along some high 
         symmetry k-path, and fermisurface
         
+        Example:
+            bztPlotter = BztPlotter(bztTransp,bztInterp)
     """
     def __init__(self, bzt_transP=None, bzt_interp=None):
         self.bzt_transP = bzt_transP
@@ -548,8 +556,10 @@ class BztPlotter(object):
                 xlim: chemical potential range, useful when prop_x='mu'
                 ax: figure.axes where to plot. If None, a new figure is produced.
                 
-            Examples of using are provided in the notebook 
-            "How to use Boltztra2 interface.ipynb" in the example folder.
+            Example:
+            bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
+            more example are provided in the notebook 
+            "How to use Boltztra2 interface.ipynb".
         """
         
         props = ("Conductivity","Seebeck","Kappa","Effective_mass",
