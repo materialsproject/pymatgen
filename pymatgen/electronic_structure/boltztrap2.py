@@ -81,7 +81,9 @@ class BandstructureLoader:
                 self.structure = bs_obj.structure
             except:
                 BaseException('No structure found in the bs obj.')
-        
+        else:
+            self.structure = structure
+            
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         
         if len(bs_obj.bands) == 1:
