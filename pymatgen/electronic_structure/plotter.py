@@ -3417,7 +3417,7 @@ class BoltztrapPlotter(object):
         """
         import matplotlib.pyplot as plt
         plt.semilogy(self._bz.mu_steps,
-                     abs(self._bz.carrier_conc[temp] / (self._bz.vol * 1e-24)),
+                     abs(self._bz._carrier_conc[temp] / (self._bz.vol * 1e-24)),
                      linewidth=3.0, color='r')
         self._plot_bg_limits()
         self._plot_doping(temp)
