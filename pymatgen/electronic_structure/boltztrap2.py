@@ -341,7 +341,7 @@ class BztInterpolator(object):
 class BztTransportProperties(object):
     """
         Compute Seebeck, Conductivity, Electrical part of thermal conductivity 
-        and Hall tensors w.r.t. the chemical potential, from dft band structure via 
+        and Hall coefficient, conductivity effective mass, Power Factor tensors w.r.t. the chemical potential and temperatures, from dft band structure via 
         interpolation.
         
         Args:
