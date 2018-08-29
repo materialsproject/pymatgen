@@ -1480,6 +1480,117 @@ class AnglePlateauNbSetWeight(NbSetWeight):
         return cls(angle_function=dd['angle_function'], weight_function=dd['weight_function'])
 
 
+class DistanceNbSetWeight(NbSetWeight):
+
+    SHORT_NAME = 'DistanceNbSetWeight'
+
+    def __init__(self, weight_function=None, nbs_source='voronoi'):
+        if weight_function is None:
+            self.weight_function = {'function': 'smootherstep', 'options': {'lower': 1.2, 'upper': 1.3}}
+        else:
+            self.weight_function = weight_function
+        self.weight_rf = RatioFunction.from_dict(self.weight_function)
+        if nbs_source not in ['nb_sets', 'voronoi']:
+            raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
+        self.nbs_source = nbs_source
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        cn = cn_map[0]
+        inb_set = cn_map[1]
+        isite = nb_set.isite
+        voronoi = structure_environments.voronoi.voronoi_list2[isite]
+        if self.nbs_source == 'nb_sets':
+            all_nbs_voro_indices = set()
+            for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
+                for inb_set2, nb_set2 in enumerate(nb_sets):
+                    if cn == cn2 and inb_set == inb_set:
+                        continue
+                    all_nbs_voro_indices.update(nb_set2.site_voronoi_indices)
+        elif self.nbs_source == "voronoi":
+            all_nbs_voro_indices = set(range(len(voronoi)))
+        else:
+            raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
+        all_nbs_indices_except_nb_set = all_nbs_voro_indices.difference(nb_set.site_voronoi_indices)
+        normalized_distances = [voronoi[inb]['normalized_distance'] for inb in all_nbs_indices_except_nb_set]
+        if len(normalized_distances) == 0:
+            return 1.0
+        return self.weight_rf.eval(min(normalized_distances))
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__
+
+    def __ne__(self, other):
+        return not self == other
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "weight_function": self.weight_function,
+                "nbs_source": self.nbs_source
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(weight_function=dd['weight_function'], nbs_source=dd['nbs_source'])
+
+
+class DeltaDistanceNbSetWeight(NbSetWeight):
+
+    SHORT_NAME = 'DeltaDistanceNbSetWeight'
+
+    def __init__(self, weight_function=None, nbs_source='voronoi'):
+        if weight_function is None:
+            self.weight_function = {'function': 'smootherstep', 'options': {'lower': 0.1, 'upper': 0.2}}
+        else:
+            self.weight_function = weight_function
+        self.weight_rf = RatioFunction.from_dict(self.weight_function)
+        if nbs_source not in ['nb_sets', 'voronoi']:
+            raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
+        self.nbs_source = nbs_source
+
+    def weight(self, nb_set, structure_environments, cn_map=None, additional_info=None):
+        cn = cn_map[0]
+        inb_set = cn_map[1]
+        isite = nb_set.isite
+        voronoi = structure_environments.voronoi.voronoi_list2[isite]
+        if self.nbs_source == 'nb_sets':
+            all_nbs_voro_indices = set()
+            for cn2, nb_sets in structure_environments.neighbors_sets[isite].items():
+                for inb_set2, nb_set2 in enumerate(nb_sets):
+                    if cn == cn2 and inb_set == inb_set:
+                        continue
+                    all_nbs_voro_indices.update(nb_set2.site_voronoi_indices)
+        elif self.nbs_source == "voronoi":
+            all_nbs_voro_indices = set(range(len(voronoi)))
+        else:
+            raise ValueError('"nbs_source" should be one of ["nb_sets", "voronoi"]')
+        all_nbs_indices_except_nb_set = all_nbs_voro_indices.difference(nb_set.site_voronoi_indices)
+        normalized_distances = [voronoi[inb]['normalized_distance'] for inb in all_nbs_indices_except_nb_set]
+        if len(normalized_distances) == 0:
+            return 1.0
+        if len(nb_set) == 0:
+            return 0.0
+        nb_set_max_normalized_distance = max(nb_set.normalized_distances)
+        return self.weight_rf.eval(min(normalized_distances)-nb_set_max_normalized_distance)
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__
+
+    def __ne__(self, other):
+        return not self == other
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "weight_function": self.weight_function,
+                "nbs_source": self.nbs_source
+                }
+
+    @classmethod
+    def from_dict(cls, dd):
+        return cls(weight_function=dd['weight_function'], nbs_source=dd['nbs_source'])
+
+
 class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
     """
     WeightedNbSetChemenvStrategy
