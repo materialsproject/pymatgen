@@ -33,6 +33,7 @@ class Deformation(SquareTensor):
     """
     Subclass of SquareTensor that describes the deformation gradient tensor
     """
+    symbol = "d"
 
     def __new__(cls, deformation_gradient):
         """
@@ -159,6 +160,7 @@ class Strain(SquareTensor):
     """
     Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
     """
+    symbol = "e"
 
     def __new__(cls, strain_matrix, dfm=None, dfm_shape="upper"):
         """

@@ -47,6 +47,7 @@ class NthOrderElasticTensor(Tensor):
     of the stress-strain constitutive equations
     """
     GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
+    symbol = "C"
 
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
         obj = super(NthOrderElasticTensor, cls).__new__(
