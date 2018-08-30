@@ -7,9 +7,9 @@ ruamel.yaml==0.15.44
 six==1.11.0
 scipy==1.1.0
 tabulate==0.8.2
-enum34==1.1.6; python_version < '3.5'
-matplotlib==2.2.2
+enum34==1.1.6
+matplotlib==2.2.3
 palettable==3.1.1
 spglib==1.10.3.75
-pandas==0.23.3
+pandas==0.23.4
 networkx==2.1

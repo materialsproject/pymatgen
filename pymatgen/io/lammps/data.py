@@ -456,7 +456,7 @@ class LammpsData(MSONable):
         masses["label"] = atom_labels
         unique_masses = np.unique(masses["mass"])
         if guess_element:
-            ref_masses = sorted([el.atomic_mass.real for el in Element])
+            ref_masses = [el.atomic_mass.real for el in Element]
             diff = np.abs(np.array(ref_masses) - unique_masses[:, None])
             atomic_numbers = np.argmin(diff, axis=1) + 1
             symbols = [Element.from_Z(an).symbol for an in atomic_numbers]

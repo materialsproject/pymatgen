@@ -288,7 +288,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Molecules, while PBC is taken into account for periodic structures.
 
         Args:
-            tol (float): Distance tolerance. Default is 0.01A.
+            tol (float): Distance tolerance. Default is 0.5A.
 
         Returns:
             (bool) True if SiteCollection does not contain atoms that are too
@@ -2607,6 +2607,109 @@ class Structure(IStructure, collections.MutableSequence):
         new_site = PeriodicSite(species, frac_coords, self._lattice,
                                 properties=properties)
         self._sites[i] = new_site
+
+    def substitute(self, index, func_grp, bond_order=1):
+        """
+        Substitute atom at index with a functional group.
+
+        Args:
+            index (int): Index of atom to substitute.
+            func_grp: Substituent molecule. There are two options:
+
+                1. Providing an actual Molecule as the input. The first atom
+                   must be a DummySpecie X, indicating the position of
+                   nearest neighbor. The second atom must be the next
+                   nearest atom. For example, for a methyl group
+                   substitution, func_grp should be X-CH3, where X is the
+                   first site and C is the second site. What the code will
+                   do is to remove the index site, and connect the nearest
+                   neighbor to the C atom in CH3. The X-C bond indicates the
+                   directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                   relevant template in func_groups.json.
+            bond_order (int): A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
+        """
+
+        # Find the nearest neighbor that is not a terminal atom.
+        all_non_terminal_nn = []
+        for nn, dist in self.get_neighbors(self[index], 3):
+            # Check that the nn has neighbors within a sensible distance but
+            # is not the site being substituted.
+            for inn, dist2 in self.get_neighbors(nn, 3):
+                if inn != self[index] and \
+                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                    all_non_terminal_nn.append((nn, dist))
+                    break
+
+        if len(all_non_terminal_nn) == 0:
+            raise RuntimeError("Can't find a non-terminal neighbor to attach"
+                               " functional group to.")
+
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
+
+        # Set the origin point to be the coordinates of the nearest
+        # non-terminal neighbor.
+        origin = non_terminal_nn.coords
+
+        # Pass value of functional group--either from user-defined or from
+        # functional.json
+        if isinstance(func_grp, Molecule):
+            func_grp = func_grp
+        else:
+            # Check to see whether the functional group is in database.
+            if func_grp not in FunctionalGroups:
+                raise RuntimeError("Can't find functional group in list. "
+                                   "Provide explicit coordinate instead")
+            else:
+                func_grp = FunctionalGroups[func_grp]
+
+        # If a bond length can be found, modify func_grp so that the X-group
+        # bond length is equal to the bond length.
+        try:
+            bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
+                                 bond_order=bond_order)
+        # Catches for case of incompatibility between Element(s) and Specie(s)
+        except TypeError:
+            bl = None
+
+        if bl is not None:
+            func_grp = func_grp.copy()
+            vec = func_grp[0].coords - func_grp[1].coords
+            vec /= np.linalg.norm(vec)
+            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+
+        # Align X to the origin.
+        x = func_grp[0]
+        func_grp.translate_sites(list(range(len(func_grp))), origin - x.coords)
+
+        # Find angle between the attaching bond and the bond to be replaced.
+        v1 = func_grp[1].coords - origin
+        v2 = self[index].coords - origin
+        angle = get_angle(v1, v2)
+
+        if 1 < abs(angle % 180) < 179:
+            # For angles which are not 0 or 180, we perform a rotation about
+            # the origin along an axis perpendicular to both bonds to align
+            # bonds.
+            axis = np.cross(v1, v2)
+            op = SymmOp.from_origin_axis_angle(origin, axis, angle)
+            func_grp.apply_operation(op)
+        elif abs(abs(angle) - 180) < 1:
+            # We have a 180 degree angle. Simply do an inversion about the
+            # origin
+            for i in range(len(func_grp)):
+                func_grp[i] = (func_grp[i].species_and_occu,
+                               origin - (func_grp[i].coords - origin))
+
+        # Remove the atom to be replaced, and add the rest of the functional
+        # group.
+        del self[index]
+        for site in func_grp[1:]:
+            s_new = PeriodicSite(site.species_and_occu, site.coords,
+                                 self.lattice, coords_are_cartesian=True)
+            self._sites.append(s_new)
 
     def remove_species(self, species):
         """
