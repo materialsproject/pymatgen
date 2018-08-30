@@ -13,7 +13,7 @@ from collections import defaultdict
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.electronic_structure.dos import Dos, LobsterCompleteDos
-from pymatgen.electronic_structure.cohp import CompleteIcohp
+from pymatgen.core.structure import Structure 
 
 
 """
@@ -314,6 +314,8 @@ class Icohplist(object):
             list_num.append(num)
             list_icohp.append(icohp)
 
+        #to avoid circular dependencies 
+        from pymatgen.electronic_structure.cohp import CompleteIcohp
         self._icohpcollection = CompleteIcohp(are_coops=are_coops,list_labels=list_labels,list_atom1=list_atom1,list_atom2=list_atom2,list_length=list_length, list_translation=list_translation,list_num=list_num,list_icohp=list_icohp, is_spin_polarized=self.is_spin_polarized)
 
     @property

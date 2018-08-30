@@ -11,7 +11,7 @@ from pymatgen import Structure
 from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.electronic_structure.cohp import IcohpCollection
+from pymatgen.electronic_structure.cohp import CompleteIcohp 
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"

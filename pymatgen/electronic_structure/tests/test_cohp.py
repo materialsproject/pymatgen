@@ -7,7 +7,7 @@ import unittest
 import json
 import os
 
-from pymatgen.electronic_structure.cohp import CompleteCohp, Cohp, IcohpValue, CompleteICOHP
+from pymatgen.electronic_structure.cohp import CompleteCohp, Cohp, IcohpValue, CompleteIcohp
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
 
