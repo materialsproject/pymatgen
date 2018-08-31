@@ -399,6 +399,12 @@ class TensorTest(PymatgenTest):
         self.assertEqual(self.ones.get_symbol_dict(voigt=False),
                          {"T_11": 1})
 
+    def test_round(self):
+        test = self.non_symm + 0.01
+        rounded = test.round(1)
+        self.assertArrayAlmostEqual(rounded, self.non_symm)
+        self.assertTrue(isinstance(rounded, Tensor))
+
 
 class TensorCollectionTest(PymatgenTest):
     def setUp(self):
