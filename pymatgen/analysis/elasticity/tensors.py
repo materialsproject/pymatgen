@@ -11,7 +11,9 @@ import itertools
 import warnings
 import collections
 import string
+import os
 from monty.json import MSONable
+from monty.serialization import loadfn
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
@@ -45,6 +47,7 @@ class Tensor(np.ndarray, MSONable):
     Base class for doing useful general operations on Nth order tensors,
     without restrictions on the type (stress, elastic, strain, piezo, etc.)
     """
+    symbol = "T"
 
     def __new__(cls, input_array, vscale=None, check_rank=None):
         """
@@ -162,6 +165,129 @@ class Tensor(np.ndarray, MSONable):
 
         einsum_args = [self] + list(other_arrays)
         return np.einsum(einsum_string, *einsum_args)
+
+    def project(self, n):
+        """
+        Convenience method for projection of a tensor into a
+        vector.  Returns the tensor dotted into a unit vector
+        along the input n.
+
+        Args:
+            n (3x1 array-like): direction to project onto
+
+        Returns (float):
+            scalar value corresponding to the projection of
+            the tensor into the vector
+
+        """
+        n = get_uvec(n)
+        return self.einsum_sequence([n] * self.rank)
+
+    def average_over_unit_sphere(self, quad=None):
+        """
+        Method for averaging the tensor projection over the unit
+        with option for custom quadrature.
+
+        Args:
+            quad (dict): quadrature for integration, should be
+                dictionary with "points" and "weights" keys defaults
+                to quadpy.sphere.Lebedev(19) as read from file
+
+        Returns:
+            Average of tensor projected into vectors on the unit sphere
+
+        """
+        if not quad:
+            quad = loadfn(os.path.join(os.path.dirname(__file__),
+                                       "quad_data.json"))
+            weights, points = quad['weights'], quad['points']
+        return sum([w * self.project(n) for w, n in zip(weights, points)])
+
+    def get_grouped_indices(self, voigt=False, **kwargs):
+        """
+        Gets index sets for equivalent tensor values
+
+        Args:
+            voigt (bool): whether to get grouped indices
+                of voigt or full notation tensor, defaults
+                to false
+            **kwargs: keyword args for np.isclose.  Can take atol
+                and rtol for absolute and relative tolerance, e. g.
+
+                >>> tensor.group_array_indices(atol=1e-8)
+
+                or
+
+                >>> tensor.group_array_indices(rtol=1e-5)
+
+        Returns:
+            list of index groups where tensor values are equivalent to
+            within tolerances
+
+        """
+        if voigt:
+            array = self.voigt
+        else:
+            array = self
+
+        indices = list(itertools.product(*[range(n) for n in array.shape]))
+        remaining = indices.copy()
+        # Start with everything near zero
+        grouped = [list(zip(*np.where(np.isclose(array, 0, **kwargs))))]
+        remaining = [i for i in remaining if i not in grouped[0]]
+        # Iteratively run through remaining indices
+        while remaining:
+            new = list(zip(*np.where(np.isclose(
+                array, array[remaining[0]], **kwargs))))
+            grouped.append(new)
+            remaining = [i for i in remaining if i not in new]
+        # Don't return any empty lists
+        return [g for g in grouped if g]
+
+    def get_symbol_dict(self, voigt=True, zero_index=False, **kwargs):
+        """
+        Creates a summary dict for tensor with associated symbol
+
+        Args:
+            voigt (bool): whether to get symbol dict for voigt
+                notation tensor, as opposed to full notation,
+                defaults to true
+            zero_index (bool): whether to set initial index to zero,
+                defaults to false, since tensor notations tend to use
+                one-indexing, rather than zero indexing like python
+            **kwargs: keyword args for np.isclose.  Can take atol
+                and rtol for absolute and relative tolerance, e. g.
+
+                >>> tensor.get_symbol_dict(atol=1e-8)
+
+                or
+
+                >>> tensor.get_symbol_dict(rtol=1e-5)
+
+        Returns:
+            list of index groups where tensor values are equivalent to
+            within tolerances
+
+        Returns:
+
+        """
+        d = {}
+        if voigt:
+            array = self.voigt
+        else:
+            array = self
+        grouped = self.get_grouped_indices(voigt=voigt, **kwargs)
+        if zero_index:
+            p = 0
+        else:
+            p = 1
+        for indices in grouped:
+            sym_string = self.symbol + '_'
+            sym_string += ''.join([str(i + p) for i in indices[0]])
+            value = array[indices[0]]
+            if not np.isclose(value, 0):
+                d[sym_string] = array[indices[0]]
+        return d
 
     @property
     def symmetrized(self):

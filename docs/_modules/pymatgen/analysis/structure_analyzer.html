@@ -93,7 +93,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.util.num</span> <span class="k">import</span> <span class="n">abs_cap</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.surface</span> <span class="k">import</span> <span class="n">Slab</span><span class="p">,</span> <span class="n">SlabGenerator</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">VoronoiNN</span><span class="p">,</span> <span class="n">JMolNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">VoronoiNN</span><span class="p">,</span> <span class="n">JmolNN</span>
 
 
 <div class="viewcode-block" id="average_coordination_number"><a class="viewcode-back" href="../../../pymatgen.analysis.structure_analyzer.html#pymatgen.analysis.structure_analyzer.average_coordination_number">[docs]</a><span class="k">def</span> <span class="nf">average_coordination_number</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
@@ -461,7 +461,7 @@
 <span class="sd">        ordered by Z.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1">#jmc = JMolCoordFinder(el_radius_updates)</span>
-    <span class="n">jmnn</span> <span class="o">=</span> <span class="n">JMolNN</span><span class="p">(</span><span class="n">el_radius_updates</span><span class="p">)</span>
+    <span class="n">jmnn</span> <span class="o">=</span> <span class="n">JmolNN</span><span class="p">(</span><span class="n">el_radius_updates</span><span class="p">)</span>
 
     <span class="n">bonds_lens</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">els</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>

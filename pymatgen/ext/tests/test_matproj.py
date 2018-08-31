@@ -113,6 +113,13 @@ class MPResterTest(unittest.TestCase):
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
 
+    def test_get_data(self):
+        # Test getting supported properties
+        self.assertNotEqual(self.rester.get_task_data("mp-30"), [])
+        # Test aliasing
+        data = self.rester.get_task_data("mp-30", "energy")
+        self.assertAlmostEqual(data[0]["energy"], -4.09929227, places=2)
+
     def test_get_materials_id_from_task_id(self):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
             "mp-540081"), "mp-19017")
