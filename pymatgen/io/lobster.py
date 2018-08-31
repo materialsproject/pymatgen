@@ -108,6 +108,8 @@ class Cohpcar(object):
                                            for s, spin in enumerate(spins)}}}
         orb_cohp = {}
 
+        #present for Lobster versions older than Lobster 2.2.0
+        veryold=False
         #the labeling had to be changed: there are more than one COHP for each atom combination
         #this is done to make the labeling consistent with ICOHPLIST.lobster
         bondnumber=0
@@ -137,19 +139,25 @@ class Cohpcar(object):
                                              "length": bond_data["length"],
                                              "sites": bond_data["sites"]}})
             else:
+                # present for Lobster versions older than Lobster 2.2.0
+                if bondnumber==0:
+                    veryold=True
+                if veryold:
+                    bondnumber+=1
+                    label=str(bondnumber)
 
-                if label not in cohp_data:
-                    bondnumber = bondnumber + 1
-                    # present for Lobster versions older than Lobster 2.2.0
-                    cohp_data[label] = {"COHP": None, "ICOHP": None,
-                                        "length": bond_data["length"],
-                                        "sites": bond_data["sites"]}
                 orb_cohp[label] = {bond_data["orb_label"]: {"COHP": cohp,
                                                             "ICOHP": icohp,
                                                             "orbitals": orbs,
                                                             "length": bond_data["length"],
                                                             "sites": bond_data["sites"]}}
 
+        #present for lobster older than 2.2.0
+        if veryold:
+            for bond in orb_cohp:
+                cohp_data[bond] = {"COHP": None, "ICOHP": None,
+                                     "length": bond_data["length"],
+                                     "sites": bond_data["sites"]}
 
         self.orb_res_cohp = orb_cohp if orb_cohp else None
         self.cohp_data = cohp_data
@@ -188,7 +196,6 @@ class Cohpcar(object):
                              for site in sites)
 
         #species = tuple(re.split(r"\d+", site)[0] for site in sites)
-        #TODO: give that to cohp
         if "[" in sites[0]:
             orbs = [re.findall(r"\[(.*)\]", site)[0] for site in sites]
             orbitals = [tuple((int(orb[0]), Orbital(orb_labs.index(orb[1:]))))
@@ -232,8 +239,8 @@ class Icohplist(object):
                   "number_of_bonds": number of bonds
                   "icohp": {Spin.up: ICOHP(Ef) spin up, Spin.down: ...}}
 
-    .. attribute: CompleteIcohp
-        CompleteIcohp Object
+    .. attribute: IcohpCollection
+        IcohpCollection Object
 
     """
 
@@ -315,8 +322,8 @@ class Icohplist(object):
             list_icohp.append(icohp)
 
         #to avoid circular dependencies 
-        from pymatgen.electronic_structure.cohp import CompleteIcohp
-        self._icohpcollection = CompleteIcohp(are_coops=are_coops,list_labels=list_labels,list_atom1=list_atom1,list_atom2=list_atom2,list_length=list_length, list_translation=list_translation,list_num=list_num,list_icohp=list_icohp, is_spin_polarized=self.is_spin_polarized)
+        from pymatgen.electronic_structure.cohp import IcohpCollection
+        self._icohpcollection = IcohpCollection(are_coops=are_coops,list_labels=list_labels,list_atom1=list_atom1,list_atom2=list_atom2,list_length=list_length, list_translation=list_translation,list_num=list_num,list_icohp=list_icohp, is_spin_polarized=self.is_spin_polarized)
 
     @property
     def icohplist(self):
@@ -329,9 +336,9 @@ class Icohplist(object):
                                 "icohp": value._icohp,"translation": value._translation}
         return icohplist_new
     @property
-    def completeicohp(self):
+    def icohpcollection(self):
         """
-        Returns: CompleteIcohp object
+        Returns: IcohpCollection object
         """
         return self._icohpcollection
 

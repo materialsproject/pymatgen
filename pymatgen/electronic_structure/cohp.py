@@ -576,6 +576,7 @@ class CompleteCohp(Cohp):
             # TODO: Test this more extensively
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
+                    #print(label)
                     cohp_data[label]["COHP"] = {
                         sp: np.sum([orb_res_cohp[label][orbs]["COHP"][sp] for orbs in orb_res_cohp[label]], axis=0) for
                     sp
@@ -749,7 +750,7 @@ class IcohpValue(MSONable):
         return sum
 
 
-class CompleteIcohp(MSONable):
+class IcohpCollection(MSONable):
     """
     Class to store IcohpValues
     Args:
@@ -760,7 +761,7 @@ class CompleteIcohp(MSONable):
         list_atom2: list of str of atomnames e.g. "O1"
         list_length: list of lengths of corresponding bonds in Angstrom
         list_translation: list of translation list, e.g. [0,0,0]
-        list_num: list of equivalent bonds, usually 1 starting from Lobster 3.1.1
+        list_num: list of equivalent bonds, usually 1 starting from Lobster 3.0.0
         list_icohp: list of dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}
 
     .. attribute:: are_coops

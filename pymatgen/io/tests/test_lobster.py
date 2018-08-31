@@ -11,7 +11,7 @@ from pymatgen import Structure
 from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.electronic_structure.cohp import CompleteIcohp 
+from pymatgen.electronic_structure.cohp import IcohpCollection
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -193,7 +193,7 @@ class CohpcarTest(PymatgenTest):
         self.assertIsNone(self.cohp_fe.orb_res_cohp)
         self.assertIsNone(self.coop_fe.orb_res_cohp)
         self.assertIsNone(self.orb_notot.cohp_data["1"]["COHP"])
-        self.assertIsNone(self.orb_notot.cohp_data["2"]["ICOHP"])
+        self.assertIsNone(self.orb_notot.cohp_data["1"]["ICOHP"])
         for orbs in self.orb.orb_res_cohp["1"]:
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
             #print(orb_set[0][0])
