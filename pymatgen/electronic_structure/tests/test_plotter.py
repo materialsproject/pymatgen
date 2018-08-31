@@ -263,12 +263,12 @@ class CohpPlotterTest(PymatgenTest):
         self.assertFalse(self.cohp_plot.zero_at_efermi)
         self.assertTrue(self.coop_plot.zero_at_efermi)
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
-        cohp_energies = self.cohp_plot._cohps["Fe8-Fe7"]["energies"]
+        cohp_energies = self.cohp_plot._cohps["1"]["energies"]
         self.assertEqual(len(cohp_energies), 301)
         self.assertAlmostEqual(cohp_energies[0], -0.27768)
         self.assertAlmostEqual(cohp_energies[-1], 14.77248)
         self.coop_plot.add_cohp_dict(self.coop.all_cohps)
-        coop_energies = self.coop_plot._cohps["Bi5-Bi6"]["energies"]
+        coop_energies = self.coop_plot._cohps["10"]["energies"]
         self.assertEqual(len(coop_energies), 241)
         self.assertAlmostEqual(coop_energies[0], -6.02510)
         self.assertAlmostEqual(coop_energies[-1], 6.02510)
@@ -277,9 +277,9 @@ class CohpPlotterTest(PymatgenTest):
         # Sorts the populations by z-coordinates of the sites
         def sortkeys(sites):
             return sites[0].z, sites[1].z
-        sorted_keys = ["Bi2-Se8", "Bi2-Se9", "Bi4-Se9", "Bi4-Se12",
-                       "Bi5-Se12", "Bi5-Bi6", "Bi6-Se11", "Bi3-Se11",
-                       "Bi3-Se10", "Bi1-Se10", "Bi1-Se7"]
+        sorted_keys = ["3", "4", "7", "8",
+                       "9", "10", "11", "6",
+                       "5", "2", "1"]
 
         d_coop = self.coop_plot.get_cohp_dict()
         self.assertEqual(len(d_coop), 0)
@@ -294,7 +294,7 @@ class CohpPlotterTest(PymatgenTest):
     def test_get_cohp_dict(self):
         self.cohp_plot.add_cohp_dict(self.cohp.all_cohps)
         d_cohp = self.cohp_plot.get_cohp_dict()
-        for bond in ["Fe8-Fe7", "Fe8-Fe9"]:
+        for bond in ["1", "2"]:
             self.assertIn(bond, d_cohp)
 
     def test_get_plot(self):
@@ -309,9 +309,9 @@ class CohpPlotterTest(PymatgenTest):
         self.assertEqual(ax_cohp.lines[1].get_linestyle(), "--")
         for label in legend_labels:
             self.assertIn(label, self.cohp_plot._cohps)
-        linesindex = legend_labels.index("Fe8-Fe7")
+        linesindex = legend_labels.index("1")
         linestyles = {Spin.up: '-', Spin.down: '--'}
-        cohp_fe_fe = self.cohp.all_cohps["Fe8-Fe7"]
+        cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
             lines = ax_cohp.lines[2*linesindex+s]
             self.assertArrayAlmostEqual(lines.get_xdata(),
@@ -341,7 +341,7 @@ class CohpPlotterTest(PymatgenTest):
             self.assertArrayAlmostEqual(lines.get_xdata(),
                                         -cohp_fe_fe.icohp[spin])
 
-        coop_dict = {"Bi5-Bi6": self.coop.all_cohps["Bi5-Bi6"]}
+        coop_dict = {"Bi5-Bi6": self.coop.all_cohps["10"]}
         self.coop_plot.add_cohp_dict(coop_dict)
         plt_coop = self.coop_plot.get_plot()
         ax_coop = plt_coop.gca()
@@ -350,7 +350,7 @@ class CohpPlotterTest(PymatgenTest):
         lines_coop = ax_coop.get_lines()[0]
         self.assertArrayAlmostEqual(lines_coop.get_ydata(),
                                     self.coop.energies - self.coop.efermi)
-        coop_bi_bi = self.coop.all_cohps["Bi5-Bi6"].cohp[Spin.up]
+        coop_bi_bi = self.coop.all_cohps["10"].cohp[Spin.up]
         self.assertArrayAlmostEqual(lines_coop.get_xdata(), coop_bi_bi)
 
         # Cleanup.
