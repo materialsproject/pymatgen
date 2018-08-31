@@ -7,27 +7,17 @@ Includes use of Ccmpatibility class if desired.
 
 import os
 import numpy as np
+from itertools import product
 from monty.json import MontyDecoder, MontyEncoder
+from monty.shutil import decompress_file
 
 from pymatgen.core import Structure
-from pymatgen.io.vasp import Vasprun
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen import MPRester
+from pymatgen.io.vasp.outputs import Wavecar, Procar, Vasprun
 
 from pymatgen.analysis.defects.defect_compatibility import DefectCompatibility
-from pymatgen.analysis.defects.core import DefectEntry
-# from pymatgen.analysis.defects.corrections import find_optimal_gamma, generate_g_sum
-
-
-def standardize_sc_matrix(sc_mat):
-    #takes a scaling matrix = [3,3,3] or 3 or [[3,0,0],[0,3,0],[0,0,3]]
-    #and standardizes it to the longer format
-    if (type(sc_mat) == float) or (type(sc_mat) == int):
-        return [[float(sc_mat), 0., 0.], [0., float(sc_mat), 0.], [0., 0., float(sc_mat)] ]
-    elif (type( sc_mat[0]) == float) or (type( sc_mat[0]) == int):
-        return [[float(sc_mat[0]),0., 0.], [0., float(sc_mat[1]), 0.], [0.,0., float(sc_mat[2])]]
-    else:
-        return list([list(sc_mat[ind]) for ind in range(3)])
+from pymatgen.analysis.defects.core import DefectEntry, Interstitial
 
 
 def add_vr_eigenvalue_dict( task):
@@ -68,6 +58,145 @@ def add_vr_eigenvalue_dict( task):
     return task
 
 
+def get_wf_data( task_doc):
+    """
+    :param wf_file_path:
+    :param kpt_wgts: listof kpt weights (as far as I can tell, this list is always in same order as parsed kpoints)
+    :return:
+    """
+    #TODO: add Kyle's approach?
+    #see if file is zipped and if it is then decompress
+    wf_file_path = os.path.join( task_doc['calcs_reversed'][0]['dir_name'],
+                               task_doc['calcs_reversed'][0]['output_file_paths']['wavecar'])
+    if '.gz' in task_doc['calcs_reversed'][0]['output_file_paths']['wavecar']:
+        print('Decompressing wavecar...')
+        decompress_file( wf_file_path)
+        wf_file_path = wf_file_path[:-3] #this path relabeling only works for .gz labeled files...TODO: fix this
+
+    print('\t--> loading wavefunction data (a little time intensive)')
+    #TODO: this does excessive loading..could fix by loading just the bands I want to look at?
+    w = Wavecar(wf_file_path, verbose=False) #note this file path must be decompressed to load
+
+    print('\twavecar file loaded')
+    #bands to consider: w.nb, w.efermi, w.band_energy
+    fermi_band_set = []
+    if w.spin == 1:
+        for kpt_ind in range( w.nk):
+            for band_ind in range( w.nb):
+                if not w.band_energy[kpt_ind][band_ind][2]:
+                    fermi_band_set.append(band_ind)
+                    break
+    elif w.spin == 2:
+        for spin_ind in range(len(w.band_energy)):
+            for kpt_ind in range( w.nk):
+                for band_ind in range( w.nb):
+                    if not w.band_energy[spin_ind][kpt_ind][band_ind][2]:
+                        fermi_band_set.append(band_ind)
+                        break
+    fermi_band_set = list(set(fermi_band_set))
+    sample_bands = np.arange(min(fermi_band_set) - 10, max(fermi_band_set) + 11)
+
+    spin_str = 'False' if w.spin == 1 else 'True'
+    print('\tsampling {} kpts and {} bands for spin={}'.format( w.nk, len(sample_bands), spin_str))
+    output = [] #first key = spin index, secondkey = kpt index, third key = band index, values = [x,y] for plotting
+    #determine conversion factor for nx,ny.nz
+    conv = np.array([np.linalg.norm(w.a[ind])/w.ng[ind] for ind in range(3)])
+    for spin_ind in range( w.spin):
+        print('\t spin_index {}'.format(spin_ind))
+        output.append( [])
+        for kpt_ind in range( w.nk):
+            print('\t\tkpt {}'.format(kpt_ind))
+            output[spin_ind].append( {})
+            for band_ind in sample_bands:
+                """THIS approach can be used for histogram of spatial extent in units of bins"""
+                # # coefficients after FFT to real space
+                # c = np.fft.fftn(w.fft_mesh(kpt_ind, band_ind, spin=spin_ind, shift=False))
+                # # magnitude squared of wavefunction
+                # n = np.abs(np.conj(c)*c)
+                # #find charge center
+                # avg = np.zeros(3)
+                # for p in product(range(n.shape[0]), range(n.shape[1]), range(n.shape[2])):
+                #     avg += np.array(p)*n[p]
+                # chg_center = avg/np.sum(n)
+                # #collect data and bin for reduced storage
+                # x, y = ([], [])
+                # for pind, p in enumerate(product(range(n.shape[0]), range(n.shape[1]), range(n.shape[2]))):
+                #     x.append(np.linalg.norm(chg_center - np.array(p)))
+                #     y.append(n[p])
+                # H, xedges, yedges = np.histogram2d(x,y, bins=(50, 30))
+                # output[spin_ind][kpt_ind][band_ind] = [H, xedges, yedges, chg_center]
+                """THIS approach can be used for simple radial spatial extent (max y val) with x in Angstrom"""
+                # coefficients after FFT to real space
+                c = np.fft.fftn(w.fft_mesh(kpt_ind, band_ind, spin=spin_ind, shift=False))
+                # magnitude squared of wavefunction
+                n = np.abs(np.conj(c)*c)
+                n /= np.sum(n) #normalize the single particle wavefunction
+                #find charge center
+                avg = np.zeros(3)
+                for p in product(range(n.shape[0]), range(n.shape[1]), range(n.shape[2])):
+                    avg += np.array(p) * n[p]
+                chg_center = avg #units of bins
+                #collect data, bin and reduce storage to a simple radial plot of wavefunction extent
+                x, y = ([], [])
+                for p in product(range(n.shape[0]), range(n.shape[1]), range(n.shape[2])):
+                    x.append(np.linalg.norm((chg_center - np.array(p)) * conv)) #converted to angstrom distance
+                    y.append(n[p])
+                H, xedges, yedges = np.histogram2d(x,y, bins=(50, 20))
+                reduced_x, reduced_y = ([], []) #only store the max of each x-value
+                for xind, xset in enumerate(H):
+                    maxy = 0.
+                    for yind, yval in enumerate(xset):
+                        if yval:
+                            maxy = yedges[yind]
+                    reduced_x.append( xedges[xind])
+                    reduced_y.append( maxy)
+                output[spin_ind][kpt_ind][band_ind] = [reduced_x, reduced_y, chg_center]
+
+    task_doc['calcs_reversed'][0]['output']['wf_data']  = output
+
+    return task_doc
+
+
+def get_procar_data( task_doc, drone):
+
+    procar_files = drone.filter_files( task_doc['calcs_reversed'][0]['dir_name'],
+                                       file_pattern="PROCAR")
+    path_to_procar = os.path.join( task_doc['calcs_reversed'][0]['dir_name'],
+                                   list(procar_files.values())[-1]) #take most recent procar file
+    p = Procar(path_to_procar)
+    p_data = {'orbital_keys': p.orbitals}
+
+    #find bands for efermi
+    efermi = task_doc['calcs_reversed'][0]['output']['efermi']
+    fermi_band_set = []
+    for spinset in task_doc['calcs_reversed'][0]['output']['vr_eigenvalue_dict']['eigenvalues'].values():
+        for bandset_at_kpt in spinset:
+            for band_ind, band in enumerate(bandset_at_kpt):
+                if abs(band[0] - efermi ) < 0.3:
+                    fermi_band_set.append(band_ind)
+    fermi_band_set = list(set(fermi_band_set))
+    sample_bands = np.arange(min(fermi_band_set) - 10, max(fermi_band_set) + 11)
+    p_data['bands_sampling'] = sample_bands
+
+    for spin, spinval in p.data.items(): #NOTE: this sometimes has spin zero contribution?
+        spin_dat = []
+        for kpt_set in spinval:
+            kpt_dat = []
+            for band_ind, band in enumerate(kpt_set):
+                if band_ind in sample_bands:
+                    reduced_band_data = []
+                    for atomdata in band:
+                        reduce_band_atom_data = {orb: val for orb,val in zip(p.orbitals, atomdata) if val} #removes all zero orbital contributions
+                        reduced_band_data.append( reduce_band_atom_data)
+                    kpt_dat.append(reduced_band_data)
+            spin_dat.append( kpt_dat) #this contains list with atoms, and then atomic projection
+        p_data[spin.value] = spin_dat
+
+    task_doc['calcs_reversed'][0]['output']['procar_data'] = p_data
+    return task_doc
+
+
+
 class TaskDefectBuilder(object):
     """
     This does not have same format as a standard Builder, but it does everything we would want
@@ -81,17 +210,18 @@ class TaskDefectBuilder(object):
 
     def process_entries(self, run_compatibility=False, gga_run=True):
         """
-
-        :param run_compatibility:
-        :param gga_run:  needed to determine whether MP entry is relevant for parsing or not
+        :param run_compatibility (bool): Whether to run defect_compatibility or not
+        :param gga_run:  needed to determine whether MP entry is relevant for chemical potentiials or not
         :return:
+
         """
         #first load up bulk and dielectric information
-        bulk_data = {} #has keys based on scaling_matrix, values contain essential information needed for each defect entry
+        bulk_data = {} #has keys based on number of atoms, values contain essential information needed for each defect entry
         diel_data = {}
         hybrid_level_data = {}
         defect_task_list = []
-        mpid_checked = False
+        mpid = None
+        #TODO: add confirmation that all tasks are derived from same approach / same structure
 
         print('Running builder for {} tasks'.format(len(self.list_of_tasks)))
         for task in self.list_of_tasks:
@@ -110,48 +240,25 @@ class TaskDefectBuilder(object):
 
                 diel_data.update( {'epsilon_ionic': eps_ionic, 'epsilon_static':  eps_static,
                                    'dielectric': eps_total})
+                continue
 
-            #assume that if not already identified as a defect , then a hybrid level calculation will yield additional
-            # band structure information is given by task which has 'HFSCREEN' in incar...
-            #TODO: figure out a better way to see if a hybrid BS caclulation is being suppled for band edge corrections?
-            elif 'history' not in task['transformations'].keys() and 'HFSCREEN' in task['input']['incar'].keys():
-                hybrid_cbm = task['output']['cbm']
-                hybrid_vbm = task['output']['vbm']
-                hybrid_gap = task['output']['bandgap']
-
-                #this is a check up to see if hybrid task already loaded? for danny...
-                if hybrid_level_data:
-                    raise ValueError("Hybrid level data already parsed? How to deal with this?")
-
-                hybrid_level_data.update( {'hybrid_cbm': hybrid_cbm, 'hybrid_vbm': hybrid_vbm,
-                                           'hybrid_gap': hybrid_gap})
-
-            elif 'history' not in task['transformations'].keys():
-                # Had to add the HFSCREEN piece too because hybrids might not have transformations in them...
-                # if it is a defect hybrid run and doesnt have a history in transformations,
-                # then user is really wrong about how to use this...
-                print("ERROR: task with directory\n{}\ndoes not have a transformations history. "
-                      "cannot parse this with defect_builder.".format(task['dir_name']))
-
-            elif 'defect' in task['transformations']['history'][0].keys():
+            elif 'DefectTransformation' in task['transformations']['history'][0]['@class']:
                 defect_task_list.append(task)
 
-            #call it a bulk calculation if transformation class is just a SupercellTranformation
             elif 'SupercellTransformation' == task['transformations']['history'][0]['@class']:
                 #process bulk task information
-                bstruct = Structure.from_dict(task['transformations']['history'][0]['input_structure'])
+                bulk_sc_structure = task['input']['structure']
 
                 #check if mpid exists for this structure (only need to do once)
-                if not mpid_checked:
-                    mpid_checked = True
+                if (mpid is None):
                     with MPRester() as mp:
-                        mplist = mp.find_structure(bstruct)
+                        mplist = mp.find_structure(bulk_sc_structure)
 
                     mpid_fit_list = []
                     for trial_mpid in mplist:
                         with MPRester() as mp:
                             mpstruct = mp.get_structure_by_material_id(trial_mpid)
-                        if StructureMatcher(scale=False).fit(bstruct, mpstruct):
+                        if StructureMatcher(scale=False).fit(bulk_sc_structure, mpstruct):
                             mpid_fit_list.append( trial_mpid)
 
                     if len(mpid_fit_list) == 1:
@@ -165,128 +272,101 @@ class TaskDefectBuilder(object):
                     else:
                         print("Could not find bulk structure in MP database after tying the following list:\n{}"
                               "Continuing with band_status_from_MP=False.".format( mplist))
-                        mpid = None
+                        mpid = 'DNE'
 
-                    if not gga_run:
-                        print("This is NOT a gga run! So forcing band_status_from_MP=False.")
-                        mpid = None
-
-                    if mpid:
-                        with MPRester() as mp:
-                            bs = mp.get_bandstructure_by_material_id(mpid)
-                        cbm = bs.get_cbm()['energy']
-                        vbm = bs.get_vbm()['energy']
-                        gga_gap = bs.get_band_gap()['energy']
-                        band_stats_from_MP = True
-                    else:
-                        band_stats_from_MP = False
-
-                #fetch band data if no information from MP database...
-                #TODO: allow for this information to be replaced by a user's band structure calculation?
-                if not band_stats_from_MP:
+                if (mpid == 'DNE') or (not gga_run):
+                    # if no Mp-id exists (or if calculation is not a GGA type calcualtion)
+                    # then use cbm and vbm from bulk calc
+                    #TODO: allow for this information to be replaced by a user's band structure calculation?
                     cbm = task['output']['cbm']
                     vbm = task['output']['vbm']
                     gga_gap = task['output']['bandgap']
+                elif mpid:
+                    with MPRester() as mp:
+                        bs = mp.get_bandstructure_by_material_id(mpid)
+                    cbm = bs.get_cbm()['energy']
+                    vbm = bs.get_vbm()['energy']
+                    gga_gap = bs.get_band_gap()['energy']
 
-                scaling_matrix = standardize_sc_matrix( task['transformations']['history'][0]['scaling_matrix'])
                 bulk_energy = task['output']['energy']
 
                 #check to see if bulk task of this size already loaded
-                if repr(scaling_matrix) in list(bulk_data.keys()):
-                    raise ValueError("Multiple bulk tasks with scaling matrix {} exist? "
-                                     "How to handle??".format( scaling_matrix))
+                if len(bulk_sc_structure) in list(bulk_data.keys()):
+                    raise ValueError("Multiple bulk tasks with size {} atoms exist? "
+                                     "How to handle??".format( len(bulk_sc_structure)))
 
-                bulk_data.update( {repr(scaling_matrix): {'bulk_energy':bulk_energy,
-                                                    'bulk_structure': bstruct.copy(), 'mpid': mpid,
-                                                    "cbm": cbm, "vbm": vbm, "gga_gap": gga_gap,
-                                                    "band_stats_from_MP": band_stats_from_MP} } )
+                bulk_data.update( {len(bulk_sc_structure): {'bulk_energy':bulk_energy, 'mpid': mpid,
+                                                            "cbm": cbm, "vbm": vbm, "gga_gap": gga_gap,
+                                                            'bulk_sc_structure': bulk_sc_structure} } )
 
                 if 'locpot' in task['calcs_reversed'][0]['output'].keys():
                     bulklpt = task['calcs_reversed'][0]['output']['locpot']
-                    try:
-                        bulk_planar_averages = [bulklpt[str(ax)] for ax in range(3)]
-                    except:
-                        bulk_planar_averages = [bulklpt[ax] for ax in range(3)]
-                    bulk_data[repr(scaling_matrix)]['bulk_planar_averages'] = bulk_planar_averages
+                    axes = list(bulklpt.keys())
+                    axes.sort()
+                    bulk_data[len(bulk_sc_structure)]['bulk_planar_averages'] = [bulklpt[ax] for ax in axes]
                 else:
-                    print('bulk supercell {} does not have locpot values for parsing'.format(scaling_matrix))
+                    print('bulk supercell with {}atoms does not have locpot values for parsing'.format(len(bulk_sc_structure)))
 
 
                 if 'outcar' in task['calcs_reversed'][0]['output'].keys():
                     bulkoutcar = task['calcs_reversed'][0]['output']['outcar']
                     bulk_atomic_site_averages = bulkoutcar['electrostatic_potential']
-                    bulk_data[repr(scaling_matrix)]['bulk_atomic_site_averages'] = bulk_atomic_site_averages
+                    bulk_data[len(bulk_sc_structure)]['bulk_atomic_site_averages'] = bulk_atomic_site_averages
                 else:
-                    print('bulk supercell {} does not have outcar values for parsing'.format(scaling_matrix))
+                    print('bulk supercell {} does not have outcar values for parsing'.format(len(bulk_sc_structure)))
 
+            # assume that if not already identified as a defect , then a new
+            # hybrid level calculation is for adjusting band edge correction
+            #TODO: figure out a better way to see if a hybrid BS caclulation
+            #    is being suppled for band edge corrections?
+            elif 'history' not in task['transformations'].keys() and 'HFSCREEN' in task['input']['incar'].keys():
+                hybrid_cbm = task['output']['cbm']
+                hybrid_vbm = task['output']['vbm']
+                hybrid_gap = task['output']['bandgap']
 
-        # """TO BE REMOVED WHEN FULL DATABASE APPROACH USED"""
-        # if os.path.exists('corr_history_temp.json'):
-        #     corr_hist = loadfn('corr_history_temp.json', cls=MontyDecoder)
-        # else:
-        #     corr_hist = {}
-        #
-        # if os.path.exists('kumagai_g_sums.json'):
-        #     kumagai_helper = loadfn('kumagai_g_sums.json', cls=MontyDecoder)
-        # else:
-        #     kumagai_helper = {}
-        # """END BEING REMOVED WHEN FULL DATABASE APPROACH USED"""
+                #this is a check up to see if hybrid task already loaded? for danny...
+                if hybrid_level_data:
+                    raise ValueError("Hybrid level data already parsed? How to deal with this?")
+
+                hybrid_level_data.update( {'hybrid_cbm': hybrid_cbm, 'hybrid_vbm': hybrid_vbm,
+                                           'hybrid_gap': hybrid_gap})
+
 
         #now set up and load defect entries, running compatibility as desired.
         defect_entry_list = []
         for defect_task in defect_task_list:
             #figure out size of bulk calculation and initialize it for parameters, along with dielectric data
-            scaling_matrix = standardize_sc_matrix( defect_task['transformations']['history'][0]['scaling_matrix'])
+            final_defect_structure = Structure.from_dict( defect_task['output']['structure'])
 
-            parameters = bulk_data[repr(scaling_matrix)].copy()
+            map_bulk_struct = {abs(size - len(final_defect_structure)): size for size in bulk_data.keys()}
+            bulk_size = map_bulk_struct[min(map_bulk_struct.keys())]
+
+            if (min(map_bulk_struct.keys()) > 1):
+                raise ValueError("ERROR no bulk tasks exist for defect sc "
+                                 "size {}".format(len(final_defect_structure)))
+
+            parameters = bulk_data[bulk_size].copy()
             parameters.update( diel_data)
             parameters.update( hybrid_level_data)
-            parameters.update( {'scaling_matrix': scaling_matrix})
 
             #get defect object, energy and related structures
             defect = MontyDecoder().process_decoded( defect_task['transformations']['history'][0]['defect'])
-            defect_energy = defect_task['output']['energy']
-            bulk_struct_sc = parameters['bulk_structure'].copy()
-            bulk_struct_sc.make_supercell( scaling_matrix)
+            scaling_matrix = MontyDecoder().process_decoded( defect_task['transformations']['history'][0]['scaling_matrix'])
             initial_defect_structure = defect.generate_defect_structure( scaling_matrix)
-            final_defect_structure = Structure.from_dict( defect_task['output']['structure'])
+            defect_energy = defect_task['output']['energy']
 
             parameters.update( {'defect_energy': defect_energy,
                                 'final_defect_structure': final_defect_structure,
                                 'initial_defect_structure': initial_defect_structure} )
 
-
-            # check to make sure that the bulk system which the defect is modeled after is the same as the bulk
-            # calculation... this sometimes is inconsistent because a second calculation was set up with a structure
-            # which was symmetrized slightly different (for example some atoms are shifted to the origin)
-            bulk_calc_fin = parameters['bulk_structure'].copy() #non-supercell structure
-            bulk_def_compare = defect.bulk_structure.copy() #non-supercell structure
-            #compare site coords and compare
-            bad_bulk_flag = False
-            bad_site_compare_list = []
-            for bc_site, bd_site in zip(bulk_calc_fin.sites, bulk_def_compare.sites):
-                if np.linalg.norm( np.subtract(bc_site.coords, bd_site.coords)) > 0.001: #then something is wrong...
-                    bad_bulk_flag = True
-                    bad_site_compare_list.append( [bc_site, bd_site])
-            sm = StructureMatcher( primitive_cell=False, scale=False, attempt_supercell=False, allow_subset=False)
-            if bad_bulk_flag and sm.fit( bulk_calc_fin, bulk_def_compare):
-                print('\tWARNING bulk structure in defect object is correct fit but appears to have shifted basis'
-                      'for {}_chg{}...will not append to list. '
-                      'See bad bulk sites:\n{}'.format( defect.name, defect.charge, bad_site_compare_list))
-                continue
-            elif not sm.fit( bulk_calc_fin, bulk_def_compare):
-                print('\tFATAL ERROR bulk structure is not equivalent type between defect and bulk calculation '
-                      'for {}_chg{}...will not append to list'.format( defect.name, defect.charge))
-                continue
-
             #Load information for Freysoldt related parsing
             if 'locpot' in defect_task['calcs_reversed'][0]['output'].keys():
                 deflpt = defect_task['calcs_reversed'][0]['output']['locpot']
-                try:
-                    defect_planar_averages = [deflpt[str(ax)] for ax in range(3)]
-                except:
-                    defect_planar_averages = [deflpt[ax] for ax in range(3)]
-                abc = bulk_struct_sc.lattice.abc
+                axes = list(deflpt.keys())
+                axes.sort()
+                defect_planar_averages = [deflpt[ax] for ax in axes]
+
+                abc = initial_defect_structure.lattice.abc
                 axis_grid = []
                 for ax in range(3):
                     num_pts = len(defect_planar_averages[ax])
@@ -295,22 +375,30 @@ class TaskDefectBuilder(object):
                 parameters.update( {'axis_grid': axis_grid,
                                     'defect_planar_averages': defect_planar_averages} )
             else:
-                print('ERR: defect  {}_{} does not have locpot values for parsing Freysoldt'.format(defect.name, defect.charge))
+                print('ERR: defect  {}_{} does not have locpot values for parsing Freysoldt correction'.format(defect.name, defect.charge))
 
 
             #Load information for Kumagai related parsing
             if 'outcar' in defect_task['calcs_reversed'][0]['output'].keys():
                 defoutcar = defect_task['calcs_reversed'][0]['output']['outcar']
                 defect_atomic_site_averages = defoutcar['electrostatic_potential']
-                #NOTE: since I am not adding dim then Kumagai correction is not being performed in compatibility.
-                #TODO: once Kumagai correction is fixed can modify this to allow for Kumagai correction be done.
-                dim = defoutcar['ngf']
+                bulk_sc_structure = parameters['bulk_sc_structure']
+
+                #find fractional coordinates of defect within the final_defect_structure
+                if type(defect) != Interstitial:
+                    poss_deflist = sorted(
+                        bulk_sc_structure.get_sites_in_sphere(defect.coords, 2, include_index=True), key=lambda x: x[1])
+                    defect_frac_sc_coords = bulk_sc_structure[poss_deflist[0][2]].frac_coords
+                else:
+                    poss_deflist = sorted(
+                        initial_defect_structure.get_sites_in_sphere(defect.coords, 2, include_index=True), key=lambda x: x[1])
+                    defect_frac_sc_coords = initial_defect_structure[poss_deflist[0][2]].frac_coords
 
                 #create list that maps site indices from bulk structure to defect structure (needed by Kumagai correction)
                 site_matching_indices = []
                 for dindex, dsite in enumerate(initial_defect_structure.sites):
-                    if np.linalg.norm( np.subtract(dsite.coords, defect.site.coords)) > 0.001: #exclude the defect site..
-                        poss_deflist = sorted(bulk_struct_sc.get_sites_in_sphere(dsite.coords, 1, include_index=True), key=lambda x: x[1])
+                    if dsite.distance_and_image_from_frac_coords( defect_frac_sc_coords)[0] > 0.001:  #exclude the defect site from site_matching...
+                        poss_deflist = sorted(bulk_sc_structure.get_sites_in_sphere(dsite.coords, 1, include_index=True), key=lambda x: x[1])
                         bulkindex = poss_deflist[0][2]
                         site_matching_indices.append( [bulkindex, dindex])
 
@@ -322,10 +410,10 @@ class TaskDefectBuilder(object):
                     dist.append(np.linalg.norm(midpt))
                 sampling_radius = min(dist)
 
-                parameters.update( {#'dim': dim,
-                                    'defect_atomic_site_averages': defect_atomic_site_averages,
+                parameters.update( {'defect_atomic_site_averages': defect_atomic_site_averages,
                                     'site_matching_indices': site_matching_indices,
-                                    'sampling_radius': sampling_radius} )
+                                    'sampling_radius': sampling_radius,
+                                    'defect_frac_sc_coords': defect_frac_sc_coords} )
             else:
                 print('ERR: defect {}_{} does not have outcar values for parsing Kumagai'.format(defect.name, defect.charge))
 
@@ -343,50 +431,42 @@ class TaskDefectBuilder(object):
                 print('ERR: defect {}_{} does not have eigenvalue data for parsing '
                       'bandfilling.'.format(defect.name, defect.charge))
 
+            #try wavefunction loading for delocalization analysis
+            if 'wf_data' not in ['calcs_reversed'][0]['output'].keys():
+                try:
+                    task_doc = get_wf_data( task_doc)
+                except:
+                    print(" ERROR IN WAVEFUNCTION DATA LOADING... continuing without this data")
+
+            #try procar loading for delocalization analysis
+            if 'procar_data' not in ['calcs_reversed'][0]['output'].keys():
+                try:
+                    task_doc = get_procar_data( task_doc, self.drone)
+                except:
+                    print(" ERROR IN PROCAR DATA LOADING... continuing without this data")
+
 
             defect_entry = DefectEntry( defect, parameters['defect_energy'] - parameters['bulk_energy'],
                                         corrections = {}, parameters = parameters)
 
             if run_compatibility:
-                #first load any useful information that might exists in local json file...
-                #TODO: replace this approach with loading from database (if information exists)
-                """TO BE REPLACED BY DATABASE APPROACH"""
-                # if task['task_id'] in corr_hist.keys():
-                #     defect_entry.parameters.update( corr_hist( task['task_id']))
-                # redform = bulk_struct_sc.composition.reduced_formula
-                # gamma = None
-                # g_sum = None
-                # if redform in kumagai_helper.keys():
-                #     if repr(scaling_matrix) in kumagai_helper[redform].keys():
-                #         gamma = kumagai_helper[redform][repr(scaling_matrix)]['gamma']
-                #         g_sum = kumagai_helper[redform][repr(scaling_matrix)]['g_sum']
-                # if not gamma:
-                #     print("RUNNING kumagai setup...")
-                #     gamma = find_optimal_gamma(defect_struct_sc.lattice, defect_entry.parameters["dielectric"])
-                #     g_sum = generate_g_sum(defect_struct_sc.lattice, defect_entry.parameters["dielectric"],
-                #                            defect_entry.parameters['dim'], gamma)
-                #     kumagai_helper.update( {redform: {repr(scaling_matrix): {'gamma': gamma, 'g_sum': g_sum}}})
-                #
-                # defect_entry.parameters.update( {'gamma': gamma, 'g_sum': g_sum})
-                """END BEING REPLACED BY DATABASE APPROACH"""
-
                 defect_entry = self.compatibility.process_entry( defect_entry)
-
-                """TO BE REPLACED BY DATABASE APPROACH"""
-                # corr_hist.update( {task['task_id']: defect_entry.parameters} )
-                """END BEING REPLACED BY DATABASE APPROACH"""
 
 
             defect_entry_list.append( defect_entry)
 
-        """TO BE REMOVED WHEN FULL DATABASE APPROACH USED"""
-        # dumpfn(corr_hist, 'corr_history_temp.json', cls=MontyEncoder, indent=2)
-        # dumpfn(kumagai_helper, 'kumagai_g_sums.json', cls=MontyEncoder, indent=2)
-        """END BEING REMOVED WHEN FULL DATABASE APPROACH USED"""
 
         return defect_entry_list
 
 
+    def analyze_KS_level(self, task_doc):
+        """
+        do single particle (KS) level analysis:
+        - get band width of bands near the bandgap
+        - divy up procar contributions into indivudal bands
+        - find spatial extent of KS levels (from wavecar)
+
+        """
 
 
 
