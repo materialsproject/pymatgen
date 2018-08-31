@@ -291,7 +291,7 @@ class Tensor(np.ndarray, MSONable):
 
     def round(self, decimals=0):
         """
-        Wrapper around numpy.ndarray.round to ensure object
+        Wrapper around numpy.round to ensure object
         of same type is returned
 
         Args:
@@ -303,7 +303,7 @@ class Tensor(np.ndarray, MSONable):
             rounded tensor of same type
 
         """
-        return self.__class__(self.round(decimals=decimals))
+        return self.__class__(np.round(self, decimals=decimals))
 
     @property
     def symmetrized(self):
