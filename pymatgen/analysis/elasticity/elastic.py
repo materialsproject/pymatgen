@@ -13,13 +13,11 @@ from pymatgen.core.units import Unit
 from scipy.special import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
-from monty.serialization import loadfn
 from collections import OrderedDict
 from monty.dev import deprecated
 import numpy as np
 import warnings
 import itertools
-import os
 
 import sympy as sp
 
