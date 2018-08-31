@@ -921,7 +921,7 @@ class IcohpCollection(MSONable):
                 raise Warning("This spin channel does not exist. I am switching to Spin.up")
             spin = Spin.up
 
-        for key, value in self._icohplist.items():
+        for value in self._icohplist.values():
             if not value.is_spin_polarized or not summed_spin_channels:
                 if not self._are_coops:
                     if value.icohpvalue(spin) < extremum:
