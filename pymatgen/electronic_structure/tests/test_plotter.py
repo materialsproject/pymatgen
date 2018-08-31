@@ -206,6 +206,7 @@ class PlotBZTest(unittest.TestCase):
 
 x_trans = which("x_trans")
 
+
 @unittest.skipIf(not x_trans, "No x_trans.")
 class BoltztrapPlotterTest(unittest.TestCase):
 
@@ -277,6 +278,7 @@ class CohpPlotterTest(PymatgenTest):
         # Sorts the populations by z-coordinates of the sites
         def sortkeys(sites):
             return sites[0].z, sites[1].z
+
         sorted_keys = ["3", "4", "7", "8",
                        "9", "10", "11", "6",
                        "5", "2", "1"]
@@ -286,7 +288,7 @@ class CohpPlotterTest(PymatgenTest):
         bonds = self.coop.bonds
         self.coop_plot.add_cohp_dict(self.coop.all_cohps,
                                      key_sort_func=lambda x:
-                                         sortkeys(bonds[x]["sites"]))
+                                     sortkeys(bonds[x]["sites"]))
         d_coop = self.coop_plot.get_cohp_dict()
         self.assertEqual(len(d_coop), 11)
         self.assertEqual(list(self.coop_plot._cohps.keys()), sorted_keys)
@@ -313,7 +315,7 @@ class CohpPlotterTest(PymatgenTest):
         linestyles = {Spin.up: '-', Spin.down: '--'}
         cohp_fe_fe = self.cohp.all_cohps["1"]
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2*linesindex+s]
+            lines = ax_cohp.lines[2 * linesindex + s]
             self.assertArrayAlmostEqual(lines.get_xdata(),
                                         -cohp_fe_fe.cohp[spin])
             self.assertArrayAlmostEqual(lines.get_ydata(), self.cohp.energies)
@@ -326,18 +328,17 @@ class CohpPlotterTest(PymatgenTest):
         self.assertEqual(ax_cohp.get_xlabel(), "$E$ (eV)")
         self.assertEqual(ax_cohp.get_ylabel(), "COHP")
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2*linesindex+s]
+            lines = ax_cohp.lines[2 * linesindex + s]
             self.assertArrayAlmostEqual(lines.get_xdata(), self.cohp.energies)
             self.assertArrayAlmostEqual(lines.get_ydata(),
                                         cohp_fe_fe.cohp[spin])
         plt_cohp.close()
 
-
         plt_cohp = self.cohp_plot.get_plot(integrated=True)
         ax_cohp = plt_cohp.gca()
         self.assertEqual(ax_cohp.get_xlabel(), "-ICOHP (eV)")
         for s, spin in enumerate([Spin.up, Spin.down]):
-            lines = ax_cohp.lines[2*linesindex+s]
+            lines = ax_cohp.lines[2 * linesindex + s]
             self.assertArrayAlmostEqual(lines.get_xdata(),
                                         -cohp_fe_fe.icohp[spin])
 

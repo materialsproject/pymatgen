@@ -118,6 +118,7 @@ class IcohpValueTest(unittest.TestCase):
         # with spin polarization
         self.assertEqual(self.icohpvalue_sp.summed_icohp, -2.1)
 
+
 class CombinedIcohpTest(unittest.TestCase):
     def setUp(self):
         # without spin polarization:
@@ -216,22 +217,28 @@ class CombinedIcohpTest(unittest.TestCase):
     def test_get_icohp_dict_by_bondlengths(self):
         # without spin polarization
         icohpvalue = {}
-        icohpvalue["1"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199, 'icohp': {Spin.up: -0.40075},
+        icohpvalue["1"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199,
+                           'icohp': {Spin.up: -0.40075},
                            'are_coops': False, 'label': '1', 'atom2': 'K2', '@class': 'IcohpValue', 'atom1': 'F1',
                            'translation': [0, -1, -1]}
-        icohpvalue["2"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199, 'icohp': {Spin.up: -0.40074},
+        icohpvalue["2"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199,
+                           'icohp': {Spin.up: -0.40074},
                            'are_coops': False, 'label': '2', 'atom2': 'K2', '@class': 'IcohpValue', 'atom1': 'F1',
                            'translation': [-1, 0, -1]}
-        icohpvalue["3"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199, 'icohp': {Spin.up: -0.40079},
+        icohpvalue["3"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199,
+                           'icohp': {Spin.up: -0.40079},
                            'are_coops': False, 'label': '3', 'atom2': 'K2', '@class': 'IcohpValue', 'atom1': 'F1',
                            'translation': [0, 0, -1]}
-        icohpvalue["4"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199, 'icohp': {Spin.up: -0.40079},
+        icohpvalue["4"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199,
+                           'icohp': {Spin.up: -0.40079},
                            'are_coops': False, 'label': '4', 'atom2': 'K2', '@class': 'IcohpValue', 'atom1': 'F1',
                            'translation': [-1, -1, 0]}
-        icohpvalue["5"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199, 'icohp': {Spin.up: -0.40074},
+        icohpvalue["5"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199,
+                           'icohp': {Spin.up: -0.40074},
                            'are_coops': False, 'label': '5', 'atom2': 'K2', '@class': 'IcohpValue', 'atom1': 'F1',
                            'translation': [0, -1, 0]}
-        icohpvalue["6"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199, 'icohp': {Spin.up: -0.40075},
+        icohpvalue["6"] = {'@module': 'pymatgen.electronic_structure.cohp', 'num': 1, 'length': 2.71199,
+                           'icohp': {Spin.up: -0.40075},
                            'are_coops': False, 'label': '6', 'atom2': 'K2', '@class': 'IcohpValue', 'atom1': 'F1',
                            'translation': [-1, 0, 0]}
 
@@ -244,11 +251,13 @@ class CombinedIcohpTest(unittest.TestCase):
 
         # with spin polarization
         icohpvalue_spin = {}
-        icohpvalue_spin["1"] = {'num': 2, 'atom2': 'Fe7', 'translation': [0, 0, 0], '@module': 'pymatgen.electronic_structure.cohp',
+        icohpvalue_spin["1"] = {'num': 2, 'atom2': 'Fe7', 'translation': [0, 0, 0],
+                                '@module': 'pymatgen.electronic_structure.cohp',
                                 'are_coops': False, 'atom1': 'Fe8',
                                 'label': '1', 'length': 2.83189, '@class': 'IcohpValue',
                                 'icohp': {Spin.up: -0.10218, Spin.down: -0.19701}}
-        icohpvalue_spin["2"] = {'num': 1, 'atom2': 'Fe9', 'translation': [0, 0, 0], '@module': 'pymatgen.electronic_structure.cohp',
+        icohpvalue_spin["2"] = {'num': 1, 'atom2': 'Fe9', 'translation': [0, 0, 0],
+                                '@module': 'pymatgen.electronic_structure.cohp',
                                 'are_coops': False, 'atom1': 'Fe8',
                                 'label': '2', 'length': 2.45249, '@class': 'IcohpValue',
                                 'icohp': {Spin.up: -0.28485, Spin.down: -0.58279}}
@@ -265,22 +274,28 @@ class CombinedIcohpTest(unittest.TestCase):
     def test_get_icohp_dict_of_certain_site(self):
         # without spin polarization
         icohpvalue = {}
-        icohpvalue["1"] = {'translation': [0, -1, -1], 'are_coops': False, '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
+        icohpvalue["1"] = {'translation': [0, -1, -1], 'are_coops': False,
+                           '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
                            'atom2': 'K2',
                            '@class': 'IcohpValue', 'atom1': 'F1', 'num': 1, 'label': '1', 'icohp': {Spin.up: -0.40075}}
-        icohpvalue["2"] = {'translation': [-1, 0, -1], 'are_coops': False, '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
+        icohpvalue["2"] = {'translation': [-1, 0, -1], 'are_coops': False,
+                           '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
                            'atom2': 'K2',
                            '@class': 'IcohpValue', 'atom1': 'F1', 'num': 1, 'label': '2', 'icohp': {Spin.up: -0.40074}}
-        icohpvalue["3"] = {'translation': [0, 0, -1], 'are_coops': False, '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
+        icohpvalue["3"] = {'translation': [0, 0, -1], 'are_coops': False,
+                           '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
                            'atom2': 'K2',
                            '@class': 'IcohpValue', 'atom1': 'F1', 'num': 1, 'label': '3', 'icohp': {Spin.up: -0.40079}}
-        icohpvalue["4"] = {'translation': [-1, -1, 0], 'are_coops': False, '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
+        icohpvalue["4"] = {'translation': [-1, -1, 0], 'are_coops': False,
+                           '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
                            'atom2': 'K2',
                            '@class': 'IcohpValue', 'atom1': 'F1', 'num': 1, 'label': '4', 'icohp': {Spin.up: -0.40079}}
-        icohpvalue["5"] = {'translation': [0, -1, 0], 'are_coops': False, '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
+        icohpvalue["5"] = {'translation': [0, -1, 0], 'are_coops': False,
+                           '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
                            'atom2': 'K2',
                            '@class': 'IcohpValue', 'atom1': 'F1', 'num': 1, 'label': '5', 'icohp': {Spin.up: -0.40074}}
-        icohpvalue["6"] = {'translation': [-1, 0, 0], 'are_coops': False, '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
+        icohpvalue["6"] = {'translation': [-1, 0, 0], 'are_coops': False,
+                           '@module': 'pymatgen.electronic_structure.cohp', 'length': 2.71199,
                            'atom2': 'K2',
                            '@class': 'IcohpValue', 'atom1': 'F1', 'num': 1, 'label': '6', 'icohp': {Spin.up: -0.40075}}
 
@@ -325,11 +340,13 @@ class CombinedIcohpTest(unittest.TestCase):
         icohplist_Fe = {}
         icohplist_Fe["1"] = {'are_coops': False, 'translation': [0, 0, 0],
                              'icohp': {Spin.down: -0.19701, Spin.up: -0.10218}, 'length': 2.83189,
-                             '@module': 'pymatgen.electronic_structure.cohp', 'atom1': 'Fe8', 'atom2': 'Fe7', 'label': '1',
+                             '@module': 'pymatgen.electronic_structure.cohp', 'atom1': 'Fe8', 'atom2': 'Fe7',
+                             'label': '1',
                              '@class': 'IcohpValue', 'num': 2}
         icohplist_Fe["2"] = {'are_coops': False, 'translation': [0, 0, 0],
                              'icohp': {Spin.down: -0.58279, Spin.up: -0.28485}, 'length': 2.45249,
-                             '@module': 'pymatgen.electronic_structure.cohp', 'atom1': 'Fe8', 'atom2': 'Fe9', 'label': '2',
+                             '@module': 'pymatgen.electronic_structure.cohp', 'atom1': 'Fe8', 'atom2': 'Fe9',
+                             'label': '2',
                              '@class': 'IcohpValue', 'num': 1}
 
         for key, value in sorted(dict_Fe2.items()):
@@ -404,8 +421,6 @@ class CombinedIcohpTest(unittest.TestCase):
                          -0.05756)
 
 
-
-
 class CompleteCohpTest(PymatgenTest):
     def setUp(self):
         filepath = os.path.join(test_dir, "complete_cohp_lobster.json")
@@ -420,12 +435,12 @@ class CompleteCohpTest(PymatgenTest):
         filepath = os.path.join(test_dir, "complete_cohp_orbitalwise.json")
         with open(filepath, "r") as f:
             self.cohp_orb_dict = CompleteCohp.from_dict(json.load(f))
-        #Lobster 3.0
+        # Lobster 3.0
         filepath = os.path.join(test_dir, "complete_cohp_forb.json")
-        with open(filepath,"r") as f:
-            self.cohp_lobster_forb_dict=CompleteCohp.from_dict(json.load(f))      
+        with open(filepath, "r") as f:
+            self.cohp_lobster_forb_dict = CompleteCohp.from_dict(json.load(f))
 
-        #Lobster 2.0
+            # Lobster 2.0
         filepath = os.path.join(test_dir, "COPL.BiSe")
         structure = os.path.join(test_dir, "CTRL.BiSe")
         self.cohp_lmto = CompleteCohp.from_file("lmto", filename=filepath,
@@ -450,18 +465,10 @@ class CompleteCohpTest(PymatgenTest):
         self.cohp_notot = CompleteCohp.from_file("lobster",
                                                  filename=filepath,
                                                  structure_file=structure)
-        #Lobster 3.0
-        filepath = os.path.join(test_dir,"COHPCAR.lobster.Na2UO4")
-        structure=os.path.join(test_dir,"POSCAR.Na2UO4")
-        self.cohp_lobster_forb=CompleteCohp.from_file("lobster",filename=filepath, structure_file=structure)
-
-
-
-     
-      
-       
-        
-
+        # Lobster 3.0
+        filepath = os.path.join(test_dir, "COHPCAR.lobster.Na2UO4")
+        structure = os.path.join(test_dir, "POSCAR.Na2UO4")
+        self.cohp_lobster_forb = CompleteCohp.from_file("lobster", filename=filepath, structure_file=structure)
 
     def test_attiributes(self):
         self.assertFalse(self.cohp_lobster.are_coops)
@@ -482,6 +489,7 @@ class CompleteCohpTest(PymatgenTest):
         self.assertEqual(self.cohp_lmto.efermi, -2.3433)
         self.assertEqual(self.coop_lobster.efermi, 5.90043)
         self.assertEqual(self.cohp_lobster_forb.efermi, 4.12875)
+
     def test_dict(self):
         # The json files are dict representations of the COHPs from the LMTO
         # and LOBSTER calculations and should thus be the same.
@@ -490,7 +498,7 @@ class CompleteCohpTest(PymatgenTest):
                          self.cohp_lobster_dict.as_dict())
         self.assertEqual(self.cohp_orb.as_dict(),
                          self.cohp_orb_dict.as_dict())
-        #Lobster 3.0, including f orbitals
+        # Lobster 3.0, including f orbitals
         self.assertEqual(self.cohp_lobster_forb.as_dict(),
                          self.cohp_lobster_forb_dict.as_dict())
 
@@ -520,7 +528,7 @@ class CompleteCohpTest(PymatgenTest):
         all_cohps_lobster = self.cohp_lobster.all_cohps
         for bond in icohp_ef_dict:
             icohp_ef = all_cohps_lobster[bond].get_interpolated_value(
-                           self.cohp_lobster.efermi, integrated=True)
+                self.cohp_lobster.efermi, integrated=True)
             self.assertEqual(icohp_ef_dict[bond], icohp_ef)
 
         icoop_ef_dict = {"1": {Spin.up: 0.14245},
@@ -537,10 +545,8 @@ class CompleteCohpTest(PymatgenTest):
         all_coops_lobster = self.coop_lobster.all_cohps
         for bond in icoop_ef_dict:
             icoop_ef = all_coops_lobster[bond].get_interpolated_value(
-                           self.coop_lobster.efermi, integrated=True)
+                self.coop_lobster.efermi, integrated=True)
             self.assertEqual(icoop_ef_dict[bond], icoop_ef)
-
-
 
     def test_orbital_resolved_cohp(self):
         # When read from a COHPCAR file, total COHPs are calculated from
@@ -565,13 +571,10 @@ class CompleteCohpTest(PymatgenTest):
         self.assertEqual(cohp_label.icohp, ref["ICOHP"])
         orbitals = [[Orbital.s, Orbital.px], ["s", "px"], [0, 3]]
         cohps = [self.cohp_orb.get_orbital_resolved_cohp("1",
-                 [[4, orb[0]], [4, orb[1]]]) for orb in orbitals]
-        #print(cohps)
+                                                         [[4, orb[0]], [4, orb[1]]]) for orb in orbitals]
+        # print(cohps)
         for cohp in cohps:
             self.assertEqual(cohp.as_dict(), cohp_label.as_dict())
-
-
-
 
 
 if __name__ == "__main__":

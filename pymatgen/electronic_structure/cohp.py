@@ -10,7 +10,6 @@ import numpy as np
 import re
 import sys
 
-
 from monty.json import MSONable
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.sites import PeriodicSite
@@ -548,7 +547,8 @@ class CompleteCohp(Cohp):
             if filename is None:
                 filename = "COOPCAR.lobster" if are_coops \
                     else "COHPCAR.lobster"
-            warnings.warn("The bond labels are currently consistent with ICOHPLIST.lobster/ICOOPLIST.lobster, not with COHPCAR.lobster/COOPCAR.lobster. Please be aware!")
+            warnings.warn(
+                "The bond labels are currently consistent with ICOHPLIST.lobster/ICOOPLIST.lobster, not with COHPCAR.lobster/COOPCAR.lobster. Please be aware!")
             cohp_file = Cohpcar(filename=filename, are_coops=are_coops)
             orb_res_cohp = cohp_file.orb_res_cohp
         else:
@@ -576,10 +576,10 @@ class CompleteCohp(Cohp):
             # TODO: Test this more extensively
             for label in orb_res_cohp:
                 if cohp_file.cohp_data[label]["COHP"] is None:
-                    #print(label)
+                    # print(label)
                     cohp_data[label]["COHP"] = {
                         sp: np.sum([orb_res_cohp[label][orbs]["COHP"][sp] for orbs in orb_res_cohp[label]], axis=0) for
-                    sp
+                        sp
                         in spins}
                 if cohp_file.cohp_data[label]["ICOHP"] is None:
                     cohp_data[label]["ICOHP"] = \
@@ -744,10 +744,10 @@ class IcohpValue(MSONable):
              icohp value in eV
         """
         if self._is_spin_polarized:
-            sum = self._icohp[Spin.down] + self._icohp[Spin.up]
+            sum_icohp = self._icohp[Spin.down] + self._icohp[Spin.up]
         else:
-            sum = self._icohp[Spin.up]
-        return sum
+            sum_icohp = self._icohp[Spin.up]
+        return sum_icohp
 
 
 class IcohpCollection(MSONable):
@@ -772,8 +772,8 @@ class IcohpCollection(MSONable):
 
     """
 
-    def __init__(self, is_spin_polarized, are_coops=False, list_labels=[], list_atom1=[], list_atom2=[], list_length=[],
-                 list_translation=[], list_num=[], list_icohp=[]):
+    def __init__(self, list_labels, list_atom1, list_atom2, list_length,
+                 list_translation, list_num, list_icohp, is_spin_polarized, are_coops=False):
         self._are_coops = are_coops
         self._icohplist = {}
         self._is_spin_polarized = is_spin_polarized
@@ -828,7 +828,7 @@ class IcohpCollection(MSONable):
         Returns:
              float that is a sum of all ICOHPs/ICOOPs as indicated with labellist
         """
-        sum = 0
+        sum_icohp = 0
         for label in labellist:
             icohp_here = self._icohplist[label]
             if icohp_here.num_bonds != 1:
@@ -836,12 +836,12 @@ class IcohpCollection(MSONable):
             # prints warning if num_bonds is not equal to 1
             if icohp_here._is_spin_polarized:
                 if summed_spin_channels:
-                    sum = sum + icohp_here.summed_icohp
+                    sum_icohp = sum_icohp + icohp_here.summed_icohp
                 else:
-                    sum = sum + icohp_here.icohpvalue(spin)
+                    sum_icohp = sum_icohp + icohp_here.icohpvalue(spin)
             else:
-                sum = sum + icohp_here.icohpvalue(spin)
-        return sum / divisor
+                sum_icohp = sum_icohp + icohp_here.icohpvalue(spin)
+        return sum_icohp / divisor
 
     def get_icohp_dict_by_bondlengths(self, minbondlength=0.0, maxbondlength=8.0):
         """
@@ -853,7 +853,7 @@ class IcohpCollection(MSONable):
              dict of IcohpValues, the keys correspond to the values from the initial list_labels
         """
         newicohp_dict = {}
-        for key, value in self._icohplist.items():
+        for value in self._icohplist.values():
             if value._length >= minbondlength and value._length <= maxbondlength:
                 newicohp_dict[value._label] = value
         return newicohp_dict

@@ -11,7 +11,6 @@ from pymatgen import Structure
 from pymatgen.io.lobster import Cohpcar, Icohplist, Doscar, Charge
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.electronic_structure.cohp import IcohpCollection
 
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -27,7 +26,6 @@ test_dir_doscar = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-
 class CohpcarTest(PymatgenTest):
     def setUp(self):
         os.chdir(test_dir)
@@ -39,13 +37,13 @@ class CohpcarTest(PymatgenTest):
         self.orb = Cohpcar(filename="COHPCAR.lobster.orbitalwise")
         self.orb_notot = Cohpcar(filename="COHPCAR.lobster.notot.orbitalwise")
 
-        #Lobster 3.1 (Test data is from prerelease of Lobster 3.1)
-        self.cohp_KF=Cohpcar(filename="COHPCAR.lobster.KF")
-        self.coop_KF=Cohpcar(filename="COHPCAR.lobster.KF",are_coops=True)
+        # Lobster 3.1 (Test data is from prerelease of Lobster 3.1)
+        self.cohp_KF = Cohpcar(filename="COHPCAR.lobster.KF")
+        self.coop_KF = Cohpcar(filename="COHPCAR.lobster.KF", are_coops=True)
 
-        #example with f electrons
-        self.cohp_Na2UO4=Cohpcar(filename="COHPCAR.lobster.Na2UO4")
-        self.coop_Na2UO4=Cohpcar(filename="COOPCAR.lobster.Na2UO4",are_coops=True)
+        # example with f electrons
+        self.cohp_Na2UO4 = Cohpcar(filename="COHPCAR.lobster.Na2UO4")
+        self.coop_Na2UO4 = Cohpcar(filename="COOPCAR.lobster.Na2UO4", are_coops=True)
 
     def test_attributes(self):
         self.assertFalse(self.cohp_bise.are_coops)
@@ -65,33 +63,31 @@ class CohpcarTest(PymatgenTest):
         self.assertEqual(len(self.cohp_fe.cohp_data), 3)
         self.assertEqual(len(self.coop_fe.cohp_data), 3)
 
-
-        #Lobster 3.1
+        # Lobster 3.1
         self.assertFalse(self.cohp_KF.are_coops)
         self.assertTrue(self.coop_KF.are_coops)
         self.assertFalse(self.cohp_KF.is_spin_polarized)
         self.assertFalse(self.coop_KF.is_spin_polarized)
-        self.assertEqual(len(self.cohp_KF.energies),6)
-        self.assertEqual(len(self.coop_KF.energies),6)
-        self.assertEqual(len(self.cohp_KF.cohp_data),7)
-        self.assertEqual(len(self.coop_KF.cohp_data),7)
-
+        self.assertEqual(len(self.cohp_KF.energies), 6)
+        self.assertEqual(len(self.coop_KF.energies), 6)
+        self.assertEqual(len(self.cohp_KF.cohp_data), 7)
+        self.assertEqual(len(self.coop_KF.cohp_data), 7)
 
     def test_energies(self):
         efermi_bise = 5.90043
         elim_bise = (-0.124679, 11.9255)
         efermi_fe = 9.75576
         elim_fe = (-0.277681, 14.7725)
-        efermi_KF=-2.87475
-        elim_KF=(-11.25000+efermi_KF,7.5000+efermi_KF)
+        efermi_KF = -2.87475
+        elim_KF = (-11.25000 + efermi_KF, 7.5000 + efermi_KF)
 
         self.assertEqual(self.cohp_bise.efermi, efermi_bise)
         self.assertEqual(self.coop_bise.efermi, efermi_bise)
         self.assertEqual(self.cohp_fe.efermi, efermi_fe)
         self.assertEqual(self.coop_fe.efermi, efermi_fe)
-        #Lobster 3.1
-        self.assertEqual(self.cohp_KF.efermi,efermi_KF)
-        self.assertEqual(self.coop_KF.efermi,efermi_KF)
+        # Lobster 3.1
+        self.assertEqual(self.cohp_KF.efermi, efermi_KF)
+        self.assertEqual(self.coop_KF.efermi, efermi_KF)
 
         self.assertAlmostEqual(self.cohp_bise.energies[0]
                                + self.cohp_bise.efermi, elim_bise[0],
@@ -115,7 +111,7 @@ class CohpcarTest(PymatgenTest):
         self.assertAlmostEqual(self.coop_fe.energies[-1] + self.coop_fe.efermi,
                                elim_fe[1], places=4)
 
-        #Lobster 3.1
+        # Lobster 3.1
         self.assertAlmostEqual(self.cohp_KF.energies[0] + self.cohp_KF.efermi,
                                elim_KF[0], places=4)
         self.assertAlmostEqual(self.cohp_KF.energies[-1] + self.cohp_KF.efermi,
@@ -124,10 +120,6 @@ class CohpcarTest(PymatgenTest):
                                elim_KF[0], places=4)
         self.assertAlmostEqual(self.coop_KF.energies[-1] + self.coop_KF.efermi,
                                elim_KF[1], places=4)
-
-
-
-
 
     def test_cohp_data(self):
         lengths_sites_bise = {"1": (2.882308829886294, (0, 6)),
@@ -143,14 +135,13 @@ class CohpcarTest(PymatgenTest):
                               "11": (3.3752173204052101, (5, 10))}
         lengths_sites_fe = {"1": (2.8318907764979082, (7, 6)),
                             "2": (2.4524893531900283, (7, 8))}
-        #Lobster 3.1
-        lengths_sites_KF={"1": (2.7119923200622269,(0,1)),
-                          "2": (2.7119923200622269,(0,1)),
-                          "3": (2.7119923576010501, (0, 1)),
-                          "4": (2.7119923576010501, (0, 1)),
-                          "5": (2.7119923200622269, (0, 1)),
-                          "6": (2.7119923200622269, (0, 1))}
-
+        # Lobster 3.1
+        lengths_sites_KF = {"1": (2.7119923200622269, (0, 1)),
+                            "2": (2.7119923200622269, (0, 1)),
+                            "3": (2.7119923576010501, (0, 1)),
+                            "4": (2.7119923576010501, (0, 1)),
+                            "5": (2.7119923200622269, (0, 1)),
+                            "6": (2.7119923200622269, (0, 1))}
 
         for data in [self.cohp_bise.cohp_data, self.coop_bise.cohp_data]:
             for bond in data:
@@ -171,8 +162,7 @@ class CohpcarTest(PymatgenTest):
                     self.assertEqual(len(data[bond]["COHP"][Spin.up]), 301)
                     self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 301)
 
-
-        #Lobster 3.1
+        # Lobster 3.1
         for data in [self.cohp_KF.cohp_data, self.coop_KF.cohp_data]:
             for bond in data:
                 if bond != "average":
@@ -182,8 +172,6 @@ class CohpcarTest(PymatgenTest):
                                      lengths_sites_KF[bond][1])
                     self.assertEqual(len(data[bond]["COHP"][Spin.up]), 6)
                     self.assertEqual(len(data[bond]["ICOHP"][Spin.up]), 6)
-
-
 
     def test_orbital_resolved_cohp(self):
         orbitals = [tuple((Orbital(i), Orbital(j))) for j in range(4)
@@ -196,15 +184,21 @@ class CohpcarTest(PymatgenTest):
         self.assertIsNone(self.orb_notot.cohp_data["1"]["ICOHP"])
         for orbs in self.orb.orb_res_cohp["1"]:
             orb_set = self.orb.orb_res_cohp["1"][orbs]["orbitals"]
-            #print(orb_set[0][0])
+            # print(orb_set[0][0])
             self.assertEqual(orb_set[0][0], 4)
             self.assertEqual(orb_set[1][0], 4)
             self.assertIn(tuple((orb_set[0][1], orb_set[1][1])), orbitals)
 
-        #test d and f orbitals
-        comparelist=[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7]
-        comparelist2=["f0","f0","f0","f0","f1","f1","f1","f1","f2","f2","f2","f2","f3","f3","f3","f3","f_1","f_1","f_1","f_1","f_2","f_2","f_2","f_2","f_3","f_3","f_3","f_3","dx2","dx2","dx2","dx2","dxy","dxy","dxy","dxy","dxz","dxz","dxz","dxz","dyz","dyz","dyz","dyz","dz2","dz2","dz2","dz2","px","px","px","px","py","py","py","py","pz","pz","pz","pz","s","s","s","s","s","s","s","s"]
-        for iorb,orbs in enumerate(sorted(self.cohp_Na2UO4.orb_res_cohp["49"])):
+        # test d and f orbitals
+        comparelist = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6,
+                       6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+                       7, 7, 7, 7]
+        comparelist2 = ["f0", "f0", "f0", "f0", "f1", "f1", "f1", "f1", "f2", "f2", "f2", "f2", "f3", "f3", "f3", "f3",
+                        "f_1", "f_1", "f_1", "f_1", "f_2", "f_2", "f_2", "f_2", "f_3", "f_3", "f_3", "f_3", "dx2",
+                        "dx2", "dx2", "dx2", "dxy", "dxy", "dxy", "dxy", "dxz", "dxz", "dxz", "dxz", "dyz", "dyz",
+                        "dyz", "dyz", "dz2", "dz2", "dz2", "dz2", "px", "px", "px", "px", "py", "py", "py", "py", "pz",
+                        "pz", "pz", "pz", "s", "s", "s", "s", "s", "s", "s", "s"]
+        for iorb, orbs in enumerate(sorted(self.cohp_Na2UO4.orb_res_cohp["49"])):
             orb_set = self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["orbitals"]
             self.assertEqual(orb_set[0][0], comparelist[iorb])
             self.assertEqual(str(orb_set[0][1]), comparelist2[iorb])
@@ -221,31 +215,28 @@ class CohpcarTest(PymatgenTest):
                       for orbs in self.orb.orb_res_cohp["1"]], axis=0)
         self.assertArrayAlmostEqual(tot, icohp, decimal=3)
 
-
-        #Lobster 3.1
+        # Lobster 3.1
         cohp_KF = self.cohp_KF.cohp_data["1"]["COHP"][Spin.up]
         icohp_KF = self.cohp_KF.cohp_data["1"]["ICOHP"][Spin.up]
         tot_KF = np.sum([self.cohp_KF.orb_res_cohp["1"][orbs]["COHP"][Spin.up]
-                      for orbs in self.cohp_KF.orb_res_cohp["1"]], axis=0)
+                         for orbs in self.cohp_KF.orb_res_cohp["1"]], axis=0)
         self.assertArrayAlmostEqual(tot_KF, cohp_KF, decimal=3)
         tot_KF = np.sum([self.cohp_KF.orb_res_cohp["1"][orbs]["ICOHP"][Spin.up]
-                      for orbs in self.cohp_KF.orb_res_cohp["1"]], axis=0)
+                         for orbs in self.cohp_KF.orb_res_cohp["1"]], axis=0)
         self.assertArrayAlmostEqual(tot_KF, icohp_KF, decimal=3)
 
-
-        #d and f orbitals
+        # d and f orbitals
         cohp_Na2UO4 = self.cohp_Na2UO4.cohp_data["49"]["COHP"][Spin.up]
         icohp_Na2UO4 = self.cohp_Na2UO4.cohp_data["49"]["ICOHP"][Spin.up]
         tot_Na2UO4 = np.sum([self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["COHP"][Spin.up]
-                      for orbs in self.cohp_Na2UO4.orb_res_cohp["49"]], axis=0)
+                             for orbs in self.cohp_Na2UO4.orb_res_cohp["49"]], axis=0)
         self.assertArrayAlmostEqual(tot_Na2UO4, cohp_Na2UO4, decimal=3)
         tot_Na2UO4 = np.sum([self.cohp_Na2UO4.orb_res_cohp["49"][orbs]["ICOHP"][Spin.up]
-                      for orbs in self.cohp_Na2UO4.orb_res_cohp["49"]], axis=0)
+                             for orbs in self.cohp_Na2UO4.orb_res_cohp["49"]], axis=0)
         self.assertArrayAlmostEqual(tot_Na2UO4, icohp_Na2UO4, decimal=3)
 
     def tearDown(self):
         os.chdir(this_dir)
-
 
 
 class IcohplistTest(unittest.TestCase):
@@ -338,7 +329,6 @@ class IcohplistTest(unittest.TestCase):
                               "icohp": {Spin.up: -0.04087,
                                         Spin.down: -0.05756},
                               "translation": [0, 0, 0]}}
-
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
         self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
@@ -515,7 +505,7 @@ class DoscarTest(unittest.TestCase):
 
 class ChargeTest(PymatgenTest):
     def setUp(self):
-        self.charge2 = Charge(filename= os.path.join(test_dir,"CHARGE.lobster.MnO"))
+        self.charge2 = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO"))
 
     def testattributes(self):
         charge_Loewdin = [-1.25, 1.25]
@@ -547,7 +537,6 @@ class ChargeTest(PymatgenTest):
                                                              'species': [{'occu': 1, 'element': 'Mn'}], 'label': 'Mn'}],
                            'charge': None, '@module': 'pymatgen.core.structure'}
         self.assertDictEqual(structure_dict2, self.charge2.get_structure_with_charges("POSCAR.MnO").as_dict())
-
 
 
 if __name__ == "__main__":
