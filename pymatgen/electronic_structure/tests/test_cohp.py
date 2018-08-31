@@ -420,7 +420,10 @@ class CompleteCohpTest(PymatgenTest):
         filepath = os.path.join(test_dir, "complete_cohp_orbitalwise.json")
         with open(filepath, "r") as f:
             self.cohp_orb_dict = CompleteCohp.from_dict(json.load(f))
-
+        #Lobster 3.0
+        filepath = os.path.join(test_dir, "complete_cohp_forb.json")
+        with open(filepath,"r") as f:
+            self.cohp_lobster_forb_dict=CompleteCohp.from_dict(json.load(f))      
 
         #Lobster 2.0
         filepath = os.path.join(test_dir, "COPL.BiSe")
@@ -447,16 +450,17 @@ class CompleteCohpTest(PymatgenTest):
         self.cohp_notot = CompleteCohp.from_file("lobster",
                                                  filename=filepath,
                                                  structure_file=structure)
-        #f orbitals
+        #Lobster 3.0
         filepath = os.path.join(test_dir,"COHPCAR.lobster.Na2UO4")
         structure=os.path.join(test_dir,"POSCAR.Na2UO4")
         self.cohp_lobster_forb=CompleteCohp.from_file("lobster",filename=filepath, structure_file=structure)
 
-        #TODO has to be saved and then loaded to compare to
-        #load it from dict
-        self.cohp_lobster_forb_dict=self.cohp_lobster_forb.as_dict()
 
-        #TODO: include Lobster 3.1
+
+     
+      
+       
+        
 
 
     def test_attiributes(self):
@@ -467,7 +471,7 @@ class CompleteCohpTest(PymatgenTest):
         self.assertTrue(self.coop_lobster.are_coops)
         self.assertTrue(self.coop_lobster_dict.are_coops)
         self.assertFalse(self.cohp_lobster_forb.are_coops)
-        #self.assertFalse(self.cohp_lobster_forb_dict.are_coops)
+        self.assertFalse(self.cohp_lobster_forb_dict.are_coops)
 
         self.assertEqual(len(self.cohp_lobster.energies), 301)
         self.assertEqual(len(self.cohp_lmto.energies), 801)
@@ -486,8 +490,9 @@ class CompleteCohpTest(PymatgenTest):
                          self.cohp_lobster_dict.as_dict())
         self.assertEqual(self.cohp_orb.as_dict(),
                          self.cohp_orb_dict.as_dict())
+        #Lobster 3.0, including f orbitals
         self.assertEqual(self.cohp_lobster_forb.as_dict(),
-                         self.cohp_lobster_forb_dict)
+                         self.cohp_lobster_forb_dict.as_dict())
 
         # Testing the LMTO dicts will be more involved. Since the average
         # is calculated and not read, there may be differences in rounding
@@ -561,7 +566,7 @@ class CompleteCohpTest(PymatgenTest):
         orbitals = [[Orbital.s, Orbital.px], ["s", "px"], [0, 3]]
         cohps = [self.cohp_orb.get_orbital_resolved_cohp("1",
                  [[4, orb[0]], [4, orb[1]]]) for orb in orbitals]
-        print(cohps)
+        #print(cohps)
         for cohp in cohps:
             self.assertEqual(cohp.as_dict(), cohp_label.as_dict())
 
