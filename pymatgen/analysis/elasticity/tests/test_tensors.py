@@ -2,10 +2,9 @@ from __future__ import absolute_import
 
 import unittest
 import math
-import os
 
-from monty.serialization import loadfn, MontyDecoder
-from pymatgen.analysis.elasticity.tensors import *
+from monty.serialization import MontyDecoder
+from pymatgen.core.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest

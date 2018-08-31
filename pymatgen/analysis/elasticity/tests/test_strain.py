@@ -4,7 +4,7 @@ import unittest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.elasticity.tensors import Tensor
+from pymatgen.core.tensors import Tensor
 from pymatgen.analysis.elasticity.strain import Strain, Deformation,\
         convert_strain_to_deformation, DeformedStructureSet
 from pymatgen.util.testing import PymatgenTest
@@ -66,7 +66,7 @@ class DeformationTest(PymatgenTest):
                                     [3.8872306, 1.224e-6, 2.3516318])
 
         # Check convention for applying transformation
-        for vec, defo_vec in zip(self.structure.lattice.matrix, 
+        for vec, defo_vec in zip(self.structure.lattice.matrix,
                 strained_non.lattice.matrix):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             self.assertArrayAlmostEqual(new_vec, defo_vec)
@@ -99,7 +99,7 @@ class StrainTest(PymatgenTest):
         test_strain = Strain([[0., 0.01, 0.],
                               [0.01, 0.0002, 0.],
                               [0., 0., 0.]])
-        self.assertArrayAlmostEqual(test_strain.deformation_matrix.green_lagrange_strain, 
+        self.assertArrayAlmostEqual(test_strain.deformation_matrix.green_lagrange_strain,
                                     test_strain)
         self.assertRaises(ValueError, Strain, [[0.1, 0.1, 0],
                                                [0, 0, 0],

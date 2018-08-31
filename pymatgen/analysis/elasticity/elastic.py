@@ -5,7 +5,7 @@
 from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
-from pymatgen.analysis.elasticity.tensors import Tensor, \
+from pymatgen.core.tensors import Tensor, \
     TensorCollection, get_uvec, SquareTensor
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
