@@ -9,7 +9,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 class TensorTest(PymatgenTest):

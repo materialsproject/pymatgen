@@ -41,7 +41,8 @@ reverse_voigt_map = np.array([[0, 5, 4],
                               [5, 1, 3],
                               [4, 3, 2]])
 
-
+DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__),
+                                   "quad_data.json"))
 class Tensor(np.ndarray, MSONable):
     """
     Base class for doing useful general operations on Nth order tensors,
@@ -197,10 +198,8 @@ class Tensor(np.ndarray, MSONable):
             Average of tensor projected into vectors on the unit sphere
 
         """
-        if not quad:
-            quad = loadfn(os.path.join(os.path.dirname(__file__),
-                                       "quad_data.json"))
-            weights, points = quad['weights'], quad['points']
+        quad = quad or DEFAULT_QUAD
+        weights, points = quad['weights'], quad['points']
         return sum([w * self.project(n) for w, n in zip(weights, points)])
 
     def get_grouped_indices(self, voigt=False, **kwargs):
