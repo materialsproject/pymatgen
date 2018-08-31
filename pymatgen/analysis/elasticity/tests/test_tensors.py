@@ -137,6 +137,7 @@ class TensorTest(PymatgenTest):
 
         self.structure = self.get_structure('BaNiO3')
         ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
+        self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
     def test_new(self):
@@ -378,6 +379,25 @@ class TensorTest(PymatgenTest):
         d = self.symm_rank3.as_dict(voigt=True)
         new = Tensor.from_dict(d)
         self.assertArrayAlmostEqual(new, self.symm_rank3)
+
+    def test_projection_methods(self):
+        self.assertAlmostEqual(self.rand_rank2.project([1, 0, 0]),
+                               self.rand_rank2[0, 0])
+        self.assertAlmostEqual(self.rand_rank2.project([1, 1, 1]),
+                               np.sum(self.rand_rank2) / 3)
+        # Test integration
+        self.assertArrayAlmostEqual(self.ones.average_over_unit_sphere(), 1)
+
+
+    def test_summary_methods(self):
+        self.assertEqual(set(self.ones.get_grouped_indices()[0]),
+                         set(itertools.product(range(3), range(3))))
+        self.assertEqual(self.ones.get_grouped_indices(voigt=True)[0],
+                         [(i,) for i in range(6)])
+        self.assertEqual(self.ones.get_symbol_dict(),
+                         {"T_1": 1})
+        self.assertEqual(self.ones.get_symbol_dict(voigt=False),
+                         {"T_11": 1})
 
 
 class TensorCollectionTest(PymatgenTest):
