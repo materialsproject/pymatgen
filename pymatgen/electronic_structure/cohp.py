@@ -791,7 +791,7 @@ class IcohpCollection(MSONable):
 
     def __str__(self):
         joinstr = []
-        for key, value in self._icohplist.items():
+        for value in self._icohplist.values():
             joinstr.append(str(value))
         return "\n".join(joinstr)
 
