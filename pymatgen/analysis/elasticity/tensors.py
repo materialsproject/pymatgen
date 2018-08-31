@@ -289,6 +289,22 @@ class Tensor(np.ndarray, MSONable):
                 d[sym_string] = array[indices[0]]
         return d
 
+    def round(self, decimals=0):
+        """
+        Wrapper around numpy.ndarray.round to ensure object
+        of same type is returned
+
+        Args:
+            decimals :Number of decimal places to round to (default: 0).
+                If decimals is negative, it specifies the number of
+                positions to the left of the decimal point.
+
+        Returns (Tensor):
+            rounded tensor of same type
+
+        """
+        return self.__class__(self.round(decimals=decimals))
+
     @property
     def symmetrized(self):
         """
