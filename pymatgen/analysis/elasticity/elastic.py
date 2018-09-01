@@ -5,21 +5,19 @@
 from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
-from pymatgen.analysis.elasticity.tensors import Tensor, \
-    TensorCollection, get_uvec, SquareTensor
+from pymatgen.core.tensors import Tensor, \
+    TensorCollection, get_uvec, SquareTensor, DEFAULT_QUAD
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.core.units import Unit
 from scipy.special import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
-from monty.serialization import loadfn
 from collections import OrderedDict
 from monty.dev import deprecated
 import numpy as np
 import warnings
 import itertools
-import os
 
 import sympy as sp
 
@@ -608,9 +606,7 @@ class ElasticTensorExpansion(TensorCollection):
             raise ValueError("If using temperature input, you must also "
                              "include structure")
 
-        if not quad:
-            quad = loadfn(os.path.join(os.path.dirname(__file__),
-                                       "quad_data.json"))
+        quad = quad if quad else DEFAULT_QUAD
         points = quad['points']
         weights = quad['weights']
         num, denom, c = np.zeros((3, 3)), 0, 1

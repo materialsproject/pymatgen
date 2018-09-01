@@ -85,7 +85,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman,&quot;</span><span class="o">+</span>\
-    <span class="s2">&quot; Nils E. R. Zimmermann, Bharat Medasani&quot;</span>
+    <span class="s2">&quot; Nils E. R. Zimmermann, Bharat Medasani, Evan Spotte-Smith&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Nils E. R. Zimmermann&quot;</span>
@@ -762,8 +762,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span>
 
-        <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Initialize the list of sites with the atoms in the origin unit cell</span>
+        <span class="c1">#  The `get_all_neighbors` function returns neighbors for each site&#39;s image in the</span>
+        <span class="c1">#   original unit cell. We start off with these central atoms to ensure they are</span>
+        <span class="c1">#   included in the tessellation</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">to_unit_cell</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">)]</span>
+
         <span class="c1"># Get all neighbors within a certain cutoff</span>
         <span class="c1">#   Record both the list of these neighbors, and the site indices</span>
         <span class="n">all_neighs</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_all_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">,</span>
@@ -782,6 +787,7 @@
         <span class="c1">#   Exploit the fact that the array is sorted by the unique operation such that</span>
         <span class="c1">#   the images associated with atom 0 are first, followed by atom 1, etc.</span>
         <span class="n">root_images</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">indices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
         <span class="k">del</span> <span class="n">indices</span>  <span class="c1"># Save memory (tessellations can be costly)</span>
 
         <span class="c1"># Run the tessellation</span>
@@ -1045,19 +1051,20 @@
 <div class="viewcode-block" id="JmolNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JmolNN">[docs]</a><span class="k">class</span> <span class="nc">JmolNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine near-neighbor sites and coordination number using an emulation</span>
-<span class="sd">    of JMol&#39;s default autoBond() algorithm. This version of the algorithm</span>
+<span class="sd">    of Jmol&#39;s default autoBond() algorithm. This version of the algorithm</span>
 <span class="sd">    does not take into account any information regarding known charge</span>
 <span class="sd">    states.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        tol (float): tolerance parameter for bond determination</span>
-<span class="sd">            (default: 1E-3).</span>
+<span class="sd">            (default: 0.56).</span>
 <span class="sd">        el_radius_updates: (dict) symbol-&gt;float to override default atomic </span>
 <span class="sd">            radii table values </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">,</span> <span class="n">el_radius_updates</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.56</span><span class="p">,</span> <span class="n">min_bond_distance</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">el_radius_updates</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_bond_distance</span> <span class="o">=</span> <span class="n">min_bond_distance</span>
 
         <span class="c1"># Load elemental radii table</span>
         <span class="n">bonds_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
@@ -1069,25 +1076,25 @@
         <span class="k">if</span> <span class="n">el_radius_updates</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">el_radius_updates</span><span class="p">)</span>
 
-<div class="viewcode-block" id="JmolNN.get_max_bond_distance"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_bond_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el1_sym</span><span class="p">,</span> <span class="n">el2_sym</span><span class="p">,</span> <span class="n">constant</span><span class="o">=</span><span class="mf">0.56</span><span class="p">):</span>
+<div class="viewcode-block" id="JmolNN.get_max_bond_distance"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_bond_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el1_sym</span><span class="p">,</span> <span class="n">el2_sym</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Use JMol algorithm to determine bond length from atomic parameters</span>
+<span class="sd">        Use Jmol algorithm to determine bond length from atomic parameters</span>
 <span class="sd">        Args:</span>
 <span class="sd">            el1_sym: (str) symbol of atom 1</span>
 <span class="sd">            el2_sym: (str) symbol of atom 2</span>
-<span class="sd">            constant: (float) factor to tune model</span>
 
 <span class="sd">        Returns: (float) max bond length</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el1_sym</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el2_sym</span><span class="p">]</span> <span class="o">+</span> <span class="n">constant</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el1_sym</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_radius</span><span class="p">[</span><span class="n">el2_sym</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="JmolNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.JmolNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all near-neighbor sites as well as the associated image locations</span>
 <span class="sd">        and weights of the site with index n using the bond identification</span>
-<span class="sd">        algorithm underlying JMol.</span>
+<span class="sd">        algorithm underlying Jmol.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            structure (Structure): input structure.</span>
@@ -1115,7 +1122,7 @@
         <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">neighb</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">max_rad</span><span class="p">):</span>
             <span class="c1"># Confirm neighbor based on bond length specific to atom pair</span>
-            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="n">bonds</span><span class="p">[(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">neighb</span><span class="o">.</span><span class="n">specie</span><span class="p">)]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">bonds</span><span class="p">[(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">neighb</span><span class="o">.</span><span class="n">specie</span><span class="p">)])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_bond_distance</span><span class="p">):</span>
                 <span class="n">weight</span> <span class="o">=</span> <span class="n">min_rad</span> <span class="o">/</span> <span class="n">dist</span>
                 <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="n">neighb</span><span class="p">,</span>
                             <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_image</span><span class="p">(</span><span class="n">neighb</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span>
@@ -1228,7 +1235,7 @@
                 <span class="n">weight</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetLength</span><span class="p">()</span>
 
             <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;site&quot;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
-                        <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                         <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
                         <span class="s2">&quot;site_index&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">})</span>
 
@@ -1266,6 +1273,138 @@
         <span class="k">return</span> <span class="n">mg</span></div>
 
 <div class="viewcode-block" id="OpenBabelNN.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.OpenBabelNN.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a certain nearest neighbor shell for a certain site.</span>
+
+<span class="sd">        Determines all non-backtracking paths through the neighbor network</span>
+<span class="sd">        computed by `get_nn_info`. The weight is determined by multiplying</span>
+<span class="sd">        the weight of the neighbor at each hop through the network. For</span>
+<span class="sd">        example, a 2nd-nearest-neighbor that has a weight of 1 from its</span>
+<span class="sd">        1st-nearest-neighbor and weight 0.5 from the original site will</span>
+<span class="sd">        be assigned a weight of 0.5.</span>
+
+<span class="sd">        As this calculation may involve computing the nearest neighbors of</span>
+<span class="sd">        atoms multiple times, the calculation starts by computing all of the</span>
+<span class="sd">        neighbor info and then calling `_get_nn_shell_info`. If you are likely</span>
+<span class="sd">        to call this method for more than one site, consider calling `get_all_nn`</span>
+<span class="sd">        first and then calling this protected method yourself.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure (Molecule): Input structure</span>
+<span class="sd">            site_idx (int): index of site for which to determine neighbor</span>
+<span class="sd">                information.</span>
+<span class="sd">            shell (int): Which neighbor shell to retrieve (1 == 1st NN shell)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list of dictionaries. Each entry in the list is information about</span>
+<span class="sd">                a certain neighbor in the structure, in the same format as</span>
+<span class="sd">                `get_nn_info`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">all_nn_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_nn_info</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_nn_shell_info</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">all_nn_info</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">)</span>
+
+        <span class="c1"># Update the site positions</span>
+        <span class="c1">#   Did not do this during NN options because that can be slower</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+            <span class="n">orig_site</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;site_index&#39;</span><span class="p">]]</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Site</span><span class="p">(</span><span class="n">orig_site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
+                                <span class="n">orig_site</span><span class="o">.</span><span class="n">_coords</span><span class="p">,</span>
+                                <span class="n">properties</span><span class="o">=</span><span class="n">orig_site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+
+<div class="viewcode-block" id="CovalentBondNN"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN">[docs]</a><span class="k">class</span> <span class="nc">CovalentBondNN</span><span class="p">(</span><span class="n">NearNeighbors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine near-neighbor sites and bond orders using built-in</span>
+<span class="sd">    pymatgen.Molecule CovalentBond functionality.</span>
+
+<span class="sd">    NOTE: This strategy is only appropriate for molecules, and not for</span>
+<span class="sd">    structures.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tol (float): Tolerance for covalent bond checking.</span>
+<span class="sd">        order (bool): If True (default), this class will compute bond orders. If</span>
+<span class="sd">        False, bond lengths will be computed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="CovalentBondNN.get_nn_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN.get_nn_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all near-neighbor sites and weights (orders) of bonds for a given</span>
+<span class="sd">        atom.</span>
+
+<span class="sd">        :param structure: input Molecule.</span>
+<span class="sd">        :param n: index of site for which to determine near neighbors.</span>
+<span class="sd">        :return: [dict] representing a neighboring site and the type of</span>
+<span class="sd">        bond present between site n and the neighboring site.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># This is unfortunately inefficient, but is the best way to fit the</span>
+        <span class="c1"># current NearNeighbors scheme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_covalent_bonds</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>
+
+        <span class="n">siw</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonds</span><span class="p">:</span>
+            <span class="n">capture_bond</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">bond</span><span class="o">.</span><span class="n">site1</span> <span class="o">==</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+                <span class="n">site</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">site2</span>
+                <span class="n">capture_bond</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">bond</span><span class="o">.</span><span class="n">site2</span> <span class="o">==</span> <span class="n">structure</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+                <span class="n">site</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">site1</span>
+                <span class="n">capture_bond</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">capture_bond</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">:</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">get_bond_order</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">length</span>
+
+                <span class="n">siw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;site&quot;</span><span class="p">:</span> <span class="n">site</span><span class="p">,</span>
+                            <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                            <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span>
+                            <span class="s2">&quot;site_index&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">siw</span></div>
+
+<div class="viewcode-block" id="CovalentBondNN.get_bonded_structure"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bonded_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">decorate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a MoleculeGraph object using this NearNeighbor</span>
+<span class="sd">        class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: Molecule object.</span>
+<span class="sd">            decorate (bool): whether to annotate site properties</span>
+<span class="sd">            with order parameters using neighbors determined by</span>
+<span class="sd">            this NearNeighbor class</span>
+
+<span class="sd">        Returns: a pymatgen.analysis.graphs.MoleculeGraph object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># requires optional dependency which is why it&#39;s not a top-level import</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span>
+
+        <span class="k">if</span> <span class="n">decorate</span><span class="p">:</span>
+            <span class="c1"># Decorate all sites in the underlying structure</span>
+            <span class="c1"># with site properties that provides information on the</span>
+            <span class="c1"># coordination number and coordination pattern based</span>
+            <span class="c1"># on the (current) structure of this graph.</span>
+            <span class="n">order_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_local_order_parameters</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">))]</span>
+            <span class="n">structure</span><span class="o">.</span><span class="n">add_site_property</span><span class="p">(</span><span class="s1">&#39;order_parameters&#39;</span><span class="p">,</span> <span class="n">order_parameters</span><span class="p">)</span>
+
+        <span class="n">mg</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mg</span></div>
+
+<div class="viewcode-block" id="CovalentBondNN.get_nn_shell_info"><a class="viewcode-back" href="../../../pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.CovalentBondNN.get_nn_shell_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_nn_shell_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">site_idx</span><span class="p">,</span> <span class="n">shell</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a certain nearest neighbor shell for a certain site.</span>
 
 <span class="sd">        Determines all non-backtracking paths through the neighbor network</span>

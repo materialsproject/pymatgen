@@ -348,7 +348,7 @@
 <span class="sd">        Molecules, while PBC is taken into account for periodic structures.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            tol (float): Distance tolerance. Default is 0.01A.</span>
+<span class="sd">            tol (float): Distance tolerance. Default is 0.5A.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (bool) True if SiteCollection does not contain atoms that are too</span>
@@ -2667,6 +2667,109 @@
         <span class="n">new_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">frac_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span>
                                 <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span></div>
+
+<div class="viewcode-block" id="Structure.substitute"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.substitute">[docs]</a>    <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">,</span> <span class="n">bond_order</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Substitute atom at index with a functional group.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index (int): Index of atom to substitute.</span>
+<span class="sd">            func_grp: Substituent molecule. There are two options:</span>
+
+<span class="sd">                1. Providing an actual Molecule as the input. The first atom</span>
+<span class="sd">                   must be a DummySpecie X, indicating the position of</span>
+<span class="sd">                   nearest neighbor. The second atom must be the next</span>
+<span class="sd">                   nearest atom. For example, for a methyl group</span>
+<span class="sd">                   substitution, func_grp should be X-CH3, where X is the</span>
+<span class="sd">                   first site and C is the second site. What the code will</span>
+<span class="sd">                   do is to remove the index site, and connect the nearest</span>
+<span class="sd">                   neighbor to the C atom in CH3. The X-C bond indicates the</span>
+<span class="sd">                   directionality to connect the atoms.</span>
+<span class="sd">                2. A string name. The molecule will be obtained from the</span>
+<span class="sd">                   relevant template in func_groups.json.</span>
+<span class="sd">            bond_order (int): A specified bond order to calculate the bond</span>
+<span class="sd">                length between the attached functional group and the nearest</span>
+<span class="sd">                neighbor site. Defaults to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Find the nearest neighbor that is not a terminal atom.</span>
+        <span class="n">all_non_terminal_nn</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nn</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="c1"># Check that the nn has neighbors within a sensible distance but</span>
+            <span class="c1"># is not the site being substituted.</span>
+            <span class="k">for</span> <span class="n">inn</span><span class="p">,</span> <span class="n">dist2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">inn</span> <span class="o">!=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">and</span> \
+                        <span class="n">dist2</span> <span class="o">&lt;</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">get_bond_length</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">inn</span><span class="o">.</span><span class="n">specie</span><span class="p">):</span>
+                    <span class="n">all_non_terminal_nn</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nn</span><span class="p">,</span> <span class="n">dist</span><span class="p">))</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_non_terminal_nn</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t find a non-terminal neighbor to attach&quot;</span>
+                               <span class="s2">&quot; functional group to.&quot;</span><span class="p">)</span>
+
+        <span class="n">non_terminal_nn</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_non_terminal_nn</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Set the origin point to be the coordinates of the nearest</span>
+        <span class="c1"># non-terminal neighbor.</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="n">non_terminal_nn</span><span class="o">.</span><span class="n">coords</span>
+
+        <span class="c1"># Pass value of functional group--either from user-defined or from</span>
+        <span class="c1"># functional.json</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_grp</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="n">func_grp</span> <span class="o">=</span> <span class="n">func_grp</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check to see whether the functional group is in database.</span>
+            <span class="k">if</span> <span class="n">func_grp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FunctionalGroups</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t find functional group in list. &quot;</span>
+                                   <span class="s2">&quot;Provide explicit coordinate instead&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">func_grp</span> <span class="o">=</span> <span class="n">FunctionalGroups</span><span class="p">[</span><span class="n">func_grp</span><span class="p">]</span>
+
+        <span class="c1"># If a bond length can be found, modify func_grp so that the X-group</span>
+        <span class="c1"># bond length is equal to the bond length.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bl</span> <span class="o">=</span> <span class="n">get_bond_length</span><span class="p">(</span><span class="n">non_terminal_nn</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                                 <span class="n">bond_order</span><span class="o">=</span><span class="n">bond_order</span><span class="p">)</span>
+        <span class="c1"># Catches for case of incompatibility between Element(s) and Specie(s)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">bl</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">func_grp</span> <span class="o">=</span> <span class="n">func_grp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">func_grp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">func_grp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span>
+            <span class="n">vec</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+            <span class="n">func_grp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">func_grp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">bl</span><span class="p">)</span> <span class="o">*</span> <span class="n">vec</span>
+
+        <span class="c1"># Align X to the origin.</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">func_grp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">func_grp</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">func_grp</span><span class="p">))),</span> <span class="n">origin</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+        <span class="c1"># Find angle between the attaching bond and the bond to be replaced.</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">func_grp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">origin</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">origin</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">get_angle</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle</span> <span class="o">%</span> <span class="mi">180</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">179</span><span class="p">:</span>
+            <span class="c1"># For angles which are not 0 or 180, we perform a rotation about</span>
+            <span class="c1"># the origin along an axis perpendicular to both bonds to align</span>
+            <span class="c1"># bonds.</span>
+            <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_origin_axis_angle</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+            <span class="n">func_grp</span><span class="o">.</span><span class="n">apply_operation</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># We have a 180 degree angle. Simply do an inversion about the</span>
+            <span class="c1"># origin</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">func_grp</span><span class="p">)):</span>
+                <span class="n">func_grp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">func_grp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span>
+                               <span class="n">origin</span> <span class="o">-</span> <span class="p">(</span><span class="n">func_grp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">origin</span><span class="p">))</span>
+
+        <span class="c1"># Remove the atom to be replaced, and add the rest of the functional</span>
+        <span class="c1"># group.</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">func_grp</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">s_new</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s_new</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Structure.remove_species"><a class="viewcode-back" href="../../../pymatgen.core.structure.html#pymatgen.core.structure.Structure.remove_species">[docs]</a>    <span class="k">def</span> <span class="nf">remove_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

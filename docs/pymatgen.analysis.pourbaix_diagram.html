@@ -138,24 +138,27 @@ diagrams.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram">
-<em class="property">class </em><code class="descname">PourbaixDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>comp_dict=None</em>, <em>conc_dict=None</em>, <em>filter_solids=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="descname">PourbaixDiagram</code><span class="sig-paren">(</span><em>entries</em>, <em>comp_dict=None</em>, <em>conc_dict=None</em>, <em>filter_solids=False</em>, <em>nproc=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to create a Pourbaix diagram from entries</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>[</strong><strong>Entry</strong><strong>]</strong> (<a class="reference internal" href="pymatgen.entries.html#module-pymatgen.entries" title="pymatgen.entries"><em>entries</em></a>) – Entries list containing both Solids and Ions</li>
-<li><strong>{str</strong> (<em>conc_dict</em>) – float}: Dictionary of compositions, defaults to
-equal parts of each elements</li>
-<li><strong>{str</strong> – float}: Dictionary of ion concentrations, defaults
-to 1e-6 for each element</li>
+<li><strong>entries</strong> (<em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.PourbaixEntry" title="pymatgen.analysis.pourbaix_diagram.PourbaixEntry"><em>PourbaixEntry</em></a><em>] or </em><em>[</em><a class="reference internal" href="#pymatgen.analysis.pourbaix_diagram.MultiEntry" title="pymatgen.analysis.pourbaix_diagram.MultiEntry"><em>MultiEntry</em></a><em>]</em>) – Entries list
+containing Solids and Ions or a list of MultiEntries</li>
+<li><strong>(</strong><strong>{str</strong> (<em>conc_dict</em>) – float}): Dictionary of compositions,
+defaults to equal parts of each elements</li>
+<li><strong>(</strong><strong>{str</strong> – float}): Dictionary of ion concentrations,
+defaults to 1e-6 for each element</li>
 <li><strong>filter_solids</strong> (<em>bool</em>) – applying this filter to a pourbaix
 diagram ensures all included phases are filtered by
 stability on the compositional phase diagram.  This
-breaks some of the functionality of the analysis, though,
-so use with caution.</li>
+breaks some of the functionality of the analysis,
+though, so use with caution.</li>
+<li><strong>nproc</strong> (<em>int</em>) – number of processes to generate multientries with
+in parallel.  Defaults to None (serial processing)</li>
 </ul>
 </td>
 </tr>
@@ -168,6 +171,11 @@ so use with caution.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><em>include_unprocessed_entries=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.find_stable_entry">
 <code class="descname">find_stable_entry</code><span class="sig-paren">(</span><em>pH</em>, <em>V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.find_stable_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.find_stable_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds stable entry at a pH,V condition
@@ -177,6 +185,11 @@ so use with caution.</li>
 :type V: float</p>
 <p>Returns:</p>
 </dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#PourbaixDiagram.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.analysis.pourbaix_diagram.PourbaixDiagram.get_decomposition_energy">
@@ -561,6 +574,11 @@ Eg. of solid: Fe2O3(s), Fe(s), Na2O</td>
 <dl class="function">
 <dt id="pymatgen.analysis.pourbaix_diagram.latexify_ion">
 <code class="descname">latexify_ion</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/pourbaix_diagram.html#latexify_ion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.latexify_ion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.pourbaix_diagram.tqdm">
+<code class="descname">tqdm</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.pourbaix_diagram.tqdm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>

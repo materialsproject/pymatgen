@@ -1,0 +1,877 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.core.tensors module &#8212; pymatgen 2018.8.10 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2018.8.10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pymatgen.core.tensors">
+<span id="pymatgen-core-tensors-module"></span><h1>pymatgen.core.tensors module<a class="headerlink" href="#module-pymatgen.core.tensors" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pymatgen.core.tensors.SquareTensor">
+<em class="property">class </em><code class="descname">SquareTensor</code><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
+<p>Base class for doing useful general operations on second rank tensors
+(stress, strain etc.).</p>
+<p>Create a SquareTensor object.  Note that the constructor uses __new__
+rather than __init__ according to the standard method of
+subclassing numpy ndarrays.  Error is thrown when the class is
+initialized with non-square matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_array</strong> (<em>3x3 array-like</em>) – the 3x3 array-like
+representing the content of the tensor</li>
+<li><strong>vscale</strong> (<em>6x1 array-like</em>) – 6x1 array-like scaling the
+voigt-notation vector with the tensor entries</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.SquareTensor.det">
+<code class="descname">det</code><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.det" title="Permalink to this definition">¶</a></dt>
+<dd><p>shorthand for the determinant of the SquareTensor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.SquareTensor.get_scaled">
+<code class="descname">get_scaled</code><span class="sig-paren">(</span><em>scale_factor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.get_scaled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.get_scaled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scales the tensor by a certain multiplicative scale factor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>scale_factor</strong> (<em>float</em>) – scalar multiplier to be applied to the
+SquareTensor object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.SquareTensor.inv">
+<code class="descname">inv</code><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.inv" title="Permalink to this definition">¶</a></dt>
+<dd><p>shorthand for matrix inverse on SquareTensor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.SquareTensor.is_rotation">
+<code class="descname">is_rotation</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>include_improper=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.is_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.is_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test to see if tensor is a valid rotation matrix, performs a
+test to check whether the inverse is equal to the transpose
+and if the determinant is equal to one within the specified
+tolerance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tol</strong> (<em>float</em>) – tolerance to both tests of whether the
+the determinant is one and the inverse is equal
+to the transpose</li>
+<li><strong>include_improper</strong> (<em>bool</em>) – whether to include improper
+rotations in the determination of validity</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.SquareTensor.polar_decomposition">
+<code class="descname">polar_decomposition</code><span class="sig-paren">(</span><em>side=’right’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.polar_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates matrices for polar decomposition</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.SquareTensor.principal_invariants">
+<code class="descname">principal_invariants</code><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.principal_invariants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of principal invariants for the tensor,
+which are the values of the coefficients of the characteristic
+polynomial for the matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.SquareTensor.refine_rotation">
+<code class="descname">refine_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.refine_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.refine_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for refining rotation matrix by ensuring
+that second and third rows are perpindicular to the first.
+Gets new y vector from an orthogonal projection of x onto y
+and the new z vector from a cross product of the new x and y</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>to test for rotation</strong> (<em>tol</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">new rotation matrix</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.SquareTensor.trans">
+<code class="descname">trans</code><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.trans" title="Permalink to this definition">¶</a></dt>
+<dd><p>shorthand for transpose on SquareTensor</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.tensors.Tensor">
+<em class="property">class </em><code class="descname">Tensor</code><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Base class for doing useful general operations on Nth order tensors,
+without restrictions on the type (stress, elastic, strain, piezo, etc.)</p>
+<p>Create a Tensor object.  Note that the constructor uses __new__
+rather than __init__ according to the standard method of
+subclassing numpy ndarrays.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_array</strong> – (array-like with shape 3^N): array-like representing
+a tensor quantity in standard (i. e. non-voigt) notation</li>
+<li><strong>vscale</strong> – (N x M array-like): a matrix corresponding
+to the coefficients of the voigt-notation tensor</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><em>voigt=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes the tensor object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>voigt</strong> (<em>bool</em>) – flag for whether to store entries in
+voigt-notation.  Defaults to false, as information
+may be lost in conversion.</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (Dict):</dt>
+<dd>serialized format tensor object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.average_over_unit_sphere">
+<code class="descname">average_over_unit_sphere</code><span class="sig-paren">(</span><em>quad=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.average_over_unit_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.average_over_unit_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for averaging the tensor projection over the unit
+with option for custom quadrature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>quad</strong> (<em>dict</em>) – quadrature for integration, should be
+dictionary with “points” and “weights” keys defaults
+to quadpy.sphere.Lebedev(19) as read from file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average of tensor projected into vectors on the unit sphere</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.convert_to_ieee">
+<code class="descname">convert_to_ieee</code><span class="sig-paren">(</span><em>structure</em>, <em>initial_fit=True</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.convert_to_ieee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.convert_to_ieee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a structure associated with a tensor, attempts a
+calculation of the tensor in IEEE format according to
+the 1987 IEEE standards.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – a structure associated with the
+tensor to be converted to the IEEE standard</li>
+<li><strong>initial_fit</strong> (<em>bool</em>) – flag to indicate whether initial
+tensor is fit to the symmetry of the structure.
+Defaults to true. Note that if false, inconsistent
+results may be obtained due to symmetrically
+equivalent, but distinct transformations
+being used in different versions of spglib.</li>
+<li><strong>refine_rotation</strong> (<em>bool</em>) – whether to refine the rotation
+produced by the ieee transform generator, default True</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.einsum_sequence">
+<code class="descname">einsum_sequence</code><span class="sig-paren">(</span><em>other_arrays</em>, <em>einsum_string=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.einsum_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.einsum_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the result of an einstein summation expression</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.fit_to_structure">
+<code class="descname">fit_to_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>symprec=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.fit_to_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.fit_to_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tensor that is invariant with respect to symmetry
+operations corresponding to a structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure from which to generate
+symmetry operations</li>
+<li><strong>symprec</strong> (<em>float</em>) – symmetry tolerance for the Spacegroup Analyzer
+used to generate the symmetry operations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.tensors.Tensor.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.tensors.Tensor.from_values_indices">
+<em class="property">classmethod </em><code class="descname">from_values_indices</code><span class="sig-paren">(</span><em>values</em>, <em>indices</em>, <em>populate=False</em>, <em>structure=None</em>, <em>voigt_rank=None</em>, <em>vsym=True</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.from_values_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_values_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a tensor from values and indices, with options
+for populating the remainder of the tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>values</strong> (<em>floats</em>) – numbers to place at indices</li>
+<li><strong>indices</strong> (<em>array-likes</em>) – indices to place values at</li>
+<li><strong>populate</strong> (<em>bool</em>) – whether to populate the tensor</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to base population
+or fit_to_structure on</li>
+<li><strong>voigt_rank</strong> (<em>int</em>) – full tensor rank to indicate the
+shape of the resulting tensor.  This is necessary
+if one provides a set of indices more minimal than
+the shape of the tensor they want, e.g.
+Tensor.from_values_indices((0, 0), 100)</li>
+<li><strong>vsym</strong> (<em>bool</em>) – whether to voigt symmetrize during the
+optimization procedure</li>
+<li><strong>verbose</strong> (<em>bool</em>) – whether to populate verbosely</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.tensors.Tensor.from_voigt">
+<em class="property">classmethod </em><code class="descname">from_voigt</code><span class="sig-paren">(</span><em>voigt_input</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.from_voigt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.from_voigt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor based on the voigt notation vector or matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>voigt_input</strong> (<em>array-like</em>) – voigt input for a given tensor</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.get_grouped_indices">
+<code class="descname">get_grouped_indices</code><span class="sig-paren">(</span><em>voigt=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.get_grouped_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_grouped_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets index sets for equivalent tensor values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>voigt</strong> (<em>bool</em>) – whether to get grouped indices
+of voigt or full notation tensor, defaults
+to false</li>
+<li><strong>**kwargs</strong> – <p>keyword args for np.isclose.  Can take atol
+and rtol for absolute and relative tolerance, e. g.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">group_array_indices</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">group_array_indices</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of index groups where tensor values are equivalent to
+within tolerances</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.tensors.Tensor.get_ieee_rotation">
+<em class="property">static </em><code class="descname">get_ieee_rotation</code><span class="sig-paren">(</span><em>structure</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.get_ieee_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_ieee_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a structure associated with a tensor, determines
+the rotation matrix for IEEE conversion according to
+the 1987 IEEE standards.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – a structure associated with the
+tensor to be converted to the IEEE standard</li>
+<li><strong>refine_rotation</strong> (<em>bool</em>) – whether to refine the rotation
+using SquareTensor.refine_rotation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.get_symbol_dict">
+<code class="descname">get_symbol_dict</code><span class="sig-paren">(</span><em>voigt=True</em>, <em>zero_index=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.get_symbol_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_symbol_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a summary dict for tensor with associated symbol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>voigt</strong> (<em>bool</em>) – whether to get symbol dict for voigt
+notation tensor, as opposed to full notation,
+defaults to true</li>
+<li><strong>zero_index</strong> (<em>bool</em>) – whether to set initial index to zero,
+defaults to false, since tensor notations tend to use
+one-indexing, rather than zero indexing like python</li>
+<li><strong>**kwargs</strong> – <p>keyword args for np.isclose.  Can take atol
+and rtol for absolute and relative tolerance, e. g.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">get_symbol_dict</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">get_symbol_dict</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of index groups where tensor values are equivalent to
+within tolerances</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.core.tensors.Tensor.get_voigt_dict">
+<em class="property">static </em><code class="descname">get_voigt_dict</code><span class="sig-paren">(</span><em>rank</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.get_voigt_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.get_voigt_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary that maps indices in the tensor to those
+in a voigt representation based on input rank</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rank</strong> (<em>int</em>) – Tensor rank to generate the voigt map</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.is_fit_to_structure">
+<code class="descname">is_fit_to_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.is_fit_to_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_fit_to_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether a tensor is invariant with respect to the
+symmetry operations of a particular structure by testing
+whether the residual of the symmetric portion is below a
+tolerance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure to be fit to</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance for symmetry testing</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.is_symmetric">
+<code class="descname">is_symmetric</code><span class="sig-paren">(</span><em>tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.is_symmetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_symmetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether a tensor is symmetric or not based on the residual
+with its symmetric part, from self.symmetrized</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) – tolerance to test for symmetry</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.is_voigt_symmetric">
+<code class="descname">is_voigt_symmetric</code><span class="sig-paren">(</span><em>tol=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.is_voigt_symmetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.is_voigt_symmetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests symmetry of tensor to that necessary for voigt-conversion
+by grouping indices into pairs and constructing a sequence of
+possible permutations to be used in a tensor transpose</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.populate">
+<code class="descname">populate</code><span class="sig-paren">(</span><em>structure</em>, <em>prec=1e-05</em>, <em>maxiter=200</em>, <em>verbose=False</em>, <em>precond=True</em>, <em>vsym=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.populate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a partially populated tensor, and populates the non-zero
+entries according to the following procedure, iterated until
+the desired convergence (specified via prec) is achieved.</p>
+<ol class="arabic simple">
+<li>Find non-zero entries</li>
+<li>Symmetrize the tensor with respect to crystal symmetry and
+(optionally) voigt symmetry</li>
+<li>Reset the non-zero entries of the original tensor</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<em>structure object</em>) – </li>
+<li><strong>prec</strong> (<em>float</em>) – precision for determining a non-zero value</li>
+<li><strong>maxiter</strong> (<em>int</em>) – maximum iterations for populating the tensor</li>
+<li><strong>verbose</strong> (<em>bool</em>) – whether to populate verbosely</li>
+<li><strong>precond</strong> (<em>bool</em>) – whether to precondition by cycling through
+all symmops and storing new nonzero values, default True</li>
+<li><strong>vsym</strong> (<em>bool</em>) – whether to enforce voigt symmetry, defaults
+to True</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.project">
+<code class="descname">project</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method for projection of a tensor into a
+vector.  Returns the tensor dotted into a unit vector
+along the input n.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>3x1 array-like</em>) – direction to project onto</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (float):</dt>
+<dd>scalar value corresponding to the projection of
+the tensor into the vector</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.rotate">
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>matrix</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a rotation directly, and tests input matrix to ensure a valid
+rotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>matrix</strong> (<em>3x3 array-like</em>) – rotation matrix to be applied to tensor</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance for testing rotation matrix validity</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.round">
+<code class="descname">round</code><span class="sig-paren">(</span><em>decimals=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.round"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.round" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around numpy.round to ensure object
+of same type is returned</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>decimals</strong> – Number of decimal places to round to (default: 0).
+If decimals is negative, it specifies the number of
+positions to the left of the decimal point.</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Returns (Tensor):</dt>
+<dd>rounded tensor of same type</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.structure_transform">
+<code class="descname">structure_transform</code><span class="sig-paren">(</span><em>original_structure</em>, <em>new_structure</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.structure_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.structure_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a tensor from one basis for an original structure
+into a new basis defined by a new structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>original_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure corresponding
+to the basis of the current tensor</li>
+<li><strong>new_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure corresponding to the
+desired basis</li>
+<li><strong>refine_rotation</strong> (<em>bool</em>) – whether to refine the rotations
+generated in get_ieee_rotation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Tensor that has been transformed such that its basis
+corresponds to the new_structure’s basis</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.Tensor.symbol">
+<code class="descname">symbol</code><em class="property"> = ‘T’</em><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.Tensor.symmetrized">
+<code class="descname">symmetrized</code><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symmetrized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a generally symmetrized tensor, calculated by taking
+the sum of the tensor and its transpose with respect to all
+possible permutations of indices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>symm_op</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a transformation (via a symmetry operation) to a tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symm_op</strong> (<a class="reference internal" href="pymatgen.core.operations.html#pymatgen.core.operations.SymmOp" title="pymatgen.core.operations.SymmOp"><em>SymmOp</em></a>) – a symmetry operation to apply to the tensor</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.Tensor.voigt">
+<code class="descname">voigt</code><a class="headerlink" href="#pymatgen.core.tensors.Tensor.voigt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the tensor in Voigt notation</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.Tensor.voigt_symmetrized">
+<code class="descname">voigt_symmetrized</code><a class="headerlink" href="#pymatgen.core.tensors.Tensor.voigt_symmetrized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a “voigt”-symmetrized tensor, i. e. a voigt-notation
+tensor such that it is invariant wrt permutation of indices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.Tensor.zeroed">
+<code class="descname">zeroed</code><span class="sig-paren">(</span><em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor.zeroed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor.zeroed" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the matrix with all entries below a certain threshold
+(i.e. tol) set to zero</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.core.tensors.TensorCollection">
+<em class="property">class </em><code class="descname">TensorCollection</code><span class="sig-paren">(</span><em>tensor_list</em>, <em>base_class=&lt;class ‘pymatgen.core.tensors.Tensor’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Sequence</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<p>A sequence of tensors that can be used for fitting data
+or for having a tensor expansion</p>
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><em>voigt=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.convert_to_ieee">
+<code class="descname">convert_to_ieee</code><span class="sig-paren">(</span><em>structure</em>, <em>initial_fit=True</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.convert_to_ieee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.convert_to_ieee" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.fit_to_structure">
+<code class="descname">fit_to_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>symprec=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.fit_to_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.fit_to_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.tensors.TensorCollection.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.core.tensors.TensorCollection.from_voigt">
+<em class="property">classmethod </em><code class="descname">from_voigt</code><span class="sig-paren">(</span><em>voigt_input_list</em>, <em>base_class=&lt;class ‘pymatgen.core.tensors.Tensor’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.from_voigt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_voigt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.is_fit_to_structure">
+<code class="descname">is_fit_to_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>tol=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.is_fit_to_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_fit_to_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.is_symmetric">
+<code class="descname">is_symmetric</code><span class="sig-paren">(</span><em>tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.is_symmetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_symmetric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.is_voigt_symmetric">
+<code class="descname">is_voigt_symmetric</code><span class="sig-paren">(</span><em>tol=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.is_voigt_symmetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.is_voigt_symmetric" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.TensorCollection.ranks">
+<code class="descname">ranks</code><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.ranks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.rotate">
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>matrix</em>, <em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.rotate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.round">
+<code class="descname">round</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.round"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.round" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.TensorCollection.symmetrized">
+<code class="descname">symmetrized</code><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.symmetrized" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>symm_op</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.TensorCollection.voigt">
+<code class="descname">voigt</code><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.voigt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.core.tensors.TensorCollection.voigt_symmetrized">
+<code class="descname">voigt_symmetrized</code><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.voigt_symmetrized" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorCollection.zeroed">
+<code class="descname">zeroed</code><span class="sig-paren">(</span><em>tol=0.001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.zeroed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.zeroed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.core.tensors.get_tkd_value">
+<code class="descname">get_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>allclose_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#get_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.get_tkd_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to find a value in a tensor-keyed-
+dictionary using an approximation to the key.  This
+is useful if rounding errors in construction occur
+or hashing issues arise in tensor-keyed-dictionaries
+(e. g. from symmetry_reduce).  Resolves most
+hashing issues, and is preferable to redefining
+eq methods in the base tensor class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tensor_keyed_dict</strong> (<em>dict</em>) – dict with Tensor keys</li>
+<li><strong>tensor</strong> (<a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><em>Tensor</em></a>) – tensor to find value of in the dict</li>
+<li><strong>allclose_kwargs</strong> (<em>dict</em>) – dict of keyword-args
+to pass to allclose.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.core.tensors.get_uvec">
+<code class="descname">get_uvec</code><span class="sig-paren">(</span><em>vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#get_uvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.get_uvec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a unit vector parallel to input vector</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.core.tensors.set_tkd_value">
+<code class="descname">set_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>set_value</em>, <em>allclose_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#set_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.set_tkd_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.core.tensors.symmetry_reduce">
+<code class="descname">symmetry_reduce</code><span class="sig-paren">(</span><em>tensors</em>, <em>structure</em>, <em>tol=1e-08</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#symmetry_reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.symmetry_reduce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that converts a list of tensors corresponding to a structure
+and returns a dictionary consisting of unique tensor keys with symmop
+values corresponding to transformations that will result in derivative
+tensors from the original list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tensors</strong> (<em>list of tensors</em>) – list of Tensor objects to test for
+symmetrically-equivalent duplicates</li>
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure from which to get symmetry</li>
+<li><strong>tol</strong> (<em>float</em>) – tolerance for tensor equivalence</li>
+<li><strong>kwargs</strong> – keyword arguments for the SpacegroupAnalyzer</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dictionary consisting of unique tensors with symmetry operations
+corresponding to those which will reconstruct the remaining
+tensors as values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pymatgen.core.tensors.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

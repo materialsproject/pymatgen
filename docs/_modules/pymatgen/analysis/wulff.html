@@ -406,9 +406,35 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
+<div class="viewcode-block" id="WulffShape.get_line_in_facet"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.get_line_in_facet">[docs]</a>    <span class="k">def</span> <span class="nf">get_line_in_facet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">facet</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the sorted pts in a facet used to draw a line</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">facet</span><span class="o">.</span><span class="n">outer_lines</span><span class="p">)</span>
+        <span class="n">pt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prev</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">prev</span><span class="p">:</span>
+                            <span class="n">l</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+                        <span class="k">break</span>
+            <span class="c1"># make sure the lines are connected one by one.</span>
+            <span class="c1"># find the way covering all pts and facets</span>
+            <span class="n">pt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">pt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">pt</span></div>
+
 <div class="viewcode-block" id="WulffShape.get_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.wulff.html#pymatgen.analysis.wulff.WulffShape.get_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color_set</span><span class="o">=</span><span class="s1">&#39;PuBu&#39;</span><span class="p">,</span> <span class="n">grid_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis_off</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">show_area</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">off_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">bar_pos</span><span class="o">=</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">),</span> <span class="n">bar_on</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">bar_pos</span><span class="o">=</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">),</span> <span class="n">bar_on</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">units_in_JPERM2</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">legend_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aspect_ratio</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">custom_colors</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the Wulff shape plot.</span>
@@ -464,24 +490,7 @@
             <span class="c1"># assign the color for on_wulff facets according to its</span>
             <span class="c1"># index and the color_list for on_wulff</span>
             <span class="n">plane_color</span> <span class="o">=</span> <span class="n">color_list</span><span class="p">[</span><span class="n">plane</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">plane</span><span class="o">.</span><span class="n">outer_lines</span><span class="p">)</span>
-            <span class="n">pt</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">prev</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
-                            <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">prev</span><span class="p">:</span>
-                                <span class="n">l</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-                            <span class="k">break</span>
-                <span class="c1"># make sure the lines are connected one by one.</span>
-                <span class="c1"># find the way covering all pts and facets</span>
-                <span class="n">pt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-                <span class="n">pt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_pt_list</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-                <span class="n">prev</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lines_in_facet</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
             <span class="c1"># plot from the sorted pts from [simpx]</span>
             <span class="n">tri</span> <span class="o">=</span> <span class="n">mpl3</span><span class="o">.</span><span class="n">art3d</span><span class="o">.</span><span class="n">Poly3DCollection</span><span class="p">([</span><span class="n">pt</span><span class="p">])</span>
             <span class="n">tri</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">plane_color</span><span class="p">)</span>
@@ -524,7 +533,8 @@
                 <span class="n">ax1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">boundaries</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">bounds</span> <span class="o">+</span> <span class="p">[</span><span class="mi">10</span><span class="p">],</span>
                 <span class="n">extend</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="n">bounds</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">spacing</span><span class="o">=</span><span class="s1">&#39;proportional&#39;</span><span class="p">,</span>
                 <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
-            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Surface Energies ($J/m^2$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;$J/m^2$&quot;</span> <span class="k">if</span> <span class="n">units_in_JPERM2</span> <span class="k">else</span> <span class="s2">&quot;$eV/\AA^2$&quot;</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Surface Energies (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span><span class="p">(</span><span class="n">units</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">grid_off</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
@@ -648,7 +658,41 @@
         <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">tot_surface_energy</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">miller_energy_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span> <span class="o">*</span> \
                                   <span class="bp">self</span><span class="o">.</span><span class="n">miller_area_dict</span><span class="p">[</span><span class="n">hkl</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">tot_surface_energy</span></div>
+        <span class="k">return</span> <span class="n">tot_surface_energy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tot_corner_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of vertices in the convex hull.</span>
+<span class="sd">            Useful for identifying catalytically active sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wulff_convex</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tot_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of edges in the convex hull.</span>
+<span class="sd">            Useful for identifying catalytically active sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">facet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">:</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_line_in_facet</span><span class="p">(</span><span class="n">facet</span><span class="p">)</span>
+
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pt</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">])]))))</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_edges</span><span class="p">:</span>
+                    <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+            <span class="n">all_edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_edges</span><span class="p">)</span></div>
+
 </pre></div>
 
           </div>

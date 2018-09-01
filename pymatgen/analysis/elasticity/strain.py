@@ -12,7 +12,7 @@ generating deformed structure sets for further calculations.
 """
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
+from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 import numpy as np
 import scipy
 import itertools

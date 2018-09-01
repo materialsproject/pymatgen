@@ -1652,7 +1652,7 @@ Molecules, while PBC is taken into account for periodic structures.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) – Distance tolerance. Default is 0.01A.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tol</strong> (<em>float</em>) – Distance tolerance. Default is 0.5A.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(bool) True if SiteCollection does not contain atoms that are too
 close together.</td>
@@ -2215,6 +2215,41 @@ a comparison key from each list element: key=str.lower. The
 default value is None (compare the elements directly).</li>
 <li><strong>reverse</strong> (<em>bool</em>) – If set to True, then the list elements are sorted
 as if each comparison were reversed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.structure.Structure.substitute">
+<code class="descname">substitute</code><span class="sig-paren">(</span><em>index</em>, <em>func_grp</em>, <em>bond_order=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.substitute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Substitute atom at index with a functional group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index</strong> (<em>int</em>) – Index of atom to substitute.</li>
+<li><strong>func_grp</strong> – <p>Substituent molecule. There are two options:</p>
+<ol class="arabic">
+<li>Providing an actual Molecule as the input. The first atom
+must be a DummySpecie X, indicating the position of
+nearest neighbor. The second atom must be the next
+nearest atom. For example, for a methyl group
+substitution, func_grp should be X-CH3, where X is the
+first site and C is the second site. What the code will
+do is to remove the index site, and connect the nearest
+neighbor to the C atom in CH3. The X-C bond indicates the
+directionality to connect the atoms.</li>
+<li>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</li>
+</ol>
+</li>
+<li><strong>bond_order</strong> (<em>int</em>) – A specified bond order to calculate the bond
+length between the attached functional group and the nearest
+neighbor site. Defaults to 1.</li>
 </ul>
 </td>
 </tr>
