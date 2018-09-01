@@ -310,31 +310,9 @@ or “fdp” (for more crowded graphs) usually give good outputs
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.analysis.graphs.MoleculeGraph.equivalent_to">
-<code class="descname">equivalent_to</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.equivalent_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.equivalent_to" title="Permalink to this definition">¶</a></dt>
-<dd><p>A weaker equality function that evaluates isomorphisms between two
-MoleculeGraphs. If there is an isomorphism where the species are
-identical for each pair, then the MoleculeGraphs are considered
-“equivalent”.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> – The MoleculeGraph to be compared to this MoleculeGraph</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Bool</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.find_rings">
 <code class="descname">find_rings</code><span class="sig-paren">(</span><em>including=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.find_rings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.find_rings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find ring structures in the MoleculeGraph.</p>
-<p>NOTE: Currently, this function behaves as
-expected for single rings, but fails (miserably)
-on molecules with more than one ring.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -348,10 +326,9 @@ only return those rings including the specified
 sites. By default, this parameter is None, and
 all rings will be returned.
 :return: dict {index:cycle}. Each
-entry will be a ring (cycle, in graph
-theory terms) including the index found in the Molecule.
-If there is no cycle including an index, the value will
-be an empty list.</p>
+entry will be a ring (cycle, in graph theory terms) including the index
+found in the Molecule. If there is no cycle including an index, the
+value will be an empty list.</p>
 </dd></dl>
 
 <dl class="classmethod">
@@ -386,10 +363,116 @@ of node corresponding to site n.
 :return (int):</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.MoleculeGraph.insert_node">
+<code class="descname">insert_node</code><span class="sig-paren">(</span><em>i</em>, <em>species</em>, <em>coords</em>, <em>validate_proximity=False</em>, <em>site_properties=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.insert_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.insert_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around Molecule.insert(), which also incorporates the new
+site into the MoleculeGraph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>i</strong> – Index at which to insert the new site</li>
+<li><strong>species</strong> – Species for the new site</li>
+<li><strong>coords</strong> – 3x1 array representing coordinates of the new site</li>
+<li><strong>validate_proximity</strong> – For Molecule.insert(); if True (default
+False), distance will be checked to ensure that site can be safely
+added.</li>
+<li><strong>site_properties</strong> – Site properties for Molecule</li>
+<li><strong>edges</strong> – List of dicts representing edges to be added to the
+MoleculeGraph. These edges must include the index of the new site i,
+and all indices used for these edges should reflect the
+MoleculeGraph AFTER the insertion, NOT before. Each dict should at
+least have a “to_index” and “from_index” key, and can also have a
+“weight” and a “properties” key.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.name">
 <code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.name" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>return</em> – Name of graph</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.MoleculeGraph.remove_nodes">
+<code class="descname">remove_nodes</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.remove_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for Molecule.remove_sites().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> – list of indices in the current Molecule (and graph) to
+be removed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.MoleculeGraph.replace_group">
+<code class="descname">replace_group</code><span class="sig-paren">(</span><em>index</em>, <em>func_grp</em>, <em>strategy</em>, <em>bond_order=1</em>, <em>graph_dict=None</em>, <em>strategy_params=None</em>, <em>reorder=True</em>, <em>extend_structure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.replace_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.replace_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds off of Molecule.substitute and MoleculeGraph.substitute_group
+to replace a functional group in self.molecule with a functional group.
+This method also amends self.graph to incorporate the new functional
+group.</p>
+<p>TODO: Figure out how to replace into a ring structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index</strong> – Index of atom to substitute.</li>
+<li><strong>func_grp</strong> – <p>Substituent molecule. There are three options:</p>
+<ol class="arabic">
+<li>Providing an actual molecule as the input. The first atom
+must be a DummySpecie X, indicating the position of
+nearest neighbor. The second atom must be the next
+nearest atom. For example, for a methyl group
+substitution, func_grp should be X-CH3, where X is the
+first site and C is the second site. What the code will
+do is to remove the index site, and connect the nearest
+neighbor to the C atom in CH3. The X-C bond indicates the
+directionality to connect the atoms.</li>
+<li>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</li>
+<li>A MoleculeGraph object.</li>
+</ol>
+</li>
+<li><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</li>
+<li><strong>bond_order</strong> – A specified bond order to calculate the bond
+length between the attached functional group and the nearest
+neighbor site. Defaults to 1.</li>
+<li><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
+group (format: {(u, v): props}, where props is a dictionary of
+properties, including weight. If None, then the algorithm
+will attempt to automatically determine bonds using one of
+a list of strategies defined in pymatgen.analysis.local_env.</li>
+<li><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
+If None, default parameters will be used.</li>
+<li><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
+following the application of the local_env strategy</li>
+<li><strong>extend_structure</strong> – If True (default), then a large artificial box
+will be placed around the Molecule, because some strategies assume
+periodic boundary conditions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -419,7 +502,7 @@ current species and coordinates.</p>
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.split_molecule_subgraphs">
 <code class="descname">split_molecule_subgraphs</code><span class="sig-paren">(</span><em>bonds</em>, <em>allow_reverse=False</em>, <em>alterations=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.split_molecule_subgraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.split_molecule_subgraphs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split MoleculeGraph into two MoleculeGraphs by
+<dd><p>Split MoleculeGraph into two or more MoleculeGraphs by
 breaking a set of bonds. This function uses
 MoleculeGraph.break_edge repeatedly to create
 disjoint graphs (two or more separate molecules).
@@ -427,8 +510,8 @@ This function does not only alter the graph
 information, but also changes the underlying
 Moledules.
 If the bonds parameter does not include sufficient
-bonds to separate two bonds, then this function will
-fail.
+bonds to separate two molecule fragments, then this
+function will fail.
 Currently, this function naively assigns the charge
 of the total molecule to a single submolecule. A
 later effort will be to actually accurately assign
@@ -456,7 +539,7 @@ will attempt to break (to_index, from_index).
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.substitute_group">
-<code class="descname">substitute_group</code><span class="sig-paren">(</span><em>index</em>, <em>func_grp</em>, <em>strategy</em>, <em>bond_order=1</em>, <em>graph_dict=None</em>, <em>strategy_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.substitute_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.substitute_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">substitute_group</code><span class="sig-paren">(</span><em>index</em>, <em>func_grp</em>, <em>strategy</em>, <em>bond_order=1</em>, <em>graph_dict=None</em>, <em>strategy_params=None</em>, <em>reorder=True</em>, <em>extend_structure=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.substitute_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.substitute_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds off of Molecule.substitute to replace an atom in self.molecule
 with a functional group. This method also amends self.graph to
 incorporate the new functional group.</p>
@@ -490,13 +573,18 @@ relevant template in func_groups.json.</li>
 <li><strong>bond_order</strong> – A specified bond order to calculate the bond
 length between the attached functional group and the nearest
 neighbor site. Defaults to 1.</li>
-<li><strong>grp_graph</strong> – Dictionary representing the bonds of the functional
+<li><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
 group (format: {(u, v): props}, where props is a dictionary of
 properties, including weight. If None, then the algorithm
 will attempt to automatically determine bonds using one of
 a list of strategies defined in pymatgen.analysis.local_env.</li>
 <li><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
 If None, default parameters will be used.</li>
+<li><strong>reorder</strong> – bool, representing if graph nodes need to be reordered
+following the application of the local_env strategy</li>
+<li><strong>extend_structure</strong> – If True (default), then a large artificial box
+will be placed around the Molecule, because some strategies assume
+periodic boundary conditions.</li>
 </ul>
 </td>
 </tr>
@@ -632,11 +720,63 @@ store on graph edges, similar to Structure’s site_properties
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.graphs.StructureGraph.alter_edge">
+<code class="descname">alter_edge</code><span class="sig-paren">(</span><em>from_index</em>, <em>to_index</em>, <em>to_jimage=None</em>, <em>new_weight=None</em>, <em>new_edge_properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.alter_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.alter_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alters either the weight or the edge_properties of
+an edge in the StructureGraph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>from_index</strong> – int</li>
+<li><strong>to_index</strong> – int</li>
+<li><strong>to_jimage</strong> – tuple</li>
+<li><strong>new_weight</strong> – alter_edge does not require</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>that weight be altered. As such, by default, this
+is None. If weight is to be changed, it should be a
+float.
+:param new_edge_properties: alter_edge does not require
+that edge_properties be altered. As such, by default,
+this is None. If any edge properties are to be changed,
+it should be a dictionary of edge properties to be changed.
+:return:</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>As in :Class: <cite>pymatgen.core.Structure</cite> except
 with using <cite>to_dict_of_dicts</cite> from NetworkX
 to store graph information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.StructureGraph.break_edge">
+<code class="descname">break_edge</code><span class="sig-paren">(</span><em>from_index</em>, <em>to_index</em>, <em>to_jimage=None</em>, <em>allow_reverse=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.break_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.break_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove an edge from the StructureGraph. If no image is given, this method will fail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>from_index</strong> – int</li>
+<li><strong>to_index</strong> – int</li>
+<li><strong>to_jimage</strong> – tuple</li>
+<li><strong>allow_reverse</strong> – If allow_reverse is True, then break_edge will</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>attempt to break both (from_index, to_index) and, failing that,
+will attempt to break (to_index, from_index).
+:return:</p>
 </dd></dl>
 
 <dl class="method">
@@ -796,10 +936,77 @@ but will treat e.g. enantiomers as being duplicates.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.StructureGraph.insert_node">
+<code class="descname">insert_node</code><span class="sig-paren">(</span><em>i</em>, <em>species</em>, <em>coords</em>, <em>coords_are_cartesian=False</em>, <em>validate_proximity=False</em>, <em>site_properties=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.insert_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.insert_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around Molecule.insert(), which also incorporates the new
+site into the MoleculeGraph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>i</strong> – Index at which to insert the new site</li>
+<li><strong>species</strong> – Species for the new site</li>
+<li><strong>coords</strong> – 3x1 array representing coordinates of the new site</li>
+<li><strong>coords_are_cartesian</strong> – Whether coordinates are cartesian.
+Defaults to False.</li>
+<li><strong>validate_proximity</strong> – For Molecule.insert(); if True (default
+False), distance will be checked to ensure that site can be safely
+added.</li>
+<li><strong>site_properties</strong> – Site properties for Molecule</li>
+<li><strong>edges</strong> – List of dicts representing edges to be added to the
+MoleculeGraph. These edges must include the index of the new site i,
+and all indices used for these edges should reflect the
+MoleculeGraph AFTER the insertion, NOT before. Each dict should at
+least have a “to_index” and “from_index” key, and can also have a
+“weight” and a “properties” key.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.graphs.StructureGraph.name">
 <code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.name" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>return</em> – Name of graph</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.StructureGraph.remove_nodes">
+<code class="descname">remove_nodes</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.remove_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.remove_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper for Molecule.remove_sites().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> – list of indices in the current Molecule (and graph) to
+be removed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.StructureGraph.set_node_attributes">
+<code class="descname">set_node_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.set_node_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives each node a “specie” and a “coords” attribute, updated with the
+current species and coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -809,6 +1016,57 @@ but will treat e.g. enantiomers as being duplicates.</p>
 :param key:
 :param reverse:
 :return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.StructureGraph.substitute_group">
+<code class="descname">substitute_group</code><span class="sig-paren">(</span><em>index</em>, <em>func_grp</em>, <em>strategy</em>, <em>bond_order=1</em>, <em>graph_dict=None</em>, <em>strategy_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.substitute_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.substitute_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds off of Structure.substitute to replace an atom in self.structure
+with a functional group. This method also amends self.graph to
+incorporate the new functional group.</p>
+<p>NOTE: Care must be taken to ensure that the functional group that is
+substituted will not place atoms to close to each other, or violate the
+dimensions of the Lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index</strong> – Index of atom to substitute.</li>
+<li><strong>func_grp</strong> – <p>Substituent molecule. There are two options:</p>
+<ol class="arabic">
+<li>Providing an actual Molecule as the input. The first atom
+must be a DummySpecie X, indicating the position of
+nearest neighbor. The second atom must be the next
+nearest atom. For example, for a methyl group
+substitution, func_grp should be X-CH3, where X is the
+first site and C is the second site. What the code will
+do is to remove the index site, and connect the nearest
+neighbor to the C atom in CH3. The X-C bond indicates the
+directionality to connect the atoms.</li>
+<li>A string name. The molecule will be obtained from the
+relevant template in func_groups.json.</li>
+</ol>
+</li>
+<li><strong>strategy</strong> – Class from pymatgen.analysis.local_env.</li>
+<li><strong>bond_order</strong> – A specified bond order to calculate the bond
+length between the attached functional group and the nearest
+neighbor site. Defaults to 1.</li>
+<li><strong>graph_dict</strong> – Dictionary representing the bonds of the functional
+group (format: {(u, v): props}, where props is a dictionary of
+properties, including weight. If None, then the algorithm
+will attempt to automatically determine bonds using one of
+a list of strategies defined in pymatgen.analysis.local_env.</li>
+<li><strong>strategy_params</strong> – dictionary of keyword arguments for strategy.
+If None, default parameters will be used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="classmethod">
