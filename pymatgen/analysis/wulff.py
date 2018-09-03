@@ -430,7 +430,7 @@ class WulffShape(object):
             # assign the color for on_wulff facets according to its
             # index and the color_list for on_wulff
             plane_color = color_list[plane.index]
-            pt = self.get_lines_in_facet(plane)
+            pt = self.get_line_in_facet(plane)
             # plot from the sorted pts from [simpx]
             tri = mpl3.art3d.Poly3DCollection([pt])
             tri.set_color(plane_color)
