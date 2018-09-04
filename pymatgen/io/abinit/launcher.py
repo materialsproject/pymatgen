@@ -708,8 +708,9 @@ class PyFlowScheduler(object):
             if retcode:
                 # Cannot send mail, shutdown now!
                 msg += ("\nThe scheduler tried to send an e-mail to remind the user\n" +
-                        " but send_email returned %d. Aborting now" % retcode)
-                err_lines.append(msg)
+                        " but send_email returned %d. Error is not critical though!" % retcode)
+                print(msg)
+                #err_lines.append(msg)
 
         #if delta_etime.total_seconds() > self.max_etime_s:
         #    err_lines.append("\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s)
