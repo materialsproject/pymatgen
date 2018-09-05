@@ -2354,9 +2354,9 @@ class Flow(Node, NodeContainer, MSONable):
         graph.format = fmt
         graph.attr(dpi=str(dpi))
         #print(graph)
-        fd, tmpname = tempfile.mkstemp()
+        _, tmpname = tempfile.mkstemp()
         path = graph.render(tmpname, view=False, cleanup=True)
-        ax, fig, plt = get_ax_fig_plt(ax=ax, figsize=figsize, dpi=dpi)
+        ax, fig, _ = get_ax_fig_plt(ax=ax, figsize=figsize, dpi=dpi)
         import matplotlib.image as mpimg
         ax.imshow(mpimg.imread(path, format="png")) #, interpolation="none")
         ax.axis("off")
