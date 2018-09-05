@@ -1986,8 +1986,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.status
 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        # MG: This section has been disables: several portability issues
-        # Need more robust logic in error_parser, perhaps logica provided by users.
+        # MG: This section has been disabled: several portability issues
+        # Need more robust logic in error_parser, perhaps logic provided by users via callbacks.
         if False and (qerr_info or qout_info):
             from pymatgen.io.abinit.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
