@@ -99,8 +99,9 @@ class StrainTest(PymatgenTest):
         test_strain = Strain([[0., 0.01, 0.],
                               [0.01, 0.0002, 0.],
                               [0., 0., 0.]])
-        self.assertArrayAlmostEqual(test_strain.deformation_matrix.green_lagrange_strain,
-                                    test_strain)
+        self.assertArrayAlmostEqual(
+            test_strain,
+            test_strain.get_deformation_matrix().green_lagrange_strain)
         self.assertRaises(ValueError, Strain, [[0.1, 0.1, 0],
                                                [0, 0, 0],
                                                [0, 0, 0]])
@@ -133,16 +134,15 @@ class StrainTest(PymatgenTest):
 
     def test_properties(self):
         # deformation matrix
-        self.assertArrayAlmostEqual(self.ind_str.deformation_matrix,
+        self.assertArrayAlmostEqual(self.ind_str.get_deformation_matrix(),
                                     [[1, 0.02, 0],
                                      [0, 1, 0],
                                      [0, 0, 1]])
-        symm_dfm = Strain(self.no_dfm, dfm_shape="symmetric")
-        self.assertArrayAlmostEqual(symm_dfm.deformation_matrix,
-                                    [[0.99995,0.0099995, 0],
-                                     [0.0099995,1.00015, 0],
-                                     [0, 0, 1]])
-        self.assertArrayAlmostEqual(self.no_dfm.deformation_matrix,
+        symm_dfm = Strain(self.no_dfm).get_deformation_matrix(shape="symmetric")
+        self.assertArrayAlmostEqual(symm_dfm, [[0.99995,0.0099995, 0],
+                                               [0.0099995,1.00015, 0],
+                                               [0, 0, 1]])
+        self.assertArrayAlmostEqual(self.no_dfm.get_deformation_matrix(),
                                     [[1, 0.02, 0],
                                      [0, 1, 0],
                                      [0, 0, 1]])

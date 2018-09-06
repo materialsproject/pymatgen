@@ -14,6 +14,7 @@ import string
 import os
 from monty.json import MSONable
 from monty.serialization import loadfn
+from monty.dev import deprecated
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
@@ -947,19 +948,101 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     """
     sga = SpacegroupAnalyzer(structure, **kwargs)
     symmops = sga.get_symmetry_operations(cartesian=True)
-    unique_tdict = {}
-    for tensor in tensors:
+    unique_mapping = TensorMapping([tensors[0]], [[]], tol=tol)
+    for tensor in tensors[1:]:
         is_unique = True
-        for unique_tensor, symmop in itertools.product(unique_tdict, symmops):
-            if (np.abs(unique_tensor.transform(symmop) - tensor) < tol).all():
-                unique_tdict[unique_tensor].append(symmop)
+        for unique_tensor, symmop in itertools.product(unique_mapping, symmops):
+            if np.allclose(unique_tensor.transform(symmop), tensor, atol=tol):
+                unique_mapping[unique_tensor].append(symmop)
                 is_unique = False
                 break
         if is_unique:
-            unique_tdict[tensor] = []
-    return unique_tdict
+            unique_mapping[tensor] = []
+    return unique_mapping
 
 
+class TensorMapping(collections.MutableMapping):
+    """
+    Base class for tensor mappings, which function much like
+    a dictionary, but use numpy routines to determine approximate
+    equality to keys for getting and setting items.
+
+    This is intended primarily for convenience with things like
+    stress-strain pairs and fitting data manipulation.  In general,
+    it is significantly less robust than a typical hashing
+    and should be used with care.
+
+    """
+    def __init__(self, tensors=None, values=None, tol=1e-5):
+        """
+        Initialize a TensorMapping
+
+        Args:
+            tensor_list ([Tensor]): list of tensors
+            value_list ([]): list of values to be associated with tensors
+            tol (float): an absolute tolerance for getting and setting
+                items in the mapping
+        """
+        self._tensor_list = tensors or []
+        self._value_list = values or []
+        if not len(self._tensor_list) == len(self._value_list):
+            raise ValueError("TensorMapping must be initialized with tensors"
+                             "and values of equivalent length")
+        self.tol = tol
+
+    def __getitem__(self, item):
+        index = self._get_item_index(item)
+        if index is None:
+            raise KeyError("{} not found in mapping.".format(item))
+        return self._value_list[index]
+
+    def __setitem__(self, key, value):
+        index = self._get_item_index(key)
+        if index is None:
+            self._tensor_list.append(key)
+            self._value_list.append(value)
+        else:
+            self._value_list[index] = value
+
+    def __delitem__(self, key):
+        index = self._get_item_index(key)
+        self._tensor_list.pop(index)
+        self._value_list.pop(index)
+
+    def __len__(self):
+        return len(self._tensor_list)
+
+    def __iter__(self):
+        for item in self._tensor_list:
+            yield item
+
+    def values(self):
+        return self._value_list
+
+    def items(self):
+        return zip(self._tensor_list, self._value_list)
+
+    def __contains__(self, item):
+        return not self._get_item_index(item) is None
+
+    def _get_item_index(self, item):
+        if len(self._tensor_list) == 0:
+            return None
+        item = np.array(item)
+        axis = tuple(range(1, len(item.shape) + 1))
+        mask = np.all(np.abs(np.array(self._tensor_list) - item) < self.tol,
+                      axis=axis)
+        indices = np.where(mask)[0]
+        if len(indices) > 1:
+            raise ValueError("Tensor key collision.")
+        elif len(indices) == 0:
+            return None
+        return indices[0]
+
+
+@deprecated(message="get_tkd_value is deprecated and will be removed in "
+            "pymatgen version 2019.1.1, please use the TensorMapping " 
+            "class instead")
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """
     Helper function to find a value in a tensor-keyed-
@@ -982,6 +1065,10 @@ def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
         if np.allclose(tensor, tkey, **allclose_kwargs):
             return value
 
+
+@deprecated(message="set_tkd_value is deprecated and will be removed in "
+            "pymatgen version 2019.1.1, please use the TensorMapping "
+            "class instead")
 def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
     if allclose_kwargs is None:
         allclose_kwargs = {}
