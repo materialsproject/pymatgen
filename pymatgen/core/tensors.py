@@ -947,17 +947,17 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     """
     sga = SpacegroupAnalyzer(structure, **kwargs)
     symmops = sga.get_symmetry_operations(cartesian=True)
-    unique_tdict = TensorMapping()
-    for tensor in tensors:
+    unique_mapping = TensorMapping([tensors[0]], [[]], tol=tol)
+    for tensor in tensors[1:]:
         is_unique = True
-        for unique_tensor, symmop in itertools.product(unique_tdict, symmops):
-            if (np.abs(unique_tensor.transform(symmop) - tensor) < tol).all():
-                unique_tdict[unique_tensor].append(symmop)
+        for unique_tensor, symmop in itertools.product(unique_mapping, symmops):
+            if np.allclose(unique_tensor.transform(symmop), tensor, atol=tol):
+                unique_mapping[unique_tensor].append(symmop)
                 is_unique = False
                 break
         if is_unique:
-            unique_tdict[tensor] = []
-    return unique_tdict
+            unique_mapping[tensor] = []
+    return unique_mapping
 
 
 class TensorMapping(collections.MutableMapping):
@@ -1012,7 +1012,8 @@ class TensorMapping(collections.MutableMapping):
         return len(self._tensor_list)
 
     def __iter__(self):
-        return self._tensor_list
+        for item in self._tensor_list:
+            yield item
 
     def values(self):
         return self._value_list
@@ -1020,7 +1021,12 @@ class TensorMapping(collections.MutableMapping):
     def items(self):
         return zip(self._tensor_list, self._value_list)
 
+    def __contains__(self, item):
+        return not self._get_item_index(item) is None
+
     def _get_item_index(self, item):
+        if len(self._tensor_list) == 0:
+            return None
         item = np.array(item)
         axis = tuple(range(1, len(item.shape) + 1))
         mask = np.all(np.abs(np.array(self._tensor_list) - item) < self.tol,
