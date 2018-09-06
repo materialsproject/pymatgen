@@ -14,6 +14,7 @@ import string
 import os
 from monty.json import MSONable
 from monty.serialization import loadfn
+from monty.dev import deprecated
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.operations import SymmOp
@@ -1039,6 +1040,8 @@ class TensorMapping(collections.MutableMapping):
         return indices[0]
 
 
+@deprecated("get_tkd_value is deprecated and will be removed in pymatgen "
+            "version 2019.1.1, please use the TensorMapping class instead")
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """
     Helper function to find a value in a tensor-keyed-
@@ -1061,6 +1064,9 @@ def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
         if np.allclose(tensor, tkey, **allclose_kwargs):
             return value
 
+
+@deprecated("set_tkd_value is deprecated and will be removed in pymatgen "
+            "version 2019.1.1, please use the TensorMapping class instead")
 def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
     if allclose_kwargs is None:
         allclose_kwargs = {}
