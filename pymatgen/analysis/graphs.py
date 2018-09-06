@@ -15,6 +15,7 @@ from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
+from pymatgen.analysis.local_env import OpenBabelNN
 
 from monty.json import MSONable
 from monty.os.path import which
@@ -1811,7 +1812,19 @@ class MoleculeGraph(MSONable):
             if not [nx.is_isomorphic(fragment, f, node_match=nm)
                     for f in unique_fragments].count(True) >= 1:
                 unique_fragments.append(fragment)
-        return unique_fragments
+
+        # convert back to molecule graphs
+        unique_mol_graphs = []
+        for fragment in unique_fragments:
+            species = [fragment.node[ii]["specie"] for ii in fragment.nodes]
+            coords = [fragment.node[ii]["coords"] for ii in fragment.nodes]
+            unique_mol_graphs.append(build_MoleculeGraph(Molecule(species=species, 
+                                                                  coords=coords, 
+                                                                  charge=self.molecule.charge), 
+                                                         strategy=OpenBabelNN, 
+                                                         reorder=False, 
+                                                         extend_structure=False))
+        return unique_mol_graphs
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1,
                          graph_dict=None, strategy_params=None, reorder=True,
@@ -2459,7 +2472,16 @@ class MoleculeGraph(MSONable):
 
         nm = iso.categorical_node_match("specie", "ERROR")
 
-        return nx.is_isomorphic(self_undir, other_undir, node_match=nm)
+        isomorphic = nx.is_isomorphic(self_undir, other_undir, node_match=nm)
+
+        if isomorphic and self.molecule.composition != other.molecule.composition: # This should not be possible!!!
+            print(self.molecule.composition)
+            print(self.molecule)
+            print(other.molecule.composition)
+            print(other.molecule)
+            print()
+
+        return isomorphic
 
     def equivalent_to(self, other):
         """

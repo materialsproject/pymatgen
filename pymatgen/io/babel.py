@@ -140,6 +140,18 @@ class BabelMolAdaptor(object):
         """
         self._obmol.AddHydrogens()
 
+    def remove_bond(self, idx1, idx2):
+        """
+        Remove a bond from an openbabel molecule
+
+        Args:
+            idx1: The atom index of one of the atoms participating the in bond
+            idx2: The atom index of the other atom participating in the bond 
+        """
+        for obbond in ob.OBMolBondIter(self._obmol):
+            if (obbond.GetBeginAtomIdx() == idx1 and obbond.GetEndAtomIdx() == idx2) or (obbond.GetBeginAtomIdx() == idx2 and obbond.GetEndAtomIdx() == idx1):
+                self._obmol.DeleteBond(obbond)
+
     def rotor_conformer(self, *rotor_args, algo="WeightedRotorSearch",
                         forcefield="mmff94"):
         """
