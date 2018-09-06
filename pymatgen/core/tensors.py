@@ -1040,8 +1040,9 @@ class TensorMapping(collections.MutableMapping):
         return indices[0]
 
 
-@deprecated("get_tkd_value is deprecated and will be removed in pymatgen "
-            "version 2019.1.1, please use the TensorMapping class instead")
+@deprecated(message="get_tkd_value is deprecated and will be removed in "
+            "pymatgen version 2019.1.1, please use the TensorMapping " 
+            "class instead")
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """
     Helper function to find a value in a tensor-keyed-
@@ -1065,8 +1066,9 @@ def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
             return value
 
 
-@deprecated("set_tkd_value is deprecated and will be removed in pymatgen "
-            "version 2019.1.1, please use the TensorMapping class instead")
+@deprecated(message="set_tkd_value is deprecated and will be removed in "
+            "pymatgen version 2019.1.1, please use the TensorMapping "
+            "class instead")
 def set_tkd_value(tensor_keyed_dict, tensor, set_value, allclose_kwargs=None):
     if allclose_kwargs is None:
         allclose_kwargs = {}
