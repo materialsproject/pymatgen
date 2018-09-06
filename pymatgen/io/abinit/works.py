@@ -1348,6 +1348,7 @@ class PhononWork(Work, MergeDdb):
         The input file for phonons is automatically generated from the input of the ScfTask.
         Each phonon task depends on the WFK file produced by scf_task.
 
+
         Args:
             scf_task: ScfTask object.
             qpoints: q-points in reduced coordinates. Accepts single q-point, list of q-points
@@ -1377,8 +1378,7 @@ class PhononWork(Work, MergeDdb):
     def from_scf_input(cls, scf_input, qpoints, is_ngqpt=False, tolerance=None, manager=None):
         """
         Similar to `from_scf_task`, the difference is that this method requires
-        an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)
-        are packed in a single Work whereas in the previous case we usually have multiple works.
+        an input for SCF calculation. A new ScfTask is created and added to the Work.
         """
         if is_ngqpt:
             qpoints = scf_input.abiget_ibz(ngkpt=qpoints, shiftk=[0, 0, 0], kptopt=1).points
@@ -1386,6 +1386,7 @@ class PhononWork(Work, MergeDdb):
         qpoints = np.reshape(qpoints, (-1, 3))
 
         new = cls(manager=manager)
+        # Create ScfTask
         scf_task = new.register_scf_task(scf_input)
         for qpt in qpoints:
             multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
@@ -1530,7 +1531,7 @@ class DteWork(Work, MergeDdb):
             dde_task = new.register_dde_task(dde_inp, deps=dde_deps)
             dde_tasks.append(dde_task)
 
-        #DTE calculations
+        # DTE calculations
         dte_deps = {scf_task: "WFK DEN"}
         dte_deps.update({dde_task: "1WF 1DEN" for dde_task in dde_tasks})
 
