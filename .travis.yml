@@ -14,9 +14,9 @@ sudo: false
 install:
   - pip install numpy
   - travis_wait pip install -q -r requirements.txt
-  - CFLAGS=$CFLAGS" -std=gnu++11"
+  - export CFLAGS=$CFLAGS" -std=gcc++11"
   - travis_wait pip install BoltzTraP2
-  - CFLAGS=${CFLAGS%% -std=gnu++11}
+  - export CFLAGS=${CFLAGS%% -std=gnu++11}
   - travis_wait pip install -q -r requirements-optional.txt
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
