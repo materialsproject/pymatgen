@@ -11,13 +11,15 @@ strains, including applying those deformations to structure objects and
 generating deformed structure sets for further calculations.
 """
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 import numpy as np
 import scipy
 import itertools
 from six.moves import zip
 import collections
+from monty.dev import deprecated
+
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -132,12 +134,12 @@ class DeformedStructureSet(collections.Sequence):
         for ind in [(0, 0), (1, 1), (2, 2)]:
             for amount in norm_strains:
                 strain = Strain.from_index_amount(ind, amount)
-                self.deformations.append(strain.deformation_matrix)
+                self.deformations.append(strain.get_deformation_matrix())
 
         for ind in [(0, 1), (0, 2), (1, 2)]:
             for amount in shear_strains:
                 strain = Strain.from_index_amount(ind, amount)
-                self.deformations.append(strain.deformation_matrix)
+                self.deformations.append(strain.get_deformation_matrix())
 
         # Perform symmetry reduction if specified
         if symmetry:
@@ -225,6 +227,13 @@ class Strain(SquareTensor):
         else:
             raise ValueError("Index must either be 2-tuple or integer "
                              "corresponding to full-tensor or voigt index")
+
+    @property
+    @deprecated(message="the deformation_matrix property is deprecated, and "
+                        "will be removed in pymatgen v2019.1.1, please use the "
+                        "get_deformation_matrix method instead.")
+    def deformation_matrix(self):
+        return self.get_deformation_matrix()
 
     def get_deformation_matrix(self, shape="upper"):
         """
