@@ -26,6 +26,7 @@ import numpy as np
 import scipy as sp
 from scipy.spatial import ConvexHull
 import logging
+import warnings
 
 
 __author__ = 'Zihan Xu, Richard Tran, Shyue Ping Ong'
@@ -164,6 +165,10 @@ class WulffShape(object):
             e_surf_list ([float]): list of corresponding surface energies
             symprec (float): for recp_operation, default is 1e-5.
         """
+
+        if any([se < 0 for se in e_surf_list]):
+            warnings.warn("Unphysical (negative) surface energy detected.")
+
         self.color_ind = list(range(len(miller_list)))
 
         self.input_miller_fig = [hkl_tuple_to_str(x) for x in miller_list]
