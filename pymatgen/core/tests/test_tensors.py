@@ -315,6 +315,9 @@ class TensorTest(PymatgenTest):
         tval = Tensor.from_values_indices([0.01], [(0, 0)])
         set_tkd_value(reduced, tval, 'test_val')
         self.assertEqual(get_tkd_value(reduced, tval), 'test_val')
+        
+    def test_tensor_mapping(self):
+        pass
 
     def test_populate(self):
         test_data = loadfn(os.path.join(test_dir, 'test_toec_data.json'))

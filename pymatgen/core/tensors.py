@@ -947,7 +947,7 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
     """
     sga = SpacegroupAnalyzer(structure, **kwargs)
     symmops = sga.get_symmetry_operations(cartesian=True)
-    unique_tdict = {}
+    unique_tdict = TensorMapping()
     for tensor in tensors:
         is_unique = True
         for unique_tensor, symmop in itertools.product(unique_tdict, symmops):
@@ -958,6 +958,79 @@ def symmetry_reduce(tensors, structure, tol=1e-8, **kwargs):
         if is_unique:
             unique_tdict[tensor] = []
     return unique_tdict
+
+
+class TensorMapping(collections.MutableMapping):
+    """
+    Base class for tensor mappings, which function much like
+    a dictionary, but use numpy routines to determine approximate
+    equality to keys for getting and setting items.
+
+    This is intended primarily for convenience with things like
+    stress-strain pairs and fitting data manipulation.  In general,
+    it is significantly less robust than a typical hashing
+    and should be used with care.
+
+    """
+    def __init__(self, tensors=None, values=None, tol=1e-5):
+        """
+        Initialize a TensorMapping
+
+        Args:
+            tensor_list ([Tensor]): list of tensors
+            value_list ([]): list of values to be associated with tensors
+            tol (float): an absolute tolerance for getting and setting
+                items in the mapping
+        """
+        self._tensor_list = tensors or []
+        self._value_list = values or []
+        if not len(tensors) == len(values):
+            raise ValueError("TensorMapping must be initialized with tensors"
+                             "and values of equivalent length")
+        self.tol = tol
+
+    def __getitem__(self, item):
+        index = self._get_item_index(item)
+        if index is None:
+            raise KeyError("{} not found in mapping.".format(item))
+        return self._value_list[index]
+
+    def __setitem__(self, key, value):
+        index = self._get_item_index(key)
+        if index is None:
+            self._tensor_list.append(key)
+            self._value_list.append(value)
+        else:
+            self._value_list[index] = value
+
+    def __delitem__(self, key):
+        index = self._get_item_index(key)
+        self._tensor_list.pop(index)
+        self._value_list.pop(index)
+
+    def __len__(self):
+        return len(self._tensor_list)
+
+    def __iter__(self):
+        return self._tensor_list
+
+    def values(self):
+        return self._value_list
+
+    def items(self):
+        return zip(self._tensor_list, self._value_list)
+
+    def _get_item_index(self, item):
+        item = np.array(item)
+        axis = tuple(range(1, len(item.shape) + 1))
+        mask = np.all(np.abs(np.array(self._tensor_list) - item) < self.tol,
+                      axis=axis)
+        indices = np.where(mask)[0]
+        if len(indices) > 1:
+            raise ValueError("Tensor key collision.")
+        elif len(indices) == 0:
+            return None
+        return indices[0]
 
 
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
