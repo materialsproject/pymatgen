@@ -162,7 +162,7 @@ class Strain(SquareTensor):
     """
     symbol = "e"
 
-    def __new__(cls, strain_matrix, dfm=None, dfm_shape="upper"):
+    def __new__(cls, strain_matrix):
         """
         Create a Strain object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -176,16 +176,6 @@ class Strain(SquareTensor):
         vscale = np.ones((6,))
         vscale[3:] *= 2
         obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
-        if dfm is None:
-            obj._dfm = convert_strain_to_deformation(obj, dfm_shape)
-        else:
-            dfm = Deformation(dfm)
-            gls_test = 0.5 * (np.dot(dfm.trans, dfm) - np.eye(3))
-            if (gls_test - obj > 1e-10).any():
-                raise ValueError("Strain and deformation gradients "
-                                 "do not match!")
-            obj._dfm = Deformation(dfm)
-
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
                              "with a symmetric array or a voigt-notation "
@@ -196,7 +186,6 @@ class Strain(SquareTensor):
         if obj is None:
             return
         self.rank = getattr(obj, "rank", None)
-        self._dfm = getattr(obj, "_dfm", None)
         self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
@@ -209,7 +198,7 @@ class Strain(SquareTensor):
             deformation (3x3 array-like):
         """
         dfm = Deformation(deformation)
-        return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
+        return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)))
 
     @classmethod
     def from_index_amount(cls, idx, amount):
@@ -237,19 +226,18 @@ class Strain(SquareTensor):
             raise ValueError("Index must either be 2-tuple or integer "
                              "corresponding to full-tensor or voigt index")
 
-    @property
-    def deformation_matrix(self):
+    def get_deformation_matrix(self, shape="upper"):
         """
         returns the deformation matrix
         """
-        return self._dfm
+        return convert_strain_to_deformation(self, shape=shape)
 
     @property
     def von_mises_strain(self):
         """
         Equivalent strain to Von Mises Stress
         """
-        eps = self - 1/3*np.trace(self)*np.identity(3)
+        eps = self - 1/3 * np.trace(self) * np.identity(3)
 
         return np.sqrt(np.sum(eps * eps) * 2/3)
 
