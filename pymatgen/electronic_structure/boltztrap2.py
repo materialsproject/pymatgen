@@ -695,10 +695,5 @@ class BztPlotter(object):
         
         return dosPlotter
     
-    
-    def plot_fermisurface():
-        return fermisurface.plot_fermisurface(bzt_interp.data,
-                                              bzt_interp.equivalences,
-                                              bzt_interp.eband,
-                                              mu=bzt_interp.efermi*units/eV)
+
     
