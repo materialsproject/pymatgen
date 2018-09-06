@@ -706,7 +706,7 @@
 <div class="viewcode-block" id="Slab.symmetrically_remove_atoms"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.Slab.symmetrically_remove_atoms">[docs]</a>    <span class="k">def</span> <span class="nf">symmetrically_remove_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Class method for removing a site at a specified point in a slab.</span>
+<span class="sd">        Class method for removing sites corresponding to a list of indices.</span>
 <span class="sd">            Will remove the corresponding site on the other side of the</span>
 <span class="sd">            slab to maintain equivalent surfaces.</span>
 
@@ -733,7 +733,8 @@
             <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="n">eq_indices</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">i2</span> <span class="o">==</span> <span class="n">i1</span><span class="p">:</span>
                     <span class="k">continue</span>
-
+                <span class="k">if</span> <span class="n">slabcopy</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">slabcopy</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                    <span class="k">continue</span>
                 <span class="c1"># Test site remove to see if it results in symmetric slab</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">])</span>
@@ -1535,7 +1536,10 @@
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts_to_rm</span><span class="p">:</span>
                     <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">([</span><span class="n">top_site</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top_site</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                                                                <span class="n">top_site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span>
-                    <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetrically_remove_atom</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+                    <span class="n">cart_point</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">distance_from_point</span><span class="p">(</span><span class="n">cart_point</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="p">]</span>
+                    <span class="n">site1</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dist</span><span class="p">))</span>
+                    <span class="n">slab</span><span class="o">.</span><span class="n">symmetrically_remove_atoms</span><span class="p">([</span><span class="n">site1</span><span class="p">])</span>
 
             <span class="c1"># Add any specified sites</span>
             <span class="k">if</span> <span class="s2">&quot;points_to_add&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruction_json</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -1543,7 +1547,7 @@
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts_to_add</span><span class="p">:</span>
                     <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">([</span><span class="n">top_site</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top_site</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                                                                <span class="n">top_site</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="p">])[</span><span class="mi">2</span><span class="p">]</span>
-                    <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetrically_add_atom</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+                    <span class="n">slab</span><span class="o">.</span><span class="n">symmetrically_add_atom</span><span class="p">(</span><span class="n">slab</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
 
             <span class="n">slab</span><span class="o">.</span><span class="n">reconstruction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="s2">&quot;recon_trans_matrix&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_matrix</span><span class="p">)</span>
@@ -1555,65 +1559,6 @@
             <span class="n">recon_slabs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">recon_slabs</span></div>
-
-<div class="viewcode-block" id="ReconstructionGenerator.symmetrically_remove_atom"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.ReconstructionGenerator.symmetrically_remove_atom">[docs]</a>    <span class="k">def</span> <span class="nf">symmetrically_remove_atom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
-
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Class method for removing a site at a specified point in a slab.</span>
-<span class="sd">            Will remove the corresponding site on the other side of the</span>
-<span class="sd">            slab to maintain equivalent surfaces.</span>
-
-<span class="sd">        Arg:</span>
-<span class="sd">            slab (Slab): The slab to modify</span>
-<span class="sd">            point (frac coord): The fractional coordinate of the site</span>
-<span class="sd">                in the slab to remove.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (Slab): The modified slab</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Get the index of the original site on top</span>
-        <span class="n">cart_point</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-        <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">distance_from_point</span><span class="p">(</span><span class="n">cart_point</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="p">]</span>
-        <span class="n">site1</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dist</span><span class="p">))</span>
-
-        <span class="c1"># Get the index of the corresponding site at the bottom</span>
-        <span class="n">point2</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">get_symmetric_site</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-        <span class="n">cart_point</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">point2</span><span class="p">)</span>
-        <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">distance_from_point</span><span class="p">(</span><span class="n">cart_point</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">slab</span><span class="p">]</span>
-        <span class="n">site2</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dist</span><span class="p">))</span>
-
-        <span class="n">slab</span><span class="o">.</span><span class="n">remove_sites</span><span class="p">([</span><span class="n">site1</span><span class="p">,</span> <span class="n">site2</span><span class="p">])</span>
-
-        <span class="k">return</span> <span class="n">slab</span></div>
-
-<div class="viewcode-block" id="ReconstructionGenerator.symmetrically_add_atom"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.ReconstructionGenerator.symmetrically_add_atom">[docs]</a>    <span class="k">def</span> <span class="nf">symmetrically_add_atom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
-
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Class method for adding a site at a specified point in a slab.</span>
-<span class="sd">            Will add the corresponding site on the other side of the</span>
-<span class="sd">            slab to maintain equivalent surfaces.</span>
-
-<span class="sd">        Arg:</span>
-<span class="sd">            point (frac coord): The fractional coordinate of the site</span>
-<span class="sd">                in the slab to add.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (Slab): The modified slab</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># For now just use the species of the</span>
-        <span class="c1"># surface atom as the element to add</span>
-        <span class="n">el</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> \
-            <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span>
-
-        <span class="c1"># Get the index of the corresponding site at the bottom</span>
-        <span class="n">point2</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">get_symmetric_site</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-
-        <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
-        <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">point2</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">slab</span></div>
 
 <div class="viewcode-block" id="ReconstructionGenerator.get_unreconstructed_slabs"><a class="viewcode-back" href="../../../pymatgen.core.surface.html#pymatgen.core.surface.ReconstructionGenerator.get_unreconstructed_slabs">[docs]</a>    <span class="k">def</span> <span class="nf">get_unreconstructed_slabs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 

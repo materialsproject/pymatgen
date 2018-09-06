@@ -257,8 +257,14 @@ Wulffshape is approximated as a sphere.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.wulff.WulffShape.get_line_in_facet">
+<code class="descname">get_line_in_facet</code><span class="sig-paren">(</span><em>facet</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.get_line_in_facet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_line_in_facet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sorted pts in a facet used to draw a line</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.wulff.WulffShape.get_plot">
-<code class="descname">get_plot</code><span class="sig-paren">(</span><em>color_set=’PuBu’</em>, <em>grid_off=True</em>, <em>axis_off=True</em>, <em>show_area=False</em>, <em>alpha=1</em>, <em>off_color=’red’</em>, <em>direction=None</em>, <em>bar_pos=(0.75</em>, <em>0.15</em>, <em>0.05</em>, <em>0.65)</em>, <em>bar_on=False</em>, <em>legend_on=True</em>, <em>aspect_ratio=(8</em>, <em>8)</em>, <em>custom_colors={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_plot</code><span class="sig-paren">(</span><em>color_set=’PuBu’</em>, <em>grid_off=True</em>, <em>axis_off=True</em>, <em>show_area=False</em>, <em>alpha=1</em>, <em>off_color=’red’</em>, <em>direction=None</em>, <em>bar_pos=(0.75</em>, <em>0.15</em>, <em>0.05</em>, <em>0.65)</em>, <em>bar_on=False</em>, <em>units_in_JPERM2=True</em>, <em>legend_on=True</em>, <em>aspect_ratio=(8</em>, <em>8)</em>, <em>custom_colors={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/wulff.html#WulffShape.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.get_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Wulff shape plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -343,6 +349,20 @@ See Ballufi, R. W., Allen, S. M. &amp; Carter, W. C. Kinetics</p>
 <dt id="pymatgen.analysis.wulff.WulffShape.surface_area">
 <code class="descname">surface_area</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.surface_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total surface area of Wulff shape.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.wulff.WulffShape.tot_corner_sites">
+<code class="descname">tot_corner_sites</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_corner_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of vertices in the convex hull.
+Useful for identifying catalytically active sites.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.wulff.WulffShape.tot_edges">
+<code class="descname">tot_edges</code><a class="headerlink" href="#pymatgen.analysis.wulff.WulffShape.tot_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of edges in the convex hull.
+Useful for identifying catalytically active sites.</p>
 </dd></dl>
 
 <dl class="attribute">

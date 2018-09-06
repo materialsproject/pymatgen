@@ -183,6 +183,31 @@ Materials Project substrate database</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.ext.matproj.MPRester.get_cohesive_energy">
+<code class="descname">get_cohesive_energy</code><span class="sig-paren">(</span><em>material_id</em>, <em>per_atom=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_cohesive_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_cohesive_energy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Gets the cohesive for a material (eV per formula unit). Cohesive energy</dt>
+<dd>is defined as the difference between the bulk energy and the sum of
+total DFT energy of isolated atoms for atom elements in the bulk.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>material_id</strong> (<em>str</em>) – Materials Project material_id, e.g. ‘mp-123’.</li>
+<li><strong>per_atom</strong> (<em>bool</em>) – Whether or not to return cohesive energy per atom</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Cohesive energy (eV).</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_data">
 <code class="descname">get_data</code><span class="sig-paren">(</span><em>chemsys_formula_id</em>, <em>data_type=’vasp’</em>, <em>prop=’‘</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flexible method to get any data using the Materials Project REST
@@ -245,7 +270,7 @@ e.g., mp-1234).</td>
 
 <dl class="method">
 <dt id="pymatgen.ext.matproj.MPRester.get_entries">
-<code class="descname">get_entries</code><span class="sig-paren">(</span><em>chemsys_formula_id_criteria</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entries</code><span class="sig-paren">(</span><em>chemsys_formula_id_criteria</em>, <em>compatible_only=True</em>, <em>inc_structure=None</em>, <em>property_data=None</em>, <em>conventional_unit_cell=False</em>, <em>sort_by_e_above_hull=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/matproj.html#MPRester.get_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.matproj.MPRester.get_entries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of ComputedEntries or ComputedStructureEntries corresponding
 to a chemical system, formula, or materials_id or full criteria.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -272,6 +297,8 @@ entry.data. If None, no data. Should be a subset of
 supported_properties.</li>
 <li><strong>conventional_unit_cell</strong> (<em>bool</em>) – Whether to get the standard
 conventional unit cell</li>
+<li><strong>sort_by_e_above_hull</strong> (<em>bool</em>) – Whether to sort the list of entries by
+e_above_hull (will query e_above_hull as a property_data if True).</li>
 </ul>
 </td>
 </tr>

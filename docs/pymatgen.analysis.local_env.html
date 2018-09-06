@@ -145,6 +145,114 @@ atoms. Defaults to 8.0.</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="pymatgen.analysis.local_env.CovalentBondNN">
+<em class="property">class </em><code class="descname">CovalentBondNN</code><span class="sig-paren">(</span><em>tol=0.2</em>, <em>order=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CovalentBondNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<p>Determine near-neighbor sites and bond orders using built-in
+pymatgen.Molecule CovalentBond functionality.</p>
+<p>NOTE: This strategy is only appropriate for molecules, and not for
+structures.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tol</strong> (<em>float</em>) – Tolerance for covalent bond checking.</li>
+<li><strong>order</strong> (<em>bool</em>) – If True (default), this class will compute bond orders. If</li>
+<li><strong>bond lengths will be computed</strong> (<em>False</em><em>,</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure">
+<code class="descname">get_bonded_structure</code><span class="sig-paren">(</span><em>structure</em>, <em>decorate=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CovalentBondNN.get_bonded_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_bonded_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain a MoleculeGraph object using this NearNeighbor
+class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> – Molecule object.</li>
+<li><strong>decorate</strong> (<em>bool</em>) – whether to annotate site properties</li>
+<li><strong>order parameters using neighbors determined by</strong> (<em>with</em>) – </li>
+<li><strong>NearNeighbor class</strong> (<em>this</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: a pymatgen.analysis.graphs.MoleculeGraph object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CovalentBondNN.get_nn_info">
+<code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CovalentBondNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all near-neighbor sites and weights (orders) of bonds for a given
+atom.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> – input Molecule.</li>
+<li><strong>n</strong> – index of site for which to determine near neighbors.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[dict] representing a neighboring site and the type of</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>bond present between site n and the neighboring site.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.local_env.CovalentBondNN.get_nn_shell_info">
+<code class="descname">get_nn_shell_info</code><span class="sig-paren">(</span><em>structure</em>, <em>site_idx</em>, <em>shell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CovalentBondNN.get_nn_shell_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN.get_nn_shell_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a certain nearest neighbor shell for a certain site.</p>
+<p>Determines all non-backtracking paths through the neighbor network
+computed by <cite>get_nn_info</cite>. The weight is determined by multiplying
+the weight of the neighbor at each hop through the network. For
+example, a 2nd-nearest-neighbor that has a weight of 1 from its
+1st-nearest-neighbor and weight 0.5 from the original site will
+be assigned a weight of 0.5.</p>
+<p>As this calculation may involve computing the nearest neighbors of
+atoms multiple times, the calculation starts by computing all of the
+neighbor info and then calling <cite>_get_nn_shell_info</cite>. If you are likely
+to call this method for more than one site, consider calling <cite>get_all_nn</cite>
+first and then calling this protected method yourself.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Input structure</li>
+<li><strong>site_idx</strong> (<em>int</em>) – index of site for which to determine neighbor
+information.</li>
+<li><strong>shell</strong> (<em>int</em>) – Which neighbor shell to retrieve (1 == 1st NN shell)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><dl class="docutils">
+<dt>list of dictionaries. Each entry in the list is information about</dt>
+<dd><p class="first last">a certain neighbor in the structure, in the same format as
+<cite>get_nn_info</cite>.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pymatgen.analysis.local_env.Critic2NN">
 <em class="property">class </em><code class="descname">Critic2NN</code><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#Critic2NN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
@@ -405,10 +513,10 @@ atoms. Defaults to 10.0.</li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.JmolNN">
-<em class="property">class </em><code class="descname">JmolNN</code><span class="sig-paren">(</span><em>tol=0.001</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<em class="property">class </em><code class="descname">JmolNN</code><span class="sig-paren">(</span><em>tol=0.56</em>, <em>min_bond_distance=0.4</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using an emulation
-of JMol’s default autoBond() algorithm. This version of the algorithm
+of Jmol’s default autoBond() algorithm. This version of the algorithm
 does not take into account any information regarding known charge
 states.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -417,7 +525,7 @@ states.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>tol</strong> (<em>float</em>) – tolerance parameter for bond determination
-(default: 1E-3).</li>
+(default: 0.56).</li>
 <li><strong>el_radius_updates</strong> – (dict) symbol-&gt;float to override default atomic
 radii table values</li>
 </ul>
@@ -427,11 +535,10 @@ radii table values</li>
 </table>
 <dl class="method">
 <dt id="pymatgen.analysis.local_env.JmolNN.get_max_bond_distance">
-<code class="descname">get_max_bond_distance</code><span class="sig-paren">(</span><em>el1_sym</em>, <em>el2_sym</em>, <em>constant=0.56</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN.get_max_bond_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Use JMol algorithm to determine bond length from atomic parameters
+<code class="descname">get_max_bond_distance</code><span class="sig-paren">(</span><em>el1_sym</em>, <em>el2_sym</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN.get_max_bond_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_max_bond_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use Jmol algorithm to determine bond length from atomic parameters
 :param el1_sym: (str) symbol of atom 1
-:param el2_sym: (str) symbol of atom 2
-:param constant: (float) factor to tune model</p>
+:param el2_sym: (str) symbol of atom 2</p>
 <p>Returns: (float) max bond length</p>
 </dd></dl>
 
@@ -440,7 +547,7 @@ radii table values</li>
 <code class="descname">get_nn_info</code><span class="sig-paren">(</span><em>structure</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN.get_nn_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN.get_nn_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all near-neighbor sites as well as the associated image locations
 and weights of the site with index n using the bond identification
-algorithm underlying JMol.</p>
+algorithm underlying Jmol.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
