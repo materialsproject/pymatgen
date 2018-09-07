@@ -6,17 +6,15 @@ from __future__ import unicode_literals
 
 import unittest
 import os
-import json
 import warnings
 
 from pymatgen.io.vasp import Vasprun
-from pymatgen.electronic_structure.bandstructure import BandStructure
+
 from pymatgen.electronic_structure.boltztrap2 import BandstructureLoader,\
     VasprunLoader,BztInterpolator,BztTransportProperties,BztPlotter
 
 import numpy as np
 from monty.serialization import loadfn
-from monty.os.path import which
 
 
 
@@ -29,7 +27,6 @@ vrun = Vasprun(vrunfile)
 class BandstructureLoaderTest(unittest.TestCase):
 
     def setUp(self):
-        
         bs = loadfn(os.path.join(test_dir, "PbTe_bandstructure.json"))
         
         self.loader = BandstructureLoader(bs,vrun.structures[-1])
@@ -139,7 +136,7 @@ class BztTransportPropertiesTest(unittest.TestCase):
             self.assertTupleEqual(p['n'].shape,(3, 7, 3, 3))
         
 
-class BztPlotterTest(unittest.TestCase):    
+class BztPlotterTest(unittest.TestCase):
     
     def setUp(self):
         loader = VasprunLoader().from_file(vrunfile)

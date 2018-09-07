@@ -1,10 +1,3 @@
-import os
-import os.path
-import pickle
-import logging
-import spglib
-from scipy.optimize import minimize
-import itertools as it
 import numpy as np
 import matplotlib.pyplot as plt
 #from monty.serialization import loadfn,dumpfn
@@ -12,20 +5,16 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.electronic_structure.bandstructure import \
     BandStructureSymmLine, Kpoint, Spin
 from pymatgen.io.vasp import Vasprun
-from pymatgen.core.units import Energy, Length
-from pymatgen.io.ase import AseAtomsAdaptor, Atoms
-from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos, Orbital
+from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.electronic_structure.dos import Dos, CompleteDos, Orbital
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
 from pymatgen.electronic_structure.plotter import BSPlotter, DosPlotter
 
 try:
-    from BoltzTraP2 import dft as BTP
     from BoltzTraP2 import sphere
     from BoltzTraP2 import fite
     from BoltzTraP2 import bandlib as BL
-    from BoltzTraP2 import serialization
     from BoltzTraP2 import units
-    #from BoltzTraP2 import fermisurface
 except ImportError:
     raise BoltztrapError("BoltzTraP2 has to be installed and working")
 
@@ -239,7 +228,7 @@ class BztInterpolator(object):
         self.equivalences = sphere.get_equivalences(self.data.atoms, self.data.magmom,
                                                     num_kpts * lpfac)
         self.coeffs = fite.fitde3D(self.data, self.equivalences)
-        self.eband, self.vvband, self.cband = fite.getBTPbands(self.equivalences, 
+        self.eband, self.vvband, self.cband = fite.getBTPbands(self.equivalences,
                                                         self.coeffs, self.data.lattvec,
                                                         curvature=curvature)
 
@@ -265,7 +254,7 @@ class BztInterpolator(object):
         bands_dict = {Spin.up: (egrid / units.eV)}
         
         sbs = BandStructureSymmLine(kpoints, bands_dict,
-                                    self.data.structure.lattice.reciprocal_lattice, 
+                                    self.data.structure.lattice.reciprocal_lattice,
                                     self.efermi / units.eV,
                                     labels_dict = labels_dict)
         return sbs
@@ -320,7 +309,7 @@ class BztInterpolator(object):
                 
                 self.data.ebands = self.data.proj[:,:,isite,iorb].T
                 coeffs = fite.fitde3D(self.data, self.equivalences)
-                proj, vvproj, cproj = fite.getBTPbands(self.equivalences, 
+                proj, vvproj, cproj = fite.getBTPbands(self.equivalences,
                                                         coeffs, self.data.lattvec)
                 
                 edos, pdos = BL.DOS(self.eband, npts=npts_mu, weights=np.abs(proj.real))
@@ -340,8 +329,9 @@ class BztInterpolator(object):
     
 class BztTransportProperties(object):
     """
-        Compute Seebeck, Conductivity, Electrical part of thermal conductivity 
-        and Hall coefficient, conductivity effective mass, Power Factor tensors w.r.t. the chemical potential and temperatures, from dft band structure via 
+        Compute Seebeck, Conductivity, Electrical part of thermal conductivity
+        and Hall coefficient, conductivity effective mass, Power Factor tensors
+        w.r.t. the chemical potential and temperatures, from dft band structure via
         interpolation.
         
         Args:
@@ -360,7 +350,7 @@ class BztTransportProperties(object):
             Carrier_conc_mu: carrier concentration of size (len(temp_r),npts_mu)
             Hall_carrier_conc_trace_mu: trace of Hall carrier concentration of size
                 (len(temp_r),npts_mu)
-            mu_r_eV: array of energies in eV and with E_fermi at 0.0 
+            mu_r_eV: array of energies in eV and with E_fermi at 0.0
                 where all the properties are calculated.
         
         Example:
@@ -432,7 +422,7 @@ class BztTransportProperties(object):
             When executed, it add the following variable at the BztTransportProperties
             object:
                 Conductivity_doping, Seebeck_doping, Kappa_doping, Power_Factor_doping,
-                cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and 
+                cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
                 arrays of dim (len(temp_r),len(doping),3,3) as values
             doping_carriers: number of carriers for each doping level
             mu_doping_eV: the chemical potential corrispondent to each doping level
@@ -508,7 +498,7 @@ class BztTransportProperties(object):
         for prop,unit in zip(props,props_unit):
             p_array = eval("self." + prop)
             if prop != None:
-                    p_dict[prop] = {'units':unit} 
+                    p_dict[prop] = {'units':unit}
             else:
                 continue
             for it, temp in enumerate(self.temp_r):
@@ -525,7 +515,7 @@ class BztTransportProperties(object):
 
 class BztPlotter(object):
     """
-        Plotter to plot transport properties, interpolated bands along some high 
+        Plotter to plot transport properties, interpolated bands along some high
         symmetry k-path, and fermisurface
         
         Example:
@@ -535,8 +525,8 @@ class BztPlotter(object):
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
         
-    def plot_props(self, prop_y, prop_x, prop_z, 
-                   output='avg_eigs', dop_type='n', doping=None, 
+    def plot_props(self, prop_y, prop_x, prop_z,
+                   output='avg_eigs', dop_type='n', doping=None,
                    temps=None,xlim=(-2,2),ax=None):
         
         """
@@ -560,7 +550,7 @@ class BztPlotter(object):
                 
             Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
-            more example are provided in the notebook 
+            more example are provided in the notebook
             "How to use Boltztra2 interface.ipynb".
         """
         
@@ -592,7 +582,7 @@ class BztPlotter(object):
         if prop_z == 'doping' and prop_x == 'temp':
             p_array = eval("self.bzt_transP." + props[idx_prop]+'_'+prop_z)
         else:
-            p_array = eval("self.bzt_transP." + props[idx_prop]+'_'+prop_x)        
+            p_array = eval("self.bzt_transP." + props[idx_prop]+'_'+prop_x)
 
         if ax == None:
             fig = plt.figure(figsize=(10,8))
@@ -642,7 +632,7 @@ class BztPlotter(object):
                 elif output=='eigs':
                     for i in range(3):
                         plt.plot(doping_all, prop_out[:,i],'s-',
-                                 label='eig '+str(i)+' '+str(temp)+' K')                    
+                                 label='eig '+str(i)+' '+str(temp)+' K')
             plt.xlabel(r"Carrier conc. $cm^{-3}$", fontsize=30)
             leg_title = dop_type+"-type"
         
