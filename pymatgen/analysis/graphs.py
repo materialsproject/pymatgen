@@ -1734,7 +1734,6 @@ class MoleculeGraph(MSONable):
             original.break_edge(bond[0], bond[1], allow_reverse=allow_reverse)
 
         if nx.is_weakly_connected(original.graph):
-            #TODO: test
             raise RuntimeError("Cannot split molecule; \
                                 MoleculeGraph is still connected.")
         else:
@@ -1772,7 +1771,6 @@ class MoleculeGraph(MSONable):
 
                 # just give charge to whatever subgraph has node with index 0
                 # TODO: actually figure out how to distribute charge
-                # TODO: test
                 if 0 in nodes:
                     charge = self.molecule.charge
                 else:
@@ -1792,6 +1790,12 @@ class MoleculeGraph(MSONable):
                             properties[prop].append(prop_set[prop])
                         else:
                             properties[prop] = [prop_set[prop]]
+
+                # Site properties must be present for all atoms in the molecule
+                # in order to be used for Molecule instantiation
+                for k, v in properties.items():
+                    if len(v) != len(species):
+                        del properties[k]
 
                 new_mol = Molecule(species, coords, charge=charge,
                                    site_properties=properties)

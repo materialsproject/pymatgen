@@ -32,6 +32,7 @@ __date__ = "August 2017"
 
 module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
+
 class StructureGraphTest(unittest.TestCase):
 
     def setUp(self):
@@ -120,12 +121,14 @@ class StructureGraphTest(unittest.TestCase):
 
         specie = nx.get_node_attributes(self.square_sg.graph, "specie")
         coords = nx.get_node_attributes(self.square_sg.graph, "coords")
+        properties = nx.get_node_attributes(self.square_sg.graph, "properties")
 
-        self.assertEqual(str(specie[0]), str(self.square_sg.structure[0].specie))
-        self.assertEqual(str(specie[0]), "H")
-        self.assertEqual(coords[0][0], self.square_sg.structure[0].coords[0])
-        self.assertEqual(coords[0][1], self.square_sg.structure[0].coords[1])
-        self.assertEqual(coords[0][2], self.square_sg.structure[0].coords[2])
+        for i in range(len(self.square_sg.structure)):
+            self.assertEqual(str(specie[i]), str(self.square_sg.structure[i].specie))
+            self.assertEqual(coords[i][0], self.square_sg.structure[i].coords[0])
+            self.assertEqual(coords[i][1], self.square_sg.structure[i].coords[1])
+            self.assertEqual(coords[i][2], self.square_sg.structure[i].coords[2])
+            self.assertEqual(properties[i], self.square_sg.structure[i].properties)
 
     def test_edge_editing(self):
         square = copy.deepcopy(self.square_sg)
@@ -523,12 +526,14 @@ class MoleculeGraphTest(unittest.TestCase):
 
         specie = nx.get_node_attributes(self.ethylene.graph, "specie")
         coords = nx.get_node_attributes(self.ethylene.graph, "coords")
+        properties = nx.get_node_attributes(self.ethylene.graph, "properties")
 
-        self.assertEqual(str(specie[0]), str(self.ethylene.molecule[0].specie))
-        self.assertEqual(str(specie[0]), "C")
-        self.assertEqual(coords[0][0], self.ethylene.molecule[0].coords[0])
-        self.assertEqual(coords[0][1], self.ethylene.molecule[0].coords[1])
-        self.assertEqual(coords[0][2], self.ethylene.molecule[0].coords[2])
+        for i in range(len(self.ethylene.molecule)):
+            self.assertEqual(str(specie[i]), str(self.ethylene.molecule[i].specie))
+            self.assertEqual(coords[i][0], self.ethylene.molecule[i].coords[0])
+            self.assertEqual(coords[i][1], self.ethylene.molecule[i].coords[1])
+            self.assertEqual(coords[i][2], self.ethylene.molecule[i].coords[2])
+            self.assertEqual(properties[i], self.ethylene.molecule[i].properties)
 
     def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
@@ -575,14 +580,31 @@ class MoleculeGraphTest(unittest.TestCase):
                        (1, 2): {"weight": 2.0},
                        (3, 4): {"weight": 2.0}
                        }
-        # Perform reverse Diels-Alder reaction - turn product into reactants
-        reactants = self.cyclohexene.split_molecule_subgraphs(bonds, alterations=alterations)
+        # Perform retro-Diels-Alder reaction - turn product into reactants
+        reactants = self.cyclohexene.split_molecule_subgraphs(bonds,
+                                                              allow_reverse=True,
+                                                              alterations=alterations)
         self.assertTrue(isinstance(reactants, list))
 
         reactants = sorted(reactants, key=len)
         # After alterations, reactants sholuld be ethylene and butadiene
         self.assertEqual(reactants[0], self.ethylene)
         self.assertEqual(reactants[1], self.butadiene)
+
+        with self.assertRaises(RuntimeError):
+            self.cyclohexene.split_molecule_subgraphs([(0,1)])
+
+        hydroxide = Molecule(["O", "H"], [[0, 0, 0], [0.5, 0.5, 0.5]], charge=-1)
+        oh_mg = MoleculeGraph.with_empty_graph(hydroxide)
+
+        oh_mg.add_edge(0, 1)
+
+        new_mgs = oh_mg.split_molecule_subgraphs([(0,1)])
+        for mg in new_mgs:
+            if str(mg.molecule[0].specie) == "O":
+                self.assertEqual(mg.molecule.charge, -1)
+            else:
+                self.assertEqual(mg.molecule.charge, 0)
 
     @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_build_unique_fragments(self):
@@ -593,7 +615,8 @@ class MoleculeGraphTest(unittest.TestCase):
         for ii in range(295):
             for jj in range(ii + 1, 295):
                 self.assertEqual(
-                    nx.is_isomorphic(unique_fragments[ii], unique_fragments[jj],
+                    nx.is_isomorphic(unique_fragments[ii].graph,
+                                     unique_fragments[jj].graph,
                                      node_match=nm), False)
 
     def test_find_rings(self):
