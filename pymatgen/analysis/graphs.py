@@ -357,11 +357,15 @@ class StructureGraph(MSONable):
 
         species = {}
         coords = {}
+        properties = {}
         for node in self.graph.nodes():
             species[node] = self.structure[node].specie.symbol
             coords[node] = self.structure[node].coords
+            properties[node] = self.structure[node].properties
+
         nx.set_node_attributes(self.graph, species, "specie")
         nx.set_node_attributes(self.graph, coords, "coords")
+        nx.set_node_attributes(self.graph, properties, "properties")
 
     def alter_edge(self, from_index, to_index, to_jimage=None,
                    new_weight=None, new_edge_properties=None):
@@ -1585,19 +1589,23 @@ class MoleculeGraph(MSONable):
 
     def set_node_attributes(self):
         """
-        Gives each node a "specie" and a "coords" attribute, updated with the
-        current species and coordinates.
+        Replicates molecule site properties (specie, coords, etc.) in the
+        MoleculeGraph.
 
         :return:
         """
 
         species = {}
         coords = {}
+        properties = {}
         for node in self.graph.nodes():
             species[node] = self.molecule[node].specie.symbol
             coords[node] = self.molecule[node].coords
+            properties[node] = self.molecule[node].properties
+
         nx.set_node_attributes(self.graph, species, "specie")
         nx.set_node_attributes(self.graph, coords, "coords")
+        nx.set_node_attributes(self.graph, properties, "properties")
 
     def alter_edge(self, from_index, to_index,
                    new_weight=None, new_edge_properties=None):
@@ -1718,12 +1726,15 @@ class MoleculeGraph(MSONable):
         :return: list of MoleculeGraphs
         """
 
+        self.set_node_attributes()
+
         original = copy.deepcopy(self)
 
         for bond in bonds:
             original.break_edge(bond[0], bond[1], allow_reverse=allow_reverse)
 
         if nx.is_weakly_connected(original.graph):
+            #TODO: test
             raise RuntimeError("Cannot split molecule; \
                                 MoleculeGraph is still connected.")
         else:
@@ -1751,33 +1762,39 @@ class MoleculeGraph(MSONable):
 
             for subg in subgraphs:
 
-                # start by extracting molecule information
-                pre_mol = original.molecule
-                nodes = subg.nodes
+                nodes = sorted(list(subg.nodes))
 
-                # create mapping to translate edges from old graph to new
-                # every list (species, coords, etc.) automatically uses this
-                # mapping, because they all form lists sorted by rising index
+                # Molecule indices are essentially list-based, so node indices
+                # must be remapped, incrementing from 0
                 mapping = {}
                 for i in range(len(nodes)):
-                    mapping[list(nodes)[i]] = i
-
-                # there must be a more elegant way to do this
-                sites = [pre_mol._sites[n] for n in
-                           range(len(pre_mol._sites)) if n in nodes]
+                    mapping[nodes[i]] = i
 
                 # just give charge to whatever subgraph has node with index 0
                 # TODO: actually figure out how to distribute charge
+                # TODO: test
                 if 0 in nodes:
-                    charge = pre_mol.charge
+                    charge = self.molecule.charge
                 else:
                     charge = 0
-
-                new_mol = Molecule.from_sites(sites, charge=charge)
 
                 # relabel nodes in graph to match mapping
                 new_graph = nx.relabel_nodes(subg, mapping)
 
+                species = nx.get_node_attributes(new_graph, "specie")
+                coords = nx.get_node_attributes(new_graph, "coords")
+                raw_props = nx.get_node_attributes(new_graph, "properties")
+
+                properties = {}
+                for prop_set in raw_props.values():
+                    for prop in prop_set.keys():
+                        if prop in properties:
+                            properties[prop].append(prop_set[prop])
+                        else:
+                            properties[prop] = [prop_set[prop]]
+
+                new_mol = Molecule(species, coords, charge=charge,
+                                   site_properties=properties)
                 graph_data = json_graph.adjacency_data(new_graph)
 
                 # create new MoleculeGraph
