@@ -626,7 +626,7 @@ class MoleculeGraphTest(unittest.TestCase):
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
 
-    def test_equivalent_to_isomorphic_to(self):
+    def test_isomorphic_to(self):
         ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__),
                                                    "..", "..", "..",
                                                    "test_files/graphs/ethylene.xyz"))
@@ -641,9 +641,6 @@ class MoleculeGraphTest(unittest.TestCase):
         eth_copy.add_edge(1, 3, weight=1.0)
         eth_copy.add_edge(0, 4, weight=1.0)
         eth_copy.add_edge(0, 5, weight=1.0)
-
-        self.assertTrue(self.ethylene.equivalent_to(eth_copy))
-        self.assertFalse(self.ethylene.equivalent_to(self.butadiene))
 
         # If they are equal, they must also be isomorphic
         eth_copy = copy.deepcopy(self.ethylene)

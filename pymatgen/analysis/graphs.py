@@ -2495,56 +2495,11 @@ class MoleculeGraph(MSONable):
 
         isomorphic = nx.is_isomorphic(self_undir, other_undir, node_match=nm)
 
-        if isomorphic and self.molecule.composition != other.molecule.composition: # This should not be possible!!!
-            print(self.molecule.composition)
-            print(self.molecule)
-            print(other.molecule.composition)
-            print(other.molecule)
-            print()
+        if isomorphic and self.molecule.composition != other.molecule.composition:
+            raise RuntimeError("Anomaly: graph is isomorphic, but species in"
+                               " molecules are different.")
 
         return isomorphic
-
-    def equivalent_to(self, other):
-        """
-        A weaker equality function that evaluates isomorphisms between two
-        MoleculeGraphs. If there is an isomorphism where the species are
-        identical for each pair, then the MoleculeGraphs are considered
-        "equivalent".
-
-        :param other: The MoleculeGraph to be compared to this MoleculeGraph
-        :return: Bool
-        """
-
-        # If they're already equivalent, don't worry about it.
-        if self.__eq__(other):
-            return True
-
-        # Associate each node with a species, coordinates
-        self.set_node_attributes()
-        other.set_node_attributes()
-
-        # The possibility of multiple edges eliminates possible isomorphisms
-        self_undir = self.graph.to_undirected()
-        other_undir = other.graph.to_undirected()
-
-        matcher = nx.algorithms.isomorphism.GraphMatcher(self_undir,
-                                                         other_undir)
-
-        # Graph equality requires that there be an appropriate mapping between
-        # nodes in the graph
-        if not matcher.is_isomorphic():
-            return False
-
-        for mapping in matcher.isomorphisms_iter():
-            self_spec = nx.get_node_attributes(self_undir, "specie")
-            other_spec = nx.get_node_attributes(other_undir, "specie")
-            truths = [self_spec[i] == other_spec[mapping[i]] for i in mapping]
-
-            if all(truths):
-                return True
-
-        # No isomorphism was perfect
-        return False
 
     def diff(self, other, strict=True):
         """
