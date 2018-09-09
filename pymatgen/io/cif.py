@@ -1113,11 +1113,12 @@ class CifParser(object):
             # convert to bibtex author format ('and' delimited)
             if 'author' in bibtex_entry:
                 # separate out semicolon authors
-                if isinstance(bibtex_entry["author"],str):
+                if isinstance(bibtex_entry["author"], str):
                     if ";" in bibtex_entry["author"]:
                         bibtex_entry["author"] = bibtex_entry["author"].split(";")
-                        
-                bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
+
+                if isinstance(bibtex_entry['author'], list):
+                    bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
 
             # convert to bibtex page range format, use empty string if not specified
             if ('page_first' in bibtex_entry) or ('page_last' in bibtex_entry):
