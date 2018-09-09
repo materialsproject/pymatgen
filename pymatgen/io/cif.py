@@ -1105,7 +1105,10 @@ class CifParser(object):
             for field, tags in bibtex_keys.items():
                 for tag in tags:
                     if tag in data:
-                        bibtex_entry[field] = data[tag]
+                        if isinstance(data[tag], list):
+                            bibtex_entry[field] = data[tag][0]
+                        else:
+                            bibtex_entry[field] = data[tag]
 
             # convert to bibtex author format ('and' delimited)
             if 'author' in bibtex_entry:
