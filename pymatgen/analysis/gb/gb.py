@@ -138,15 +138,22 @@ class Gb(Structure):
                   self.site_properties, self.oriented_unit_cell)
 
     @property
-    def sigma(self):
+    def sigma_from_site_prop(self):
         """
-        This method returns the sigma value of the Gb.
+        This method returns the sigma value of the Gb from site properties.
         """
         num_coi = 0
         for tag in self.site_properties['grain_label']:
             if 'incident' in tag:
                 num_coi += 1
         return int(round(self.num_sites / num_coi))
+
+    @property
+    def sigma(self):
+        """
+        This method returns the sigma value of the Gb.
+        """
+        return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
 
     @property
     def top_grain(self):
@@ -306,7 +313,7 @@ class GBGenerator(object):
 
     def gb_from_parameters(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
                            ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=50,
-                           tol_coi=1.e-3):
+                           tol_coi=1.e-8, rm_ratio=0.7):
 
         """
         Args:
@@ -357,8 +364,11 @@ class GBGenerator(object):
             tol_coi (float): tolerance to find the coincidence sites. When making approximations to
                 the ratio needed to generate the GB, you probably need to increase this tolerance to
                 obtain the correct number of coincidence sites. To check the number of coincidence
-                sites are correct or not, you can compare the generated Gb object's sigma with enum*
-                sigma values (what user expected by input).
+                sites are correct or not, you can compare the generated Gb object's sigma_from_site_prop
+                 with enum* sigma values (what user expected by input).
+            rm_ratio (float): the creteria to remove the atoms which are too close with each other.
+                rm_ratio*bond_length of bulk system is the creteria of bond length, below which the atom
+                will be removed. Default to 0.7.
 
         Returns:
            Grain boundary structure (structure object).
@@ -487,9 +497,25 @@ class GBGenerator(object):
                                     surface=plane, max_search=max_search)
 
         parent_structure = self.initial_structure.copy()
+        if len(parent_structure) == 1:
+            temp_str = parent_structure.copy()
+            temp_str.make_supercell([1, 1, 2])
+            distance = temp_str.distance_matrix
+        else:
+            distance = parent_structure.distance_matrix
+        bond_length = np.min(distance[np.nonzero(distance)])
+
         # top grain
         top_grain = fix_pbc(parent_structure * t1)
-        oriended_unit_cell = top_grain.copy()
+
+        # get the smallest oriended cell
+        if normal:
+            t_temp = self.get_trans_mat(r_axis=rotation_axis, angle=rotation_angle, normal=False,
+                                        trans_cry=trans_cry, lat_type=lat_type, ratio=ratio,
+                                        surface=plane, max_search=max_search)
+            oriended_unit_cell = fix_pbc(parent_structure * t_temp[0])
+        else:
+            oriended_unit_cell = top_grain.copy()
 
         # bottom grain, using top grain's lattice matrix
         bottom_grain = fix_pbc(parent_structure * t2, top_grain.lattice.matrix)
@@ -524,6 +550,12 @@ class GBGenerator(object):
         bottom_grain.make_supercell([1, 1, expand_times])
         top_grain = fix_pbc(top_grain)
         bottom_grain = fix_pbc(bottom_grain)
+
+        # determine the top-grain location.
+        edge_b = 1.0 - max(bottom_grain.frac_coords[:, 2])
+        edge_t = 1.0 - max(top_grain.frac_coords[:, 2])
+        c_adjust = (edge_t - edge_b) / 2.0
+
         # construct all species
         all_species = []
         all_species.extend([site.specie for site in bottom_grain])
@@ -549,7 +581,7 @@ class GBGenerator(object):
         for site in bottom_grain:
             all_coords.append(site.coords)
         for site in top_grain:
-            all_coords.append(site.coords + half_lattice.matrix[2] + translation_v
+            all_coords.append(site.coords + half_lattice.matrix[2] * (1 + c_adjust) + translation_v
                               + ab_shift[0] * whole_matrix_with_vac[0] +
                               ab_shift[1] * whole_matrix_with_vac[1])
 
@@ -557,9 +589,17 @@ class GBGenerator(object):
                                 coords_are_cartesian=True,
                                 site_properties={'grain_label': grain_labels})
 
-        return Gb(whole_lat, all_species, all_coords, rotation_axis, rotation_angle,
-                  plane, self.initial_structure, vacuum_thickness, ab_shift,
-                  site_properties={'grain_label': grain_labels},
+        # remove overlap atoms in bottom grain.
+        removed_site = []
+        for i in range(int(round(gb_with_vac.num_sites / 2))):
+            neighbors = gb_with_vac.get_neighbors(gb_with_vac[i], bond_length * rm_ratio)
+            if len(neighbors) > 0:
+                removed_site.append(i)
+        gb_with_vac.remove_sites(removed_site)
+
+        return Gb(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
+                  rotation_angle, plane, self.initial_structure, vacuum_thickness, ab_shift,
+                  site_properties=gb_with_vac.site_properties,
                   oriented_unit_cell=oriended_unit_cell,
                   coords_are_cartesian=True)
 
@@ -1009,6 +1049,7 @@ class GBGenerator(object):
         if reduce(gcd, r_axis) != 1:
             r_axis = [int(round(x / reduce(gcd, r_axis))) for x in r_axis]
         r_matrix = np.matrix(trans_cry).T.I * r_matrix * np.matrix(trans_cry).T
+
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
         I_mat = np.matrix(np.identity(3))
@@ -1041,7 +1082,7 @@ class GBGenerator(object):
         # each row of mat_csl is the CSL lattice vector
         csl_init = np.rint(r_matrix * trans * np.matrix(scale)).astype(int).T
         if abs(r_axis[h]) > 1:
-            csl_init = GBGenerator.reduce_mat(np.array(csl_init), r_axis[h])
+            csl_init = GBGenerator.reduce_mat(np.array(csl_init), r_axis[h], r_matrix)
         csl = np.rint(Lattice(csl_init).get_niggli_reduced_lattice().matrix).astype(int)
 
         # find the best slab supercell in terms of the conventional cell from the csl lattice,
@@ -1819,7 +1860,6 @@ class GBGenerator(object):
             else:
                 c_index = i
                 miller_nonzero.append(j)
-
         if len(miller_nonzero) > 1:
             index_len = len(miller_nonzero)
             lcm_miller = []
@@ -1946,14 +1986,16 @@ class GBGenerator(object):
         return t_matrix
 
     @staticmethod
-    def reduce_mat(mat, mag):
+    def reduce_mat(mat, mag, r_matrix):
         """
         Reduce integer array mat's determinant mag times by linear combination
-        of its row vectors
+        of its row vectors, so that the new array after rotation (r_matrix) is
+        still an integer array
 
         Args:
             mat (3 by 3 array): input matrix
             mag (integer): reduce times for the determinant
+            r_matrix (3 by 3 array): rotation matrix
         Return:
             the reduced integer array
         """
@@ -1966,9 +2008,13 @@ class GBGenerator(object):
                 for j2 in range(-max_j, max_j + 1):
                     temp = mat[h] + j1 * mat[k] + j2 * mat[l]
                     if all([np.round(x, 5).is_integer() for x in list(temp / mag)]):
-                        mat[h] = np.array([int(round(ele / mag)) for ele in temp])
-                        reduced = True
-                        break
+                        mat_copy = mat.copy()
+                        mat_copy[h] = np.array([int(round(ele / mag)) for ele in temp])
+                        new_mat = np.matrix(mat_copy) * np.matrix(r_matrix).T.I
+                        if all([np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))]):
+                            reduced = True
+                            mat[h] = np.array([int(round(ele / mag)) for ele in temp])
+                            break
                 if reduced:
                     break
             if reduced:
