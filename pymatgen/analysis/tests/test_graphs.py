@@ -573,6 +573,7 @@ class MoleculeGraphTest(unittest.TestCase):
                                                              {"from_index": 1, "to_index": 3}])
         self.assertEqual(eth_copy.get_coordination_of_site(1), 2)
 
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_split(self):
         bonds = [(0, 1), (4, 5)]
         alterations = {(2, 3): {"weight": 1.0},
