@@ -594,6 +594,7 @@ class MoleculeGraphTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.cyclohexene.split_molecule_subgraphs([(0,1)])
 
+        # Test naive charge redistribution
         hydroxide = Molecule(["O", "H"], [[0, 0, 0], [0.5, 0.5, 0.5]], charge=-1)
         oh_mg = MoleculeGraph.with_empty_graph(hydroxide)
 
@@ -605,6 +606,30 @@ class MoleculeGraphTest(unittest.TestCase):
                 self.assertEqual(mg.molecule.charge, -1)
             else:
                 self.assertEqual(mg.molecule.charge, 0)
+
+        # Trying to test to ensure that remapping of nodes to atoms works
+        diff_species = Molecule(["C", "I", "Cl", "Br", "F"], [[0.8314, -0.2682, -0.9102],
+                                                              [1.3076, 1.3425, -2.2038],
+                                                              [-0.8429, -0.7410, -1.1554],
+                                                              [1.9841, -1.7636, -1.2953],
+                                                              [1.0098, 0.1231, 0.3916]])
+
+        diff_spec_mg = MoleculeGraph.with_empty_graph(diff_species)
+        diff_spec_mg.add_edge(0, 1)
+        diff_spec_mg.add_edge(0, 2)
+        diff_spec_mg.add_edge(0, 3)
+        diff_spec_mg.add_edge(0, 4)
+
+        for i in range(1, 5):
+            bond = (0, i)
+
+            split_mgs = diff_spec_mg.split_molecule_subgraphs([bond])
+            for split_mg in split_mgs:
+                species = nx.get_node_attributes(split_mg.graph, "specie")
+
+                for j in range(len(split_mg.graph.nodes)):
+                    atom = split_mg.molecule[j]
+                    self.assertEqual(species[j], str(atom.specie))
 
     @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_build_unique_fragments(self):
