@@ -942,9 +942,9 @@ class MPNonSCFSet(MPRelaxSet):
                                        small_gap_multiply[1]
 
         return cls(structure=structure, prev_incar=incar,
-                           reciprocal_density=reciprocal_density,
-                           kpoints_line_density=kpoints_line_density,
-                           files_to_transfer=files_to_transfer, **kwargs)
+                   reciprocal_density=reciprocal_density,
+                   kpoints_line_density=kpoints_line_density,
+                   files_to_transfer=files_to_transfer, **kwargs)
 
 
 class MPSOCSet(MPStaticSet):
@@ -1057,11 +1057,11 @@ class MPSOCSet(MPStaticSet):
                 reciprocal_density = reciprocal_density * small_gap_multiply[1]
 
         return cls(structure, prev_incar=incar,
-                        files_to_transfer=files_to_transfer,
-                        reciprocal_density=reciprocal_density, **kwargs)
+                   files_to_transfer=files_to_transfer,
+                   reciprocal_density=reciprocal_density, **kwargs)
+
 
 class MPNMRSet(MPStaticSet):
-
     def __init__(self, structure, mode="cs", isotopes=None,
                  prev_incar=None, reciprocal_density=100, **kwargs):
         """
@@ -1295,8 +1295,8 @@ class MVLGWSet(DictSet):
                         files_to_transfer[fname] = str(w[-1])
 
         return cls(structure=structure, prev_incar=prev_incar,
-                        nbands=nbands, mode=mode,
-                        files_to_transfer=files_to_transfer, **kwargs)
+                   nbands=nbands, mode=mode,
+                   files_to_transfer=files_to_transfer, **kwargs)
 
 
 class MVLSlabSet(MPRelaxSet):
@@ -1379,7 +1379,6 @@ class MVLSlabSet(MPRelaxSet):
         if verbosity == 1:
             d.pop("structure", None)
         return d
-
 
 
 class MVLGBSet(MPRelaxSet):
