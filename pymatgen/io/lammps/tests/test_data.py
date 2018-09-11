@@ -123,6 +123,16 @@ class LammpsDataTest(unittest.TestCase):
                                               0.71487872,
                                               0.14134139])
 
+        co = Structure.from_spacegroup(194,
+                                       Lattice.hexagonal(2.50078, 4.03333),
+                                       ["Co"], [[1/3, 2/3, 1/4]])
+        ld_co = LammpsData.from_structure(co)
+        self.assertEqual(ld_co.structure.composition.reduced_formula, "Co")
+        ni = Structure.from_spacegroup(225, Lattice.cubic(3.50804),
+                                       ["Ni"], [[0, 0, 0]])
+        ld_ni = LammpsData.from_structure(ni)
+        self.assertEqual(ld_ni.structure.composition.reduced_formula, "Ni")
+
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
         pep_lines = pep.split("\n")

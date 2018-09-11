@@ -97,7 +97,7 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2018.8.10",
+    version="2018.9.1",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "six", "requests", "ruamel.yaml>=0.15.6",
@@ -175,7 +175,6 @@ setup(
               'feff_plot_dos = pymatgen.cli.feff_plot_dos:main',
               'gaussian_analyzer = pymatgen.cli.gaussian_analyzer:main',
               'get_environment = pymatgen.cli.get_environment:main',
-              'pydii = pymatgen.cli.pydii:main',
           ]
     }
 )

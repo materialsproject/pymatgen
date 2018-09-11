@@ -65,21 +65,19 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.tensors</span> <span class="k">import</span> <span class="n">Tensor</span><span class="p">,</span> \
-    <span class="n">TensorCollection</span><span class="p">,</span> <span class="n">get_uvec</span><span class="p">,</span> <span class="n">SquareTensor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.tensors</span> <span class="k">import</span> <span class="n">Tensor</span><span class="p">,</span> \
+    <span class="n">TensorCollection</span><span class="p">,</span> <span class="n">get_uvec</span><span class="p">,</span> <span class="n">SquareTensor</span><span class="p">,</span> <span class="n">DEFAULT_QUAD</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.stress</span> <span class="k">import</span> <span class="n">Stress</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.elasticity.strain</span> <span class="k">import</span> <span class="n">Strain</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">Unit</span>
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">factorial</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="k">import</span> <span class="n">quad</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">root</span>
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">monty.dev</span> <span class="k">import</span> <span class="n">deprecated</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">sympy</span> <span class="k">as</span> <span class="nn">sp</span>
 
@@ -107,6 +105,7 @@
 <span class="sd">    of the stress-strain constitutive equations</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">GPa_to_eV_A3</span> <span class="o">=</span> <span class="n">Unit</span><span class="p">(</span><span class="s2">&quot;GPa&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_conversion_factor</span><span class="p">(</span><span class="n">Unit</span><span class="p">(</span><span class="s2">&quot;eV ang^-3&quot;</span><span class="p">))</span>
+    <span class="n">symbol</span> <span class="o">=</span> <span class="s2">&quot;C&quot;</span>
 
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">input_array</span><span class="p">,</span> <span class="n">check_rank</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">NthOrderElasticTensor</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span>
@@ -667,9 +666,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If using temperature input, you must also &quot;</span>
                              <span class="s2">&quot;include structure&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">quad</span><span class="p">:</span>
-            <span class="n">quad</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
-                                       <span class="s2">&quot;quad_data.json&quot;</span><span class="p">))</span>
+        <span class="n">quad</span> <span class="o">=</span> <span class="n">quad</span> <span class="k">if</span> <span class="n">quad</span> <span class="k">else</span> <span class="n">DEFAULT_QUAD</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">quad</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">]</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="n">quad</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span>
         <span class="n">num</span><span class="p">,</span> <span class="n">denom</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>

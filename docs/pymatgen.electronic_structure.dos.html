@@ -633,6 +633,97 @@ value without error for both c_ref and -c_ref</li>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos">
+<em class="property">class </em><code class="descname">LobsterCompleteDos</code><span class="sig-paren">(</span><em>structure</em>, <em>total_dos</em>, <em>pdoss</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.CompleteDos" title="pymatgen.electronic_structure.dos.CompleteDos"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.electronic_structure.dos.CompleteDos</span></code></a></p>
+<p>Extended CompleteDOS for Lobster</p>
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: CompleteDos object from dict representation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_element_spd_dos">
+<code class="descname">get_element_spd_dos</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_element_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_element_spd_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get element and spd projected Dos</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>el</strong> – Element in Structure.composition associated with LobsterCompleteDos</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">{“S”: densities, “P”: densities, “D”: densities}}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of {Element</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_orbital_dos">
+<code class="descname">get_site_orbital_dos</code><span class="sig-paren">(</span><em>site</em>, <em>orbital</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_site_orbital_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_orbital_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Dos for a particular orbital of a particular site.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>site</strong> – Site in Structure associated with CompleteDos.</li>
+<li><strong>orbital</strong> – principal quantum number and orbital in string format, e.g. “4s”.
+possible orbitals are: “s”, “p_y”, “p_z”, “p_x”, “d_xy”, “d_yz”, “d_z^2”,
+“d_xz”, “d_x^2-y^2”, “f_y(3x^2-y^2)”, “f_xyz”,
+“f_yz^2”, “f_z^3”, “f_xz^2”, “f_z(x^2-y^2)”, “f_x(x^2-3y^2)”
+In contrast to the Cohpcar and the Cohplist objects, the strings from the Lobster files are used</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Dos containing densities of an orbital of a specific site.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_t2g_eg_resolved_dos">
+<code class="descname">get_site_t2g_eg_resolved_dos</code><span class="sig-paren">(</span><em>site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_site_t2g_eg_resolved_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_site_t2g_eg_resolved_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the t2g, eg projected DOS for a particular site.
+:param site: Site in Structure associated with CompleteDos.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos, “t2g”: Dos} containing summed e_g and t2g DOS
+for the site.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">A dict {“e_g”</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.LobsterCompleteDos.get_spd_dos">
+<code class="descname">get_spd_dos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#LobsterCompleteDos.get_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.LobsterCompleteDos.get_spd_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get orbital projected Dos.
+For example, if 3s and 4s are included in the basis of some element, they will be both summed in the orbital projected DOS</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dos}, e.g. {“s”: Dos object, …}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of {orbital</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="pymatgen.electronic_structure.dos.add_densities">
 <code class="descname">add_densities</code><span class="sig-paren">(</span><em>density1</em>, <em>density2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#add_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.add_densities" title="Permalink to this definition">¶</a></dt>

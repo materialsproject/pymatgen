@@ -78,10 +78,10 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">JMolNN</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">JmolNN</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="k">import</span> <span class="n">Specie</span>
 
-<div class="viewcode-block" id="find_connected_atoms"><a class="viewcode-back" href="../../../pymatgen.analysis.find_dimension.html#pymatgen.analysis.find_dimension.find_connected_atoms">[docs]</a><span class="k">def</span> <span class="nf">find_connected_atoms</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span> <span class="n">ldict</span><span class="o">=</span><span class="n">JMolNN</span><span class="p">()</span><span class="o">.</span><span class="n">el_radius</span><span class="p">):</span>
+<div class="viewcode-block" id="find_connected_atoms"><a class="viewcode-back" href="../../../pymatgen.analysis.find_dimension.html#pymatgen.analysis.find_dimension.find_connected_atoms">[docs]</a><span class="k">def</span> <span class="nf">find_connected_atoms</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span> <span class="n">ldict</span><span class="o">=</span><span class="n">JmolNN</span><span class="p">()</span><span class="o">.</span><span class="n">el_radius</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Finds the list of bonded atoms.</span>
 
@@ -174,7 +174,7 @@
 	<span class="k">return</span> <span class="p">[</span><span class="n">max_cluster</span><span class="p">,</span> <span class="n">min_cluster</span><span class="p">,</span> <span class="n">clusters</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="find_dimension"><a class="viewcode-back" href="../../../pymatgen.analysis.find_dimension.html#pymatgen.analysis.find_dimension.find_dimension">[docs]</a><span class="k">def</span> <span class="nf">find_dimension</span><span class="p">(</span><span class="n">structure_raw</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span> <span class="n">ldict</span><span class="o">=</span><span class="n">JMolNN</span><span class="p">()</span><span class="o">.</span><span class="n">el_radius</span><span class="p">,</span> <span class="n">standardize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="find_dimension"><a class="viewcode-back" href="../../../pymatgen.analysis.find_dimension.html#pymatgen.analysis.find_dimension.find_dimension">[docs]</a><span class="k">def</span> <span class="nf">find_dimension</span><span class="p">(</span><span class="n">structure_raw</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span> <span class="n">ldict</span><span class="o">=</span><span class="n">JmolNN</span><span class="p">()</span><span class="o">.</span><span class="n">el_radius</span><span class="p">,</span> <span class="n">standardize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Algorithm for finding the dimensions of connected subunits in a crystal structure.</span>
 <span class="sd">	This method finds the dimensionality of the material even when the material is not layered along low-index planes, or does not have flat layers/molecular wires.</span>

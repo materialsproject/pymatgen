@@ -60,7 +60,7 @@
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.elastic.ComplianceTensor">
 <em class="property">class </em><code class="descname">ComplianceTensor</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ComplianceTensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ComplianceTensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor" title="pymatgen.analysis.elasticity.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.elasticity.tensors.Tensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>This class represents the compliance tensor, and exists
 primarily to keep the voigt-conversion scheme consistent
 since the compliance tensor has a unique vscale</p>
@@ -314,7 +314,7 @@ Voigt-Reuss-Hill averages of bulk and shear moduli</p>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion">
 <em class="property">class </em><code class="descname">ElasticTensorExpansion</code><span class="sig-paren">(</span><em>c_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensorExpansion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection" title="pymatgen.analysis.elasticity.tensors.TensorCollection"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.elasticity.tensors.TensorCollection</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.TensorCollection" title="pymatgen.core.tensors.TensorCollection"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.TensorCollection</span></code></a></p>
 <p>This class is a sequence of elastic tensors corresponding
 to an elastic tensor expansion, which can be used to
 calculate stress and energy density and inherits all
@@ -611,7 +611,7 @@ current supported modes are ‘debye’ and ‘dulong-petit’</li>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor">
 <em class="property">class </em><code class="descname">NthOrderElasticTensor</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#NthOrderElasticTensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor" title="pymatgen.analysis.elasticity.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.elasticity.tensors.Tensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>An object representing an nth-order tensor expansion
 of the stress-strain constitutive equations</p>
 <dl class="attribute">
@@ -650,6 +650,11 @@ stress using Einstein summation</p>
 <code class="descname">order</code><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.order" title="Permalink to this definition">¶</a></dt>
 <dd><p>Order of the elastic tensor</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol">
+<code class="descname">symbol</code><em class="property"> = ‘C’</em><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -858,7 +863,7 @@ of numpy vectorization</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entry</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.DummySpecie.symbol" title="pymatgen.core.periodic_table.DummySpecie.symbol"><em>symbol</em></a><em> or </em><em>exp</em>) – sympy expr to undergo subs</li>
+<li><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol" title="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol"><em>symbol</em></a><em> or </em><em>exp</em>) – sympy expr to undergo subs</li>
 <li><strong>cmap</strong> (<em>dict</em>) – map for symbols to values to use in subs</li>
 </ul>
 </td>

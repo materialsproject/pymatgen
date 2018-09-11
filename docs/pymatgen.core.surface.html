@@ -212,58 +212,6 @@ a and b lattice vectors.</li>
 <dd><p>Generates the unreconstructed or pristine super slab.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="pymatgen.core.surface.ReconstructionGenerator.symmetrically_add_atom">
-<code class="descname">symmetrically_add_atom</code><span class="sig-paren">(</span><em>slab</em>, <em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.symmetrically_add_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.symmetrically_add_atom" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Class method for adding a site at a specified point in a slab.</dt>
-<dd>Will add the corresponding site on the other side of the
-slab to maintain equivalent surfaces.</dd>
-<dt>Arg:</dt>
-<dd><dl class="first last docutils">
-<dt>point (frac coord): The fractional coordinate of the site</dt>
-<dd>in the slab to add.</dd>
-</dl>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The modified slab</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.core.surface.ReconstructionGenerator.symmetrically_remove_atom">
-<code class="descname">symmetrically_remove_atom</code><span class="sig-paren">(</span><em>slab</em>, <em>point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#ReconstructionGenerator.symmetrically_remove_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.ReconstructionGenerator.symmetrically_remove_atom" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Class method for removing a site at a specified point in a slab.</dt>
-<dd>Will remove the corresponding site on the other side of the
-slab to maintain equivalent surfaces.</dd>
-<dt>Arg:</dt>
-<dd><p class="first">slab (Slab): The slab to modify
-point (frac coord): The fractional coordinate of the site</p>
-<blockquote class="last">
-<div>in the slab to remove.</div></blockquote>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The modified slab</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="#pymatgen.core.surface.Slab" title="pymatgen.core.surface.Slab">Slab</a>)</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -634,7 +582,7 @@ coords_are_cartesian (bool): Is the point in cartesian coordinates</dd>
 <dt id="pymatgen.core.surface.Slab.symmetrically_remove_atoms">
 <code class="descname">symmetrically_remove_atoms</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/surface.html#Slab.symmetrically_remove_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.surface.Slab.symmetrically_remove_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt>Class method for removing a site at a specified point in a slab.</dt>
+<dt>Class method for removing sites corresponding to a list of indices.</dt>
 <dd>Will remove the corresponding site on the other side of the
 slab to maintain equivalent surfaces.</dd>
 <dt>Arg:</dt>
