@@ -2487,19 +2487,14 @@ class MoleculeGraph(MSONable):
         :param other: MoleculeGraph object to be compared.
         :return: bool
         """
-
-        self_undir = self.graph.to_undirected()
-        other_undir = other.graph.to_undirected()
-
-        nm = iso.categorical_node_match("specie", "ERROR")
-
-        isomorphic = nx.is_isomorphic(self_undir, other_undir, node_match=nm)
-
-        if isomorphic and self.molecule.composition != other.molecule.composition:
-            raise RuntimeError("Anomaly: graph is isomorphic, but species in"
-                               " molecules are different.")
-
-        return isomorphic
+        if self.molecule.composition != other.molecule.composition:
+            return False
+        else:
+            self_undir = self.graph.to_undirected()
+            other_undir = other.graph.to_undirected()
+            nm = iso.categorical_node_match("specie", "ERROR")
+            isomorphic = nx.is_isomorphic(self_undir, other_undir, node_match=nm)
+            return isomorphic
 
     def diff(self, other, strict=True):
         """
