@@ -19,7 +19,7 @@ jobs:
             pip install --upgrade pip
             pip install --quiet --ignore-installed -r requirements.txt 
             export CFLAGS=$CFLAGS" -std=gnu++11"
-            travis_wait pip install BoltzTraP2
+            pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
             pip install --quiet --ignore-installed -r requirements-optional.txt
             # Add executables and path.
