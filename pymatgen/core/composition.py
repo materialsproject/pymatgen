@@ -477,12 +477,8 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             In the case of Metallofullerene formula (e.g. Y3N@C80),
             the @ mark will be dropped and passed to parser.
         """
-        print(formula)
         # for Metallofullerene like "Y3N@C80"
-        if "@" in formula:
-            print(formula)
-            formula = formula.replace("@", "")
-            print(formula)
+        formula = formula.replace("@", "")
 
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
