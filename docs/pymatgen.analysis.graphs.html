@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -143,7 +143,7 @@ from_index &lt; to_index and from_jimage becomes (0, 0, 0).</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>from_index</strong> – index of site connecting from</li>
 <li><strong>to_index</strong> – index of site connecting to</li>
-<li><strong>(</strong><strong>float</strong><strong>)</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.weight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.weight"><em>weight</em></a>) – e.g. bond length</li>
+<li><strong>(</strong><strong>float</strong><strong>)</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.weight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.weight"><em>weight</em></a>) – e.g. bond length</li>
 <li><strong>(</strong><strong>bool</strong><strong>)</strong> (<em>warn_duplicates</em>) – if True, will warn if</li>
 </ul>
 </td>
@@ -253,7 +253,7 @@ number of occurrences of bonds
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file">
-<code class="descname">draw_graph_to_file</code><span class="sig-paren">(</span><em>filename=’graph’</em>, <em>diff=None</em>, <em>hide_unconnected_nodes=False</em>, <em>hide_image_edges=True</em>, <em>edge_colors=False</em>, <em>node_labels=False</em>, <em>weight_labels=False</em>, <em>image_labels=False</em>, <em>color_scheme=’VESTA’</em>, <em>keep_dot=False</em>, <em>algo=’fdp’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.draw_graph_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">draw_graph_to_file</code><span class="sig-paren">(</span><em>filename=u’graph’</em>, <em>diff=None</em>, <em>hide_unconnected_nodes=False</em>, <em>hide_image_edges=True</em>, <em>edge_colors=False</em>, <em>node_labels=False</em>, <em>weight_labels=False</em>, <em>image_labels=False</em>, <em>color_scheme=u’VESTA’</em>, <em>keep_dot=False</em>, <em>algo=u’fdp’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.draw_graph_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws graph using GraphViz.</p>
 <p>The networkx graph object itself can also be drawn
 with networkx’s in-built graph drawing methods, but
@@ -597,7 +597,7 @@ periodic boundary conditions.</li>
 
 <dl class="classmethod">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph">
-<em class="property">classmethod </em><code class="descname">with_empty_graph</code><span class="sig-paren">(</span><em>molecule</em>, <em>name=’bonds’</em>, <em>edge_weight_name=None</em>, <em>edge_weight_units=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.with_empty_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">with_empty_graph</code><span class="sig-paren">(</span><em>molecule</em>, <em>name=u’bonds’</em>, <em>edge_weight_name=None</em>, <em>edge_weight_units=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.with_empty_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for MoleculeGraph, returns a MoleculeGraph
 object with an empty graph (no edges, only nodes defined
 that correspond to Sites in Molecule).</p>
@@ -606,7 +606,7 @@ that correspond to Sites in Molecule).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>(</strong><strong>Molecule</strong><strong>)</strong> (<a class="reference internal" href="pymatgen.io.fiesta.html#pymatgen.io.fiesta.FiestaInput.molecule" title="pymatgen.io.fiesta.FiestaInput.molecule"><em>molecule</em></a>) – </li>
+<li><strong>(</strong><strong>Molecule</strong><strong>)</strong> (<a class="reference internal" href="pymatgen.io.nwchem.html#pymatgen.io.nwchem.NwInput.molecule" title="pymatgen.io.nwchem.NwInput.molecule"><em>molecule</em></a>) – </li>
 <li><strong>(</strong><strong>str</strong><strong>)</strong> (<a class="reference internal" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name" title="pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name"><em>edge_weight_name</em></a>) – name of graph, e.g. “bonds”</li>
 <li><strong>(</strong><strong>str</strong><strong>)</strong> – name of edge weights,</li>
 </ul>
@@ -817,7 +817,7 @@ number of occurrences of bonds
 
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file">
-<code class="descname">draw_graph_to_file</code><span class="sig-paren">(</span><em>filename=’graph’</em>, <em>diff=None</em>, <em>hide_unconnected_nodes=False</em>, <em>hide_image_edges=True</em>, <em>edge_colors=False</em>, <em>node_labels=False</em>, <em>weight_labels=False</em>, <em>image_labels=False</em>, <em>color_scheme=’VESTA’</em>, <em>keep_dot=False</em>, <em>algo=’fdp’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.draw_graph_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">draw_graph_to_file</code><span class="sig-paren">(</span><em>filename=u’graph’</em>, <em>diff=None</em>, <em>hide_unconnected_nodes=False</em>, <em>hide_image_edges=True</em>, <em>edge_colors=False</em>, <em>node_labels=False</em>, <em>weight_labels=False</em>, <em>image_labels=False</em>, <em>color_scheme=u’VESTA’</em>, <em>keep_dot=False</em>, <em>algo=u’fdp’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.draw_graph_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.draw_graph_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Draws graph using GraphViz.</p>
 <p>The networkx graph object itself can also be drawn
 with networkx’s in-built graph drawing methods, but
@@ -1071,7 +1071,7 @@ If None, default parameters will be used.</li>
 
 <dl class="classmethod">
 <dt id="pymatgen.analysis.graphs.StructureGraph.with_empty_graph">
-<em class="property">classmethod </em><code class="descname">with_empty_graph</code><span class="sig-paren">(</span><em>structure</em>, <em>name=’bonds’</em>, <em>edge_weight_name=None</em>, <em>edge_weight_units=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_empty_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">with_empty_graph</code><span class="sig-paren">(</span><em>structure</em>, <em>name=u’bonds’</em>, <em>edge_weight_name=None</em>, <em>edge_weight_units=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_empty_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for StructureGraph, returns a StructureGraph
 object with an empty graph (no edges, only nodes defined
 that correspond to Sites in Structure).</p>
@@ -1080,7 +1080,7 @@ that correspond to Sites in Structure).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>(</strong><strong>Structure</strong><strong>)</strong> (<a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator.structure" title="pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator.structure"><em>structure</em></a>) – </li>
+<li><strong>(</strong><strong>Structure</strong><strong>)</strong> (<a class="reference internal" href="pymatgen.electronic_structure.dos.html#pymatgen.electronic_structure.dos.CompleteDos.structure" title="pymatgen.electronic_structure.dos.CompleteDos.structure"><em>structure</em></a>) – </li>
 <li><strong>(</strong><strong>str</strong><strong>)</strong> (<a class="reference internal" href="#pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name" title="pymatgen.analysis.graphs.MoleculeGraph.edge_weight_name"><em>edge_weight_name</em></a>) – name of graph, e.g. “bonds”</li>
 <li><strong>(</strong><strong>str</strong><strong>)</strong> – name of edge weights,</li>
 </ul>
@@ -1157,7 +1157,7 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

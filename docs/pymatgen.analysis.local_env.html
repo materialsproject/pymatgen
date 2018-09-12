@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -462,7 +462,7 @@ defined for a Null/Empty NN class.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>cut_off_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em>) – a dictionary</li>
 <li><strong>cut-off distances</strong><strong>, </strong><strong>e.g. {</strong> (<em>of</em>) – 2.0} for</li>
-<li><strong>maximum Fe-O bond length of 2.0 Angstroms.</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a" title="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a"><em>a</em></a>) – </li>
+<li><strong>maximum Fe-O bond length of 2.0 Angstroms.</strong> (<a class="reference internal" href="pymatgen.core.lattice.html#pymatgen.core.lattice.Lattice.a" title="pymatgen.core.lattice.Lattice.a"><em>a</em></a>) – </li>
 <li><strong>that if your structure is oxidation state</strong> (<em>Note</em>) – </li>
 <li><strong>the cut-off distances will have to</strong> (<em>decorated</em><em>,</em>) – </li>
 <li><strong>include the oxidation state</strong><strong>, </strong><strong>e.g.</strong> (<em>explicitly</em>) – </li>
@@ -1315,7 +1315,7 @@ neighbors.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">near neighbors.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.core.sites.html#module-pymatgen.core.sites" title="pymatgen.core.sites">sites</a> (list of Site objects)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.IMolecule.sites" title="pymatgen.core.structure.IMolecule.sites">sites</a> (list of Site objects)</p>
 </td>
 </tr>
 </tbody>
@@ -1459,7 +1459,7 @@ index n in structure.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.OpenBabelNN">
-<em class="property">class </em><code class="descname">OpenBabelNN</code><span class="sig-paren">(</span><em>order=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#OpenBabelNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">OpenBabelNN</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#OpenBabelNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and bond orders using OpenBabel API.</p>
 <p>NOTE: This strategy is only appropriate for molecules, and not for
@@ -1600,7 +1600,7 @@ analyzer</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.VoronoiNN">
-<em class="property">class </em><code class="descname">VoronoiNN</code><span class="sig-paren">(</span><em>tol=0</em>, <em>targets=None</em>, <em>cutoff=10.0</em>, <em>allow_pathological=False</em>, <em>weight=’solid_angle’</em>, <em>extra_nn_info=True</em>, <em>compute_adj_neighbors=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">VoronoiNN</code><span class="sig-paren">(</span><em>tol=0</em>, <em>targets=None</em>, <em>cutoff=10.0</em>, <em>allow_pathological=False</em>, <em>weight=u’solid_angle’</em>, <em>extra_nn_info=True</em>, <em>compute_adj_neighbors=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Uses a Voronoi algorithm to determine near neighbors for each site in a
 structure.</p>
@@ -1759,7 +1759,7 @@ Hoppe’s effective coordination number formula.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.get_neighbors_of_site_with_index">
-<code class="descname">get_neighbors_of_site_with_index</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=’min_dist’</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#get_neighbors_of_site_with_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_neighbors_of_site_with_index" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_neighbors_of_site_with_index</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=u’min_dist’</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#get_neighbors_of_site_with_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_neighbors_of_site_with_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the neighbors of a given site using a specific neighbor-finding
 method.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1854,7 +1854,7 @@ The output vector is not normalized.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.site_is_of_motif_type">
-<code class="descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=’min_dist’</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em>, <em>thresh=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#site_is_of_motif_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
+<code class="descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=u’min_dist’</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em>, <em>thresh=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#site_is_of_motif_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the motif type of the site with index n in structure struct;
 currently featuring “tetrahedral”, “octahedral”, “bcc”, and “cp”
 (close-packed: fcc and hcp) as well as “square pyramidal” and
@@ -1971,7 +1971,7 @@ vt2, vt3 and vt4.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

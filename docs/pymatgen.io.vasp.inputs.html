@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -196,7 +196,7 @@ integers, floats, lists, etc.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.inputs.Kpoints">
-<em class="property">class </em><code class="descname">Kpoints</code><span class="sig-paren">(</span><em>comment=’Default gamma’</em>, <em>num_kpts=0</em>, <em>style=&lt;Kpoints_supported_modes.Gamma: 1&gt;</em>, <em>kpts=((1</em>, <em>1</em>, <em>1)</em>, <em>)</em>, <em>kpts_shift=(0</em>, <em>0</em>, <em>0)</em>, <em>kpts_weights=None</em>, <em>coord_type=None</em>, <em>labels=None</em>, <em>tet_number=0</em>, <em>tet_weight=0</em>, <em>tet_connections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Kpoints</code><span class="sig-paren">(</span><em>comment=u’Default gamma’</em>, <em>num_kpts=0</em>, <em>style=&lt;Kpoints_supported_modes.Gamma: 1&gt;</em>, <em>kpts=((1</em>, <em>1</em>, <em>1)</em>, <em>)</em>, <em>kpts_shift=(0</em>, <em>0</em>, <em>0)</em>, <em>kpts_weights=None</em>, <em>coord_type=None</em>, <em>labels=None</em>, <em>tet_number=0</em>, <em>tet_weight=0</em>, <em>tet_connections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>KPOINT reader/writer.</p>
 <p>Highly flexible constructor for Kpoints object.  The flexibility comes
@@ -490,7 +490,6 @@ vectors. Defaults to (2,2,2)</li>
 <dt id="pymatgen.io.vasp.inputs.Kpoints_supported_modes">
 <em class="property">class </em><code class="descname">Kpoints_supported_modes</code><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints_supported_modes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints_supported_modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">enum.Enum</span></code></p>
-<p>An enumeration.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.Kpoints_supported_modes.Automatic">
 <code class="descname">Automatic</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints_supported_modes.Automatic" title="Permalink to this definition">¶</a></dt>
@@ -898,7 +897,7 @@ symbol to raw POTCAR mapping.</li>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.Potcar.FUNCTIONAL_CHOICES">
-<code class="descname">FUNCTIONAL_CHOICES</code><em class="property"> = [‘PBE’, ‘PBE_52’, ‘PBE_54’, ‘LDA’, ‘LDA_52’, ‘LDA_54’, ‘PW91’, ‘LDA_US’, ‘PW91_US’]</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.Potcar.FUNCTIONAL_CHOICES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">FUNCTIONAL_CHOICES</code><em class="property"> = [u’PBE’, u’PBE_52’, u’LDA’, u’PW91_US’, u’LDA_US’, u’PBE_54’, u’PW91’, u’LDA_52’, u’LDA_54’]</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.Potcar.FUNCTIONAL_CHOICES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1037,12 +1036,12 @@ potcar.encut, etc.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.functional_dir">
-<code class="descname">functional_dir</code><em class="property"> = {‘PBE’: ‘POT_GGA_PAW_PBE’, ‘PBE_52’: ‘POT_GGA_PAW_PBE_52’, ‘PBE_54’: ‘POT_GGA_PAW_PBE_54’, ‘LDA’: ‘POT_LDA_PAW’, ‘LDA_52’: ‘POT_LDA_PAW_52’, ‘LDA_54’: ‘POT_LDA_PAW_54’, ‘PW91’: ‘POT_GGA_PAW_PW91’, ‘LDA_US’: ‘POT_LDA_US’, ‘PW91_US’: ‘POT_GGA_US_PW91’}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_dir" title="Permalink to this definition">¶</a></dt>
+<code class="descname">functional_dir</code><em class="property"> = {u’PBE’: u’POT_GGA_PAW_PBE’, u’PBE_52’: u’POT_GGA_PAW_PBE_52’, u’LDA’: u’POT_LDA_PAW’, u’PW91_US’: u’POT_GGA_US_PW91’, u’LDA_US’: u’POT_LDA_US’, u’PBE_54’: u’POT_GGA_PAW_PBE_54’, u’PW91’: u’POT_GGA_PAW_PW91’, u’LDA_52’: u’POT_LDA_PAW_52’, u’LDA_54’: u’POT_LDA_PAW_54’}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_dir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.functional_tags">
-<code class="descname">functional_tags</code><em class="property"> = {‘pe’: {‘name’: ‘PBE’, ‘class’: ‘GGA’}, ‘91’: {‘name’: ‘PW91’, ‘class’: ‘GGA’}, ‘rp’: {‘name’: ‘revPBE’, ‘class’: ‘GGA’}, ‘am’: {‘name’: ‘AM05’, ‘class’: ‘GGA’}, ‘ps’: {‘name’: ‘PBEsol’, ‘class’: ‘GGA’}, ‘pw’: {‘name’: ‘PW86’, ‘class’: ‘GGA’}, ‘lm’: {‘name’: ‘Langreth-Mehl-Hu’, ‘class’: ‘GGA’}, ‘pb’: {‘name’: ‘Perdew-Becke’, ‘class’: ‘GGA’}, ‘ca’: {‘name’: ‘Perdew-Zunger81’, ‘class’: ‘LDA’}, ‘hl’: {‘name’: ‘Hedin-Lundquist’, ‘class’: ‘LDA’}, ‘wi’: {‘name’: ‘Wigner Interpoloation’, ‘class’: ‘LDA’}}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descname">functional_tags</code><em class="property"> = {u’ca’: {u’name’: u’Perdew-Zunger81’, u’class’: u’LDA’}, u’am’: {u’name’: u’AM05’, u’class’: u’GGA’}, u’wi’: {u’name’: u’Wigner Interpoloation’, u’class’: u’LDA’}, u’hl’: {u’name’: u’Hedin-Lundquist’, u’class’: u’LDA’}, u‘91’: {u’name’: u’PW91’, u’class’: u’GGA’}, u’ps’: {u’name’: u’PBEsol’, u’class’: u’GGA’}, u’rp’: {u’name’: u’revPBE’, u’class’: u’GGA’}, u’pw’: {u’name’: u’PW86’, u’class’: u’GGA’}, u’lm’: {u’name’: u’Langreth-Mehl-Hu’, u’class’: u’GGA’}, u’pb’: {u’name’: u’Perdew-Becke’, u’class’: u’GGA’}, u’pe’: {u’name’: u’PBE’, u’class’: u’GGA’}}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1057,7 +1056,7 @@ potcar.encut, etc.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.parse_functions">
-<code class="descname">parse_functions</code><em class="property"> = {‘LULTRA’: &lt;function parse_bool&gt;, ‘LUNSCR’: &lt;function parse_bool&gt;, ‘LCOR’: &lt;function parse_bool&gt;, ‘LPAW’: &lt;function parse_bool&gt;, ‘EATOM’: &lt;function parse_float&gt;, ‘RPACOR’: &lt;function parse_float&gt;, ‘POMASS’: &lt;function parse_float&gt;, ‘ZVAL’: &lt;function parse_float&gt;, ‘RCORE’: &lt;function parse_float&gt;, ‘RWIGS’: &lt;function parse_float&gt;, ‘ENMAX’: &lt;function parse_float&gt;, ‘ENMIN’: &lt;function parse_float&gt;, ‘EMMIN’: &lt;function parse_float&gt;, ‘EAUG’: &lt;function parse_float&gt;, ‘DEXC’: &lt;function parse_float&gt;, ‘RMAX’: &lt;function parse_float&gt;, ‘RAUG’: &lt;function parse_float&gt;, ‘RDEP’: &lt;function parse_float&gt;, ‘RDEPT’: &lt;function parse_float&gt;, ‘QCUT’: &lt;function parse_float&gt;, ‘QGAM’: &lt;function parse_float&gt;, ‘RCLOC’: &lt;function parse_float&gt;, ‘IUNSCR’: &lt;function parse_int&gt;, ‘ICORE’: &lt;function parse_int&gt;, ‘NDATA’: &lt;function parse_int&gt;, ‘VRHFIN’: &lt;function parse_string&gt;, ‘LEXCH’: &lt;function parse_string&gt;, ‘TITEL’: &lt;function parse_string&gt;, ‘STEP’: &lt;function parse_list&gt;, ‘RRKJ’: &lt;function parse_list&gt;, ‘GGA’: &lt;function parse_list&gt;}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">parse_functions</code><em class="property"> = {u’VRHFIN’: &lt;function parse_string&gt;, u’LPAW’: &lt;function parse_bool&gt;, u’DEXC’: &lt;function parse_float&gt;, u’STEP’: &lt;function parse_list&gt;, u’RPACOR’: &lt;function parse_float&gt;, u’LEXCH’: &lt;function parse_string&gt;, u’ENMAX’: &lt;function parse_float&gt;, u’QCUT’: &lt;function parse_float&gt;, u’TITEL’: &lt;function parse_string&gt;, u’RDEPT’: &lt;function parse_float&gt;, u’EMMIN’: &lt;function parse_float&gt;, u’GGA’: &lt;function parse_list&gt;, u’LCOR’: &lt;function parse_bool&gt;, u’LUNSCR’: &lt;function parse_bool&gt;, u’EAUG’: &lt;function parse_float&gt;, u’RMAX’: &lt;function parse_float&gt;, u’ZVAL’: &lt;function parse_float&gt;, u’ICORE’: &lt;function parse_int&gt;, u’EATOM’: &lt;function parse_float&gt;, u’NDATA’: &lt;function parse_int&gt;, u’LULTRA’: &lt;function parse_bool&gt;, u’QGAM’: &lt;function parse_float&gt;, u’ENMIN’: &lt;function parse_float&gt;, u’RCLOC’: &lt;function parse_float&gt;, u’RCORE’: &lt;function parse_float&gt;, u’RDEP’: &lt;function parse_float&gt;, u’IUNSCR’: &lt;function parse_int&gt;, u’RAUG’: &lt;function parse_float&gt;, u’POMASS’: &lt;function parse_float&gt;, u’RRKJ’: &lt;function parse_list&gt;, u’RWIGS’: &lt;function parse_float&gt;}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1134,7 +1133,7 @@ static method from_file.</li>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.inputs.VaspInput.write_input">
-<code class="descname">write_input</code><span class="sig-paren">(</span><em>output_dir=’.’</em>, <em>make_dir_if_not_present=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#VaspInput.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.VaspInput.write_input" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_input</code><span class="sig-paren">(</span><em>output_dir=u’.’</em>, <em>make_dir_if_not_present=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#VaspInput.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.VaspInput.write_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write VASP input to a directory.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1217,7 +1216,7 @@ present. Defaults to True.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

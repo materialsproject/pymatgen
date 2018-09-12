@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.symmetry.settings module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.symmetry.settings module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,8 +60,7 @@
 <dl class="class">
 <dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation">
 <em class="property">class </em><code class="descname">JonesFaithfulTransformation</code><span class="sig-paren">(</span><em>P</em>, <em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Transform between settings using matrix P and origin shift vector p,
+<dd><p>Transform between settings using matrix P and origin shift vector p,
 using same notation as reference.</p>
 <p>Should initialize using <cite>from_transformation_string</cite> in Jones
 faithful notation, given by a string specifying both a
@@ -90,12 +89,12 @@ Chapter 1.5, pp. 75–106.</p>
 
 <dl class="classmethod">
 <dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.from_origin_shift">
-<em class="property">classmethod </em><code class="descname">from_origin_shift</code><span class="sig-paren">(</span><em>origin_shift=‘0</em>, <em>0</em>, <em>0’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.from_origin_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_origin_shift" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_origin_shift</code><span class="sig-paren">(</span><em>origin_shift=u‘0</em>, <em>0</em>, <em>0’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.from_origin_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_origin_shift" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.from_transformation_string">
-<em class="property">classmethod </em><code class="descname">from_transformation_string</code><span class="sig-paren">(</span><em>transformation_string=’a</em>, <em>b</em>, <em>c;0</em>, <em>0</em>, <em>0’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.from_transformation_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_transformation_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_transformation_string</code><span class="sig-paren">(</span><em>transformation_string=u’a</em>, <em>b</em>, <em>c;0</em>, <em>0</em>, <em>0’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.from_transformation_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.from_transformation_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct SpaceGroupTransformation from its transformation string.
 :param P: matrix
 :param p: origin shift vector
@@ -116,7 +115,7 @@ Chapter 1.5, pp. 75–106.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.symmetry.settings.JonesFaithfulTransformation.parse_transformation_string">
-<em class="property">static </em><code class="descname">parse_transformation_string</code><span class="sig-paren">(</span><em>transformation_string=’a</em>, <em>b</em>, <em>c;0</em>, <em>0</em>, <em>0’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.parse_transformation_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.parse_transformation_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">parse_transformation_string</code><span class="sig-paren">(</span><em>transformation_string=u’a</em>, <em>b</em>, <em>c;0</em>, <em>0</em>, <em>0’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/symmetry/settings.html#JonesFaithfulTransformation.parse_transformation_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.symmetry.settings.JonesFaithfulTransformation.parse_transformation_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -189,7 +188,7 @@ Chapter 1.5, pp. 75–106.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
