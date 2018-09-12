@@ -472,7 +472,14 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
         Returns:
             Composition with that formula.
+
+        Notes:
+            In the case of Metallofullerene formula (e.g. Y3N@C80),
+            the @ mark will be dropped and passed to parser.
         """
+        # for Metallofullerene like "Y3N@C80"
+        formula = formula.replace("@", "")
+
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
