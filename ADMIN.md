@@ -15,6 +15,12 @@ The general procedure to releasing pymatgen comprises three steps.
 
 ## Initial setup
 
+Install some conda tools first.
+
+```
+conda install --yes conda-build anaconda-client
+```
+
 Pymatgen uses [invoke](http://www.pyinvoke.org/) to automate releases. You will 
 also need sphinx and dash2doc. Install these using:
 
@@ -83,7 +89,25 @@ Double check that the releases are properly done on Pypi.
 
 ## Materials.sh
 
-To be written.
+Fork and clone the [materials.sh](https://github.com/materialsvirtuallab/materials.sh).
+This repo contains the conda skeletons to build the conda versions for various
+matsci codes on the [matsci channel](https://anaconda.org/matsci) in Anaconda.
+
+Update the pymatgen meta.yaml.
+
+```
+invoke update-pypi pymatgen
+```
+
+Build the mac versions manually.
+```
+invoke build-conda pymatgen
+```
+
+Commit and push to repo, which will build the Linux and Windows versions.
+
+Check that the [matsci channel](https://anaconda.org/matsci) versions are
+properly updated.
 
 ## Dash docs
 
