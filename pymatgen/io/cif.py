@@ -1105,11 +1105,20 @@ class CifParser(object):
             for field, tags in bibtex_keys.items():
                 for tag in tags:
                     if tag in data:
-                        bibtex_entry[field] = data[tag]
+                        if isinstance(data[tag], list):
+                            bibtex_entry[field] = data[tag][0]
+                        else:
+                            bibtex_entry[field] = data[tag]
 
             # convert to bibtex author format ('and' delimited)
             if 'author' in bibtex_entry:
-                bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
+                # separate out semicolon authors
+                if isinstance(bibtex_entry["author"], str):
+                    if ";" in bibtex_entry["author"]:
+                        bibtex_entry["author"] = bibtex_entry["author"].split(";")
+
+                if isinstance(bibtex_entry['author'], list):
+                    bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
 
             # convert to bibtex page range format, use empty string if not specified
             if ('page_first' in bibtex_entry) or ('page_last' in bibtex_entry):
