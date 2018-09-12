@@ -7,8 +7,6 @@ from __future__ import division, unicode_literals
 import logging
 
 from monty.json import MSONable
-
-from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import build_MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.io.babel import BabelMolAdaptor
@@ -39,15 +37,15 @@ class Fragmenter(MSONable):
             depth (int): The number of levels of iterative fragmentation to perform, where each
                          level will include fragments obtained by breaking one bond of a fragment
                          one level up. Defaults to 1. However, if set to 0, instead all possible
-                         fragments are generated using an alternative, non-iterative scheme. 
+                         fragments are generated using an alternative, non-iterative scheme.
             open_rings (bool): Whether or not to open any rings encountered during fragmentation.
                                Defaults to False. If true, any bond that fails to yield disconnected
-                               graphs when broken is instead removed and the entire structure is 
+                               graphs when broken is instead removed and the entire structure is
                                optimized with OpenBabel in order to obtain a good initial guess for
                                an opened geometry that can then be put back into QChem to be
                                optimized without the ring just reforming.
             opt_steps (int): Number of optimization steps when opening rings. Defaults to 1000.
-            
+
         """
 
         self.open_rings = open_rings

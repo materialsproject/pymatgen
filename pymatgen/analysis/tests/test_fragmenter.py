@@ -7,7 +7,6 @@ import unittest
 
 from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import build_MoleculeGraph
-from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.fragmenter import Fragmenter
