@@ -9,7 +9,7 @@ from pymatgen.util.testing import PymatgenTest
 import os
 import numpy as np
 from pymatgen import Structure
-from pymatgen.analysis.gb.gb import Gb, GBGenerator
+from pymatgen.analysis.gb.GrainBoundary import Gb, GBGenerator
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "grain_boundary")
@@ -23,10 +23,11 @@ class Test_Gb(PymatgenTest):
         GB_Cu_conv = GBGenerator(cls.Cu_conv)
         cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
                                                    expand_times=4, vacuum_thickness=1.5,
-                                                   ab_shift=[0.0, 0.0], plane=[1, 3, 1])
+                                                   ab_shift=[0.0, 0.0], plane=[1, 3, 1],
+                                                   rm_ratio= 0.0)
         cls.Cu_GB2 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
                                                    expand_times=4, vacuum_thickness=1.5,
-                                                   ab_shift=[0.2, 0.2])
+                                                   ab_shift=[0.2, 0.2], rm_ratio=0.0)
 
     def test_init(self):
         self.assertAlmostEqual(self.Cu_GB1.rotation_angle, 123.74898859588858)
@@ -62,15 +63,11 @@ class Test_Gb(PymatgenTest):
         self.assertAlmostEqual(self.Cu_GB1.num_sites, self.Cu_GB1.top_grain.num_sites * 2)
         self.assertArrayAlmostEqual(self.Cu_GB1.lattice.matrix,
                                     self.Cu_GB1.top_grain.lattice.matrix)
-        self.assertArrayAlmostEqual(np.array(self.Cu_GB1.frac_coords[-1]),
-                                    np.array(self.Cu_GB1.top_grain.frac_coords[-1]))
 
     def test_bottom_grain(self):
         self.assertAlmostEqual(self.Cu_GB1.num_sites, self.Cu_GB1.bottom_grain.num_sites * 2)
         self.assertArrayAlmostEqual(self.Cu_GB1.lattice.matrix,
                                     self.Cu_GB1.bottom_grain.lattice.matrix)
-        self.assertArrayAlmostEqual(np.array(self.Cu_GB1.frac_coords[0]),
-                                    np.array(self.Cu_GB1.bottom_grain.frac_coords[0]))
 
     def test_coincidents(self):
         self.assertAlmostEqual(self.Cu_GB1.num_sites / self.Cu_GB1.sigma, len(self.Cu_GB1.coincidents))

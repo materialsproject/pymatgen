@@ -141,8 +141,12 @@ class Gb(Structure):
     def sigma_from_site_prop(self):
         """
         This method returns the sigma value of the Gb from site properties.
+        If the GB structure merge some atoms due to the atoms too closer with
+        each other, this property will not work.
         """
         num_coi = 0
+        if None in self.site_properties['grain_label']:
+            raise RuntimeError('Site were merged, this property do not work')
         for tag in self.site_properties['grain_label']:
             if 'incident' in tag:
                 num_coi += 1
@@ -589,13 +593,7 @@ class GBGenerator(object):
                                 coords_are_cartesian=True,
                                 site_properties={'grain_label': grain_labels})
 
-        # remove overlap atoms in bottom grain.
-        removed_site = []
-        for i in range(int(round(gb_with_vac.num_sites / 2))):
-            neighbors = gb_with_vac.get_neighbors(gb_with_vac[i], bond_length * rm_ratio)
-            if len(neighbors) > 0:
-                removed_site.append(i)
-        gb_with_vac.remove_sites(removed_site)
+        gb_with_vac.merge_sites(tol=bond_length * rm_ratio, mode='d')
 
         return Gb(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
                   rotation_angle, plane, self.initial_structure, vacuum_thickness, ab_shift,

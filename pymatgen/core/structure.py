@@ -3124,6 +3124,7 @@ class Structure(IStructure, collections.MutableSequence):
             inds = np.where(clusters == c)[0]
             species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
+            props = self[inds[0]].properties
             for n, i in enumerate(inds[1:]):
                 sp = self[i].species_and_occu
                 if mode == "s":
@@ -3131,7 +3132,10 @@ class Structure(IStructure, collections.MutableSequence):
                 offset = self[i].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (n + 2)).astype(
                     coords.dtype)
-            sites.append(PeriodicSite(species, coords, self.lattice))
+                if self[i].properties != props and props[list(props.keys())[0]] is not None:
+                    props[list(props.keys())[0]] = None
+                    warnings.warn("Sites with different site_prop are merged. Site_prop is set to none")
+            sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
 
