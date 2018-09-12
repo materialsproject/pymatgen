@@ -10,7 +10,6 @@ from __future__ import division, unicode_literals
 
 from pymatgen.util.testing import PymatgenTest
 
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
@@ -275,7 +274,7 @@ class CompositionTest(PymatgenTest):
         self.assertRaises(CompositionError, Composition('O').__sub__,
                           Composition('H'))
 
-        #check that S is completely removed by subtraction
+        # check that S is completely removed by subtraction
         c1 = Composition({'S': 1 + Composition.amount_tolerance / 2, 'O': 1})
         c2 = Composition({'S': 1})
         self.assertEqual(len((c1 - c2).elements), 1)
@@ -318,7 +317,7 @@ class CompositionTest(PymatgenTest):
         self.assertTrue(c3 < c1)
         self.assertTrue(c4 > c1)
         self.assertEqual(sorted([c1, c1_1, c2, c4, c3]),
-                        [c3, c1, c1_1, c4, c2])
+                         [c3, c1, c1_1, c4, c2])
 
     def test_almost_equals(self):
         c1 = Composition({'Fe': 2.0, 'O': 3.0, 'Mn': 0})
@@ -341,7 +340,7 @@ class CompositionTest(PymatgenTest):
             self.assertAlmostEqual(c.fractional_composition.num_atoms, 1)
 
     def test_init_numerical_tolerance(self):
-        self.assertEqual(Composition({'B':1, 'C':-1e-12}), Composition('B'))
+        self.assertEqual(Composition({'B': 1, 'C': -1e-12}), Composition('B'))
 
     def test_negative_compositions(self):
         self.assertEqual(Composition('Li-1(PO-1)4', allow_negative=True).formula,
@@ -353,7 +352,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(Composition('Li-2.5Mg4', allow_negative=True).reduced_composition,
                          Composition('Li-2.5Mg4', allow_negative=True))
 
-        #test math
+        # test math
         c1 = Composition('LiCl', allow_negative=True)
         c2 = Composition('Li')
         self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1},
@@ -361,7 +360,7 @@ class CompositionTest(PymatgenTest):
         self.assertEqual((c1 + c2).allow_negative, True)
         self.assertEqual(c1 / -1, Composition('Li-1Cl-1', allow_negative=True))
 
-        #test num_atoms
+        # test num_atoms
         c1 = Composition('Mg-1Li', allow_negative=True)
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.get_atomic_fraction('Mg'), 0.5)
@@ -369,11 +368,11 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(c1.fractional_composition,
                          Composition('Mg-0.5Li0.5', allow_negative=True))
 
-        #test copy
+        # test copy
         self.assertEqual(c1.copy(), c1)
 
-        #test species
-        c1 = Composition({'Mg':1, 'Mg2+':-1}, allow_negative=True)
+        # test species
+        c1 = Composition({'Mg': 1, 'Mg2+': -1}, allow_negative=True)
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.element_composition, Composition())
         self.assertEqual(c1.average_electroneg, 1.31)
@@ -381,7 +380,7 @@ class CompositionTest(PymatgenTest):
     def test_special_formulas(self):
         special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
                             "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
-                            "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
+                            "O": "O2", "N": "N2", "F": "F2", "Cl": "Cl2",
                             "H": "H2"}
         for k, v in special_formulas.items():
             self.assertEqual(Composition(k).reduced_formula, v)
@@ -453,6 +452,14 @@ class CompositionTest(PymatgenTest):
         self.assertEqual(1, decorated.get(Specie("Ni", 0)))
         self.assertEqual(1, decorated.get(Specie("Al", 0)))
 
+    def test_Metallofullerene(self):
+        # Test: Parse Metallofullerene formula (e.g. Y3N@C80)
+        formula = "Y3N@C80"
+        sym_dict = {"Y": 3, "N": 1, "C": 80}
+        cmp = Composition(formula)
+        cmp2 = Composition.from_dict(sym_dict)
+        self.assertEqual(cmp, cmp2)
+
 
 class ChemicalPotentialTest(unittest.TestCase):
 
@@ -492,5 +499,5 @@ class ChemicalPotentialTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
