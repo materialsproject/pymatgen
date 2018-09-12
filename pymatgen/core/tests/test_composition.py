@@ -24,6 +24,7 @@ import unittest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition, CompositionError, \
     ChemicalPotential
+
 import random
 
 
