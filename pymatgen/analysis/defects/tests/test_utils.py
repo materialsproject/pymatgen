@@ -10,7 +10,8 @@ import numpy as np
 import random
 
 from pymatgen.analysis.defects.utils import QModel, eV_to_k, generate_reciprocal_vectors_squared, \
-    closestsites, StructureMotifInterstitial, TopographyAnalyzer, ChargeDensityAnalyzer, converge
+    closestsites, StructureMotifInterstitial, TopographyAnalyzer, ChargeDensityAnalyzer, converge, \
+    tune_for_gamma, generate_R_and_G_vecs
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.core import PeriodicSite
@@ -92,6 +93,27 @@ class DefectsUtilsTest(PymatgenTest):
     def test_converges(self):
         self.assertAlmostEqual(converge(np.sqrt, 0.1, 0.1, 1.0), 0.6324555320336759)
 
+    def test_tune_for_gamma(self):
+        lattice = Lattice( [[ 4.692882, -8.12831 ,  0.],
+                            [ 4.692882,  8.12831 ,  0.],
+                            [ 0.,  0., 10.03391 ]])
+        epsilon = 10. * np.identity(3)
+        gamma = tune_for_gamma( lattice, epsilon)
+        self.assertAlmostEqual(gamma, 0.19357221)
+
+    def test_generate_R_and_G_vecs(self):
+        gamma = 0.19357221
+        prec = 28
+        lattice = Lattice( [[ 4.692882, -8.12831 ,  0.],
+                            [ 4.692882,  8.12831 ,  0.],
+                            [ 0.,  0., 10.03391 ]])
+        epsilon = 10. * np.identity(3)
+        g_vecs, recip_summation, r_vecs, real_summation = generate_R_and_G_vecs( gamma, prec,
+                                                                                 lattice, epsilon)
+        self.assertEqual(len(g_vecs[0]), 16418)
+        self.assertAlmostEqual(recip_summation[0], 2.8946556e-15)
+        self.assertEqual(len(r_vecs[0]), 16299)
+        self.assertAlmostEqual(real_summation[0], 0.00679361)
 
 class StructureMotifInterstitialTest(PymatgenTest):
     def setUp(self):
