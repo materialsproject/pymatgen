@@ -1,6 +1,7 @@
 # Introduction
 
-This docmentation provides a guide for pymatgen administrators. The following assumes you are using miniconda or Anaconda.
+This docmentation provides a guide for pymatgen administrators. The following 
+assumes you are using miniconda or Anaconda.
 
 # Releases
 
@@ -65,10 +66,25 @@ in a bash script in your PATH somewhere):
 ```
 source activate py37
 invoke release --notest --nodoc
+source deactivate
 source activate py27
 python setup.py bdist_wheel
 twine upload dist/*p27*
+
+# You may wonder why update-doc is done with py27. The reason is because there
+# are py37 incompatibilities with some of doc2dash dependencies (lxml). We
+# will go back to using py37 by default in future.
 invoke update-doc
 source deactivate
 python setup.py develop
 ```
+
+Double check that the releases are properly done on Pypi.
+
+## Materials.sh
+
+To be written.
+
+## Dash docs
+
+To be written.
