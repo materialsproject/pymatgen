@@ -32,7 +32,8 @@ class DefectCompatibilityTest(PymatgenTest):
         dldata = [
             np.array([(-1 - np.cos(2 * np.pi * u / lattval)) for u in np.arange(0., lattval, 0.2)]) for lattval in abc
         ]
-        self.frey_params = {'axis_grid': axisdata, 'bulk_planar_averages': bldata, 'defect_planar_averages': dldata, 'dielectric': 15}
+        self.frey_params = {'axis_grid': axisdata, 'bulk_planar_averages': bldata,
+                            'defect_planar_averages': dldata, 'dielectric': 15}
 
         v = Vasprun(os.path.join(test_dir, 'vasprun.xml'))
         eigenvalues = v.eigenvalues.copy()
