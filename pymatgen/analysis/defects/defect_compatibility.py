@@ -7,7 +7,7 @@ from __future__ import division, unicode_literals
 from monty.json import MSONable
 from pymatgen.core import PeriodicSite
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, \
-    BandFillingCorrection, BandEdgeShiftingCorrection
+    KumagaiCorrection, BandFillingCorrection, BandEdgeShiftingCorrection
 from pymatgen.analysis.defects.core import Vacancy
 
 """
@@ -166,19 +166,17 @@ class DefectCompatibility(MSONable):
                                 == len(required_frey_params) else False
         if not run_freysoldt:
             print('Insufficient DefectEntry parameters exist for Freysoldt Correction.')
-        # elif 'freysoldt_meta' not in defect_entry.parameters.keys():
         else:
             defect_entry = self.perform_freysoldt( defect_entry)
 
-
         # consider running kumagai correction
-        required_kumagai_params = ["dim", "bulk_atomic_site_averages", "defect_atomic_site_averages",
-                                   "site_matching_indices", "dielectric"]
+        required_kumagai_params = ["bulk_atomic_site_averages", "defect_atomic_site_averages",
+                                   "site_matching_indices", "initial_defect_structure",
+                                   "defect_frac_sc_coords", "dielectric"]
         run_kumagai = True if len( set(defect_entry.parameters.keys()).intersection(required_kumagai_params)) \
                                 == len(required_kumagai_params) else False
         if not run_kumagai:
             print('Insufficient DefectEntry parameters exist for Kumagai Correction.')
-        # elif 'kumagai_meta' not in defect_entry.parameters.keys():
         else:
             defect_entry = self.perform_kumagai( defect_entry)
 
@@ -240,29 +238,20 @@ class DefectCompatibility(MSONable):
         defect_entry.parameters.update({'freysoldt_meta': freysoldt_meta})
         return defect_entry
 
-    # def perform_kumagai(self, defect_entry):
-    #     # can save alot of time if gamma or g_sum in defect_entry.parameters, so check if they exist
-    #     gamma = defect_entry.parameters['gamma'] if 'gamma' in defect_entry.parameters.keys() else None
-    #     g_sum = defect_entry.parameters['g_sum'] if 'g_sum' in defect_entry.parameters.keys() else None
-    #
-    #     if not gamma:
-    #         defect_struct_sc = defect_entry.defect_sc_structure.copy()
-    #         gamma = find_optimal_gamma(defect_struct_sc.lattice, defect_entry.parameters["dielectric"])
-    #
-    #     if not g_sum:
-    #         defect_struct_sc = defect_entry.defect_sc_structure.copy()
-    #         g_sum = generate_g_sum(defect_struct_sc.lattice, defect_entry.parameters["dielectric"],
-    #                                defect_entry.parameters['dim'], gamma)
-    #
-    #     KC = KumagaiCorrection(defect_entry.parameters['dielectric'], gamma=gamma, g_sum=g_sum)
-    #     kumagaicorr = KC.get_correction(defect_entry)
-    #
-    #     kumagai_meta = {k: v for k, v in KC.metadata.items() if k != 'g_sum'}
-    #     kumagai_meta["kumagai_potalign"] = defect_entry.parameters["potalign"]
-    #     kumagai_meta["kumagai_electrostatic"] = kumagaicorr["kumagai_electrostatic"]
-    #     kumagai_meta["kumagai_potential_alignment_correction"] = kumagaicorr["kumagai_potential_alignment"]
-    #     defect_entry.parameters.update({'kumagai_meta': kumagai_meta})
-    #     return defect_entry
+    def perform_kumagai(self, defect_entry):
+        gamma = defect_entry.parameters['gamma'] if 'gamma' in defect_entry.parameters.keys() else None
+        sampling_radius = defect_entry.parameters['sampling_radius'] if 'sampling_radius' in defect_entry.parameters.keys() else None
+
+        KC = KumagaiCorrection(defect_entry.parameters['dielectric'],
+                               sampling_radius=sampling_radius, gamma=gamma)
+        kumagaicorr = KC.get_correction(defect_entry)
+
+        kumagai_meta = {k: v for k, v in KC.metadata.items()}
+        kumagai_meta["kumagai_potalign"] = defect_entry.parameters["potalign"]
+        kumagai_meta["kumagai_electrostatic"] = kumagaicorr["kumagai_electrostatic"]
+        kumagai_meta["kumagai_potential_alignment_correction"] = kumagaicorr["kumagai_potential_alignment"]
+        defect_entry.parameters.update({'kumagai_meta': kumagai_meta})
+        return defect_entry
 
     def perform_bandfilling(self, defect_entry):
         BFC = BandFillingCorrection()
@@ -333,7 +322,8 @@ class DefectCompatibility(MSONable):
 
         return defect_entry
 
-    def is_freysoldt_delocalized(self, defect_entry):
+
+    def check_freysoldt_delocalized(self, defect_entry):
         plnr_avg_analyze_meta = {}
         plnr_avg_allows_compatible = True
         for ax in range(3):
@@ -364,7 +354,7 @@ class DefectCompatibility(MSONable):
 
         return defect_entry
 
-    def is_kumagai_delocalized(self, defect_entry):
+    def check_kumagai_delocalized(self, defect_entry):
         atomic_site_analyze_meta = {}
         kumagaistats = defect_entry.parameters['kumagai_meta']['pot_corr_uncertainty_md']['stats']
 
