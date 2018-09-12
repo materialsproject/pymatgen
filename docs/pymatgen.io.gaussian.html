@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.gaussian module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.gaussian module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,7 +59,7 @@
 <span id="pymatgen-io-gaussian-module"></span><h1>pymatgen.io.gaussian module<a class="headerlink" href="#module-pymatgen.io.gaussian" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.gaussian.GaussianInput">
-<em class="property">class </em><code class="descname">GaussianInput</code><span class="sig-paren">(</span><em>mol</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>title=None</em>, <em>functional=’HF’</em>, <em>basis_set=‘6-31G(d)’</em>, <em>route_parameters=None</em>, <em>input_parameters=None</em>, <em>link0_parameters=None</em>, <em>dieze_tag=’#P’</em>, <em>gen_basis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">GaussianInput</code><span class="sig-paren">(</span><em>mol</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>title=None</em>, <em>functional=u’HF’</em>, <em>basis_set=u‘6-31G(d)’</em>, <em>route_parameters=None</em>, <em>input_parameters=None</em>, <em>link0_parameters=None</em>, <em>dieze_tag=u’#P’</em>, <em>gen_basis=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>An object representing a Gaussian input file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -553,7 +553,7 @@ labelled by their name as defined in the calculation.</p>
 
 <dl class="method">
 <dt>
-<code class="descname">save_scan_plot</code><span class="sig-paren">(</span><em>filename=’scan.pdf’</em>, <em>img_format=’pdf’</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.save_scan_plot"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">save_scan_plot</code><span class="sig-paren">(</span><em>filename=u’scan.pdf’</em>, <em>img_format=u’pdf’</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.save_scan_plot"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Save matplotlib plot of the potential energy surface to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -572,7 +572,7 @@ labelled by their name as defined in the calculation.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.gaussian.GaussianOutput.save_spectre_plot">
-<code class="descname">save_spectre_plot</code><span class="sig-paren">(</span><em>filename=’spectre.pdf’</em>, <em>img_format=’pdf’</em>, <em>sigma=0.05</em>, <em>step=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.save_spectre_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.save_spectre_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_spectre_plot</code><span class="sig-paren">(</span><em>filename=u’spectre.pdf’</em>, <em>img_format=u’pdf’</em>, <em>sigma=0.05</em>, <em>step=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/gaussian.html#GaussianOutput.save_spectre_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussian.GaussianOutput.save_spectre_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save matplotlib plot of the spectre to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -663,7 +663,7 @@ route (dict) : dictionary of parameters</dd>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

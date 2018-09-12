@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -1408,6 +1408,7 @@
 <span class="sd">        The input file for phonons is automatically generated from the input of the ScfTask.</span>
 <span class="sd">        Each phonon task depends on the WFK file produced by scf_task.</span>
 
+
 <span class="sd">        Args:</span>
 <span class="sd">            scf_task: ScfTask object.</span>
 <span class="sd">            qpoints: q-points in reduced coordinates. Accepts single q-point, list of q-points</span>
@@ -1437,8 +1438,7 @@
     <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">is_ngqpt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to `from_scf_task`, the difference is that this method requires</span>
-<span class="sd">        an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)</span>
-<span class="sd">        are packed in a single Work whereas in the previous case we usually have multiple works.</span>
+<span class="sd">        an input for SCF calculation. A new ScfTask is created and added to the Work.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">is_ngqpt</span><span class="p">:</span>
             <span class="n">qpoints</span> <span class="o">=</span> <span class="n">scf_input</span><span class="o">.</span><span class="n">abiget_ibz</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="n">qpoints</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kptopt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">points</span>
@@ -1446,6 +1446,7 @@
         <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
+        <span class="c1"># Create ScfTask</span>
         <span class="n">scf_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_scf_task</span><span class="p">(</span><span class="n">scf_input</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">qpt</span> <span class="ow">in</span> <span class="n">qpoints</span><span class="p">:</span>
             <span class="n">multi</span> <span class="o">=</span> <span class="n">scf_task</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">make_ph_inputs_qpoint</span><span class="p">(</span><span class="n">qpt</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">)</span>
@@ -1590,7 +1591,7 @@
             <span class="n">dde_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_dde_task</span><span class="p">(</span><span class="n">dde_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">dde_deps</span><span class="p">)</span>
             <span class="n">dde_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dde_task</span><span class="p">)</span>
 
-        <span class="c1">#DTE calculations</span>
+        <span class="c1"># DTE calculations</span>
         <span class="n">dte_deps</span> <span class="o">=</span> <span class="p">{</span><span class="n">scf_task</span><span class="p">:</span> <span class="s2">&quot;WFK DEN&quot;</span><span class="p">}</span>
         <span class="n">dte_deps</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">dde_task</span><span class="p">:</span> <span class="s2">&quot;1WF 1DEN&quot;</span> <span class="k">for</span> <span class="n">dde_task</span> <span class="ow">in</span> <span class="n">dde_tasks</span><span class="p">})</span>
 
@@ -1645,7 +1646,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
