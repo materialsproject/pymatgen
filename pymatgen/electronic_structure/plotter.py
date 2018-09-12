@@ -2296,7 +2296,7 @@ class BSDOSPlotter(object):
                     label = "total" if spin == Spin.up else None
                     dos_ax.plot(dos_densities, dos_energies,
                                 color=(0.6, 0.6, 0.6), label=label)
-                    dos_ax.fill_between(dos_densities, 0, dos_energies,
+                    dos_ax.fill_betweenx(dos_energies, 0,dos_densities,
                                         color=(0.7, 0.7, 0.7),
                                         facecolor=(0.7, 0.7, 0.7))
 
