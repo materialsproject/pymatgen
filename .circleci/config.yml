@@ -17,7 +17,11 @@ jobs:
             conda update --quiet --all
             mkdir coverage_reports
             pip install --upgrade pip
-            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
+            pip install --quiet --ignore-installed -r requirements.txt 
+            export CFLAGS=$CFLAGS" -std=gnu++11"
+            travis_wait pip install BoltzTraP2
+            export CFLAGS=${CFLAGS%% -std=gnu++11}
+            pip install --quiet --ignore-installed -r requirements-optional.txt
             # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
