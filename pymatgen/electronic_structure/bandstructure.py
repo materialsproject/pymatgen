@@ -205,6 +205,7 @@ class BandStructure(object):
         self.labels_dict = {}
         self.structure = structure
         self.projections = projections or {}
+        self.projections = {k: np.array(v) for k, v in self.projections.items()}
 
         if labels_dict is None:
             labels_dict = {}

@@ -8,13 +8,9 @@ from __future__ import absolute_import
 """
 This module provides classes for the Piezoelectric tensor
 """
-from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.elasticity.tensors import Tensor
-from pymatgen.analysis.elasticity import voigt_map
+from pymatgen.core.tensors import Tensor
 import numpy as np
 import warnings
-from six.moves import range
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
