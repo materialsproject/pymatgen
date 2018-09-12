@@ -26,6 +26,7 @@ from pymatgen.util.string import formula_double_format
 from monty.json import MSONable
 from pymatgen.core.units import unitized
 
+
 """
 This module implements a Composition class to represent compositions,
 and a ChemicalPotential class to represent potentials.
@@ -93,7 +94,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
     """
     special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
                         "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
-                        "O": "O2", "N": "N2", "F": "F2", "Cl": "Cl2",
+                        "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
                         "H": "H2"}
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
@@ -253,7 +254,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
     @property
     def average_electroneg(self):
         return sum((el.X * abs(amt) for el, amt in self.items())) / \
-               self.num_atoms
+            self.num_atoms
 
     @property
     def total_electrons(self):
@@ -467,7 +468,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
     def _parse_formula(self, formula):
         """
         Args:
-            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3, Y3N@C80
+            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
 
         Returns:
             Composition with that formula.
@@ -475,9 +476,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         Notes:
             In the case of Metallofullerene formula (e.g. Y3N@C80),
             the @ mark will be dropped and passed to parser.
-
         """
-
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.\d]*)", f):
@@ -627,7 +626,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
         return self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)[0]
 
     def add_charges_from_oxi_state_guesses(self, oxi_states_override=None, target_charge=0,
-                                           all_oxi_states=False, max_sites=None):
+                          all_oxi_states=False, max_sites=None):
         """
         Assign oxidation states basedon guessed oxidation states.
 
@@ -655,17 +654,16 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 returns a Composition where all oxidation states are 0
         """
 
-        _, oxidation_states = self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override,
-                                                           target_charge)
+        _, oxidation_states = self._get_oxid_state_guesses(all_oxi_states, max_sites, oxi_states_override, target_charge)
 
         # Special case: No charged compound is possible
         if len(oxidation_states) == 0:
-            return Composition(dict((Specie(e, 0), f) for e, f in self.items()))
+            return Composition(dict((Specie(e,0),f) for e,f in self.items()))
 
         # Generate the species
         species = []
         for el, charges in oxidation_states[0].items():
-            species.extend([Specie(el, c) for c in charges])
+            species.extend([Specie(el,c) for c in charges])
 
         # Return the new object
         return Composition(collections.Counter(species))
@@ -789,7 +787,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 all_scores.append(score)
 
                 # collect the combination of oxidation states for each site
-                all_oxid_combo.append(dict((e, el_best_oxid_combo[idx][v]) for idx, (e, v) in enumerate(zip(els, x))))
+                all_oxid_combo.append(dict((e,el_best_oxid_combo[idx][v]) for idx, (e,v) in enumerate(zip(els,x))))
 
         # sort the solutions by highest to lowest score
         if len(all_scores) > 0:
@@ -818,11 +816,11 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             A ranked list of potential Composition matches
         """
 
-        # if we have an exact match and the user specifies lock_if_strict, just
-        # return the exact match!
+        #if we have an exact match and the user specifies lock_if_strict, just
+        #return the exact match!
         if lock_if_strict:
-            # the strict composition parsing might throw an error, we can ignore
-            # it and just get on with fuzzy matching
+            #the strict composition parsing might throw an error, we can ignore
+            #it and just get on with fuzzy matching
             try:
                 comp = Composition(fuzzy_formula)
                 return [comp]
@@ -830,9 +828,9 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 pass
 
         all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
-        # remove duplicates
+        #remove duplicates
         all_matches = list(set(all_matches))
-        # sort matches by rank descending
+        #sort matches by rank descending
         all_matches = sorted(all_matches,
                              key=lambda match: match[1], reverse=True)
         all_matches = [m[0] for m in all_matches]
@@ -893,14 +891,14 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
             # specified as lowercase
             points_second_lowercase = 100
 
-            # get element and amount from regex match
+            #get element and amount from regex match
             el = m.group(1)
             if len(el) > 2 or len(el) < 1:
                 raise CompositionError("Invalid element symbol entered!")
             amt = float(m.group(2)) if m.group(2).strip() != "" else 1
 
-            # convert the element string to proper [uppercase,lowercase] format
-            # and award points if it is already in that format
+            #convert the element string to proper [uppercase,lowercase] format
+            #and award points if it is already in that format
             char1 = el[0]
             char2 = el[1] if len(el) > 1 else ""
 
@@ -911,7 +909,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
 
             el = char1.upper() + char2.lower()
 
-            # if it's a valid element, chomp and add to the points
+            #if it's a valid element, chomp and add to the points
             if Element.is_valid_symbol(el):
                 if el in m_dict:
                     m_dict[el] += amt * factor
@@ -919,7 +917,7 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                     m_dict[el] = amt * factor
                 return f.replace(m.group(), "", 1), m_dict, m_points + points
 
-            # else return None
+            #else return None
             return None, None, None
 
         fuzzy_formula = fuzzy_formula.strip()
@@ -940,19 +938,19 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 # Match the stuff inside the parenthesis with the appropriate
                 # factor
                 for match in \
-                        Composition._comps_from_fuzzy_formula(mp.group(1),
-                                                              mp_dict,
-                                                              mp_points,
-                                                              factor=mp_factor):
+                    Composition._comps_from_fuzzy_formula(mp.group(1),
+                                                          mp_dict,
+                                                          mp_points,
+                                                          factor=mp_factor):
                     only_me = True
                     # Match the stuff outside the parentheses and return the
                     # sum.
 
                     for match2 in \
-                            Composition._comps_from_fuzzy_formula(mp_form,
-                                                                  mp_dict,
-                                                                  mp_points,
-                                                                  factor=1):
+                        Composition._comps_from_fuzzy_formula(mp_form,
+                                                              mp_dict,
+                                                              mp_points,
+                                                              factor=1):
                         only_me = False
                         yield (match[0] + match2[0], match[1] + match2[1])
                     # if the stuff inside the parenthesis is nothing, then just
@@ -970,15 +968,15 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 (m_form1, m_dict1, m_points1) = \
                     _parse_chomp_and_rank(m1, m_form1, m_dict1, m_points1)
                 if m_dict1:
-                    # there was a real match
+                    #there was a real match
                     for match in \
-                            Composition._comps_from_fuzzy_formula(m_form1,
-                                                                  m_dict1,
-                                                                  m_points1,
-                                                                  factor):
+                        Composition._comps_from_fuzzy_formula(m_form1,
+                                                              m_dict1,
+                                                              m_points1,
+                                                              factor):
                         yield match
 
-            # try to match two-letter elements
+            #try to match two-letter elements
             m2 = re.match(r"([A-z]{2})([\.\d]*)", fuzzy_formula)
             if m2:
                 m_points2 = m_points
@@ -987,11 +985,11 @@ class Composition(collections.Hashable, collections.Mapping, MSONable):
                 (m_form2, m_dict2, m_points2) = \
                     _parse_chomp_and_rank(m2, m_form2, m_dict2, m_points2)
                 if m_dict2:
-                    # there was a real match
+                    #there was a real match
                     for match in \
-                            Composition._comps_from_fuzzy_formula(m_form2, m_dict2,
-                                                                  m_points2,
-                                                                  factor):
+                        Composition._comps_from_fuzzy_formula(m_form2, m_dict2,
+                                                              m_points2,
+                                                              factor):
                         yield match
 
 
@@ -1009,7 +1007,7 @@ def reduce_formula(sym_amt):
                   key=lambda s: [get_el_sp(s).X, s])
 
     syms = list(filter(lambda s: abs(sym_amt[s]) >
-                                 Composition.amount_tolerance, syms))
+                       Composition.amount_tolerance, syms))
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           get_el_sp(syms[num_el - 1]).X
@@ -1118,5 +1116,4 @@ class ChemicalPotential(dict, MSONable):
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()
