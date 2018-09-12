@@ -3,19 +3,26 @@ from __future__ import print_function
 from __future__ import division
 
 import unittest
-
-from pymatgen.analysis.elasticity.elastic import *
-from pymatgen.analysis.elasticity.strain import Strain, Deformation
-from pymatgen.analysis.elasticity.stress import Stress
-from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import FloatWithUnit
-from pymatgen import Structure, Lattice
-from scipy.misc import central_diff_weights
+import os
 import warnings
+import numpy as np
 import json
 import random
 from six.moves import zip
+from scipy.misc import central_diff_weights
 from copy import deepcopy
+
+from pymatgen.analysis.elasticity.elastic import ElasticTensor,\
+    ElasticTensorExpansion, NthOrderElasticTensor, ComplianceTensor,\
+    find_eq_stress, generate_pseudo, diff_fit, get_diff_coeff,\
+    get_strain_state_dict
+from pymatgen.analysis.elasticity.strain import Strain, Deformation
+from pymatgen.analysis.elasticity.stress import Stress
+from pymatgen.core.tensors import Tensor
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.units import FloatWithUnit
+from pymatgen import Structure, Lattice
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')

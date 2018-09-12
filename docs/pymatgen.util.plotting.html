@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.util.plotting module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.util.plotting module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -69,7 +69,7 @@ See doc string below for the list of supported options.</p>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.get_ax3d_fig_plt">
-<code class="descname">get_ax3d_fig_plt</code><span class="sig-paren">(</span><em>ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_ax3d_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax3d_fig_plt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_ax3d_fig_plt</code><span class="sig-paren">(</span><em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_ax3d_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax3d_fig_plt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function used in plot functions supporting an optional Axes3D
 argument. If ax is None, we build the <cite>matplotlib</cite> figure and create the
 Axes3D else we return the current active figure.</p>
@@ -77,11 +77,13 @@ Axes3D else we return the current active figure.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> object
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> object
 figure: matplotlib figure
 plt: matplotlib pyplot module.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
 </tr>
 </tbody>
 </table>
@@ -89,7 +91,7 @@ plt: matplotlib pyplot module.</td>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.get_ax_fig_plt">
-<code class="descname">get_ax_fig_plt</code><span class="sig-paren">(</span><em>ax=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_ax_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax_fig_plt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_ax_fig_plt</code><span class="sig-paren">(</span><em>ax=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#get_ax_fig_plt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.get_ax_fig_plt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function used in plot functions supporting an optional Axes argument.
 If ax is None, we build the <cite>matplotlib</cite> figure and create the Axes else
 we return the current active figure.</p>
@@ -97,11 +99,13 @@ we return the current active figure.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> object
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> – keyword arguments are passed to plt.figure if ax is not None.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Axes</span></code> object
 figure: matplotlib figure
 plt: matplotlib pyplot module.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ax</td>
 </tr>
 </tbody>
 </table>
@@ -130,7 +134,7 @@ plt: matplotlib pyplot module.</td>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.periodic_table_heatmap">
-<code class="descname">periodic_table_heatmap</code><span class="sig-paren">(</span><em>elemental_data</em>, <em>cbar_label=’‘</em>, <em>show_plot=False</em>, <em>cmap=’YlOrRd’</em>, <em>blank_color=’grey’</em>, <em>value_format=None</em>, <em>max_row=9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#periodic_table_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">periodic_table_heatmap</code><span class="sig-paren">(</span><em>elemental_data</em>, <em>cbar_label=u’‘</em>, <em>show_plot=False</em>, <em>cmap=u’YlOrRd’</em>, <em>blank_color=u’grey’</em>, <em>value_format=None</em>, <em>max_row=9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#periodic_table_heatmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.periodic_table_heatmap" title="Permalink to this definition">¶</a></dt>
 <dd><p>A static method that generates a heat map overlapped on a periodic table.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -162,7 +166,7 @@ the first 9 rows of elements.</li>
 
 <dl class="function">
 <dt id="pymatgen.util.plotting.pretty_plot">
-<code class="descname">pretty_plot</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=None</em>, <em>plt=None</em>, <em>dpi=None</em>, <em>color_cycle=(‘qualitative’</em>, <em>’Set1_9’)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pretty_plot</code><span class="sig-paren">(</span><em>width=8</em>, <em>height=None</em>, <em>plt=None</em>, <em>dpi=None</em>, <em>color_cycle=(u’qualitative’</em>, <em>u’Set1_9’)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/util/plotting.html#pretty_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.util.plotting.pretty_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a publication quality plot, with nice defaults for font sizes etc.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -282,7 +286,7 @@ ratio.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

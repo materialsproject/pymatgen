@@ -454,7 +454,6 @@ class MPRester(object):
                                 / stable_ref.composition[elt]
             ion_entry.energy += solid_diff * correction_factor
             pbx_entries.append(PourbaixEntry(ion_entry, 'ion-{}'.format(n)))
-            # import nose; nose.tools.set_trace()
 
         # Construct the solid pourbaix entries from filtered ion_ref entries
         extra_elts = set(ion_ref_elts) - {Element(s) for s in chemsys} \
@@ -471,10 +470,6 @@ class MPRester(object):
                 new_entry.uncorrected_energy = form_e
                 new_entry.correction = 0.0
                 pbx_entry = PourbaixEntry(new_entry)
-                if entry.entry_id == "mp-697146":
-                    pass
-                    # import nose; nose.tools.set_trace()
-                # pbx_entry.reduced_entry()
                 pbx_entries.append(pbx_entry)
 
         return pbx_entries

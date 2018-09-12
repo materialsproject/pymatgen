@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.abinit.launcher module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.abinit.launcher module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -270,7 +270,7 @@ by <cite>mailto</cite> every <cite>remindme_s</cite> seconds. (int, DEFAULT: 1 d
 <li><strong>max_nlaunches</strong> – Maximum number of tasks launched in a single iteration of the scheduler.
 (DEFAULT: -1 i.e. no limit)</li>
 <li><strong>debug</strong> – Debug level. Use 0 for production (int, DEFAULT: 0)</li>
-<li><strong>fix_qcritical</strong> – “yes” if the launcher should try to fix QCritical Errors (DEFAULT: “yes”)</li>
+<li><strong>fix_qcritical</strong> – “yes” if the launcher should try to fix QCritical Errors (DEFAULT: “no”)</li>
 <li><strong>rmflow</strong> – If “yes”, the scheduler will remove the flow directory if the calculation
 completed successfully. (DEFAULT: “no”)</li>
 <li><strong>killjobs_if_errors</strong> – “yes” if the scheduler should try to kill all the runnnig jobs
@@ -288,12 +288,12 @@ before exiting due to an error. (DEFAULT: “yes”)</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.launcher.PyFlowScheduler.USER_CONFIG_DIR">
-<code class="descname">USER_CONFIG_DIR</code><em class="property"> = ‘/Users/shyue/.abinit/abipy’</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">USER_CONFIG_DIR</code><em class="property"> = u’/Users/shyue/.abinit/abipy’</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.launcher.PyFlowScheduler.YAML_FILE">
-<code class="descname">YAML_FILE</code><em class="property"> = ‘scheduler.yml’</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.YAML_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">YAML_FILE</code><em class="property"> = u’scheduler.yml’</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.YAML_FILE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -437,7 +437,7 @@ In standalone mode, this method will block until there are no more scheduled job
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
