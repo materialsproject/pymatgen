@@ -10,7 +10,7 @@ This module provides the Stress class used to create, manipulate, and
 calculate relevant properties of the stress tensor.
 """
 
-from pymatgen.analysis.elasticity.tensors import SquareTensor
+from pymatgen.core.tensors import SquareTensor
 import math
 import numpy as np
 import warnings
@@ -30,6 +30,8 @@ class Stress(SquareTensor):
     This class extends SquareTensor as a representation of the
     stress
     """
+    symbol = "s"
+
     def __new__(cls, stress_matrix):
         """
         Create a Stress object.  Note that the constructor uses __new__

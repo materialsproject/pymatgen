@@ -60,7 +60,7 @@
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.strain.Deformation">
 <em class="property">class </em><code class="descname">Deformation</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Deformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.SquareTensor" title="pymatgen.analysis.elasticity.tensors.SquareTensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.elasticity.tensors.SquareTensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
 <p>Subclass of SquareTensor that describes the deformation gradient tensor</p>
 <p>Create a Deformation object.  Note that the constructor uses __new__
 rather than __init__ according to the standard method of subclassing
@@ -130,6 +130,11 @@ the deformation gradient</p>
 <dd><p>checks to determine whether the deformation is independent</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pymatgen.analysis.elasticity.strain.Deformation.symbol">
+<code class="descname">symbol</code><em class="property"> = ‘d’</em><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Deformation.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -161,7 +166,7 @@ to each shear mode.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.strain.Strain">
 <em class="property">class </em><code class="descname">Strain</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/strain.html#Strain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.SquareTensor" title="pymatgen.analysis.elasticity.tensors.SquareTensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.elasticity.tensors.SquareTensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.SquareTensor" title="pymatgen.core.tensors.SquareTensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.SquareTensor</span></code></a></p>
 <p>Subclass of SquareTensor that describes the Green-Lagrange strain tensor.</p>
 <p>Create a Strain object.  Note that the constructor uses __new__
 rather than __init__ according to the standard method of
@@ -218,6 +223,11 @@ full-tensor notation</li>
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.elasticity.strain.Strain.symbol">
+<code class="descname">symbol</code><em class="property"> = ‘e’</em><a class="headerlink" href="#pymatgen.analysis.elasticity.strain.Strain.symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.strain.Strain.von_mises_strain">

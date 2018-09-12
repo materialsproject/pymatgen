@@ -232,6 +232,44 @@
         <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="PWInput.as_dict"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a dictionary representation of a PWInput object</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pwinput_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;structure&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+                        <span class="s1">&#39;pseudo&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo</span><span class="p">,</span>
+                        <span class="s1">&#39;sections&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">,</span>
+                        <span class="s1">&#39;kpoints_mode&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_mode</span><span class="p">,</span>
+                        <span class="s1">&#39;kpoints_grid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_grid</span><span class="p">,</span>
+                        <span class="s1">&#39;kpoints_shift&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_shift</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">pwinput_dict</span></div>
+    
+<div class="viewcode-block" id="PWInput.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pwinput_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a PWInput object from a dictionary.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            pwinput_dict (dict): dictionary with PWInput data</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            PWInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pwinput</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;structure&#39;</span><span class="p">]),</span>
+                          <span class="n">pseudo</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;pseudo&#39;</span><span class="p">],</span>
+                          <span class="n">control</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;control&#39;</span><span class="p">],</span>
+                          <span class="n">system</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;system&#39;</span><span class="p">],</span>
+                          <span class="n">electrons</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;electrons&#39;</span><span class="p">],</span>
+                          <span class="n">ions</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;ions&#39;</span><span class="p">],</span>
+                          <span class="n">cell</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;sections&#39;</span><span class="p">][</span><span class="s1">&#39;cell&#39;</span><span class="p">],</span>
+                          <span class="n">kpoints_mode</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;kpoints_mode&#39;</span><span class="p">],</span>
+                          <span class="n">kpoints_grid</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;kpoints_grid&#39;</span><span class="p">],</span>
+                          <span class="n">kpoints_shift</span><span class="o">=</span><span class="n">pwinput_dict</span><span class="p">[</span><span class="s1">&#39;kpoints_shift&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">pwinput</span></div>
 
 <div class="viewcode-block" id="PWInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.pwscf.html#pymatgen.io.pwscf.PWInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

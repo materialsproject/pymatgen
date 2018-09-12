@@ -526,18 +526,18 @@ line to your <code class="docutils literal"><span class="pre">.bash_profile</spa
 
 <span class="c1"># Plot the dos from the vasprun.xml file.</span>
 
-<span class="n">pmg</span> <span class="n">plotdos</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">xml</span>
+<span class="n">pmg</span> <span class="n">plot</span> <span class="o">--</span><span class="n">dos</span> <span class="n">vasprun</span><span class="o">.</span><span class="n">xml</span>
 
 <span class="c1"># Convert between file formats. The script attempts to intelligently</span>
 <span class="c1"># determine the file type. Input file types supported include CIF,</span>
 <span class="c1"># vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file</span>
 <span class="c1"># types by specifying additional arguments. See pmg convert -h.</span>
 
-<span class="n">pmg</span> <span class="n">convert</span> <span class="n">input_filename</span> <span class="n">output_filename</span><span class="o">.</span>
+<span class="n">pmg</span> <span class="n">structure</span> <span class="o">--</span><span class="n">convert</span> <span class="o">--</span><span class="n">filenames</span> <span class="n">input_filename</span> <span class="n">output_filename</span><span class="o">.</span>
 
-<span class="c1"># Obtain spacegroup information.</span>
+<span class="c1"># Obtain spacegroup information using a tolerance of 0.1 angstroms.</span>
 
-<span class="n">pmg</span> <span class="n">symm</span> <span class="o">-</span><span class="n">s</span> <span class="n">filename1</span> <span class="n">filename2</span>
+<span class="n">pmg</span> <span class="n">structure</span> <span class="o">--</span><span class="n">symmetry</span> <span class="mf">0.1</span> <span class="o">--</span><span class="n">filenames</span> <span class="n">filename1</span> <span class="n">filename2</span>
 
 <span class="c1"># Visualize a structure. Requires VTK to be installed.</span>
 
@@ -545,11 +545,11 @@ line to your <code class="docutils literal"><span class="pre">.bash_profile</spa
 
 <span class="c1"># Compare two structures for similarity</span>
 
-<span class="n">pmg</span> <span class="n">compare</span> <span class="n">filename1</span> <span class="n">filename2</span>
+<span class="n">pmg</span> <span class="n">structure</span> <span class="o">--</span><span class="n">group</span> <span class="n">element</span> <span class="o">--</span><span class="n">filenames</span> <span class="n">filename1</span> <span class="n">filename2</span>
 
 <span class="c1"># Generate a POTCAR with symbols Li_sv O and the PBE functional</span>
 
-<span class="n">pmg</span> <span class="n">generate</span> <span class="o">--</span><span class="n">potcar</span> <span class="n">Li_sv</span> <span class="n">O</span> <span class="o">--</span><span class="n">functional</span> <span class="n">PBE</span>
+<span class="n">pmg</span> <span class="n">potcar</span> <span class="o">--</span><span class="n">symbols</span> <span class="n">Li_sv</span> <span class="n">O</span> <span class="o">--</span><span class="n">functional</span> <span class="n">PBE</span>
 </pre></div>
 </div>
 </div>

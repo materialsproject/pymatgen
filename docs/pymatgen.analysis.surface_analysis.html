@@ -263,7 +263,7 @@ atoms in the particle</li>
 
 <dl class="class">
 <dt id="pymatgen.analysis.surface_analysis.SlabEntry">
-<em class="property">class </em><code class="descname">SlabEntry</code><span class="sig-paren">(</span><em>structure</em>, <em>energy</em>, <em>miller_index</em>, <em>correction=0.0</em>, <em>parameters=None</em>, <em>data=None</em>, <em>entry_id=None</em>, <em>label=None</em>, <em>adsorbates=None</em>, <em>clean_entry=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SlabEntry</code><span class="sig-paren">(</span><em>structure</em>, <em>energy</em>, <em>miller_index</em>, <em>correction=0.0</em>, <em>parameters=None</em>, <em>data=None</em>, <em>entry_id=None</em>, <em>label=None</em>, <em>adsorbates=None</em>, <em>clean_entry=None</em>, <em>marker=None</em>, <em>color=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SlabEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SlabEntry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.computed_entries.ComputedStructureEntry</span></code></a></p>
 <dl class="docutils">
 <dt>A ComputedStructureEntry object encompassing all data relevant to a</dt>
@@ -322,6 +322,8 @@ Cu for Cu adsorption) or anything.</li>
 <li><strong>clean_entry</strong> (<a class="reference internal" href="pymatgen.entries.computed_entries.html#pymatgen.entries.computed_entries.ComputedStructureEntry" title="pymatgen.entries.computed_entries.ComputedStructureEntry"><em>ComputedStructureEntry</em></a>) – If the SlabEntry is for an
 adsorbed slab, this is the corresponding SlabEntry for the
 clean slab</li>
+<li><strong>marker</strong> (<em>str</em>) – Custom marker for gamma plots (“–” and “-” are typical)</li>
+<li><strong>color</strong> (<em>str</em><em> or </em><em>rgba</em>) – Custom color for gamma plots</li>
 </ul>
 </td>
 </tr>
@@ -565,7 +567,7 @@ eV/A^2 (False)</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.area_frac_vs_chempot_plot">
-<code class="descname">area_frac_vs_chempot_plot</code><span class="sig-paren">(</span><em>ref_delu</em>, <em>chempot_range</em>, <em>delu_dict=None</em>, <em>delu_default=0</em>, <em>increments=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.area_frac_vs_chempot_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.area_frac_vs_chempot_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">area_frac_vs_chempot_plot</code><span class="sig-paren">(</span><em>ref_delu</em>, <em>chempot_range</em>, <em>delu_dict=None</em>, <em>delu_default=0</em>, <em>increments=10</em>, <em>no_clean=False</em>, <em>no_doped=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.area_frac_vs_chempot_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.area_frac_vs_chempot_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>1D plot. Plots the change in the area contribution
 of each facet as a function of chemical potential.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -621,7 +623,8 @@ of intersection. Defaults to 10 points.</li>
 </tr>
 </tbody>
 </table>
-<p>return (Plot): Modified plot with addons.</p>
+<p>return (Plot): Modified plot with addons.
+return (Plot): Modified plot with addons.</p>
 </dd></dl>
 
 <dl class="method">
@@ -824,6 +827,33 @@ energy multiplied by number of adsorbates) instead.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.set_all_variables">
+<code class="descname">set_all_variables</code><span class="sig-paren">(</span><em>delu_dict</em>, <em>delu_default</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.set_all_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.set_all_variables" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Sets all chemical potential values and returns a dictionary where</dt>
+<dd>the key is a sympy Symbol and the value is a float (chempot).</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.surface_analysis.SlabEntry" title="pymatgen.analysis.surface_analysis.SlabEntry"><em>SlabEntry</em></a>) – Computed structure entry of the slab</li>
+<li><strong>delu_dict</strong> (<em>Dict</em>) – Dictionary of the chemical potentials to be set as
+constant. Note the key should be a sympy Symbol object of the
+format: Symbol(“delu_el”) where el is the name of the element.</li>
+<li><strong>delu_default</strong> (<em>float</em>) – Default value for all unset chemical potentials</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Dictionary of set chemical potential values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.stable_u_range_dict">
 <code class="descname">stable_u_range_dict</code><span class="sig-paren">(</span><em>chempot_range</em>, <em>ref_delu</em>, <em>no_doped=True</em>, <em>no_clean=False</em>, <em>delu_dict={}</em>, <em>miller_index=()</em>, <em>dmu_at_0=False</em>, <em>return_se_dict=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.stable_u_range_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.stable_u_range_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a dictionary where each entry is a key pointing to a
@@ -865,7 +895,7 @@ dictionary of surface energies</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map">
-<code class="descname">surface_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>miller_index</em>, <em>ranges</em>, <em>incr=50</em>, <em>no_doped=False</em>, <em>no_clean=False</em>, <em>delu_dict=None</em>, <em>plt=None</em>, <em>annotate=True</em>, <em>show_unphyiscal_only=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.surface_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map" title="Permalink to this definition">¶</a></dt>
+<code class="descname">surface_chempot_range_map</code><span class="sig-paren">(</span><em>elements</em>, <em>miller_index</em>, <em>ranges</em>, <em>incr=50</em>, <em>no_doped=False</em>, <em>no_clean=False</em>, <em>delu_dict=None</em>, <em>plt=None</em>, <em>annotate=True</em>, <em>show_unphyiscal_only=False</em>, <em>fontsize=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#SurfaceEnergyPlotter.surface_chempot_range_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.SurfaceEnergyPlotter.surface_chempot_range_map" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Adapted from the get_chempot_range_map() method in the PhaseDiagram</dt>
 <dd>class. Plot the chemical potential range map based on surface
@@ -1125,26 +1155,26 @@ list of adsorbed SlabEntry.</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pymatgen.analysis.surface_analysis.set_all_variables">
-<code class="descname">set_all_variables</code><span class="sig-paren">(</span><em>entry</em>, <em>delu_dict</em>, <em>delu_default</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#set_all_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.set_all_variables" title="Permalink to this definition">¶</a></dt>
+<dt id="pymatgen.analysis.surface_analysis.sub_chempots">
+<code class="descname">sub_chempots</code><span class="sig-paren">(</span><em>gamma_dict</em>, <em>chempots</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/surface_analysis.html#sub_chempots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.surface_analysis.sub_chempots" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt>Sets all chemical potential values and returns a dictionary where</dt>
-<dd>the key is a sympy Symbol and the value is a float (chempot).</dd>
+<dt>Uses dot product of numpy array to sub chemical potentials</dt>
+<dd>into the surface grand potential. This is much faster
+than using the subs function in sympy.</dd>
 </dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.surface_analysis.SlabEntry" title="pymatgen.analysis.surface_analysis.SlabEntry"><em>SlabEntry</em></a>) – Computed structure entry of the slab</li>
-<li><strong>delu_dict</strong> (<em>Dict</em>) – Dictionary of the chemical potentials to be set as
-constant. Note the key should be a sympy Symbol object of the
-format: Symbol(“delu_el”) where el is the name of the element.</li>
-<li><strong>delu_default</strong> (<em>float</em>) – Default value for all unset chemical potentials</li>
+<li><strong>gamma_dict</strong> (<em>dict</em>) – Surface grand potential equation
+as a coefficient dictionary</li>
+<li><strong>chempots</strong> (<em>dict</em>) – Dictionary assigning each chemical
+potential (key) in gamma a value</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Dictionary of set chemical potential values</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Surface energy as a float</p>
 </td>
 </tr>
 </tbody>
