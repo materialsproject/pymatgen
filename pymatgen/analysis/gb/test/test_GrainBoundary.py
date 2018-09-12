@@ -9,18 +9,18 @@ from pymatgen.util.testing import PymatgenTest
 import os
 import numpy as np
 from pymatgen import Structure
-from pymatgen.analysis.gb.GrainBoundary import Gb, GBGenerator
+from pymatgen.analysis.gb.GrainBoundary import GrainBoundary, GrainBoundaryGenerator
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "grain_boundary")
 
 
-class Test_Gb(PymatgenTest):
+class Test_GrainBoundary(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
                                                        "Cu_mp-30_conventional_standard.cif"))
-        GB_Cu_conv = GBGenerator(cls.Cu_conv)
+        GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
         cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters([1, 2, 3], 123.74898859588858,
                                                    expand_times=4, vacuum_thickness=1.5,
                                                    ab_shift=[0.0, 0.0], plane=[1, 3, 1],
@@ -76,8 +76,8 @@ class Test_Gb(PymatgenTest):
     def test_as_dict_and_from_dict(self):
         d1 = self.Cu_GB1.as_dict()
         d2 = self.Cu_GB2.as_dict()
-        Cu_GB1_new = Gb.from_dict(d1)
-        Cu_GB2_new = Gb.from_dict(d2)
+        Cu_GB1_new = GrainBoundary.from_dict(d1)
+        Cu_GB2_new = GrainBoundary.from_dict(d2)
         self.assertAlmostEqual(Cu_GB1_new.sigma, self.Cu_GB1.sigma)
         self.assertAlmostEqual(Cu_GB1_new.rotation_angle, self.Cu_GB1.rotation_angle)
         self.assertListEqual(Cu_GB1_new.rotation_axis, self.Cu_GB1.rotation_axis)
@@ -100,26 +100,26 @@ class Test_Gb(PymatgenTest):
                                     self.Cu_GB2.lattice.matrix)
 
 
-class Test_GBGenerator(PymatgenTest):
+class Test_GrainBoundaryGenerator(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         cls.Cu_prim = Structure.from_file(os.path.join(test_dir, "Cu_mp-30_primitive.cif"))
-        cls.GB_Cu_prim = GBGenerator(cls.Cu_prim)
+        cls.GB_Cu_prim = GrainBoundaryGenerator(cls.Cu_prim)
         cls.Cu_conv = Structure.from_file(os.path.join(test_dir,
                                                        "Cu_mp-30_conventional_standard.cif"))
-        cls.GB_Cu_conv = GBGenerator(cls.Cu_conv)
+        cls.GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
         cls.Be = Structure.from_file(os.path.join(test_dir,
                                                   "Be_mp-87_conventional_standard.cif"))
-        cls.GB_Be = GBGenerator(cls.Be)
+        cls.GB_Be = GrainBoundaryGenerator(cls.Be)
         cls.Pa = Structure.from_file(os.path.join(test_dir,
                                                   "Pa_mp-62_conventional_standard.cif"))
-        cls.GB_Pa = GBGenerator(cls.Pa)
+        cls.GB_Pa = GrainBoundaryGenerator(cls.Pa)
         cls.Br = Structure.from_file(os.path.join(test_dir,
                                                   "Br_mp-23154_conventional_standard.cif"))
-        cls.GB_Br = GBGenerator(cls.Br)
+        cls.GB_Br = GrainBoundaryGenerator(cls.Br)
         cls.Bi = Structure.from_file(os.path.join(test_dir,
                                                   "Bi_mp-23152_primitive.cif"))
-        cls.GB_Bi = GBGenerator(cls.Bi)
+        cls.GB_Bi = GrainBoundaryGenerator(cls.Bi)
 
     def test_gb_from_parameters(self):
         # from fcc primitive cell,axis[1,2,3],sigma 9.
@@ -248,11 +248,11 @@ class Test_GBGenerator(PymatgenTest):
         true_100 = [5, 13, 17, 25, 29, 37, 41]
         true_110 = [3, 9, 11, 17, 19, 27, 33, 41, 43]
         true_111 = [3, 7, 13, 19, 21, 31, 37, 39, 43, 49]
-        sigma_100 = list(GBGenerator.enum_sigma_cubic(50, [1, 0, 0]).keys())
-        sigma_110 = list(GBGenerator.enum_sigma_cubic(50, [1, 1, 0]).keys())
-        sigma_111 = list(GBGenerator.enum_sigma_cubic(50, [1, 1, 1]).keys())
-        sigma_222 = list(GBGenerator.enum_sigma_cubic(50, [2, 2, 2]).keys())
-        sigma_888 = list(GBGenerator.enum_sigma_cubic(50, [8, 8, 8]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 0, 0]).keys())
+        sigma_110 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 1, 0]).keys())
+        sigma_111 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [1, 1, 1]).keys())
+        sigma_222 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [2, 2, 2]).keys())
+        sigma_888 = list(GrainBoundaryGenerator.enum_sigma_cubic(50, [8, 8, 8]).keys())
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
         self.assertListEqual(sorted(true_110), sorted(sigma_110))
@@ -264,11 +264,11 @@ class Test_GBGenerator(PymatgenTest):
         true_100 = [17, 18, 22, 27, 38, 41]
         true_001 = [7, 13, 19, 31, 37, 43, 49]
         true_210 = [10, 11, 14, 25, 35, 49]
-        sigma_100 = list(GBGenerator.enum_sigma_hex(50, [1, 0, 0], [8, 3]).keys())
-        sigma_001 = list(GBGenerator.enum_sigma_hex(50, [0, 0, 1], [8, 3]).keys())
-        sigma_210 = list(GBGenerator.enum_sigma_hex(50, [2, 1, 0], [8, 3]).keys())
-        sigma_420 = list(GBGenerator.enum_sigma_hex(50, [4, 2, 0], [8, 3]).keys())
-        sigma_840 = list(GBGenerator.enum_sigma_hex(50, [8, 4, 0], [8, 3]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [1, 0, 0], [8, 3]).keys())
+        sigma_001 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [0, 0, 1], [8, 3]).keys())
+        sigma_210 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [2, 1, 0], [8, 3]).keys())
+        sigma_420 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [4, 2, 0], [8, 3]).keys())
+        sigma_840 = list(GrainBoundaryGenerator.enum_sigma_hex(50, [8, 4, 0], [8, 3]).keys())
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
         self.assertListEqual(sorted(true_001), sorted(sigma_001))
@@ -279,26 +279,26 @@ class Test_GBGenerator(PymatgenTest):
     def test_enum_sigma_tet(self):
         true_100 = [5, 37, 41, 13, 3, 15, 39, 25, 17, 29]
         true_331 = [9, 3, 21, 39, 7, 31, 43, 13, 19, 37, 49]
-        sigma_100 = list(GBGenerator.enum_sigma_tet(50, [1, 0, 0], [9, 1]).keys())
-        sigma_331 = list(GBGenerator.enum_sigma_tet(50, [3, 3, 1], [9, 1]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_tet(50, [1, 0, 0], [9, 1]).keys())
+        sigma_331 = list(GrainBoundaryGenerator.enum_sigma_tet(50, [3, 3, 1], [9, 1]).keys())
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
         self.assertListEqual(sorted(true_331), sorted(sigma_331))
 
     def test_enum_sigma_ort(self):
         true_100 = [41, 37, 39, 5, 15, 17, 13, 3, 25, 29]
-        sigma_100 = list(GBGenerator.enum_sigma_ort(50, [1, 0, 0], [270, 30, 29]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_ort(50, [1, 0, 0], [270, 30, 29]).keys())
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
 
     def test_enum_sigma_rho(self):
         true_100 = [7, 11, 43, 13, 41, 19, 47, 31]
-        sigma_100 = list(GBGenerator.enum_sigma_rho(50, [1, 0, 0], [15, 4]).keys())
+        sigma_100 = list(GrainBoundaryGenerator.enum_sigma_rho(50, [1, 0, 0], [15, 4]).keys())
 
         self.assertListEqual(sorted(true_100), sorted(sigma_100))
 
     def test_get_trans_mat(self):
-        mat1, mat2 = GBGenerator.get_trans_mat([1, 1, 1], 95.55344419565849, lat_type='o', ratio=[10, 20, 21],
+        mat1, mat2 = GrainBoundaryGenerator.get_trans_mat([1, 1, 1], 95.55344419565849, lat_type='o', ratio=[10, 20, 21],
                                                surface=[21, 20, 10], normal=True)
         self.assertAlmostEqual(np.dot(mat1[0], [21, 20, 10]), 0)
         self.assertAlmostEqual(np.dot(mat1[1], [21, 20, 10]), 0)
@@ -308,8 +308,8 @@ class Test_GBGenerator(PymatgenTest):
 
     def test_get_rotation_angle_from_sigma(self):
         true_angle = [12.680383491819821, 167.3196165081802]
-        angle = GBGenerator.get_rotation_angle_from_sigma(41, [1, 0, 0], lat_type='o', ratio=[270, 30, 29])
+        angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(41, [1, 0, 0], lat_type='o', ratio=[270, 30, 29])
         self.assertArrayAlmostEqual(true_angle, angle)
         close_angle = [36.86989764584403, 143.13010235415598]
-        angle = GBGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type='o', ratio=[270, 30, 29])
+        angle = GrainBoundaryGenerator.get_rotation_angle_from_sigma(6, [1, 0, 0], lat_type='o', ratio=[270, 30, 29])
         self.assertArrayAlmostEqual(close_angle, angle)

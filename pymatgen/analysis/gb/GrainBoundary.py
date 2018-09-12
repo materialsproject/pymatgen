@@ -27,7 +27,7 @@ __date__ = "7/30/18"
 logger = logging.getLogger(__name__)
 
 
-class Gb(Structure):
+class GrainBoundary(Structure):
     """
     Subclass of Structure representing a Gb. Implements additional
     attributes pertaining to gbs, but the init method does not
@@ -98,7 +98,7 @@ class Gb(Structure):
         self.init_cell = init_cell
         self.vacuum_thickness = vacuum_thickness
         self.ab_shift = ab_shift
-        super(Gb, self).__init__(
+        super(GrainBoundary, self).__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -112,7 +112,7 @@ class Gb(Structure):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
-        return Gb(self.lattice, self.species_and_occu, self.frac_coords,
+        return GrainBoundary(self.lattice, self.species_and_occu, self.frac_coords,
                   self.rotation_axis, self.rotation_angle, self.gb_plane,
                   self.init_cell, self.vacuum_thickness, self.ab_shift,
                   self.site_properties, self.oriented_unit_cell)
@@ -132,7 +132,7 @@ class Gb(Structure):
         """
         sites = sorted(self, key=key, reverse=reverse)
         s = Structure.from_sites(sites)
-        return Gb(s.lattice, s.species_and_occu, s.frac_coords,
+        return GrainBoundary(s.lattice, s.species_and_occu, s.frac_coords,
                   self.rotation_axis, self.rotation_angle, self.gb_plane,
                   self.init_cell, self.vacuum_thickness, self.ab_shift,
                   self.site_properties, self.oriented_unit_cell)
@@ -215,7 +215,7 @@ class Gb(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        d = super(Gb, self).as_dict()
+        d = super(GrainBoundary, self).as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["init_cell"] = self.init_cell.as_dict()
@@ -233,7 +233,7 @@ class Gb(Structure):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
 
-        return Gb(
+        return GrainBoundary(
             lattice=lattice,
             species=s.species_and_occu, coords=s.frac_coords,
             rotation_axis=d["rotation_axis"],
@@ -246,7 +246,7 @@ class Gb(Structure):
             site_properties=s.site_properties)
 
 
-class GBGenerator(object):
+class GrainBoundaryGenerator(object):
     """
     This class is to generate grain boundaries (GBs) from bulk
     conventional cell (fcc, bcc can from the primitive cell), and works for Cubic,
@@ -595,7 +595,7 @@ class GBGenerator(object):
 
         gb_with_vac.merge_sites(tol=bond_length * rm_ratio, mode='d')
 
-        return Gb(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
+        return GrainBoundary(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
                   rotation_angle, plane, self.initial_structure, vacuum_thickness, ab_shift,
                   site_properties=gb_with_vac.site_properties,
                   oriented_unit_cell=oriended_unit_cell,
@@ -1080,7 +1080,7 @@ class GBGenerator(object):
         # each row of mat_csl is the CSL lattice vector
         csl_init = np.rint(r_matrix * trans * np.matrix(scale)).astype(int).T
         if abs(r_axis[h]) > 1:
-            csl_init = GBGenerator.reduce_mat(np.array(csl_init), r_axis[h], r_matrix)
+            csl_init = GrainBoundaryGenerator.reduce_mat(np.array(csl_init), r_axis[h], r_matrix)
         csl = np.rint(Lattice(csl_init).get_niggli_reduced_lattice().matrix).astype(int)
 
         # find the best slab supercell in terms of the conventional cell from the csl lattice,
@@ -1102,7 +1102,7 @@ class GBGenerator(object):
                                       [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)]])
             else:
                 trans_cry = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
-        t1_final = GBGenerator.slab_from_csl(csl, surface, normal, trans_cry, max_search=max_search)
+        t1_final = GrainBoundaryGenerator.slab_from_csl(csl, surface, normal, trans_cry, max_search=max_search)
         t2_final = np.array(np.rint(np.matrix(t1_final) * (r_matrix).T.I)).astype(int)
         return t1_final, t2_final
 
@@ -1766,26 +1766,26 @@ class GBGenerator(object):
         """
         if lat_type.lower() == 'c':
             print('Make sure this is for cubic system')
-            sigma_dict = GBGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=r_axis)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=r_axis)
         elif lat_type.lower() == 't':
             print('Make sure this is for tetragonal system')
             if ratio is None:
                 print('Make sure this is for irrational c2/a2 ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
-            sigma_dict = GBGenerator.enum_sigma_tet(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
         elif lat_type.lower() == 'o':
             print('Make sure this is for orthorhombic system')
             if len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
-            sigma_dict = GBGenerator.enum_sigma_ort(cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio)
         elif lat_type.lower() == 'h':
             print('Make sure this is for hexagonal system')
             if ratio is None:
                 print('Make sure this is for irrational c2/a2 ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
-            sigma_dict = GBGenerator.enum_sigma_hex(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
         elif lat_type.lower() == 'r':
             print('Make sure this is for rhombohedral system')
             if ratio is None:
@@ -1793,7 +1793,7 @@ class GBGenerator(object):
             elif len(ratio) != 2:
                 raise RuntimeError('Rhombohedral system needs correct '
                                    '(1+2*cos(alpha)/cos(alpha) ratio')
-            sigma_dict = GBGenerator.enum_sigma_rho(cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio)
         else:
             raise RuntimeError('Lattice type not implemented')
 
