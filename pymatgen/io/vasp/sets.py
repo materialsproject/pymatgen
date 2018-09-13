@@ -1669,7 +1669,7 @@ class MPMDSet(MITRelaxSet):
             defaults['POTIM'] = 0.5
             defaults['NSW'] = defaults['NSW'] * 4
 
-        super(MITMDSet, self).__init__(structure, **kwargs)
+        super(MPMDSet, self).__init__(structure, **kwargs)
 
         self.start_temp = start_temp
         self.end_temp = end_temp
