@@ -180,9 +180,10 @@ class VasprunLoader:
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
         self.ebands = self.ebands[nemin:nemax]
-        if self.proj != []:
-            self.proj = self.proj[:, nemin:nemax, :, :]
 
+        if isinstance(self.proj, np.ndarray):
+            self.proj = self.proj[:,nemin:nemax,:,:]
+            
         if self.mommat is not None:
             self.mommat = self.mommat[:, nemin:nemax, :]
         # Removing bands may change the number of valence electrons
@@ -680,10 +681,10 @@ class BztPlotter(object):
         """
         if self.bzt_interp is None:
             raise BoltztrapError("BztInterpolator not present")
-
-        tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
-        print(npoints)
-        dos_plotter = DosPlotter()
-        dos_plotter.add_dos('Total', tdos)
-
-        return dos_plotter
+        
+        tdos = self.bzt_interp.get_dos(T=T,npts_mu=npoints)
+        #print(npoints)
+        dosPlotter = DosPlotter()
+        dosPlotter.add_dos('Total',tdos)
+        
+        return dosPlotter
