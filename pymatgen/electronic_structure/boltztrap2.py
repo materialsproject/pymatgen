@@ -181,7 +181,7 @@ class VasprunLoader:
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
         self.ebands = self.ebands[nemin:nemax]
 
-        if type(self.proj) == np.ndarray:
+        if isinstance(self.proj, np.ndarray):
             self.proj = self.proj[:,nemin:nemax,:,:]
             
         if self.mommat is not None:
