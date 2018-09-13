@@ -102,10 +102,10 @@ class BandstructureLoader:
         """Cut out bands outside the range (emin,emax)"""
         bandmin = np.min(self.ebands, axis=1)
         bandmax = np.max(self.ebands, axis=1)
-        II = np.nonzero(bandmin < emax)
-        nemax = II[0][-1]
-        II = np.nonzero(bandmax > emin)
-        nemin = II[0][0]
+        ii = np.nonzero(bandmin < emax)
+        nemax = ii[0][-1]
+        ii = np.nonzero(bandmax > emin)
+        nemin = ii[0][0]
         # BoltzTraP2.misc.info("BANDANA output")
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
@@ -171,10 +171,10 @@ class VasprunLoader:
         """Cut out bands outside the range (emin,emax)"""
         bandmin = np.min(self.ebands, axis=1)
         bandmax = np.max(self.ebands, axis=1)
-        II = np.nonzero(bandmin < emax)
-        nemax = II[0][-1]
-        II = np.nonzero(bandmax > emin)
-        nemin = II[0][0]
+        ii = np.nonzero(bandmin < emax)
+        nemax = ii[0][-1]
+        ii = np.nonzero(bandmax > emin)
+        nemin = ii[0][0]
         # BoltzTraP2.misc.info("BANDANA output")
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
@@ -210,7 +210,8 @@ class BztInterpolator(object):
                 the number of kpoints given in reciprocal space.
             energy_range: usually the interpolation is not needed on the entire energy
                 range but on a specific range around the fermi level.
-                This energy in eV fix the range around the fermi level (E_fermi-energy_range,E_fermi+energy_range) of bands that will be interpolated
+                This energy in eV fix the range around the fermi level (E_fermi-energy_range,E_fermi+energy_range) of
+                bands that will be interpolated
                 and taken into account to calculate the transport properties.
             curvature: boolean value to enable/disable the calculation of second
                 derivative related trasport properties (Hall coefficient).
@@ -303,7 +304,8 @@ class BztInterpolator(object):
             for iorb, orb in enumerate(Orbital):
                 if iorb == self.data.proj.shape[-1]: break
 
-                if orb not in pdoss[site]: pdoss[site][orb] = {}
+                if orb not in pdoss[site]:
+                    pdoss[site][orb] = {}
 
                 self.data.ebands = self.data.proj[:, :, isite, iorb].T
                 coeffs = fite.fitde3D(self.data, self.equivalences)
@@ -681,7 +683,7 @@ class BztPlotter(object):
 
         tdos = self.bzt_interp.get_dos(T=T, npts_mu=npoints)
         print(npoints)
-        dosPlotter = DosPlotter()
-        dosPlotter.add_dos('Total', tdos)
+        dos_plotter = DosPlotter()
+        dos_plotter.add_dos('Total', tdos)
 
-        return dosPlotter
+        return dos_plotter
