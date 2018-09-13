@@ -1,6 +1,9 @@
 Change log
 ==========
 
-v2018.8.10
+v2018.9.12
 ----------
-* Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.
+* Use boltztrap2 (@fraricci)
+* Refactoring of tensor code to core (@montoyjh)
+* Support for new Lobster version (@JaGeo)
+* Misc bug fixes

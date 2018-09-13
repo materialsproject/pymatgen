@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,7 +59,7 @@
 <span id="pymatgen-analysis-chemenv-coordination-environments-chemenv-strategies-module"></span><h1>pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies module<a class="headerlink" href="#module-pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy">
-<em class="property">class </em><code class="descname">AbstractChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AbstractChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">AbstractChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#AbstractChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
 StructureEnvironments object</p>
@@ -68,12 +68,12 @@ StructureEnvironments object</p>
 coordination of the sites in a structure</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.AC">
-<code class="descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions object&gt;</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.AC" title="Permalink to this definition">¶</a></dt>
+<code class="descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions instance&gt;</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.AC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE">
-<code class="descname">DEFAULT_SYMMETRY_MEASURE_TYPE</code><em class="property"> = ‘csm_wcs_ctwcc’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_SYMMETRY_MEASURE_TYPE</code><em class="property"> = u’csm_wcs_ctwcc’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy.DEFAULT_SYMMETRY_MEASURE_TYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -203,7 +203,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">int</span></code>, <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.allowed_values">
-<code class="descname">allowed_values</code><em class="property"> = ‘Integer amongst :\n - 0 for “No additional condition”\n - 1 for “Only anion-cation bonds”\n - 2 for “No element-element bonds (same elements)”\n - 3 for “Only anion-cation bonds and no element-element bonds (same elements)”\n - 4 for “Only element-oxygen bonds”\n’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.allowed_values" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allowed_values</code><em class="property"> = u’Integer amongst :\n - 0 for “No additional condition”\n - 1 for “Only anion-cation bonds”\n - 2 for “No element-element bonds (same elements)”\n - 3 for “Only anion-cation bonds and no element-element bonds (same elements)”\n - 4 for “Only element-oxygen bonds”\n’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.allowed_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -213,7 +213,7 @@ can return a list of list of neighbors</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.description">
-<code class="descname">description</code><em class="property"> = ‘Only element-oxygen bonds’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.description" title="Permalink to this definition">¶</a></dt>
+<code class="descname">description</code><em class="property"> = u’Only element-oxygen bonds’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.description" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -234,7 +234,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">float</span></code>, <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.allowed_values">
-<code class="descname">allowed_values</code><em class="property"> = ‘Real number between 0.0 and 1.0’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.allowed_values" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allowed_values</code><em class="property"> = u’Real number between 0.0 and 1.0’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat.allowed_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -255,7 +255,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘AngleWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’AngleWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -291,7 +291,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘AnglePlateauWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’AnglePlateauWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AnglePlateauNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -317,7 +317,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘CNBiasWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’CNBiasWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CNBiasNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -363,7 +363,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">float</span></code>, <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.allowed_values">
-<code class="descname">allowed_values</code><em class="property"> = ‘Real number between 0.0 and 100.0’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.allowed_values" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allowed_values</code><em class="property"> = u’Real number between 0.0 and 100.0’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat.allowed_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -380,26 +380,26 @@ can return a list of list of neighbors</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight">
-<em class="property">class </em><code class="descname">DeltaCSMNbSetWeight</code><span class="sig-paren">(</span><em>effective_csm_estimator={‘function’: ‘power2_inverse_decreasing’</em>, <em>’options’: {‘max_csm’: 8.0}}</em>, <em>weight_estimator={‘function’: ‘smootherstep’</em>, <em>’options’: {‘delta_csm_min’: 0.5</em>, <em>’delta_csm_max’: 3.0}}</em>, <em>delta_cn_weight_estimators=None</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DeltaCSMNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DeltaCSMNbSetWeight</code><span class="sig-paren">(</span><em>effective_csm_estimator={u’function’: u’power2_inverse_decreasing’</em>, <em>u’options’: {u’max_csm’: 8.0}}</em>, <em>weight_estimator={u’function’: u’smootherstep’</em>, <em>u’options’: {u’delta_csm_max’: 3.0</em>, <em>u’delta_csm_min’: 0.5}}</em>, <em>delta_cn_weight_estimators=None</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DeltaCSMNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR">
-<code class="descname">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</code><em class="property"> = {‘function’: ‘power2_inverse_decreasing’, ‘options’: {‘max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</code><em class="property"> = {u’function’: u’power2_inverse_decreasing’, u’options’: {u’max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE">
-<code class="descname">DEFAULT_SYMMETRY_MEASURE_TYPE</code><em class="property"> = ‘csm_wcs_ctwcc’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_SYMMETRY_MEASURE_TYPE</code><em class="property"> = u’csm_wcs_ctwcc’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR">
-<code class="descname">DEFAULT_WEIGHT_ESTIMATOR</code><em class="property"> = {‘function’: ‘smootherstep’, ‘options’: {‘delta_csm_min’: 0.5, ‘delta_csm_max’: 3.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_WEIGHT_ESTIMATOR</code><em class="property"> = {u’function’: u’smootherstep’, u’options’: {u’delta_csm_max’: 3.0, u’delta_csm_min’: 0.5}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘DeltaCSMWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’DeltaCSMWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -409,7 +409,7 @@ can return a list of list of neighbors</p>
 
 <dl class="classmethod">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.delta_cn_specifics">
-<em class="property">classmethod </em><code class="descname">delta_cn_specifics</code><span class="sig-paren">(</span><em>delta_csm_mins=None</em>, <em>delta_csm_maxs=None</em>, <em>function=’smootherstep’</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em>, <em>effective_csm_estimator={‘function’: ‘power2_inverse_decreasing’</em>, <em>’options’: {‘max_csm’: 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DeltaCSMNbSetWeight.delta_cn_specifics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.delta_cn_specifics" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">delta_cn_specifics</code><span class="sig-paren">(</span><em>delta_csm_mins=None</em>, <em>delta_csm_maxs=None</em>, <em>function=u’smootherstep’</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em>, <em>effective_csm_estimator={u’function’: u’power2_inverse_decreasing’</em>, <em>u’options’: {u’max_csm’: 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DeltaCSMNbSetWeight.delta_cn_specifics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DeltaCSMNbSetWeight.delta_cn_specifics" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -426,21 +426,21 @@ can return a list of list of neighbors</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight">
-<em class="property">class </em><code class="descname">DistanceAngleAreaNbSetWeight</code><span class="sig-paren">(</span><em>weight_type=’has_intersection’</em>, <em>surface_definition={‘type’: ‘standard_elliptic’</em>, <em>’distance_bounds’: {‘lower’: 1.2</em>, <em>’upper’: 1.8}</em>, <em>’angle_bounds’: {‘lower’: 0.1</em>, <em>’upper’: 0.8}}</em>, <em>nb_sets_from_hints=’fallback_to_source’</em>, <em>other_nb_sets=‘0_weight’</em>, <em>additional_condition=1</em>, <em>smoothstep_distance=None</em>, <em>smoothstep_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistanceAngleAreaNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DistanceAngleAreaNbSetWeight</code><span class="sig-paren">(</span><em>weight_type=u’has_intersection’</em>, <em>surface_definition={u’distance_bounds’: {u’upper’: 1.8</em>, <em>u’lower’: 1.2}</em>, <em>u’angle_bounds’: {u’upper’: 0.8</em>, <em>u’lower’: 0.1}</em>, <em>u’type’: u’standard_elliptic’}</em>, <em>nb_sets_from_hints=u’fallback_to_source’</em>, <em>other_nb_sets=u‘0_weight’</em>, <em>additional_condition=1</em>, <em>smoothstep_distance=None</em>, <em>smoothstep_angle=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#DistanceAngleAreaNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.AC">
-<code class="descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions object&gt;</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.AC" title="Permalink to this definition">¶</a></dt>
+<code class="descname">AC</code><em class="property"> = &lt;pymatgen.analysis.chemenv.utils.defs_utils.AdditionalConditions instance&gt;</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.AC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION">
-<code class="descname">DEFAULT_SURFACE_DEFINITION</code><em class="property"> = {‘type’: ‘standard_elliptic’, ‘distance_bounds’: {‘lower’: 1.2, ‘upper’: 1.8}, ‘angle_bounds’: {‘lower’: 0.1, ‘upper’: 0.8}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_SURFACE_DEFINITION</code><em class="property"> = {u’distance_bounds’: {u’upper’: 1.8, u’lower’: 1.2}, u’angle_bounds’: {u’upper’: 0.8, u’lower’: 0.1}, u’type’: u’standard_elliptic’}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.DEFAULT_SURFACE_DEFINITION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘DistAngleAreaWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’DistAngleAreaWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -486,7 +486,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">float</span></code>, <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.allowed_values">
-<code class="descname">allowed_values</code><em class="property"> = ‘Real number between 1.0 and +infinity’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.allowed_values" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allowed_values</code><em class="property"> = u’Real number between 1.0 and +infinity’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat.allowed_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -507,7 +507,7 @@ can return a list of list of neighbors</p>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘DistancePlateauWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’DistancePlateauWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistancePlateauNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -529,19 +529,19 @@ can return a list of list of neighbors</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy">
-<em class="property">class </em><code class="descname">MultiUnlimitedWeightsChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em>, <em>nb_set_weights=None</em>, <em>ce_estimator={‘function’: ‘power2_inverse_power2_decreasing’</em>, <em>’options’: {‘max_csm’: 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MultiUnlimitedWeightsChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em>, <em>nb_set_weights=None</em>, <em>ce_estimator={u’function’: u’power2_inverse_power2_decreasing’</em>, <em>u’options’: {u’max_csm’: 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiUnlimitedWeightsChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy</span></code></a></p>
 <p>Constructor for the MultiUnlimitedWeightsChemenvStrategy.
 :param structure_environments: StructureEnvironments object containing all the information on the
 coordination of the sites in a structure</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR">
-<code class="descname">DEFAULT_CE_ESTIMATOR</code><em class="property"> = {‘function’: ‘power2_inverse_power2_decreasing’, ‘options’: {‘max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_CE_ESTIMATOR</code><em class="property"> = {u’function’: u’power2_inverse_power2_decreasing’, u’options’: {u’max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.STRATEGY_DESCRIPTION">
-<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = ‘    Multi Unlimited Weights ChemenvStrategy’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = u’    Multi Unlimited Weights ChemenvStrategy’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiUnlimitedWeightsChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -589,14 +589,14 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy">
-<em class="property">class </em><code class="descname">MultiWeightsChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em>, <em>dist_ang_area_weight=None</em>, <em>self_csm_weight=None</em>, <em>delta_csm_weight=None</em>, <em>cn_bias_weight=None</em>, <em>angle_weight=None</em>, <em>normalized_angle_distance_weight=None</em>, <em>ce_estimator={‘function’: ‘power2_inverse_power2_decreasing’</em>, <em>’options’: {‘max_csm’: 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiWeightsChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">MultiWeightsChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em>, <em>dist_ang_area_weight=None</em>, <em>self_csm_weight=None</em>, <em>delta_csm_weight=None</em>, <em>cn_bias_weight=None</em>, <em>angle_weight=None</em>, <em>normalized_angle_distance_weight=None</em>, <em>ce_estimator={u’function’: u’power2_inverse_power2_decreasing’</em>, <em>u’options’: {u’max_csm’: 8.0}}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#MultiWeightsChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy</span></code></a></p>
 <p>Constructor for the MultiWeightsChemenvStrategy.
 :param structure_environments: StructureEnvironments object containing all the information on the
 coordination of the sites in a structure</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR">
-<code class="descname">DEFAULT_CE_ESTIMATOR</code><em class="property"> = {‘function’: ‘power2_inverse_power2_decreasing’, ‘options’: {‘max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_CE_ESTIMATOR</code><em class="property"> = {u’function’: u’power2_inverse_power2_decreasing’, u’options’: {u’max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.DEFAULT_CE_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -606,7 +606,7 @@ coordination of the sites in a structure</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.STRATEGY_DESCRIPTION">
-<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = ‘    Multi Weights ChemenvStrategy’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = u’    Multi Weights ChemenvStrategy’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.MultiWeightsChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -680,7 +680,7 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘NormAngleDistWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’NormAngleDistWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NormalizedAngleDistanceNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -752,26 +752,26 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight">
-<em class="property">class </em><code class="descname">SelfCSMNbSetWeight</code><span class="sig-paren">(</span><em>effective_csm_estimator={‘function’: ‘power2_inverse_decreasing’</em>, <em>’options’: {‘max_csm’: 8.0}}</em>, <em>weight_estimator={‘function’: ‘power2_decreasing_exp’</em>, <em>’options’: {‘max_csm’: 8.0</em>, <em>’alpha’: 1.0}}</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SelfCSMNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SelfCSMNbSetWeight</code><span class="sig-paren">(</span><em>effective_csm_estimator={u’function’: u’power2_inverse_decreasing’</em>, <em>u’options’: {u’max_csm’: 8.0}}</em>, <em>weight_estimator={u’function’: u’power2_decreasing_exp’</em>, <em>u’options’: {u’alpha’: 1.0</em>, <em>u’max_csm’: 8.0}}</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SelfCSMNbSetWeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.NbSetWeight</span></code></a></p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR">
-<code class="descname">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</code><em class="property"> = {‘function’: ‘power2_inverse_decreasing’, ‘options’: {‘max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_EFFECTIVE_CSM_ESTIMATOR</code><em class="property"> = {u’function’: u’power2_inverse_decreasing’, u’options’: {u’max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_EFFECTIVE_CSM_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE">
-<code class="descname">DEFAULT_SYMMETRY_MEASURE_TYPE</code><em class="property"> = ‘csm_wcs_ctwcc’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_SYMMETRY_MEASURE_TYPE</code><em class="property"> = u’csm_wcs_ctwcc’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_SYMMETRY_MEASURE_TYPE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR">
-<code class="descname">DEFAULT_WEIGHT_ESTIMATOR</code><em class="property"> = {‘function’: ‘power2_decreasing_exp’, ‘options’: {‘max_csm’: 8.0, ‘alpha’: 1.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_WEIGHT_ESTIMATOR</code><em class="property"> = {u’function’: u’power2_decreasing_exp’, u’options’: {u’alpha’: 1.0, u’max_csm’: 8.0}}</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.DEFAULT_WEIGHT_ESTIMATOR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.SHORT_NAME">
-<code class="descname">SHORT_NAME</code><em class="property"> = ‘SelfCSMWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SHORT_NAME</code><em class="property"> = u’SelfCSMWeight’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SelfCSMNbSetWeight.SHORT_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -793,7 +793,7 @@ MultipleAbundanceChemenvStrategy object created using the as_dict method.
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy">
-<em class="property">class </em><code class="descname">SimpleAbundanceChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimpleAbundanceChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SimpleAbundanceChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>additional_condition=1</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimpleAbundanceChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy</span></code></a></p>
 <p>Simple ChemenvStrategy using the neighbors that are the most “abundant” in the grid of angle and distance
 parameters for the definition of neighbors in the Voronoi approach.
@@ -813,12 +813,12 @@ coordination of the sites in a structure</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_DESCRIPTION">
-<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = ‘    Simple Abundance ChemenvStrategy using the most “abundant” neighbors map \n    for the definition of neighbors in the Voronoi approach. \n    The coordination environment is then given as the one with the \n    lowest continuous symmetry measure.’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = u’    Simple Abundance ChemenvStrategy using the most “abundant” neighbors map \n    for the definition of neighbors in the Voronoi approach. \n    The coordination environment is then given as the one with the \n    lowest continuous symmetry measure.’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS">
-<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = OrderedDict([(‘additional_condition’, {‘type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt’&gt;, ‘internal’: ‘_additional_condition’, ‘default’: 1}), (‘surface_calculation_type’, {})])</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = OrderedDict([(u’additional_condition’, {u’default’: 1, u’internal’: u’_additional_condition’, u’type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt’&gt;}), (u’surface_calculation_type’, {})])</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -861,7 +861,7 @@ SimpleAbundanceChemenvStrategy object created using the as_dict method.
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy">
-<em class="property">class </em><code class="descname">SimplestChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>distance_cutoff=1.4</em>, <em>angle_cutoff=0.3</em>, <em>additional_condition=1</em>, <em>continuous_symmetry_measure_cutoff=10.0</em>, <em>symmetry_measure_type=’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimplestChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">SimplestChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None</em>, <em>distance_cutoff=1.4</em>, <em>angle_cutoff=0.3</em>, <em>additional_condition=1</em>, <em>continuous_symmetry_measure_cutoff=10.0</em>, <em>symmetry_measure_type=u’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#SimplestChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AbstractChemenvStrategy</span></code></a></p>
 <p>Simplest ChemenvStrategy using fixed angle and distance parameters for the definition of neighbors in the
 Voronoi approach. The coordination environment is then given as the one with the lowest continuous symmetry measure</p>
@@ -890,12 +890,12 @@ Voronoi approach. The coordination environment is then given as the one with the
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_DESCRIPTION">
-<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = ‘    Simplest ChemenvStrategy using fixed angle and distance parameters \n    for the definition of neighbors in the Voronoi approach. \n    The coordination environment is then given as the one with the \n    lowest continuous symmetry measure.’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_DESCRIPTION</code><em class="property"> = u’    Simplest ChemenvStrategy using fixed angle and distance parameters \n    for the definition of neighbors in the Voronoi approach. \n    The coordination environment is then given as the one with the \n    lowest continuous symmetry measure.’</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS">
-<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = OrderedDict([(‘distance_cutoff’, {‘type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat’&gt;, ‘internal’: ‘_distance_cutoff’, ‘default’: 1.4}), (‘angle_cutoff’, {‘type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat’&gt;, ‘internal’: ‘_angle_cutoff’, ‘default’: 0.3}), (‘additional_condition’, {‘type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt’&gt;, ‘internal’: ‘_additional_condition’, ‘default’: 1}), (‘continuous_symmetry_measure_cutoff’, {‘type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat’&gt;, ‘internal’: ‘_continuous_symmetry_measure_cutoff’, ‘default’: 10.0})])</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">STRATEGY_OPTIONS</code><em class="property"> = OrderedDict([(u’distance_cutoff’, {u’default’: 1.4, u’internal’: u’_distance_cutoff’, u’type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceCutoffFloat’&gt;}), (u’angle_cutoff’, {u’default’: 0.3, u’internal’: u’_angle_cutoff’, u’type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AngleCutoffFloat’&gt;}), (u’additional_condition’, {u’default’: 1, u’internal’: u’_additional_condition’, u’type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt’&gt;}), (u’continuous_symmetry_measure_cutoff’, {u’default’: 10.0, u’internal’: u’_continuous_symmetry_measure_cutoff’, u’type’: &lt;class ‘pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.CSMFloat’&gt;})])</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimplestChemenvStrategy.STRATEGY_OPTIONS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -985,7 +985,7 @@ created using the as_dict method.
 
 <dl class="class">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy">
-<em class="property">class </em><code class="descname">TargettedPenaltiedAbundanceChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None, truncate_dist_ang=True, additional_condition=1, max_nabundant=5, target_environments=[‘O:6’], target_penalty_type=’max_csm’, max_csm=5.0, symmetry_measure_type=’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#TargettedPenaltiedAbundanceChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">TargettedPenaltiedAbundanceChemenvStrategy</code><span class="sig-paren">(</span><em>structure_environments=None, truncate_dist_ang=True, additional_condition=1, max_nabundant=5, target_environments=[u’O:6’], target_penalty_type=u’max_csm’, max_csm=5.0, symmetry_measure_type=u’csm_wcs_ctwcc’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/chemenv/coordination_environments/chemenv_strategies.html#TargettedPenaltiedAbundanceChemenvStrategy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.SimpleAbundanceChemenvStrategy</span></code></a></p>
 <p>Simple ChemenvStrategy using the neighbors that are the most “abundant” in the grid of angle and distance
 parameters for the definition of neighbors in the Voronoi approach, with a bias for a given list of target
@@ -993,7 +993,7 @@ environments. This can be useful in the case of, e.g. connectivity search of som
 The coordination environment is then given as the one with the lowest continuous symmetry measure</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS">
-<code class="descname">DEFAULT_TARGET_ENVIRONMENTS</code><em class="property"> = [‘O:6’]</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEFAULT_TARGET_ENVIRONMENTS</code><em class="property"> = [u’O:6’]</em><a class="headerlink" href="#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1072,7 +1072,7 @@ TargettedPenaltiedAbundanceChemenvStrategy object created using the as_dict meth
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
