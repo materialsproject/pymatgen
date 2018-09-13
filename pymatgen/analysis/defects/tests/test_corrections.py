@@ -84,7 +84,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         self.assertTrue('freysoldt_meta' in de.parameters.keys())
         self.assertAlmostEqual(
             set(de.parameters['freysoldt_meta'].keys()), set(['pot_plot_data', 'pot_corr_uncertainty_md']))
-        #TODO: check that correct metadata exists
 
         #test a charge of zero
         vac = Vacancy(struc, struc.sites[0], charge=0)
