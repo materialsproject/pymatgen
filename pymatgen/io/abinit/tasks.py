@@ -51,6 +51,7 @@ __all__ = [
     "RelaxTask",
     "DdkTask",
     "PhononTask",
+    "ElasticTask",
     "SigmaTask",
     "EphTask",
     "OpticTask",
@@ -1904,11 +1905,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         black_list = (self.S_LOCKED, self.S_ERROR)
         #if self.status in black_list: return self.status
 
-        # 2) Check the returncode of the process (the process of submitting the job) first.
-        # this point type of problem should also be handled by the scheduler error parser
+        # 2) Check the returncode of the job script
         if self.returncode != 0:
-            # The job was not submitted properly
-            return self.set_status(self.S_QCRITICAL, msg="return code %s" % self.returncode)
+            msg = "job.sh return code: %s\nPerhaps the job was not submitted properly?" % self.returncode
+            return self.set_status(self.S_QCRITICAL, msg=msg)
 
         # If we have an abort file produced by Abinit
         if self.mpiabort_file.exists:
@@ -1918,20 +1918,17 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # getsize is 0 if the file is empty or it does not exist.
         err_msg = None
         if self.stderr_file.getsize() != 0:
-        #if self.stderr_file.exists:
             err_msg = self.stderr_file.read()
 
         # Analyze the stderr file of the resource manager runtime errors.
         # TODO: Why are we looking for errors in queue.qerr?
         qerr_info = None
         if self.qerr_file.getsize() != 0:
-        #if self.qerr_file.exists:
             qerr_info = self.qerr_file.read()
 
         # Analyze the stdout file of the resource manager (needed for PBS !)
         qout_info = None
         if self.qout_file.getsize():
-        #if self.qout_file.exists:
             qout_info = self.qout_file.read()
 
         # Start to check ABINIT status if the output file has been created.
@@ -1989,7 +1986,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.status
 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        if qerr_info or qout_info:
+        # MG: This section has been disabled: several portability issues
+        # Need more robust logic in error_parser, perhaps logic provided by users via callbacks.
+        if False and (qerr_info or qout_info):
             from pymatgen.io.abinit.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
@@ -2010,7 +2009,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             elif lennone(qerr_info) > 0:
                 # if only qout_info, we are not necessarily in QCRITICAL state,
                 # since there will always be info in the qout file
-                self.history.info('found unknown messages in the queue error: %s' % str(qerr_info))
+                self.history.info('Found unknown message in the queue qerr file: %s' % str(qerr_info))
                 #try:
                 #    rt = self.datetimes.get_runtime().seconds
                 #except:
@@ -2026,11 +2025,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # 8) analyzing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
-        if lennone(err_msg) > 0:
-            msg = 'found error message:\n %s' % str(err_msg)
-            return self.set_status(self.S_QCRITICAL, msg=msg)
-            # The job is killed or crashed but we don't know what happend
-            # it is set to QCritical, we will attempt to fix it by running on more resources
+        # The job is killed or crashed but we don't know what happend
+        # it is set to QCritical, we will attempt to fix it by running on more resources
+        if err_msg:
+            msg = 'Found error message:\n %s' % str(err_msg)
+            self.history.warning(msg)
+            #return self.set_status(self.S_QCRITICAL, msg=msg)
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....
@@ -2435,13 +2435,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if kwargs.pop("autoparal", True) and hasattr(self, "autoparal_run"):
             try:
                 self.autoparal_run()
-            except QueueAdapterError as exc:
-                # If autoparal cannot find a qadapter to run the calculation raises an Exception
-                self.history.critical(exc)
-                msg = "Error while trying to run autoparal in task:%s\n%s" % (repr(task), straceback())
-                cprint(msg, "yellow")
-                self.set_status(self.S_QCRITICAL, msg=msg)
-                return 0
+            #except QueueAdapterError as exc:
+            #    # If autoparal cannot find a qadapter to run the calculation raises an Exception
+            #    self.history.critical(exc)
+            #    msg = "Error while trying to run autoparal in task:%s\n%s" % (repr(task), straceback())
+            #    cprint(msg, "yellow")
+            #    self.set_status(self.S_QCRITICAL, msg=msg)
+            #    return 0
             except Exception as exc:
                 # Sometimes autoparal_run fails because Abinit aborts
                 # at the level of the parser e.g. cannot find the spacegroup
@@ -3691,7 +3691,7 @@ class DfptTask(AbinitTask):
 
 
 class DdeTask(DfptTask):
-    """Task for DDE calculations."""
+    """Task for DDE calculations (perturbation wrt electric field)."""
 
     color_rgb = np.array((61, 158, 255)) / 255
 

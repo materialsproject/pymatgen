@@ -308,7 +308,7 @@ class PyFlowScheduler(object):
             max_nlaunches: Maximum number of tasks launched in a single iteration of the scheduler.
                 (DEFAULT: -1 i.e. no limit)
             debug: Debug level. Use 0 for production (int, DEFAULT: 0)
-            fix_qcritical: "yes" if the launcher should try to fix QCritical Errors (DEFAULT: "yes")
+            fix_qcritical: "yes" if the launcher should try to fix QCritical Errors (DEFAULT: "no")
             rmflow: If "yes", the scheduler will remove the flow directory if the calculation
                 completed successfully. (DEFAULT: "no")
             killjobs_if_errors: "yes" if the scheduler should try to kill all the runnnig jobs
@@ -340,7 +340,7 @@ class PyFlowScheduler(object):
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
-        self.fix_qcritical = as_bool(kwargs.pop("fix_qcritical", True))
+        self.fix_qcritical = as_bool(kwargs.pop("fix_qcritical", False))
         self.rmflow = as_bool(kwargs.pop("rmflow", False))
         self.killjobs_if_errors = as_bool(kwargs.pop("killjobs_if_errors", True))
 
@@ -708,8 +708,9 @@ class PyFlowScheduler(object):
             if retcode:
                 # Cannot send mail, shutdown now!
                 msg += ("\nThe scheduler tried to send an e-mail to remind the user\n" +
-                        " but send_email returned %d. Aborting now" % retcode)
-                err_lines.append(msg)
+                        " but send_email returned %d. Error is not critical though!" % retcode)
+                print(msg)
+                #err_lines.append(msg)
 
         #if delta_etime.total_seconds() > self.max_etime_s:
         #    err_lines.append("\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s)

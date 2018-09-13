@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.interface_reactions module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.analysis.interface_reactions module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -55,153 +55,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-pymatgen.analysis.interface_reactions">
-<span id="pymatgen-analysis-interface-reactions-module"></span><h1>pymatgen.analysis.interface_reactions module<a class="headerlink" href="#module-pymatgen.analysis.interface_reactions" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity">
-<em class="property">class </em><code class="descname">InterfacialReactivity</code><span class="sig-paren">(</span><em>c1</em>, <em>c2</em>, <em>pd</em>, <em>norm=True</em>, <em>include_no_mixing_energy=False</em>, <em>pd_non_grand=None</em>, <em>use_hull_energy=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>An object encompassing all relevant data for interface reactions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>c1</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 1.</li>
-<li><strong>c2</strong> (<a class="reference internal" href="pymatgen.core.composition.html#pymatgen.core.composition.Composition" title="pymatgen.core.composition.Composition"><em>Composition</em></a>) – Composition object for reactant 2.</li>
-<li><strong>pd</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object or GrandPotentialPhaseDiagram
-object built from all elements in composition c1 and c2.</li>
-<li><strong>norm</strong> (<em>bool</em>) – Whether or not the total number of atoms in composition
-of reactant will be normalized to 1.</li>
-<li><strong>include_no_mixing_energy</strong> (<em>bool</em>) – No_mixing_energy for a reactant is the
-opposite number of its energy above grand potential convex hull. In
-cases where reactions involve elements reservoir, this param
-determines whether no_mixing_energy of reactants will be included
-in the final reaction energy calculation. By definition, if pd is
-not a GrandPotentialPhaseDiagram object, this param is False.</li>
-<li><strong>pd_non_grand</strong> (<a class="reference internal" href="pymatgen.analysis.phase_diagram.html#pymatgen.analysis.phase_diagram.PhaseDiagram" title="pymatgen.analysis.phase_diagram.PhaseDiagram"><em>PhaseDiagram</em></a>) – PhaseDiagram object but not
-GrandPotentialPhaseDiagram object built from elements in c1 and c2.</li>
-<li><strong>use_hull_energy</strong> (<em>bool</em>) – Whether or not use the convex hull energy for
-a given composition for reaction energy calculation. If false,
-the energy of ground state structure will be used instead.
-Note that in case when ground state can not be found for a
-composition, convex hull energy will be used associated with a
-warning message.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL">
-<code class="descname">EV_TO_KJ_PER_MOL</code><em class="property"> = 96.4853</em><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.EV_TO_KJ_PER_MOL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio">
-<code class="descname">get_critical_original_kink_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_critical_original_kink_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_critical_original_kink_ratio" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of mixing ratio for each kink between ORIGINAL
-(instead of processed) reactant compositions. This is the
-same list as mixing ratio obtained from get_kinks method
-if self.norm = False.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of floats representing mixing ratios between original
-reactant compositions for each kink.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks">
-<code class="descname">get_kinks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_kinks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_kinks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds all the kinks in mixing ratio where reaction products changes
-along the tie line of composition self.c1 and composition self.c2.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
-<dt>Zip object of tuples (index, mixing ratio,</dt>
-<dd>reaction energy per atom in eV/atom,
-reaction formula,
-reaction energy per mol of reaction
-formula in kJ/mol).</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy">
-<code class="descname">get_no_mixing_energy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_no_mixing_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_no_mixing_energy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates the opposite number of energy above grand potential
-convex hull for both reactants.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[(reactant1, no_mixing_energy1),(reactant2,no_mixing_energy2)].</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products">
-<code class="descname">get_products</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.get_products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.get_products" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of formulas of potential products. E.g., [‘Li’,’O2’,’Mn’].</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.labels">
-<code class="descname">labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dictionary containing kink information:
-{index: ‘x= mixing_ratio energy= reaction_energy reaction_equation’}.
-E.g., {1: ‘x= 0.0 energy = 0.0 Mn -&gt; Mn’,</p>
-<blockquote>
-<div>2: ‘x= 0.5 energy = -15.0 O2 + Mn -&gt; MnO2’,
-3: ‘x= 1.0 energy = 0.0 O2 -&gt; O2’}.</div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum">
-<code class="descname">minimum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.minimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.minimum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds the minimum reaction energy E_min and corresponding
-mixing ratio x_min.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Tuple (x_min, E_min).</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pymatgen.analysis.interface_reactions.InterfacialReactivity.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/interface_reactions.html#InterfacialReactivity.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.interface_reactions.InterfacialReactivity.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots reaction energy as a function of mixing ratio x in
-self.c1 - self.c2 tie line using pylab.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Pylab object that plots reaction energy as a function of
-mixing ratio x.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="pymatgen-analysis-interface-reactions-module">
+<h1>pymatgen.analysis.interface_reactions module<a class="headerlink" href="#pymatgen-analysis-interface-reactions-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -240,7 +95,7 @@ mixing ratio x.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
