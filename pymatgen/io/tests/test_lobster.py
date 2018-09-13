@@ -536,7 +536,8 @@ class ChargeTest(PymatgenTest):
                                                              'abc': [0.0, 0.0, 0.0],
                                                              'species': [{'occu': 1, 'element': 'Mn'}], 'label': 'Mn'}],
                            'charge': None, '@module': 'pymatgen.core.structure'}
-        self.assertDictEqual(structure_dict2, self.charge2.get_structure_with_charges("POSCAR.MnO").as_dict())
+        s2 = Structure.from_dict(structure_dict2)
+        self.assertEqual(s2, self.charge2.get_structure_with_charges("POSCAR.MnO"))
 
 
 if __name__ == "__main__":
