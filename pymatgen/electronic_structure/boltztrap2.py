@@ -180,7 +180,7 @@ class VasprunLoader:
             #BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
                 #(bandmin[iband] < emax) & (bandmax[iband] > emin)))
         self.ebands = self.ebands[nemin:nemax]
-        if self.proj != []:
+        if type(self.proj) == np.ndarray:
             self.proj = self.proj[:,nemin:nemax,:,:]
             
         if self.mommat is not None:
@@ -679,7 +679,7 @@ class BztPlotter(object):
             raise BoltztrapError("BztInterpolator not present")
         
         tdos = self.bzt_interp.get_dos(T=T,npts_mu=npoints)
-        print(npoints)
+        #print(npoints)
         dosPlotter = DosPlotter()
         dosPlotter.add_dos('Total',tdos)
         

@@ -13,6 +13,8 @@ from pymatgen.io.vasp import Vasprun
 from pymatgen.electronic_structure.boltztrap2 import BandstructureLoader,\
     VasprunLoader,BztInterpolator,BztTransportProperties,BztPlotter
 
+from pymatgen.electronic_structure.core import Spin,OrbitalType
+
 import numpy as np
 from monty.serialization import loadfn
 
@@ -21,8 +23,8 @@ from monty.serialization import loadfn
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files/boltztrap2/')
 
-vrunfile=os.path.join(test_dir,'vasprun-PbTe_uniform_bs.xml')
-vrun = Vasprun(vrunfile)
+vrunfile=os.path.join(test_dir,'vasprun.xml')
+vrun = Vasprun(vrunfile,parse_projected_eigen=True)
 
 class BandstructureLoaderTest(unittest.TestCase):
 
@@ -50,6 +52,7 @@ class VasprunLoaderTest(unittest.TestCase):
 
     def setUp(self):
         self.loader = VasprunLoader(vrun)
+        self.assertTupleEqual(self.loader.proj.shape,(120, 20, 2, 9))
         self.assertIsNotNone(self.loader)
         warnings.simplefilter("ignore")
 
@@ -74,8 +77,9 @@ class VasprunLoaderTest(unittest.TestCase):
 class BztInterpolatorTest(unittest.TestCase):
 
     def setUp(self):
-        loader = VasprunLoader().from_file(vrunfile)
-        self.bztInterp = BztInterpolator(loader)
+        self.loader = VasprunLoader(vrun)
+        self.assertTupleEqual(self.loader.proj.shape,(120, 20, 2, 9))
+        self.bztInterp = BztInterpolator(self.loader,lpfac=2)
         self.assertIsNotNone(self.bztInterp)
         warnings.simplefilter("ignore")
 
@@ -83,32 +87,35 @@ class BztInterpolatorTest(unittest.TestCase):
         warnings.resetwarnings()
 
     def test_properties(self):
-        self.assertTupleEqual(self.bztInterp.cband.shape,(5, 3, 3, 3, 148877))
-        self.assertTupleEqual(self.bztInterp.eband.shape,(5, 148877))
-        self.assertTupleEqual(self.bztInterp.coeffs.shape,(5, 1429))
+        self.assertTupleEqual(self.bztInterp.cband.shape,(5, 3, 3, 3, 29791))
+        self.assertTupleEqual(self.bztInterp.eband.shape,(5, 29791))
+        self.assertTupleEqual(self.bztInterp.coeffs.shape,(5, 322))
         self.assertEqual(self.bztInterp.nemax,12)
         
     def test_get_band_structure(self):
         sbs = self.bztInterp.get_band_structure()
         self.assertIsNotNone(sbs)
-        self.assertTupleEqual(list(sbs.bands.values())[0].shape,(5,137))
+        self.assertTupleEqual(sbs.bands[Spin.up].shape,(5,137))
 
     def test_tot_dos(self):
-        tot_dos = self.bztInterp.get_dos(T=200)
+        tot_dos = self.bztInterp.get_dos(T=200,npts_mu = 100)
         self.assertIsNotNone(tot_dos)
-        self.assertEqual(len(tot_dos.energies),10000)
+        self.assertEqual(len(tot_dos.energies),100)
+        self.assertAlmostEqual(tot_dos.densities[Spin.up][0],1.42859939,5)
 
     def test_tot_proj_dos(self):
-        tot_proj_dos = self.bztInterp.get_dos(partial_dos=True,T=200)
+        tot_proj_dos = self.bztInterp.get_dos(partial_dos=True,T=200,npts_mu = 100)
         self.assertIsNotNone(tot_proj_dos)
         self.assertEqual(len(tot_proj_dos.get_spd_dos().values()),3)
+        pdos = tot_proj_dos.get_spd_dos()[OrbitalType.s].densities[Spin.up][0]
+        self.assertAlmostEqual(pdos,15.474392020,5)
 
+loader = VasprunLoader(vrun)
+bztInterp=BztInterpolator(loader,lpfac=2)
 
 class BztTransportPropertiesTest(unittest.TestCase):
 
     def setUp(self):
-        loader = VasprunLoader().from_file(vrunfile)
-        bztInterp = BztInterpolator(loader)
         self.bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
@@ -128,20 +135,18 @@ class BztTransportPropertiesTest(unittest.TestCase):
 
         
     def test_compute_properties_doping(self):
-        self.bztTransp.compute_properties_doping(doping=10.**np.arange(16,23))
+        self.bztTransp.compute_properties_doping(doping=10.**np.arange(20,22))
         for p in [self.bztTransp.Conductivity_doping,self. bztTransp.Seebeck_doping,
                   self.bztTransp.Kappa_doping,self.bztTransp.Effective_mass_doping,
                   self.bztTransp.Power_Factor_doping]:
             
-            self.assertTupleEqual(p['n'].shape,(3, 7, 3, 3))
+            self.assertTupleEqual(p['n'].shape,(3, 2, 3, 3))
         
+bztTransp=BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
 
 class BztPlotterTest(unittest.TestCase):
     
     def setUp(self):
-        loader = VasprunLoader().from_file(vrunfile)
-        bztInterp = BztInterpolator(loader)
-        bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
         self.bztPlotter = BztPlotter(bztTransp,bztInterp)
         self.assertIsNotNone(self.bztPlotter)
         
