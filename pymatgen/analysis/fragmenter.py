@@ -7,7 +7,7 @@ from __future__ import division, unicode_literals
 import logging
 
 from monty.json import MSONable
-from pymatgen.analysis.graphs import build_MoleculeGraph
+from pymatgen.analysis.graphs import build_MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.io.babel import BabelMolAdaptor
 
@@ -110,7 +110,7 @@ class Fragmenter(MSONable):
                         if not found:
                             self.unique_fragments.append(fragment)
                             unique_fragments_on_this_level.append(fragment)
-                except RuntimeError:
+                except MolGraphSplitError:
                     if self.open_rings:
                         fragment = self._open_ring(mol_graph, bond)
                         found = False

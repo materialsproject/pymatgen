@@ -1307,6 +1307,11 @@ class StructureGraph(MSONable):
         return molecules
 
 
+class MolGraphSplitError(Exception):
+    # Raised when a molecule graph is failed to split into two disconnected subgraphs
+    pass
+
+
 class MoleculeGraph(MSONable):
     """
     This is a class for annotating a Molecule with
@@ -1734,7 +1739,7 @@ class MoleculeGraph(MSONable):
             original.break_edge(bond[0], bond[1], allow_reverse=allow_reverse)
 
         if nx.is_weakly_connected(original.graph):
-            raise RuntimeError("Cannot split molecule; \
+            raise MolGraphSplitError("Cannot split molecule; \
                                 MoleculeGraph is still connected.")
         else:
 
