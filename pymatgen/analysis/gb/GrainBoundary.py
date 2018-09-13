@@ -555,8 +555,8 @@ class GrainBoundaryGenerator(object):
             true_index = index[min_index]
             index.pop(min_index)
             frac = []
-            for i in range(len(index)):
-                frac.append(Fraction(plane_init[index[i]] / plane_init[true_index]).limit_denominator(100))
+            for i, value in enumerate(index):
+                frac.append(Fraction(plane_init[value] / plane_init[true_index]).limit_denominator(100))
             if len(index) == 1:
                 join_plane[true_index] = frac[0].denominator
                 join_plane[index[0]] = frac[0].numerator
