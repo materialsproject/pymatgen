@@ -367,7 +367,7 @@ class BztTransportProperties(object):
         self.epsilon, self.dos, self.vvdos, self.cdos = BL.BTPDOS(BztInterpolator.eband, BztInterpolator.vvband,
                                                                   npts=npts_mu, cband=BztInterpolator.cband)
 
-        if margin == None:
+        if margin is None:
             margin = 9. * units.BOLTZMANN * temp_r.max()
 
         mur_indices = np.logical_and(self.epsilon > self.epsilon.min() + margin,
@@ -416,20 +416,20 @@ class BztTransportProperties(object):
         # self.props_as_dict()
 
     def compute_properties_doping(self, doping, temp_r=None):
-        '''
-            Calculate all the properties w.r.t. the doping levels in input.
-            
-            Args:
-                doping: numpy array specifing the doping levels
-                
-            When executed, it add the following variable at the BztTransportProperties
-            object:
-                Conductivity_doping, Seebeck_doping, Kappa_doping, Power_Factor_doping,
-                cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
-                arrays of dim (len(temp_r),len(doping),3,3) as values
-            doping_carriers: number of carriers for each doping level
-            mu_doping_eV: the chemical potential corrispondent to each doping level
-        '''
+        """
+        Calculate all the properties w.r.t. the doping levels in input.
+
+        Args:
+            doping: numpy array specifing the doping levels
+
+        When executed, it add the following variable at the BztTransportProperties
+        object:
+            Conductivity_doping, Seebeck_doping, Kappa_doping, Power_Factor_doping,
+            cond_Effective_mass_doping are dictionaries with 'n' and 'p' keys and
+            arrays of dim (len(temp_r),len(doping),3,3) as values
+        doping_carriers: number of carriers for each doping level
+        mu_doping_eV: the chemical potential corrispondent to each doping level
+        """
 
         if temp_r is None:
             temp_r = self.temp_r
