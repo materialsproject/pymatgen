@@ -39,6 +39,7 @@ class TestFragmentMolecule(PymatgenTest):
         cls.tfsi = Molecule.from_file(os.path.join(test_dir, "TFSI.xyz"))
         cls.tfsi_edges = [14,1],[1,4],[1,5],[1,7],[7,11],[7,12],[7,13],[14,0],[0,2],[0,3],[0,6],[6,8],[6,9],[6,10]
 
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_edges_given_PC_frag1(self):
         fragmenter = Fragmenter(molecule=self.pc_frag1, edges=self.pc_frag1_edges, depth=0)
         self.assertEqual(len(fragmenter.unique_fragments), 12)
@@ -68,6 +69,7 @@ class TestFragmentMolecule(PymatgenTest):
         self.assertEqual(len(fragmenter.unique_fragments), 20)
         self.assertEqual(len(fragmenter.unique_fragments_from_ring_openings), 0)
 
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_edges_given_TFSI(self):
         fragmenter = Fragmenter(molecule=self.tfsi, edges=self.tfsi_edges, depth=0)
         self.assertEqual(len(fragmenter.unique_fragments), 156)
@@ -98,6 +100,7 @@ class TestFragmentMolecule(PymatgenTest):
                     break
             self.assertEqual(found, True)
 
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_PC_depth_0_vs_depth_10(self):
         fragmenter0 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=0, open_rings=False)
         self.assertEqual(len(fragmenter0.unique_fragments), 295)
@@ -117,6 +120,17 @@ class TestFragmentMolecule(PymatgenTest):
                     found = True
                     break
             self.assertEqual(found, True)
+
+    # If openbabel is present, this is a redundant test and is thus skipped.
+    @unittest.skipIf(ob)
+    def test_PC_depth_0_vs_depth_10(self):
+        fragmenter10 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=10, open_rings=False)
+        self.assertEqual(len(fragmenter10.unique_fragments), 63)
+
+        fragments_by_level = fragmenter10.fragments_by_level
+        num_frags_by_level = [8,12,15,14,9,4,1]
+        for ii in range(7):
+            self.assertEqual(len(fragments_by_level[str(ii)]),num_frags_by_level[ii])
 
 if __name__ == "__main__":
     unittest.main()
