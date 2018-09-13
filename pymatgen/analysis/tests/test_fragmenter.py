@@ -121,9 +121,8 @@ class TestFragmentMolecule(PymatgenTest):
                     break
             self.assertEqual(found, True)
 
-    # If openbabel is present, this is a redundant test and is thus skipped.
-    @unittest.skipIf(ob)
-    def test_PC_depth_0_vs_depth_10(self):
+    @unittest.skipIf(ob, "OpenBabel present, thus this is a redundant test and is skipped.")
+    def test_PC_depth_10_for_no_babel_present(self):
         fragmenter10 = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=10, open_rings=False)
         self.assertEqual(len(fragmenter10.unique_fragments), 63)
 
