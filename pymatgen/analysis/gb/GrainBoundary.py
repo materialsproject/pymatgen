@@ -43,8 +43,8 @@ class GrainBoundary(Structure):
     """
 
     def __init__(self, lattice, species, coords, rotation_axis, rotation_angle,
-                 gb_plane, init_cell, vacuum_thickness, ab_shift, site_properties,
-                 oriented_unit_cell, validate_proximity=False,
+                 gb_plane, join_plane, init_cell, vacuum_thickness, ab_shift,
+                 site_properties, oriented_unit_cell, validate_proximity=False,
                  coords_are_cartesian=False):
         """
         Makes a Gb structure, a structure object with additional information
@@ -73,6 +73,8 @@ class GrainBoundary(Structure):
             rotation_angle (float, in unit of degree): rotation angle of GB.
             gb_plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3].
+            join_plane (list): Joining plane of the second grain in the form of a list of
+                integers. e.g.: [1, 2, 3].
             init_cell (Structure): initial bulk structure to form the GB.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, The sequences have to be the same length as
@@ -95,6 +97,7 @@ class GrainBoundary(Structure):
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
         self.gb_plane = gb_plane
+        self.join_plane = join_plane
         self.init_cell = init_cell
         self.vacuum_thickness = vacuum_thickness
         self.ab_shift = ab_shift
@@ -113,9 +116,9 @@ class GrainBoundary(Structure):
             optionally sanitized.
         """
         return GrainBoundary(self.lattice, self.species_and_occu, self.frac_coords,
-                  self.rotation_axis, self.rotation_angle, self.gb_plane,
-                  self.init_cell, self.vacuum_thickness, self.ab_shift,
-                  self.site_properties, self.oriented_unit_cell)
+                             self.rotation_axis, self.rotation_angle, self.gb_plane,
+                             self.join_plane, self.init_cell, self.vacuum_thickness, self.ab_shift,
+                             self.site_properties, self.oriented_unit_cell)
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -133,9 +136,9 @@ class GrainBoundary(Structure):
         sites = sorted(self, key=key, reverse=reverse)
         s = Structure.from_sites(sites)
         return GrainBoundary(s.lattice, s.species_and_occu, s.frac_coords,
-                  self.rotation_axis, self.rotation_angle, self.gb_plane,
-                  self.init_cell, self.vacuum_thickness, self.ab_shift,
-                  self.site_properties, self.oriented_unit_cell)
+                             self.rotation_axis, self.rotation_angle, self.gb_plane,
+                             self.join_plane, self.init_cell, self.vacuum_thickness,
+                             self.ab_shift, self.site_properties, self.oriented_unit_cell)
 
     @property
     def sigma_from_site_prop(self):
@@ -200,6 +203,7 @@ class GrainBoundary(Structure):
             "Rotation axis: %s" % (self.rotation_axis,),
             "Rotation angle: %s" % (self.rotation_angle,),
             "GB plane: %s" % (self.gb_plane,),
+            "Join plane: %s" % (self.join_plane,),
             "vacuum thickness: %s" % (self.vacuum_thickness,),
             "ab_shift: %s" % (self.ab_shift,), ]
         to_s = lambda x: "%0.6f" % x
@@ -222,6 +226,7 @@ class GrainBoundary(Structure):
         d["rotation_axis"] = self.rotation_axis
         d["rotation_angle"] = self.rotation_angle
         d["gb_plane"] = self.gb_plane
+        d["join_plane"] = self.join_plane
         d["vacuum_thickness"] = self.vacuum_thickness
         d["ab_shift"] = self.ab_shift
         d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
@@ -239,6 +244,7 @@ class GrainBoundary(Structure):
             rotation_axis=d["rotation_axis"],
             rotation_angle=d["rotation_angle"],
             gb_plane=d["gb_plane"],
+            join_plane=d["join_plane"],
             init_cell=Structure.from_dict(d["init_cell"]),
             vacuum_thickness=d["vacuum_thickness"],
             ab_shift=d["ab_shift"],
@@ -500,6 +506,66 @@ class GrainBoundaryGenerator(object):
                                     trans_cry=trans_cry, lat_type=lat_type, ratio=ratio,
                                     surface=plane, max_search=max_search)
 
+        # find the join_plane
+        if lat_type.lower() != 'c':
+            if lat_type.lower() == 'h':
+                if ratio is None:
+                    mu, mv = [1, 1]
+                else:
+                    mu, mv = ratio
+                trans_cry1 = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0],
+                                      [0, 0, np.sqrt(mu / mv)]])
+            elif lat_type.lower() == 'r':
+                if ratio is None:
+                    c2_a2_ratio = 1
+                else:
+                    mu, mv = ratio
+                    c2_a2_ratio = 3.0 / (2 - 6 * mv / mu)
+                trans_cry1 = np.array([[0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                                      [-0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                                      [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)]])
+            else:
+                if lat_type.lower() == 't':
+                    if ratio is None:
+                        mu, mv = [1, 1]
+                    else:
+                        mu, mv = ratio
+                    lam = mv
+                elif lat_type.lower() == 'o':
+                    new_ratio = [ 1 if v is None else v for v in ratio]
+                    mu, lam, mv = new_ratio
+                trans_cry1 = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
+        else:
+            trans_cry1 = trans_cry
+        grain_matrix = np.array(np.matrix(t2) * trans_cry1)
+        plane_init = np.cross(grain_matrix[0], grain_matrix[1])
+        if lat_type.lower() != 'c':
+            plane_init = np.ravel(np.matrix(plane_init) * np.matrix(trans_cry1).T)
+        join_plane = [None] * 3
+        index = []
+        for i, value in enumerate(plane_init):
+            if abs(value) < 1.e-8:
+                join_plane[i] = 0
+            else:
+                index.append(i)
+        if len(index) == 1:
+            join_plane[index[0]] = 1
+        else:
+            min_index = np.argmin([i for i in plane_init if i != 0])
+            true_index = index[min_index]
+            index.pop(min_index)
+            frac = []
+            for i in range(len(index)):
+                frac.append(Fraction(plane_init[index[i]] / plane_init[true_index]).limit_denominator(100))
+            if len(index) == 1:
+                join_plane[true_index] = frac[0].denominator
+                join_plane[index[0]] = frac[0].numerator
+            else:
+                com_lcm = lcm(frac[0].denominator, frac[1].denominator)
+                join_plane[true_index] = com_lcm
+                join_plane[index[0]] = frac[0].numerator * int(round((com_lcm / frac[0].denominator)))
+                join_plane[index[1]] = frac[1].numerator * int(round((com_lcm / frac[1].denominator)))
+
         parent_structure = self.initial_structure.copy()
         if len(parent_structure) == 1:
             temp_str = parent_structure.copy()
@@ -596,10 +662,10 @@ class GrainBoundaryGenerator(object):
         gb_with_vac.merge_sites(tol=bond_length * rm_ratio, mode='d')
 
         return GrainBoundary(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
-                  rotation_angle, plane, self.initial_structure, vacuum_thickness, ab_shift,
-                  site_properties=gb_with_vac.site_properties,
-                  oriented_unit_cell=oriended_unit_cell,
-                  coords_are_cartesian=True)
+                             rotation_angle, plane, join_plane, self.initial_structure,
+                             vacuum_thickness, ab_shift, site_properties=gb_with_vac.site_properties,
+                             oriented_unit_cell=oriended_unit_cell,
+                             coords_are_cartesian=True)
 
     def get_ratio(self, max_denominator=5, index_none=None):
         """
@@ -1949,6 +2015,7 @@ class GrainBoundaryGenerator(object):
                                     if c_norm is None:
                                         c_norm = c_norm_temp
                                         normal_init = True
+                                        print('Found perpendicular c vector')
                                         t_matrix[2] = temp
                                     elif c_norm_temp < c_norm:
                                         t_matrix[2] = temp
