@@ -114,9 +114,9 @@ class BztInterpolatorTest(unittest.TestCase):
         pdos = tot_proj_dos.get_spd_dos()[OrbitalType.s].densities[Spin.up][0]
         self.assertAlmostEqual(pdos,15.474392020,5)
 
-
-loader = VasprunLoader(vrun)
-bztInterp=BztInterpolator(loader,lpfac=2)
+if BOLTZTRAP2_PRESENT:
+    loader = VasprunLoader(vrun)
+    bztInterp=BztInterpolator(loader,lpfac=2)
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztTransportPropertiesTest(unittest.TestCase):
@@ -145,8 +145,9 @@ class BztTransportPropertiesTest(unittest.TestCase):
                   self.bztTransp.Power_Factor_doping]:
             
             self.assertTupleEqual(p['n'].shape,(3, 2, 3, 3))
-        
-bztTransp=BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
+
+if BOLTZTRAP2_PRESENT:        
+    bztTransp=BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
