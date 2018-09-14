@@ -83,10 +83,10 @@ class TestFragmentMolecule(PymatgenTest):
 
     @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_babel_PC_with_RO_depth_0_vs_depth_10(self):
-        fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True)
+        fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True, opt_steps=1000)
         self.assertEqual(len(fragmenter0.unique_fragments), 509)
 
-        fragmenter10 = Fragmenter(molecule=self.pc, depth=10, open_rings=True)
+        fragmenter10 = Fragmenter(molecule=self.pc, depth=10, open_rings=True, opt_steps=1000)
         self.assertEqual(len(fragmenter10.unique_fragments), 509)
 
         fragments_by_level = fragmenter10.fragments_by_level
