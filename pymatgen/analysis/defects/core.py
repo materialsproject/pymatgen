@@ -39,6 +39,8 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
 
         Args:
             structure: Pymatgen Structure without any defects
+            defect_site (Site): site for defect within structure
+                must have same lattice as structure
             charge: (int or float) defect charge
                 default is zero, meaning no change to NELECT
                  after defect is created in the structure
