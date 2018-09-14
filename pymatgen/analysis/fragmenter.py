@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class Fragmenter(MSONable):
 
-    def __init__(self, molecule, edges=None, depth=1, open_rings=True, opt_steps=1000):
+    def __init__(self, molecule, edges=None, depth=1, open_rings=True, opt_steps=10000):
         """
         Standard constructor for molecule fragmentation
 
