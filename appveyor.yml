@@ -28,9 +28,6 @@ install:
   - 'conda update --yes --all'
   - "pip install -r requirements.txt"
   - "pip install pybtex nose coverage ase coveralls fdint ase twine networkx"
-  - 'export CFLAGS=$CFLAGS" -std=gnu++11"'
-  - 'pip install BoltzTraP2'
-  - 'export CFLAGS=${CFLAGS%% -std=gnu++11}'
   # Note that pyhull is excluded because it does not work on Windows.
   # Run develop to install in dev mode and build C extension.
   - "python setup.py develop"

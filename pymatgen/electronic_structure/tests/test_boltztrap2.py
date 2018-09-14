@@ -114,15 +114,14 @@ class BztInterpolatorTest(unittest.TestCase):
         pdos = tot_proj_dos.get_spd_dos()[OrbitalType.s].densities[Spin.up][0]
         self.assertAlmostEqual(pdos,15.474392020,5)
 
-if BOLTZTRAP2_PRESENT:
-    loader = VasprunLoader(vrun)
-    bztInterp=BztInterpolator(loader,lpfac=2)
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztTransportPropertiesTest(unittest.TestCase):
 
     def setUp(self):
-        self.bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
+        loader = VasprunLoader(vrun)
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        self.bztTransp = BztTransportProperties(bztInterp, temp_r = np.arange(300,600,100))
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
 
@@ -146,29 +145,20 @@ class BztTransportPropertiesTest(unittest.TestCase):
             
             self.assertTupleEqual(p['n'].shape,(3, 2, 3, 3))
 
-if BOLTZTRAP2_PRESENT:        
-    bztTransp=BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
-
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztPlotterTest(unittest.TestCase):
 
-    def setUp(self):
+    def test_plot(self):
+        loader = VasprunLoader(vrun)
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         self.bztPlotter = BztPlotter(bztTransp,bztInterp)
         self.assertIsNotNone(self.bztPlotter)
-
-    def tearDown(self):
-        warnings.resetwarnings()
-
-    def test_plot_props(self):
         fig = self.bztPlotter.plot_props('S', 'mu', 'temp', temps=[300, 500])
         self.assertIsNotNone(fig)
-
-    def test_plot_bands(self):
         fig = self.bztPlotter.plot_bands()
         self.assertIsNotNone(fig)
-
-    def test_plot_dos(self):
         fig = self.bztPlotter.plot_dos()
         self.assertIsNotNone(fig)
 
