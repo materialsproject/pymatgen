@@ -17,6 +17,8 @@ try:
 except:
     BOLTZTRAP2_PRESENT = False
 
+BOLTZTRAP2_PRESENT = False
+
 from pymatgen.electronic_structure.core import Spin,OrbitalType
 
 import numpy as np
