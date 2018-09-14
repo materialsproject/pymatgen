@@ -54,7 +54,7 @@ class TestFragmentMolecule(PymatgenTest):
     def test_babel_PC_defaults(self):
         fragmenter = Fragmenter(molecule=self.pc)
         self.assertEqual(fragmenter.open_rings,True)
-        self.assertEqual(fragmenter.opt_steps,1000)
+        self.assertEqual(fragmenter.opt_steps,10000)
         default_mol_graph = build_MoleculeGraph(self.pc, strategy=OpenBabelNN,
                                             reorder=False, extend_structure=False)
         self.assertEqual(fragmenter.mol_graph,default_mol_graph)
