@@ -10,6 +10,7 @@ import numpy as np
 import os.path
 import copy
 from itertools import combinations
+import operator
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
@@ -20,7 +21,7 @@ from pymatgen.analysis.local_env import OpenBabelNN
 from monty.json import MSONable
 from monty.os.path import which
 from operator import itemgetter
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from scipy.spatial import KDTree
 
 
@@ -1842,13 +1843,24 @@ class MoleculeGraph(MSONable):
         # convert back to molecule graphs
         unique_mol_graphs = []
         for fragment in unique_fragments:
-            species = [fragment.node[ii]["specie"] for ii in fragment.nodes]
-            coords = [fragment.node[ii]["coords"] for ii in fragment.nodes]
+            mapping = {e: i for i, e in enumerate(sorted(fragment.nodes))}
+            remapped = nx.relabel_nodes(fragment, mapping)
+
+            species = nx.get_node_attributes(remapped, "specie")
+            coords = nx.get_node_attributes(remapped, "coords")
+
+            edges = []
+
+            for from_index, to_index, key in remapped.edges:
+                edge_props = fragment.get_edge_data(from_index, to_index, key=key)
+
+                edges.append((from_index, to_index, edge_props))
+
             unique_mol_graphs.append(build_MoleculeGraph(Molecule(species=species, 
                                                                   coords=coords, 
-                                                                  charge=self.molecule.charge), 
-                                                         strategy=OpenBabelNN, 
-                                                         reorder=False, 
+                                                                  charge=self.molecule.charge),
+                                                         edges=edges,
+                                                         reorder=False,
                                                          extend_structure=False))
         return unique_mol_graphs
 
@@ -2577,7 +2589,8 @@ def build_MoleculeGraph(molecule, edges=None, strategy=None,
     General out-of-class constructor for MoleculeGraph.
 
     :param molecule: pymatgen.core.Molecule object.
-    :param edges: List of tuples representing nodes in the graph. Default None.
+    :param edges: List of tuples (from, to, properties) representing edges in
+            the graph. Default None.
     :param strat: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object. Default
             None.
@@ -2604,8 +2617,26 @@ def build_MoleculeGraph(molecule, edges=None, strategy=None,
                              " pymatgen.analysis.local_env strategy.")
     else:
         mol_graph = MoleculeGraph.with_empty_graph(molecule)
-        for edge in edges:
-            mol_graph.add_edge(edge[0], edge[1])
+        for from_index, to_index, properties in edges:
+            if properties is not None:
+                if "weight" in properties.keys():
+                    weight = properties["weight"]
+                    del properties["weight"]
+                else:
+                    weight = None
+
+                if len(properties.items()) == 0:
+                    properties = None
+            else:
+                weight = None
+
+            nodes = mol_graph.graph.nodes
+            if not (from_index in nodes and to_index in nodes):
+                raise ValueError("Edges cannot be added if nodes are not"
+                                 " present in the graph. Please check your"
+                                 " indices.")
+            mol_graph.add_edge(from_index, to_index, weight=weight,
+                               edge_properties=properties)
 
     mol_graph.set_node_attributes()
     return mol_graph
