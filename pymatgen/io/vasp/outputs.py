@@ -4234,11 +4234,11 @@ class Wavecar:
                 chg_center_kpts[kpt] = site
 
         store_kpt = {}
-        for kpoint in range(self.nk):
-            n = self.prob_density( kpoint, band, spin)
-            store_kpt[kpoint] = n
+        for kpt in range(self.nk):
+            n = self.prob_density( kpt, band, spin)
+            store_kpt[kpt] = n
 
-        xy = {kpoint:[] for kpoint in range(self.nk)}
+        xy = {kpt:[] for kpt in range(self.nk)}
         xy['tot'] = []
         for p in product(range(n.shape[0]), range(n.shape[1]), range(n.shape[2])):
             frac_coords = [p[ax]/n.shape[ax] for ax in range(3)]
@@ -4246,9 +4246,9 @@ class Wavecar:
             for kpt in range(self.nk):
                 dist, jimage = chg_center_kpts[kpt].distance_and_image_from_frac_coords( frac_coords)
                 store_dist.append(dist)
-            pset = [store_kpt[kpoint][p] for kpoint in range(self.nk)]
+            pset = [store_kpt[kpt][p] for kpt in range(self.nk)]
             for kpt in range(self.nk):
-                xy[kpoint].append([store_dist[kpt], pset[kpoint]])
+                xy[kpt].append([store_dist[kpt], pset[kpt]])
 
             tot_p = np.dot( kpt_weights, pset)
             tot_dist = np.dot( kpt_weights, store_dist) #weight the distance???
