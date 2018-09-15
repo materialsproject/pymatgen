@@ -2577,7 +2577,8 @@ def build_MoleculeGraph(molecule, edges=None, strategy=None,
     General out-of-class constructor for MoleculeGraph.
 
     :param molecule: pymatgen.core.Molecule object.
-    :param edges: List of tuples representing nodes in the graph. Default None.
+    :param edges: List of tuples (from, to, properties) representing edges in
+            the graph. Default None.
     :param strat: an instance of a
             :Class: `pymatgen.analysis.local_env.NearNeighbors` object. Default
             None.
@@ -2604,8 +2605,23 @@ def build_MoleculeGraph(molecule, edges=None, strategy=None,
                              " pymatgen.analysis.local_env strategy.")
     else:
         mol_graph = MoleculeGraph.with_empty_graph(molecule)
-        for edge in edges:
-            mol_graph.add_edge(edge[0], edge[1])
+        for from_index, to_index, properties in edges:
+            if "weight" in properties.keys():
+                weight = properties["weight"]
+                del properties["weight"]
+            else:
+                weight = None
+
+            if len(properties.items()) == 0:
+                properties = None
+
+            nodes = mol_graph.graph.nodes
+            if not (from_index in nodes and to_index in nodes):
+                raise ValueError("Edges cannot be added if nodes are not"
+                                 " present in the graph. Please check your"
+                                 " indices.")
+            mol_graph.add_edge(from_index, to_index, weight=weight,
+                               edge_properties=properties)
 
     mol_graph.set_node_attributes()
     return mol_graph
