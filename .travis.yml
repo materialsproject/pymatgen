@@ -23,7 +23,7 @@ install:
 before_script:
   - python setup.py --quiet develop
 # command to run tests, e.g. python setup.py test
-script: travis_wait 28800 "nosetests pymatgen"
+script: travis_wait 28800 nosetests -v pymatgen
 notifications:
   email:
     recipients:

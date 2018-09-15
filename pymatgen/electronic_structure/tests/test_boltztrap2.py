@@ -17,6 +17,8 @@ try:
 except:
     BOLTZTRAP2_PRESENT = False
 
+BOLTZTRAP2_PRESENT = False
+
 from pymatgen.electronic_structure.core import Spin,OrbitalType
 
 import numpy as np
@@ -115,14 +117,13 @@ class BztInterpolatorTest(unittest.TestCase):
         self.assertAlmostEqual(pdos,15.474392020,5)
 
 
-loader = VasprunLoader(vrun)
-bztInterp=BztInterpolator(loader,lpfac=2)
-
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztTransportPropertiesTest(unittest.TestCase):
 
     def setUp(self):
-        self.bztTransp = BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
+        loader = VasprunLoader(vrun)
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        self.bztTransp = BztTransportProperties(bztInterp, temp_r = np.arange(300,600,100))
         self.assertIsNotNone(self.bztTransp)
         warnings.simplefilter("ignore")
 
@@ -145,29 +146,21 @@ class BztTransportPropertiesTest(unittest.TestCase):
                   self.bztTransp.Power_Factor_doping]:
             
             self.assertTupleEqual(p['n'].shape,(3, 2, 3, 3))
-        
-bztTransp=BztTransportProperties(bztInterp,temp_r = np.arange(300,600,100))
 
 
 @unittest.skipIf(not BOLTZTRAP2_PRESENT, "No boltztrap2, skipping tests...")
 class BztPlotterTest(unittest.TestCase):
 
-    def setUp(self):
+    def test_plot(self):
+        loader = VasprunLoader(vrun)
+        bztInterp = BztInterpolator(loader, lpfac=2)
+        bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         self.bztPlotter = BztPlotter(bztTransp,bztInterp)
         self.assertIsNotNone(self.bztPlotter)
-
-    def tearDown(self):
-        warnings.resetwarnings()
-
-    def test_plot_props(self):
         fig = self.bztPlotter.plot_props('S', 'mu', 'temp', temps=[300, 500])
         self.assertIsNotNone(fig)
-
-    def test_plot_bands(self):
         fig = self.bztPlotter.plot_bands()
         self.assertIsNotNone(fig)
-
-    def test_plot_dos(self):
         fig = self.bztPlotter.plot_dos()
         self.assertIsNotNone(fig)
 
