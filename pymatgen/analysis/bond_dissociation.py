@@ -9,8 +9,9 @@ import logging
 from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
-from pymatgen.analysis.graphs import build_MoleculeGraph
+from pymatgen.analysis.graphs import build_MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
+from pymatgen.analysis.fragmenter import open_ring
 from pymatgen.io.babel import BabelMolAdaptor
 import networkx as nx
 
@@ -91,7 +92,6 @@ class BondDissociationEnergies(MSONable):
         self.bond_dissociation_energies = []
         self.done_frag_pairs = []
         self.ring_bonds = []
-        self.bad_pairs = []
 
         if not allow_additional_charge_separation:
             if molecule_entry["final_molecule"]["charge"] == 0:
@@ -115,8 +115,6 @@ class BondDissociationEnergies(MSONable):
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0],bond[1])]
             self.fragment_and_process(bonds)
-        if len(self.ring_bonds) > 0:
-            print("Ring bonds detected!")
         if multibreak:
             print("Breaking pairs of ring bonds. WARNING: Structure changes much more likely, meaning dissociation values are less reliable!")
             self.bond_pairs = []
@@ -131,11 +129,19 @@ class BondDissociationEnergies(MSONable):
         try:
             frags = self.mol_graph.split_molecule_subgraphs(bonds,allow_reverse=True)
             frag_success = True
-        except RuntimeError:
+        except MolGraphSplitError:
             if len(bonds) == 1:
                 self.ring_bonds += bonds
+                opened_frag = open_ring(self.mol_graph, bonds, 1000)
+                # print(opened_frag)
+                opened_entries = self.search_fragment_entries(opened_frag)
+                if len(opened_entries) == 0:
+                    print("Missing ring opening fragment resulting from the breakage of bond " + str(bonds[0][0]) + " " + str(bonds[0][1]))
+                else:
+                    print(len(opened_entries))
             elif len(bonds) == 2:
-                self.bad_pairs += bonds
+                if not multibreak:
+                    raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
             else:
                 print('No reason to try and break more than two bonds at once! Exiting...')
                 raise ValueError
@@ -211,7 +217,6 @@ class BondDissociationEnergies(MSONable):
     def filter_fragment_entries(self,fragment_entries):
         self.filtered_entries = []
         for entry in fragment_entries:
-            print(len(self.filtered_entries))
             entry["initial_molgraph"] = build_MoleculeGraph(Molecule.from_dict(entry["initial_molecule"]),
                                           strategy=OpenBabelNN,
                                           reorder=False,
@@ -246,7 +251,5 @@ class BondDissociationEnergies(MSONable):
 
     def build_new_entry(self, frag1, frag2, bonds):
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-        frag1_charge = frag1["initial_molecule"]["charge"]
-        frag2_charge = frag2["initial_molecule"]["charge"]
-        new_entry = [self.molecule_entry["final_energy"] - (frag1["final_energy"] + frag2["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], frag1["smiles"], frag1["structure_change"], frag1_charge, frag1["final_energy"], frag2["smiles"], frag2["structure_change"], frag2_charge, frag2["final_energy"]]
+        new_entry = [self.molecule_entry["final_energy"] - (frag1["final_energy"] + frag2["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], frag1["smiles"], frag1["structure_change"], frag1["initial_molecule"]["charge"], frag1["initial_molecule"]["spin_multiplicity"], frag1["final_energy"], frag2["smiles"], frag2["structure_change"], frag2["initial_molecule"]["charge"], frag2["initial_molecule"]["spin_multiplicity"], frag2["final_energy"]]
         return new_entry

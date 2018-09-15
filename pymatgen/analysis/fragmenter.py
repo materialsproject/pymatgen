@@ -112,7 +112,7 @@ class Fragmenter(MSONable):
                             unique_fragments_on_this_level.append(fragment)
                 except MolGraphSplitError:
                     if self.open_rings:
-                        fragment = self._open_ring(mol_graph, bond)
+                        fragment = open_ring(mol_graph, bond, self.opt_steps)
                         found = False
                         for unique_fragment in self.unique_fragments:
                             if unique_fragment.isomorphic_to(fragment):
@@ -137,7 +137,7 @@ class Fragmenter(MSONable):
             ring_edges = fragment.find_rings()
             if ring_edges != []:
                 for bond in ring_edges[0]:
-                    new_fragment = self._open_ring(fragment, [bond])
+                    new_fragment = open_ring(fragment, [bond], self.opt_steps)
                     found = False
                     for unique_fragment in self.unique_fragments:
                         if unique_fragment.isomorphic_to(new_fragment):
@@ -149,15 +149,15 @@ class Fragmenter(MSONable):
         # Finally, remove the principle molecule graph:
         self.unique_fragments.pop(0)
 
-    def _open_ring(self, mol_graph, bond):
-        """
-        Function to actually open a ring using OpenBabel's local opt. Given a molecule
-        graph and a bond, convert the molecule graph into an OpenBabel molecule, remove
-        the given bond, perform the local opt with the number of steps determined by
-        self.steps, and then convert the resulting structure back into a molecule graph
-        to be returned.
-        """
-        obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
-        obmol.remove_bond(bond[0][0]+1, bond[0][1]+1)
-        obmol.localopt(steps=self.opt_steps)
-        return build_MoleculeGraph(obmol.pymatgen_mol, strategy=OpenBabelNN, reorder=False, extend_structure=False)
+def open_ring(mol_graph, bond, opt_steps):
+    """
+    Function to actually open a ring using OpenBabel's local opt. Given a molecule
+    graph and a bond, convert the molecule graph into an OpenBabel molecule, remove
+    the given bond, perform the local opt with the number of steps determined by
+    self.steps, and then convert the resulting structure back into a molecule graph
+    to be returned.
+    """
+    obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
+    obmol.remove_bond(bond[0][0]+1, bond[0][1]+1)
+    obmol.localopt(steps=opt_steps)
+    return build_MoleculeGraph(obmol.pymatgen_mol, strategy=OpenBabelNN, reorder=False, extend_structure=False)
