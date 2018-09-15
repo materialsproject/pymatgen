@@ -642,11 +642,28 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(len(unique_fragments), 295)
         nm = iso.categorical_node_match("specie", "ERROR")
         for ii in range(295):
+            # Test that each fragment is unique
             for jj in range(ii + 1, 295):
-                self.assertEqual(
+                self.assertFalse(
                     nx.is_isomorphic(unique_fragments[ii].graph,
                                      unique_fragments[jj].graph,
-                                     node_match=nm), False)
+                                     node_match=nm))
+
+            # Test that each fragment correctly maps between Molecule and graph
+            self.assertEqual(len(unique_fragments[ii].molecule),
+                             len(unique_fragments[ii].graph.nodes))
+            species = nx.get_node_attributes(unique_fragments[ii].graph, "specie")
+            coords = nx.get_node_attributes(unique_fragments[ii].graph, "coords")
+
+            mol = unique_fragments[ii].molecule
+            for ss in range(len(mol)):
+                self.assertEqual(str(species[ss]), str(mol[ss].specie))
+                self.assertEqual(coords[ss][0], mol[ss].coords[0])
+                self.assertEqual(coords[ss][1], mol[ss].coords[1])
+                self.assertEqual(coords[ss][2], mol[ss].coords[2])
+
+            # Test that each fragment is connected
+            self.assertTrue(nx.is_connected(unique_fragments[ii].graph.to_undirected()))
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
