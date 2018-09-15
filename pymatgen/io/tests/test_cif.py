@@ -177,6 +177,18 @@ class CifIOTest(PymatgenTest):
         for s in parser.get_structures(True):
             self.assertEqual(s.formula, "V4 O6")
 
+        bibtex_str = """
+@article{cif-reference-0,
+    author = "Andersson, G.",
+    title = "Studies on vanadium oxides. I. Phase analysis",
+    journal = "Acta Chemica Scandinavica (1-27,1973-42,1988)",
+    volume = "8",
+    year = "1954",
+    pages = "1599--1606"
+}
+        """
+        self.assertEqual(parser.get_bibtex_string().strip(), bibtex_str.strip())
+
         parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
         prim = parser.get_structures(True)[0]
         self.assertEqual(prim.formula, "Li2 O1")

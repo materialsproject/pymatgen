@@ -445,18 +445,18 @@ Here are a few examples of typical usages::
 
     # Plot the dos from the vasprun.xml file.
 
-    pmg plotdos vasprun.xml
+    pmg plot --dos vasprun.xml
 
     # Convert between file formats. The script attempts to intelligently
     # determine the file type. Input file types supported include CIF,
     # vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
     # types by specifying additional arguments. See pmg convert -h.
 
-    pmg convert input_filename output_filename.
+    pmg structure --convert --filenames input_filename output_filename.
 
-    # Obtain spacegroup information.
+    # Obtain spacegroup information using a tolerance of 0.1 angstroms.
 
-    pmg symm -s filename1 filename2
+    pmg structure --symmetry 0.1 --filenames filename1 filename2
 
     # Visualize a structure. Requires VTK to be installed.
 
@@ -464,11 +464,11 @@ Here are a few examples of typical usages::
 
     # Compare two structures for similarity
 
-    pmg compare filename1 filename2
+    pmg structure --group element --filenames filename1 filename2
 
     # Generate a POTCAR with symbols Li_sv O and the PBE functional
 
-    pmg generate --potcar Li_sv O --functional PBE
+    pmg potcar --symbols Li_sv O --functional PBE
 
 Add-ons
 ~~~~~~~

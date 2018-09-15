@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.abinit.works module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -208,7 +208,7 @@ Use it when the file does not exist yet.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.Work.read_etotals">
-<code class="descname">read_etotals</code><span class="sig-paren">(</span><em>unit=’Ha’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.read_etotals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.read_etotals" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_etotals</code><span class="sig-paren">(</span><em>unit=u’Ha’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.read_etotals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.read_etotals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the total energy from the GSR file produced by the task.</p>
 <p>Return a numpy array with the total energies in Hartree
 The array element is set to np.inf if an exception is raised while reading the GSR file.</p>
@@ -292,7 +292,7 @@ the <cite>TaskManager</cite> specified during the creation of the <a class="refe
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.Work.rmtree">
-<code class="descname">rmtree</code><span class="sig-paren">(</span><em>exclude_wildcard=’‘</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.rmtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.rmtree" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rmtree</code><span class="sig-paren">(</span><em>exclude_wildcard=u’‘</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#Work.rmtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.Work.rmtree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all files and directories in the working directory</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -397,7 +397,7 @@ TODO: change name.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.BandStructureWork.plot_ebands_with_edos">
-<code class="descname">plot_ebands_with_edos</code><span class="sig-paren">(</span><em>dos_pos=0</em>, <em>method=’gaussian’</em>, <em>step=0.01</em>, <em>width=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork.plot_ebands_with_edos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork.plot_ebands_with_edos" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_ebands_with_edos</code><span class="sig-paren">(</span><em>dos_pos=0</em>, <em>method=u’gaussian’</em>, <em>step=0.01</em>, <em>width=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork.plot_ebands_with_edos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork.plot_ebands_with_edos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the band structure and the DOS.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -421,7 +421,7 @@ TODO: change name.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.works.BandStructureWork.plot_edoses">
-<code class="descname">plot_edoses</code><span class="sig-paren">(</span><em>dos_pos=None</em>, <em>method=’gaussian’</em>, <em>step=0.01</em>, <em>width=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork.plot_edoses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork.plot_edoses" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_edoses</code><span class="sig-paren">(</span><em>dos_pos=None</em>, <em>method=u’gaussian’</em>, <em>step=0.01</em>, <em>width=0.1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#BandStructureWork.plot_edoses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.BandStructureWork.plot_edoses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the band structure and the DOS.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -655,8 +655,7 @@ output directory of the Work.</p>
 <dt id="pymatgen.io.abinit.works.PhononWork.from_scf_input">
 <em class="property">classmethod </em><code class="descname">from_scf_input</code><span class="sig-paren">(</span><em>scf_input</em>, <em>qpoints</em>, <em>is_ngqpt=False</em>, <em>tolerance=None</em>, <em>manager=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/works.html#PhononWork.from_scf_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.works.PhononWork.from_scf_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Similar to <cite>from_scf_task</cite>, the difference is that this method requires
-an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)
-are packed in a single Work whereas in the previous case we usually have multiple works.</p>
+an input for SCF calculation. A new ScfTask is created and added to the Work.</p>
 </dd></dl>
 
 <dl class="classmethod">
@@ -819,7 +818,7 @@ the final DDB file in the outdir of the <cite>Work</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
