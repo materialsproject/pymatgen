@@ -656,11 +656,11 @@ class MoleculeGraphTest(unittest.TestCase):
             coords = nx.get_node_attributes(unique_fragments[ii].graph, "coords")
 
             mol = unique_fragments[ii].molecule
-            for ss in range(len(mol)):
-                self.assertEqual(str(species[ss]), str(mol[ss].specie))
-                self.assertEqual(coords[ss][0], mol[ss].coords[0])
-                self.assertEqual(coords[ss][1], mol[ss].coords[1])
-                self.assertEqual(coords[ss][2], mol[ss].coords[2])
+            for ss, site in enumerate(mol):
+                self.assertEqual(str(species[ss]), str(site.specie))
+                self.assertEqual(coords[ss][0], site.coords[0])
+                self.assertEqual(coords[ss][1], site.coords[1])
+                self.assertEqual(coords[ss][2], site.coords[2])
 
             # Test that each fragment is connected
             self.assertTrue(nx.is_connected(unique_fragments[ii].graph.to_undirected()))

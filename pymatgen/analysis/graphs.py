@@ -10,18 +10,16 @@ import numpy as np
 import os.path
 import copy
 from itertools import combinations
-import operator
 
 from pymatgen.core import Structure, Lattice, PeriodicSite, Molecule
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
-from pymatgen.analysis.local_env import OpenBabelNN
 
 from monty.json import MSONable
 from monty.os.path import which
 from operator import itemgetter
-from collections import namedtuple, defaultdict
+from collections import namedtuple
 from scipy.spatial import KDTree
 
 
