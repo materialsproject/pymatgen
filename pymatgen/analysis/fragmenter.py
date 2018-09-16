@@ -55,6 +55,7 @@ class Fragmenter(MSONable):
             self.mol_graph = build_MoleculeGraph(molecule, strategy=OpenBabelNN,
                                             reorder=False, extend_structure=False)
         else:
+            edges = [(e[0], e[1], {}) for e in edges]
             self.mol_graph = build_MoleculeGraph(molecule, edges=edges)
 
         self.unique_fragments = []
