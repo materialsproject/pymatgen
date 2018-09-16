@@ -16,7 +16,10 @@ from multiprocessing import Pool
 import warnings
 
 from scipy.spatial import ConvexHull, HalfspaceIntersection
-from scipy.misc import comb
+try:
+    from scipy.special import comb
+except ImportError:
+    from scipy.misc import comb
 from pymatgen.util.coord import Simplex
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
