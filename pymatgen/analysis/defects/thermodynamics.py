@@ -8,6 +8,8 @@ from scipy.spatial import HalfspaceIntersection
 from scipy.optimize import bisect
 from itertools import groupby, chain
 
+from pymatgen.electronic_structure.dos import FermiDos
+
 __author__ = "Danny Broberg, Shyam Dwaraknath"
 __copyright__ = "Copyright 2018, The Materials Project"
 __version__ = "1.0"
@@ -106,18 +108,31 @@ class DefectPhaseDiagram(MSONable):
                                      ints_and_facets)
             # sort based on transition level
             ints_and_facets = list(sorted(ints_and_facets, key=lambda int_and_facet: int_and_facet[0][0]))
-            # Unpack into lists
-            _, facets = zip(*ints_and_facets)
-            # Map of transition level: charge states
 
-            transition_level_map[defects[0].name] = {
-                intersection[0]: [defects[i].charge for i in facet]
-                for intersection, facet in ints_and_facets
-            }
+            if len(ints_and_facets):
+                # Unpack into lists
+                _, facets = zip(*ints_and_facets)
+                # Map of transition level: charge states
 
-            stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
+                transition_level_map[defects[0].name] = {
+                    intersection[0]: [defects[i].charge for i in facet]
+                    for intersection, facet in ints_and_facets
+                }
 
-            finished_charges[defects[0].name] = [defect.charge for defect in defects]
+                stable_entries[defects[0].name] = list(set([defects[i] for dual in facets for i in dual]))
+
+                finished_charges[defects[0].name] = [defect.charge for defect in defects]
+            else:
+                # if ints_and_facets is empty, then there is likely only one defect...
+                if len(defects) != 1:
+                    raise ValueError("ints and facets was empty but more than one defect exists... why?")
+
+                transition_level_map[defects[0].name] = {}
+
+                stable_entries[defects[0].name] = list([defects[0]])
+
+                finished_charges[defects[0].name] = [defects[0].charge]
+
 
         self.transition_level_map = transition_level_map
         self.transition_levels = {
@@ -195,19 +210,22 @@ class DefectPhaseDiagram(MSONable):
                 np.max(self.stable_charges[def_type]) + 2)
             test_charges = [charge for charge in test_charges if charge not in self.finished_charges[def_type]]
 
-            # More positive charges will shift the minimum transition level down
-            # Max charge is limited by this if its transition level is close to VBM
-            min_tl = min(self.transition_level_map[def_type].keys())
-            if min_tl < tolerance:
-                max_charge = max(self.transition_level_map[def_type][min_tl])
-                test_charges = [charge for charge in test_charges if charge < max_charge]
+            if len(self.transition_level_map[def_type].keys()):
+                # More positive charges will shift the minimum transition level down
+                # Max charge is limited by this if its transition level is close to VBM
+                min_tl = min(self.transition_level_map[def_type].keys())
+                if min_tl < tolerance:
+                    max_charge = max(self.transition_level_map[def_type][min_tl])
+                    test_charges = [charge for charge in test_charges if charge < max_charge]
 
-            # More negative charges will shift the maximum transition level up
-            # Minimum charge is limited by this if transition level is near CBM
-            max_tl = max(self.transition_level_map[def_type].keys())
-            if max_tl > (self.band_gap - tolerance):
-                min_charge = min(self.transition_level_map[def_type][max_tl])
-                test_charges = [charge for charge in test_charges if charge > min_charge]
+                # More negative charges will shift the maximum transition level up
+                # Minimum charge is limited by this if transition level is near CBM
+                max_tl = max(self.transition_level_map[def_type].keys())
+                if max_tl > (self.band_gap - tolerance):
+                    min_charge = min(self.transition_level_map[def_type][max_tl])
+                    test_charges = [charge for charge in test_charges if charge > min_charge]
+            else:
+                test_charges = [charge for charge in test_charges if charge not in self.stable_charges[def_type]]
 
             recommendations[def_type] = test_charges
 
@@ -233,10 +251,10 @@ class DefectPhaseDiagram(MSONable):
 
             qd_tot = sum([
                 d['charge'] * d['conc']
-                for d in self.list_defect_concentrations(
+                for d in self.defect_concentrations(
                     chemical_potentials=chemical_potentials, temperature=temperature, fermi_level=ef)
             ])
-            qd_tot += fdos.get_doping(fermi=ef, T=temperature)
+            qd_tot += fdos.get_doping(fermi=ef + self.vbm, T=temperature)
             return qd_tot
 
         return bisect(_get_total_q, -1., self.band_gap + 1.)
