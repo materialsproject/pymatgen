@@ -24,10 +24,17 @@ for materials analysis. These are some of the main features:
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or feature requests and bug
-reports. Please report any bugs and issues at pymatgen's `Github page
-<https://github.com/materialsproject/pymatgen>`_. If you wish to be notified
-of pymatgen releases, you may become a member of `pymatgen's Google Groups page
-<https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
+reports. The following are resources for pymatgen:
+
+* Please report any bugs and issues at pymatgen's `Github Issues
+  page <https://github.com/materialsproject/pymatgen/issues>`_.
+* For help with any pymatgen issue, consult `Stack Overflow
+  <https://stackoverflow.com/questions/tagged/pymatgen>`_ and if
+  you cannot find an answer, please post a question with the tag "pymatgen".
+  Please note that the pymatgen Google group has been deprecated in
+  favor of Stack Overflow.
+* `Twitter <http://twitter.com/pymatgen>`_. Follow to get news and tips.
+* `matgenb <http://matgenb.materialsvirtuallab.org>`_. For example notebooks.
 
 Why use pymatgen?
 =================
