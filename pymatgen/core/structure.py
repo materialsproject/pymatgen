@@ -2899,7 +2899,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
                 site.species_and_occu, s, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
@@ -3474,7 +3474,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
             new_site = Site(site.species_and_occu, s,
                             properties=site.properties)
             self._sites[i] = new_site

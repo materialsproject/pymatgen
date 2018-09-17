@@ -606,7 +606,6 @@ class Slab(Structure):
             # Add dummy site to check the overall structure is symmetric
             slab.append("O", point, coords_are_cartesian=cartesian)
             slab.append("O", site2, coords_are_cartesian=cartesian)
-            slab.to("cif", "slab.cif")
             sg = SpacegroupAnalyzer(slab)
             if sg.is_laue():
                 break
