@@ -1243,7 +1243,7 @@ class QptdmWork(Work):
         """
         scr_files = list(filter(None, [task.outdir.has_abiext("SCR") for task in self]))
 
-        logger.debug("will call mrgscr to merge %s:\n" % str(scr_files))
+        self.history.info("Will call mrgscr to merge %s SCR files:\n" % len(scr_files))
         assert len(scr_files) == len(self)
 
         mrgscr = wrappers.Mrgscr(manager=self[0].manager, verbose=1)
@@ -1343,7 +1343,7 @@ class MergeDdb(object):
         else:
             ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks]))
 
-        self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
+        self.history.info("Will call mrgddb to merge %s DDB files:" % len(ddb_files))
         # DDB files are always produces so this should never happen!
         if not ddb_files:
             raise RuntimeError("Cannot find any DDB file to merge by the task of " % self)
@@ -1384,12 +1384,12 @@ class MergeDdb(object):
                 i = path.rindex("_POT")
                 pertcase = int(path[i+4:].replace(".nc", ""))
                 if pertcase <= max_pertcase:
-                    pot1_files.extend(path)
+                    pot1_files.append(path)
 
         # prtpot = 0 disables the output of the DFPT POT files so an empty list is not fatal here.
         if not pot1_files: return None
 
-        self.history.info("Will call mrgdvdb to merge %s:\n" % str(pot1_files))
+        self.history.info("Will call mrgdvdb to merge %s files:" % len(pot1_files))
 
         # Final DDB file will be produced in the outdir of the work.
         out_dvdb = self.outdir.path_in("out_DVDB")

@@ -2697,11 +2697,20 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 class PhononFlow(Flow):
     """
-        1) One workflow for the GS run.
+    This Flow provides a high-level interface to compute phonons with DFPT
+    The flow consists of
 
-        2) nqpt works for phonon calculations. Each work contains
-           nirred tasks where nirred is the number of irreducible phonon perturbations
-           for that particular q-point.
+    1) One workflow for the GS run.
+
+    2) nqpt works for phonon calculations. Each work contains
+       nirred tasks where nirred is the number of irreducible phonon perturbations
+       for that particular q-point.
+
+    .. note:
+
+        For a much more flexible interface, use the DFPT works defined works.py
+        For instance, EPH calculations are much easier to implement by connecting a single
+        work that computes all the q-points with the EPH tasks instead of using PhononFlow.
     """
     @classmethod
     def from_scf_input(cls, workdir, scf_input, ph_ngqpt, with_becs=True, manager=None, allocate=True):
