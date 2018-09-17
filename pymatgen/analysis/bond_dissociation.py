@@ -134,13 +134,17 @@ class BondDissociationEnergies(MSONable):
                 self.ring_bonds += bonds
                 opened_entries = self.search_fragment_entries(open_ring(self.mol_graph, bonds, 1000))
                 good_entries = []
-                for frag in opened_entries[0] + opened_entries[1]:
+                for frag in opened_entries[0]:
                     if frag["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
                         good_entries.append(frag)
                 if len(good_entries) == 0:
+                    for frag in opened_entries[0]:
+                        if frag["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
+                            good_entries.append(frag)
+                if len(good_entries) == 0:
                     print("Missing ring opening fragment resulting from the breakage of bond " + str(bonds[0][0]) + " " + str(bonds[0][1]))
                 else:
-                    print(len(good_entries))
+                    self.bond_dissociation_energies += [self.build_new_entry(good_entries, bonds)]
             elif len(bonds) == 2:
                 if not multibreak:
                     raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
@@ -189,18 +193,18 @@ class BondDissociationEnergies(MSONable):
                 for frag1 in frag1_entries[0]:
                     for frag2 in frag2_entries[0]:
                         if frag1["initial_molecule"]["charge"] + frag2["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
-                            self.bond_dissociation_energies += [self.build_new_entry(frag1, frag2, bonds)]
+                            self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
                             num_entries_for_this_frag_pair += 1
                 if num_entries_for_this_frag_pair < len(self.expected_charges):
                     for frag1 in frag1_entries[0]:
                         for frag2 in frag2_entries[1]:
                             if frag1["initial_molecule"]["charge"] + frag2["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
-                                self.bond_dissociation_energies += [self.build_new_entry(frag1, frag2, bonds)]
+                                self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
                                 num_entries_for_this_frag_pair += 1
                     for frag1 in frag1_entries[1]:
                         for frag2 in frag2_entries[0]:
                             if frag1["initial_molecule"]["charge"] + frag2["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
-                                self.bond_dissociation_energies += [self.build_new_entry(frag1, frag2, bonds)]
+                                self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
                                 num_entries_for_this_frag_pair += 1
 
     def search_fragment_entries(self, frag):
@@ -251,7 +255,10 @@ class BondDissociationEnergies(MSONable):
             if not found_similar_entry:
                 self.filtered_entries += [entry]
 
-    def build_new_entry(self, frag1, frag2, bonds):
+    def build_new_entry(self, frags, bonds):
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-        new_entry = [self.molecule_entry["final_energy"] - (frag1["final_energy"] + frag2["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], frag1["smiles"], frag1["structure_change"], frag1["initial_molecule"]["charge"], frag1["initial_molecule"]["spin_multiplicity"], frag1["final_energy"], frag2["smiles"], frag2["structure_change"], frag2["initial_molecule"]["charge"], frag2["initial_molecule"]["spin_multiplicity"], frag2["final_energy"]]
+        if len(frags) == 2:
+            new_entry = [self.molecule_entry["final_energy"] - (frags[0]["final_energy"] + frags[1]["final_energy"]), bonds, specie[bonds[0][0]], specie[bonds[0][1]], frags[0]["smiles"], frags[0]["structure_change"], frags[0]["initial_molecule"]["charge"], frags[0]["initial_molecule"]["spin_multiplicity"], frags[0]["final_energy"], frags[1]["smiles"], frags[1]["structure_change"], frags[1]["initial_molecule"]["charge"], frags[1]["initial_molecule"]["spin_multiplicity"], frags[1]["final_energy"]]
+        else:
+            new_entry = [self.molecule_entry["final_energy"] - frags[0]["final_energy"], bonds, specie[bonds[0][0]], specie[bonds[0][1]], frags[0]["smiles"], frags[0]["structure_change"], frags[0]["initial_molecule"]["charge"], frags[0]["initial_molecule"]["spin_multiplicity"], frags[0]["final_energy"]]
         return new_entry
