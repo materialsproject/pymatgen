@@ -5,8 +5,6 @@
 from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
-import os
-from math import *
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 import numpy as np
