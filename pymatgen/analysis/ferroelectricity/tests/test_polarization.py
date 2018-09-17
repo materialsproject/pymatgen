@@ -3,9 +3,7 @@ from __future__ import print_function
 from __future__ import division
 
 import unittest
-import os
 
-import numpy as np
 from pymatgen.analysis.ferroelectricity.polarization import *
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Outcar
