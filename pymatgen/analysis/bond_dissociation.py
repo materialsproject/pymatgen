@@ -132,13 +132,15 @@ class BondDissociationEnergies(MSONable):
         except MolGraphSplitError:
             if len(bonds) == 1:
                 self.ring_bonds += bonds
-                opened_frag = open_ring(self.mol_graph, bonds, 1000)
-                # print(opened_frag)
-                opened_entries = self.search_fragment_entries(opened_frag)
-                if len(opened_entries) == 0:
+                opened_entries = self.search_fragment_entries(open_ring(self.mol_graph, bonds, 1000))
+                good_entries = []
+                for frag in opened_entries[0] + opened_entries[1]:
+                    if frag.molecule.charge == self.mol_graph.molecule.charge:
+                        good_entries.append(frag)
+                if len(good_entries) == 0:
                     print("Missing ring opening fragment resulting from the breakage of bond " + str(bonds[0][0]) + " " + str(bonds[0][1]))
                 else:
-                    print(len(opened_entries))
+                    print(len(good_entries))
             elif len(bonds) == 2:
                 if not multibreak:
                     raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
