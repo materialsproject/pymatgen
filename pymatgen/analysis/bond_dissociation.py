@@ -99,7 +99,7 @@ class BondDissociationEnergies(MSONable):
                 RO_frag = open_ring(self.mol_graph, bonds, 1000)
                 frag_done = False
                 for done_RO_frag in self.done_RO_frags:
-                    if RO_frag.isomorphic_to(done_RO_frags):
+                    if RO_frag.isomorphic_to(done_RO_frag):
                         frag_done = True
                 if not frag_done:
                     # If this is a new fragment, save the record and then search for relevant fragment entries:
