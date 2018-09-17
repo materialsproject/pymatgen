@@ -1041,7 +1041,7 @@ class TensorMapping(collections.MutableMapping):
 
 
 @deprecated(message="get_tkd_value is deprecated and will be removed in "
-            "pymatgen version 2019.1.1, please use the TensorMapping " 
+            "pymatgen version 2019.1.1, please use the TensorMapping "
             "class instead")
 def get_tkd_value(tensor_keyed_dict, tensor, allclose_kwargs=None):
     """

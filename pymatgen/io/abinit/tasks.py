@@ -3652,13 +3652,21 @@ class DfptTask(AbinitTask):
                     infile = self.indir.path_in("in_1WF%d" % ddk_case)
                     os.symlink(out_ddk, infile)
 
-                elif d == "WFK":
+                elif d in ("WFK", "WFQ"):
                     gs_task = dep.node
-                    out_wfk = gs_task.outdir.has_abiext("WFK")
+                    out_wfk = gs_task.outdir.has_abiext(d)
                     if not out_wfk:
-                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-                    if not os.path.exists(self.indir.path_in("in_WFK")):
-                        os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+                        raise RuntimeError("%s didn't produce the %s file" % (gs_task, d))
+
+                    if d == "WFK":
+                        bname = "in_WFK"
+                    elif d == "WFQ":
+                        bname = "in_WFQ"
+                    else:
+                        raise ValueError("Don't know how to handle `%s`" % d)
+
+                    if not os.path.exists(self.indir.path_in(bname)):
+                            os.symlink(out_wfk, self.indir.path_in(bname))
 
                 elif d == "DEN":
                     gs_task = dep.node
