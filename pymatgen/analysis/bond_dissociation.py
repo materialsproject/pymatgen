@@ -135,7 +135,7 @@ class BondDissociationEnergies(MSONable):
                 opened_entries = self.search_fragment_entries(open_ring(self.mol_graph, bonds, 1000))
                 good_entries = []
                 for frag in opened_entries[0] + opened_entries[1]:
-                    if frag.molecule.charge == self.mol_graph.molecule.charge:
+                    if frag["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
                         good_entries.append(frag)
                 if len(good_entries) == 0:
                     print("Missing ring opening fragment resulting from the breakage of bond " + str(bonds[0][0]) + " " + str(bonds[0][1]))
