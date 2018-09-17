@@ -1625,7 +1625,7 @@ class MITMDSet(MITRelaxSet):
         return Kpoints.gamma_automatic()
 
 
-class MPMDSet(MITRelaxSet):
+class MPMDSet(MPRelaxSet):
     """
     This a modified version of the old MITMDSet pre 2018/03/12.
     This set serves as the basis for the amorphous skyline paper.
@@ -1655,7 +1655,7 @@ class MPMDSet(MITRelaxSet):
 
         # MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
-                    'EDIFF_PER_ATOM': 0.000001, 'LSCALU': False,
+                    'EDIFF_PER_ATOM': 0.00001, 'LSCALU': False,
                     'LCHARG': False,
                     'LPLANE': False, 'LWAVE': True, 'ISMEAR': 0,
                     'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
@@ -1663,7 +1663,7 @@ class MPMDSet(MITRelaxSet):
                     'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
                     'SMASS': 0, 'POTIM': 2, 'PREC': 'Normal',
                     'ISPIN': 2 if spin_polarized else 1,
-                    "LDAU": False}
+                    "LDAU": False, 'ADDGRID': True}
 
         if Element('H') in structure.species:
             defaults['POTIM'] = 0.5
