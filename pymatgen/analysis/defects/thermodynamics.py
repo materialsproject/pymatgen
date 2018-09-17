@@ -210,19 +210,22 @@ class DefectPhaseDiagram(MSONable):
                 np.max(self.stable_charges[def_type]) + 2)
             test_charges = [charge for charge in test_charges if charge not in self.finished_charges[def_type]]
 
-            # More positive charges will shift the minimum transition level down
-            # Max charge is limited by this if its transition level is close to VBM
-            min_tl = min(self.transition_level_map[def_type].keys())
-            if min_tl < tolerance:
-                max_charge = max(self.transition_level_map[def_type][min_tl])
-                test_charges = [charge for charge in test_charges if charge < max_charge]
+            if len(self.transition_level_map[def_type].keys()):
+                # More positive charges will shift the minimum transition level down
+                # Max charge is limited by this if its transition level is close to VBM
+                min_tl = min(self.transition_level_map[def_type].keys())
+                if min_tl < tolerance:
+                    max_charge = max(self.transition_level_map[def_type][min_tl])
+                    test_charges = [charge for charge in test_charges if charge < max_charge]
 
-            # More negative charges will shift the maximum transition level up
-            # Minimum charge is limited by this if transition level is near CBM
-            max_tl = max(self.transition_level_map[def_type].keys())
-            if max_tl > (self.band_gap - tolerance):
-                min_charge = min(self.transition_level_map[def_type][max_tl])
-                test_charges = [charge for charge in test_charges if charge > min_charge]
+                # More negative charges will shift the maximum transition level up
+                # Minimum charge is limited by this if transition level is near CBM
+                max_tl = max(self.transition_level_map[def_type].keys())
+                if max_tl > (self.band_gap - tolerance):
+                    min_charge = min(self.transition_level_map[def_type][max_tl])
+                    test_charges = [charge for charge in test_charges if charge > min_charge]
+            else:
+                test_charges = [charge for charge in test_charges if charge not in self.stable_charges[def_type]]
 
             recommendations[def_type] = test_charges
 
