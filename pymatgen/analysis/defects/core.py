@@ -12,6 +12,7 @@ from abc import ABCMeta, abstractmethod
 from monty.json import MSONable
 from monty.functools import lru_cache
 
+from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.utils import kb
@@ -38,12 +39,16 @@ class Defect(six.with_metaclass(ABCMeta, MSONable)):
 
         Args:
             structure: Pymatgen Structure without any defects
+            defect_site (Site): site for defect within structure
+                must have same lattice as structure
             charge: (int or float) defect charge
                 default is zero, meaning no change to NELECT after defect is created in the structure
         """
         self._structure = structure
         self._charge = charge
         self._defect_site = defect_site
+        if structure.lattice != defect_site.lattice:
+            raise ValueError("defect_site lattice must be same as structure lattice.")
 
     @property
     def bulk_structure(self):
@@ -136,8 +141,17 @@ class Vacancy(Defect):
         """
         defect_structure = self.bulk_structure.copy()
         defect_structure.make_supercell(supercell)
+
+        #create a trivial defect structure to find where supercell transformation moves the lattice
+        struct_for_defect_site = Structure( self.bulk_structure.copy().lattice,
+                                             [self.site.specie],
+                                             [self.site.frac_coords],
+                                             to_unit_cell=True)
+        struct_for_defect_site.make_supercell(supercell)
+        defect_site = struct_for_defect_site[0]
+
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
+            defect_structure.get_sites_in_sphere(defect_site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
         defect_structure.remove_sites([defindex])
         defect_structure.set_charge(self.charge)
@@ -190,8 +204,17 @@ class Substitution(Defect):
         """
         defect_structure = self.bulk_structure.copy()
         defect_structure.make_supercell(supercell)
+
+        #create a trivial defect structure to find where supercell transformation moves the lattice
+        struct_for_defect_site = Structure( self.bulk_structure.copy().lattice,
+                                             [self.site.specie],
+                                             [self.site.frac_coords],
+                                             to_unit_cell=True)
+        struct_for_defect_site.make_supercell(supercell)
+        defect_site = struct_for_defect_site[0]
+
         poss_deflist = sorted(
-            defect_structure.get_sites_in_sphere(self.site.coords, 2, include_index=True), key=lambda x: x[1])
+            defect_structure.get_sites_in_sphere(defect_site.coords, 2, include_index=True), key=lambda x: x[1])
         defindex = poss_deflist[0][2]
 
         subsite = defect_structure.pop(defindex)
@@ -263,7 +286,16 @@ class Interstitial(Defect):
         """
         defect_structure = self.bulk_structure.copy()
         defect_structure.make_supercell(supercell)
-        defect_structure.append(self.site.specie.symbol, self.site.coords, coords_are_cartesian=True)
+
+        #create a trivial defect structure to find where supercell transformation moves the lattice
+        struct_for_defect_site = Structure( self.bulk_structure.copy().lattice,
+                                             [self.site.specie],
+                                             [self.site.frac_coords],
+                                             to_unit_cell=True)
+        struct_for_defect_site.make_supercell(supercell)
+        defect_site = struct_for_defect_site[0]
+
+        defect_structure.append(self.site.specie.symbol, defect_site.coords, coords_are_cartesian=True)
         defect_structure.set_charge(self.charge)
         return defect_structure
 

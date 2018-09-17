@@ -556,6 +556,13 @@ SIGMA = 0.1"""
         self.assertIsInstance(i["EINT"], list)
         self.assertEqual(i["EINT"][0], -0.85)
 
+        incar_str += "\nLHFCALC = .TRUE. ; HFSCREEN = 0.2"
+        incar_str += "\nALGO = All;"
+        i = Incar.from_string(incar_str)
+        self.assertTrue(i["LHFCALC"])
+        self.assertEqual(i["HFSCREEN"], 0.2)
+        self.assertEqual(i["ALGO"], "All")
+
     def test_proc_types(self):
         self.assertEqual(Incar.proc_val("HELLO", "-0.85 0.85"), "-0.85 0.85")
 
