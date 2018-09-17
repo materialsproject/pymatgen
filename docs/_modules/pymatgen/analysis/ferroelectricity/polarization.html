@@ -65,15 +65,9 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="k">import</span> <span class="n">Outcar</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="k">import</span> <span class="n">PeriodicSite</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.cif</span> <span class="k">import</span> <span class="n">CifWriter</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">ruamel.yaml</span> <span class="k">as</span> <span class="nn">yaml</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides the classes needed to analyze the change in polarization</span>
@@ -185,7 +179,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sites_in_sphere</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">include_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># Get sites with identical index to site</span>
         <span class="n">ns</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ns</span> <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">index</span><span class="p">]</span>
@@ -255,8 +249,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span>
 
         <span class="k">if</span> <span class="n">convert_to_muC_per_cm2</span><span class="p">:</span>
-            <span class="n">p_elecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">p_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">p_elecs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_elecs</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">p_ions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_ions</span><span class="o">.</span><span class="n">T</span>
 
             <span class="n">volumes</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span>
             <span class="n">e_to_muC</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.6021766e-13</span>

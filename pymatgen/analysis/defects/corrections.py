@@ -357,9 +357,9 @@ class BandFillingCorrection(DefectCorrection):
         self.metadata["num_elec_cbm"] = 0.
 
         if len(eigenvalues.keys()) == 1:  # needed because occupation of non-spin calcs is still 1... should be 2
-            spinfctr = 1.
-        elif len(eigenvalues.keys()) == 2:
             spinfctr = 2.
+        elif len(eigenvalues.keys()) == 2:
+            spinfctr = 1.
         else:
             raise ValueError("Eigenvalue keys greater than 2")
 
