@@ -1307,7 +1307,8 @@ class StructureGraph(MSONable):
 
 
 class MolGraphSplitError(Exception):
-    # Raised when a molecule graph is failed to split into two disconnected subgraphs
+    # Raised when a molecule graph is failed to split into two disconnected
+    # subgraphs
     pass
 
 
