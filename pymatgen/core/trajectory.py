@@ -15,7 +15,7 @@ class Trajectory(MSONable):
     def __getattr__(self, attr):
 
         if hasattr(self.structure, attr):
-            return self.structure.__getattr__(attr)
+            return getattr(self.structure, attr)
         else:
             raise Exception("Neither Trajectory nor structure has attribute: {}".format(attr))
 
