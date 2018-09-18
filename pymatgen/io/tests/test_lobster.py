@@ -506,7 +506,6 @@ class DoscarTest(unittest.TestCase):
 class ChargeTest(PymatgenTest):
     def setUp(self):
         self.charge2 = Charge(filename=os.path.join(test_dir, "CHARGE.lobster.MnO"))
-        self.maxDiff = None
 
     def testattributes(self):
         charge_Loewdin = [-1.25, 1.25]
