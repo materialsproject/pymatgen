@@ -666,7 +666,6 @@
             <span class="c1"># Add dummy site to check the overall structure is symmetric</span>
             <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">cartesian</span><span class="p">)</span>
             <span class="n">slab</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">site2</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="n">cartesian</span><span class="p">)</span>
-            <span class="n">slab</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cif&quot;</span><span class="p">,</span> <span class="s2">&quot;slab.cif&quot;</span><span class="p">)</span>
             <span class="n">sg</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">sg</span><span class="o">.</span><span class="n">is_laue</span><span class="p">():</span>
                 <span class="k">break</span>
