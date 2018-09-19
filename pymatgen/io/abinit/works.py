@@ -1027,7 +1027,7 @@ class RelaxWork(Work):
             actual_dilatmx = self.ioncell_task.get_inpvar('dilatmx', 1.)
             if self.target_dilatmx < actual_dilatmx:
                 self.ioncell_task.reduce_dilatmx(target=self.target_dilatmx)
-                logger.info('Converging dilatmx. Value reduce from {} to {}.'
+                self.history.info('Converging dilatmx. Value reduce from {} to {}.'
                             .format(actual_dilatmx, self.ioncell_task.get_inpvar('dilatmx')))
                 self.ioncell_task.reset_from_scratch()
 

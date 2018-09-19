@@ -3697,6 +3697,48 @@ class DfptTask(AbinitTask):
                 else:
                     raise ValueError("Don't know how to handle extension: %s" % str(dep.exts))
 
+    def restart(self):
+        """
+        DFPT calculations can be restarted only if we have the 1WF file or the 1DEN file.
+        from which we can read the first-order wavefunctions or the first order density.
+        Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        """
+        # Abinit adds the idir-ipert index at the end of the file and this breaks the extension
+        # e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found
+        restart_file, irdvars = None, None
+
+        # Highest priority to the 1WF file because restart is more efficient.
+        wf_files = self.outdir.find_1wf_files()
+        if wf_files is not None:
+            restart_file = wf_files[0].path
+            irdvars = irdvars_for_ext("1WF")
+            if len(wf_files) != 1:
+                restart_file = None
+                self.history.critical("Found more than one 1WF file in outdir. Restart is ambiguous!")
+
+        if restart_file is None:
+            den_files = self.outdir.find_1den_files()
+            if den_files is not None:
+                restart_file = den_files[0].path
+                irdvars = {"ird1den": 1}
+                if len(den_files) != 1:
+                    restart_file = None
+                    self.history.critical("Found more than one 1DEN file in outdir. Restart is ambiguous!")
+
+        if restart_file is None:
+            # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
+            raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
+
+        # Move file.
+        self.history.info("Will restart from %s", restart_file)
+        restart_file = self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.set_vars(irdvars)
+
+        # Now we can resubmit the job.
+        return self._restart()
+
 
 class DdeTask(DfptTask):
     """Task for DDE calculations (perturbation wrt electric field)."""
@@ -3757,48 +3799,6 @@ class PhononTask(DfptTask):
     Provide support for in-place restart via (1WF|1DEN) files
     """
     color_rgb = np.array((0, 150, 250)) / 255
-
-    def restart(self):
-        """
-        Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
-        from which we can read the first-order wavefunctions or the first order density.
-        Prefer 1WF over 1DEN since we can reuse the wavefunctions.
-        """
-        # Abinit adds the idir-ipert index at the end of the file and this breaks the extension
-        # e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found
-        restart_file, irdvars = None, None
-
-        # Highest priority to the 1WF file because restart is more efficient.
-        wf_files = self.outdir.find_1wf_files()
-        if wf_files is not None:
-            restart_file = wf_files[0].path
-            irdvars = irdvars_for_ext("1WF")
-            if len(wf_files) != 1:
-                restart_file = None
-                logger.critical("Found more than one 1WF file. Restart is ambiguous!")
-
-        if restart_file is None:
-            den_files = self.outdir.find_1den_files()
-            if den_files is not None:
-                restart_file = den_files[0].path
-                irdvars = {"ird1den": 1}
-                if len(den_files) != 1:
-                    restart_file = None
-                    logger.critical("Found more than one 1DEN file. Restart is ambiguous!")
-
-        if restart_file is None:
-            # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
-            raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
-
-        # Move file.
-        self.history.info("Will restart from %s", restart_file)
-        restart_file = self.out_to_in(restart_file)
-
-        # Add the appropriate variable for restarting.
-        self.set_vars(irdvars)
-
-        # Now we can resubmit the job.
-        return self._restart()
 
     def inspect(self, **kwargs):
         """
