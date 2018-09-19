@@ -21,6 +21,7 @@ from monty.io import zopen, reverse_readfile
 from monty.json import MSONable
 from monty.json import jsanitize
 from monty.re import regrep
+from monty.os.path import zpath
 from six import string_types
 from six.moves import map, zip
 
@@ -744,7 +745,8 @@ class Vasprun(MSONable):
         """
 
         if not kpoints_filename:
-            kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
+            kpoints_filename = zpath(
+                os.path.join(os.path.dirname(self.filename), 'KPOINTS'))
         if not os.path.exists(kpoints_filename) and line_mode is True:
             raise VaspParserError('KPOINTS needed to obtain band structure '
                                   'along symmetry lines.')
