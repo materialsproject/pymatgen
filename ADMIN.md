@@ -40,16 +40,16 @@ For each env, install some packages using conda followed by dev install for
 pymatgen.
 
 ```bash
-source activate py37
-conda install --yes numpy scipy sympy matplotlib
-pip install -r requirements
-pip install -r requirements-optional
+conda activate py37
+conda install --yes numpy scipy sympy matplotlib cython
+pip install -r requirements.txt
+pip install -r requirements-optional.txt
 pip install invoke sphinx doc2dash
 python setup.py develop
-source activate py27
-conda install --yes numpy scipy sympy matplotlib
-pip install -r requirements
-pip install -r requirements-optional
+conda activate py27
+conda install --yes numpy scipy sympy matplotlib cython
+pip install -r requirements.txt
+pip install -r requirements-optional.txt
 pip install invoke sphinx doc2dash
 python setup.py develop
 ```
@@ -62,6 +62,12 @@ export TWINE_PASSWORD=PYPIPASSWORD
 ```
 
 You may want to add these to your .bash_profile to avoid having to type these each time.
+
+### Machine-specific issues
+
+The above instructions are general, but there are some known issues that are machine-specific:
+
+* Installing lxml via pip required `STATIC_DEPS=true pip install lxml` on macOS 10.13.
 
 ## Doing the release
 
@@ -79,10 +85,10 @@ in a bash script in your PATH somewhere):
 
 
 ```bash
-source activate py37
+conda activate py37
 invoke release --notest --nodoc
-source deactivate
-source activate py27
+conda deactivate
+conda activate py27
 python setup.py bdist_wheel
 twine upload dist/*p27*
 
@@ -90,7 +96,7 @@ twine upload dist/*p27*
 # are py37 incompatibilities with some of doc2dash dependencies (lxml). We
 # will go back to using py37 by default in future.
 invoke update-doc
-source deactivate
+conda deactivate
 python setup.py develop
 ```
 
