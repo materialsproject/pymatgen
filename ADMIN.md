@@ -54,12 +54,14 @@ pip install invoke sphinx doc2dash
 python setup.py develop
 ```
 
-Add your PyPI into your environment:
+Add your PyPI username and passwrod into your environment:
 
 ```bash
-export TWINE_USERNAME=bdfl
-export TWINE_PASSWORD=bowbeforeme
+export TWINE_USERNAME=PYPIUSERNAME
+export TWINE_PASSWORD=PYPIPASSWORD
 ```
+
+You may want to add these to your .bash_profile to avoid having to type these each time.
 
 ## Doing the release
 
