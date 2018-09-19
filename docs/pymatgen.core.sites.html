@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.core.sites module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.core.sites module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -148,7 +148,7 @@ the image that is nearest to the site is found.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Distance between the two sites</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pymatgen.core.sites.PeriodicSite.distance" title="pymatgen.core.sites.PeriodicSite.distance">distance</a> (float)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pymatgen.core.sites.Site.distance" title="pymatgen.core.sites.Site.distance">distance</a> (float)</p>
 </td>
 </tr>
 </tbody>
@@ -181,7 +181,7 @@ the image that is nearest to the site is found.</li>
 of the other site for which the distance applies.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite.distance" title="pymatgen.core.sites.PeriodicSite.distance">distance</a>, <a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.ConnectedSite.jimage" title="pymatgen.analysis.graphs.ConnectedSite.jimage">jimage</a>)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="#pymatgen.core.sites.Site.distance" title="pymatgen.core.sites.Site.distance">distance</a>, <a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.ConnectedSite.jimage" title="pymatgen.analysis.graphs.ConnectedSite.jimage">jimage</a>)</p>
 </td>
 </tr>
 </tbody>
@@ -215,7 +215,7 @@ the image that is nearest to the site is found.</li>
 of the other site for which the distance applies.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="#pymatgen.core.sites.PeriodicSite.distance" title="pymatgen.core.sites.PeriodicSite.distance">distance</a>, <a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.ConnectedSite.jimage" title="pymatgen.analysis.graphs.ConnectedSite.jimage">jimage</a>)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(<a class="reference internal" href="#pymatgen.core.sites.Site.distance" title="pymatgen.core.sites.Site.distance">distance</a>, <a class="reference internal" href="pymatgen.analysis.graphs.html#pymatgen.analysis.graphs.ConnectedSite.jimage" title="pymatgen.analysis.graphs.ConnectedSite.jimage">jimage</a>)</p>
 </td>
 </tr>
 </tbody>
@@ -294,7 +294,7 @@ same lattice.</li>
 <dl class="class">
 <dt id="pymatgen.core.sites.Site">
 <em class="property">class </em><code class="descname">Site</code><span class="sig-paren">(</span><em>atoms_n_occu</em>, <em>coords</em>, <em>properties=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/sites.html#Site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.sites.Site" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Hashable</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">_abcoll.Hashable</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A generalized <em>non-periodic</em> site. This is essentially a composition
 at a point in space, with some optional properties associated with it. A
 Composition is used to represent the atoms and occupancy, which allows for
@@ -481,7 +481,7 @@ element/species to occupancy.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

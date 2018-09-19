@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.pourbaix_diagram &#8212; pymatgen 2018.8.10 documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <title>pymatgen.analysis.pourbaix_diagram &#8212; pymatgen 2018.9.12 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -54,7 +42,6 @@
 
     <div class="document">
       <div class="documentwrapper">
-        <div class="bodywrapper">
           <div class="body" role="main">
             
   <h1>Source code for pymatgen.analysis.pourbaix_diagram</h1><div class="highlight"><pre>
@@ -76,7 +63,11 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">ConvexHull</span><span class="p">,</span> <span class="n">HalfspaceIntersection</span>
-<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">comb</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">comb</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="k">import</span> <span class="n">comb</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord</span> <span class="k">import</span> <span class="n">Simplex</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="k">import</span> <span class="n">latexify</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.plotting</span> <span class="k">import</span> <span class="n">pretty_plot</span>
@@ -101,11 +92,11 @@
 <span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;Nov 1, 2012&quot;</span>
 
-
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">MU_H2O</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.4583</span>
 <span class="n">PREFAC</span> <span class="o">=</span> <span class="mf">0.0591</span>
+
 
 <span class="c1"># TODO: Revise to more closely reflect PDEntry, invoke from energy/composition</span>
 <span class="c1"># TODO: PourbaixEntries depend implicitly on having entry energies be</span>
@@ -127,6 +118,7 @@
 <span class="sd">        entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An</span>
 <span class="sd">            entry object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="n">entry_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entry</span> <span class="o">=</span> <span class="n">entry</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">IonEntry</span><span class="p">):</span>
@@ -284,10 +276,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">num_atoms</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;Pourbaix Entry : </span><span class="si">{}</span><span class="s2"> with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, &quot;</span>\
+        <span class="k">return</span> <span class="s2">&quot;Pourbaix Entry : </span><span class="si">{}</span><span class="s2"> with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, &quot;</span> \
                <span class="s2">&quot;nPhi = </span><span class="si">{}</span><span class="s2">, nH2O = </span><span class="si">{}</span><span class="s2">, entry_id = </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                       <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span>
-                       <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
@@ -298,6 +290,7 @@
 <span class="sd">    PourbaixEntry-like object for constructing multi-elemental Pourbaix</span>
 <span class="sd">    diagrams.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_list</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a MultiEntry.</span>
@@ -343,7 +336,7 @@
         <span class="k">return</span> <span class="s2">&quot; + &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_list</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;Multiple Pourbaix Entry : with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, &quot;</span>\
+        <span class="k">return</span> <span class="s2">&quot;Multiple Pourbaix Entry : with energy = </span><span class="si">{:.4f}</span><span class="s2">, npH = </span><span class="si">{}</span><span class="s2">, &quot;</span> \
                <span class="s2">&quot;nPhi = </span><span class="si">{}</span><span class="s2">, nH2O = </span><span class="si">{}</span><span class="s2">, entry_id = </span><span class="si">{}</span><span class="s2">, species: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">npH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nPhi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nH2O</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entry_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -382,6 +375,7 @@
 <span class="sd">        By default, this is the reduced formula for the composition, but can be</span>
 <span class="sd">        set to some other string for display purposes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ion</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ion</span> <span class="o">=</span> <span class="n">ion</span>
@@ -432,7 +426,9 @@
         <span class="n">comp_obj</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">comp_obj</span></div>
 
+
 <span class="n">elements_HO</span> <span class="o">=</span> <span class="p">{</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">),</span> <span class="n">Element</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">)}</span>
+
 
 <span class="c1"># TODO: There&#39;s a lot of functionality here that diverges</span>
 <span class="c1">#   based on whether or not the pbx diagram is multielement</span>
@@ -466,6 +462,7 @@
 <span class="sd">        nproc (int): number of processes to generate multientries with</span>
 <span class="sd">            in parallel.  Defaults to None (serial processing)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">comp_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">conc_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">filter_solids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">entries</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
@@ -492,9 +489,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Set default conc/comp dicts</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">comp_dict</span><span class="p">:</span>
-                <span class="n">comp_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span> <span class="p">:</span> <span class="mf">1.</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">pbx_elts</span><span class="p">)</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">pbx_elts</span><span class="p">}</span>
+                <span class="n">comp_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span> <span class="mf">1.</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">pbx_elts</span><span class="p">)</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">pbx_elts</span><span class="p">}</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">conc_dict</span><span class="p">:</span>
-                <span class="n">conc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span> <span class="p">:</span> <span class="mf">1e-6</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">pbx_elts</span><span class="p">}</span>
+                <span class="n">conc_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">elt</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span> <span class="mf">1e-6</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">pbx_elts</span><span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conc_dict</span> <span class="o">=</span> <span class="n">conc_dict</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span> <span class="o">=</span> <span class="n">comp_dict</span>
@@ -542,7 +539,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_stable_domains</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stable_domain_vertices</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">get_pourbaix_domains</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_processed_entries</span><span class="p">)</span>
 
-
     <span class="k">def</span> <span class="nf">_generate_multielement_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">forced_include</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                        <span class="n">nproc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -560,7 +556,7 @@
 <span class="sd">            nproc (int): number of processes to be used in parallel</span>
 <span class="sd">                treatment of entry combos</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span> <span class="c1"># No. of elements</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span>  <span class="c1"># No. of elements</span>
         <span class="n">total_comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span>
         <span class="n">forced_include</span> <span class="o">=</span> <span class="n">forced_include</span> <span class="ow">or</span> <span class="p">[]</span>
 
@@ -705,7 +701,7 @@
 
             <span class="c1"># Sort points by cross product of centered points,</span>
             <span class="c1"># isn&#39;t strictly necessary but useful for plotting tools</span>
-            <span class="n">point_comparator</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">point_comparator</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">points_centered</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">points_centered</span><span class="p">,</span>
                                      <span class="n">key</span><span class="o">=</span><span class="n">cmp_to_key</span><span class="p">(</span><span class="n">point_comparator</span><span class="p">))</span>
             <span class="n">points</span> <span class="o">=</span> <span class="n">points_centered</span> <span class="o">+</span> <span class="n">center</span>
@@ -748,17 +744,16 @@
         <span class="c1"># Find representative multientry</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multielement</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">MultiEntry</span><span class="p">):</span>
             <span class="n">possible_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_multielement_entries</span><span class="p">(</span>
-               <span class="bp">self</span><span class="o">.</span><span class="n">_filtered_entries</span><span class="p">,</span> <span class="n">forced_include</span><span class="o">=</span><span class="p">[</span><span class="n">entry</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_filtered_entries</span><span class="p">,</span> <span class="n">forced_include</span><span class="o">=</span><span class="p">[</span><span class="n">entry</span><span class="p">])</span>
 
             <span class="c1"># Filter to only include materials where the entry is only solid</span>
             <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s2">&quot;solid&quot;</span><span class="p">:</span>
                 <span class="n">possible_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">possible_entries</span>
                                     <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">phase_type</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;Solid&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">possible_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">normalized_energy_at_conditions</span><span class="p">(</span><span class="n">pH</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
-                                       <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">possible_entries</span><span class="p">]</span>
+                                 <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">possible_entries</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">possible_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">normalized_energy_at_conditions</span><span class="p">(</span><span class="n">pH</span><span class="p">,</span> <span class="n">V</span><span class="p">)]</span>
-
 
         <span class="n">min_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">possible_energies</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -907,8 +902,8 @@
             <span class="n">V_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
         <span class="c1"># plot the Pourbaix diagram</span>
         <span class="n">plt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pourbaix_plot</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">pH</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">pH_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">pH_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">pH_resolution</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span>
-                         <span class="n">V_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">V_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">V_resolution</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">pH</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">pH_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">pH_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">pH_resolution</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span>
+                <span class="n">V_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">V_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">V_resolution</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">]</span>
 
         <span class="n">stability</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pd</span><span class="o">.</span><span class="n">get_decomposition_energy</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">pH</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
         <span class="c1"># Plot stability map</span>
@@ -949,26 +944,12 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">latexify_ion</span><span class="p">(</span><span class="n">latexify</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
 
+
 <div class="viewcode-block" id="latexify_ion"><a class="viewcode-back" href="../../../pymatgen.analysis.pourbaix_diagram.html#pymatgen.analysis.pourbaix_diagram.latexify_ion">[docs]</a><span class="k">def</span> <span class="nf">latexify_ion</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;()\[([^)]*)\]&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\1$^{\2}$&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
       <div class="clearer"></div>
     </div>
@@ -981,7 +962,7 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -989,7 +970,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

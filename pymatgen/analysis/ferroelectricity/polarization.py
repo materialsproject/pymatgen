@@ -5,15 +5,9 @@
 from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
-import os
-from math import *
 from pymatgen.core.structure import Structure
-from pymatgen.io.vasp.outputs import Outcar
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.io.cif import CifWriter
 from pymatgen.core.lattice import Lattice
 import numpy as np
-import ruamel.yaml as yaml
 
 """
 This module provides the classes needed to analyze the change in polarization
@@ -125,7 +119,7 @@ class PolarizationLattice(Structure):
         """
         index = self.index(site)
         if r is None:
-            r = np.linalg.norm(np.sum(np.matrix(self.lattice.matrix), axis=0))
+            r = np.linalg.norm(np.sum(self.lattice.matrix, axis=0))
         ns = self.get_sites_in_sphere(coords, r, include_index=True)
         # Get sites with identical index to site
         ns = [n for n in ns if n[2] == index]
@@ -195,8 +189,8 @@ class Polarization(object):
             return self.p_elecs, self.p_ions
 
         if convert_to_muC_per_cm2:
-            p_elecs = np.matrix(self.p_elecs).T
-            p_ions = np.matrix(self.p_ions).T
+            p_elecs = self.p_elecs.T
+            p_ions = self.p_ions.T
 
             volumes = [s.lattice.volume for s in self.structures]
             e_to_muC = -1.6021766e-13

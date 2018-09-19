@@ -211,7 +211,7 @@ class SlabTest(PymatgenTest):
             m = s.lattice.matrix
             return np.linalg.norm(np.cross(m[0], m[1]))
 
-        all_slabs = generate_all_slabs(self.agfcc, 3, 10, 10, max_normal_search=3)
+        all_slabs = generate_all_slabs(self.agfcc, 2, 10, 10, max_normal_search=3)
         for slab in all_slabs:
             ouc = slab.oriented_unit_cell
             self.assertAlmostEqual(surface_area(slab), surface_area(ouc))
@@ -476,7 +476,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500),
                                             ["Si"], [(0, 0, 0.5)])
 
-        with open(os.path.join(os.getcwd(), "pymatgen", "core",
+        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..",
                                "reconstructions_archive.json")) as data_file:
             self.rec_archive = json.load(data_file)
 

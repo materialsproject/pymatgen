@@ -738,12 +738,13 @@ class Incar(dict, MSONable):
         lines = list(clean_lines(string.splitlines()))
         params = {}
         for line in lines:
-            m = re.match(r'(\w+)\s*=\s*(.*)', line)
-            if m:
-                key = m.group(1).strip()
-                val = m.group(2).strip()
-                val = Incar.proc_val(key, val)
-                params[key] = val
+            for sline in line.split(';'):
+                m = re.match(r'(\w+)\s*=\s*(.*)', sline.strip())
+                if m:
+                    key = m.group(1).strip()
+                    val = m.group(2).strip()
+                    val = Incar.proc_val(key, val)
+                    params[key] = val
         return Incar(params)
 
     @staticmethod

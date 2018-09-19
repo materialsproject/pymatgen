@@ -109,7 +109,6 @@ class DefectsCorrectionsTest(PymatgenTest):
         bfc = BandFillingCorrection()
         struc = PymatgenTest.get_structure("VO2")
         struc.make_supercell(3)
-        struc = struc
         vac = Vacancy(struc, struc.sites[0], charge=-3)
 
         #test trivial performing bandfilling correction
@@ -141,8 +140,8 @@ class DefectsCorrectionsTest(PymatgenTest):
                         hole_eigenvalues[spinkey][-1].append(eig)
 
         hole_bf_corr = bfc.perform_bandfill_corr(hole_eigenvalues, kptweights, potalign, vbm, cbm)
-        self.assertAlmostEqual(hole_bf_corr, -0.82276673248)
-        self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 1.6250001299)
+        self.assertAlmostEqual(hole_bf_corr, -0.41138336)
+        self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.8125000649)
         self.assertFalse(bfc.metadata['num_elec_cbm'])
 
         #modify the eigenvalue list to have free electrons
@@ -158,8 +157,8 @@ class DefectsCorrectionsTest(PymatgenTest):
                         elec_eigenvalues[spinkey][-1].append(eig)
 
         elec_bf_corr = bfc.perform_bandfill_corr(elec_eigenvalues, kptweights, potalign, vbm, cbm)
-        self.assertAlmostEqual(elec_bf_corr, -0.18063751445099)
-        self.assertAlmostEqual(bfc.metadata['num_elec_cbm'], 1.708333469999)
+        self.assertAlmostEqual(elec_bf_corr, -0.0903187572254)
+        self.assertAlmostEqual(bfc.metadata['num_elec_cbm'], 0.8541667349)
         self.assertFalse(bfc.metadata['num_hole_vbm'])
 
         #modify the potalignment and introduce new occupied defect levels from vbm states
@@ -168,11 +167,11 @@ class DefectsCorrectionsTest(PymatgenTest):
         bf_corr = bfc.perform_bandfill_corr(eigenvalues, kptweights, potalign, vbm, cbm)
         self.assertAlmostEqual(bfc.metadata['num_hole_vbm'], 0.)
         self.assertAlmostEqual(bf_corr, 0.)
-        occu = [[1.457, 0.1666667], [1.5204, 0.1666667], [1.53465, 0.1666667], [1.5498, 0.0833333]]
+        occu = [[1.457,  0.0833333], [1.5204, 0.0833333], [1.53465, 0.0833333], [1.5498, 0.0416667]]
         self.assertArrayAlmostEqual(
             list(sorted(bfc.metadata['occupied_def_levels'], key=lambda x: x[0])), list(
                 sorted(occu, key=lambda x: x[0])))
-        self.assertAlmostEqual(bfc.metadata['total_occupation_defect_levels'], 0.58333338)
+        self.assertAlmostEqual(bfc.metadata['total_occupation_defect_levels'], 0.29166669)
         self.assertFalse(bfc.metadata['unoccupied_def_levels'])
 
     def test_bandedgeshifting(self):

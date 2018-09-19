@@ -16,7 +16,11 @@ from multiprocessing import Pool
 import warnings
 
 from scipy.spatial import ConvexHull, HalfspaceIntersection
-from scipy.misc import comb
+
+try:
+    from scipy.special import comb
+except ImportError:
+    from scipy.misc import comb
 from pymatgen.util.coord import Simplex
 from pymatgen.util.string import latexify
 from pymatgen.util.plotting import pretty_plot
@@ -41,11 +45,11 @@ __email__ = "montoyjh@lbl.gov"
 __status__ = "Production"
 __date__ = "Nov 1, 2012"
 
-
 logger = logging.getLogger(__name__)
 
 MU_H2O = -2.4583
 PREFAC = 0.0591
+
 
 # TODO: Revise to more closely reflect PDEntry, invoke from energy/composition
 # TODO: PourbaixEntries depend implicitly on having entry energies be
@@ -67,6 +71,7 @@ class PourbaixEntry(MSONable):
         entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
             entry object
     """
+
     def __init__(self, entry, entry_id=None, concentration=1e-6):
         self.entry = entry
         if isinstance(entry, IonEntry):
@@ -224,10 +229,10 @@ class PourbaixEntry(MSONable):
         return self.composition.num_atoms
 
     def __repr__(self):
-        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, "\
+        return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, " \
                "nPhi = {}, nH2O = {}, entry_id = {} ".format(
-                       self.entry.composition, self.energy, self.npH,
-                       self.nPhi, self.nH2O, self.entry_id)
+            self.entry.composition, self.energy, self.npH,
+            self.nPhi, self.nH2O, self.entry_id)
 
     def __str__(self):
         return self.__repr__()
@@ -238,6 +243,7 @@ class MultiEntry(PourbaixEntry):
     PourbaixEntry-like object for constructing multi-elemental Pourbaix
     diagrams.
     """
+
     def __init__(self, entry_list, weights=None):
         """
         Initializes a MultiEntry.
@@ -283,7 +289,7 @@ class MultiEntry(PourbaixEntry):
         return " + ".join([e.name for e in self.entry_list])
 
     def __repr__(self):
-        return "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
+        return "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, " \
                "nPhi = {}, nH2O = {}, entry_id = {}, species: {}".format(
             self.energy, self.npH, self.nPhi, self.nH2O,
             self.entry_id, self.name)
@@ -322,6 +328,7 @@ class IonEntry(PDEntry):
         By default, this is the reduced formula for the composition, but can be
         set to some other string for display purposes.
     """
+
     def __init__(self, ion, energy, name=None):
         self.energy = energy
         self.ion = ion
@@ -372,7 +379,9 @@ def ion_or_solid_comp_object(formula):
         comp_obj = Composition(formula)
     return comp_obj
 
+
 elements_HO = {Element('H'), Element('O')}
+
 
 # TODO: There's a lot of functionality here that diverges
 #   based on whether or not the pbx diagram is multielement
@@ -406,6 +415,7 @@ class PourbaixDiagram(MSONable):
         nproc (int): number of processes to generate multientries with
             in parallel.  Defaults to None (serial processing)
     """
+
     def __init__(self, entries, comp_dict=None, conc_dict=None,
                  filter_solids=False, nproc=None):
         entries = deepcopy(entries)
@@ -432,9 +442,9 @@ class PourbaixDiagram(MSONable):
         else:
             # Set default conc/comp dicts
             if not comp_dict:
-                comp_dict = {elt.symbol : 1. / len(pbx_elts) for elt in pbx_elts}
+                comp_dict = {elt.symbol: 1. / len(pbx_elts) for elt in pbx_elts}
             if not conc_dict:
-                conc_dict = {elt.symbol : 1e-6 for elt in pbx_elts}
+                conc_dict = {elt.symbol: 1e-6 for elt in pbx_elts}
             self._conc_dict = conc_dict
 
             self._elt_comp = comp_dict
@@ -482,7 +492,6 @@ class PourbaixDiagram(MSONable):
         self._stable_domains, self._stable_domain_vertices = \
             self.get_pourbaix_domains(self._processed_entries)
 
-
     def _generate_multielement_entries(self, entries, forced_include=None,
                                        nproc=None):
         """
@@ -500,7 +509,7 @@ class PourbaixDiagram(MSONable):
             nproc (int): number of processes to be used in parallel
                 treatment of entry combos
         """
-        N = len(self._elt_comp) # No. of elements
+        N = len(self._elt_comp)  # No. of elements
         total_comp = Composition(self._elt_comp)
         forced_include = forced_include or []
 
@@ -645,7 +654,7 @@ class PourbaixDiagram(MSONable):
 
             # Sort points by cross product of centered points,
             # isn't strictly necessary but useful for plotting tools
-            point_comparator = lambda x, y: x[0]*y[1] - x[1]*y[0]
+            point_comparator = lambda x, y: x[0] * y[1] - x[1] * y[0]
             points_centered = sorted(points_centered,
                                      key=cmp_to_key(point_comparator))
             points = points_centered + center
@@ -688,17 +697,16 @@ class PourbaixDiagram(MSONable):
         # Find representative multientry
         if self._multielement and not isinstance(entry, MultiEntry):
             possible_entries = self._generate_multielement_entries(
-               self._filtered_entries, forced_include=[entry])
+                self._filtered_entries, forced_include=[entry])
 
             # Filter to only include materials where the entry is only solid
             if entry.phase_type == "solid":
                 possible_entries = [e for e in possible_entries
                                     if e.phase_type.count("Solid") == 1]
             possible_energies = [e.normalized_energy_at_conditions(pH, V)
-                                       for e in possible_entries]
+                                 for e in possible_entries]
         else:
             possible_energies = [entry.normalized_energy_at_conditions(pH, V)]
-
 
         min_energy = np.min(possible_energies, axis=0)
 
@@ -847,8 +855,8 @@ class PourbaixPlotter(object):
             V_range = [-3, 3]
         # plot the Pourbaix diagram
         plt = self.get_pourbaix_plot(**kwargs)
-        pH, V = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution*1j,
-                         V_range[0]:V_range[1]:V_resolution*1j]
+        pH, V = np.mgrid[pH_range[0]:pH_range[1]:pH_resolution * 1j,
+                V_range[0]:V_range[1]:V_resolution * 1j]
 
         stability = self._pd.get_decomposition_energy(entry, pH, V)
         # Plot stability map
@@ -888,6 +896,7 @@ def generate_entry_label(entry):
         return " + ".join([latexify_ion(e.name) for e in entry.entry_list])
     else:
         return latexify_ion(latexify(entry.name))
+
 
 def latexify_ion(formula):
     return re.sub(r"()\[([^)]*)\]", r"\1$^{\2}$", formula)

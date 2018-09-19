@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="../../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../../',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -918,9 +918,9 @@
             <span class="n">ux</span> <span class="o">=</span> <span class="n">uu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">uy</span> <span class="o">=</span> <span class="n">uu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">uz</span> <span class="o">=</span> <span class="n">uu</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">RR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([[</span><span class="n">ux</span><span class="o">*</span><span class="n">ux</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">ux</span><span class="o">*</span><span class="n">ux</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">,</span> <span class="n">ux</span><span class="o">*</span><span class="n">uy</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">uz</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">ux</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">uy</span><span class="o">*</span><span class="n">ss</span><span class="p">],</span>
-                            <span class="p">[</span><span class="n">ux</span><span class="o">*</span><span class="n">uy</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">uz</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uy</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">uy</span><span class="o">*</span><span class="n">uy</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">ux</span><span class="o">*</span><span class="n">ss</span><span class="p">],</span>
-                            <span class="p">[</span><span class="n">ux</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">uy</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">ux</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uz</span><span class="o">*</span><span class="n">uz</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">uz</span><span class="o">*</span><span class="n">uz</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">]])</span>
+            <span class="n">RR</span> <span class="o">=</span> <span class="p">[[</span><span class="n">ux</span><span class="o">*</span><span class="n">ux</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">ux</span><span class="o">*</span><span class="n">ux</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">,</span> <span class="n">ux</span><span class="o">*</span><span class="n">uy</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">uz</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">ux</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">uy</span><span class="o">*</span><span class="n">ss</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">ux</span><span class="o">*</span><span class="n">uy</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">uz</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uy</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">uy</span><span class="o">*</span><span class="n">uy</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">ux</span><span class="o">*</span><span class="n">ss</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">ux</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">-</span><span class="n">uy</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uy</span><span class="o">*</span><span class="n">uz</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">cc</span><span class="p">)</span><span class="o">+</span><span class="n">ux</span><span class="o">*</span><span class="n">ss</span><span class="p">,</span> <span class="n">uz</span><span class="o">*</span><span class="n">uz</span><span class="o">+</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">uz</span><span class="o">*</span><span class="n">uz</span><span class="p">)</span><span class="o">*</span><span class="n">cc</span><span class="p">]]</span>
         <span class="k">elif</span> <span class="n">random_rotation</span> <span class="o">==</span> <span class="s1">&#39;NONE&#39;</span><span class="p">:</span>
             <span class="n">RR</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
                   <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
@@ -929,13 +929,13 @@
             <span class="n">RR</span> <span class="o">=</span> <span class="n">random_rotation</span>
         <span class="n">newcoords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">cc</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
-            <span class="n">newcc</span> <span class="o">=</span> <span class="n">RR</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">newcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newcc</span><span class="o">.</span><span class="n">getA1</span><span class="p">())</span>
+            <span class="n">newcc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">RR</span><span class="p">,</span> <span class="n">cc</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">newcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newcc</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
         <span class="n">coords</span> <span class="o">=</span> <span class="n">newcoords</span>
         <span class="n">newcoords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">cc</span> <span class="ow">in</span> <span class="n">neighb_coords</span><span class="p">:</span>
-            <span class="n">newcc</span> <span class="o">=</span> <span class="n">RR</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">newcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newcc</span><span class="o">.</span><span class="n">getA1</span><span class="p">())</span>
+            <span class="n">newcc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">RR</span><span class="p">,</span> <span class="n">cc</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">newcoords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newcc</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
         <span class="n">neighb_coords</span> <span class="o">=</span> <span class="n">newcoords</span>
 
         <span class="c1"># Translating the test environment</span>
@@ -1886,7 +1886,7 @@
         <li class="right" >
           <a href="../../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

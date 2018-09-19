@@ -246,14 +246,15 @@ def log_ver(ctx):
 
 
 @task
-def release(ctx, notest=False):
+def release(ctx, notest=False, nodoc=False):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
     log_ver(ctx)
-    # update_doc(ctx)
+    if not nodoc:
+        update_doc(ctx)
     merge_stable(ctx)
     release_github(ctx)
 

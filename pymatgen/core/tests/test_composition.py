@@ -24,6 +24,7 @@ import unittest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition, CompositionError, \
     ChemicalPotential
+
 import random
 
 
@@ -452,6 +453,14 @@ class CompositionTest(PymatgenTest):
         decorated = Composition("NiAl").add_charges_from_oxi_state_guesses()
         self.assertEqual(1, decorated.get(Specie("Ni", 0)))
         self.assertEqual(1, decorated.get(Specie("Al", 0)))
+
+    def test_Metallofullerene(self):
+        # Test: Parse Metallofullerene formula (e.g. Y3N@C80)
+        formula = "Y3N@C80"
+        sym_dict = {"Y": 3, "N": 1, "C": 80}
+        cmp = Composition(formula)
+        cmp2 = Composition.from_dict(sym_dict)
+        self.assertEqual(cmp, cmp2)
 
 
 class ChemicalPotentialTest(unittest.TestCase):

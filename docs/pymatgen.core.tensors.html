@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.core.tensors module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.core.tensors module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -134,7 +134,7 @@ rotations in the determination of validity</li>
 
 <dl class="method">
 <dt id="pymatgen.core.tensors.SquareTensor.polar_decomposition">
-<code class="descname">polar_decomposition</code><span class="sig-paren">(</span><em>side=’right’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.polar_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition">¶</a></dt>
+<code class="descname">polar_decomposition</code><span class="sig-paren">(</span><em>side=u’right’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.polar_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculates matrices for polar decomposition</p>
 </dd></dl>
 
@@ -612,7 +612,7 @@ corresponds to the new_structure’s basis</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.tensors.Tensor.symbol">
-<code class="descname">symbol</code><em class="property"> = ‘T’</em><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">symbol</code><em class="property"> = u’T’</em><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -662,7 +662,7 @@ tensor such that it is invariant wrt permutation of indices</p>
 <dl class="class">
 <dt id="pymatgen.core.tensors.TensorCollection">
 <em class="property">class </em><code class="descname">TensorCollection</code><span class="sig-paren">(</span><em>tensor_list</em>, <em>base_class=&lt;class ‘pymatgen.core.tensors.Tensor’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Sequence</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">_abcoll.Sequence</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A sequence of tensors that can be used for fitting data
 or for having a tensor expansion</p>
 <dl class="method">
@@ -747,30 +747,42 @@ or for having a tensor expansion</p>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="pymatgen.core.tensors.get_tkd_value">
-<code class="descname">get_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>allclose_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#get_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.get_tkd_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to find a value in a tensor-keyed-
-dictionary using an approximation to the key.  This
-is useful if rounding errors in construction occur
-or hashing issues arise in tensor-keyed-dictionaries
-(e. g. from symmetry_reduce).  Resolves most
-hashing issues, and is preferable to redefining
-eq methods in the base tensor class.</p>
+<dl class="class">
+<dt id="pymatgen.core.tensors.TensorMapping">
+<em class="property">class </em><code class="descname">TensorMapping</code><span class="sig-paren">(</span><em>tensors=None</em>, <em>values=None</em>, <em>tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">_abcoll.MutableMapping</span></code></p>
+<p>Base class for tensor mappings, which function much like
+a dictionary, but use numpy routines to determine approximate
+equality to keys for getting and setting items.</p>
+<p>This is intended primarily for convenience with things like
+stress-strain pairs and fitting data manipulation.  In general,
+it is significantly less robust than a typical hashing
+and should be used with care.</p>
+<p>Initialize a TensorMapping</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>tensor_keyed_dict</strong> (<em>dict</em>) – dict with Tensor keys</li>
-<li><strong>tensor</strong> (<a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><em>Tensor</em></a>) – tensor to find value of in the dict</li>
-<li><strong>allclose_kwargs</strong> (<em>dict</em>) – dict of keyword-args
-to pass to allclose.</li>
+<li><strong>tensor_list</strong> (<em>[</em><a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><em>Tensor</em></a><em>]</em>) – list of tensors</li>
+<li><strong>value_list</strong> (<em>[</em><em>]</em>) – list of values to be associated with tensors</li>
+<li><strong>tol</strong> (<em>float</em>) – an absolute tolerance for getting and setting
+items in the mapping</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorMapping.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorMapping.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -778,11 +790,6 @@ to pass to allclose.</li>
 <code class="descname">get_uvec</code><span class="sig-paren">(</span><em>vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#get_uvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.get_uvec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a unit vector parallel to input vector</p>
 </dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.core.tensors.set_tkd_value">
-<code class="descname">set_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>set_value</em>, <em>allclose_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#set_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.set_tkd_value" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.core.tensors.symmetry_reduce">
@@ -851,7 +858,7 @@ tensors as values</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

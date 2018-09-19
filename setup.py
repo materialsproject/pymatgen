@@ -97,7 +97,7 @@ as Python 3.x.
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2018.9.1",
+    version="2018.9.12",
     cmdclass={'build_ext': build_ext},
     setup_requires=['numpy>=1.14.3', 'setuptools>=18.0'],
     install_requires=["numpy>=1.14.3", "six", "requests", "ruamel.yaml>=0.15.6",
@@ -118,6 +118,7 @@ setup(
                   "pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files": ["*.txt", "*.json"],
                   "pymatgen.analysis.chemenv.coordination_environments.strategy_files": ["*.json"],
                   "pymatgen.analysis.hhi": ["*.csv"],
+                  "pymatgen.analysis.structure_predictor": ["data/*.json", "*.yaml"],
                   "pymatgen.io.vasp": ["*.yaml"],
                   "pymatgen.io.lammps": ["templates/*.*"],
                   "pymatgen.io.feff": ["*.yaml"],

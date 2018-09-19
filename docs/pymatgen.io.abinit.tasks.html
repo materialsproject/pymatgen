@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.abinit.tasks module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -83,17 +83,17 @@ Ideally, the TaskManager should be the <strong>main entry point</strong> used by
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.ENTRIES">
-<code class="descname">ENTRIES</code><em class="property"> = {‘qadapters’, ‘batch_adapter’, ‘db_connector’, ‘policy’}</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ENTRIES</code><em class="property"> = set([u’policy’, u’qadapters’, u’db_connector’, u’batch_adapter’])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.ENTRIES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR">
-<code class="descname">USER_CONFIG_DIR</code><em class="property"> = ‘/Users/shyue/.abinit/abipy’</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">USER_CONFIG_DIR</code><em class="property"> = u’/Users/shyue/.abinit/abipy’</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.YAML_FILE">
-<code class="descname">YAML_FILE</code><em class="property"> = ‘manager.yml’</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.YAML_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">YAML_FILE</code><em class="property"> = u’manager.yml’</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.YAML_FILE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -104,7 +104,7 @@ Ideally, the TaskManager should be the <strong>main entry point</strong> used by
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.TaskManager.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#TaskManager.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.TaskManager.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -454,7 +454,7 @@ Assumes the file contains only one section.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.tasks.ParalHints">
 <em class="property">class </em><code class="descname">ParalHints</code><span class="sig-paren">(</span><em>info</em>, <em>confs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Iterable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">_abcoll.Iterable</span></code></p>
 <p>Iterable with the hints for the parallel execution reported by ABINIT.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.Error">
@@ -464,7 +464,7 @@ Assumes the file contains only one section.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -520,7 +520,7 @@ Mainly used for preparing benchmarks.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.ParalHints.multidimensional_optimization">
-<code class="descname">multidimensional_optimization</code><span class="sig-paren">(</span><em>priorities=(‘speedup’</em>, <em>’efficiency’)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.multidimensional_optimization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.multidimensional_optimization" title="Permalink to this definition">¶</a></dt>
+<code class="descname">multidimensional_optimization</code><span class="sig-paren">(</span><em>priorities=(u’speedup’</em>, <em>u’efficiency’)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ParalHints.multidimensional_optimization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ParalHints.multidimensional_optimization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -733,7 +733,7 @@ to see the task as crashed even if the job did not run</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.tasks.AbinitTask.select_files">
-<code class="descname">select_files</code><span class="sig-paren">(</span><em>what=’o’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.select_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.select_files" title="Permalink to this definition">¶</a></dt>
+<code class="descname">select_files</code><span class="sig-paren">(</span><em>what=u’o’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#AbinitTask.select_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.AbinitTask.select_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function used to select the files of a task.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1075,6 +1075,34 @@ None means that this Task has no dependency.</li>
 from which we can read the first-order wavefunctions or the first order density.
 Prefer 1WF over 1DEN since we can reuse the wavefunctions.</p>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.abinit.tasks.ElasticTask">
+<em class="property">class </em><code class="descname">ElasticTask</code><span class="sig-paren">(</span><em>input</em>, <em>workdir=None</em>, <em>manager=None</em>, <em>deps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/tasks.html#ElasticTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.tasks.ElasticTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.tasks.DfptTask</span></code></p>
+<p>DFPT calculations for a single strain perturbation (uniaxial or shear strain).
+Provide support for in-place restart via (1WF|1DEN) files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input</strong> – <code class="xref py py-class docutils literal"><span class="pre">AbinitInput</span></code> object.</li>
+<li><strong>workdir</strong> – Path to the working directory.</li>
+<li><strong>manager</strong> – <a class="reference internal" href="#pymatgen.io.abinit.tasks.TaskManager" title="pymatgen.io.abinit.tasks.TaskManager"><code class="xref py py-class docutils literal"><span class="pre">TaskManager</span></code></a> object.</li>
+<li><strong>deps</strong> – Dictionary specifying the dependency of this node.
+None means that this Task has no dependency.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="pymatgen.io.abinit.tasks.ElasticTask.color_rgb">
+<code class="descname">color_rgb</code><em class="property"> = array([1. , 0.8, 1. ])</em><a class="headerlink" href="#pymatgen.io.abinit.tasks.ElasticTask.color_rgb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1458,7 +1486,7 @@ the shell with 1 MPI proc. Mainly used for post-processing the DDB files.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 

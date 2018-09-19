@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.adf module &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.adf module &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -94,7 +94,7 @@
 <dl class="exception">
 <dt id="pymatgen.io.adf.AdfInputError">
 <em class="property">exception </em><code class="descname">AdfInputError</code><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfInputError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
 <p>The default error class for ADF.</p>
 </dd></dl>
 
@@ -165,7 +165,7 @@ options.</td>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfKey.block_keys">
-<code class="descname">block_keys</code><em class="property"> = {‘OCCUPATIONS’, ‘ATOMS’, ‘A1FIT’, ‘RELATIVISTIC’, ‘SYMMETRY’, ‘INTEGRATION’, ‘ANALYTICALFREQ’, ‘BASIS’, ‘SCF’, ‘UNITS’, ‘SAVE’, ‘UNRESTRICTED’, ‘ZLMFIT’, ‘CHARGE’, ‘TOTALENERGY’, ‘TITLE’, ‘GEOMETRY’, ‘EXACTDENSITY’, ‘XC’}</em><a class="headerlink" href="#pymatgen.io.adf.AdfKey.block_keys" title="Permalink to this definition">¶</a></dt>
+<code class="descname">block_keys</code><em class="property"> = set([‘TITLE’, ‘EXACTDENSITY’, ‘ZLMFIT’, ‘SYMMETRY’, ‘BASIS’, ‘GEOMETRY’, ‘XC’, ‘SCF’, ‘INTEGRATION’, ‘ATOMS’, ‘CHARGE’, ‘ANALYTICALFREQ’, ‘RELATIVISTIC’, ‘UNITS’, ‘OCCUPATIONS’, ‘A1FIT’, ‘SAVE’, ‘UNRESTRICTED’, ‘TOTALENERGY’])</em><a class="headerlink" href="#pymatgen.io.adf.AdfKey.block_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -290,7 +290,7 @@ converted to upper cases.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfKey.sub_keys">
-<code class="descname">sub_keys</code><em class="property"> = {‘AtomDepQuality’}</em><a class="headerlink" href="#pymatgen.io.adf.AdfKey.sub_keys" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sub_keys</code><em class="property"> = set([‘AtomDepQuality’])</em><a class="headerlink" href="#pymatgen.io.adf.AdfKey.sub_keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -388,7 +388,7 @@ of the ADF manual for more detail.</p>
 <dl class="exception">
 <dt id="pymatgen.io.adf.AdfOutputError">
 <em class="property">exception </em><code class="descname">AdfOutputError</code><a class="reference internal" href="_modules/pymatgen/io/adf.html#AdfOutputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.adf.AdfOutputError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
 <p>The default error class for errors raised by <code class="docutils literal"><span class="pre">AdfOutput</span></code>.</p>
 </dd></dl>
 
@@ -470,7 +470,7 @@ not support calculating force/gradient.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.adf.AdfTask.operations">
-<code class="descname">operations</code><em class="property"> = {‘energy’: ‘Evaluate the single point energy.’, ‘optimize’: ‘Minimize the energy by varying the molecular structure.’, ‘frequencies’: ‘Compute second derivatives and print out an analysis of molecular vibrations.’, ‘freq’: ‘Same as frequencies.’, ‘numerical_frequencies’: ‘Compute molecular frequencies using numerical method.’}</em><a class="headerlink" href="#pymatgen.io.adf.AdfTask.operations" title="Permalink to this definition">¶</a></dt>
+<code class="descname">operations</code><em class="property"> = {‘freq’: ‘Same as frequencies.’, ‘frequencies’: ‘Compute second derivatives and print out an analysis of molecular vibrations.’, ‘energy’: ‘Evaluate the single point energy.’, ‘numerical_frequencies’: ‘Compute molecular frequencies using numerical method.’, ‘optimize’: ‘Minimize the energy by varying the molecular structure.’}</em><a class="headerlink" href="#pymatgen.io.adf.AdfTask.operations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -556,7 +556,7 @@ float. Otherwise False will be returned.</td>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
