@@ -13,14 +13,18 @@ env:
 sudo: false
 install:
   - pip install numpy
-  - travis_wait pip install -q -r requirements.txt
-  - travis_wait pip install -q -r requirements-optional.txt
+  - pip install -q -r requirements.txt
+  - pip install -q -r requirements-optional.txt
+  - pip install nose-timer
+  - export CFLAGS=$CFLAGS" -std=gnu++11"
+  - travis_wait pip install BoltzTraP2
+  - export CFLAGS=${CFLAGS%% -std=gnu++11}
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
   - python setup.py --quiet develop
 # command to run tests, e.g. python setup.py test
-script: travis_wait 28800 "nosetests pymatgen"
+script: travis_wait 28800 nosetests --with-timer --timer-top-n 30 pymatgen
 notifications:
   email:
     recipients:

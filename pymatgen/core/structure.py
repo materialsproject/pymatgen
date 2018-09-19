@@ -122,8 +122,14 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     def types_of_specie(self):
         """
         List of types of specie. Only works for ordered structures.
-        Disordered structures will raise an AttributeError.
+        Disordered structures will raise TypeError.
         """
+        if not self.is_ordered:
+            raise TypeError("""\
+types_of_species cannot be used with disordered structures and partial occupancies.
+Use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
+to build an appropriate supercell from partial occupancies.""")
+
         # Cannot use set since we want a deterministic algorithm.
         types = []
         for site in self:
@@ -1593,7 +1599,7 @@ class IStructure(SiteCollection, MSONable):
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
         elif fmt == "poscar":
-            s = Poscar.from_string(input_string, False, 
+            s = Poscar.from_string(input_string, False,
                                    read_velocities=False).structure
         elif fmt == "cssr":
             cssr = Cssr.from_string(input_string)
@@ -2892,7 +2898,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
                 site.species_and_occu, s, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
@@ -3460,7 +3466,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
             new_site = Site(site.species_and_occu, s,
                             properties=site.properties)
             self._sites[i] = new_site

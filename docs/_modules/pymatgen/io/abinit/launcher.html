@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.8.10 documentation</title>
+    <title>pymatgen.io.abinit.launcher &#8212; pymatgen 2018.9.12 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '2018.8.10',
+        VERSION:     '2018.9.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -368,7 +368,7 @@
 <span class="sd">            max_nlaunches: Maximum number of tasks launched in a single iteration of the scheduler.</span>
 <span class="sd">                (DEFAULT: -1 i.e. no limit)</span>
 <span class="sd">            debug: Debug level. Use 0 for production (int, DEFAULT: 0)</span>
-<span class="sd">            fix_qcritical: &quot;yes&quot; if the launcher should try to fix QCritical Errors (DEFAULT: &quot;yes&quot;)</span>
+<span class="sd">            fix_qcritical: &quot;yes&quot; if the launcher should try to fix QCritical Errors (DEFAULT: &quot;no&quot;)</span>
 <span class="sd">            rmflow: If &quot;yes&quot;, the scheduler will remove the flow directory if the calculation</span>
 <span class="sd">                completed successfully. (DEFAULT: &quot;no&quot;)</span>
 <span class="sd">            killjobs_if_errors: &quot;yes&quot; if the scheduler should try to kill all the runnnig jobs</span>
@@ -400,7 +400,7 @@
         <span class="c1">#self.max_etime_s = kwargs.pop(&quot;max_etime_s&quot;, )</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_nlaunches</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;max_nlaunches&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fix_qcritical</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fix_qcritical&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_qcritical</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fix_qcritical&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rmflow</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rmflow&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">killjobs_if_errors</span> <span class="o">=</span> <span class="n">as_bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;killjobs_if_errors&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
 
@@ -768,8 +768,9 @@
             <span class="k">if</span> <span class="n">retcode</span><span class="p">:</span>
                 <span class="c1"># Cannot send mail, shutdown now!</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The scheduler tried to send an e-mail to remind the user</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span>
-                        <span class="s2">&quot; but send_email returned </span><span class="si">%d</span><span class="s2">. Aborting now&quot;</span> <span class="o">%</span> <span class="n">retcode</span><span class="p">)</span>
-                <span class="n">err_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                        <span class="s2">&quot; but send_email returned </span><span class="si">%d</span><span class="s2">. Error is not critical though!&quot;</span> <span class="o">%</span> <span class="n">retcode</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="c1">#err_lines.append(msg)</span>
 
         <span class="c1">#if delta_etime.total_seconds() &gt; self.max_etime_s:</span>
         <span class="c1">#    err_lines.append(&quot;\nExceeded max_etime_s %s. Will shutdown the scheduler and exit&quot; % self.max_etime_s)</span>
@@ -1406,7 +1407,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

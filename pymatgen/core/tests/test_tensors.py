@@ -2,15 +2,14 @@ from __future__ import absolute_import
 
 import unittest
 import math
-import os
 
-from monty.serialization import loadfn, MontyDecoder
-from pymatgen.analysis.elasticity.tensors import *
+from monty.serialization import MontyDecoder
+from pymatgen.core.tensors import *
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 class TensorTest(PymatgenTest):
@@ -137,6 +136,7 @@ class TensorTest(PymatgenTest):
 
         self.structure = self.get_structure('BaNiO3')
         ieee_file_path = os.path.join(test_dir, "ieee_conversion_data.json")
+        self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
     def test_new(self):
@@ -302,19 +302,20 @@ class TensorTest(PymatgenTest):
         reconstructed = sorted(reconstructed, key = lambda x: np.argmax(x))
         self.assertArrayAlmostEqual([tb for tb in reconstructed], np.eye(6)*0.01)
 
-    def test_get_tkd_value(self):
+    def test_tensor_mapping(self):
+        # Test get
         tbs = [Tensor.from_voigt(row) for row in np.eye(6)*0.01]
         reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
-        tkdv = get_tkd_value(reduced, Tensor.from_values_indices([0.01], [(0, 0)]))
-        for tens_1, tens_2 in zip(tkdv, reduced[tbs[0]]):
+        tkey = Tensor.from_values_indices([0.01], [(0, 0)])
+        tval = reduced[tkey]
+        for tens_1, tens_2 in zip(tval, reduced[tbs[0]]):
             self.assertAlmostEqual(tens_1, tens_2)
-
-    def test_set_tkd_value(self):
-        tbs = [Tensor.from_voigt(row) for row in np.eye(6)*0.01]
-        reduced = symmetry_reduce(tbs, self.get_structure("Sn"))
-        tval = Tensor.from_values_indices([0.01], [(0, 0)])
-        set_tkd_value(reduced, tval, 'test_val')
-        self.assertEqual(get_tkd_value(reduced, tval), 'test_val')
+        # Test set
+        reduced[tkey] = 'test_val'
+        self.assertEqual(reduced[tkey], 'test_val')
+        # Test empty initialization
+        empty = TensorMapping()
+        self.assertEqual(empty._tensor_list, [])
 
     def test_populate(self):
         test_data = loadfn(os.path.join(test_dir, 'test_toec_data.json'))
@@ -378,6 +379,31 @@ class TensorTest(PymatgenTest):
         d = self.symm_rank3.as_dict(voigt=True)
         new = Tensor.from_dict(d)
         self.assertArrayAlmostEqual(new, self.symm_rank3)
+
+    def test_projection_methods(self):
+        self.assertAlmostEqual(self.rand_rank2.project([1, 0, 0]),
+                               self.rand_rank2[0, 0])
+        self.assertAlmostEqual(self.rand_rank2.project([1, 1, 1]),
+                               np.sum(self.rand_rank2) / 3)
+        # Test integration
+        self.assertArrayAlmostEqual(self.ones.average_over_unit_sphere(), 1)
+
+
+    def test_summary_methods(self):
+        self.assertEqual(set(self.ones.get_grouped_indices()[0]),
+                         set(itertools.product(range(3), range(3))))
+        self.assertEqual(self.ones.get_grouped_indices(voigt=True)[0],
+                         [(i,) for i in range(6)])
+        self.assertEqual(self.ones.get_symbol_dict(),
+                         {"T_1": 1})
+        self.assertEqual(self.ones.get_symbol_dict(voigt=False),
+                         {"T_11": 1})
+
+    def test_round(self):
+        test = self.non_symm + 0.01
+        rounded = test.round(1)
+        self.assertArrayAlmostEqual(rounded, self.non_symm)
+        self.assertTrue(isinstance(rounded, Tensor))
 
 
 class TensorCollectionTest(PymatgenTest):

@@ -808,8 +808,7 @@ class GBGenerator(object):
             all_list = r_list + r_list_inv + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
-            r_matrix = np.matrix(np.array(np.array(r_list) / com_fac
-                                          / sigma).reshape(3, 3))
+            r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
         elif lat_type.lower() == 'r':
             # set the value for u,v,w,mu,mv,m,n,d
             # check the reference for the meaning of these parameters
@@ -887,9 +886,7 @@ class GBGenerator(object):
             all_list = r_list_inv + r_list + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
-            r_matrix = np.matrix(np.array(np.array(r_list) / com_fac
-                                          / sigma).reshape(3, 3))
-
+            r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
         else:
             u, v, w = r_axis
             if lat_type.lower() == 'c':
@@ -991,8 +988,7 @@ class GBGenerator(object):
             all_list = r_list + r_list_inv + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
-            r_matrix = np.matrix(np.array(np.array(r_list) / com_fac
-                                          / sigma).reshape(3, 3))
+            r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
         if (sigma > 1000):
             raise RuntimeError('Sigma >1000 too large. Are you sure what you are doing, '
@@ -1008,10 +1004,10 @@ class GBGenerator(object):
         r_axis = np.rint(np.matmul(r_axis, np.linalg.inv(trans_cry))).astype(int)
         if reduce(gcd, r_axis) != 1:
             r_axis = [int(round(x / reduce(gcd, r_axis))) for x in r_axis]
-        r_matrix = np.matrix(trans_cry).T.I * r_matrix * np.matrix(trans_cry).T
+        r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
-        I_mat = np.matrix(np.identity(3))
+        I_mat = np.eye(3)
         for h in range(3):
             if abs(r_axis[h]) != 0:
                 I_mat[h] = np.array(r_axis)
@@ -1039,7 +1035,7 @@ class GBGenerator(object):
             raise RuntimeError('Something is wrong. Check if this GB exists or not')
         scale[k, l] = n_final
         # each row of mat_csl is the CSL lattice vector
-        csl_init = np.rint(r_matrix * trans * np.matrix(scale)).astype(int).T
+        csl_init = np.rint(np.dot(np.dot(r_matrix, trans), scale)).astype(int).T
         if abs(r_axis[h]) > 1:
             csl_init = GBGenerator.reduce_mat(np.array(csl_init), r_axis[h])
         csl = np.rint(Lattice(csl_init).get_niggli_reduced_lattice().matrix).astype(int)
@@ -1064,7 +1060,7 @@ class GBGenerator(object):
             else:
                 trans_cry = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
         t1_final = GBGenerator.slab_from_csl(csl, surface, normal, trans_cry, max_search=max_search)
-        t2_final = np.array(np.rint(np.matrix(t1_final) * (r_matrix).T.I)).astype(int)
+        t2_final = np.array(np.rint(np.dot(t1_final, np.linalg.inv(r_matrix.T)))).astype(int)
         return t1_final, t2_final
 
     @staticmethod
@@ -1726,29 +1722,29 @@ class GBGenerator(object):
             to the correct possible sigma value right smaller than the wrong sigma value provided.
         """
         if lat_type.lower() == 'c':
-            print('Make sure this is for cubic system')
+            # print('Make sure this is for cubic system')
             sigma_dict = GBGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=r_axis)
         elif lat_type.lower() == 't':
-            print('Make sure this is for tetragonal system')
+            # print('Make sure this is for tetragonal system')
             if ratio is None:
                 print('Make sure this is for irrational c2/a2 ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
             sigma_dict = GBGenerator.enum_sigma_tet(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
         elif lat_type.lower() == 'o':
-            print('Make sure this is for orthorhombic system')
+            # print('Make sure this is for orthorhombic system')
             if len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
             sigma_dict = GBGenerator.enum_sigma_ort(cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio)
         elif lat_type.lower() == 'h':
-            print('Make sure this is for hexagonal system')
+            # print('Make sure this is for hexagonal system')
             if ratio is None:
                 print('Make sure this is for irrational c2/a2 ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
             sigma_dict = GBGenerator.enum_sigma_hex(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
         elif lat_type.lower() == 'r':
-            print('Make sure this is for rhombohedral system')
+            # print('Make sure this is for rhombohedral system')
             if ratio is None:
                 print('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
             elif len(ratio) != 2:
@@ -1803,7 +1799,7 @@ class GBGenerator(object):
         # set the transform matrix in real space
         trans = trans_cry
         # transform matrix in reciprocal space
-        ctrans = np.array(np.matrix(trans).T.I)
+        ctrans = np.linalg.inv(trans.T)
 
         t_matrix = csl.copy()
         # vectors constructed from csl that perpendicular to surface

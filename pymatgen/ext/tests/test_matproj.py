@@ -113,6 +113,13 @@ class MPResterTest(unittest.TestCase):
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
 
+    def test_get_data(self):
+        # Test getting supported properties
+        self.assertNotEqual(self.rester.get_task_data("mp-30"), [])
+        # Test aliasing
+        data = self.rester.get_task_data("mp-30", "energy")
+        self.assertAlmostEqual(data[0]["energy"], -4.09929227, places=2)
+
     def test_get_materials_id_from_task_id(self):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
             "mp-540081"), "mp-19017")
@@ -262,8 +269,12 @@ class MPResterTest(unittest.TestCase):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         pbx = PourbaixDiagram(pbx_entries)
 
+        # TODO: Shyue Ping: I do not understand this test. You seem to
+        # be grabbing Zn-S system, but I don't see proper test for anything,
+        # including Na ref. This test also takes a long time.
+
         # Test Zn-S, which has Na in reference solids
-        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
+        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")

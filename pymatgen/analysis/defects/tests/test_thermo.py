@@ -17,6 +17,8 @@ class DefectsThermodynamicsTest(PymatgenTest):
     def setUp(self):
 
         self.entries = list(loadfn(os.path.join(os.path.dirname(__file__), "GaAs_test_defentries.json")).values())
+        for entry in self.entries:
+            entry.parameters.update( {'vbm': 2.6682})
 
     def test_good_test_data(self):
         self.assertEqual(len(self.entries), 48)
@@ -38,8 +40,6 @@ class DefectsThermodynamicsTest(PymatgenTest):
             self.assertTrue(
                 len(suggested_charges[k]) > 0, "Could not find any suggested charges for {} with band_gap of {}".format(
                     k, pd.band_gap))
-
-
 
     def test_entries(self):
         pd = DefectPhaseDiagram(self.entries, 2.6682, 2.0)
