@@ -7,8 +7,12 @@ from __future__ import division, unicode_literals
 import unittest
 import os
 import json
+import gzip
 import numpy as np
 import warnings
+
+from shutil import copyfile, copyfileobj
+from monty.tempfile import ScratchDir
 
 import xml.etree.cElementTree as ET
 
@@ -17,7 +21,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    Wavecar
+    VaspParserError, Wavecar
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -34,8 +38,10 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__),
+                 "..", "..", "..", "..",
+                 'test_files'))
 
 
 class VasprunTest(unittest.TestCase):
@@ -372,6 +378,45 @@ class VasprunTest(unittest.TestCase):
             projected = bs.get_projections_on_elements_and_orbitals(
                 {"Si": ["s"]})
             self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
+
+            # Test compressed files case 1: compressed KPOINTS in current dir
+            with ScratchDir("./"):
+                copyfile(os.path.join(test_dir, 'vasprun_Si_bands.xml'),
+                         'vasprun.xml')
+
+                # Check for error if no KPOINTS file
+                vasprun = Vasprun('vasprun.xml',
+                                  parse_projected_eigen=True,
+                                  parse_potcar_file=False)
+                with self.assertRaises(VaspParserError):
+                    _ = vasprun.get_band_structure(line_mode=True)
+
+                # Check KPOINTS.gz succesfully inferred and used if present
+                with open(os.path.join(test_dir, 'KPOINTS_Si_bands'),
+                          'rb') as f_in:
+                    with gzip.open('KPOINTS.gz', 'wb') as f_out:
+                        copyfileobj(f_in, f_out)
+                bs_kpts_gzip = vasprun.get_band_structure()
+                self.assertEqual(bs.efermi, bs_kpts_gzip.efermi)
+                self.assertEqual(bs.as_dict(), bs_kpts_gzip.as_dict())
+
+            # Test compressed files case 2: compressed vasprun in another dir
+            with ScratchDir("./"):
+                os.mkdir('deeper')
+                copyfile(os.path.join(test_dir, 'KPOINTS_Si_bands'),
+                         os.path.join('deeper', 'KPOINTS'))
+                with open(os.path.join(test_dir, 'vasprun_Si_bands.xml'),
+                          'rb') as f_in:
+                    with gzip.open(os.path.join('deeper', 'vasprun.xml.gz'),
+                                   'wb') as f_out:
+                        copyfileobj(f_in, f_out)
+                vasprun = Vasprun(os.path.join('deeper', 'vasprun.xml.gz'),
+                                  parse_projected_eigen=True,
+                                  parse_potcar_file=False)
+                bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
+                self.assertEqual(bs.efermi, bs_vasprun_gzip.efermi)
+                self.assertEqual(bs.as_dict(), bs_vasprun_gzip.as_dict())
+
 
             # test hybrid band structures
             vasprun.actual_kpoints_weights[-1] = 0.
