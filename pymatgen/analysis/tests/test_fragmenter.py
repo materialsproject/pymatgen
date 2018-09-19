@@ -65,7 +65,8 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=2, open_rings=False, opt_steps=0)
         self.assertEqual(fragmenter.open_rings,False)
         self.assertEqual(fragmenter.opt_steps,0)
-        default_mol_graph = build_MoleculeGraph(self.pc, edges=self.pc_edges)
+        edges = [(e[0], e[1], {}) for e in self.pc_edges]
+        default_mol_graph = build_MoleculeGraph(self.pc, edges=edges)
         self.assertEqual(fragmenter.mol_graph,default_mol_graph)
         self.assertEqual(len(fragmenter.unique_fragments), 20)
         self.assertEqual(len(fragmenter.unique_fragments_from_ring_openings), 0)

@@ -479,8 +479,9 @@ class MoleculeGraphTest(unittest.TestCase):
 
     @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_build_MoleculeGraph(self):
-        mol_graph = build_MoleculeGraph(self.pc_frag1, edges=self.pc_frag1_edges)
-        # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
+        edges_frag = [(e[0], e[1], {"weight":1.0}) for e in self.pc_frag1_edges]
+        mol_graph = build_MoleculeGraph(self.pc_frag1, edges=edges_frag)
+        #dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
         ref_mol_graph = loadfn(os.path.join(module_dir, "pc_frag1_mg.json"))
         self.assertEqual(mol_graph, ref_mol_graph)
         self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
@@ -492,8 +493,9 @@ class MoleculeGraphTest(unittest.TestCase):
                     mol_graph.graph.node[node]["coords"][ii],
                     ref_mol_graph.graph.node[node]["coords"]["data"][ii])
 
-        mol_graph = build_MoleculeGraph(self.pc, edges=self.pc_edges)
-        # dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_mg.json"))
+        edges_pc = [(e[0], e[1], {"weight":1.0}) for e in self.pc_edges]
+        mol_graph = build_MoleculeGraph(self.pc, edges=edges_pc)
+        #dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_mg.json"))
         ref_mol_graph = loadfn(os.path.join(module_dir, "pc_mg.json"))
         self.assertEqual(mol_graph, ref_mol_graph)
         self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
@@ -505,7 +507,7 @@ class MoleculeGraphTest(unittest.TestCase):
                     mol_graph.graph.node[node]["coords"][ii],
                     ref_mol_graph.graph.node[node]["coords"]["data"][ii])
 
-        mol_graph_edges = build_MoleculeGraph(self.pc, edges=self.pc_edges)
+        mol_graph_edges = build_MoleculeGraph(self.pc, edges=edges_pc)
         mol_graph_strat = build_MoleculeGraph(self.pc, strategy=OpenBabelNN, reorder=False, extend_structure=False)
         self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
 
@@ -592,7 +594,7 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(reactants[0], self.ethylene)
         self.assertEqual(reactants[1], self.butadiene)
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(MolGraphSplitError):
             self.cyclohexene.split_molecule_subgraphs([(0,1)])
 
         # Test naive charge redistribution
@@ -634,16 +636,34 @@ class MoleculeGraphTest(unittest.TestCase):
 
     @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_build_unique_fragments(self):
-        mol_graph = build_MoleculeGraph(self.pc, edges=self.pc_edges)
+        edges = [(e[0], e[1], {}) for e in self.pc_edges]
+        mol_graph = build_MoleculeGraph(self.pc, edges=edges)
         unique_fragments = mol_graph.build_unique_fragments()
         self.assertEqual(len(unique_fragments), 295)
         nm = iso.categorical_node_match("specie", "ERROR")
         for ii in range(295):
+            # Test that each fragment is unique
             for jj in range(ii + 1, 295):
-                self.assertEqual(
+                self.assertFalse(
                     nx.is_isomorphic(unique_fragments[ii].graph,
                                      unique_fragments[jj].graph,
-                                     node_match=nm), False)
+                                     node_match=nm))
+
+            # Test that each fragment correctly maps between Molecule and graph
+            self.assertEqual(len(unique_fragments[ii].molecule),
+                             len(unique_fragments[ii].graph.nodes))
+            species = nx.get_node_attributes(unique_fragments[ii].graph, "specie")
+            coords = nx.get_node_attributes(unique_fragments[ii].graph, "coords")
+
+            mol = unique_fragments[ii].molecule
+            for ss, site in enumerate(mol):
+                self.assertEqual(str(species[ss]), str(site.specie))
+                self.assertEqual(coords[ss][0], site.coords[0])
+                self.assertEqual(coords[ss][1], site.coords[1])
+                self.assertEqual(coords[ss][2], site.coords[2])
+
+            # Test that each fragment is connected
+            self.assertTrue(nx.is_connected(unique_fragments[ii].graph.to_undirected()))
 
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
