@@ -246,12 +246,12 @@ def log_ver(ctx):
 
 
 @task
-def release(ctx, notest=False, nodoc=False, pypi_username="Shyue.Ping.Ong"):
+def release(ctx, notest=False, nodoc=False):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
-    publish(ctx, pypi_username=pypi_username)
+    publish(ctx)
     log_ver(ctx)
     if not nodoc:
         update_doc(ctx)
