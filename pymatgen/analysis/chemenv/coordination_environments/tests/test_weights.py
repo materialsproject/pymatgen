@@ -14,20 +14,29 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SelfCSMNbSetWeight
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DeltaCSMNbSetWeight
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DistanceAngleAreaNbSetWeight
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DistanceNbSetWeight
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import DeltaDistanceNbSetWeight
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
 
 se_files_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..",
                             'test_files', "chemenv", "structure_environments_files")
 
+
 class FakeNbSet(object):
 
-    cn = None
+    def __init__(self, cn=None):
+        self.cn = cn
 
     def __len__(self):
         return self.cn
     pass
 
+
 class DummyStructureEnvironments(object):
+    pass
+
+
+class DummyVoronoiContainer(object):
     pass
 
 
@@ -288,8 +297,8 @@ class StrategyWeightsTest(PymatgenTest):
         cn_maps = [(12, 3), (12, 2), (13, 2), (12, 0), (12, 1), (13, 0), (13, 1)]
         nbsets = {cn_map: se.neighbors_sets[0][cn_map[0]][cn_map[1]] for cn_map in cn_maps}
 
-        effective_csm_estimator ={'function': 'power2_inverse_decreasing',
-                                  'options': {'max_csm': 8.0}}
+        effective_csm_estimator = {'function': 'power2_inverse_decreasing',
+                                   'options': {'max_csm': 8.0}}
         weight_estimator = {'function': 'smootherstep',
                             'options': {'delta_csm_min': 0.5,
                                         'delta_csm_max': 3.0}}
@@ -427,6 +436,154 @@ class StrategyWeightsTest(PymatgenTest):
         self.assertTrue(da_area_weight.rectangle_crosses_area(d1=d1, d2=d2, a1=a1, a2=a2))
         d1, d2, a1, a2 = 1.4, 1.6, 0.3, 0.7
         self.assertTrue(da_area_weight.rectangle_crosses_area(d1=d1, d2=d2, a1=a1, a2=a2))
+
+    def test_dist_nb_set_weight(self):
+
+        dnbset_weight = DistanceNbSetWeight()
+        dnbset_weight2 = DistanceNbSetWeight(weight_function={'function': 'smoothstep',
+                                                              'options': {'lower': 1.2,
+                                                                          'upper': 1.3}})
+
+        fake_nb_set1 = FakeNbSet(cn=1)
+        fake_nb_set1.site_voronoi_indices = {0}
+        fake_nb_set2 = FakeNbSet(cn=2)
+        fake_nb_set2.site_voronoi_indices = {0, 1}
+        fake_nb_set3 = FakeNbSet(cn=3)
+        fake_nb_set3.site_voronoi_indices = {0, 1, 2}
+        fake_nb_set4 = FakeNbSet(cn=4)
+        fake_nb_set4.site_voronoi_indices = {0, 1, 2, 3}
+        fake_nb_set5 = FakeNbSet(cn=5)
+        fake_nb_set5.site_voronoi_indices = {0, 1, 2, 3, 4}
+        fake_nb_set5_m2 = FakeNbSet(cn=4)
+        fake_nb_set5_m2.site_voronoi_indices = {0, 1, 3, 4}
+        fake_nb_set6 = FakeNbSet(cn=6)
+        fake_nb_set6.site_voronoi_indices = {0, 1, 2, 3, 4, 5}
+        fake_nb_set7 = FakeNbSet(cn=7)
+        fake_nb_set7.site_voronoi_indices = {0, 1, 2, 3, 4, 5, 6}
+        fake_nb_set1.isite = 0
+        fake_nb_set2.isite = 0
+        fake_nb_set3.isite = 0
+        fake_nb_set4.isite = 0
+        fake_nb_set5.isite = 0
+        fake_nb_set5_m2.isite = 0
+        fake_nb_set6.isite = 0
+        fake_nb_set7.isite = 0
+        dummy_se = DummyStructureEnvironments()
+        dummy_se.neighbors_sets = []
+        dummy_se.neighbors_sets.append({})
+        dummy_se.neighbors_sets[0][1] = [fake_nb_set1]
+        dummy_se.neighbors_sets[0][2] = [fake_nb_set2]
+        dummy_se.neighbors_sets[0][3] = [fake_nb_set3]
+        dummy_se.neighbors_sets[0][4] = [fake_nb_set4, fake_nb_set5_m2]
+        dummy_se.neighbors_sets[0][5] = [fake_nb_set5]
+        dummy_se.neighbors_sets[0][6] = [fake_nb_set6]
+        dummy_se.neighbors_sets[0][7] = [fake_nb_set7]
+
+        dummy_voronoi = DummyVoronoiContainer()
+        dummy_voronoi.voronoi_list2 = []
+        dummy_voronoi.voronoi_list2.append([])
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.0})    # 0
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.2})    # 1
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.225})  # 2
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.25})   # 3
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.275})  # 4
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.3})    # 5
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.8})    # 6
+        # Following fake neighbor dict is not in the neighbors sets
+        dummy_voronoi.voronoi_list2[0].append({'normalized_distance': 1.55})   # 7
+
+        for fake_nb_set in [fake_nb_set1, fake_nb_set2, fake_nb_set3, fake_nb_set4, fake_nb_set5, fake_nb_set5_m2,
+                            fake_nb_set6, fake_nb_set7]:
+            fake_nb_set.normalized_distances = [dummy_voronoi.voronoi_list2[0][ivoro_nb]['normalized_distance']
+                                                for ivoro_nb in fake_nb_set.site_voronoi_indices]
+
+        dummy_se.voronoi = dummy_voronoi
+
+        cn_map1 = (1, 0)
+        cn_map2 = (2, 0)
+        cn_map3 = (3, 0)
+        cn_map4 = (4, 0)
+        cn_map5 = (5, 0)
+        cn_map5_m2 = (4, 1)
+        cn_map6 = (6, 0)
+        cn_map7 = (7, 0)
+
+        myweight1 = dnbset_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        self.assertAlmostEqual(myweight1, 0.0, delta=1e-8)
+        myweight2 = dnbset_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        self.assertAlmostEqual(myweight2, 0.103515625, delta=1e-8)
+        myweight3 = dnbset_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        self.assertAlmostEqual(myweight3, 0.5, delta=1e-8)
+        myweight4 = dnbset_weight.weight(fake_nb_set4, dummy_se, cn_map=cn_map4, additional_info=None)
+        self.assertAlmostEqual(myweight4, 0.896484375, delta=1e-8)
+        myweight5 = dnbset_weight.weight(fake_nb_set5, dummy_se, cn_map=cn_map5, additional_info=None)
+        self.assertAlmostEqual(myweight5, 1.0, delta=1e-8)
+        myweight5_m2 = dnbset_weight.weight(fake_nb_set5_m2, dummy_se, cn_map=cn_map5_m2, additional_info=None)
+        self.assertAlmostEqual(myweight5_m2, 0.103515625, delta=1e-8)
+        myweight7 = dnbset_weight.weight(fake_nb_set7, dummy_se, cn_map=cn_map7, additional_info=None)
+        self.assertAlmostEqual(myweight7, 1.0, delta=1e-8)
+
+        myweight_2_3 = dnbset_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        self.assertAlmostEqual(myweight_2_3, 0.5, delta=1e-8)
+        myweight_2_4 = dnbset_weight2.weight(fake_nb_set4, dummy_se, cn_map=cn_map4, additional_info=None)
+        self.assertAlmostEqual(myweight_2_4, 0.84375, delta=1e-8)
+        myweight_2_2 = dnbset_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        self.assertAlmostEqual(myweight_2_2, 0.15625, delta=1e-8)
+
+        dnbset_weight3 = DistanceNbSetWeight(weight_function={'function': 'smoothstep',
+                                                              'options': {'lower': 1.5,
+                                                                          'upper': 1.7}},
+                                             nbs_source='nb_sets')
+        dnbset_weight4 = DistanceNbSetWeight(weight_function={'function': 'smoothstep',
+                                                              'options': {'lower': 1.5,
+                                                                          'upper': 1.7}},
+                                             nbs_source='voronoi')
+
+        myweight_3_6 = dnbset_weight3.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        self.assertAlmostEqual(myweight_3_6, 1.0, delta=1e-8)
+        myweight_4_6 = dnbset_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        self.assertAlmostEqual(myweight_4_6, 0.15625, delta=1e-8)
+
+        deltadnbset_weight = DeltaDistanceNbSetWeight(weight_function={'function': 'smootherstep',
+                                                                       'options': {'lower': 0.05,
+                                                                                   'upper': 0.15}})
+
+        myweightdelta1 = deltadnbset_weight.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        self.assertAlmostEqual(myweightdelta1, 1.0, delta=1e-8)
+        myweightdelta2 = deltadnbset_weight.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        self.assertAlmostEqual(myweightdelta2, 0.0, delta=1e-8)
+        myweightdelta3 = deltadnbset_weight.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        self.assertAlmostEqual(myweightdelta3, 0.0, delta=1e-8)
+
+        deltadnbset_weight2 = DeltaDistanceNbSetWeight(weight_function={'function': 'smootherstep',
+                                                                        'options': {'lower': 0.1,
+                                                                                    'upper': 0.3}})
+
+        myweightdelta1 = deltadnbset_weight2.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        self.assertAlmostEqual(myweightdelta1, 0.5, delta=1e-8)
+        myweightdelta2 = deltadnbset_weight2.weight(fake_nb_set2, dummy_se, cn_map=cn_map2, additional_info=None)
+        self.assertAlmostEqual(myweightdelta2, 0.0, delta=1e-8)
+        myweightdelta3 = deltadnbset_weight2.weight(fake_nb_set3, dummy_se, cn_map=cn_map3, additional_info=None)
+        self.assertAlmostEqual(myweightdelta3, 0.0, delta=1e-8)
+
+        deltadnbset_weight3 = DeltaDistanceNbSetWeight(weight_function={'function': 'smoothstep',
+                                                                        'options': {'lower': 0.1,
+                                                                                    'upper': 0.5}})
+
+        myweightdelta1 = deltadnbset_weight3.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        self.assertAlmostEqual(myweightdelta1, 0.15625, delta=1e-8)
+        myweightdelta6 = deltadnbset_weight3.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        self.assertAlmostEqual(myweightdelta6, 0.31640625, delta=1e-8)
+
+        deltadnbset_weight4 = DeltaDistanceNbSetWeight(weight_function={'function': 'smoothstep',
+                                                                        'options': {'lower': 0.1,
+                                                                                    'upper': 0.5}},
+                                                       nbs_source='nb_sets')
+
+        myweightdelta1 = deltadnbset_weight4.weight(fake_nb_set1, dummy_se, cn_map=cn_map1, additional_info=None)
+        self.assertAlmostEqual(myweightdelta1, 0.15625, delta=1e-8)
+        myweightdelta6 = deltadnbset_weight4.weight(fake_nb_set6, dummy_se, cn_map=cn_map6, additional_info=None)
+        self.assertAlmostEqual(myweightdelta6, 1.0, delta=1e-8)
 
 
 if __name__ == "__main__":
