@@ -151,10 +151,10 @@ def update_doc(ctx):
 
 
 @task
-def publish(ctx):
+def publish(ctx, pypi_username="Shyue.Ping.Ong"):
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel")
-    ctx.run("twine upload -u Shyue.Ping.Ong dist/*")
+    ctx.run("twine upload -u "+pypi_username+" dist/*")
 
 
 @task
@@ -246,12 +246,12 @@ def log_ver(ctx):
 
 
 @task
-def release(ctx, notest=False, nodoc=False):
+def release(ctx, notest=False, nodoc=False, pypi_username="Shyue.Ping.Ong"):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
-    publish(ctx)
+    publish(ctx, pypi_username=pypi_username)
     log_ver(ctx)
     if not nodoc:
         update_doc(ctx)
