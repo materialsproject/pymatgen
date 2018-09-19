@@ -151,10 +151,10 @@ def update_doc(ctx):
 
 
 @task
-def publish(ctx, pypi_username="Shyue.Ping.Ong"):
+def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel")
-    ctx.run("twine upload -u "+pypi_username+" dist/*")
+    ctx.run("twine upload dist/*")
 
 
 @task
