@@ -110,6 +110,8 @@ Fork and clone the [materials.sh](https://github.com/materialsvirtuallab/materia
 This repo contains the conda skeletons to build the conda versions for various
 matsci codes on the [matsci channel](https://anaconda.org/matsci) in Anaconda.
 
+The first time this is run, you may need to `pip install beautifulsoup4`.
+
 If you doing this for the first time, make sure conda-build and anaconda-client are installed.
 ```bash
 conda install --yes conda-build anaconda-client
