@@ -2000,8 +2000,8 @@ class GrainBoundaryGenerator(object):
                         scale_factor.append(l)
                         if len(scale_factor) == 2:
                             break
-            t_matrix[0] = np.array(scale_factor[0] * np.matrix(csl))
-            t_matrix[1] = np.array(scale_factor[1] * np.matrix(csl))
+            t_matrix[0] = np.array(np.dot(scale_factor[0], csl))
+            t_matrix[1] = np.array(np.dot(scale_factor[1], csl))
             t_matrix[2] = csl[miller_nonzero[0]]
             if abs(np.linalg.det(t_matrix)) > 1000:
                 warnings.warn('Too large matrix. Suggest to use quick_gen=False')
