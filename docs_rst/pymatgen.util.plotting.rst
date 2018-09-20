@@ -1,5 +1,5 @@
-pymatgen\.util\.plotting module
-===============================
+pymatgen.util.plotting module
+=============================
 
 .. automodule:: pymatgen.util.plotting
     :members:

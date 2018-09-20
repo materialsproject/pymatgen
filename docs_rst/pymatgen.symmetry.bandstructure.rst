@@ -1,5 +1,5 @@
-pymatgen\.symmetry\.bandstructure module
-========================================
+pymatgen.symmetry.bandstructure module
+======================================
 
 .. automodule:: pymatgen.symmetry.bandstructure
     :members:

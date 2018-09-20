@@ -1,5 +1,5 @@
-pymatgen\.analysis\.cost\.cost module
-=====================================
+pymatgen.analysis.cost.cost module
+==================================
 
 .. automodule:: pymatgen.analysis.cost.cost
     :members:

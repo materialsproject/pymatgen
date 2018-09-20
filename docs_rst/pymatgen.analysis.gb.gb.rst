@@ -1,5 +1,5 @@
-pymatgen\.analysis\.gb\.gb module
-=================================
+pymatgen.analysis.gb.gb module
+==============================
 
 .. automodule:: pymatgen.analysis.gb.gb
     :members:

@@ -1,5 +1,5 @@
-pymatgen\.analysis\.defects\.core module
-========================================
+pymatgen.analysis.defects.core module
+=====================================
 
 .. automodule:: pymatgen.analysis.defects.core
     :members:

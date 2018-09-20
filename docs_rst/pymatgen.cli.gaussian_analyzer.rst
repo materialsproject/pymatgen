@@ -1,5 +1,5 @@
-pymatgen\.cli\.gaussian\_analyzer module
-========================================
+pymatgen.cli.gaussian\_analyzer module
+======================================
 
 .. automodule:: pymatgen.cli.gaussian_analyzer
     :members:

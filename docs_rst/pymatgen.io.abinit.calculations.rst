@@ -1,5 +1,5 @@
-pymatgen\.io\.abinit\.calculations module
-=========================================
+pymatgen.io.abinit.calculations module
+======================================
 
 .. automodule:: pymatgen.io.abinit.calculations
     :members:
