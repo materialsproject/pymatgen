@@ -1,5 +1,5 @@
-pymatgen\.analysis\.chemenv\.coordination\_environments\.coordination\_geometries\_files package
-================================================================================================
+pymatgen.analysis.chemenv.coordination\_environments.coordination\_geometries\_files package
+============================================================================================
 
 Module contents
 ---------------

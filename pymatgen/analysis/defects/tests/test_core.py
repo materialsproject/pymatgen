@@ -27,6 +27,9 @@ class DefectsCoreTest(PymatgenTest):
         vac_struc = vac.generate_defect_structure(3)
         self.assertEqual(vac_struc.composition.as_dict(), {"V": 53, "O": 108})
 
+        vac_struc = vac.generate_defect_structure([[2., 0, 0], [0, 0, -3.], [0, 2., 0]])
+        self.assertEqual(vac_struc.composition.as_dict(), {"V": 23, "O": 48})
+
         # test charge
         vac = Vacancy(struc, struc[V_index])
         vac_struc = vac.generate_defect_structure(1)
@@ -48,8 +51,14 @@ class DefectsCoreTest(PymatgenTest):
         vac = Vacancy(struc, struc[O_index])
         self.assertEqual(vac.multiplicity, 4)
 
-        # Test composoition
+        # Test composition
         self.assertEqual(dict(vac.defect_composition.as_dict()), {"V": 2, "O": 3})
+
+        # test lattice value error occurs for differnet lattices
+        sc_scaled_struc = struc.copy()
+        sc_scaled_struc.make_supercell(2)
+        self.assertRaises( ValueError, Vacancy, struc, sc_scaled_struc[V_index])
+        self.assertRaises( ValueError, Vacancy, sc_scaled_struc, struc[V_index])
 
     def test_interstitial(self):
         struc = PymatgenTest.get_structure("VO2")
@@ -69,6 +78,9 @@ class DefectsCoreTest(PymatgenTest):
 
         int_struc = interstitial.generate_defect_structure(3)
         self.assertEqual(int_struc.composition.as_dict(), {"V": 55, "O": 108})
+
+        int_struc = interstitial.generate_defect_structure([[2., 0, 0], [0, 0, -3.], [0, 2., 0]])
+        self.assertEqual(int_struc.composition.as_dict(), {"V": 25, "O": 48})
 
         # test charge
         interstitial = Interstitial(struc, int_site)
@@ -109,6 +121,9 @@ class DefectsCoreTest(PymatgenTest):
 
         sub_struc = substitution.generate_defect_structure(3)
         self.assertEqual(sub_struc.composition.as_dict(), {"V": 53, "Sr": 1, "O": 108})
+
+        sub_struc = substitution.generate_defect_structure([[2., 0, 0], [0, 0, -3.], [0, 2., 0]])
+        self.assertEqual(sub_struc.composition.as_dict(), {"V": 23, "O": 48, "Sr": 1})
 
         # test charge
         substitution = Substitution(struc, sub_site)
