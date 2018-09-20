@@ -1731,6 +1731,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start_lockfile.remove()
         self.qerr_file.remove()
         self.qout_file.remove()
+        if self.mpiabort_file.exists:
+            self.mpiabort_file.remove()
 
         self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
         self.set_qjob(None)
