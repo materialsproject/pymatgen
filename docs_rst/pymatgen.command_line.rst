@@ -1,5 +1,5 @@
-pymatgen\.command\_line package
-===============================
+pymatgen.command\_line package
+==============================
 
 Subpackages
 -----------

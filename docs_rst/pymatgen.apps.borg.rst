@@ -1,5 +1,5 @@
-pymatgen\.apps\.borg package
-============================
+pymatgen.apps.borg package
+==========================
 
 Subpackages
 -----------

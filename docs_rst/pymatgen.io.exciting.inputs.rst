@@ -1,5 +1,5 @@
-pymatgen\.io\.exciting\.inputs module
-=====================================
+pymatgen.io.exciting.inputs module
+==================================
 
 .. automodule:: pymatgen.io.exciting.inputs
     :members:

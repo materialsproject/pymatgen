@@ -1,5 +1,5 @@
-pymatgen\.analysis\.diffusion\_analyzer module
-==============================================
+pymatgen.analysis.diffusion\_analyzer module
+============================================
 
 .. automodule:: pymatgen.analysis.diffusion_analyzer
     :members:

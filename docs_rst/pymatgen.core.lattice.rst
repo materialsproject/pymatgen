@@ -1,5 +1,5 @@
-pymatgen\.core\.lattice module
-==============================
+pymatgen.core.lattice module
+============================
 
 .. automodule:: pymatgen.core.lattice
     :members:
