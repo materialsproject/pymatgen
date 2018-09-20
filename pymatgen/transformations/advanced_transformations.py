@@ -37,7 +37,7 @@ from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.analysis.gb.GrainBoundary import GrainBoundaryGenerator
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 
 """
 This module implements more advanced transformations.
