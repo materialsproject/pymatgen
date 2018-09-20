@@ -68,6 +68,7 @@ You may want to add these to your .bash_profile to avoid having to type these ea
 The above instructions are general, but there are some known issues that are machine-specific:
 
 * Installing lxml via pip required `STATIC_DEPS=true pip install lxml` on macOS 10.13.
+* It can be useful to `pip install --upgrade pip twine setuptools` (this may be necessary if there are authentication errors when connecting to PyPI).
 
 ## Doing the release
 
