@@ -1015,11 +1015,11 @@ class ChgcarTest(PymatgenTest):
 
         os.remove("chgcar_test.hdf5")
 
-    def test_MSONable_dict_parse(self):
+    def test_as_dict_and_from_dict(self):
         chgcar = Chgcar.from_file(os.path.join(test_dir, "CHGCAR.NiO_SOC.gz"))
         d = chgcar.as_dict()
         chgcar_from_dict = Chgcar.from_dict(d)
-        self.assertArrayAlmostEqual(chgcar.data['total'], chgcar_from_dict.data['total'] )
+        self.assertArrayAlmostEqual(chgcar.data['total'], chgcar_from_dict.data['total'])
         self.assertArrayAlmostEqual(chgcar.structure.lattice.matrix,
                                     chgcar_from_dict.structure.lattice.matrix)
 
