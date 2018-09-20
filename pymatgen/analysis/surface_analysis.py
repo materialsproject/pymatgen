@@ -1306,12 +1306,9 @@ def entry_dict_from_list(all_slab_entries):
 
 class WorkFunctionAnalyzer(object):
     """
-    A class that post processes a task document of a vasp calculation (from
-        using drone.assimilate). Can calculate work function from the vasp
-        calculations and plot the potential along the c axis. This class
-        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a
-        slab calculation and it was insert into the task document along with
-        the other outputs.
+    A class used for calculating the work function
+        from a slab model and visualizing the behavior
+        of the local potential along the slab. 
 
     .. attribute:: efermi
 
