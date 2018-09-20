@@ -2667,7 +2667,7 @@ class Outcar(object):
         self.data["fermi_contact_shift"] = fc_shift_table
 
 
-class VolumetricData(object):
+class VolumetricData(MSONable):
     """
     Simple volumetric object for reading LOCPOT and CHGCAR type files.
 
