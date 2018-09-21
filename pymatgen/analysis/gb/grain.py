@@ -577,21 +577,21 @@ class GrainBoundaryGenerator(object):
         bottom_grain = fix_pbc(parent_structure * t2, top_grain.lattice.matrix)
 
         # label both grains with 'top','bottom','top_incident','bottom_incident'
-        N_sites = top_grain.num_sites
+        n_sites = top_grain.num_sites
         t_and_b = Structure(top_grain.lattice, top_grain.species + bottom_grain.species,
                             list(top_grain.frac_coords) + list(bottom_grain.frac_coords))
-        t_and_b_dis = t_and_b.lattice.get_all_distances(t_and_b.frac_coords[0:N_sites],
-                                                        t_and_b.frac_coords[N_sites:N_sites * 2])
+        t_and_b_dis = t_and_b.lattice.get_all_distances(t_and_b.frac_coords[0:n_sites],
+                                                        t_and_b.frac_coords[n_sites:n_sites * 2])
         index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + tol_coi)
 
         top_labels = []
-        for i in range(N_sites):
+        for i in range(n_sites):
             if i in index_incident[0]:
                 top_labels.append('top_incident')
             else:
                 top_labels.append('top')
         bottom_labels = []
-        for i in range(N_sites):
+        for i in range(n_sites):
             if i in index_incident[1]:
                 bottom_labels.append('bottom_incident')
             else:
