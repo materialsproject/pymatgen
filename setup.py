@@ -124,8 +124,6 @@ setup(
                   "pymatgen.io.feff": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml", "*.json"],
                   "pymatgen.entries": ["*.yaml"],
-                  "pymatgen.analysis.structure_prediction": ["data/*.json"],
-                  "pymatgen.analysis.structure_prediction": ["DLS_bond_params.yaml"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
                   "pymatgen.analysis.defects": ["*.json"],
@@ -133,8 +131,8 @@ setup(
                   "pymatgen.util": ["structures/*.json"]},
     author="Pymatgen Development Team",
     author_email="pymatgen@googlegroups.com",
-    maintainer="Shyue Ping Ong",
-    maintainer_email="ongsp@eng.ucsd.edu",
+    maintainer="Shyue Ping Ong, Matthew Horton",
+    maintainer_email="ongsp@eng.ucsd.edu, mkhorton@lbl.gov",
     url="http://www.pymatgen.org",
     license="MIT",
     description="Python Materials Genomics is a robust materials "
@@ -144,8 +142,9 @@ setup(
                 "powering the Materials Project "
                 "(https://www.materialsproject.org).",
     long_description=long_desc,
-    keywords=["VASP", "gaussian", "ABINIT", "nwchem", "materials", "project",
-              "electronic", "structure", "analysis", "phase", "diagrams"],
+    keywords=["VASP", "gaussian", "ABINIT", "nwchem", "qchem", "materials", "science",
+              "project", "electronic", "structure", "analysis", "phase", "diagrams",
+              "crystal"],
     classifiers=[
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
