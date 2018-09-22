@@ -356,7 +356,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
                         ndisordered, self.max_disordered_sites))
             max_cell_sizes = range(self.min_cell_size, int(
                 math.floor(self.max_disordered_sites / ndisordered)) + 1)
-
         else:
             max_cell_sizes = [self.max_cell_size]
 
