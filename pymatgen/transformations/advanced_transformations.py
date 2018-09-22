@@ -37,7 +37,7 @@ from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.analysis.gb.gb import GBGenerator
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 
 """
 This module implements more advanced transformations.
@@ -1201,7 +1201,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.tol_coi = tol_coi
 
     def apply_transformation(self, structure):
-        gbg = GBGenerator(structure)
+        gbg = GrainBoundaryGenerator(structure)
         gb_struct = gbg.gb_from_parameters(
             self.rotation_axis,
             self.rotation_angle,
