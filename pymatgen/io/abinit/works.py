@@ -1363,11 +1363,14 @@ class MergeDdb(object):
 
         return out_ddb
 
-    def merge_pot1_files(self):
+    def merge_pot1_files(self, delete_source=True):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgdvdb` in sequential on the local machine to produce
         the final DVDB file in the outdir of the `Work`.
+
+        Args:
+            delete_source: True if POT1 files should be removed after (successful) merge.
 
         Returns:
             path to the output DVDB file. None if not DFPT POT file is found.
@@ -1402,7 +1405,7 @@ class MergeDdb(object):
             # Besides there are machines such as lemaitre3 that are problematic when
             # running MPI applications on the front-end
             mrgdvdb = wrappers.Mrgdvdb(manager=self[0].manager, verbose=0)
-            mrgdvdb.merge(self.outdir.path, pot1_files, out_dvdb)
+            mrgdvdb.merge(self.outdir.path, pot1_files, out_dvdb, delete_source=delete_source)
 
         return out_dvdb
 

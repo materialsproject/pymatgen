@@ -271,6 +271,9 @@ class Mrgdvdb(ExecWrapper):
         """
         Merge POT files containing 1st order DFPT potential
         return the absolute path of the new database in workdir.
+
+        Args:
+            delete_source: True if POT1 files should be removed after (successful) merge.
         """
         # We work with absolute paths.
         pot_files = [os.path.abspath(s) for s in list_strings(pot_files)]
