@@ -13,7 +13,8 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp import Vasprun, Poscar, Outcar
 from pymatgen.analysis.defects.core import DefectEntry, Vacancy
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection,\
-            BandFillingCorrection, BandEdgeShiftingCorrection, KumagaiCorrection
+            BandFillingCorrection, BandEdgeShiftingCorrection, KumagaiCorrection,\
+            ShallowLevelShiftCorrection
 from pymatgen.analysis.defects.utils import generate_R_and_G_vecs
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
@@ -248,26 +249,37 @@ class DefectsCorrectionsTest(PymatgenTest):
         params = {'hybrid_cbm': 1., 'hybrid_vbm': -1., 'vbm': -0.5, 'cbm': 0.6, 'num_hole_vbm': 0., 'num_elec_cbm': 0.}
         de = DefectEntry(vac, 0., corrections={}, parameters=params, entry_id=None)
 
-        #test with no free carriers
         corr = besc.get_correction(de)
         self.assertEqual(corr['vbm_shift_correction'], 1.5)
+
+
+
+    def test_shallowlevelshifting(self):
+        struc = PymatgenTest.get_structure("VO2")
+        struc.make_supercell(3)
+        struc = struc
+        vac = Vacancy(struc, struc.sites[0], charge=-3)
+
+        slsc = ShallowLevelShiftCorrection()
+        params = {'hybrid_cbm': 1., 'hybrid_vbm': -1., 'vbm': -0.5, 'cbm': 0.6, 'num_hole_vbm': 0., 'num_elec_cbm': 0.}
+        de = DefectEntry(vac, 0., corrections={}, parameters=params, entry_id=None)
+
+        #test with no free carriers
+        corr = slsc.get_correction(de)
         self.assertEqual(corr['elec_cbm_shift_correction'], 0.)
         self.assertEqual(corr['hole_vbm_shift_correction'], 0.)
 
         #test with free holes
         de.parameters.update({'num_hole_vbm': 1.})
-        corr = besc.get_correction(de)
-        self.assertEqual(corr['vbm_shift_correction'], 1.5)
+        corr = slsc.get_correction(de)
         self.assertEqual(corr['elec_cbm_shift_correction'], 0.)
         self.assertEqual(corr['hole_vbm_shift_correction'], 0.5)
 
         #test with free electrons
         de.parameters.update({'num_hole_vbm': 0., 'num_elec_cbm': 1.})
-        corr = besc.get_correction(de)
-        self.assertEqual(corr['vbm_shift_correction'], 1.5)
+        corr = slsc.get_correction(de)
         self.assertEqual(corr['elec_cbm_shift_correction'], 0.4)
         self.assertEqual(corr['hole_vbm_shift_correction'], 0.)
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -692,22 +692,79 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         hybrid_vbm = entry.parameters["hybrid_vbm"]
         vbm = entry.parameters["vbm"]
         cbm = entry.parameters["cbm"]
-        num_hole_vbm = entry.parameters["num_hole_vbm"]
-        num_elec_cbm = entry.parameters["num_elec_cbm"]
 
         self.metadata["vbmshift"] = hybrid_vbm - vbm  # note vbmshift has UPWARD as positive convention
         self.metadata["cbmshift"] = hybrid_cbm - cbm  # note cbmshift has UPWARD as positive convention
 
         charge = entry.charge
         vbm_shift_correction = charge * self.metadata["vbmshift"]
-        # negative sign has to do with fact that these are holes
-        hole_vbm_shift_correction = -1. * num_hole_vbm * self.metadata["vbmshift"]
-        elec_cbm_shift_correction = num_elec_cbm * self.metadata["cbmshift"]
-
         entry.parameters["bandshift_meta"] = dict(self.metadata)
 
         return {
             "vbm_shift_correction": vbm_shift_correction,
-            "hole_vbm_shift_correction": hole_vbm_shift_correction,
-            "elec_cbm_shift_correction": elec_cbm_shift_correction
         }
+
+
+class ShallowLevelShiftCorrection(DefectCorrection):
+    """
+    A class for DefectLevelShiftingCorrection class. Largely adapted from PyCDT code
+
+    Requires some parameters in the DefectEntry to properly function:
+        hybrid_cbm
+            CBM of HYBRID bulk calculation
+
+        hybrid_vbm
+            VBM of HYBRID bulk calculation
+
+        cbm
+            CBM of bulk calculation (or band structure calculation of bulk);
+            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA cbm
+
+        vbm
+            VBM of bulk calculation (or band structure calculation of bulk);
+            calculated on same level of theory as the eigenvalues list (ex. GGA defects -> need GGA vbm
+
+        num_hole_vbm
+            number of free holes that were found in valence band for the defect calculation
+            calculated in the metadata of the BandFilling Correction
+
+        num_elec_cbm
+            number of free electrons that were found in the conduction band for the defect calculation
+            calculated in the metadata of the BandFilling Correction
+
+    """
+
+    def __init__(self):
+        self.metadata = {
+            "vbmshift": 0.,
+            "cbmshift": 0.,
+        }
+
+    def get_correction(self, entry, shift_approach='carriers_100percent_with_edges'):
+        """
+        Gets the ShallowLevel correction for a defect entry
+        """
+        # TODO: add smarter defect level shifting based on defect level projection onto host bands
+        hybrid_cbm = entry.parameters["hybrid_cbm"]
+        hybrid_vbm = entry.parameters["hybrid_vbm"]
+        vbm = entry.parameters["vbm"]
+        cbm = entry.parameters["cbm"]
+        num_hole_vbm = entry.parameters["num_hole_vbm"]
+        num_elec_cbm = entry.parameters["num_elec_cbm"]
+
+        self.metadata["vbmshift"] = hybrid_vbm - vbm  # note vbmshift has UPWARD as positive convention
+        self.metadata["cbmshift"] = hybrid_cbm - cbm  # note cbmshift has UPWARD as positive convention
+
+        if shift_approach == 'carriers_100percent_with_edges':
+            # negative sign has to do with fact that these are holes
+            hole_vbm_shift_correction = -1. * num_hole_vbm * self.metadata["vbmshift"]
+            elec_cbm_shift_correction = num_elec_cbm * self.metadata["cbmshift"]
+            total_shift_corr = { "hole_vbm_shift_correction": hole_vbm_shift_correction,
+                                 "elec_cbm_shift_correction": elec_cbm_shift_correction
+                                 }
+        else:
+            raise ValueError('Shift_approach = {} not recognized...'.format( shift_approach))
+
+        entry.parameters["bandshift_meta"] = dict(self.metadata)
+
+        return total_shift_corr
