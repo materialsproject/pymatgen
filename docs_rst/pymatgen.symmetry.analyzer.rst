@@ -1,5 +1,5 @@
-pymatgen\.symmetry\.analyzer module
-===================================
+pymatgen.symmetry.analyzer module
+=================================
 
 .. automodule:: pymatgen.symmetry.analyzer
     :members:

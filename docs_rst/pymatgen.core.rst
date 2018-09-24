@@ -1,5 +1,5 @@
-pymatgen\.core package
-======================
+pymatgen.core package
+=====================
 
 Subpackages
 -----------

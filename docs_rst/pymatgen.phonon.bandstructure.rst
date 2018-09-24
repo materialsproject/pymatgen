@@ -1,5 +1,5 @@
-pymatgen\.phonon\.bandstructure module
-======================================
+pymatgen.phonon.bandstructure module
+====================================
 
 .. automodule:: pymatgen.phonon.bandstructure
     :members:

@@ -1,5 +1,5 @@
-pymatgen\.cli package
-=====================
+pymatgen.cli package
+====================
 
 Submodules
 ----------
