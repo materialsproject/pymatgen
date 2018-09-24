@@ -1,5 +1,5 @@
-pymatgen\.analysis\.path\_finder module
-=======================================
+pymatgen.analysis.path\_finder module
+=====================================
 
 .. automodule:: pymatgen.analysis.path_finder
     :members:

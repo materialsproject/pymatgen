@@ -36,7 +36,7 @@ class MolecularOrbitals(object):
     def __init__(self, formula):
         '''
         Args:
-            A chemical formula as a string
+            chemical formula as a string. formula must have integer subscripts
             Ex: 'SrTiO3'
 
         Attributes:
@@ -53,6 +53,10 @@ class MolecularOrbitals(object):
         '''
         self.composition = Composition(formula).as_dict()
         self.elements = self.composition.keys()
+        for subscript in self.composition.values():
+            if not float(subscript).is_integer():
+                raise ValueError('composition subscripts must be integers')
+
         self.elec_neg = self.max_electronegativity()
         self.aos = {str(el): [[str(el), k, v]
                               for k, v in Element(el).atomic_orbitals.items()]
