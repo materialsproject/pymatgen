@@ -18,13 +18,13 @@ from pymatgen.transformations.advanced_transformations import \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation, \
     DopingTransformation, _find_codopant, SlabTransformation, \
-    MagOrderParameterConstraint
+    MagOrderParameterConstraint, DisorderOrderedTransformation
 from monty.os.path import which
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
-from pymatgen.analysis.gb.gb import GBGenerator
+from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.surface import SlabGenerator
 
@@ -584,7 +584,7 @@ class GrainBoundaryTransformationTest(PymatgenTest):
         gb_gen_params_s3 = {"rotation_axis": [1, 1, 1], "rotation_angle": 60.0,
                             "expand_times": 2, "vacuum_thickness": 0.0, "normal": True,
                             "ratio": None, "plane": None}
-        gbg = GBGenerator(Li_bulk)
+        gbg = GrainBoundaryGenerator(Li_bulk)
         gb_from_generator = gbg.gb_from_parameters(**gb_gen_params_s3)
         gbt_s3 = GrainBoundaryTransformation(**gb_gen_params_s3)
         gb_from_trans = gbt_s3.apply_transformation(Li_bulk)
@@ -592,6 +592,20 @@ class GrainBoundaryTransformationTest(PymatgenTest):
                                     gb_from_trans.lattice.matrix)
         self.assertArrayAlmostEqual(gb_from_generator.cart_coords,
                                     gb_from_trans.cart_coords)
+
+class DisorderedOrderedTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+
+        # non-sensical example just for testing purposes
+        struct = self.get_structure('BaNiO3')
+
+        trans = DisorderOrderedTransformation()
+        output = trans.apply_transformation(struct)
+
+        self.assertFalse(output.is_ordered)
+        self.assertDictEqual(output.species_and_occu[-1].as_dict(),
+                             {'Ni': 0.5, 'Ba': 0.5})
 
 if __name__ == "__main__":
     import logging
