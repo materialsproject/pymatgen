@@ -1355,4 +1355,4 @@ class GrainBoundaryTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self):
-        return True
+        return False
