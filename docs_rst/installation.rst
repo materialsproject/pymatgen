@@ -8,8 +8,8 @@ be available on `PyPI <http://pypi.python.org>`_.
 1. Python 2.7-3.x supported. **It is highly recommended that you use latest
    Python 3.x unless you know you need other dependencies that works with
    Python 2.x only.**
-2. numpy>=1.10
-3. scipy>0.14
+2. numpy>=1.14
+3. scipy>=1.0.1
 4. matplotlib>=1.5+
 5. monty>=0.9.6
 6. requests>=2.0+
@@ -28,22 +28,21 @@ Optional dependencies
 
 Optional libraries that are required if you need certain features.
 
-1. pyhull 1.5.2+: For electronic structure, generation of Pourbaix diagrams.
-2. sympy: For defect generation and analysis.
-3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+1. sympy: For defect generation and analysis.
+2. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
-4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+3. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
    Note that the ASE package is incompatible with Python 3.x at the moment.
-5. OpenBabel with Python bindings (http://openbabel.org): Required for the
+4. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-6. networkx: For graph analysis associated with critic2 topological analysis
+5. networkx: For graph analysis associated with critic2 topological analysis
    of electron charge densities, pygraphviz is also required for visualization.
-7. nose - For unittesting. Not optional for developers.
+6. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------

@@ -6,14 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2018.3.14 documentation</title>
+    <title>pymatgen.io.vasp.inputs module &#8212; pymatgen 2018.9.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -63,8 +63,7 @@ a dictionary with some helper functions</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.inputs.Incar.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.inputs.Incar.diff">
@@ -96,7 +95,7 @@ E.g. {“ISIF”:3}</td>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Incar.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads an Incar object from a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -112,7 +111,7 @@ E.g. {“ISIF”:3}</td>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Incar.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads an Incar object from a string.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -150,7 +149,7 @@ to False.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Incar.proc_val">
-<em class="property">static </em><code class="descname">proc_val</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.proc_val"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.proc_val" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">proc_val</code><span class="sig-paren">(</span><em>key</em>, <em>val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Incar.proc_val"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Incar.proc_val" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static helper method to convert INCAR parameters to proper types, e.g.,
 integers, floats, lists, etc.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -185,7 +184,7 @@ integers, floats, lists, etc.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.inputs.Kpoints">
-<em class="property">class </em><code class="descname">Kpoints</code><span class="sig-paren">(</span><em>comment='Default gamma'</em>, <em>num_kpts=0</em>, <em>style=&lt;Kpoints_supported_modes.Gamma: 1&gt;</em>, <em>kpts=((1</em>, <em>1</em>, <em>1)</em>, <em>)</em>, <em>kpts_shift=(0</em>, <em>0</em>, <em>0)</em>, <em>kpts_weights=None</em>, <em>coord_type=None</em>, <em>labels=None</em>, <em>tet_number=0</em>, <em>tet_weight=0</em>, <em>tet_connections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Kpoints</code><span class="sig-paren">(</span><em>comment=u'Default gamma'</em>, <em>num_kpts=0</em>, <em>style=&lt;Kpoints_supported_modes.Gamma: 1&gt;</em>, <em>kpts=((1</em>, <em>1</em>, <em>1)</em>, <em>)</em>, <em>kpts_shift=(0</em>, <em>0</em>, <em>0)</em>, <em>kpts_weights=None</em>, <em>coord_type=None</em>, <em>labels=None</em>, <em>tet_number=0</em>, <em>tet_weight=0</em>, <em>tet_connections=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>KPOINT reader/writer.</p>
 <p>Highly flexible constructor for Kpoints object.  The flexibility comes
@@ -241,7 +240,7 @@ Format is a list of tuples, [ (sym_weight, [tet_vertices]),
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.automatic">
-<em class="property">static </em><code class="descname">automatic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">automatic</code><span class="sig-paren">(</span><em>subdivisions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for a fully automatic Kpoint grid, with
 gamma centered Monkhorst-Pack grids and the number of subdivisions
 along each reciprocal lattice vector determined by the scheme in the
@@ -261,7 +260,7 @@ each reciprocal lattice vector.</td>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.automatic_density">
-<em class="property">static </em><code class="descname">automatic_density</code><span class="sig-paren">(</span><em>kppa</em>, <em>force_gamma=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_density" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">automatic_density</code><span class="sig-paren">(</span><em>structure</em>, <em>kppa</em>, <em>force_gamma=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an automatic Kpoint object based on a structure and a kpoint
 density. Uses Gamma centered meshes for hexagonal cells and
 Monkhorst-Pack grids otherwise.</p>
@@ -291,7 +290,7 @@ use gamma only for hexagonal cells or odd meshes)</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.automatic_density_by_vol">
-<em class="property">static </em><code class="descname">automatic_density_by_vol</code><span class="sig-paren">(</span><em>kppvol</em>, <em>force_gamma=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_density_by_vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_density_by_vol" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">automatic_density_by_vol</code><span class="sig-paren">(</span><em>structure</em>, <em>kppvol</em>, <em>force_gamma=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_density_by_vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_density_by_vol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an automatic Kpoint object based on a structure and a kpoint
 density per inverse Angstrom of reciprocal cell.</p>
 <dl class="docutils">
@@ -318,7 +317,7 @@ density per inverse Angstrom of reciprocal cell.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.automatic_gamma_density">
-<em class="property">static </em><code class="descname">automatic_gamma_density</code><span class="sig-paren">(</span><em>kppa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_gamma_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_gamma_density" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">automatic_gamma_density</code><span class="sig-paren">(</span><em>structure</em>, <em>kppa</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_gamma_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_gamma_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an automatic Kpoint object based on a structure and a kpoint
 density. Uses Gamma centered meshes always. For GW.</p>
 <dl class="docutils">
@@ -342,7 +341,7 @@ reciprocal lattice vector proportional to its length.</dd>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.automatic_linemode">
-<em class="property">static </em><code class="descname">automatic_linemode</code><span class="sig-paren">(</span><em>ibz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_linemode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_linemode" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">automatic_linemode</code><span class="sig-paren">(</span><em>divisions</em>, <em>ibz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.automatic_linemode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.automatic_linemode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for a KPOINTS in mode line_mode.
 gamma centered Monkhorst-Pack grids and the number of subdivisions
 along each reciprocal lattice vector determined by the scheme in the
@@ -372,7 +371,7 @@ hight symetry lines.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a Kpoints object from a KPOINTS file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -388,7 +387,7 @@ hight symetry lines.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a Kpoints object from a KPOINTS string.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -404,7 +403,7 @@ hight symetry lines.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.gamma_automatic">
-<em class="property">static </em><code class="descname">gamma_automatic</code><span class="sig-paren">(</span><em>shift=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.gamma_automatic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.gamma_automatic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">gamma_automatic</code><span class="sig-paren">(</span><em>kpts=(1</em>, <em>1</em>, <em>1)</em>, <em>shift=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.gamma_automatic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.gamma_automatic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for an automatic Gamma centered Kpoint
 grid.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -427,7 +426,7 @@ vectors. Defaults to (1,1,1)</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Kpoints.monkhorst_automatic">
-<em class="property">static </em><code class="descname">monkhorst_automatic</code><span class="sig-paren">(</span><em>shift=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.monkhorst_automatic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.monkhorst_automatic" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">monkhorst_automatic</code><span class="sig-paren">(</span><em>kpts=(2</em>, <em>2</em>, <em>2)</em>, <em>shift=(0</em>, <em>0</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints.monkhorst_automatic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints.monkhorst_automatic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenient static constructor for an automatic Monkhorst pack Kpoint
 grid.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -479,7 +478,6 @@ vectors. Defaults to (2,2,2)</li>
 <dt id="pymatgen.io.vasp.inputs.Kpoints_supported_modes">
 <em class="property">class </em><code class="descname">Kpoints_supported_modes</code><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Kpoints_supported_modes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints_supported_modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>An enumeration.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.Kpoints_supported_modes.Automatic">
 <code class="descname">Automatic</code><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.Kpoints_supported_modes.Automatic" title="Permalink to this definition">¶</a></dt>
@@ -681,8 +679,7 @@ to -1 (MB hasn”t been performed).</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.inputs.Poscar.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.vasp.inputs.Poscar.from_dict">
@@ -691,7 +688,7 @@ to -1 (MB hasn”t been performed).</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Poscar.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>check_for_POTCAR=True</em>, <em>read_velocities=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em>, <em>check_for_POTCAR=True</em>, <em>read_velocities=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a Poscar from a file.</p>
 <p>The code will try its best to determine the elements in the POSCAR in
 the following order:
@@ -730,7 +727,7 @@ are present in the POSCAR. Default is True.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Poscar.from_string">
-<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>default_names=None</em>, <em>read_velocities=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.from_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_string</code><span class="sig-paren">(</span><em>data</em>, <em>default_names=None</em>, <em>read_velocities=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Poscar.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Poscar.from_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a Poscar from a string.</p>
 <p>The code will try its best to determine the elements in the POSCAR in
 the following order:
@@ -883,14 +880,13 @@ symbol to raw POTCAR mapping.</li>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.Potcar.FUNCTIONAL_CHOICES">
-<code class="descname">FUNCTIONAL_CHOICES</code><em class="property"> = ['PBE', 'PBE_52', 'PBE_54', 'LDA', 'LDA_52', 'LDA_54', 'PW91', 'LDA_US', 'PW91_US']</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.Potcar.FUNCTIONAL_CHOICES" title="Permalink to this definition">¶</a></dt>
+<code class="descname">FUNCTIONAL_CHOICES</code><em class="property"> = [u'PBE', u'PBE_52', u'LDA', u'PW91_US', u'LDA_US', u'PBE_54', u'PW91', u'LDA_52', u'LDA_54']</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.Potcar.FUNCTIONAL_CHOICES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.inputs.Potcar.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Potcar.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Potcar.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.vasp.inputs.Potcar.from_dict">
@@ -899,7 +895,7 @@ symbol to raw POTCAR mapping.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.Potcar.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Potcar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Potcar.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#Potcar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.Potcar.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1003,12 +999,12 @@ potcar.encut, etc.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#PotcarSingle.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#PotcarSingle.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.from_symbol_and_functional">
-<em class="property">static </em><code class="descname">from_symbol_and_functional</code><span class="sig-paren">(</span><em>functional=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#PotcarSingle.from_symbol_and_functional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.from_symbol_and_functional" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_symbol_and_functional</code><span class="sig-paren">(</span><em>symbol</em>, <em>functional=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#PotcarSingle.from_symbol_and_functional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.from_symbol_and_functional" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1023,12 +1019,12 @@ potcar.encut, etc.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.functional_dir">
-<code class="descname">functional_dir</code><em class="property"> = {'LDA': 'POT_LDA_PAW', 'LDA_52': 'POT_LDA_PAW_52', 'LDA_54': 'POT_LDA_PAW_54', 'LDA_US': 'POT_LDA_US', 'PBE': 'POT_GGA_PAW_PBE', 'PBE_52': 'POT_GGA_PAW_PBE_52', 'PBE_54': 'POT_GGA_PAW_PBE_54', 'PW91': 'POT_GGA_PAW_PW91', 'PW91_US': 'POT_GGA_US_PW91'}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_dir" title="Permalink to this definition">¶</a></dt>
+<code class="descname">functional_dir</code><em class="property"> = {u'LDA': u'POT_LDA_PAW', u'LDA_52': u'POT_LDA_PAW_52', u'LDA_54': u'POT_LDA_PAW_54', u'LDA_US': u'POT_LDA_US', u'PBE': u'POT_GGA_PAW_PBE', u'PBE_52': u'POT_GGA_PAW_PBE_52', u'PBE_54': u'POT_GGA_PAW_PBE_54', u'PW91': u'POT_GGA_PAW_PW91', u'PW91_US': u'POT_GGA_US_PW91'}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_dir" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.functional_tags">
-<code class="descname">functional_tags</code><em class="property"> = {'91': {'name': 'PW91', 'class': 'GGA'}, 'am': {'name': 'AM05', 'class': 'GGA'}, 'ca': {'name': 'Perdew-Zunger81', 'class': 'LDA'}, 'hl': {'name': 'Hedin-Lundquist', 'class': 'LDA'}, 'lm': {'name': 'Langreth-Mehl-Hu', 'class': 'GGA'}, 'pb': {'name': 'Perdew-Becke', 'class': 'GGA'}, 'pe': {'name': 'PBE', 'class': 'GGA'}, 'ps': {'name': 'PBEsol', 'class': 'GGA'}, 'pw': {'name': 'PW86', 'class': 'GGA'}, 'rp': {'name': 'revPBE', 'class': 'GGA'}, 'wi': {'name': 'Wigner Interpoloation', 'class': 'LDA'}}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descname">functional_tags</code><em class="property"> = {u'91': {u'class': u'GGA', u'name': u'PW91'}, u'am': {u'class': u'GGA', u'name': u'AM05'}, u'ca': {u'class': u'LDA', u'name': u'Perdew-Zunger81'}, u'hl': {u'class': u'LDA', u'name': u'Hedin-Lundquist'}, u'lm': {u'class': u'GGA', u'name': u'Langreth-Mehl-Hu'}, u'pb': {u'class': u'GGA', u'name': u'Perdew-Becke'}, u'pe': {u'class': u'GGA', u'name': u'PBE'}, u'ps': {u'class': u'GGA', u'name': u'PBEsol'}, u'pw': {u'class': u'GGA', u'name': u'PW86'}, u'rp': {u'class': u'GGA', u'name': u'revPBE'}, u'wi': {u'class': u'LDA', u'name': u'Wigner Interpoloation'}}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.functional_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1043,7 +1039,7 @@ potcar.encut, etc.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.inputs.PotcarSingle.parse_functions">
-<code class="descname">parse_functions</code><em class="property"> = {'DEXC': &lt;function parse_float at 0x112477d08&gt;, 'EATOM': &lt;function parse_float at 0x112477d08&gt;, 'EAUG': &lt;function parse_float at 0x112477d08&gt;, 'EMMIN': &lt;function parse_float at 0x112477d08&gt;, 'ENMAX': &lt;function parse_float at 0x112477d08&gt;, 'ENMIN': &lt;function parse_float at 0x112477d08&gt;, 'GGA': &lt;function parse_list at 0x112477e18&gt;, 'ICORE': &lt;function parse_int at 0x112477d90&gt;, 'IUNSCR': &lt;function parse_int at 0x112477d90&gt;, 'LCOR': &lt;function parse_bool at 0x112477c80&gt;, 'LEXCH': &lt;function parse_string at 0x11247fbf8&gt;, 'LPAW': &lt;function parse_bool at 0x112477c80&gt;, 'LULTRA': &lt;function parse_bool at 0x112477c80&gt;, 'LUNSCR': &lt;function parse_bool at 0x112477c80&gt;, 'NDATA': &lt;function parse_int at 0x112477d90&gt;, 'POMASS': &lt;function parse_float at 0x112477d08&gt;, 'QCUT': &lt;function parse_float at 0x112477d08&gt;, 'QGAM': &lt;function parse_float at 0x112477d08&gt;, 'RAUG': &lt;function parse_float at 0x112477d08&gt;, 'RCLOC': &lt;function parse_float at 0x112477d08&gt;, 'RCORE': &lt;function parse_float at 0x112477d08&gt;, 'RDEP': &lt;function parse_float at 0x112477d08&gt;, 'RDEPT': &lt;function parse_float at 0x112477d08&gt;, 'RMAX': &lt;function parse_float at 0x112477d08&gt;, 'RPACOR': &lt;function parse_float at 0x112477d08&gt;, 'RRKJ': &lt;function parse_list at 0x112477e18&gt;, 'RWIGS': &lt;function parse_float at 0x112477d08&gt;, 'STEP': &lt;function parse_list at 0x112477e18&gt;, 'TITEL': &lt;function parse_string at 0x11247fbf8&gt;, 'VRHFIN': &lt;function parse_string at 0x11247fbf8&gt;, 'ZVAL': &lt;function parse_float at 0x112477d08&gt;}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">parse_functions</code><em class="property"> = {u'DEXC': &lt;function parse_float&gt;, u'EATOM': &lt;function parse_float&gt;, u'EAUG': &lt;function parse_float&gt;, u'EMMIN': &lt;function parse_float&gt;, u'ENMAX': &lt;function parse_float&gt;, u'ENMIN': &lt;function parse_float&gt;, u'GGA': &lt;function parse_list&gt;, u'ICORE': &lt;function parse_int&gt;, u'IUNSCR': &lt;function parse_int&gt;, u'LCOR': &lt;function parse_bool&gt;, u'LEXCH': &lt;function parse_string&gt;, u'LPAW': &lt;function parse_bool&gt;, u'LULTRA': &lt;function parse_bool&gt;, u'LUNSCR': &lt;function parse_bool&gt;, u'NDATA': &lt;function parse_int&gt;, u'POMASS': &lt;function parse_float&gt;, u'QCUT': &lt;function parse_float&gt;, u'QGAM': &lt;function parse_float&gt;, u'RAUG': &lt;function parse_float&gt;, u'RCLOC': &lt;function parse_float&gt;, u'RCORE': &lt;function parse_float&gt;, u'RDEP': &lt;function parse_float&gt;, u'RDEPT': &lt;function parse_float&gt;, u'RMAX': &lt;function parse_float&gt;, u'RPACOR': &lt;function parse_float&gt;, u'RRKJ': &lt;function parse_list&gt;, u'RWIGS': &lt;function parse_float&gt;, u'STEP': &lt;function parse_list&gt;, u'TITEL': &lt;function parse_string&gt;, u'VRHFIN': &lt;function parse_string&gt;, u'ZVAL': &lt;function parse_float&gt;}</em><a class="headerlink" href="#pymatgen.io.vasp.inputs.PotcarSingle.parse_functions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1089,8 +1085,7 @@ conventions in implementing a as_dict() and from_dict method.</li>
 <dl class="method">
 <dt id="pymatgen.io.vasp.inputs.VaspInput.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#VaspInput.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.VaspInput.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="classmethod">
 <dt id="pymatgen.io.vasp.inputs.VaspInput.from_dict">
@@ -1099,7 +1094,7 @@ conventions in implementing a as_dict() and from_dict method.</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.inputs.VaspInput.from_directory">
-<em class="property">static </em><code class="descname">from_directory</code><span class="sig-paren">(</span><em>optional_files=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#VaspInput.from_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.VaspInput.from_directory" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_directory</code><span class="sig-paren">(</span><em>input_dir</em>, <em>optional_files=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#VaspInput.from_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.VaspInput.from_directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read in a set of VASP input from a directory. Note that only the
 standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
 optional_filenames is specified.</p>
@@ -1121,7 +1116,7 @@ static method from_file.</li>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.inputs.VaspInput.write_input">
-<code class="descname">write_input</code><span class="sig-paren">(</span><em>output_dir='.'</em>, <em>make_dir_if_not_present=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#VaspInput.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.VaspInput.write_input" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_input</code><span class="sig-paren">(</span><em>output_dir=u'.'</em>, <em>make_dir_if_not_present=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/inputs.html#VaspInput.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.inputs.VaspInput.write_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write VASP input to a directory.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1206,13 +1201,13 @@ present. Defaults to True.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.14 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

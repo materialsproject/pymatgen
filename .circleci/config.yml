@@ -9,22 +9,28 @@ jobs:
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
-            conda create --quiet --yes --name test_env python
+            conda create --quiet --yes --name test_env python=3.6
             source activate test_env
-            conda install --quiet --yes numpy scipy matplotlib sympy pandas
+            conda install --quiet --yes numpy scipy matplotlib sympy pandas cython
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
+            conda install --quiet --yes cmake
             conda update --quiet --all
             mkdir coverage_reports
-            pip install --quiet -r requirements.txt -r requirements-optional.txt
-      - run:
-          command: |
-            export PATH=$HOME/miniconda3/bin:$PATH
+            pip install --upgrade pip
+            pip install --quiet --ignore-installed -r requirements.txt
+            pip install --quiet --ignore-installed -r requirements-optional.txt
+            pip install nose-timer
+            export CFLAGS=$CFLAGS" -std=gnu++11"
+            pip install BoltzTraP2
+            export CFLAGS=${CFLAGS%% -std=gnu++11}
+            # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
-            source activate test_env
-            pip install --quiet -e .
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
-            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports
+            export MPLBACKEND=Agg
+            pip install --quiet -e .
+            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
+            # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
             pmg analyze -d test_files
@@ -35,7 +41,6 @@ jobs:
           destination: tr1
       - store_test_results:
           path: coverage_reports/
-
 
 workflows:
   version: 2

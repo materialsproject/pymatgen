@@ -7,10 +7,7 @@ from __future__ import unicode_literals
 import unittest
 import os
 from numbers import Number
-import matplotlib
 import warnings
-
-matplotlib.use("pdf")
 
 from pymatgen.analysis.phase_diagram import *
 from pymatgen.core.periodic_table import Element, DummySpecie
@@ -379,6 +376,25 @@ class PhaseDiagramTest(unittest.TestCase):
         calc_e2 = e1 + sum(cp[k] * v for k, v in (c2 - c1).items())
         self.assertAlmostEqual(e2, calc_e2)
 
+    def test_get_all_chempots(self):
+        c1 = Composition('Fe3.1O4')
+        c2 = Composition('FeO')
+
+        cp1 = self.pd.get_all_chempots(c1)
+        cpresult = {Element("Li"): -4.077061954999998,
+                    Element("Fe"): -6.741593864999999,
+                    Element("O"): -6.969907375000003}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp1['FeO-LiFeO2-Fe3O4'][elem],energy)
+
+        cp2 = self.pd.get_all_chempots(c2)
+        cpresult = {Element("O"): -7.115354140000001,
+                    Element("Fe"): -6.5961471,
+                    Element("Li"): -3.9316151899999987}
+
+        for elem, energy in cpresult.items():
+            self.assertAlmostEqual(cp2['FeO-LiFeO2-Fe'][elem],energy)
 
 class GrandPotentialPhaseDiagramTest(unittest.TestCase):
     def setUp(self):
@@ -446,17 +462,36 @@ class CompoundPhaseDiagramTest(unittest.TestCase):
     def test_str(self):
         self.assertIsNotNone(str(self.pd))
 
+
 class ReactionDiagramTest(unittest.TestCase):
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         (self.elements, self.entries) = PDEntry.from_csv(
             os.path.join(module_dir, "reaction_entries_test.csv"))
-        self.pd = ReactionDiagram(entry1=self.entries[0],
+        self.rd = ReactionDiagram(entry1=self.entries[0],
                                   entry2=self.entries[1],
                                   all_entries=self.entries[2:])
 
     def test_get_compound_pd(self):
-        self.pd.get_compound_pd()
+        self.rd.get_compound_pd()
+
+    def test_formed_formula(self):
+        formed_formula = [e.composition.reduced_formula for e in
+                          self.rd.rxn_entries]
+        expected_formula = [
+            'V0.12707182P0.12707182H0.0441989C0.03314917O0.66850829',
+            'V0.125P0.125H0.05C0.0375O0.6625',
+            'V0.12230216P0.12230216H0.05755396C0.04316547O0.65467626',
+            'V0.11340206P0.11340206H0.08247423C0.06185567O0.62886598',
+            'V0.11267606P0.11267606H0.08450704C0.06338028O0.62676056',
+            'V0.11229947P0.11229947H0.0855615C0.06417112O0.62566845',
+            'V0.09677419P0.09677419H0.12903226C0.09677419O0.58064516',
+            'V0.05882353P0.05882353H0.23529412C0.17647059O0.47058824',
+            'V0.04225352P0.04225352H0.28169014C0.21126761O0.42253521']
+
+        for formula in expected_formula:
+            self.assertTrue(formula in formed_formula)
+
 
 class PDPlotterTest(unittest.TestCase):
     def setUp(self):

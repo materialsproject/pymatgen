@@ -150,6 +150,10 @@ DERIVED_UNITS = {
     },
     "magnetic_flux": {
         "Wb": {"m": 2, "kg": 1, "s": -2, "A": -1}
+    },
+    "cross_section": {
+        "barn": {"m": 2, 1E-28: 1},
+        "mbarn": {"m": 2, 1E-31: 1}
     }
 }
 

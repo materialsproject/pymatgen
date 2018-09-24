@@ -168,23 +168,23 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             for hkl in plotter.all_slab_entries.keys():
                 # Test that the surface energy is clean for specific range of chempot
                 entry1, gamma1 = \
-                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -7})
+                    plotter.get_stable_entry_at_u(hkl, delu_dict={Symbol("delu_O"): -7})
                 entry2, gamma2 = \
-                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -6})
+                    plotter.get_stable_entry_at_u(hkl, delu_dict={Symbol("delu_O"): -6})
                 self.assertEqual(gamma1, gamma2)
                 self.assertEqual(entry1.label, entry2.label)
 
                 # Now test that for a high chempot, adsorption
                 # occurs and gamma is not equal to clean gamma
                 entry3, gamma3 = \
-                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): -1})
+                    plotter.get_stable_entry_at_u(hkl, delu_dict={Symbol("delu_O"): -1})
                 self.assertNotEqual(entry3.label, entry2.label)
                 self.assertNotEqual(gamma3, gamma2)
 
                 # For any chempot greater than -6, surface energy should vary
                 # but the configuration should remain the same
                 entry4, gamma4 = \
-                    plotter.get_stable_entry_at_u(hkl, u_dict={Symbol("delu_O"): 0})
+                    plotter.get_stable_entry_at_u(hkl, delu_dict={Symbol("delu_O"): 0})
                 self.assertEqual(entry3.label, entry4.label)
                 self.assertNotEqual(gamma3, gamma4)
 
@@ -206,19 +206,19 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             # Test WulffShape for adsorbed surfaces
             analyzer = self.Oads_analyzer_dict[el]
             # chempot = analyzer.max_adsorption_chempot_range(0)
-            wulff = analyzer.wulff_from_chempot(u_default=-6)
+            wulff = analyzer.wulff_from_chempot(delu_default=-6)
             se = wulff.weighted_surface_energy
 
         # Test if a different Wulff shape is generated
         # for Ni when adsorption comes into play
-        wulff_neg7 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-7)
-        wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-6)
+        wulff_neg7 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(delu_default=-7)
+        wulff_neg6 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(delu_default=-6)
         self.assertEqual(wulff_neg7.weighted_surface_energy,
                          wulff_neg6.weighted_surface_energy)
-        wulff_neg55 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-5.5)
+        wulff_neg55 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(delu_default=-5.5)
         self.assertNotEqual(wulff_neg55.weighted_surface_energy,
                             wulff_neg6.weighted_surface_energy)
-        wulff_neg525 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(u_default=-5.25)
+        wulff_neg525 = self.Oads_analyzer_dict["Ni"].wulff_from_chempot(delu_default=-5.25)
         self.assertNotEqual(wulff_neg55.weighted_surface_energy,
                             wulff_neg525.weighted_surface_energy)
 
@@ -279,6 +279,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             for clean in Pt_entries[hkl].keys():
                 all_Pt_slab_entries.append(clean)
                 all_Pt_slab_entries.extend(Pt_entries[hkl][clean])
+
         a = SurfaceEnergyPlotter(all_Pt_slab_entries,
                                  self.Pt_analyzer.ucell_entry)
         self.assertEqual(type(a).__name__, "SurfaceEnergyPlotter")
@@ -311,6 +312,13 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
     #             # Test WulffShape for adsorbed surfaces
     #             analyzer = self.Oads_analyzer_dict[el]
     #             plt = analyzer.chempot_vs_gamma_facet(hkl)
+    # def test_surface_chempot_range_map(self):
+    #
+    #     for el in self.metals_O_entry_dict.keys():
+    #         for hkl in self.metals_O_entry_dict[el].keys():
+    #             # Test WulffShape for adsorbed surfaces
+    #             analyzer = self.Oads_analyzer_dict[el]
+    #             plt = analyzer.chempot_vs_gamma_facet(hkl)
 
 
 class WorkfunctionAnalyzerTest(PymatgenTest):
@@ -320,17 +328,19 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
         self.kwargs = {"poscar_filename": get_path("CONTCAR.relax1.gz"),
                        "locpot_filename": get_path("LOCPOT.gz"),
                        "outcar_filename": get_path("OUTCAR.relax1.gz")}
+        self.wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
 
     def test_attributes(self):
-        wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
         wf_analyzer_shift = WorkFunctionAnalyzer.from_files(shift=0.25, **self.kwargs)
-        self.assertEqual("%.1f" %(wf_analyzer.ave_bulk_p),
+        self.assertEqual("%.1f" %(self.wf_analyzer.ave_bulk_p),
                          "%.1f" %(wf_analyzer_shift.ave_bulk_p))
 
-    def test_plt(self):
-        wf_analyzer = WorkFunctionAnalyzer.from_files(**self.kwargs)
-        plt = wf_analyzer.get_locpot_along_slab_plot()
-        self.assertEqual(type(plt).__name__, "module")
+    # def test_plt(self):
+    #     plt = self.wf_analyzer.get_locpot_along_slab_plot()
+    #     self.assertEqual(type(plt).__name__, "module")
+
+    def test_is_converged(self):
+        self.assertTrue(self.wf_analyzer.is_converged())
 
 
 class NanoscaleStabilityTest(PymatgenTest):
@@ -385,6 +395,17 @@ class NanoscaleStabilityTest(PymatgenTest):
         gfcc, rfcc = self.nanoscale_stability.wulff_gform_and_r(fcc_wulff, bulk, r-10,
                                                                 from_sphere_area=True)
         self.assertLess(gfcc, ghcp)
+
+    def test_scaled_wulff(self):
+        # Ensure for a given radius, the effective radius
+        # of the Wulff shape is the same (correctly scaled)
+        hcp_wulff = self.La_hcp_analyzer.wulff_from_chempot()
+        fcc_wulff = self.La_fcc_analyzer.wulff_from_chempot()
+        w1 = self.nanoscale_stability.scaled_wulff(hcp_wulff, 10)
+        w2 = self.nanoscale_stability.scaled_wulff(fcc_wulff, 10)
+        self.assertAlmostEqual(w1.effective_radius, w2.effective_radius)
+        self.assertAlmostEqual(w1.effective_radius, 10)
+        self.assertAlmostEqual(10, w2.effective_radius)
 
 
 def get_entry_dict(filename):

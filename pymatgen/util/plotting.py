@@ -205,7 +205,7 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
             the first 9 rows of elements.
     """
 
-    # Convert elemental data in the form of numpy array for plotting.
+    # Convert primitive_elemental data in the form of numpy array for plotting.
     max_val = max(elemental_data.values())
     min_val = min(elemental_data.values())
     max_row = min(max_row, 9)
@@ -262,11 +262,14 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     return plt
 
 
-def get_ax_fig_plt(ax=None):
+def get_ax_fig_plt(ax=None, **kwargs):
     """
     Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
     we return the current active figure.
+
+    Args:
+        kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
         ax: :class:`Axes` object
@@ -275,7 +278,7 @@ def get_ax_fig_plt(ax=None):
     """
     import matplotlib.pyplot as plt
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure(**kwargs)
         ax = fig.add_subplot(1, 1, 1)
     else:
         fig = plt.gcf()
@@ -283,11 +286,14 @@ def get_ax_fig_plt(ax=None):
     return ax, fig, plt
 
 
-def get_ax3d_fig_plt(ax=None):
+def get_ax3d_fig_plt(ax=None, **kwargs):
     """
     Helper function used in plot functions supporting an optional Axes3D
     argument. If ax is None, we build the `matplotlib` figure and create the
     Axes3D else we return the current active figure.
+
+    Args:
+        kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
         ax: :class:`Axes` object
@@ -297,7 +303,7 @@ def get_ax3d_fig_plt(ax=None):
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import axes3d
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure(**kwargs)
         ax = axes3d.Axes3D(fig)
     else:
         fig = plt.gcf()
@@ -357,6 +363,7 @@ def add_fig_kwargs(func):
         show = kwargs.pop("show", True)
         savefig = kwargs.pop("savefig", None)
         tight_layout = kwargs.pop("tight_layout", False)
+        ax_grid = kwargs.pop("ax_grid", None)
 
         # Call func and return immediately if None is returned.
         fig = func(*args, **kwargs)
@@ -371,8 +378,10 @@ def add_fig_kwargs(func):
             fig.set_size_inches(size_kwargs.pop("w"), size_kwargs.pop("h"),
                                 **size_kwargs)
 
-        if savefig:
-            fig.savefig(savefig)
+        if ax_grid is not None:
+            for ax in fig.axes:
+                ax.grid(bool(ax_grid))
+
         if tight_layout:
             try:
                 fig.tight_layout()
@@ -380,6 +389,10 @@ def add_fig_kwargs(func):
                 # For some unknown reason, this problem shows up only on travis.
                 # https://stackoverflow.com/questions/22708888/valueerror-when-using-matplotlib-tight-layout
                 print("Ignoring Exception raised by fig.tight_layout\n", str(exc))
+
+        if savefig:
+            fig.savefig(savefig)
+
         if show:
             import matplotlib.pyplot as plt
             plt.show()
@@ -398,6 +411,8 @@ def add_fig_kwargs(func):
         savefig           "abc.png" or "abc.eps" to save the figure to a file.
         size_kwargs       Dictionary with options passed to fig.set_size_inches
                           e.g. size_kwargs=dict(w=3, h=4)
+        ax_grid           True (False) to add (remove) grid from all axes in fig.
+                          Default: None i.e. fig is left unchanged.
         tight_layout      True to call fig.tight_layout (default: False)
         ================  ====================================================
 

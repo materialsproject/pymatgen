@@ -11,28 +11,31 @@ strains, including applying those deformations to structure objects and
 generating deformed structure sets for further calculations.
 """
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.elasticity.tensors import SquareTensor, symmetry_reduce
 import numpy as np
 import scipy
 import itertools
 from six.moves import zip
 import collections
+from monty.dev import deprecated
 
-__author__ = "Maarten de Jong"
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.tensors import SquareTensor, symmetry_reduce
+
+__author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = "Joseph Montoya, Mark Asta, Anubhav Jain"
+__credits__ = "Maarten de Jong, Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 13, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 
 class Deformation(SquareTensor):
     """
     Subclass of SquareTensor that describes the deformation gradient tensor
     """
+    symbol = "d"
 
     def __new__(cls, deformation_gradient):
         """
@@ -52,7 +55,7 @@ class Deformation(SquareTensor):
         checks to determine whether the deformation is independent
         """
         return len(self.get_perturbed_indices(tol)) == 1
-    
+
     def get_perturbed_indices(self, tol=1e-8):
         """
         Gets indices of perturbed elements of the deformation gradient,
@@ -80,7 +83,7 @@ class Deformation(SquareTensor):
         def_struct = structure.copy()
         old_latt = def_struct.lattice.matrix
         new_latt = np.transpose(np.dot(self, np.transpose(old_latt)))
-        def_struct.modify_lattice(Lattice(new_latt)) 
+        def_struct.modify_lattice(Lattice(new_latt))
         return def_struct
 
     @classmethod
@@ -131,12 +134,12 @@ class DeformedStructureSet(collections.Sequence):
         for ind in [(0, 0), (1, 1), (2, 2)]:
             for amount in norm_strains:
                 strain = Strain.from_index_amount(ind, amount)
-                self.deformations.append(strain.deformation_matrix)
+                self.deformations.append(strain.get_deformation_matrix())
 
         for ind in [(0, 1), (0, 2), (1, 2)]:
             for amount in shear_strains:
                 strain = Strain.from_index_amount(ind, amount)
-                self.deformations.append(strain.deformation_matrix)
+                self.deformations.append(strain.get_deformation_matrix())
 
         # Perform symmetry reduction if specified
         if symmetry:
@@ -147,7 +150,7 @@ class DeformedStructureSet(collections.Sequence):
 
     def __iter__(self):
         return iter(self.deformed_structures)
-    
+
     def __len__(self):
         return len(self.deformed_structures)
 
@@ -159,8 +162,9 @@ class Strain(SquareTensor):
     """
     Subclass of SquareTensor that describes the Green-Lagrange strain tensor.
     """
+    symbol = "e"
 
-    def __new__(cls, strain_matrix, dfm=None, dfm_shape="upper"):
+    def __new__(cls, strain_matrix):
         """
         Create a Strain object.  Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -174,16 +178,6 @@ class Strain(SquareTensor):
         vscale = np.ones((6,))
         vscale[3:] *= 2
         obj = super(Strain, cls).__new__(cls, strain_matrix, vscale=vscale)
-        if dfm is None:
-            obj._dfm = convert_strain_to_deformation(obj, dfm_shape)
-        else:
-            dfm = Deformation(dfm)
-            gls_test = 0.5 * (np.dot(dfm.trans, dfm) - np.eye(3))
-            if (gls_test - obj > 1e-10).any():
-                raise ValueError("Strain and deformation gradients "
-                                 "do not match!")
-            obj._dfm = Deformation(dfm)
-
         if not obj.is_symmetric():
             raise ValueError("Strain objects must be initialized "
                              "with a symmetric array or a voigt-notation "
@@ -194,7 +188,6 @@ class Strain(SquareTensor):
         if obj is None:
             return
         self.rank = getattr(obj, "rank", None)
-        self._dfm = getattr(obj, "_dfm", None)
         self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
@@ -207,7 +200,7 @@ class Strain(SquareTensor):
             deformation (3x3 array-like):
         """
         dfm = Deformation(deformation)
-        return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)), dfm)
+        return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)))
 
     @classmethod
     def from_index_amount(cls, idx, amount):
@@ -218,7 +211,7 @@ class Strain(SquareTensor):
         symmetric strain.
 
         Args:
-            idx (tuple or integer): index to be perturbed, can be voigt or 
+            idx (tuple or integer): index to be perturbed, can be voigt or
                 full-tensor notation
             amount (float): amount to perturb selected index
         """
@@ -236,18 +229,24 @@ class Strain(SquareTensor):
                              "corresponding to full-tensor or voigt index")
 
     @property
+    @deprecated(message="the deformation_matrix property is deprecated, and "
+                        "will be removed in pymatgen v2019.1.1, please use the "
+                        "get_deformation_matrix method instead.")
     def deformation_matrix(self):
+        return self.get_deformation_matrix()
+
+    def get_deformation_matrix(self, shape="upper"):
         """
         returns the deformation matrix
         """
-        return self._dfm
+        return convert_strain_to_deformation(self, shape=shape)
 
     @property
     def von_mises_strain(self):
         """
         Equivalent strain to Von Mises Stress
         """
-        eps = self - 1/3*np.trace(self)*np.identity(3)
+        eps = self - 1/3 * np.trace(self) * np.identity(3)
 
         return np.sqrt(np.sum(eps * eps) * 2/3)
 
@@ -256,7 +255,7 @@ def convert_strain_to_deformation(strain, shape="upper"):
     """
     This function converts a strain to a deformation gradient that will
     produce that strain.  Supports three methods:
-    
+
     Args:
         strain (3x3 array-like): strain matrix
         shape: (string): method for determining deformation, supports
