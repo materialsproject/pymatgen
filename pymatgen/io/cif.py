@@ -1110,7 +1110,7 @@ class CifParser(object):
                 self.errors.append(str(exc))
                 warnings.warn(str(exc))
         if self.errors:
-            warnings.warn("Errors encountered while parsing CIF.")
+            warnings.warn("Issues encountered while parsing CIF:")
             for error in self.errors:
                 warnings.warn(error)
         if len(structures) == 0:
