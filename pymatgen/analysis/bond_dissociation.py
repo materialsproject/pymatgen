@@ -113,7 +113,7 @@ class BondDissociationEnergies(MSONable):
                             good_entries.append(frag)
                     # If we didn't find any good entries, let's also look at those that exhibit structural changes:
                     if len(good_entries) == 0:
-                        for frag in opened_entries[0]: # 1 -> YES structural change
+                        for frag in opened_entries[1]: # 1 -> YES structural change
                             if frag["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
                                 good_entries.append(frag)
                     # If we still have no good entries, something must have gone wrong with the calculations:
