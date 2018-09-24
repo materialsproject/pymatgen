@@ -113,7 +113,7 @@ class BondDissociationEnergies(MSONable):
                             good_entries.append(frag)
                     # If we didn't find any good entries, let's also look at those that exhibit structural changes:
                     if len(good_entries) == 0:
-                        for frag in opened_entries[1]: # 1 -> YES structural change
+                        for frag in opened_entries[0]: # 1 -> YES structural change
                             if frag["initial_molecule"]["charge"] == self.molecule_entry["final_molecule"]["charge"]:
                                 good_entries.append(frag)
                     # If we still have no good entries, something must have gone wrong with the calculations:
@@ -121,7 +121,8 @@ class BondDissociationEnergies(MSONable):
                         bb = BabelMolAdaptor.from_molecule_graph(RO_frag)
                         pbmol = bb.pybel_mol
                         smiles = pbmol.write(str("smi")).split()[0]
-                        print("Missing ring opening fragment resulting from the breakage of bond " + str(bonds[0][0]) + " " + str(bonds[0][1]) + " which would yield a molecule with this SMILES string: " + smiles)
+                        specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
+                        print("Missing ring opening fragment resulting from the breakage of " + specie[bonds[0][0]] + " " + specie[bonds[0][1]] + " bond " + str(bonds[0][0]) + " " + str(bonds[0][1]) + " which would yield a molecule with this SMILES string: " + smiles)
                     elif len(good_entries) == 1:
                         # If we have only one good entry, format it and addd it to the list that will eventually return:
                         self.bond_dissociation_energies += [self.build_new_entry(good_entries, bonds)]
