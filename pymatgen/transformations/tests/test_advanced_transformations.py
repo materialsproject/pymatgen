@@ -211,11 +211,12 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
     def test_max_disordered_sites(self):
         l = Lattice.cubic(4)
         s_orig = Structure(l, [{"Li": 0.2, "Na": 0.2, "K": 0.6}, {"O": 1}],
-                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
         est = EnumerateStructureTransformation(max_cell_size=None,
                                                max_disordered_sites=5)
-        s = est.apply_transformation(s_orig)
-        self.assertEqual(len(s), 8)
+        dd = est.apply_transformation(s_orig, return_ranked_list=100)
+        for d in dd:
+            self.assertEqual(len(d["structure"]), 10)
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
