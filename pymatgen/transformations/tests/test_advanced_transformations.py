@@ -215,6 +215,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         est = EnumerateStructureTransformation(max_cell_size=None,
                                                max_disordered_sites=5)
         dd = est.apply_transformation(s_orig, return_ranked_list=100)
+        self.assertEqual(len(dd), 9)
         for d in dd:
             self.assertEqual(len(d["structure"]), 10)
 
@@ -610,5 +611,5 @@ class DisorderedOrderedTransformationTest(PymatgenTest):
 
 if __name__ == "__main__":
     import logging
-    logging.basicConfig(level=logging.INFO)
+    # logging.basicConfig(level=logging.INFO)
     unittest.main()
