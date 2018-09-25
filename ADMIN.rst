@@ -7,7 +7,7 @@ assumes you are using miniconda or Anaconda.
 Releases
 ========
 
-The general procedure to releasing pymatgen comprises three steps.
+The general procedure to releasing pymatgen comprises the following steps:
 
 1. Wait for all unittests to pass on CircleCI.
 2. Update and edit change log.

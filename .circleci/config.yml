@@ -18,7 +18,7 @@ jobs:
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
-            conda update --quiet --all
+            # conda update --quiet --all
             mkdir coverage_reports
             pip install --upgrade pip
             pip install --quiet --ignore-installed -r requirements.txt
