@@ -34,7 +34,7 @@ jobs:
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
-          - "~/miniconda3/envs/test_env"
+          - "/root/miniconda3/envs/test_env"
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
