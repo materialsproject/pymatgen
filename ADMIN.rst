@@ -11,9 +11,9 @@ The general procedure to releasing pymatgen comprises the following steps:
 
 1. Wait for all unittests to pass on CircleCI.
 2. Update and edit change log.
-2. Release PyPI versions + doc.
-3. Release conda versions.
-4. Release Dash documentation.
+3. Release PyPI versions + doc.
+4. Release conda versions.
+5. Release Dash documentation.
 
 Initial setup
 -------------
