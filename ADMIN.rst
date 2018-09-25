@@ -22,7 +22,7 @@ Install some conda tools first::
 
 	conda install --yes conda-build anaconda-client
 
-Pymatgen uses [invoke](http://www.pyinvoke.org/) to automate releases. You will 
+Pymatgen uses `invoke <http://www.pyinvoke.org/>`_ to automate releases. You will 
 also need sphinx and dash2doc. Install these using::
 
 	pip install --upgrade invoke sphinx doc2dash
@@ -124,7 +124,7 @@ Build the mac versions manually::
 
 Commit and push to repo, which will build the Linux and Windows versions.
 
-Check that the [matsci channel](https://anaconda.org/matsci) versions are
+Check that the `matsci channel <https://anaconda.org/matsci>`_ versions are
 properly updated.
 
 Dash docs
