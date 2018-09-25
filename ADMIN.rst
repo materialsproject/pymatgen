@@ -23,7 +23,7 @@ Install some conda tools first::
 	conda install --yes conda-build anaconda-client
 
 Pymatgen uses `invoke <http://www.pyinvoke.org/>`_ to automate releases. You will 
-also need sphinx and dash2doc. Install these using::
+also need sphinx and doc2dash. Install these using::
 
 	pip install --upgrade invoke sphinx doc2dash
 
