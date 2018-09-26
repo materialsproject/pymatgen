@@ -6,16 +6,19 @@ jobs:
         - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
     steps:
       - checkout
+      - restore_cache: # restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run
+          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
-            conda create --quiet --yes --name test_env python=3.6
+            echo $HOME
+            # conda create --quiet --yes --name test_env python=3.6
             source activate test_env
             conda install --quiet --yes numpy scipy matplotlib sympy pandas cython
             conda install --quiet --yes -c openbabel openbabel
             conda install --quiet --yes -c clinicalgraphics vtk
             conda install --quiet --yes cmake
-            conda update --quiet --all
+            # conda update --quiet --all
             mkdir coverage_reports
             pip install --upgrade pip
             pip install --quiet --ignore-installed -r requirements.txt
@@ -28,6 +31,14 @@ jobs:
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
             export MPLBACKEND=Agg
+      - save_cache: # special step to save dependency cache
+          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
+          paths:
+          - "/root/miniconda3/envs/test_env"
+      - run:
+          command: |
+            export PATH=$HOME/miniconda3/bin:$PATH
+            source activate test_env
             pip install --quiet -e .
             nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
             # Command line tests
