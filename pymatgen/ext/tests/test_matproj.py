@@ -269,8 +269,12 @@ class MPResterTest(unittest.TestCase):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         pbx = PourbaixDiagram(pbx_entries)
 
+        # TODO: Shyue Ping: I do not understand this test. You seem to
+        # be grabbing Zn-S system, but I don't see proper test for anything,
+        # including Na ref. This test also takes a long time.
+
         # Test Zn-S, which has Na in reference solids
-        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
+        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")

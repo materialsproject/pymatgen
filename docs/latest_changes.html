@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Change log &#8212; pymatgen 2018.9.12 documentation</title>
-    
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.9.12',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -57,13 +45,19 @@
             
   <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v2018-9-12">
-<h2>v2018.9.12<a class="headerlink" href="#v2018-9-12" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v2018-9-19">
+<h2>v2018.9.19<a class="headerlink" href="#v2018-9-19" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Use boltztrap2 (&#64;fraricci)</li>
-<li>Refactoring of tensor code to core (&#64;montoyjh)</li>
-<li>Support for new Lobster version (&#64;JaGeo)</li>
-<li>Misc bug fixes</li>
+<li>Fix to composition handling in <cite>MolecularOrbitals</cite> (&#64;dyllamt)</li>
+<li>Fix to allow mixed compressed/uncompressed loading of VASP band structures (&#64;ajjackson)</li>
+<li>New features and fixes to <cite>chemenv</cite> analysis module (&#64;davidwaroquiers)</li>
+<li>Fix to include structure predictor data with pip/conda-installed pymatgen (&#64;shyamd)</li>
+<li>Fixes to <cite>Defect</cite> objects, icluding allowing rotational supercell transformations (&#64;dbroberg)</li>
+<li>Fix to <cite>BSDOSPlotter</cite> to correctly fill in parts of DOS (&#64;fraricci)</li>
+<li>Added ‘&#64;’ notation parsing in <cite>Composition</cite> (&#64;tamuhey)</li>
+<li>BibTex reference extraction updated in <cite>CifParser</cite> to support ICSD CIFs (&#64;shyamd)</li>
+<li>Various updates to speed up and fix test suite (&#64;shyuep, &#64;fraricci)</li>
+<li>Improvements to BoltzTraP 2 support (&#64;shyuep, &#64;fraricci)</li>
 </ul>
 </div>
 </div>
@@ -74,10 +68,10 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change log</a><ul>
-<li><a class="reference internal" href="#v2018-9-12">v2018.9.12</a></li>
+<li><a class="reference internal" href="#v2018-9-19">v2018.9.19</a></li>
 </ul>
 </li>
 </ul>
@@ -91,12 +85,14 @@
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -118,7 +114,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

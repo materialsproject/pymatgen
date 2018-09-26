@@ -7,8 +7,12 @@ from __future__ import division, unicode_literals
 import unittest
 import os
 import json
+import gzip
 import numpy as np
 import warnings
+
+from shutil import copyfile, copyfileobj
+from monty.tempfile import ScratchDir
 
 import xml.etree.cElementTree as ET
 
@@ -17,7 +21,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    Wavecar
+    VaspParserError, Wavecar
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -34,8 +38,10 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__),
+                 "..", "..", "..", "..",
+                 'test_files'))
 
 
 class VasprunTest(unittest.TestCase):
@@ -372,6 +378,45 @@ class VasprunTest(unittest.TestCase):
             projected = bs.get_projections_on_elements_and_orbitals(
                 {"Si": ["s"]})
             self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
+
+            # Test compressed files case 1: compressed KPOINTS in current dir
+            with ScratchDir("./"):
+                copyfile(os.path.join(test_dir, 'vasprun_Si_bands.xml'),
+                         'vasprun.xml')
+
+                # Check for error if no KPOINTS file
+                vasprun = Vasprun('vasprun.xml',
+                                  parse_projected_eigen=True,
+                                  parse_potcar_file=False)
+                with self.assertRaises(VaspParserError):
+                    _ = vasprun.get_band_structure(line_mode=True)
+
+                # Check KPOINTS.gz succesfully inferred and used if present
+                with open(os.path.join(test_dir, 'KPOINTS_Si_bands'),
+                          'rb') as f_in:
+                    with gzip.open('KPOINTS.gz', 'wb') as f_out:
+                        copyfileobj(f_in, f_out)
+                bs_kpts_gzip = vasprun.get_band_structure()
+                self.assertEqual(bs.efermi, bs_kpts_gzip.efermi)
+                self.assertEqual(bs.as_dict(), bs_kpts_gzip.as_dict())
+
+            # Test compressed files case 2: compressed vasprun in another dir
+            with ScratchDir("./"):
+                os.mkdir('deeper')
+                copyfile(os.path.join(test_dir, 'KPOINTS_Si_bands'),
+                         os.path.join('deeper', 'KPOINTS'))
+                with open(os.path.join(test_dir, 'vasprun_Si_bands.xml'),
+                          'rb') as f_in:
+                    with gzip.open(os.path.join('deeper', 'vasprun.xml.gz'),
+                                   'wb') as f_out:
+                        copyfileobj(f_in, f_out)
+                vasprun = Vasprun(os.path.join('deeper', 'vasprun.xml.gz'),
+                                  parse_projected_eigen=True,
+                                  parse_potcar_file=False)
+                bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
+                self.assertEqual(bs.efermi, bs_vasprun_gzip.efermi)
+                self.assertEqual(bs.as_dict(), bs_vasprun_gzip.as_dict())
+
 
             # test hybrid band structures
             vasprun.actual_kpoints_weights[-1] = 0.
@@ -837,6 +882,24 @@ class OutcarTest(PymatgenTest):
                                     [-26.0704, -45.5046, -45.5046, -72.9539,
                                      -73.0621, -72.9539, -73.0621]))
 
+    def test_mag_electrostatic_error(self):
+        outcar = Outcar(os.path.join(test_dir, "OUTCAR.electrostaticerror.gz"))
+        self.assertEqual(outcar.electrostatic_potential,
+                         [-21.1667, -19.6865, -22.3983, -22.3307, -20.5213, -20.9292, -21.5063, -21.3554, -21.74,
+                          -21.7018, -20.3422, -20.6128, -21.4405, -21.0022, -21.975, -21.915, -21.0156, -21.9027,
+                          -22.3712, -21.5816, -21.8535, -20.5061, -22.2474, -22.1904, -22.2203, -20.1727, -21.1068,
+                          -20.1669, -22.1272, -21.3446, -82.4717, -83.035, -81.8289, -82.5957, -81.7813, -82.5011,
+                          -82.6098, -82.2885, -81.606, -99.1621, -99.3146, -99.1742, -99.4728, -100.2139, -99.852,
+                          -99.3575, -99.4135, -98.9092, -99.8867, -99.3707, -99.0794, -98.8376, -99.3656, -98.6474,
+                          -99.3264, -98.844, -99.074, -98.9354, -99.1643, -99.2412, -68.7667, -68.2528, -66.7326,
+                          -67.7113, -69.2228, -67.014, -69.1456, -67.3151, -68.2625, -67.6156, -69.8112, -68.9266,
+                          -67.8286, -69.3289, -68.7017, -67.2834, -68.4665, -68.0188, -67.7083, -69.7195, -67.4078,
+                          -67.9646, -68.584, -69.2387, -69.7822, -67.0701, -67.8236, -68.2468, -68.6533, -68.3218,
+                          -67.5923, -69.1266, -68.4615, -68.302, -67.999, -68.6709, -68.9973, -67.4147, -68.4463,
+                          -68.0899, -67.665, -69.6705, -68.6433, -68.4288, -66.9027, -67.3211, -68.604, -69.1299,
+                          -67.5565, -69.0845, -67.4289, -66.6864, -67.6484, -67.9783, -67.7661, -66.9797, -67.8007,
+                          -68.3194, -69.3671, -67.2708])
+
 
 class BSVasprunTest(unittest.TestCase):
 
@@ -969,6 +1032,14 @@ class ChgcarTest(PymatgenTest):
                                     chgcar.data["total"])
 
         os.remove("chgcar_test.hdf5")
+
+    def test_as_dict_and_from_dict(self):
+        chgcar = Chgcar.from_file(os.path.join(test_dir, "CHGCAR.NiO_SOC.gz"))
+        d = chgcar.as_dict()
+        chgcar_from_dict = Chgcar.from_dict(d)
+        self.assertArrayAlmostEqual(chgcar.data['total'], chgcar_from_dict.data['total'])
+        self.assertArrayAlmostEqual(chgcar.structure.lattice.matrix,
+                                    chgcar_from_dict.structure.lattice.matrix)
 
 
 class ProcarTest(unittest.TestCase):

@@ -14,8 +14,10 @@ __date__ = "Aug 26, 2012"
 import unittest
 
 from pymatgen.util.string import formula_double_format, latexify, \
-    latexify_spacegroup, transformation_to_string, htmlify, unicodeify
+    latexify_spacegroup, transformation_to_string, htmlify, unicodeify, \
+    disordered_formula
 
+from pymatgen.core import Structure
 
 class FuncTest(unittest.TestCase):
 
@@ -66,6 +68,20 @@ class FuncTest(unittest.TestCase):
         t = [-11 / 12, -12 / 13, -13 / 14]
         s = '-x/2-2y/3-3z/4-11/12,-5x/6-6y/7-7z/8-12/13,-8x/9-9y/10-10z/11-13/14'
         self.assertEqual(s, transformation_to_string(m, t))
+
+    def test_disordered_formula(self):
+
+        disordered_struct = Structure([[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+                                      [{'Cu': 0.25, 'Au': 0.75}],
+                                      [[0, 0, 0]])
+
+        formula_plain = disordered_formula(disordered_struct, fmt='plain')
+        formula_latex = disordered_formula(disordered_struct, fmt='LaTeX')
+        formula_html = disordered_formula(disordered_struct, fmt='HTML')
+
+        self.assertEqual(formula_plain, 'CuxAu1-x x=0.25')
+        self.assertEqual(formula_latex, 'Cu_{x}Au_{1-x} x=0.25')
+        self.assertEqual(formula_html, 'Cu<sub>x</sub>Au<sub>1-x</sub> x=0.25')
 
 
 if __name__ == "__main__":
