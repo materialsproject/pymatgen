@@ -30,7 +30,7 @@ jobs:
           - "/root/miniconda3/envs/test_env"
       - run:
           command: |
-          # Add executables and path.
+            # Add executables and path.
             for EXEPATH in `pwd`/cmd_line/*/Linux_64bit; do export PATH=$PATH:$EXEPATH; done
             export PATH=$HOME/miniconda3/bin:$PATH
             export GULP_LIB=`pwd`/cmd_line/gulp/Libraries
