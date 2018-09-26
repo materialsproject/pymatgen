@@ -11,7 +11,6 @@ jobs:
       - run:
           command: |
             export PATH=$HOME/miniconda3/bin:$PATH
-            echo $HOME
             # conda create --quiet --yes --name test_env python=3.6
             source activate test_env
             conda install --quiet --yes numpy scipy matplotlib sympy pandas cython
@@ -20,10 +19,8 @@ jobs:
             conda install --quiet --yes cmake
             # conda update --quiet --all
             mkdir coverage_reports
-            pip install --upgrade pip
-            pip install --quiet --ignore-installed -r requirements.txt
-            pip install --quiet --ignore-installed -r requirements-optional.txt
-            pip install nose-timer
+            pip install --upgrade pip nose-timer
+            pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
