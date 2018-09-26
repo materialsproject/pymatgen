@@ -41,7 +41,7 @@ class BondDissociationEnergies(MSONable):
         workflow.
 
         Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
-        final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key. 
+        final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.
 
         Args:
             molecule_entry (dict): Entry for the principle molecule. Should have the keys mentioned above.
@@ -68,7 +68,7 @@ class BondDissociationEnergies(MSONable):
             if key not in self.molecule_entry:
                 raise RuntimeError(key + " must be present in molecule entry! Exiting...")
             for entry in self.filtered_entries:
-                if key not in self.molecule_entry:
+                if key not in entry:
                     raise RuntimeError(key + " must be present in all fragment entries! Exiting...")
 
         # Define expected charges
