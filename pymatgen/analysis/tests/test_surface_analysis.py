@@ -279,6 +279,7 @@ class SurfaceEnergyPlotterTest(PymatgenTest):
             for clean in Pt_entries[hkl].keys():
                 all_Pt_slab_entries.append(clean)
                 all_Pt_slab_entries.extend(Pt_entries[hkl][clean])
+
         a = SurfaceEnergyPlotter(all_Pt_slab_entries,
                                  self.Pt_analyzer.ucell_entry)
         self.assertEqual(type(a).__name__, "SurfaceEnergyPlotter")
@@ -334,9 +335,9 @@ class WorkfunctionAnalyzerTest(PymatgenTest):
         self.assertEqual("%.1f" %(self.wf_analyzer.ave_bulk_p),
                          "%.1f" %(wf_analyzer_shift.ave_bulk_p))
 
-    def test_plt(self):
-        plt = self.wf_analyzer.get_locpot_along_slab_plot()
-        self.assertEqual(type(plt).__name__, "module")
+    # def test_plt(self):
+    #     plt = self.wf_analyzer.get_locpot_along_slab_plot()
+    #     self.assertEqual(type(plt).__name__, "module")
 
     def test_is_converged(self):
         self.assertTrue(self.wf_analyzer.is_converged())

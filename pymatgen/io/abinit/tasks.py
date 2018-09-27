@@ -18,7 +18,6 @@ import numpy as np
 from pprint import pprint
 from itertools import product
 from six.moves import map, zip, StringIO
-#from monty.dev import deprecated
 from monty.string import is_string, list_strings
 from monty.termcolor import colored, cprint
 from monty.collections import AttrDict
@@ -52,18 +51,18 @@ __all__ = [
     "RelaxTask",
     "DdkTask",
     "PhononTask",
+    "ElasticTask",
     "SigmaTask",
     "EphTask",
     "OpticTask",
     "AnaddbTask",
-    "set_user_config_taskmanager"
+    "set_user_config_taskmanager",
 ]
 
 import logging
 logger = logging.getLogger(__name__)
 
 # Tools and helper functions.
-
 
 def straceback():
     """Returns a string with the traceback."""
@@ -76,7 +75,6 @@ def lennone(PropperOrNone):
         return 0
     else:
         return len(PropperOrNone)
-
 
 
 def nmltostring(nml):
@@ -183,8 +181,6 @@ class ParalConf(AttrDict):
         pprint(self, stream=stream)
         return stream.getvalue()
 
-    # TODO: Change name in abinit
-    # Remove tot_ncpus from Abinit
     @property
     def num_cores(self):
         return self.mpi_procs * self.omp_threads
@@ -526,8 +522,9 @@ _USER_CONFIG_TASKMANAGER = None
 
 
 def set_user_config_taskmanager(manager):
-    global USER_CONFIG_TASKMANAGER
-    USER_CONFIG_TASKMANAGER  = manager
+    """Change the default manager returned by TaskManager.from_user_config."""
+    global _USER_CONFIG_TASKMANAGER
+    _USER_CONFIG_TASKMANAGER  = manager
 
 
 class TaskManager(MSONable):
@@ -578,7 +575,7 @@ batch_adapter:
     def from_user_config(cls):
         """
         Initialize the :class:`TaskManager` from the YAML file 'manager.yaml'.
-        Search first in the working directory and then in the abipy configuration directory.
+        Search first in the working directory and then in the AbiPy configuration directory.
 
         Raises:
             RuntimeError if file is not found.
@@ -596,7 +593,7 @@ batch_adapter:
             raise RuntimeError(colored(
 		"\nCannot locate %s neither in current directory nor in %s\n"
                 "!!! PLEASE READ THIS: !!!\n"
-                "To use abipy to run jobs this file must be present\n"
+                "To use AbiPy to run jobs this file must be present\n"
                 "It provides a description of the cluster/computer you are running on\n"
                 "Examples are provided in abipy/data/managers." % (cls.YAML_FILE, path), color="red"))
 
@@ -967,14 +964,12 @@ batch_adapter:
         task.build()
 
         # Pass information on the time limit to Abinit (we always assume ndtset == 1)
-        #if False and isinstance(task, AbinitTask):
         if isinstance(task, AbinitTask):
             args = kwargs.get("exec_args", [])
             if args is None: args = []
             args = args[:]
             args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
             kwargs["exec_args"] = args
-            #logger.info("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -1013,7 +1008,7 @@ batch_adapter:
 
     def increase_ncpus(self):
         """
-        increase the number of cpus, first ask the current quadapter, if that one raises a QadapterIncreaseError
+        increase the number of cpus, first ask the current qadapter, if that one raises a QadapterIncreaseError
         switch to the next qadapter. If all fail raise an ManagerIncreaseError
         """
         try:
@@ -1102,7 +1097,7 @@ class AbinitBuild(object):
 
         if process.returncode != 0:
             logger.critical("Error while executing %s" % script_file)
-            print("stderr:", process.stderr.read())
+            print("stderr:\n", process.stderr.read())
             #print("stdout:", process.stdout.read())
 
         # To avoid: ResourceWarning: unclosed file <_io.BufferedReader name=87> in py3k
@@ -1311,7 +1306,10 @@ class TaskRestartError(TaskError):
 
 
 class Task(six.with_metaclass(abc.ABCMeta, Node)):
-    """A Task is a node that performs some kind of calculation."""
+    """
+    A Task is a node that performs some kind of calculation.
+    This is base class providing low-level methods.
+    """
     # Use class attributes for TaskErrors so that we don't have to import them.
     Error = TaskError
     RestartError = TaskRestartError
@@ -1636,9 +1634,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Reset datetimes
         self.datetimes.reset()
 
+        # Remove the lock file
+        self.start_lockfile.remove()
+
         if submit:
-            # Remove the lock file
-            self.start_lockfile.remove()
             # Relaunch the task.
             fired = self.start()
             if not fired: self.history.warning("Restart failed")
@@ -1880,7 +1879,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 if self.gc is not None and self.gc.policy == "task":
                     self.clean_output_files()
 
-            self.send_signal(self.S_OK)
+            if self.status == self.S_OK:
+                # Because _on_ok might have changed the status.
+                self.send_signal(self.S_OK)
 
         return status
 
@@ -1904,11 +1905,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         black_list = (self.S_LOCKED, self.S_ERROR)
         #if self.status in black_list: return self.status
 
-        # 2) Check the returncode of the process (the process of submitting the job) first.
-        # this point type of problem should also be handled by the scheduler error parser
+        # 2) Check the returncode of the job script
         if self.returncode != 0:
-            # The job was not submitted properly
-            return self.set_status(self.S_QCRITICAL, msg="return code %s" % self.returncode)
+            msg = "job.sh return code: %s\nPerhaps the job was not submitted properly?" % self.returncode
+            return self.set_status(self.S_QCRITICAL, msg=msg)
 
         # If we have an abort file produced by Abinit
         if self.mpiabort_file.exists:
@@ -1918,20 +1918,17 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # getsize is 0 if the file is empty or it does not exist.
         err_msg = None
         if self.stderr_file.getsize() != 0:
-        #if self.stderr_file.exists:
             err_msg = self.stderr_file.read()
 
         # Analyze the stderr file of the resource manager runtime errors.
         # TODO: Why are we looking for errors in queue.qerr?
         qerr_info = None
         if self.qerr_file.getsize() != 0:
-        #if self.qerr_file.exists:
             qerr_info = self.qerr_file.read()
 
         # Analyze the stdout file of the resource manager (needed for PBS !)
         qout_info = None
         if self.qout_file.getsize():
-        #if self.qout_file.exists:
             qout_info = self.qout_file.read()
 
         # Start to check ABINIT status if the output file has been created.
@@ -1989,7 +1986,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.status
 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        if qerr_info or qout_info:
+        # MG: This section has been disabled: several portability issues
+        # Need more robust logic in error_parser, perhaps logic provided by users via callbacks.
+        if False and (qerr_info or qout_info):
             from pymatgen.io.abinit.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
@@ -2010,7 +2009,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             elif lennone(qerr_info) > 0:
                 # if only qout_info, we are not necessarily in QCRITICAL state,
                 # since there will always be info in the qout file
-                self.history.info('found unknown messages in the queue error: %s' % str(qerr_info))
+                self.history.info('Found unknown message in the queue qerr file: %s' % str(qerr_info))
                 #try:
                 #    rt = self.datetimes.get_runtime().seconds
                 #except:
@@ -2024,13 +2023,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # It may also be that an innocent message was written to qerr, so we wait for a while
                 # it is set to QCritical, we will attempt to fix it by running on more resources
 
-        # 8) analizing the err files and abinit output did not identify a problem
+        # 8) analyzing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
-        if lennone(err_msg) > 0:
-            msg = 'found error message:\n %s' % str(err_msg)
-            return self.set_status(self.S_QCRITICAL, msg=msg)
-            # The job is killed or crashed but we don't know what happend
-            # it is set to QCritical, we will attempt to fix it by running on more resources
+        # The job is killed or crashed but we don't know what happend
+        # it is set to QCritical, we will attempt to fix it by running on more resources
+        if err_msg:
+            msg = 'Found error message:\n %s' % str(err_msg)
+            self.history.warning(msg)
+            #return self.set_status(self.S_QCRITICAL, msg=msg)
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....
@@ -2144,7 +2144,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     # in this case, indeed we may have replaced the file pointer with the
                     # previous output file of the present task.
                     if os.path.realpath(dest) != path and self.num_restarts == 0:
-                        raise self.Error("dest %s does not point to path %s" % (dest, path))
+                        raise self.Error("\nDestination:\n %s\ndoes not point to path:\n %s" % (dest, path))
 
     @abc.abstractmethod
     def setup(self):
@@ -2225,7 +2225,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         # Check whether the process completed.
         if self.returncode is None:
-            raise self.Error("return code is None, you should call wait, communitate or poll")
+            raise self.Error("return code is None, you should call wait, communicate or poll")
 
         if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
@@ -2435,13 +2435,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if kwargs.pop("autoparal", True) and hasattr(self, "autoparal_run"):
             try:
                 self.autoparal_run()
-            except QueueAdapterError as exc:
-                # If autoparal cannot find a qadapter to run the calculation raises an Exception
-                self.history.critical(exc)
-                msg = "Error while trying to run autoparal in task:%s\n%s" % (repr(task), straceback())
-                cprint(msg, "yellow")
-                self.set_status(self.S_QCRITICAL, msg=msg)
-                return 0
+            #except QueueAdapterError as exc:
+            #    # If autoparal cannot find a qadapter to run the calculation raises an Exception
+            #    self.history.critical(exc)
+            #    msg = "Error while trying to run autoparal in task:%s\n%s" % (repr(task), straceback())
+            #    cprint(msg, "yellow")
+            #    self.set_status(self.S_QCRITICAL, msg=msg)
+            #    return 0
             except Exception as exc:
                 # Sometimes autoparal_run fails because Abinit aborts
                 # at the level of the parser e.g. cannot find the spacegroup
@@ -2474,7 +2474,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def start_and_wait(self, *args, **kwargs):
         """
-        Helper method to start the task and wait for completetion.
+        Helper method to start the task and wait for completion.
 
         Mainly used when we are submitting the task via the shell without passing through a queue manager.
         """
@@ -2864,7 +2864,7 @@ class AbinitTask(Task):
         # Finalization
         ##############
         # Reset the status, remove garbage files ...
-        self.set_status(self.S_INIT, msg='finished autoparallel run')
+        self.set_status(self.S_INIT, msg='finished autoparal run')
 
         # Remove the output file since Abinit likes to create new files
         # with extension .outA, .outB if the file already exists.
@@ -3102,7 +3102,7 @@ class AbinitTask(Task):
                     except DecreaseDemandsError:
                         self.history.warning('decreasing demands failed')
 
-                    msg = ('Memory error detected but the memory could not be increased neigther could the\n'
+                    msg = ('Memory error detected but the memory could not be increased neither could the\n'
                            'memory demand be decreased. Unrecoverable error.')
                     self.set_status(self.S_ERROR, msg)
                     raise FixQueueCriticalError
@@ -3408,7 +3408,7 @@ class RelaxTask(GsTask, ProduceHist):
         """
         Restart the structural relaxation.
 
-        Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
+        Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file
         from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         Prefer WFK over other files since we can reuse the wavefunctions.
 
@@ -3545,7 +3545,7 @@ class RelaxTask(GsTask, ProduceHist):
 
 class DfptTask(AbinitTask):
     """
-    Base class for DFPT tasks (Phonons, ...)
+    Base class for DFPT tasks (Phonons, DdeTask, DdkTask, ElasticTask ...)
     Mainly used to implement methods that are common to DFPT calculations with Abinit.
     Provide the method `open_ddb` that reads and return a Ddb file.
 
@@ -3553,14 +3553,35 @@ class DfptTask(AbinitTask):
 
         This class should not be instantiated directly.
     """
+    # TODO:
+    # for the time being we don't discern between GS and PhononCalculations.
+    CRITICAL_EVENTS = [
+        events.ScfConvergenceWarning,
+    ]
+
     def __repr__(self):
         # Get info about DFT perturbation from input file.
         qpt = self.input.get("qpt", [0, 0, 0])
         rfphon = self.input.get("rfphon", 0)
-        rfdir = self.input.get("rfdir", [0, 0, 0])
         rfatpol = self.input.get("rfatpol", [1, 1])
-        dfpt_info = "rfphon: {}, qpt: {}, rfatpol: {}, rfdir: {}".format(
-                rfphon, qpt, rfatpol, rfdir)
+        rfelfd = self.input.get("rfelfd", 0)
+        rfstrs = self.input.get("rfstrs", 0)
+        rfdir = self.input.get("rfdir", [0, 0, 0])
+        irdddk = self.input.get("irdddk", 0)
+
+        dfpt_info = ""
+        if rfphon != 0:
+            dfpt_info = "qpt: {}, rfphon: {}, rfatpol: {}, rfdir: {}, irdddk: {}".format(
+                    qpt, rfphon, rfatpol, rfdir, irdddk)
+
+        elif rfelfd != 0:
+            dfpt_info = "qpt: {}, rfelfd: {} rfdir: {}, irdddk: {}".format(
+                    qpt, rfelfd, rfdir, irdddk)
+
+        elif rfstrs != 0:
+            dfpt_info = "qpt: {}, rfstrs: {}, rfdir: {}, irdddk: {}".format(
+                    qpt, rfstrs, rfdir, irdddk)
+
         try:
             return "<%s, node_id=%s, workdir=%s, %s>" % (
                 self.__class__.__name__, self.node_id, self.relworkdir, dfpt_info)
@@ -3599,61 +3620,21 @@ class DfptTask(AbinitTask):
             logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
             return None
 
-
-class DdeTask(DfptTask):
-    """Task for DDE calculations."""
-
     def make_links(self):
-        """Replace the default behaviour of make_links"""
+        """
+        Replace the default behaviour of make_links. More specifically, this method
+        implements the logic required to connect DFPT calculation to `DDK` files.
+        Remember that DDK is an extension introduced in AbiPy to deal with the
+        irdddk input variable and the fact that the 3 files with du/dk produced by Abinit
+        have a file extension constructed from the number of atom (e.g. 1WF[3natom +1]).
 
-        for dep in self.deps:
-            if dep.exts == ["DDK"]:
-                ddk_task = dep.node
-                out_ddk = ddk_task.outdir.has_abiext("DDK")
-                if not out_ddk:
-                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
-
-                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
-                rfdir = list(ddk_task.input["rfdir"])
-                if rfdir.count(1) != 1:
-                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
-
-                idir = rfdir.index(1) + 1
-                ddk_case = idir +  3 * len(ddk_task.input.structure)
-
-                infile = self.indir.path_in("in_1WF%d" % ddk_case)
-                os.symlink(out_ddk, infile)
-
-            elif dep.exts == ["WFK"]:
-                gs_task = dep.node
-                out_wfk = gs_task.outdir.has_abiext("WFK")
-                if not out_wfk:
-                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-                if not os.path.exists(self.indir.path_in("in_WFK")):
-                    os.symlink(out_wfk, self.indir.path_in("in_WFK"))
-
-            else:
-                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
-
-
-    def get_results(self, **kwargs):
-        results = super(DdeTask, self).get_results(**kwargs)
-        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
-
-
-class DteTask(DfptTask):
-    """Task for DTE calculations."""
-
-    # @check_spectator
-    def start(self, **kwargs):
-        kwargs['autoparal'] = False
-        return super(DteTask, self).start(**kwargs)
-
-    def make_links(self):
-        """Replace the default behaviour of make_links"""
-
+        AbiPy uses the user-friendly syntax deps={node: "DDK"} to specify that
+        the children will read the DDK from `node` but this also means that
+        we have to implement extract logic to handle this case at runtime.
+        """
         for dep in self.deps:
             for d in dep.exts:
+
                 if d == "DDK":
                     ddk_task = dep.node
                     out_ddk = ddk_task.outdir.has_abiext("DDK")
@@ -3679,12 +3660,11 @@ class DteTask(DfptTask):
                     if not os.path.exists(self.indir.path_in("in_WFK")):
                         os.symlink(out_wfk, self.indir.path_in("in_WFK"))
 
-
                 elif d == "DEN":
                     gs_task = dep.node
                     out_wfk = gs_task.outdir.has_abiext("DEN")
                     if not out_wfk:
-                        raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+                        raise RuntimeError("%s didn't produce the DEN file" % gs_task)
                     if not os.path.exists(self.indir.path_in("in_DEN")):
                         os.symlink(out_wfk, self.indir.path_in("in_DEN"))
 
@@ -3701,7 +3681,7 @@ class DteTask(DfptTask):
                     gs_task = dep.node
                     out_wfk = gs_task.outdir.has_abiext("DEN")
                     if not out_wfk:
-                        raise RuntimeError("%s didn't produce the 1WF file" % gs_task)
+                        raise RuntimeError("%s didn't produce the 1DEN file" % gs_task)
                     dest = self.indir.path_in("in_" + out_wfk.split("_")[-1])
                     if not os.path.exists(dest):
                         os.symlink(out_wfk, dest)
@@ -3709,23 +3689,43 @@ class DteTask(DfptTask):
                 else:
                     raise ValueError("Don't know how to handle extension: %s" % str(dep.exts))
 
+
+class DdeTask(DfptTask):
+    """Task for DDE calculations (perturbation wrt electric field)."""
+
+    color_rgb = np.array((61, 158, 255)) / 255
+
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
+class DteTask(DfptTask):
+    """Task for DTE calculations."""
+    color_rgb = np.array((204, 0, 204)) / 255
+
+    # @check_spectator
+    def start(self, **kwargs):
+        kwargs['autoparal'] = False
+        return super(DteTask, self).start(**kwargs)
+
+    def get_results(self, **kwargs):
+        results = super(DteTask, self).get_results(**kwargs)
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
 class DdkTask(DfptTask):
     """Task for DDK calculations."""
-
-    color_rgb = np.array((61, 158, 255)) / 255
+    color_rgb = np.array((0, 204, 204)) / 255
 
     #@check_spectator
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
-        # Copy instead of removing, otherwise optic tests fail
-        # Fixing this problem requires a rationalization of file extensions.
-        #if self.outdir.rename_abiext('1WF', 'DDK') > 0:
-        #if self.outdir.copy_abiext('1WF', 'DDK') > 0:
+        # Client code expects to find du/dk in DDK file.
+        # Here I create a symbolic link out_1WF13 --> out_DDK
+        # so that we can use deps={ddk_task: "DDK"} in the high-level API.
+        # The price to pay is that we have to handle the DDK extension in make_links.
+        # See DfptTask.make_links
         self.outdir.symlink_abiext('1WF', 'DDK')
 
     def get_results(self, **kwargs):
@@ -3740,41 +3740,7 @@ class BecTask(DfptTask):
     bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
     bec_deps.update({scf_task: "WFK"})
     """
-
     color_rgb = np.array((122, 122, 255)) / 255
-
-    def make_links(self):
-        """Replace the default behaviour of make_links"""
-        #print("In BEC make_links")
-
-        for dep in self.deps:
-            if dep.exts == ["DDK"]:
-                ddk_task = dep.node
-                out_ddk = ddk_task.outdir.has_abiext("DDK")
-                if not out_ddk:
-                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
-
-                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
-                rfdir = list(ddk_task.input["rfdir"])
-                if rfdir.count(1) != 1:
-                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
-
-                idir = rfdir.index(1) + 1
-                ddk_case = idir +  3 * len(ddk_task.input.structure)
-
-                infile = self.indir.path_in("in_1WF%d" % ddk_case)
-                os.symlink(out_ddk, infile)
-
-            elif dep.exts == ["WFK"]:
-                gs_task = dep.node
-                out_wfk = gs_task.outdir.has_abiext("WFK")
-                if not out_wfk:
-                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
-
-                os.symlink(out_wfk, self.indir.path_in("in_WFK"))
-
-            else:
-                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
 
 
 class PhononTask(DfptTask):
@@ -3782,12 +3748,6 @@ class PhononTask(DfptTask):
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WF|1DEN) files
     """
-    # TODO:
-    # for the time being we don't discern between GS and PhononCalculations.
-    CRITICAL_EVENTS = [
-        events.ScfConvergenceWarning,
-    ]
-
     color_rgb = np.array((0, 150, 250)) / 255
 
     def restart(self):
@@ -3848,11 +3808,13 @@ class PhononTask(DfptTask):
         results = super(PhononTask, self).get_results(**kwargs)
         return results.register_gridfs_files(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
-    def make_links(self):
-        super(PhononTask, self).make_links()
-        # fix the problem that abinit uses the 1WF extension for the DDK output file but reads it with the irdddk flag
-        #if self.indir.has_abiext('DDK'):
-        #    self.indir.rename_abiext('DDK', '1WF')
+
+class ElasticTask(DfptTask):
+    """
+    DFPT calculations for a single strain perturbation (uniaxial or shear strain).
+    Provide support for in-place restart via (1WF|1DEN) files
+    """
+    color_rgb = np.array((255, 204, 255)) / 255
 
 
 class EphTask(AbinitTask):
@@ -4374,7 +4336,7 @@ class OpticTask(Task):
                     except DecreaseDemandsError:
                         logger.warning('decreasing demands failed')
 
-                    msg = ('Memory error detected but the memory could not be increased neigther could the\n'
+                    msg = ('Memory error detected but the memory could not be increased neither could the\n'
                            'memory demand be decreased. Unrecoverable error.')
                     self.set_status(self.S_ERROR, msg)
                     raise FixQueueCriticalError
@@ -4387,7 +4349,7 @@ class OpticTask(Task):
                         self.set_status(self.S_READY, msg='increased wall time')
                         return
                     except ManagerIncreaseError:
-                        logger.warning('increasing the waltime failed')
+                        logger.warning('increasing the walltime failed')
 
                     # if this fails ask the qadapter to increase the number of cpus
                     if self.load_scales:

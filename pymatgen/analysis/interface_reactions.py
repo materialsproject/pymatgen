@@ -6,6 +6,7 @@ from __future__ import division
 
 import warnings
 import numpy as np
+
 import matplotlib.pylab as plt
 
 from pymatgen import Composition
@@ -361,13 +362,37 @@ class InterfacialReactivity:
                 rxt = self._get_reaction(x)
                 react_kink.append(rxt)
                 rxt_energy = normalized_energy * \
-                             self._get_elmt_amt_in_rxt(rxt) / \
-                             n_atoms
-                energy_per_rxt_formula.append(rxt_energy *
-                                    InterfacialReactivity.EV_TO_KJ_PER_MOL)
+                    self._get_elmt_amt_in_rxt(rxt) / \
+                    n_atoms
+                energy_per_rxt_formula.append(
+                    rxt_energy *
+                    InterfacialReactivity.EV_TO_KJ_PER_MOL)
         index_kink = range(1, len(critical_comp)+1)
         return zip(index_kink, x_kink, energy_kink, react_kink,
                    energy_per_rxt_formula)
+
+    def get_critical_original_kink_ratio(self):
+        """
+        Returns a list of mixing ratio for each kink between ORIGINAL
+        (instead of processed) reactant compositions. This is the
+        same list as mixing ratio obtained from get_kinks method
+        if self.norm = False.
+
+        Returns:
+            A list of floats representing mixing ratios between original
+            reactant compositions for each kink.
+        """
+        ratios = []
+        if self.c1_original == self.c2_original:
+            return [0, 1]
+        reaction_kink = [k[3] for k in self.get_kinks()]
+        for rxt in reaction_kink:
+            c1_coeff = rxt.get_coeff(self.c1_original) \
+                if self.c1_original in rxt.reactants else 0
+            c2_coeff = rxt.get_coeff(self.c2_original) \
+                if self.c2_original in rxt.reactants else 0
+            ratios.append(abs(c1_coeff / (c1_coeff + c2_coeff)))
+        return ratios
 
     def labels(self):
         """

@@ -20,7 +20,7 @@ class XSFTest(PymatgenTest):
                            [0.00, -2.2171384943, 3.1355090603]])
         structure = Structure(lattice, ["Si", "Si"], coords)
         xsf = XSF(structure)
-        self.assertTrue(structure, xsf.from_string(xsf.to_string()))
+        self.assertTrue(structure, XSF.from_string(xsf.to_string()))
 
 
 if __name__ == "__main__":

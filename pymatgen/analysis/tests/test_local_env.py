@@ -12,8 +12,8 @@ import os
 from monty.os.path import which
 
 from pymatgen.analysis.local_env import ValenceIonicRadiusEvaluator, \
-    VoronoiNN, JMolNN, MinimumDistanceNN, OpenBabelNN, MinimumOKeeffeNN,\
-    MinimumVIRENN, \
+    VoronoiNN, JmolNN, MinimumDistanceNN, OpenBabelNN, CovalentBondNN,\
+    MinimumOKeeffeNN, MinimumVIRENN, \
     get_neighbors_of_site_with_index, site_is_of_motif_type, \
     NearNeighbors, LocalStructOrderParams, BrunnerNN_reciprocal, \
     BrunnerNN_real, BrunnerNN_relative, EconNN, CrystalNN, CutOffDictNN, \
@@ -142,6 +142,21 @@ class VoronoiNNTest(PymatgenTest):
                                np.sum([x['weight'] for x in nns if x['site_index'] == 0]),
                                places=3)
 
+    def test_adj_neighbors(self):
+        # Make a simple cubic structure
+        s = Structure([[1, 0, 0], [0, 1, 0], [0, 0, 1]], ['Cu'], [[0, 0, 0]])
+
+        # Compute the NNs with adjacency
+        self.nn.targets = None
+        neighbors = self.nn.get_voronoi_polyhedra(s, 0)
+
+        # Each neighbor has 4 adjacent neighbors, all orthogonal
+        for nn_key, nn_info in neighbors.items():
+            self.assertEqual(4, len(nn_info['adj_neighbors']))
+
+            for adj_key in nn_info['adj_neighbors']:
+                self.assertEqual(0, np.dot(nn_info['normal'], neighbors[adj_key]['normal']))
+
     def test_all_at_once(self):
         # Get all of the sites for LiFePO4
         all_sites = self.nn.get_all_voronoi_polyhedra(self.s)
@@ -168,6 +183,18 @@ class VoronoiNNTest(PymatgenTest):
             by_one_weights = sorted([x['weight'] for x in by_one])
 
             self.assertArrayAlmostEqual(all_weights, by_one_weights)
+
+    def test_Cs2O(self):
+        """A problematic structure in the Materials Project"""
+        strc = Structure([[4.358219, 0.192833, 6.406960], [2.114414, 3.815824, 6.406960],
+                          [0.311360, 0.192833, 7.742498]],
+                         ['O', 'Cs', 'Cs'],
+                         [[0, 0, 0], [0.264318, 0.264318, 0.264318], [0.735682, 0.735682, 0.735682]],
+                         coords_are_cartesian=False)
+
+        # Compute the voronoi tessellation
+        result = VoronoiNN().get_all_voronoi_polyhedra(strc)
+        self.assertEqual(3, len(result))
 
     def test_filtered(self):
         nn = VoronoiNN(weight='area')
@@ -200,11 +227,11 @@ class VoronoiNNTest(PymatgenTest):
         del self.nn
 
 
-class JMolNNTest(PymatgenTest):
+class JmolNNTest(PymatgenTest):
 
     def setUp(self):
-        self.jmol = JMolNN()
-        self.jmol_update = JMolNN(el_radius_updates={"Li": 1})
+        self.jmol = JmolNN()
+        self.jmol_update = JmolNN(el_radius_updates={"Li": 1})
 
     def test_get_nn(self):
         s = self.get_structure('LiFePO4')
@@ -273,6 +300,41 @@ class OpenBabelNNTest(PymatgenTest):
         self.assertAlmostEqual(strat.get_nn_info(self.acetylene, 0)[0]["weight"],
                                1.19,
                                2)
+
+    def tearDown(self):
+        del self.benzene
+        del self.acetylene
+
+
+class CovalentBondNNTest(PymatgenTest):
+
+    def setUp(self):
+        self.benzene = Molecule.from_file(os.path.join(test_dir, "benzene.xyz"))
+        self.acetylene = Molecule.from_file(os.path.join(test_dir, "acetylene.xyz"))
+
+    def test_nn_orders(self):
+        strat = CovalentBondNN()
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertEqual(acetylene[0]["weight"], 3)
+        self.assertEqual(acetylene[1]["weight"], 1)
+
+        benzene = strat.get_nn_info(self.benzene, 0)
+        self.assertAlmostEqual(benzene[0]["weight"], 1.6596, places=4)
+
+    def test_nn_length(self):
+        strat = CovalentBondNN(order=False)
+
+        benzene_bonds = strat.get_nn_info(self.benzene, 0)
+
+        c_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "C"]
+        h_bonds = [b for b in benzene_bonds if str(b["site"].specie) == "H"]
+
+        self.assertAlmostEqual(c_bonds[0]["weight"], 1.41, 2)
+        self.assertAlmostEqual(h_bonds[0]["weight"], 1.02, 2)
+
+        acetylene = strat.get_nn_info(self.acetylene, 0)
+        self.assertAlmostEqual(acetylene[0]["weight"], 1.19, places=2)
 
     def tearDown(self):
         del self.benzene

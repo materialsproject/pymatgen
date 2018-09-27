@@ -1,0 +1,460 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.functional_groups &#8212; pymatgen 2018.9.12 documentation</title>
+    <link rel="stylesheet" href="../../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.functional_groups</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.babel</span> <span class="k">import</span> <span class="n">BabelMolAdaptor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="k">import</span> <span class="n">MoleculeGraph</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.local_env</span> <span class="k">import</span> <span class="n">OpenBabelNN</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+    <span class="kn">import</span> <span class="nn">networkx.algorithms.isomorphism</span> <span class="k">as</span> <span class="nn">iso</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;pymatgen.analysis.functional_groups requires the &quot;</span>
+                      <span class="s2">&quot;NetworkX graph library to be installed.&quot;</span><span class="p">)</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Evan Spotte-Smith&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Evan Spotte-Smith&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;espottesmith@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Beta&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;July 2018&quot;</span>
+<span class="n">__credit__</span> <span class="o">=</span> <span class="s2">&quot;Peiyuan Yu&quot;</span>
+
+
+<div class="viewcode-block" id="FunctionalGroupExtractor"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor">[docs]</a><span class="k">class</span> <span class="nc">FunctionalGroupExtractor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is used to algorithmically parse a molecule (represented by an</span>
+<span class="sd">    instance of pymatgen.analysis.graphs.MoleculeGraph) and determine arbitrary</span>
+<span class="sd">    functional groups.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">optimize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiation method for FunctionalGroupExtractor.</span>
+
+<span class="sd">        :param molecule: Either a filename, a pymatgen.core.structure.Molecule</span>
+<span class="sd">            object, or a pymatgen.analysis.graphs.MoleculeGraph object.</span>
+<span class="sd">        :param optimize: Default False. If True, then the input molecule will be</span>
+<span class="sd">            modified, adding Hydrogens, performing a simple conformer search,</span>
+<span class="sd">            etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">optimize</span><span class="p">:</span>
+                    <span class="n">obmol</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span>
+                                                      <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;mol&quot;</span><span class="p">)</span>
+                    <span class="c1"># OBMolecule does not contain pymatgen Molecule information</span>
+                    <span class="c1"># So, we need to wrap the obmol in a BabelMolAdapter</span>
+                    <span class="n">obmol</span><span class="o">.</span><span class="n">add_hydrogen</span><span class="p">()</span>
+                    <span class="n">obmol</span><span class="o">.</span><span class="n">make3d</span><span class="p">()</span>
+                    <span class="n">obmol</span><span class="o">.</span><span class="n">localopt</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">obmol</span><span class="o">.</span><span class="n">pymatgen_mol</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input must be a valid molecule file, a &quot;</span>
+                                 <span class="s2">&quot;Molecule object, or a MoleculeGraph object.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">optimize</span><span class="p">:</span>
+                <span class="n">obmol</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">molecule</span><span class="p">)</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">add_hydrogen</span><span class="p">()</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">make3d</span><span class="p">()</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">localopt</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">obmol</span><span class="o">.</span><span class="n">pymatgen_mol</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">MoleculeGraph</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">optimize</span><span class="p">:</span>
+                <span class="n">obmol</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">add_hydrogen</span><span class="p">()</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">make3d</span><span class="p">()</span>
+                <span class="n">obmol</span><span class="o">.</span><span class="n">localopt</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">obmol</span><span class="o">.</span><span class="n">pymatgen_mol</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">molecule</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span> <span class="o">=</span> <span class="n">molecule</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input to FunctionalGroupExtractor must be&quot;</span>
+                             <span class="s2">&quot;str, Molecule, or MoleculeGraph.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span>
+                                                                  <span class="n">OpenBabelNN</span><span class="p">(),</span>
+                                                                  <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                                  <span class="n">extend_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Assign a specie and coordinates to each node in the graph,</span>
+        <span class="c1"># corresponding to the Site in the Molecule object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;specie&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FunctionalGroupExtractor.get_heteroatoms"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_heteroatoms">[docs]</a>    <span class="k">def</span> <span class="nf">get_heteroatoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identify non-H, non-C atoms in the MoleculeGraph, returning a list of</span>
+<span class="sd">        their node indices.</span>
+
+<span class="sd">        :param elements: List of elements to identify (if only certain</span>
+<span class="sd">            functional groups are of interest).</span>
+<span class="sd">        :return: set of ints representing node indices</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">heteroatoms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">elements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">node</span><span class="p">])</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+                    <span class="n">heteroatoms</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">node</span><span class="p">])</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]:</span>
+                    <span class="n">heteroatoms</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">heteroatoms</span></div>
+
+<div class="viewcode-block" id="FunctionalGroupExtractor.get_special_carbon"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_special_carbon">[docs]</a>    <span class="k">def</span> <span class="nf">get_special_carbon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identify Carbon atoms in the MoleculeGraph that fit the characteristics</span>
+<span class="sd">        defined Ertl (2017), returning a list of their node indices.</span>
+
+<span class="sd">        The conditions for marking carbon atoms are (quoted from Ertl):</span>
+<span class="sd">            &quot;- atoms connected by non-aromatic double or triple bond to any</span>
+<span class="sd">            heteroatom</span>
+<span class="sd">            - atoms in nonaromatic carbon–carbon double or triple bonds</span>
+<span class="sd">            - acetal carbons, i.e. sp3 carbons connected to two or more oxygens,</span>
+<span class="sd">            nitrogens or sulfurs; these O, N or S atoms must have only single bonds</span>
+<span class="sd">            - all atoms in oxirane, aziridine and thiirane rings&quot;</span>
+
+<span class="sd">        :param elements: List of elements that will qualify a carbon as special</span>
+<span class="sd">            (if only certain functional groups are of interest).</span>
+<span class="sd">            Default None.</span>
+<span class="sd">        :return: set of ints representing node indices</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">specials</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># For this function, only carbons are considered</span>
+        <span class="n">carbons</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span>
+                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Condition one: double/triple bonds to heteroatoms</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">carbons</span><span class="p">:</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">attributes</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">elements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">neighbor</span><span class="p">])</span> <span class="ow">in</span> <span class="n">elements</span> <span class="ow">and</span> \
+                            <span class="nb">int</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                        <span class="n">specials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">neighbor</span><span class="p">])</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="ow">and</span> \
+                            <span class="nb">int</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                        <span class="n">specials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="c1"># Condition two: carbon-carbon double &amp; triple bonds</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">carbons</span><span class="p">:</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">neighbor</span><span class="p">,</span> <span class="n">attributes</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">neighbor</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span>\
+                        <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">attributes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                    <span class="n">specials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                    <span class="n">specials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+
+        <span class="c1"># Condition three: Acetal carbons</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">carbons</span><span class="p">:</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+
+            <span class="n">neighbor_spec</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+            <span class="n">ons</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbor_spec</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">]])</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">ons</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">specials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="c1"># Condition four: oxirane/aziridine/thiirane rings</span>
+        <span class="n">rings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">find_rings</span><span class="p">()</span>
+        <span class="n">rings_indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="p">()))</span> <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings_indices</span><span class="p">:</span>
+            <span class="n">ring_spec</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">node</span><span class="p">])</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">])</span>
+            <span class="c1"># All rings of interest are three-member rings</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">ring_spec</span> <span class="ow">in</span> <span class="p">[[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">],</span>
+                                                <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">],</span>
+                                                <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">]]:</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">carbons</span><span class="p">:</span>
+                        <span class="n">specials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">specials</span></div>
+
+<div class="viewcode-block" id="FunctionalGroupExtractor.link_marked_atoms"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.link_marked_atoms">[docs]</a>    <span class="k">def</span> <span class="nf">link_marked_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take a list of marked &quot;interesting&quot; atoms (heteroatoms, special carbons)</span>
+<span class="sd">        and attempt to connect them, returning a list of disjoint groups of</span>
+<span class="sd">        special atoms (and their connected hydrogens).</span>
+
+<span class="sd">        :param atoms: set of marked &quot;interesting&quot; atoms, presumably identified</span>
+<span class="sd">            using other functions in this class.</span>
+<span class="sd">        :return: list of sets of ints, representing groups of connected atoms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># We will add hydrogens to functional groups</span>
+        <span class="n">hydrogens</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span>
+                     <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">}</span>
+
+        <span class="c1"># Graph representation of only marked atoms</span>
+        <span class="n">subgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">atoms</span><span class="p">))</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+
+        <span class="n">func_grps_no_h</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">subgraph</span><span class="p">)]</span>
+
+        <span class="n">func_grps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">func_grp</span> <span class="ow">in</span> <span class="n">func_grps_no_h</span><span class="p">:</span>
+            <span class="n">grp_hs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">func_grp</span><span class="p">:</span>
+                <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="c1"># Add all associated hydrogens into the functional group</span>
+                    <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">hydrogens</span><span class="p">:</span>
+                        <span class="n">grp_hs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+            <span class="n">func_grp</span> <span class="o">=</span> <span class="n">func_grp</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">grp_hs</span><span class="p">)</span>
+
+            <span class="n">func_grps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func_grp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">func_grps</span></div>
+
+<div class="viewcode-block" id="FunctionalGroupExtractor.get_basic_functional_groups"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_basic_functional_groups">[docs]</a>    <span class="k">def</span> <span class="nf">get_basic_functional_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_groups</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identify functional groups that cannot be identified by the Ertl method</span>
+<span class="sd">        of get_special_carbon and get_heteroatoms, such as benzene rings, methyl</span>
+<span class="sd">        groups, and ethyl groups.</span>
+
+<span class="sd">        TODO: Think of other functional groups that are important enough to be</span>
+<span class="sd">        added (ex: do we need ethyl, butyl, propyl?)</span>
+
+<span class="sd">        :param func_groups: List of strs representing the functional groups of</span>
+<span class="sd">            interest. Default to None, meaning that all of the functional groups</span>
+<span class="sd">            defined in this function will be sought.</span>
+<span class="sd">        :return: list of sets of ints, representing groups of connected atoms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">strat</span> <span class="o">=</span> <span class="n">OpenBabelNN</span><span class="p">()</span>
+
+        <span class="n">hydrogens</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span>
+                     <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">}</span>
+
+        <span class="n">carbons</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span>
+                   <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">func_groups</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">func_groups</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;methyl&quot;</span><span class="p">,</span> <span class="s2">&quot;phenyl&quot;</span><span class="p">]</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;methyl&quot;</span> <span class="ow">in</span> <span class="n">func_groups</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">carbons</span><span class="p">:</span>
+                <span class="n">neighbors</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+                <span class="n">hs</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">[</span><span class="s2">&quot;site_index&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span> <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="s2">&quot;site_index&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">hydrogens</span><span class="p">}</span>
+                <span class="c1"># Methyl group is CH3, but this will also catch methane</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">hs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;phenyl&quot;</span> <span class="ow">in</span> <span class="n">func_groups</span><span class="p">:</span>
+            <span class="n">rings_indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="p">()))</span> <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">find_rings</span><span class="p">()]</span>
+
+            <span class="n">possible_phenyl</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rings_indices</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">possible_phenyl</span><span class="p">:</span>
+                <span class="c1"># Phenyl group should have only one (0 for benzene) member whose</span>
+                <span class="c1"># neighbors are not two carbons and one hydrogen</span>
+                <span class="n">num_deviants</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">:</span>
+                    <span class="n">neighbors</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">get_nn_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+                    <span class="n">neighbor_spec</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">n</span><span class="p">[</span><span class="s2">&quot;site_index&quot;</span><span class="p">]])</span>
+                                            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">neighbor_spec</span> <span class="o">!=</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]:</span>
+                        <span class="n">num_deviants</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">if</span> <span class="n">num_deviants</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">:</span>
+                        <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+
+                        <span class="c1"># Add hydrogens to the functional group</span>
+                        <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">hydrogens</span><span class="p">:</span>
+                                <span class="n">ring</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="FunctionalGroupExtractor.get_all_functional_groups"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.get_all_functional_groups">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_functional_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">func_groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                  <span class="n">catch_basic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identify all functional groups (or all within a certain subset) in the</span>
+<span class="sd">        molecule, combining the methods described above.</span>
+
+<span class="sd">        :param elements: List of elements that will qualify a carbon as special</span>
+<span class="sd">            (if only certain functional groups are of interest).</span>
+<span class="sd">            Default None.</span>
+<span class="sd">        :param func_groups: List of strs representing the functional groups of</span>
+<span class="sd">            interest. Default to None, meaning that all of the functional groups</span>
+<span class="sd">            defined in this function will be sought.</span>
+<span class="sd">        :param catch_basic: bool. If True, use get_basic_functional_groups and</span>
+<span class="sd">            other methods</span>
+<span class="sd">        :return: list of sets of ints, representing groups of connected atoms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">heteroatoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heteroatoms</span><span class="p">(</span><span class="n">elements</span><span class="o">=</span><span class="n">elements</span><span class="p">)</span>
+        <span class="n">special_cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_special_carbon</span><span class="p">(</span><span class="n">elements</span><span class="o">=</span><span class="n">elements</span><span class="p">)</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_marked_atoms</span><span class="p">(</span><span class="n">heteroatoms</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">special_cs</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">catch_basic</span><span class="p">:</span>
+            <span class="n">groups</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basic_functional_groups</span><span class="p">(</span><span class="n">func_groups</span><span class="o">=</span><span class="n">func_groups</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">groups</span></div>
+
+<div class="viewcode-block" id="FunctionalGroupExtractor.categorize_functional_groups"><a class="viewcode-back" href="../../../pymatgen.analysis.functional_groups.html#pymatgen.analysis.functional_groups.FunctionalGroupExtractor.categorize_functional_groups">[docs]</a>    <span class="k">def</span> <span class="nf">categorize_functional_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine classes of functional groups present in a set.</span>
+
+<span class="sd">        :param groups: Set of functional groups.</span>
+<span class="sd">        :return: dict containing representations of the groups, the indices of</span>
+<span class="sd">            where the group occurs in the MoleculeGraph, and how many of each</span>
+<span class="sd">            type of group there is.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">em</span> <span class="o">=</span> <span class="n">iso</span><span class="o">.</span><span class="n">numerical_edge_match</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">nm</span> <span class="o">=</span> <span class="n">iso</span><span class="o">.</span><span class="n">categorical_node_match</span><span class="p">(</span><span class="s2">&quot;specie&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="n">atoms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">group</span><span class="p">]</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">]</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">]</span>
+
+            <span class="n">adaptor</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">))</span>
+            <span class="c1"># Use Canonical SMILES to ensure uniqueness</span>
+            <span class="n">smiles</span> <span class="o">=</span> <span class="n">adaptor</span><span class="o">.</span><span class="n">pybel_mol</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;can&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">smiles</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+                <span class="n">this_subgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="p">))</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">[</span><span class="n">smiles</span><span class="p">][</span><span class="s2">&quot;groups&quot;</span><span class="p">]:</span>
+                    <span class="n">other_subgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molgraph</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">other</span><span class="p">))</span><span class="o">.</span><span class="n">to_undirected</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">nx</span><span class="o">.</span><span class="n">is_isomorphic</span><span class="p">(</span><span class="n">this_subgraph</span><span class="p">,</span> <span class="n">other_subgraph</span><span class="p">,</span>
+                                            <span class="n">edge_match</span><span class="o">=</span><span class="n">em</span><span class="p">,</span> <span class="n">node_match</span><span class="o">=</span><span class="n">nm</span><span class="p">):</span>
+                        <span class="k">break</span>
+
+                    <span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">[</span><span class="n">smiles</span><span class="p">][</span><span class="s2">&quot;groups&quot;</span><span class="p">]:</span>
+                        <span class="n">categories</span><span class="p">[</span><span class="n">smiles</span><span class="p">][</span><span class="s2">&quot;groups&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+                        <span class="n">categories</span><span class="p">[</span><span class="n">smiles</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">categories</span><span class="p">[</span><span class="n">smiles</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">group</span><span class="p">],</span>
+                                      <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">categories</span></div></div>
+</pre></div>
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

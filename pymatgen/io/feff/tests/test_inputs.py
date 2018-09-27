@@ -104,7 +104,7 @@ class FeffAtomsTest(unittest.TestCase):
         atoms_2 = Atoms.atoms_string_from_file(os.path.join(test_dir, "ATOMS"))
         atoms_2 = atoms_2.splitlines()[3:]
         distances_2 = [float(a.split()[5]) for a in atoms_2]
-        np.testing.assert_allclose(distances_1, distances_2)
+        np.testing.assert_allclose(distances_1, distances_2, rtol=1e-5)
 
     def test_atoms_from_file(self):
         filepath = os.path.join(test_dir, 'ATOMS')

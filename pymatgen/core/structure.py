@@ -122,8 +122,14 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     def types_of_specie(self):
         """
         List of types of specie. Only works for ordered structures.
-        Disordered structures will raise an AttributeError.
+        Disordered structures will raise TypeError.
         """
+        if not self.is_ordered:
+            raise TypeError("""\
+types_of_species cannot be used with disordered structures and partial occupancies.
+Use OrderDisorderedStructureTransformation or EnumerateStructureTransformation
+to build an appropriate supercell from partial occupancies.""")
+
         # Cannot use set since we want a deterministic algorithm.
         types = []
         for site in self:
@@ -288,7 +294,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Molecules, while PBC is taken into account for periodic structures.
 
         Args:
-            tol (float): Distance tolerance. Default is 0.01A.
+            tol (float): Distance tolerance. Default is 0.5A.
 
         Returns:
             (bool) True if SiteCollection does not contain atoms that are too
@@ -722,6 +728,8 @@ class IStructure(SiteCollection, MSONable):
         return m.fit(Structure.from_sites(self), Structure.from_sites(other))
 
     def __eq__(self, other):
+        if other is self:
+            return True
         if other is None:
             return False
         if len(self) != len(other):
@@ -783,7 +791,7 @@ class IStructure(SiteCollection, MSONable):
                 new_sites.append(s)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
-        return Structure.from_sites(new_sites,charge=new_charge)
+        return Structure.from_sites(new_sites, charge=new_charge)
 
     def __rmul__(self, scaling_matrix):
         """
@@ -1216,6 +1224,7 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             The most primitive structure found.
         """
+
         def site_label(site):
             if not use_site_props:
                 return site.species_string
@@ -1502,53 +1511,51 @@ class IStructure(SiteCollection, MSONable):
             filename (str): If provided, output will be written to a file. If
                 fmt is not specified, the format is determined from the
                 filename. Defaults is None, i.e. string output.
+            \*\*kwargs: Kwargs passthru to relevant methods. E.g., This allows
+                the passing of parameters like symprec to the
+                CifWriter.__init__ method for generation of symmetric cifs.
 
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.cif import CifWriter
-        from pymatgen.io.vasp import Poscar
-        from pymatgen.io.cssr import Cssr
-        from pymatgen.io.xcrysden import XSF
-        from pymatgen.io.atat import Mcsqs
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
 
-        if fmt == "cif" or fnmatch(fname, "*.cif*"):
-            writer = CifWriter(self)
-        elif fmt == "mcif" or fnmatch(fname, "*.mcif*"):
-            writer = CifWriter(self, write_magmoms=True)
+        if fmt == "cif" or fnmatch(fname.lower(), "*.cif*"):
+            from pymatgen.io.cif import CifWriter
+            writer = CifWriter(self, **kwargs)
+        elif fmt == "mcif" or fnmatch(fname.lower(), "*.mcif*"):
+            from pymatgen.io.cif import CifWriter
+            writer = CifWriter(self, write_magmoms=True, **kwargs)
         elif fmt == "poscar" or fnmatch(fname, "*POSCAR*"):
-            writer = Poscar(self)
+            from pymatgen.io.vasp import Poscar
+            writer = Poscar(self, **kwargs)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
-            writer = Cssr(self)
+            from pymatgen.io.cssr import Cssr
+            writer = Cssr(self, **kwargs)
         elif fmt == "json" or fnmatch(fname.lower(), "*.json"):
             s = json.dumps(self.as_dict())
             if filename:
                 with zopen(filename, "wt") as f:
                     f.write("%s" % s)
-                return
-            else:
-                return s
+            return s
         elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
+            from pymatgen.io.xcrysden import XSF
+            s = XSF(self).to_string()
             if filename:
                 with zopen(fname, "wt", encoding='utf8') as f:
-                    s = XSF(self).to_string()
                     f.write(s)
-                    return s
-            else:
-                return XSF(self).to_string()
+            return s
         elif fmt == 'mcsqs' or fnmatch(fname, "*rndstr.in*") \
                 or fnmatch(fname, "*lat.in*") \
                 or fnmatch(fname, "*bestsqs*"):
+            from pymatgen.io.atat import Mcsqs
+            s = Mcsqs(self).to_string()
             if filename:
                 with zopen(fname, "wt", encoding='ascii') as f:
-                    s = Mcsqs(self).to_string()
                     f.write(s)
-                    return
-            else:
-                return Mcsqs(self).to_string()
+            return s
         else:
             import ruamel.yaml as yaml
             if filename:
@@ -1593,7 +1600,7 @@ class IStructure(SiteCollection, MSONable):
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
         elif fmt == "poscar":
-            s = Poscar.from_string(input_string, False, 
+            s = Poscar.from_string(input_string, False,
                                    read_velocities=False).structure
         elif fmt == "cssr":
             cssr = Cssr.from_string(input_string)
@@ -1657,7 +1664,7 @@ class IStructure(SiteCollection, MSONable):
             return cls.from_str(contents, fmt="cif",
                                 primitive=primitive, sort=sort,
                                 merge_tol=merge_tol)
-        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*"):
+        elif fnmatch(fname, "*POSCAR*") or fnmatch(fname, "*CONTCAR*") or fnmatch(fname, "*.vasp"):
             s = cls.from_str(contents, fmt="poscar",
                              primitive=primitive, sort=sort,
                              merge_tol=merge_tol)
@@ -2608,6 +2615,109 @@ class Structure(IStructure, collections.MutableSequence):
                                 properties=properties)
         self._sites[i] = new_site
 
+    def substitute(self, index, func_grp, bond_order=1):
+        """
+        Substitute atom at index with a functional group.
+
+        Args:
+            index (int): Index of atom to substitute.
+            func_grp: Substituent molecule. There are two options:
+
+                1. Providing an actual Molecule as the input. The first atom
+                   must be a DummySpecie X, indicating the position of
+                   nearest neighbor. The second atom must be the next
+                   nearest atom. For example, for a methyl group
+                   substitution, func_grp should be X-CH3, where X is the
+                   first site and C is the second site. What the code will
+                   do is to remove the index site, and connect the nearest
+                   neighbor to the C atom in CH3. The X-C bond indicates the
+                   directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                   relevant template in func_groups.json.
+            bond_order (int): A specified bond order to calculate the bond
+                length between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
+        """
+
+        # Find the nearest neighbor that is not a terminal atom.
+        all_non_terminal_nn = []
+        for nn, dist in self.get_neighbors(self[index], 3):
+            # Check that the nn has neighbors within a sensible distance but
+            # is not the site being substituted.
+            for inn, dist2 in self.get_neighbors(nn, 3):
+                if inn != self[index] and \
+                                dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                    all_non_terminal_nn.append((nn, dist))
+                    break
+
+        if len(all_non_terminal_nn) == 0:
+            raise RuntimeError("Can't find a non-terminal neighbor to attach"
+                               " functional group to.")
+
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
+
+        # Set the origin point to be the coordinates of the nearest
+        # non-terminal neighbor.
+        origin = non_terminal_nn.coords
+
+        # Pass value of functional group--either from user-defined or from
+        # functional.json
+        if isinstance(func_grp, Molecule):
+            func_grp = func_grp
+        else:
+            # Check to see whether the functional group is in database.
+            if func_grp not in FunctionalGroups:
+                raise RuntimeError("Can't find functional group in list. "
+                                   "Provide explicit coordinate instead")
+            else:
+                func_grp = FunctionalGroups[func_grp]
+
+        # If a bond length can be found, modify func_grp so that the X-group
+        # bond length is equal to the bond length.
+        try:
+            bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
+                                 bond_order=bond_order)
+        # Catches for case of incompatibility between Element(s) and Specie(s)
+        except TypeError:
+            bl = None
+
+        if bl is not None:
+            func_grp = func_grp.copy()
+            vec = func_grp[0].coords - func_grp[1].coords
+            vec /= np.linalg.norm(vec)
+            func_grp[0] = "X", func_grp[1].coords + float(bl) * vec
+
+        # Align X to the origin.
+        x = func_grp[0]
+        func_grp.translate_sites(list(range(len(func_grp))), origin - x.coords)
+
+        # Find angle between the attaching bond and the bond to be replaced.
+        v1 = func_grp[1].coords - origin
+        v2 = self[index].coords - origin
+        angle = get_angle(v1, v2)
+
+        if 1 < abs(angle % 180) < 179:
+            # For angles which are not 0 or 180, we perform a rotation about
+            # the origin along an axis perpendicular to both bonds to align
+            # bonds.
+            axis = np.cross(v1, v2)
+            op = SymmOp.from_origin_axis_angle(origin, axis, angle)
+            func_grp.apply_operation(op)
+        elif abs(abs(angle) - 180) < 1:
+            # We have a 180 degree angle. Simply do an inversion about the
+            # origin
+            for i in range(len(func_grp)):
+                func_grp[i] = (func_grp[i].species_and_occu,
+                               origin - (func_grp[i].coords - origin))
+
+        # Remove the atom to be replaced, and add the rest of the functional
+        # group.
+        del self[index]
+        for site in func_grp[1:]:
+            s_new = PeriodicSite(site.species_and_occu, site.coords,
+                                 self.lattice, coords_are_cartesian=True)
+            self._sites.append(s_new)
+
     def remove_species(self, species):
         """
         Remove all occurrences of several species from a structure.
@@ -2789,7 +2899,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
                 site.species_and_occu, s, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
@@ -2973,7 +3083,7 @@ class Structure(IStructure, collections.MutableSequence):
                    same factor.
             to_unit_cell: Whether or not to fall back sites into the unit cell
         """
-        s = self*scaling_matrix
+        s = self * scaling_matrix
         if to_unit_cell:
             for isite, site in enumerate(s):
                 s[isite] = site.to_unit_cell
@@ -3015,6 +3125,7 @@ class Structure(IStructure, collections.MutableSequence):
             inds = np.where(clusters == c)[0]
             species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
+            props = self[inds[0]].properties
             for n, i in enumerate(inds[1:]):
                 sp = self[i].species_and_occu
                 if mode == "s":
@@ -3022,9 +3133,22 @@ class Structure(IStructure, collections.MutableSequence):
                 offset = self[i].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (n + 2)).astype(
                     coords.dtype)
-            sites.append(PeriodicSite(species, coords, self.lattice))
+                for key in props.keys():
+                    if props[key] is not None and self[i].properties[key] != props[key]:
+                        props[key] = None
+                        warnings.warn("Sites with different site property %s are merged."
+                                      "so property is set to none" % key)
+            sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
+
+    def set_charge(self, new_charge=0.):
+        """
+        Sets the overall structure charge
+        Args:
+            charge (float): new charge to set
+        """
+        self._charge = new_charge
 
 
 class Molecule(IMolecule, collections.MutableSequence):
@@ -3350,7 +3474,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
             new_site = Site(site.species_and_occu, s,
                             properties=site.properties)
             self._sites[i] = new_site
@@ -3429,7 +3553,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             # is not the site being substituted.
             for inn, dist2 in self.get_neighbors(nn, 3):
                 if inn != self[index] and \
-                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                                dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
                     all_non_terminal_nn.append((nn, dist))
                     break
 

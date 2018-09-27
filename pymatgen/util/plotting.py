@@ -262,11 +262,14 @@ def periodic_table_heatmap(elemental_data, cbar_label="",
     return plt
 
 
-def get_ax_fig_plt(ax=None):
+def get_ax_fig_plt(ax=None, **kwargs):
     """
     Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
     we return the current active figure.
+
+    Args:
+        kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
         ax: :class:`Axes` object
@@ -275,7 +278,7 @@ def get_ax_fig_plt(ax=None):
     """
     import matplotlib.pyplot as plt
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure(**kwargs)
         ax = fig.add_subplot(1, 1, 1)
     else:
         fig = plt.gcf()
@@ -283,11 +286,14 @@ def get_ax_fig_plt(ax=None):
     return ax, fig, plt
 
 
-def get_ax3d_fig_plt(ax=None):
+def get_ax3d_fig_plt(ax=None, **kwargs):
     """
     Helper function used in plot functions supporting an optional Axes3D
     argument. If ax is None, we build the `matplotlib` figure and create the
     Axes3D else we return the current active figure.
+
+    Args:
+        kwargs: keyword arguments are passed to plt.figure if ax is not None.
 
     Returns:
         ax: :class:`Axes` object
@@ -297,7 +303,7 @@ def get_ax3d_fig_plt(ax=None):
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import axes3d
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure(**kwargs)
         ax = axes3d.Axes3D(fig)
     else:
         fig = plt.gcf()

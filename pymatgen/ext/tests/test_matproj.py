@@ -113,6 +113,13 @@ class MPResterTest(unittest.TestCase):
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
 
+    def test_get_data(self):
+        # Test getting supported properties
+        self.assertNotEqual(self.rester.get_task_data("mp-30"), [])
+        # Test aliasing
+        data = self.rester.get_task_data("mp-30", "energy")
+        self.assertAlmostEqual(data[0]["energy"], -4.09929227, places=2)
+
     def test_get_materials_id_from_task_id(self):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
             "mp-540081"), "mp-19017")
@@ -245,6 +252,11 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(len(th_entry.structure), 4)
         self.assertEqual(len(th_entry_initial.structure), 2)
 
+        # Test if the polymorphs of Fe are properly sorted
+        # by e_above_hull when sort_by_e_above_hull=True
+        Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
+        self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
+
 
     def test_get_pourbaix_entries(self):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
@@ -257,8 +269,12 @@ class MPResterTest(unittest.TestCase):
         pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         pbx = PourbaixDiagram(pbx_entries)
 
+        # TODO: Shyue Ping: I do not understand this test. You seem to
+        # be grabbing Zn-S system, but I don't see proper test for anything,
+        # including Na ref. This test also takes a long time.
+
         # Test Zn-S, which has Na in reference solids
-        pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
+        # pbx_entries = self.rester.get_pourbaix_entries(["Zn", "S"])
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
@@ -327,6 +343,10 @@ class MPResterTest(unittest.TestCase):
     def test_get_wulff_shape(self):
         ws = self.rester.get_wulff_shape("mp-126")
         self.assertTrue(isinstance(ws, WulffShape))
+
+    def test_get_cohesive_energy(self):
+        ecoh = self.rester.get_cohesive_energy("mp-13")
+        self.assertTrue(ecoh, 5.04543279)
 
     def test_get_interface_reactions(self):
         kinks = self.rester.get_interface_reactions("LiCoO2", "Li3PS4")

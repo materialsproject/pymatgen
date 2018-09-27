@@ -6,14 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.launcher module &#8212; pymatgen 2018.6.27 documentation</title>
+    <title>pymatgen.io.abinit.launcher module &#8212; pymatgen 2018.9.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -246,8 +246,9 @@ This check prevents the scheduler from being trapped in an infinite loop.</li>
 <li><strong>use_dynamic_manager</strong> – “yes” if the <code class="xref py py-class docutils literal notranslate"><span class="pre">TaskManager</span></code> must be re-initialized from
 file before launching the jobs. (DEFAULT: “no”)</li>
 <li><strong>max_njobs_inqueue</strong> – Limit on the number of jobs that can be present in the queue. (DEFAULT: 200)</li>
-<li><strong>remindme_s</strong> – The scheduler will send an email to the user specified by <cite>mailto</cite> every <cite>remindme_s</cite> seconds.
-(int, DEFAULT: 1 day).</li>
+<li><strong>max_ncores_used</strong> – Maximum number of cores that can be used by the scheduler.</li>
+<li><strong>remindme_s</strong> – The scheduler will send an email to the user specified
+by <cite>mailto</cite> every <cite>remindme_s</cite> seconds. (int, DEFAULT: 1 day).</li>
 <li><strong>max_num_pyexcs</strong> – The scheduler will exit if the number of python exceptions is &gt; max_num_pyexcs
 (int, DEFAULT: 0)</li>
 <li><strong>max_num_abierrs</strong> – The scheduler will exit if the number of errored tasks is &gt; max_num_abierrs
@@ -257,7 +258,7 @@ file before launching the jobs. (DEFAULT: “no”)</li>
 <li><strong>max_nlaunches</strong> – Maximum number of tasks launched in a single iteration of the scheduler.
 (DEFAULT: -1 i.e. no limit)</li>
 <li><strong>debug</strong> – Debug level. Use 0 for production (int, DEFAULT: 0)</li>
-<li><strong>fix_qcritical</strong> – “yes” if the launcher should try to fix QCritical Errors (DEFAULT: “yes”)</li>
+<li><strong>fix_qcritical</strong> – “yes” if the launcher should try to fix QCritical Errors (DEFAULT: “no”)</li>
 <li><strong>rmflow</strong> – If “yes”, the scheduler will remove the flow directory if the calculation
 completed successfully. (DEFAULT: “no”)</li>
 <li><strong>killjobs_if_errors</strong> – “yes” if the scheduler should try to kill all the runnnig jobs
@@ -275,12 +276,12 @@ before exiting due to an error. (DEFAULT: “yes”)</li>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.launcher.PyFlowScheduler.USER_CONFIG_DIR">
-<code class="descname">USER_CONFIG_DIR</code><em class="property"> = '/Users/shyue/.abinit/abipy'</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="descname">USER_CONFIG_DIR</code><em class="property"> = u'/Users/pymatgen/.abinit/abipy'</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.USER_CONFIG_DIR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.launcher.PyFlowScheduler.YAML_FILE">
-<code class="descname">YAML_FILE</code><em class="property"> = 'scheduler.yml'</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.YAML_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">YAML_FILE</code><em class="property"> = u'scheduler.yml'</em><a class="headerlink" href="#pymatgen.io.abinit.launcher.PyFlowScheduler.YAML_FILE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -426,13 +427,13 @@ In standalone mode, this method will block until there are no more scheduled job
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.27 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
