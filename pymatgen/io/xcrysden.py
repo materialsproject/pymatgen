@@ -106,7 +106,10 @@ class XSF(object):
 class BXSF(object):
     '''
     Class for parsing XCrysden fermi-surface files.
-    inspared by https://github.com/MTD-group/Fermi-Surface
+
+    you ought to use the general grid KPOINTS for calculation.
+    band-xbf: http://www.xcrysden.org/doc/XSF.html#__toc__14
+    general grid: http://www.xcrysden.org/doc/XSF.html#genper
     '''
 
     def __init__(self, efermi, eigenvalues, kpts, lattice_rec):
@@ -166,10 +169,8 @@ class BXSF(object):
         kpts = [
             len(set(np.array(vasprun.kpoints.kpts)[:, i])) for i in range(3)
         ]
-        return cls(
-            vasprun.efermi, vasprun.eigenvalues, kpts,
-            vasprun.final_structure.get_primitive_structure()
-            .lattice.reciprocal_lattice)
+        return cls(vasprun.efermi, vasprun.eigenvalues, kpts,
+                   vasprun.lattice_rec)
 
     @classmethod
     def from_path(cls, path):
