@@ -112,11 +112,12 @@ class BXSF(object):
     general grid: http://www.xcrysden.org/doc/XSF.html#genper
     '''
 
-    def __init__(self, efermi, eigenvalues, kpts, lattice_rec):
+    def __init__(self, efermi, eigenvalues, kpts, lattice_rec, comment=''):
         self.efermi = efermi
         self.eigenvalues = eigenvalues
         self.kpts = kpts
         self.lattice_rec = lattice_rec
+        self.comment = comment or 'unknown system'
 
     def to_string(self):
         n_bands = self.eigenvalues[Spin.up].shape[1]
@@ -124,7 +125,7 @@ class BXSF(object):
         app = lines.append
         app('BEGIN_INFO')
         app('   #')
-        app('   # Case:  unknown system')
+        app('   # Case:  {}'.format(self.comment))
         app('   #')
         app('   # Launch as: xcrysden --bxsf example.bxsf')
         app('   #')
