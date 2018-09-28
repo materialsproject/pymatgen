@@ -1,7 +1,8 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-from __future__ import division, unicode_literals, print_function
+from __future__ import division, print_function, unicode_literals
+
 import numpy as np
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.sets import get_vasprun_outcar
@@ -133,25 +134,21 @@ class BXSF(object):
         app(' END_INFO')
         app('')
         app(' BEGIN_BLOCK_BANDGRID_3D')
-        app(' Num_bands_are_sum_of_spin_up/down._Change_reci_dimension_based_on_your_unit_cell'
-            )
+        app(' Num_bands_are_sum_of_spin_up/down._Change_reci_dimension_based_on_your_unit_cell')
         app('   BEGIN_BANDGRID_3D')
         app('       {}'.format(n_bands))
         app('     {} {} {}'.format(*self.kpts))
         app('     0.0000 0.0000 0.0000')
         for i in range(3):
-            app('     {:.4f} {:.4f} {:.4f}'.format(
-                *self.lattice_rec.matrix[i] / (2 * np.pi)))
+            app('     {:.4f} {:.4f} {:.4f}'.format(*self.lattice_rec.matrix[i] / (2 * np.pi)))
         app('')
         bands_start = {Spin.up: 1, Spin.down: 1 + n_bands}
         for spin, v in self.eigenvalues.items():
             for i in range(n_bands):
                 app('   BAND:  {}'.format(i + bands_start[spin]))
-                band_eigenvalues = np.reshape(
-                    v[:, i, 0], (np.prod(self.kpts[:-1]), self.kpts[-1]))
+                band_eigenvalues = np.reshape(v[:, i, 0], (np.prod(self.kpts[:-1]), self.kpts[-1]))
                 for j in range(self.kpts[-1]):
-                    app('       {}'.format('  '.join(
-                        map(str, band_eigenvalues[:, j]))))
+                    app('       {}'.format('  '.join(map(str, band_eigenvalues[:, j]))))
                 app('')
         app('   END_BANDGRID_3D')
         app(' END_BLOCK_BANDGRID_3D')
@@ -167,11 +164,8 @@ class BXSF(object):
 
     @classmethod
     def from_vasprun(cls, vasprun):
-        kpts = [
-            len(set(np.array(vasprun.kpoints.kpts)[:, i])) for i in range(3)
-        ]
-        return cls(vasprun.efermi, vasprun.eigenvalues, kpts,
-                   vasprun.lattice_rec)
+        kpts = [len(set(np.array(vasprun.kpoints.kpts)[:, i])) for i in range(3)]
+        return cls(vasprun.efermi, vasprun.eigenvalues, kpts, vasprun.lattice_rec)
 
     @classmethod
     def from_path(cls, path):
