@@ -12,7 +12,7 @@ import unittest
 
 import sys
 from pymatgen import Molecule
-from pymatgen.io.qchem import QcTask, QcInput, QcOutput, QcNucVeloc
+from pymatgen.io.qchem_deprecated import QcTask, QcInput, QcOutput, QcNucVeloc
 from pymatgen.util.testing import PymatgenTest
 
 __author__ = 'xiaohuiqu'

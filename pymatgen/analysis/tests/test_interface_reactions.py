@@ -1,10 +1,6 @@
 from __future__ import division, unicode_literals
 
 import warnings
-import matplotlib
-
-matplotlib.use('pdf')
-
 import unittest as unittest
 import numpy as np
 
@@ -32,58 +28,76 @@ class InterfaceReactionTest(unittest.TestCase):
         chempots = {'Li': -3}
         self.gpd = GrandPotentialPhaseDiagram(self.entries, chempots)
         self.ir = []
+        # ir[0]
         self.ir.append(
             InterfacialReactivity(Composition('O2'), Composition('Mn'),
                                   self.pd, norm=0, include_no_mixing_energy=0,
                                   pd_non_grand=None, use_hull_energy=False))
+        # ir[1]
         self.ir.append(
             InterfacialReactivity(Composition('MnO2'), Composition('Mn'),
                                   self.gpd, norm=0, include_no_mixing_energy=1,
                                   pd_non_grand=self.pd, use_hull_energy=False))
+        # ir[2]
         self.ir.append(
             InterfacialReactivity(Composition('Mn'), Composition('O2'),
                                   self.gpd, norm=1, include_no_mixing_energy=1,
                                   pd_non_grand=self.pd, use_hull_energy=False))
+        # ir[3]
         self.ir.append(
             InterfacialReactivity(Composition('Li2O'), Composition('Mn'),
                                   self.gpd, norm=0, include_no_mixing_energy=1,
                                   pd_non_grand=self.pd, use_hull_energy=False))
+        # ir[4]
         self.ir.append(
             InterfacialReactivity(Composition('Mn'), Composition('O2'),
                                   self.gpd, norm=1, include_no_mixing_energy=0,
                                   pd_non_grand=self.pd, use_hull_energy=False))
+        # ir[5]
         self.ir.append(
             InterfacialReactivity(Composition('Mn'), Composition('Li2O'),
                                   self.gpd, norm=1, include_no_mixing_energy=1,
                                   pd_non_grand=self.pd, use_hull_energy=False))
+        # ir[6]
         self.ir.append(
             InterfacialReactivity(Composition('Li2O2'), Composition('Li'),
                                   self.pd, norm=0, include_no_mixing_energy=0,
                                   pd_non_grand=None, use_hull_energy=True))
+        # ir[7]
         self.ir.append(
             InterfacialReactivity(Composition('Li2O2'), Composition('Li'),
                                   self.pd, norm=0, include_no_mixing_energy=0,
                                   pd_non_grand=None, use_hull_energy=False))
-
+        # ir[8]
         self.ir.append(
             InterfacialReactivity(Composition('Li2O2'), Composition('MnO2'),
                                   self.gpd, norm=0, include_no_mixing_energy=0,
                                   pd_non_grand=self.pd, use_hull_energy=True))
-
+        # ir[9]
         self.ir.append(
             InterfacialReactivity(Composition('Li2O2'), Composition('MnO2'),
                                   self.gpd, norm=0, include_no_mixing_energy=0,
                                   pd_non_grand=self.pd, use_hull_energy=False))
-
+        # ir[10]
         self.ir.append(
             InterfacialReactivity(Composition('O2'), Composition('Mn'),
+                                  self.pd, norm=1, include_no_mixing_energy=0,
+                                  pd_non_grand=None, use_hull_energy=False))
+        # ir[11]
+        self.ir.append(
+            InterfacialReactivity(Composition('Li2O2'), Composition('Li2O2'),
+                                  self.gpd, norm=1, include_no_mixing_energy=1,
+                                  pd_non_grand=self.pd, use_hull_energy=False))
+        # ir[12]
+        self.ir.append(
+            InterfacialReactivity(Composition('Li2O2'), Composition('Li2O2'),
                                   self.pd, norm=1, include_no_mixing_energy=0,
                                   pd_non_grand=None, use_hull_energy=False))
 
         with self.assertRaises(Exception) as context1:
             self.ir.append(
                 InterfacialReactivity(Composition('Li2O2'), Composition('Li'),
-                                      self.pd, norm=0,
+                                      self.pd, norm=1,
                                       include_no_mixing_energy=1,
                                       pd_non_grand=None))
         self.assertTrue(
@@ -118,8 +132,9 @@ class InterfaceReactionTest(unittest.TestCase):
                             comp.reduced_formula))
         # Test normal functionality
         comp = Composition('MnO2')
-        test2 = np.isclose(InterfacialReactivity._get_entry_energy(self.pd, comp), -30,
-                           atol=1e-03)
+        test2 = np.isclose(
+            InterfacialReactivity._get_entry_energy(self.pd, comp),
+            -30, atol=1e-03)
         self.assertTrue(test2,
                         '_get_entry_energy: energy for {} is wrong!'.format(
                             comp.reduced_formula))
@@ -159,18 +174,21 @@ class InterfaceReactionTest(unittest.TestCase):
         self.assertTrue(test1, '_get_energy: phase diagram gets error!')
 
         test2 = (
-        np.isclose(self.ir[3]._get_energy(0.6666666), -7.333333, atol=1e-03))
+            np.isclose(self.ir[3]._get_energy(0.6666666),
+                       -7.333333, atol=1e-03))
         self.assertTrue(test2,
                         '_get_energy: '
                         'grand canonical phase diagram gets error!')
 
         test3 = (
-        np.isclose(self.ir[6]._get_energy(0.3333333), -3.333333, atol=1e-03))
+            np.isclose(self.ir[6]._get_energy(0.3333333),
+                       -3.333333, atol=1e-03))
         self.assertTrue(test3,
                         '_get_energy: convex hull energy gets error. ')
 
         test4 = (
-        np.isclose(self.ir[7]._get_energy(0.3333333), -4, atol=1e-03))
+            np.isclose(self.ir[7]._get_energy(0.3333333),
+                       -4, atol=1e-03))
         self.assertTrue(test4,
                         '_get_energy: gets error. ')
 
@@ -181,9 +199,9 @@ class InterfaceReactionTest(unittest.TestCase):
                         'reaction not involving chempots species gets error!')
 
         test2 = str(self.ir[3]._get_reaction(0.666666)) \
-                == 'Mn + Li2O -> 2 Li + 0.5 MnO2 + 0.5 Mn' \
-                or str(self.ir[3]._get_reaction(0.666666)) \
-                == 'Mn +  Li2O -> 2 Li + 0.5 Mn + 0.5 MnO2'
+            == 'Mn + Li2O -> 2 Li + 0.5 MnO2 + 0.5 Mn' \
+            or str(self.ir[3]._get_reaction(0.666666)) \
+            == 'Mn +  Li2O -> 2 Li + 0.5 Mn + 0.5 MnO2'
         self.assertTrue(test2,
                         '_get_reaction: '
                         'reaction involving chempots species gets error!')
@@ -220,7 +238,8 @@ class InterfaceReactionTest(unittest.TestCase):
 
     def test_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
-        result = [InterfacialReactivity._convert(x, f1, f2) for x, f1, f2 in test_array]
+        result = [InterfacialReactivity._convert(x, f1, f2)
+                  for x, f1, f2 in test_array]
         answer = [0.75, 0.5, 0, 1]
         self.assertTrue(np.allclose(result, answer),
                         '_convert: conversion gets error! {0} expected,'
@@ -228,8 +247,8 @@ class InterfaceReactionTest(unittest.TestCase):
 
     def test_reverse_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
-        result = [InterfacialReactivity._reverse_convert(x, f1, f2) for x, f1, f2 in
-                  test_array]
+        result = [InterfacialReactivity._reverse_convert(x, f1, f2)
+                  for x, f1, f2 in test_array]
         answer = [0.25, 0.3076923, 0, 1]
         self.assertTrue(np.allclose(result, answer),
                         '_convert: conversion gets error! {0} expected,'
@@ -249,62 +268,84 @@ class InterfaceReactionTest(unittest.TestCase):
                         'for reaction involving chempots species!')
 
     def test_get_kinks(self):
-        ir = self.ir[0]
-        lst = list(self.ir[0].get_kinks())
-        index = [i[0] for i in lst]
-        x_kink = [i[1] for i in lst]
-        energy_kink = [i[2] for i in lst]
-        react_kink = [str(i[3]) for i in lst]
-        energy_per_rxt_kink = [i[4] for i in lst]
-        test1 = index == [1, 2, 3]
-        self.assertTrue(test1, 'get_kinks:index gets error!')
+        def test_get_kinks_helper(ir, index_expect,
+                                  x_kink_expect, energy_kink_expect,
+                                  react_kink_expect,
+                                  energy_per_rxt_kink_expect):
+            lst = list(ir.get_kinks())
+            index = [i[0] for i in lst]
+            x_kink = [i[1] for i in lst]
+            energy_kink = [i[2] for i in lst]
+            react_kink = [str(i[3]) for i in lst]
+            energy_per_rxt_kink = [i[4] for i in lst]
+            test1 = index == index_expect
+            self.assertTrue(test1, 'get_kinks:index gets error!')
 
-        test2 = np.allclose(x_kink, [0, 0.5, 1])
-        self.assertTrue(test2, 'get_kinks:x kinks gets error!')
+            test2 = np.allclose(x_kink, x_kink_expect)
+            self.assertTrue(test2, 'get_kinks:x kinks gets error!')
 
-        test3 = np.allclose(energy_kink, [0, -15, 0])
-        self.assertTrue(test3, 'get_kinks:energy kinks gets error!')
+            test3 = np.allclose(energy_kink, energy_kink_expect)
+            self.assertTrue(test3, 'get_kinks:energy kinks gets error!')
 
-        test4 = react_kink == ['Mn -> Mn', 'O2 + Mn -> MnO2', 'O2 -> O2']
-        self.assertTrue(test4,
-                        'get_kinks: reaction kinks '
-                        'gets error for {0} and {1} reaction!'.format(
-                            ir.c1_original.reduced_formula,
-                            ir.c2_original.reduced_formula))
+            # Testing reaction strings are hard,
+            # as species could be arranged in random order.
+            test4 = len(react_kink) == len(react_kink_expect)
+            self.assertTrue(test4,
+                            'get_kinks: reaction kinks '
+                            'gets error for {0} and {1} reaction!'.format(
+                                ir.c1_original.reduced_formula,
+                                ir.c2_original.reduced_formula))
 
-        test5 = np.allclose(energy_per_rxt_kink,
-                            [0,
-                            -30 * InterfacialReactivity.EV_TO_KJ_PER_MOL,
-                            0])
-        self.assertTrue(test5, 'get_kinks: energy_per_rxt_kinks gets error!')
+            test5 = np.allclose(energy_per_rxt_kink,
+                                energy_per_rxt_kink_expect)
+            self.assertTrue(test5,
+                            'get_kinks: energy_per_rxt_kinks gets error!')
 
-        lst = list(self.ir[10].get_kinks())
-        index = [i[0] for i in lst]
-        x_kink = [i[1] for i in lst]
-        energy_kink = [i[2] for i in lst]
-        react_kink = [str(i[3]) for i in lst]
-        energy_per_rxt_kink = [i[4] for i in lst]
-        test6 = index == [1, 2, 3]
-        self.assertTrue(test6, 'get_kinks:index gets error!')
+        test_get_kinks_helper(self.ir[0], [1, 2, 3], [0, 0.5, 1],
+                              [0, -15, 0],
+                              ['Mn -> Mn', 'O2 + Mn -> MnO2', 'O2 -> O2'],
+                              [0,
+                               -30 * InterfacialReactivity.EV_TO_KJ_PER_MOL,
+                               0])
 
-        test7 = np.allclose(x_kink, [0, 0.66667, 1])
-        self.assertTrue(test7, 'get_kinks:x kinks gets error!')
+        test_get_kinks_helper(self.ir[10], [1, 2, 3], [0, 0.66667, 1],
+                              [0, -10, 0],
+                              ['Mn -> Mn', 'O2 + Mn -> MnO2', 'O2 -> O2'],
+                              [0,
+                               -30 * InterfacialReactivity.EV_TO_KJ_PER_MOL,
+                               0])
+        test_get_kinks_helper(self.ir[11], [1, 2], [0, 1], [-3, -3],
+                              ['Li2O2 + 2 Li -> 2 Li2O',
+                               'Li2O2 + 2 Li -> 2 Li2O'],
+                              [-6 * InterfacialReactivity.EV_TO_KJ_PER_MOL] *
+                              2)
+        test_get_kinks_helper(self.ir[12], [1, 2], [0, 1], [-0.5, -0.5],
+                              ['Li2O2 -> Li2O + 0.5 O2',
+                               'Li2O2 -> Li2O + 0.5 O2'],
+                              [-2 * InterfacialReactivity.EV_TO_KJ_PER_MOL] *
+                              2)
 
-        test8 = np.allclose(energy_kink, [0, -10, 0])
-        self.assertTrue(test8, 'get_kinks:energy kinks gets error!')
-
-        test9 = react_kink == ['Mn -> Mn', 'O2 + Mn -> MnO2', 'O2 -> O2']
-        self.assertTrue(test9,
-                        'get_kinks:reaction kinks '
-                        'gets error for {0} and {1} reaction!'.format(
-                            ir.c1_original.reduced_formula,
-                            ir.c2_original.reduced_formula))
-
-        test10 = np.allclose(energy_per_rxt_kink,
-                             [0,
-                              -30 * InterfacialReactivity.EV_TO_KJ_PER_MOL,
-                              0])
-        self.assertTrue(test10, 'get_kinks:energy_per_rxt_kinks gets error!')
+    def test_get_critical_original_kink_ratio(self):
+        test1 = np.allclose(self.ir[0].get_critical_original_kink_ratio(),
+                            [0, 0.5, 1])
+        self.assertTrue(test1, 'get_critical_original_kink_ratio:'
+                               ' gets error!')
+        test2 = np.allclose(self.ir[10].get_critical_original_kink_ratio(),
+                            [0, 0.5, 1])
+        self.assertTrue(test2, 'get_critical_original_kink_ratio:'
+                               ' gets error!')
+        test3 = np.allclose(self.ir[11].get_critical_original_kink_ratio(),
+                            [0, 1])
+        self.assertTrue(test3, 'get_critical_original_kink_ratio:'
+                               ' gets error!')
+        test4 = np.allclose(self.ir[2].get_critical_original_kink_ratio(),
+                            [0, 0.5, 1])
+        self.assertTrue(test4, 'get_critical_original_kink_ratio:'
+                               ' gets error!')
+        test5 = np.allclose(self.ir[3].get_critical_original_kink_ratio(),
+                            [0, 0.66666, 1])
+        self.assertTrue(test5, 'get_critical_original_kink_ratio:'
+                               ' gets error!')
 
     def test_labels(self):
         ir = self.ir[0]

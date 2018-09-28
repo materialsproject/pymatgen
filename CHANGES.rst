@@ -1,6 +1,55 @@
 Change log
 ==========
 
+v2018.9.19
+----------
+* Fix to composition handling in `MolecularOrbitals` (@dyllamt)
+* Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
+* New features and fixes to `chemenv` analysis module (@davidwaroquiers)
+* Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
+* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
+* Added '@' notation parsing in `Composition` (@tamuhey)
+* BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
+* Various updates to speed up and fix test suite (@shyuep, @fraricci)
+* Improvements to BoltzTraP 2 support (@shyuep, @fraricci)
+
+v2018.9.12
+----------
+* Use boltztrap2 (@fraricci)
+* Refactoring of tensor code to core (@montoyjh)
+* Support for new Lobster version (@JaGeo)
+* Misc bug fixes
+
+v2018.8.10
+----------
+* Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.
+
+v2018.8.7
+---------
+* Massive refactoring of LAMMPS support. (@adengz)
+* Allow kwargs passthrough for Structure.to.
+* Updates to ABINIT support (@gmatteo)
+* GrainBoundaryTransformation class. (@Tinaatucsd)
+
+v2018.7.15
+----------
+* Grain boundary generator (Xiangguo Li @ucsdlxg)
+* Massive updates to defect code and new DefectTransformation  
+  (@shyamd)
+* Bug fix for OUTCAR parsing with more than one space in 
+  electrostatic potential. 
+* get_fermi_interextrapolated to support wider range of 
+  input doping (@albalu)
+* Update to cython compile to support Py3.7.
+* Update VoronoiNN cutoff dynamically (@computron)
+
+v2018.6.27
+----------
+* Improved local_env and MoleculeGraph (@WardLT, @espottesmith) 
+* Improve BabelMolAdaptor with conformer search and other functions (@Qi-Max)
+* Improved surface analysis (@richardtran415)
+
 v2018.6.11
 ----------
 * Updates to ABINIT support for 8.1.3

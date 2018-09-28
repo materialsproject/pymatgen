@@ -12,6 +12,7 @@ Subpackages
     pymatgen.analysis.diffraction
     pymatgen.analysis.elasticity
     pymatgen.analysis.ferroelectricity
+    pymatgen.analysis.gb
     pymatgen.analysis.hhi
     pymatgen.analysis.magnetism
     pymatgen.analysis.structure_prediction
@@ -30,6 +31,7 @@ Submodules
    pymatgen.analysis.ewald
    pymatgen.analysis.excitation
    pymatgen.analysis.find_dimension
+   pymatgen.analysis.functional_groups
    pymatgen.analysis.graphs
    pymatgen.analysis.interface_reactions
    pymatgen.analysis.local_env

@@ -13,6 +13,7 @@ import warnings
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.io.vasp import BSVasprun
 from pymatgen.electronic_structure.bandstructure import (BandStructureSymmLine,
                                                          get_reconstructed_band_structure)
 from pymatgen.util.testing import PymatgenTest
@@ -209,6 +210,7 @@ class BandStructureSymmLine_test(PymatgenTest):
             self.assertEqual(bs_old.get_projection_on_elements()[
                                  Spin.up][0][0]['Zn'], 0.0971)
 
+
 class ReconstructBandStructureTest(PymatgenTest):
 
     def setUp(self):
@@ -222,6 +224,16 @@ class ReconstructBandStructureTest(PymatgenTest):
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
         self.assertEqual(bs.bands[Spin.up].shape, (20, 700), "wrong number of bands or kpoints")
+
+    def test_vasprun_bs(self):
+
+        bsv = BSVasprun(os.path.join(test_dir, "vasprun.xml"),
+                        parse_projected_eigen=True,
+                        parse_potcar_file=True)
+        bs = bsv.get_band_structure(kpoints_filename=os.path.join(test_dir, "KPOINTS.band"),
+                                    line_mode=True)
+        bs.get_projection_on_elements()
+
 
 if __name__ == '__main__':
     unittest.main()

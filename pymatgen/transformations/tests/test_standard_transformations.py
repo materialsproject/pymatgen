@@ -492,5 +492,15 @@ class DiscretizeOccupanciesTransformationTest(unittest.TestCase):
         self.assertRaises(RuntimeError, dot.apply_transformation, s_orig_2)
 
 
+class ChargedCellTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        l = Lattice.cubic(4)
+        s_orig = Structure(l, [{"Li": 0.19, "Na": 0.19, "K": 0.62}, {"O": 1}],
+                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+        cct = ChargedCellTransformation(charge=3)
+        s = cct.apply_transformation(s_orig)
+        self.assertEqual(s.charge, 3)
+
 if __name__ == "__main__":
     unittest.main()

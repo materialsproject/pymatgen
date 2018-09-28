@@ -25,7 +25,7 @@ from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
-from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, DdkTask,
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, ElasticTask, DdkTask,
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
                     DteTask, EphTask, CollinearThenNonCollinearScfTask)
 
@@ -396,6 +396,11 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
     def register_phonon_task(self, *args, **kwargs):
         """Register a phonon task."""
         kwargs["task_class"] = PhononTask
+        return self.register_task(*args, **kwargs)
+
+    def register_elastic_task(self, *args, **kwargs):
+        """Register an elastic task."""
+        kwargs["task_class"] = ElasticTask
         return self.register_task(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
@@ -1274,17 +1279,37 @@ class QptdmWork(Work):
 class MergeDdb(object):
     """Mixin class for Works that have to merge the DDB files produced by the tasks."""
 
-    def merge_ddb_files(self):
+    def merge_ddb_files(self, delete_source_ddbs=True, only_dfpt_tasks=True,
+            exclude_tasks=None, include_tasks=None):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Work`.
 
+        Args:
+            delete_source_ddbs: True if input DDB should be removed once final DDB is created.
+            only_dfpt_tasks: False to merge all DDB files produced by the tasks of the work
+                Useful e.g. for finite stress corrections in which the stress in the
+                initial configuration should be merged in the final DDB.
+            exclude_tasks: List of tasks that should be excluded when merging the partial DDB files.
+            include_tasks: List of tasks that should be included when merging the partial DDB files.
+                Mutually exclusive with exclude_tasks.
+
         Returns:
             path to the output DDB file
         """
-        ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self \
+        if exclude_tasks:
+            my_tasks = [task for task in self if task not in exclude_tasks]
+        elif include_tasks:
+            my_tasks = [task for task in self if task in include_tasks]
+        else:
+            my_tasks = [task for task in self]
+
+        if only_dfpt_tasks:
+            ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks \
                                        if isinstance(task, DfptTask)]))
+        else:
+            ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in my_tasks]))
 
         self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
         # DDB files are always produces so this should never happen!
@@ -1301,15 +1326,16 @@ class MergeDdb(object):
             # Call mrgddb
             desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
             mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=0)
-            mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+            mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc,
+                         delete_source_ddbs=delete_source_ddbs)
 
         return out_ddb
 
 
 class PhononWork(Work, MergeDdb):
     """
-    This work usually consists of one GS + nirred Phonon tasks where nirred is
-    the number of irreducible perturbations for a given q-point.
+    This work consists of nirred Phonon tasks where nirred is
+    the number of irreducible atomic perturbations for a given set of q-points.
     It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge
     all the partial DDB (POT) files produced. The two files are available in the
     output directory of the Work.
@@ -1321,6 +1347,7 @@ class PhononWork(Work, MergeDdb):
         Construct a `PhononWork` from a :class:`ScfTask` object.
         The input file for phonons is automatically generated from the input of the ScfTask.
         Each phonon task depends on the WFK file produced by scf_task.
+
 
         Args:
             scf_task: ScfTask object.
@@ -1351,8 +1378,7 @@ class PhononWork(Work, MergeDdb):
     def from_scf_input(cls, scf_input, qpoints, is_ngqpt=False, tolerance=None, manager=None):
         """
         Similar to `from_scf_task`, the difference is that this method requires
-        an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)
-        are packed in a single Work whereas in the previous case we usually have multiple works.
+        an input for SCF calculation. A new ScfTask is created and added to the Work.
         """
         if is_ngqpt:
             qpoints = scf_input.abiget_ibz(ngkpt=qpoints, shiftk=[0, 0, 0], kptopt=1).points
@@ -1360,6 +1386,7 @@ class PhononWork(Work, MergeDdb):
         qpoints = np.reshape(qpoints, (-1, 3))
 
         new = cls(manager=manager)
+        # Create ScfTask
         scf_task = new.register_scf_task(scf_input)
         for qpt in qpoints:
             multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
@@ -1504,7 +1531,7 @@ class DteWork(Work, MergeDdb):
             dde_task = new.register_dde_task(dde_inp, deps=dde_deps)
             dde_tasks.append(dde_task)
 
-        #DTE calculations
+        # DTE calculations
         dte_deps = {scf_task: "WFK DEN"}
         dte_deps.update({dde_task: "1WF 1DEN" for dde_task in dde_tasks})
 

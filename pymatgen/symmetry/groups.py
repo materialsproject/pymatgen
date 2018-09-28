@@ -391,7 +391,9 @@ class SpaceGroup(SymmetryGroup):
                 and check(angles, [90, 90, 120], angle_tol)
         elif crys_system == "trigonal":
             a = abc[0]
-            return check(abc, [a, a, a], tol)
+            alpha = angles[0]
+            return check(abc, [a, a, a], tol) \
+                   and check(angles, [alpha, alpha, alpha], angle_tol)
         elif crys_system == "tetragonal":
             a = abc[0]
             return check(abc, [a, a, None], tol) and\

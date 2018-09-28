@@ -44,7 +44,8 @@ class BaderAnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(analysis.data[0]["charge"], 6.6136782, 3)
         self.assertAlmostEqual(analysis.nelectrons, 96)
         self.assertAlmostEqual(analysis.vacuum_charge, 0)
-        ans = [-1.3863218, -1.3812175, -1.3812175, -1.2615902, -1.3812175, -1.3862971, 1.021523, 1.024357, 1.021523, 1.021523, 1.021523, 1.021523, 1.021523, 1.024357]
+        ans = [-1.3863218, -1.3812175, -1.3812175, -1.2615902, -1.3812175, -1.3862971,
+               1.021523, 1.024357, 1.021523, 1.021523, 1.021523, 1.021523, 1.021523, 1.024357]
         for i in range(14):
             self.assertAlmostEqual(ans[i], analysis.get_charge_transfer(i), 3)
         s = analysis.get_oxidation_state_decorated_structure()
@@ -111,7 +112,6 @@ class BaderAnalysisTest(unittest.TestCase):
 
         self.assertAlmostEqual(np.sum(analysis.chgcar.data['total']),
                                np.sum([np.sum(d['data']) for d in analysis.atomic_densities]))
-
 
 
 if __name__ == '__main__':

@@ -297,10 +297,12 @@ class CifFile(object):
 
 class CifParser(object):
     """
-    Parses a cif file
+    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
+    issue warnings if corrections applied. These are also stored in the
+    CifParser's errors attribute.
 
     Args:
-        filename (str): Cif filename. bzipped or gzipped cifs are fine too.
+        filename (str): CIF filename, bzipped or gzipped CIF files are fine too.
         occupancy_tolerance (float): If total occupancy of a site is between 1
             and occupancy_tolerance, the occupancies will be scaled down to 1.
         site_tolerance (float): This tolerance is used to determine if two
@@ -397,6 +399,15 @@ class CifParser(object):
         databases, and that are different from standard ICSD formats.
         """
 
+        # check for implicit hydrogens, warn if any present
+        if "_atom_site_attached_hydrogens" in data.data.keys():
+            attached_hydrogens = [str2float(x) for x in data.data['_atom_site_attached_hydrogens']
+                                  if str2float(x) != 0]
+            if len(attached_hydrogens) > 0:
+                self.errors.append("Structure has implicit hydrogens defined, "
+                                   "parsed structure unlikely to be suitable for use "
+                                   "in calculations unless hydrogens added.")
+
         # Check to see if "_atom_site_type_symbol" exists, as some test CIFs do
         # not contain this key.
         if "_atom_site_type_symbol" in data.data.keys():
@@ -479,6 +490,9 @@ class CifParser(object):
                         del data.data[original_key][id]
 
             if len(idxs_to_remove) > 0:
+
+                self.errors.append("Pauling file corrections applied.")
+
                 data.data["_atom_site_label"] += new_atom_site_label
                 data.data["_atom_site_type_symbol"] += new_atom_site_type_symbol
                 data.data["_atom_site_occupancy"] += new_atom_site_occupancy
@@ -533,8 +547,33 @@ class CifParser(object):
             for interim_key, final_key in renamed_keys.items():
                 if data.data.get(interim_key):
                     changes_to_make[final_key] = interim_key
+
+            if len(changes_to_make) > 0:
+                self.errors.append("Keys changed to match new magCIF specification.")
+
             for final_key, interim_key in changes_to_make.items():
                 data.data[final_key] = data.data[interim_key]
+
+        # check for finite precision frac co-ordinates (e.g. 0.6667 instead of 0.6666666...7)
+        # this can sometimes cause serious issues when applying symmetry operations
+        important_fracs = (1/3., 2/3.)
+        fracs_to_change = {}
+        for label in ('_atom_site_fract_x', '_atom_site_fract_y', '_atom_site_fract_z'):
+            if label in data.data.keys():
+                for idx, frac in enumerate(data.data[label]):
+                    try:
+                        frac = str2float(frac)
+                    except:
+                        # co-ordinate might not be defined e.g. '?'
+                        continue
+                    for comparison_frac in important_fracs:
+                        if abs(1 - frac/comparison_frac) < 1e-4:
+                            fracs_to_change[(label, idx)] = str(comparison_frac)
+        if fracs_to_change:
+            self.errors.append("Some fractional co-ordinates rounded to ideal values to "
+                               "avoid finite precision errors.")
+            for (label, idx), val in fracs_to_change.items():
+                data.data[label][idx] = val
 
         return data
 
@@ -948,6 +987,9 @@ class CifParser(object):
                 comp_d = {el: occu}
                 if num_h > 0:
                     comp_d["H"] = num_h
+                    self.errors.append("Structure has implicit hydrogens defined, "
+                                       "parsed structure unlikely to be suitable for use "
+                                       "in calculations unless hydrogens added.")
                 comp = Composition(comp_d)
                 if not match:
                     coord_to_species[coord] = comp
@@ -1067,6 +1109,10 @@ class CifParser(object):
                 # in which the atomic coordinates are in Cartesian coords.
                 self.errors.append(str(exc))
                 warnings.warn(str(exc))
+        if self.errors:
+            warnings.warn("Issues encountered while parsing CIF:")
+            for error in self.errors:
+                warnings.warn(error)
         if len(structures) == 0:
             raise ValueError("Invalid cif file with no structures!")
         return structures
@@ -1105,11 +1151,20 @@ class CifParser(object):
             for field, tags in bibtex_keys.items():
                 for tag in tags:
                     if tag in data:
-                        bibtex_entry[field] = data[tag]
+                        if isinstance(data[tag], list):
+                            bibtex_entry[field] = data[tag][0]
+                        else:
+                            bibtex_entry[field] = data[tag]
 
             # convert to bibtex author format ('and' delimited)
             if 'author' in bibtex_entry:
-                bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
+                # separate out semicolon authors
+                if isinstance(bibtex_entry["author"], str):
+                    if ";" in bibtex_entry["author"]:
+                        bibtex_entry["author"] = bibtex_entry["author"].split(";")
+
+                if isinstance(bibtex_entry['author'], list):
+                    bibtex_entry['author'] = ' and '.join(bibtex_entry['author'])
 
             # convert to bibtex page range format, use empty string if not specified
             if ('page_first' in bibtex_entry) or ('page_last' in bibtex_entry):
@@ -1208,20 +1263,17 @@ class CifWriter(object):
         loops.append(["_symmetry_equiv_pos_site_id",
                       "_symmetry_equiv_pos_as_xyz"])
 
-        contains_oxidation = True
         try:
             symbol_to_oxinum = OrderedDict([
                 (el.__str__(),
                  float(el.oxi_state))
                 for el in sorted(comp.elements)])
-        except AttributeError:
-            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
-                                            sorted(comp.elements)])
-            contains_oxidation = False
-        if contains_oxidation:
             block["_atom_type_symbol"] = symbol_to_oxinum.keys()
             block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
             loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
+        except (TypeError, AttributeError):
+            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
+                                            sorted(comp.elements)])
 
         atom_site_type_symbol = []
         atom_site_symmetry_multiplicity = []

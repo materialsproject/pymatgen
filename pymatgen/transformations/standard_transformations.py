@@ -420,6 +420,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         symmetrized_structures (bool): Whether the input structures are
             instances of SymmetrizedStructure, and that their symmetry
             should be used for the grouping of sites.
+        no_oxi_states (bool): Whether to remove oxidation states prior to
+            ordering.
     """
 
     ALGO_FAST = 0
@@ -432,7 +434,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         self._all_structures = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
-
+        
     def apply_transformation(self, structure, return_ranked_list=False):
         """
         For this transformation, the apply_transformation method will return
@@ -756,6 +758,39 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     @property
     def inverse(self):
         return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+
+class ChargedCellTransformation(AbstractTransformation):
+    """
+    The ChargedCellTransformation applies a charge to a structure (or defect object).
+
+    Args:
+        charge: A integer charge to apply to the structure.
+            Defaults to zero. Has to be a single integer. e.g. 2
+    """
+
+    def __init__(self, charge=0):
+        self.charge = charge
+
+    def apply_transformation(self, structure):
+        s = structure.copy()
+        s.set_charge(self.charge)
+        return s
+
+    def __str__(self):
+        return "Structure with charge " + \
+            "{}".format(self.charge)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        raise NotImplementedError()
 
     @property
     def is_one_to_many(self):
