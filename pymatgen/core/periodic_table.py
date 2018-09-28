@@ -111,6 +111,10 @@ class Element(Enum):
 
         True if element is a transition metal.
 
+    .. attribute:: is_post_transition_metal
+
+        True if element is a post transition metal.
+
     .. attribute:: is_rare_earth_metal
 
         True if element is a rare earth metal.
@@ -532,6 +536,14 @@ class Element(Enum):
         return tuple(self._data.get("ICSD oxidation states", list()))
 
     @property
+    @unitized("ang")
+    def metallic_radius(self):
+        """
+        Metallic radius of the element. Radius is given in ang.
+        """
+        return self._data["Metallic radius"]
+
+    @property
     def full_electronic_structure(self):
         """
         Full electronic structure as tuple.
@@ -829,6 +841,13 @@ class Element(Enum):
         ns.append(89)
         ns.extend(list(range(104, 113)))
         return self.Z in ns
+
+    @property
+    def is_post_transition_metal(self):
+        """
+        True if element is a post-transition or poor metal.
+        """
+        return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
 
     @property
     def is_rare_earth_metal(self):

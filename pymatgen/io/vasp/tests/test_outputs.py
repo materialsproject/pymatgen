@@ -7,8 +7,12 @@ from __future__ import division, unicode_literals
 import unittest
 import os
 import json
+import gzip
 import numpy as np
 import warnings
+
+from shutil import copyfile, copyfileobj
+from monty.tempfile import ScratchDir
 
 import xml.etree.cElementTree as ET
 
@@ -17,7 +21,7 @@ from pymatgen.electronic_structure.core import OrbitalType
 from pymatgen.io.vasp.inputs import Kpoints
 from pymatgen.io.vasp.outputs import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, Dynmat, BSVasprun, UnconvergedVASPWarning, \
-    Wavecar
+    VaspParserError, Wavecar
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.electronic_structure.core import Magmom
@@ -34,8 +38,10 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __date__ = "Jul 16, 2012"
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__),
+                 "..", "..", "..", "..",
+                 'test_files'))
 
 
 class VasprunTest(unittest.TestCase):
@@ -373,6 +379,59 @@ class VasprunTest(unittest.TestCase):
                 {"Si": ["s"]})
             self.assertAlmostEqual(projected[Spin.up][0][0]["Si"]["s"], 0.4238)
 
+            # Test compressed files case 1: compressed KPOINTS in current dir
+            with ScratchDir("./"):
+                copyfile(os.path.join(test_dir, 'vasprun_Si_bands.xml'),
+                         'vasprun.xml')
+
+                # Check for error if no KPOINTS file
+                vasprun = Vasprun('vasprun.xml',
+                                  parse_projected_eigen=True,
+                                  parse_potcar_file=False)
+                with self.assertRaises(VaspParserError):
+                    _ = vasprun.get_band_structure(line_mode=True)
+
+                # Check KPOINTS.gz succesfully inferred and used if present
+                with open(os.path.join(test_dir, 'KPOINTS_Si_bands'),
+                          'rb') as f_in:
+                    with gzip.open('KPOINTS.gz', 'wb') as f_out:
+                        copyfileobj(f_in, f_out)
+                bs_kpts_gzip = vasprun.get_band_structure()
+                self.assertEqual(bs.efermi, bs_kpts_gzip.efermi)
+                self.assertEqual(bs.as_dict(), bs_kpts_gzip.as_dict())
+
+            # Test compressed files case 2: compressed vasprun in another dir
+            with ScratchDir("./"):
+                os.mkdir('deeper')
+                copyfile(os.path.join(test_dir, 'KPOINTS_Si_bands'),
+                         os.path.join('deeper', 'KPOINTS'))
+                with open(os.path.join(test_dir, 'vasprun_Si_bands.xml'),
+                          'rb') as f_in:
+                    with gzip.open(os.path.join('deeper', 'vasprun.xml.gz'),
+                                   'wb') as f_out:
+                        copyfileobj(f_in, f_out)
+                vasprun = Vasprun(os.path.join('deeper', 'vasprun.xml.gz'),
+                                  parse_projected_eigen=True,
+                                  parse_potcar_file=False)
+                bs_vasprun_gzip = vasprun.get_band_structure(line_mode=True)
+                self.assertEqual(bs.efermi, bs_vasprun_gzip.efermi)
+                self.assertEqual(bs.as_dict(), bs_vasprun_gzip.as_dict())
+
+
+            # test hybrid band structures
+            vasprun.actual_kpoints_weights[-1] = 0.
+            bs = vasprun.get_band_structure(kpoints_filename=os.path.join(test_dir,
+                                                                          'KPOINTS_Si_bands'))
+            cbm = bs.get_cbm()
+            vbm = bs.get_vbm()
+            self.assertEqual(cbm['kpoint_index'], [0])
+            self.assertAlmostEqual(cbm['energy'], 6.3676)
+            self.assertEqual(cbm['kpoint'].label, None)
+            self.assertEqual(vbm['kpoint_index'], [0])
+            self.assertAlmostEqual(vbm['energy'], 2.8218)
+            self.assertEqual(vbm['kpoint'].label, None)
+
+
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
         # with warnings.catch_warnings(record=True) as w:
@@ -480,6 +539,13 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vasprun.parameters.get("NELECT", 8), 9)
         self.assertEqual(vasprun.structures[0].charge, 1)
 
+        vpath = os.path.join(test_dir, 'vasprun.split.charged.xml')
+        potcar_path = os.path.join(test_dir, 'POTCAR.split.charged.gz')
+        vasprun = Vasprun(vpath, parse_potcar_file=False)
+        vasprun.update_charge_from_potcar(potcar_path)
+        self.assertEqual(vasprun.parameters.get('NELECT', 0), 7)
+        self.assertEqual(vasprun.structures[-1].charge, 1)
+
 
 class OutcarTest(PymatgenTest):
 
@@ -525,7 +591,6 @@ class OutcarTest(PymatgenTest):
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
-
         for f in ['OUTCAR.lepsilon', 'OUTCAR.lepsilon.gz']:
             filepath = os.path.join(test_dir, f)
             outcar = Outcar(filepath)
@@ -968,6 +1033,14 @@ class ChgcarTest(PymatgenTest):
 
         os.remove("chgcar_test.hdf5")
 
+    def test_as_dict_and_from_dict(self):
+        chgcar = Chgcar.from_file(os.path.join(test_dir, "CHGCAR.NiO_SOC.gz"))
+        d = chgcar.as_dict()
+        chgcar_from_dict = Chgcar.from_dict(d)
+        self.assertArrayAlmostEqual(chgcar.data['total'], chgcar_from_dict.data['total'])
+        self.assertArrayAlmostEqual(chgcar.structure.lattice.matrix,
+                                    chgcar_from_dict.structure.lattice.matrix)
+
 
 class ProcarTest(unittest.TestCase):
 
@@ -1119,8 +1192,13 @@ class WavecarTest(unittest.TestCase):
         self.assertEqual(self.w.band_energy[0].shape, (self.w.nb, 3))
         self.assertLessEqual(len(self.w.Gpoints[0]), 257)
 
-        with self.assertRaises(ValueError):
-            Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        self.assertEqual(len(self.w.coeffs), 2)
+        self.assertEqual(len(self.w.band_energy), 2)
+        self.assertEqual(len(self.w.kpoints), self.w.nk)
+        self.assertEqual(len(self.w.Gpoints), self.w.nk)
+        self.assertEqual(len(self.w.coeffs[0][0]), self.w.nb)
+        self.assertEqual(len(self.w.band_energy[0]), self.w.nk)
 
         temp_ggp = Wavecar._generate_G_points
         try:

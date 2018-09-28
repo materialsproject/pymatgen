@@ -174,6 +174,117 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=('x',
     return delim.join(parts)
 
 
+def disordered_formula(disordered_struct, symbols=('x', 'y', 'z'), fmt='plain'):
+    """
+    Returns a formula of a form like AxB1-x (x=0.5)
+    for disordered structures. Will only return a
+    formula for disordered structures with one
+    kind of disordered site at present.
+
+    Args:
+        disordered_struct: a disordered structure
+        symbols: a tuple of characters to use for
+        subscripts, by default this is ('x', 'y', 'z')
+        but if you have more than three disordered
+        species more symbols will need to be added
+        fmt (str): 'plain', 'HTML' or 'LaTeX'
+
+    Returns (str): a disordered formula string
+    """
+
+    # this is in string utils and not in
+    # Composition because we need to have access
+    # to site occupancies to calculate this, so
+    # have to pass the full structure as an argument
+    # (alternatively this could be made a method on
+    # Structure)
+    from pymatgen.core.composition import Composition
+    from pymatgen.core.periodic_table import get_el_sp
+
+    if disordered_struct.is_ordered:
+        raise ValueError("Structure is not disordered, "
+                         "so disordered formula not defined.")
+
+    disordered_site_compositions = {site.species_and_occu
+                                    for site in disordered_struct if not site.is_ordered}
+
+    if len(disordered_site_compositions) > 1:
+        # this probably won't happen too often
+        raise ValueError("Ambiguous how to define disordered "
+                         "formula when more than one type of disordered "
+                         "site is present.")
+    disordered_site_composition = disordered_site_compositions.pop()
+
+    disordered_species = {str(sp) for sp, occu in disordered_site_composition.items()}
+
+    if len(disordered_species) > len(symbols):
+        # this probably won't happen too often either
+        raise ValueError("Not enough symbols to describe disordered composition: "
+                         "{}".format(symbols))
+    symbols = list(symbols)[0:len(disordered_species) - 1]
+
+    comp = disordered_struct.composition.get_el_amt_dict().items()
+    # sort by electronegativity, as per composition
+    comp = sorted(comp, key=lambda x: get_el_sp(x[0]).X)
+
+    disordered_comp = []
+    variable_map = {}
+
+    total_disordered_occu = sum([occu for sp, occu in comp
+                                 if str(sp) in disordered_species])
+
+    # composition to get common factor
+    factor_comp = disordered_struct.composition.as_dict()
+    factor_comp['X'] = total_disordered_occu
+    for sp in disordered_species:
+        del factor_comp[str(sp)]
+    factor_comp = Composition.from_dict(factor_comp)
+    factor = factor_comp.get_reduced_formula_and_factor()[1]
+
+    total_disordered_occu /= factor
+    remainder = "{}-{}".format(formula_double_format(total_disordered_occu, ignore_ones=False),
+                               '-'.join(symbols))
+
+    for sp, occu in comp:
+        sp = str(sp)
+        if sp not in disordered_species:
+            disordered_comp.append((sp, formula_double_format(occu/factor)))
+        else:
+            if len(symbols) > 0:
+                symbol = symbols.pop(0)
+                disordered_comp.append((sp, symbol))
+                variable_map[symbol] = occu / total_disordered_occu / factor
+            else:
+                disordered_comp.append((sp, remainder))
+
+    if fmt == 'LaTeX':
+        sub_start = "_{"
+        sub_end = "}"
+    elif fmt == 'HTML':
+        sub_start = "<sub>"
+        sub_end = "</sub>"
+    elif fmt != 'plain':
+        raise ValueError("Unsupported output format, "
+                         "choose from: LaTeX, HTML, plain")
+
+    disordered_formula = []
+    for sp, occu in disordered_comp:
+        disordered_formula.append(sp)
+        if occu:  # can be empty string if 1
+            if fmt != 'plain':
+                disordered_formula.append(sub_start)
+            disordered_formula.append(occu)
+            if fmt != 'plain':
+                disordered_formula.append(sub_end)
+    disordered_formula.append(" ")
+    disordered_formula += ["{}={} ".format(k, formula_double_format(v))
+                           for k, v in variable_map.items()]
+
+    comp = disordered_struct.composition
+
+    return "".join(map(str, disordered_formula))[0:-1]
+
+
 class StringColorizer(object):
     colours = {"default": "",
                "blue": "\x1b[01;34m",

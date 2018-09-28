@@ -5,21 +5,19 @@
 from __future__ import division, print_function, unicode_literals
 from __future__ import absolute_import
 
-from pymatgen.analysis.elasticity.tensors import Tensor, \
-    TensorCollection, get_uvec
+from pymatgen.core.tensors import Tensor, \
+    TensorCollection, get_uvec, SquareTensor, DEFAULT_QUAD
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.core.units import Unit
 from scipy.special import factorial
 from scipy.integrate import quad
 from scipy.optimize import root
-from monty.serialization import loadfn
 from collections import OrderedDict
 from monty.dev import deprecated
 import numpy as np
 import warnings
 import itertools
-import os
 
 import sympy as sp
 
@@ -30,15 +28,15 @@ stress-strain data
 """
 
 
-__author__ = "Maarten de Jong, Joseph Montoya"
+__author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
-__credits__ = ("Ian Winter, Shyam Dwaraknath, "
+__credits__ = ("Maarten de Jong, Ian Winter, Shyam Dwaraknath, "
                "Mark Asta, Anubhav Jain")
 __version__ = "1.0"
 __maintainer__ = "Joseph Montoya"
 __email__ = "montoyjh@lbl.gov"
-__status__ = "Development"
-__date__ = "March 22, 2012"
+__status__ = "Production"
+__date__ = "July 24, 2018"
 
 
 class NthOrderElasticTensor(Tensor):
@@ -47,6 +45,7 @@ class NthOrderElasticTensor(Tensor):
     of the stress-strain constitutive equations
     """
     GPa_to_eV_A3 = Unit("GPa").get_conversion_factor(Unit("eV ang^-3"))
+    symbol = "C"
 
     def __new__(cls, input_array, check_rank=None, tol=1e-4):
         obj = super(NthOrderElasticTensor, cls).__new__(
@@ -583,7 +582,7 @@ class ElasticTensorExpansion(TensorCollection):
                    + self[1].einsum_sequence([n, u, n, u])) / (2*gk)
         return result
 
-    def get_tgt(self, temperature = None, structure=None, quad=None):
+    def get_tgt(self, temperature=None, structure=None, quad=None):
         """
         Gets the thermodynamic Gruneisen tensor (TGT) by via an
         integration of the GGT weighted by the directional heat
@@ -607,9 +606,7 @@ class ElasticTensorExpansion(TensorCollection):
             raise ValueError("If using temperature input, you must also "
                              "include structure")
 
-        if not quad:
-            quad = loadfn(os.path.join(os.path.dirname(__file__),
-                                       "quad_data.json"))
+        quad = quad if quad else DEFAULT_QUAD
         points = quad['points']
         weights = quad['weights']
         num, denom, c = np.zeros((3, 3)), 0, 1
@@ -623,7 +620,7 @@ class ElasticTensorExpansion(TensorCollection):
                     c = self.get_heat_capacity(temperature, structure, p, u)
                 num += c*self.get_ggt(p, u) * w
                 denom += c * w
-        return num / denom
+        return SquareTensor(num / denom)
 
     def get_gruneisen_parameter(self, temperature=None, structure=None,
                                 quad=None):
@@ -702,18 +699,18 @@ class ElasticTensorExpansion(TensorCollection):
         soec = ElasticTensor(self[0])
         v0 = (structure.volume * 1e-30 / structure.num_sites)
         if mode == "debye":
-            vl, vt = soec.long_v(structure), soec.trans_v(structure)
-            vm = 3**(1./3.) * (1 / vl**3 + 2 / vt**3)**(-1./3.)
-            td = 1.05457e-34 / 1.38065e-23 * vm * (6 * np.pi**2 / v0) ** (1./3.)
+            td = soec.debye_temperature(structure)
             t_ratio = temperature / td
             integrand = lambda x: (x**4 * np.exp(x)) / (np.exp(x) - 1)**2
-            cv = 3 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
+            cv = 9 * 8.314 * t_ratio**3 * quad(integrand, 0, t_ratio**-1)[0]
         elif mode == "dulong-petit":
             cv = 3 * 8.314
         else:
             raise ValueError("Mode must be debye or dulong-petit")
-        alpha = self.get_tgt() * cv / (soec.k_vrh * 1e9 * v0 * 6.022e23)
-        return alpha
+        tgt = self.get_tgt(temperature, structure)
+        alpha = np.einsum('ijkl,ij', soec.compliance_tensor, tgt)
+        alpha *= cv / (1e9 * v0 * 6.022e23)
+        return SquareTensor(alpha)
 
     def get_compliance_expansion(self):
         """
@@ -881,7 +878,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol=1e-10):
         hvec = data["strains"][:, strain_state.index(1)]
         for i in range(1, order):
             coef = get_diff_coeff(hvec, i)
-            dei_dsi[i-1, :, n] = np.dot(coef, data["stresses"])
+            dei_dsi[i - 1, :, n] = np.dot(coef, data["stresses"])
 
     m, absent = generate_pseudo(list(strain_state_dict.keys()), order)
     for i in range(1, order):
@@ -962,6 +959,11 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
         mode = (template == (np.abs(vstrains) > 1e-10)).all(axis=1)
         mstresses = vstresses[mode]
         mstrains = vstrains[mode]
+        # Get "strain state", i.e. ratio of each value to minimum strain
+        min_nonzero_ind = np.argmin(np.abs(np.take(mstrains[-1], ind)))
+        min_nonzero_val = np.take(mstrains[-1], ind)[min_nonzero_ind]
+        strain_state = mstrains[-1] / min_nonzero_val
+        strain_state = tuple(strain_state)
 
         if add_eq:
             # add zero strain state
@@ -971,9 +973,6 @@ def get_strain_state_dict(strains, stresses, eq_stress=None,
         if sort:
             mstresses = mstresses[mstrains[:, ind[0]].argsort()]
             mstrains = mstrains[mstrains[:, ind[0]].argsort()]
-        # Get "strain state", i.e. ratio of each value to minimum strain
-        strain_state = mstrains[-1] / np.min(np.take(mstrains[-1], ind))
-        strain_state = tuple(strain_state)
         strain_state_dict[strain_state] = {"strains": mstrains,
                                            "stresses": mstresses}
     return strain_state_dict

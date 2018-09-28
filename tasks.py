@@ -126,6 +126,20 @@ def contribute_dash(ctx):
         ctx.run('git push')
     ctx.run("rm pymatgen.tgz")
 
+@task
+def submit_dash_pr(ctx):
+    with cd("../Dash-User-Contributions/docsets/pymatgen"):
+
+        payload = {
+          "title": "Update pymatgen docset to v%s" % NEW_VER,
+          "body": "Update pymatgen docset to v%s" % NEW_VER,
+          "head": "Dash-User-Contributions:master",
+          "base": "master"
+        }
+        response = requests.post(
+            "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls",
+            data=json.dumps(payload))
+        print(response.text)
 
 @task
 def update_doc(ctx):
@@ -224,22 +238,22 @@ def update_changelog(ctx):
 
 
 @task
-def log_ver(ctx):
-    filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
-                            "pymatgen", NEW_VER)
+def log_ver(ctx, logdir="~/Dropbox/Public/pymatgen"):
+    filepath = os.path.join(os.path.expanduser(logdir), NEW_VER)
     with open(filepath, "w") as f:
         f.write("Release")
 
 
 @task
-def release(ctx, notest=False):
+def release(ctx, notest=False, nodoc=False, logdir="~/Dropbox/Public/pymatgen"):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
-    log_ver(ctx)
-    update_doc(ctx)
+    log_ver(ctx, logdir=logdir)
+    if not nodoc:
+        update_doc(ctx)
     merge_stable(ctx)
     release_github(ctx)
 

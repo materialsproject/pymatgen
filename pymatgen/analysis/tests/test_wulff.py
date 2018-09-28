@@ -62,14 +62,14 @@ class WulffShapeTest(PymatgenTest):
                                    [0.666667, 0.333333, 0.5]])
         self.wulff_Ti = WulffShape(latt_Ti, miller_indices["mp-72"],
                                    surface_energies["mp-72"])
+        self.cube = WulffShape(Lattice.cubic(1), [(1,0,0)], [1])
+        self.hex_prism =  WulffShape(Lattice.hexagonal(2.63, 5.21),
+                                     [(0,0,1), (1,0,0)], [0.35, 0.53])
 
         self.surface_properties = surface_properties
 
     @unittest.skipIf("DISPLAY" not in os.environ, "Need display")
     def test_get_plot(self):
-        import matplotlib
-
-        matplotlib.use('Agg')
         # Basic test, not really a unittest.
         self.wulff_Ti.get_plot()
         self.wulff_Nb.get_plot()
@@ -174,6 +174,13 @@ class WulffShapeTest(PymatgenTest):
             self.assertEqual(round(wulff.anisotropy, 3),
                              round(properties["surface_anisotropy"], 3))
 
+    def test_corner_and_edges(self):
+
+        # Test if it is returning the correct number of corner and edges
+        self.assertArrayEqual(self.cube.tot_corner_sites, 8)
+        self.assertArrayEqual(self.cube.tot_edges, 12)
+        self.assertArrayEqual(self.hex_prism.tot_corner_sites, 12)
+        self.assertArrayEqual(self.hex_prism.tot_edges, 18)
 
 if __name__ == "__main__":
     unittest.main()

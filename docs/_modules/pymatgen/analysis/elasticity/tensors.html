@@ -4,16 +4,27 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.elasticity.tensors &#8212; pymatgen 2018.6.11 documentation</title>
+    
+    <title>pymatgen.analysis.elasticity.tensors &#8212; pymatgen 2018.8.10 documentation</title>
+    
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2018.8.10',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -24,7 +35,8 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head><body>
+  </head>
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -34,7 +46,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -59,6 +71,8 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="k">import</span> <span class="n">MSONable</span>
+
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="k">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="k">import</span> <span class="n">SymmOp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
@@ -70,15 +84,15 @@
 <span class="sd">that provides basic methods for creating and manipulating rank 2 tensors</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Maarten de Jong&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2012, The Materials Project&quot;</span>
-<span class="n">__credits__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Joseph Montoya, Shyam Dwaraknath, Wei Chen, &quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright 2017, The Materials Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Maarten de Jong, Shyam Dwaraknath, Wei Chen, &quot;</span>
                <span class="s2">&quot;Mark Asta, Anubhav Jain, Terence Lew&quot;</span><span class="p">)</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;montoyjh@lbl.gov&quot;</span>
-<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;March 22, 2012&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s2">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s2">&quot;July 24, 2018&quot;</span>
 
 <span class="n">voigt_map</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
 <span class="n">reverse_voigt_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
@@ -86,7 +100,7 @@
                               <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
 
 
-<div class="viewcode-block" id="Tensor"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor">[docs]</a><span class="k">class</span> <span class="nc">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<div class="viewcode-block" id="Tensor"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor">[docs]</a><span class="k">class</span> <span class="nc">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for doing useful general operations on Nth order tensors,</span>
 <span class="sd">    without restrictions on the type (stress, elastic, strain, piezo, etc.)</span>
@@ -225,8 +239,8 @@
 <span class="sd">        Returns a &quot;voigt&quot;-symmetrized tensor, i. e. a voigt-notation</span>
 <span class="sd">        tensor such that it is invariant wrt permutation of indices</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;V-symmetrization requires rank even and &gt; 2&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;V-symmetrization requires rank even and &gt;= 2&quot;</span><span class="p">)</span>
 
         <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voigt</span>
         <span class="n">perms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">))))</span>
@@ -592,10 +606,39 @@
             <span class="n">max_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span> <span class="o">-</span> <span class="n">test_new</span><span class="p">))</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Warning, populated tensor is not converged &quot;</span>
                           <span class="s2">&quot;with max diff of </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_diff</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">test_new</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">test_new</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Tensor.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voigt</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serializes the tensor object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            voigt (bool): flag for whether to store entries in</span>
+<span class="sd">                voigt-notation.  Defaults to false, as information</span>
+<span class="sd">                may be lost in conversion.</span>
+
+<span class="sd">        Returns (Dict):</span>
+<span class="sd">            serialized format tensor object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voigt</span> <span class="k">if</span> <span class="n">voigt</span> <span class="k">else</span> <span class="bp">self</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;input_array&quot;</span><span class="p">:</span> <span class="n">input_array</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span>
+        <span class="k">if</span> <span class="n">voigt</span><span class="p">:</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;voigt&quot;</span><span class="p">:</span> <span class="n">voigt</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="Tensor.from_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.Tensor.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">voigt</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;voigt&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">voigt</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;input_array&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;input_array&quot;</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="TensorCollection"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection">[docs]</a><span class="k">class</span> <span class="nc">TensorCollection</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
+<div class="viewcode-block" id="TensorCollection"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection">[docs]</a><span class="k">class</span> <span class="nc">TensorCollection</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A sequence of tensors that can be used for fitting data</span>
 <span class="sd">    or for having a tensor expansion</span>
@@ -655,7 +698,31 @@
                         <span class="n">refine_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
             <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">convert_to_ieee</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">initial_fit</span><span class="p">,</span> <span class="n">refine_rotation</span><span class="p">)</span>
-             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div></div>
+             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TensorCollection.round"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.round">[docs]</a>    <span class="k">def</span> <span class="nf">round</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">voigt_symmetrized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">voigt_symmetrized</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span>
+
+<div class="viewcode-block" id="TensorCollection.as_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voigt</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">tensor_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voigt</span> <span class="k">if</span> <span class="n">voigt</span> <span class="k">else</span> <span class="bp">self</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+             <span class="s2">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="s2">&quot;tensor_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tensor_list</span><span class="p">]}</span>
+        <span class="k">if</span> <span class="n">voigt</span><span class="p">:</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;voigt&quot;</span><span class="p">:</span> <span class="n">voigt</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="TensorCollection.from_dict"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.TensorCollection.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">voigt</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;voigt&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">voigt</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_voigt</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;tensor_list&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;tensor_list&quot;</span><span class="p">])</span></div></div>
 
 
 <div class="viewcode-block" id="SquareTensor"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.SquareTensor">[docs]</a><span class="k">class</span> <span class="nc">SquareTensor</span><span class="p">(</span><span class="n">Tensor</span><span class="p">):</span>
@@ -833,6 +900,14 @@
     <span class="k">for</span> <span class="n">tkey</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tensor_keyed_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tkey</span><span class="p">,</span> <span class="o">**</span><span class="n">allclose_kwargs</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="set_tkd_value"><a class="viewcode-back" href="../../../../pymatgen.analysis.elasticity.tensors.html#pymatgen.analysis.elasticity.tensors.set_tkd_value">[docs]</a><span class="k">def</span> <span class="nf">set_tkd_value</span><span class="p">(</span><span class="n">tensor_keyed_dict</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">set_value</span><span class="p">,</span> <span class="n">allclose_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">allclose_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">allclose_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">tkey</span> <span class="ow">in</span> <span class="n">tensor_keyed_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tkey</span><span class="p">,</span> <span class="o">**</span><span class="n">allclose_kwargs</span><span class="p">):</span>
+            <span class="n">tensor_keyed_dict</span><span class="p">[</span><span class="n">tkey</span><span class="p">]</span> <span class="o">=</span> <span class="n">set_value</span>
+            <span class="k">return</span></div>
 </pre></div>
 
           </div>
@@ -842,14 +917,12 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -865,7 +938,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.6.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -873,7 +946,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -10,7 +10,7 @@ Subpackages
     pymatgen.io.exciting
     pymatgen.io.feff
     pymatgen.io.lammps
-    pymatgen.io.qchem_io
+    pymatgen.io.qchem
     pymatgen.io.vasp
 
 Submodules
@@ -32,7 +32,7 @@ Submodules
    pymatgen.io.nwchem
    pymatgen.io.phonopy
    pymatgen.io.pwscf
-   pymatgen.io.qchem
+   pymatgen.io.qchem_deprecated
    pymatgen.io.xcrysden
    pymatgen.io.xr
    pymatgen.io.xyz

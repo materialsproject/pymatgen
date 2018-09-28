@@ -176,7 +176,6 @@ class StructureEnvironmentsTest(PymatgenTest):
         self.assertArrayAlmostEqual(equiv_site_index_and_transform[1], [0.0, 0.0, 0.0])
         self.assertArrayAlmostEqual(equiv_site_index_and_transform[2], [0.0, 0.0, 0.0])
 
-
         self.assertEqual(stats['atom_coordination_environments_present'], {'Si': {'T:4': 3.0}})
         self.assertEqual(stats['coordination_environments_atom_present'], {'T:4': {'Si': 3.0}})
         self.assertEqual(stats['fraction_atom_coordination_environments_present'], {'Si': {'T:4': 1.0}})

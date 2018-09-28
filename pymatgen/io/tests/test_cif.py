@@ -177,6 +177,18 @@ class CifIOTest(PymatgenTest):
         for s in parser.get_structures(True):
             self.assertEqual(s.formula, "V4 O6")
 
+        bibtex_str = """
+@article{cif-reference-0,
+    author = "Andersson, G.",
+    title = "Studies on vanadium oxides. I. Phase analysis",
+    journal = "Acta Chemica Scandinavica (1-27,1973-42,1988)",
+    volume = "8",
+    year = "1954",
+    pages = "1599--1606"
+}
+        """
+        self.assertEqual(parser.get_bibtex_string().strip(), bibtex_str.strip())
+
         parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
         prim = parser.get_structures(True)[0]
         self.assertEqual(prim.formula, "Li2 O1")
@@ -293,6 +305,15 @@ loop_
             for s in parser.get_structures():
                 self.assertEqual(s.formula, "Al8 P4 O32")
                 self.assertEqual(sum(s.site_properties['implicit_hydrogens']), 20)
+            self.assertIn("Structure has implicit hydrogens defined, "
+                          "parsed structure unlikely to be suitable for use "
+                          "in calculations unless hydrogens added.", parser.errors)
+            parser = CifParser(os.path.join(test_dir, 'cif_implicit_hydrogens_cod_1011130.cif'))
+            s = parser.get_structures()[0]
+            self.assertIn("Structure has implicit hydrogens defined, "
+                          "parsed structure unlikely to be suitable for use "
+                          "in calculations unless hydrogens added.", parser.errors)
+
 
     def test_CifParserSpringerPauling(self):
         with warnings.catch_warnings():
@@ -1070,19 +1091,30 @@ loop_
         s = p.get_structures()[0]
         self.assertEqual(s.formula, "K1 Mn1 F3")
 
+    def test_replacing_finite_precision_frac_coords(self):
+        f = os.path.join(test_dir, "cif_finite_precision_frac_coord_error.cif")
+        with warnings.catch_warnings():
+            p = CifParser(f)
+            s = p.get_structures()[0]
+            self.assertEqual(str(s.composition), "N5+24")
+            self.assertIn("Some fractional co-ordinates rounded to ideal values to "
+                          "avoid finite precision errors.", p.errors)
+
+
 class MagCifTest(unittest.TestCase):
 
     def setUp(self):
-        self.mcif = CifParser(os.path.join(test_dir,
-                                           "magnetic.example.NiO.mcif"))
-        self.mcif_ncl = CifParser(os.path.join(test_dir,
-                                               "magnetic.ncl.example.GdB4.mcif"))
-        self.mcif_incom = CifParser(os.path.join(test_dir,
-                                                 "magnetic.incommensurate.example.Cr.mcif"))
-        self.mcif_disord = CifParser(os.path.join(test_dir,
-                                                  "magnetic.disordered.example.CuMnO2.mcif"))
-        self.mcif_ncl2 = CifParser(os.path.join(test_dir,
-                                                  "Mn3Ge_IR2.mcif"))
+        with warnings.catch_warnings():
+            self.mcif = CifParser(os.path.join(test_dir,
+                                               "magnetic.example.NiO.mcif"))
+            self.mcif_ncl = CifParser(os.path.join(test_dir,
+                                                   "magnetic.ncl.example.GdB4.mcif"))
+            self.mcif_incom = CifParser(os.path.join(test_dir,
+                                                     "magnetic.incommensurate.example.Cr.mcif"))
+            self.mcif_disord = CifParser(os.path.join(test_dir,
+                                                      "magnetic.disordered.example.CuMnO2.mcif"))
+            self.mcif_ncl2 = CifParser(os.path.join(test_dir,
+                                                    "Mn3Ge_IR2.mcif"))
 
     def test_mcif_detection(self):
         self.assertTrue(self.mcif.feature_flags["magcif"])
@@ -1288,6 +1320,54 @@ loop_
         self.assertAlmostEqual(list_magmoms[1][0], -5.1234749999999991)
         self.assertAlmostEqual(list_magmoms[1][1], 2.9580396704363183)
 
+        # test creating an structure without oxidation state doesn't raise errors
+        s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"],[[0, 0, 0], [0.5, 0.5, 0.5]])
+        s_manual.add_spin_by_site([1, -1])
+        cw = CifWriter(s_manual, write_magmoms=True)
+
+        # check oxidation state
+        cw_manual_oxi_string = """# generated using pymatgen
+data_CsCl
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   4.20000000
+_cell_length_b   4.20000000
+_cell_length_c   4.20000000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   CsCl
+_chemical_formula_sum   'Cs1 Cl1'
+_cell_volume   74.08800000
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_type_symbol
+ _atom_type_oxidation_number
+  Cs+  1.0
+  Cl+  1.0
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Cs+  Cs1  1  0.000000  0.000000  0.000000  1
+  Cl+  Cl2  1  0.500000  0.500000  0.500000  1
+loop_
+ _atom_site_moment_label
+ _atom_site_moment_crystalaxis_x
+ _atom_site_moment_crystalaxis_y
+ _atom_site_moment_crystalaxis_z
+"""
+        s_manual.add_oxidation_state_by_site([1,1])
+        cw = CifWriter(s_manual, write_magmoms=True)
+        self.assertEqual(cw.__str__(), cw_manual_oxi_string)
 
     @unittest.skipIf(pybtex is None, "pybtex not present")
     def test_bibtex(self):
@@ -1301,6 +1381,7 @@ loop_
 }
 """
         self.assertEqual(self.mcif_ncl.get_bibtex_string(), ref_bibtex_string)
+
 
 if __name__ == '__main__':
     unittest.main()

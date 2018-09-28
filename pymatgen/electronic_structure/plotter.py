@@ -2296,7 +2296,7 @@ class BSDOSPlotter(object):
                     label = "total" if spin == Spin.up else None
                     dos_ax.plot(dos_densities, dos_energies,
                                 color=(0.6, 0.6, 0.6), label=label)
-                    dos_ax.fill_between(dos_densities, 0, dos_energies,
+                    dos_ax.fill_betweenx(dos_energies, 0,dos_densities,
                                         color=(0.7, 0.7, 0.7),
                                         facecolor=(0.7, 0.7, 0.7))
 
@@ -2883,7 +2883,7 @@ class BoltztrapPlotter(object):
             sbk = self._bz.get_seebeck(output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(sbk['n'].keys())
+        tlist = sorted(sbk['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -2940,7 +2940,7 @@ class BoltztrapPlotter(object):
                                              output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(cond['n'].keys())
+        tlist = sorted(cond['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -2998,7 +2998,7 @@ class BoltztrapPlotter(object):
                                            output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(pf['n'].keys())
+        tlist = sorted(pf['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3053,7 +3053,7 @@ class BoltztrapPlotter(object):
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(zt['n'].keys())
+        tlist = sorted(zt['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3105,7 +3105,7 @@ class BoltztrapPlotter(object):
             em = self._bz.get_average_eff_mass(output='eigs')
 
         plt.figure(figsize=(22, 14))
-        tlist = np.sort(em['n'].keys())
+        tlist = sorted(em['n'].keys())
         doping = self._bz.doping['n'] if doping == 'all' else doping
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3155,7 +3155,7 @@ class BoltztrapPlotter(object):
         elif output == 'eigs':
             sbk = self._bz.get_seebeck(output='eigs')
 
-        tlist = np.sort(sbk['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(sbk['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3208,7 +3208,7 @@ class BoltztrapPlotter(object):
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time,
                                              output='eigs')
 
-        tlist = np.sort(cond['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(cond['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3260,7 +3260,7 @@ class BoltztrapPlotter(object):
             pf = self._bz.get_power_factor(relaxation_time=relaxation_time,
                                            output='eigs')
 
-        tlist = np.sort(pf['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(pf['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3311,7 +3311,7 @@ class BoltztrapPlotter(object):
         elif output == 'eigs':
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output='eigs')
 
-        tlist = np.sort(zt['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(zt['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3362,7 +3362,7 @@ class BoltztrapPlotter(object):
         elif output == 'eigs':
             em = self._bz.get_average_eff_mass(output='eigs')
 
-        tlist = np.sort(em['n'].keys()) if temps == 'all' else temps
+        tlist = sorted(em['n'].keys()) if temps == 'all' else temps
         plt.figure(figsize=(22, 14))
         for i, dt in enumerate(['n', 'p']):
             plt.subplot(121 + i)
@@ -3417,7 +3417,7 @@ class BoltztrapPlotter(object):
         """
         import matplotlib.pyplot as plt
         plt.semilogy(self._bz.mu_steps,
-                     abs(self._bz.carrier_conc[temp] / (self._bz.vol * 1e-24)),
+                     abs(self._bz._carrier_conc[temp] / (self._bz.vol * 1e-24)),
                      linewidth=3.0, color='r')
         self._plot_bg_limits()
         self._plot_doping(temp)
