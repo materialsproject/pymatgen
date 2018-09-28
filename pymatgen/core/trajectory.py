@@ -5,21 +5,37 @@ import numpy as np
 
 
 class Trajectory(MSONable):
+    """
+    This class stores MD trajectories or any series of structures (with the same lattice, number of atoms, etc.).
+    The base structure is stored along with a list of displacements and other site properties. Structures for different
+    timesteps are pulled by fast-forwarding the 'current structure' to the desired time step using the displacements.
+    Stored displacements correspond to the positional differences between the 0th and nth frame.
+
+    This is preferred to a list of structures, which is memory inefficient.
+
+    This class is a wrapper class for pymatgen.core.structure.Structure.
+    """
     def __init__(self, base_structure, displacements, site_properties):
         self.base_structure = base_structure
         self.displacements = np.array(displacements)
         self.site_properties = site_properties
         self.index = 0
         self.structure = base_structure
+        self.length = len(displacements)
 
     def __getattr__(self, attr):
-
         if hasattr(self.structure, attr):
             return getattr(self.structure, attr)
         else:
             raise Exception("Neither Trajectory nor structure has attribute: {}".format(attr))
 
     def change_index(self, index):
+        """
+        Morphs the structure to the specified timestep
+
+        Args:
+            index: Index of the desired timestep
+        """
         if index > len(self.displacements):
             raise Exception
         else:
@@ -29,18 +45,29 @@ class Trajectory(MSONable):
             self.index = index
 
     def change_next(self):
+        """
+        Increment the structure to the next timestep.
+        """
         if self.index + 1 < len(self.displacements):
             self.change_index(self.index+1)
         else:
-            raise Exception
+            raise Exception("At the end of the trajectory, no more steps to increment")
 
     def change_previous(self):
+        """
+        Decrement the structure to the previous timestep.
+        """
         if self.index > 0:
             self.change_index(self.index+1)
         else:
-            raise Exception
+            raise Exception("At the start of the trajectory, no more steps to decrement")
 
     def combine(self, trajectory):
+        """
+        Extends self with the given trajectory.
+
+        Trajectory must have same lattice and contain the same number and type of species.
+        """
         if trajectory.base_structure.lattice != self.base_structure.lattice:
             raise Exception("Lattices are incompatible")
         if trajectory.base_structure.species != self.base_structure.species:
@@ -53,6 +80,11 @@ class Trajectory(MSONable):
 
     @lru_cache()
     def as_structures(self):
+        """
+        For compatibility with existing codes..
+
+        :return: A list of structures
+        """
         structures = [0]*len(self.displacements)
         for i in range(len(self.displacements)):
             self.change_index(i)
@@ -62,6 +94,12 @@ class Trajectory(MSONable):
     @property
     @lru_cache()
     def sequential_displacements(self, skip=1):
+        """
+        Returns the frame to frame displacements. Useful for summing to obtain MSD's
+
+        :param skip: Number of time steps to skip between each returned displacement
+        :return:
+        """
         seq_displacements = np.subtract(self.displacements[::skip],
                                         np.roll(self.displacements[::skip], 1, axis=0))
         return seq_displacements
@@ -101,15 +139,31 @@ class Trajectory(MSONable):
         return cls(structure, displacements, site_properties)
 
     def as_dict(self):
+        """
+        Dict representation of Trajectory.
+
+        Returns:
+            JSON serializable dict representation.
+        """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
-        d["structure"] = self.structure.as_dict()
+        d["structure"] = self.base_structure.as_dict()
         d["displacements"] = self.displacements.tolist()
         d["site_properties"] = self.site_properties
         return d
 
     @classmethod
     def from_dict(cls, d):
+        """
+        Reconstitute a Trajectory object from a dict representation of Structure
+        created using as_dict().
+
+        Args:
+            d (dict): Dict representation of structure.
+
+        Returns:
+            Structure object
+        """
         structure = Structure.from_dict(d["structure"])
         return cls(structure, np.array(d["displacements"]), d["site_properties"])
 
