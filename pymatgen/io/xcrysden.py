@@ -4,8 +4,9 @@
 from __future__ import division, print_function, unicode_literals
 
 import numpy as np
+from monty.os.path import zpath
 from pymatgen.electronic_structure.core import Spin
-from pymatgen.io.vasp.sets import get_vasprun_outcar
+from pymatgen.io.vasp.outputs import Vasprun
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -169,5 +170,6 @@ class BXSF(object):
 
     @classmethod
     def from_path(cls, path):
-        vasprun, outcar = get_vasprun_outcar(path)
+        vasprun_loc = zpath('{}/vasprun.xml'.format(path))
+        vasprun = Vasprun(vasprun_loc)
         return cls.from_vasprun(vasprun)
