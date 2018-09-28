@@ -9,6 +9,7 @@ import numpy as np
 import math
 
 from monty.io import zopen
+from monty.json import jsanitize
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
@@ -67,6 +68,20 @@ class QCOutput(MSONable):
                 r"Thank you very much for using Q-Chem.\s+Have a nice day."
             },
             terminate_on_match=True).get('key')
+
+        # If the calculation finished, parse the job time.
+        if self.data.get('completion', []):
+            temp_timings = read_pattern(
+                self.text, {
+                    "key":
+                    r"Total job time\:\s*([\d\-\.]+)s\(wall\)\,\s*([\d\-\.]+)s\(cpu\)"
+                }).get('key')
+            if temp_timings != None:
+                self.data["walltime"] = float(temp_timings[0][0])
+                self.data["cputime"] = float(temp_timings[0][1])
+            else:
+                self.data["walltime"] = 'nan'
+                self.data["cputime"] = 'nan'
 
         # Check if calculation is unrestricted
         self.data["unrestricted"] = read_pattern(
@@ -161,11 +176,27 @@ class QCOutput(MSONable):
             "key": r"\$opt\s+CONSTRAINT"
         }).get('key')
         if self.data.get('opt_constraint'):
-            self.data["dihedral_constraint"] = read_pattern(
+            temp_constraint = read_pattern(
                 self.text, {
                     "key":
-                    r"Constraints and their Current Values\s+Value\s+Constraint\s+Dihedral\:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
+                    r"Constraints and their Current Values\s+Value\s+Constraint\s+(\w+)\:\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
                 }).get('key')
+            if temp_constraint != None:
+                self.data["opt_constraint"] = temp_constraint[0]
+                if float(self.data.get('opt_constraint')[5]) != float(
+                        self.data.get('opt_constraint')[6]):
+                    if abs(float(self.data.get('opt_constraint')[5])) != abs(
+                            float(self.data.get('opt_constraint')[6])):
+                        raise ValueError(
+                            "ERROR: Opt section value and constraint should be the same!"
+                        )
+                    elif abs(float(
+                            self.data.get('opt_constraint')[5])) not in [
+                                0.0, 180.0
+                            ]:
+                        raise ValueError(
+                            "ERROR: Opt section value and constraint can only differ by a sign at 0.0 and 180.0!"
+                        )
 
         # Check if the calculation is a frequency analysis. If so, parse the relevant output
         self.data["frequency_job"] = read_pattern(
@@ -287,7 +318,7 @@ class QCOutput(MSONable):
             else:
                 footer_pattern = r"^\s*\-+\n"
             header_pattern = r"^\s*\-+\s+Cycle\s+Energy\s+(?:(?:DIIS)*\s+[Ee]rror)*(?:RMS Gradient)*\s+\-+(?:\s*\-+\s+OpenMP\s+Integral\s+computing\s+Module\s+(?:Release:\s+version\s+[\d\-\.]+\,\s+\w+\s+[\d\-\.]+\, Q-Chem Inc\. Pittsburgh\s+)*\-+)*\n"
-            table_pattern = r"(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*"
+            table_pattern = r"(?:\s*Nonlocal correlation = [\d\-\.]+e[\d\-]+)*(?:\s*Inaccurate integrated density:\n\s+Number of electrons\s+=\s+[\d\-\.]+\n\s+Numerical integral\s+=\s+[\d\-\.]+\n\s+Relative error\s+=\s+[\d\-\.]+\s+\%\n)*\s*\d+\s+([\d\-\.]+)\s+([\d\-\.]+)e([\d\-\.\+]+)(?:\s+Convergence criterion met)*(?:\s+Preconditoned Steepest Descent)*(?:\s+Roothaan Step)*(?:\s+(?:Normal\s+)*BFGS [Ss]tep)*(?:\s+LineSearch Step)*(?:\s+Line search: overstep)*(?:\s+Descent step)*"
         else:
             if "SCF_failed_to_converge" in self.data.get("errors"):
                 footer_pattern = r"^\s*\d+\s*[\d\-\.]+\s+[\d\-\.]+E[\d\-\.]+\s+Convergence\s+failure\n"
@@ -439,8 +470,8 @@ class QCOutput(MSONable):
                 for jj, line in enumerate(triple_FMV):
                     for kk, entry in enumerate(line):
                         if entry != 'None':
-                            freq_mode_vecs[ii * 3 + math.floor(kk / 3), jj,
-                                           kk % 3] = float(entry)
+                            freq_mode_vecs[int(ii * 3 + math.floor(kk / 3)),
+                                           jj, kk % 3] = float(entry)
 
             self.data["frequency_mode_vectors"] = freq_mode_vecs
 
@@ -503,3 +534,10 @@ class QCOutput(MSONable):
             self.data["errors"] += ["IO_error"]
         else:
             self.data["errors"] += ["unknown_error"]
+
+    def as_dict(self):
+        d = {}
+        d["data"] = self.data
+        d["text"] = self.text
+        d["filename"] = self.filename
+        return jsanitize(d, strict=True)

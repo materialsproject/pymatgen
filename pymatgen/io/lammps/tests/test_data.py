@@ -17,11 +17,67 @@ import pandas as pd
 from ruamel.yaml import YAML
 from pymatgen import Molecule, Element, Lattice, Structure
 
-from pymatgen.io.lammps.data import LammpsData, Topology, ForceField, \
-    structure_2_lmpdata
+from pymatgen.io.lammps.data import LammpsBox, LammpsData, Topology,\
+    ForceField, lattice_2_lmpbox, structure_2_lmpdata
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         "test_files", "lammps")
+
+
+class LammpsBoxTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.peptide = LammpsBox(bounds=[[36.840194, 64.211560],
+                                        [41.013691, 68.385058],
+                                        [29.768095, 57.139462]])
+        cls.quartz = LammpsBox(bounds=[[0, 4.913400],
+                                       [0, 4.255129],
+                                       [0, 5.405200]],
+                               tilt=[-2.456700, 0.0, 0.0])
+
+    def test_volume(self):
+        obounds = np.array(self.peptide.bounds)
+        ov = np.prod(obounds[:, 1] - obounds[:, 0])
+        self.assertEqual(self.peptide.volume, ov)
+        self.assertAlmostEqual(self.quartz.volume, 113.00733165874873)
+
+    def test_get_string(self):
+        peptide = self.peptide.get_string(5)
+        peptide_5 = """36.84019 64.21156  xlo xhi
+41.01369 68.38506  ylo yhi
+29.76809 57.13946  zlo zhi"""
+        self.assertEqual(peptide, peptide_5)
+        quartz = self.quartz.get_string(4)
+        quartz_4 = """0.0000 4.9134  xlo xhi
+0.0000 4.2551  ylo yhi
+0.0000 5.4052  zlo zhi
+-2.4567 0.0000 0.0000  xy xz yz"""
+        self.assertEqual(quartz, quartz_4)
+
+    def test_get_box_shift(self):
+        peptide = self.peptide
+        self.assertEqual(peptide.get_box_shift([1, 0, 0])[0],
+                         64.211560 - 36.840194)
+        self.assertEqual(peptide.get_box_shift([0, 0, -1])[-1],
+                         29.768095 - 57.139462)
+        quartz = self.quartz
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 0, 1]),
+                                      [0, 0, 5.4052], 4)
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([0, 1, -1]),
+                                             [-2.4567, 4.2551, -5.4052], 4)
+        np.testing.assert_array_almost_equal(quartz.get_box_shift([1, -1, 0]),
+                                             [4.9134 + 2.4567, -4.2551, 0], 4)
+
+    def test_to_lattice(self):
+        peptide = self.peptide.to_lattice()
+        np.testing.assert_array_almost_equal(peptide.abc, [27.371367] * 3)
+        self.assertTrue(peptide.is_orthogonal)
+        quartz = self.quartz.to_lattice()
+        np.testing.assert_array_almost_equal(quartz.matrix,
+                                             [[4.913400, 0, 0],
+                                              [-2.456700, 4.255129, 0],
+                                              [0, 0, 5.405200]])
 
 
 class LammpsDataTest(unittest.TestCase):
@@ -38,22 +94,34 @@ class LammpsDataTest(unittest.TestCase):
         cls.virus = LammpsData.\
             from_file(filename=os.path.join(test_dir, "virus.data"),
                       atom_style="angle")
+        cls.tatb = LammpsData.\
+            from_file(filename=os.path.join(test_dir, "tatb.data"),
+                      atom_style="charge", sort_id=True)
 
     def test_structure(self):
-        quartz_box = self.quartz.structure
-        np.testing.assert_array_equal(quartz_box.lattice.matrix,
+        quartz = self.quartz.structure
+        np.testing.assert_array_equal(quartz.lattice.matrix,
                                       [[4.913400, 0, 0],
                                        [-2.456700, 4.255129, 0],
                                        [0, 0, 5.405200]])
-        self.assertEqual(quartz_box.formula, "Si3 O6")
+        self.assertEqual(quartz.formula, "Si3 O6")
         self.assertNotIn("molecule-ID", self.quartz.atoms.columns)
 
-        ethane_box = self.ethane.structure
-        np.testing.assert_array_equal(ethane_box.lattice.matrix,
+        ethane = self.ethane.structure
+        np.testing.assert_array_equal(ethane.lattice.matrix,
                                       np.diag([10.0] * 3))
-        box_lbounds = np.array(self.ethane.box_bounds)[:, 0]
-        coords = self.ethane.atoms[["x", "y", "z"]].values - box_lbounds
-        np.testing.assert_array_equal(ethane_box.cart_coords, coords)
+        lbounds = np.array(self.ethane.box.bounds)[:, 0]
+        coords = self.ethane.atoms[["x", "y", "z"]].values - lbounds
+        np.testing.assert_array_equal(ethane.cart_coords, coords)
+        np.testing.assert_array_equal(ethane.site_properties["charge"],
+                                      self.ethane.atoms["q"])
+        tatb = self.tatb.structure
+        frac_coords = tatb.frac_coords[381]
+        real_frac_coords = frac_coords - np.floor(frac_coords)
+        np.testing.assert_array_almost_equal(real_frac_coords,
+                                             [0.01553397,
+                                              0.71487872,
+                                              0.14134139])
 
     def test_get_string(self):
         pep = self.peptide.get_string(distance=7, velocity=5, charge=4)
@@ -190,7 +258,7 @@ class LammpsDataTest(unittest.TestCase):
     def test_disassemble(self):
         # general tests
         c = LammpsData.from_file(os.path.join(test_dir, "crambin.data"))
-        c_ff, topos = c.disassemble()
+        _, c_ff, topos = c.disassemble()
         mass_info = [('N1', 14.0067), ('H1', 1.00797), ('C1', 12.01115),
                      ('H2', 1.00797), ('C2', 12.01115), ('O1', 15.9994),
                      ('C3', 12.01115), ('O2', 15.9994), ('H3', 1.00797),
@@ -237,7 +305,7 @@ class LammpsDataTest(unittest.TestCase):
             self.assertIn(topo_type, ff_coeffs[topo_type_idx]["types"], ff_kw)
         # test no guessing element and pairij as nonbond coeffs
         v = self.virus
-        v_ff, _ = v.disassemble(guess_element=False)
+        _, v_ff, _ = v.disassemble(guess_element=False)
         self.assertDictEqual(v_ff.maps["Atoms"],
                              dict(Qa1=1, Qb1=2, Qc1=3, Qa2=4))
         pairij_coeffs = v.force_field["PairIJ Coeffs"].drop(["id1", "id2"],
@@ -245,7 +313,7 @@ class LammpsDataTest(unittest.TestCase):
         np.testing.assert_array_equal(v_ff.nonbond_coeffs,
                                       pairij_coeffs.values)
         # test class2 ff
-        e_ff, _ = self.ethane.disassemble()
+        _, e_ff, _ = self.ethane.disassemble()
         e_topo_coeffs = e_ff.topo_coeffs
         for k in ["BondBond Coeffs", "BondAngle Coeffs"]:
             self.assertIn(k, e_topo_coeffs["Angle Coeffs"][0], k)
@@ -277,7 +345,7 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(ff["Dihedral Coeffs"].shape, (21, 4))
         self.assertEqual(ff["Improper Coeffs"].shape, (2, 2))
         # header box
-        np.testing.assert_array_equal(pep.box_bounds,
+        np.testing.assert_array_equal(pep.box.bounds,
                                       [[36.840194, 64.211560],
                                        [41.013691, 68.385058],
                                        [29.768095, 57.139462]])
@@ -331,9 +399,9 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(class2["BondBond13 Coeffs"].at[1, "coeff3"], 1.1010)
         self.assertEqual(class2["AngleTorsion Coeffs"].at[1, "coeff8"],
                          110.7700)
-        # box_tilt and another atom_style
+        # tilt box and another atom_style
         quartz = self.quartz
-        np.testing.assert_array_equal(quartz.box_tilt, [-2.456700, 0.0, 0.0])
+        np.testing.assert_array_equal(quartz.box.tilt, [-2.456700, 0.0, 0.0])
         self.assertListEqual(list(quartz.atoms.columns),
                              ["type", "x", "y", "z"])
         self.assertAlmostEqual(quartz.atoms.at[7, "x"], 0.299963)
@@ -344,11 +412,8 @@ class LammpsDataTest(unittest.TestCase):
         self.assertEqual(pairij.at[7, "id2"], 3)
         self.assertEqual(pairij.at[7, "coeff2"], 2.1)
         # sort_id
-        nvt = LammpsData.from_file(filename=os.path.join(test_dir,
-                                                         "nvt.data"),
-                                   sort_id=True)
-        atom_id = random.randint(1, 648)
-        self.assertEqual(nvt.atoms.loc[atom_id].name, atom_id)
+        atom_id = random.randint(1, 384)
+        self.assertEqual(self.tatb.atoms.loc[atom_id].name, atom_id)
 
     def test_from_ff_and_topologies(self):
         mass = OrderedDict()
@@ -363,11 +428,11 @@ class LammpsDataTest(unittest.TestCase):
         with gzip.open(os.path.join(test_dir, "topologies_ice.json.gz")) as f:
             topo_dicts = json.load(f)
         topologies = [Topology.from_dict(d) for d in topo_dicts]
-        box_bounds = [[-0.75694412, 44.165558],
-                      [0.38127473, 47.066074],
-                      [0.17900842, 44.193867]]
-        ice = LammpsData.from_ff_and_topologies(ff=ff, topologies=topologies,
-                                                box_bounds=box_bounds)
+        box = LammpsBox([[-0.75694412, 44.165558],
+                         [0.38127473, 47.066074],
+                         [0.17900842, 44.193867]])
+        ice = LammpsData.from_ff_and_topologies(box=box, ff=ff,
+                                                topologies=topologies)
         atoms = ice.atoms
         bonds = ice.topology["Bonds"]
         angles = ice.topology["Angles"]
@@ -393,10 +458,29 @@ class LammpsDataTest(unittest.TestCase):
                                                 "types": [("H", "H", "H")]}]}
         broken_ff = ForceField(mass.items(), nonbond_coeffs,
                                broken_topo_coeffs)
-        ld_woangles = LammpsData.from_ff_and_topologies(ff=broken_ff,
-                                                        topologies=[sample],
-                                                        box_bounds=box_bounds)
+        ld_woangles = LammpsData.from_ff_and_topologies(box=box, ff=broken_ff,
+                                                        topologies=[sample])
         self.assertNotIn("Angles", ld_woangles.topology)
+
+    def test_from_structure(self):
+        latt = Lattice.monoclinic(9.78746, 4.75058, 8.95892, 115.9693)
+        structure = Structure.from_spacegroup(15, latt, ["Os", "O", "O"],
+                                              [[0, 0.25583, 0.75],
+                                               [0.11146, 0.46611, 0.91631],
+                                               [0.11445, 0.04564, 0.69518]])
+        velocities = np.random.randn(20, 3) * 0.1
+        structure.add_site_property("velocities", velocities)
+        ld = LammpsData.from_structure(structure=structure,
+                                       ff_elements=["O", "Os", "Na"])
+        i = random.randint(0, 19)
+        a = latt.matrix[0]
+        va = velocities[i].dot(a) / np.linalg.norm(a)
+        self.assertAlmostEqual(va, ld.velocities.loc[i + 1, "vx"])
+        self.assertAlmostEqual(velocities[i, 1],
+                               ld.velocities.loc[i + 1, "vy"])
+        np.testing.assert_array_almost_equal(ld.masses["mass"],
+                                             [22.989769, 190.23, 15.9994])
+        np.testing.assert_array_equal(ld.atoms["type"], [2] * 4 + [3] * 16)
 
     def test_json_dict(self):
         encoded = json.dumps(self.ethane.as_dict())
@@ -630,6 +714,32 @@ class ForceFieldTest(unittest.TestCase):
 
 class FuncTest(unittest.TestCase):
 
+    def test_lattice_2_lmpbox(self):
+        matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
+                 + np.random.rand(3, 3) * 0.2 - 0.1
+        init_latt = Lattice(matrix)
+        frac_coords = np.random.rand(10, 3)
+        init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
+        origin = np.random.rand(3) * 10 - 5
+        box, symmop = lattice_2_lmpbox(lattice=init_latt, origin=origin)
+        boxed_latt = box.to_lattice()
+        np.testing.assert_array_almost_equal(init_latt.abc, boxed_latt.abc)
+        np.testing.assert_array_almost_equal(init_latt.angles,
+                                             boxed_latt.angles)
+        cart_coords = symmop.operate_multi(init_structure.cart_coords) \
+                      - origin
+        boxed_structure = Structure(boxed_latt, ["H"] * 10, cart_coords,
+                                    coords_are_cartesian=True)
+        np.testing.assert_array_almost_equal(boxed_structure.frac_coords,
+                                             frac_coords)
+        tetra_latt = Lattice.tetragonal(5, 5)
+        tetra_box, _ = lattice_2_lmpbox(tetra_latt)
+        self.assertIsNone(tetra_box.tilt)
+        orthorhombic_latt = Lattice.orthorhombic(5, 5, 5)
+        orthorhombic_box, _ = lattice_2_lmpbox(orthorhombic_latt)
+        self.assertIsNone(orthorhombic_box.tilt)
+
+    @unittest.skip("The function is deprecated")
     def test_structure_2_lmpdata(self):
         matrix = np.diag(np.random.randint(5, 14, size=(3,))) \
                  + np.random.rand(3, 3) * 0.2 - 0.1
@@ -659,6 +769,7 @@ class FuncTest(unittest.TestCase):
         self.assertEqual(len(ld_elements.masses), 2)
         np.testing.assert_array_almost_equal(ld_elements.masses["mass"],
                                              [1.00794, 12.01070])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.elasticity.tensors module &#8212; pymatgen 2018.5.3 documentation</title>
+    <title>pymatgen.analysis.elasticity.tensors module &#8212; pymatgen 2018.6.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -134,6 +134,25 @@ which are the values of the coefficients of the characteristic
 polynomial for the matrix</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.tensors.SquareTensor.refine_rotation">
+<code class="descname">refine_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#SquareTensor.refine_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.SquareTensor.refine_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method for refining rotation matrix by ensuring
+that second and third rows are perpindicular to the first.
+Gets new y vector from an orthogonal projection of x onto y
+and the new z vector from a cross product of the new x and y</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>to test for rotation</strong> (<em>tol</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">new rotation matrix</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.tensors.SquareTensor.trans">
 <code class="descname">trans</code><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.SquareTensor.trans" title="Permalink to this definition">¶</a></dt>
@@ -167,7 +186,7 @@ to the coefficients of the voigt-notation tensor</li>
 </table>
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.tensors.Tensor.convert_to_ieee">
-<code class="descname">convert_to_ieee</code><span class="sig-paren">(</span><em>structure</em>, <em>initial_fit=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#Tensor.convert_to_ieee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.Tensor.convert_to_ieee" title="Permalink to this definition">¶</a></dt>
+<code class="descname">convert_to_ieee</code><span class="sig-paren">(</span><em>structure</em>, <em>initial_fit=True</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#Tensor.convert_to_ieee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.Tensor.convert_to_ieee" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a structure associated with a tensor, attempts a
 calculation of the tensor in IEEE format according to
 the 1987 IEEE standards.</p>
@@ -184,6 +203,8 @@ Defaults to true. Note that if false, inconsistent
 results may be obtained due to symmetrically
 equivalent, but distinct transformations
 being used in different versions of spglib.</li>
+<li><strong>refine_rotation</strong> (<em>bool</em>) – whether to refine the rotation
+produced by the ieee transform generator, default True</li>
 </ul>
 </td>
 </tr>
@@ -264,7 +285,7 @@ optimization procedure</li>
 
 <dl class="staticmethod">
 <dt id="pymatgen.analysis.elasticity.tensors.Tensor.get_ieee_rotation">
-<em class="property">static </em><code class="descname">get_ieee_rotation</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#Tensor.get_ieee_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.Tensor.get_ieee_rotation" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">get_ieee_rotation</code><span class="sig-paren">(</span><em>structure</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#Tensor.get_ieee_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.Tensor.get_ieee_rotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a structure associated with a tensor, determines
 the rotation matrix for IEEE conversion according to
 the 1987 IEEE standards.</p>
@@ -272,8 +293,13 @@ the 1987 IEEE standards.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – a structure associated with the
-tensor to be converted to the IEEE standard</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – a structure associated with the
+tensor to be converted to the IEEE standard</li>
+<li><strong>refine_rotation</strong> (<em>bool</em>) – whether to refine the rotation
+using SquareTensor.refine_rotation</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -389,6 +415,33 @@ rotation.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.elasticity.tensors.Tensor.structure_transform">
+<code class="descname">structure_transform</code><span class="sig-paren">(</span><em>original_structure</em>, <em>new_structure</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#Tensor.structure_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.Tensor.structure_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a tensor from one basis for an original structure
+into a new basis defined by a new structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>original_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure corresponding
+to the basis of the current tensor</li>
+<li><strong>new_structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure corresponding to the
+desired basis</li>
+<li><strong>refine_rotation</strong> (<em>bool</em>) – whether to refine the rotations
+generated in get_ieee_rotation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Tensor that has been transformed such that its basis
+corresponds to the new_structure’s basis</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.tensors.Tensor.symmetrized">
 <code class="descname">symmetrized</code><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.Tensor.symmetrized" title="Permalink to this definition">¶</a></dt>
@@ -441,7 +494,7 @@ tensor such that it is invariant wrt permutation of indices</p>
 or for having a tensor expansion</p>
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.tensors.TensorCollection.convert_to_ieee">
-<code class="descname">convert_to_ieee</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#TensorCollection.convert_to_ieee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.TensorCollection.convert_to_ieee" title="Permalink to this definition">¶</a></dt>
+<code class="descname">convert_to_ieee</code><span class="sig-paren">(</span><em>structure</em>, <em>initial_fit=True</em>, <em>refine_rotation=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/tensors.html#TensorCollection.convert_to_ieee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.tensors.TensorCollection.convert_to_ieee" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -602,13 +655,13 @@ tensors as values</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

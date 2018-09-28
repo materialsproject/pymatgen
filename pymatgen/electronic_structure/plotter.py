@@ -2300,8 +2300,11 @@ class BSDOSPlotter(object):
                                         color=(0.7, 0.7, 0.7),
                                         facecolor=(0.7, 0.7, 0.7))
 
-                    # plot the atom-projected DOS
-                    if self.dos_projection.lower() == "elements":
+                    if self.dos_projection is None:
+                        pass
+
+                    elif self.dos_projection.lower() == "elements":
+                        # plot the atom-projected DOS
                         colors = ['b', 'r', 'g', 'm', 'y', 'c', 'k', 'w']
                         el_dos = dos.get_element_dos()
                         for idx, el in enumerate(elements):
@@ -2473,7 +2476,7 @@ class BSDOSPlotter(object):
         if not loc in range(1, 11):
             loc = 2
 
-        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
         inset_ax = inset_axes(ax, width=1, height=1, loc=loc)
         mesh = 35
         x = []
@@ -2520,7 +2523,7 @@ class BSDOSPlotter(object):
 
         if not loc in range(1, 11):
             loc = 2
-        from mpl_toolkits.axes_grid.inset_locator import inset_axes
+        from mpl_toolkits.axes_grid1.inset_locator import inset_axes
         inset_ax = inset_axes(ax, width=1.2, height=0.4, loc=loc)
 
         x = []

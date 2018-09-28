@@ -8,6 +8,7 @@ from pymatgen.analysis.elasticity.elastic import *
 from pymatgen.analysis.elasticity.strain import Strain, Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.units import FloatWithUnit
 from pymatgen import Structure, Lattice
 from scipy.misc import central_diff_weights
 import warnings
@@ -143,6 +144,8 @@ class ElasticTensorTest(PymatgenTest):
         # structure-property dict
         sprop_dict = self.elastic_tensor_1.get_structure_property_dict(self.structure)
         self.assertAlmostEqual(sprop_dict["long_v"], 3534.68123832)
+        for val in sprop_dict.values():
+            self.assertFalse(isinstance(val, FloatWithUnit))
         for k, v in sprop_dict.items():
             if k=="structure":
                 self.assertEqual(v, self.structure)

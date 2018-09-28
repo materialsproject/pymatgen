@@ -1,0 +1,209 @@
+---
+code_id: 11962
+open_source: true
+repository_link: "https://github.com/materialsproject/pymatgen"
+accessibility: "OS"
+software_type: "S"
+developers:
+- email: "alireza.faghaninia@gmail.com"
+  orcid: ""
+  first_name: "Alireza"
+  last_name: "Faghanina"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Lab. (LBNL), Berkeley, CA (United States)"
+- email: "anubhavster@gmail.com"
+  orcid: ""
+  first_name: "Anubhav"
+  last_name: "Jain"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Lab. (LBNL), Berkeley, CA (United States)"
+- email: ""
+  orcid: ""
+  first_name: "Bharat"
+  last_name: "Medasani"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Lab. (LBNL), Berkeley, CA (United States)"
+- email: ""
+  orcid: ""
+  first_name: "Brandon"
+  last_name: "Wood"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Lab. (LBNL), Berkeley, CA (United States)"
+- email: "dkgunter@lbl.gov"
+  orcid: ""
+  first_name: "Dan"
+  last_name: "Gunter"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Lab. (LBNL), Berkeley, CA (United States)"
+- email: ""
+  orcid: ""
+  first_name: "David"
+  last_name: "Waroquiers"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Francesco"
+  last_name: "Ricci"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Geoffroy"
+  last_name: "Hautier"
+  middle_name: ""
+  affiliations: []
+- email: "germain.vallverdu@gmail.com"
+  orcid: ""
+  first_name: "Germain Salvato"
+  last_name: "Vallverdu"
+  middle_name: ""
+  affiliations:
+  - "Université de Pau et des Pays de l'Adour, IPREM"
+- email: ""
+  orcid: ""
+  first_name: "Guido"
+  last_name: "Matteo"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Guido"
+  last_name: "Petretto"
+  middle_name: ""
+  affiliations: []
+- email: "montoyjh@gmail.com"
+  orcid: ""
+  first_name: "Joseph"
+  last_name: "Montoya"
+  middle_name: ""
+  affiliations: []
+- email: "km468@cornell.edu"
+  orcid: ""
+  first_name: "Kiran"
+  last_name: "Mathew"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Lab. (LBNL), Berkeley, CA (United States)"
+- email: ""
+  orcid: ""
+  first_name: "Matthew"
+  last_name: "Horton"
+  middle_name: ""
+  affiliations:
+  - "UC Berkeley, LBNL"
+- email: ""
+  orcid: ""
+  first_name: "Michiel van"
+  last_name: "Setten"
+  middle_name: ""
+  affiliations:
+  - "UCLouvain"
+- email: ""
+  orcid: ""
+  first_name: "Nils"
+  last_name: "Zimmermann"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Laboratory"
+- email: "oskar.weser@gmail.com"
+  orcid: ""
+  first_name: "Oskar"
+  last_name: "Weser"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Patrick"
+  last_name: "Huck"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Lab. (LBNL), Berkeley, CA (United States)"
+- email: ""
+  orcid: ""
+  first_name: "Richard"
+  last_name: "Tran"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Sai"
+  last_name: "Jayaraman"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Sam"
+  last_name: "Blau"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Saurabh"
+  last_name: "Bajaj"
+  middle_name: ""
+  affiliations:
+  - "Lawrence Berkeley National Laboratory"
+- email: ""
+  orcid: ""
+  first_name: "Shyam"
+  last_name: "Dwaraknath"
+  middle_name: ""
+  affiliations:
+  - "LBNL"
+- email: "ongsp@eng.ucsd.edu"
+  orcid: "0000-0001-5726-2587"
+  first_name: "Shyue Ping"
+  last_name: "Ong"
+  middle_name: ""
+  affiliations:
+  - "University of California, San Diego"
+- email: "sdacek@mit.edu"
+  orcid: ""
+  first_name: "Stephen"
+  last_name: "Dacek"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Will"
+  last_name: "Richards"
+  middle_name: ""
+  affiliations: []
+- email: ""
+  orcid: ""
+  first_name: "Xiaohui"
+  last_name: "Qu"
+  middle_name: ""
+  affiliations: []
+- email: "z4deng@eng.ucsd.edu"
+  orcid: ""
+  first_name: "Zhi"
+  last_name: "Deng"
+  middle_name: ""
+  affiliations:
+  - "University of California, San Diego"
+contributors: []
+sponsoring_organizations: []
+contributing_organizations: ["University of California, San Diego"]
+research_organizations: ["University of California, San Diego"]
+related_identifiers: []
+software_title: "pymatgen"
+acronym: "pymatgen"
+description: "Python Materials Genomics (pymatgen) is a robust materials analysis\
+  \ code that defines core object representations for structures and molecules with\
+  \ support for many electronic structure codes. It is currently the core analysis\
+  \ code powering the Materials Project."
+programming_languages:
+- "Python"
+documentation_url: "http://pymatgen.org/"
+country_of_origin: "United States"
+licenses:
+- "MIT License"
+date_record_added: "2018-06-14"
+date_record_updated: "2018-06-14"

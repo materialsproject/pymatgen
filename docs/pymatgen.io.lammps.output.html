@@ -6,10 +6,10 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.lammps.output module &#8212; pymatgen 2018.5.3 documentation</title>
+    <title>pymatgen.io.lammps.output module &#8212; pymatgen 2018.6.11 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,13 +47,47 @@
 <span id="pymatgen-io-lammps-output-module"></span><h1>pymatgen.io.lammps.output module<a class="headerlink" href="#module-pymatgen.io.lammps.output" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.lammps.output.LammpsDump">
-<em class="property">class </em><code class="descname">LammpsDump</code><span class="sig-paren">(</span><em>timesteps</em>, <em>natoms</em>, <em>box_bounds</em>, <em>atoms_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsDump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">LammpsDump</code><span class="sig-paren">(</span><em>filename</em>, <em>parse_box=True</em>, <em>dtype=&lt;class 'float'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsDump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
-<p>Parse lammps dump file.</p>
-<dl class="classmethod">
-<dt id="pymatgen.io.lammps.output.LammpsDump.from_file">
-<em class="property">classmethod </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>dump_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsDump.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump.from_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<p>Dump file parser.</p>
+<dl class="attribute">
+<dt id="pymatgen.io.lammps.output.LammpsDump.steps">
+<code class="descname">steps</code><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump.steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>All steps in the dump as a list of
+{“timestep”: current timestep,</p>
+<blockquote>
+<div>“natoms”: no. of atoms,
+“box”: simulation box (optional),
+“atoms_data”: dumped data for atoms as 2D np.array}</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.lammps.output.LammpsDump.timesteps">
+<code class="descname">timesteps</code><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump.timesteps" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of timesteps in sequence.</p>
+</dd></dl>
+
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) – Filename to parse. The timestep wildcard
+(‘*’) is supported and the files are parsed in the
+sequence of timestep.</li>
+<li><strong>parse_box</strong> (<em>bool</em>) – Whether parse box info for each step.
+Default to True.</li>
+<li><strong>dtype</strong> – np.dtype for atoms data array.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pymatgen.io.lammps.output.LammpsDump.as_dict">
+<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/lammps/output.html#LammpsDump.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.lammps.output.LammpsDump.as_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A JSON serializable dict representation of an object.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -282,13 +316,13 @@ e.g. for units = real, time units = fmsec</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.5.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.6.11 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1309,21 +1309,21 @@ class MVLSlabSet(MPRelaxSet):
         k_product: default to 50, kpoint number * length for a & b directions,
             also for c direction in bulk calculations
         bulk (bool): Set to True for bulk calculation. Defaults to False.
-        get_locpot (bool): For calculating the electrostatic potential across the
-            slab. Use this if you want to calculate the work function. Will
-            set if slab calculation only.
         **kwargs:
             Other kwargs supported by :class:`DictSet`.
     """
 
     def __init__(self, structure, k_product=50, bulk=False,
-                 auto_dipole=False, get_locpot=False, set_mix=True, **kwargs):
+                 auto_dipole=False, set_mix=True, sort_structure=True, **kwargs):
         super(MVLSlabSet, self).__init__(structure, **kwargs)
+
+        if sort_structure:
+            structure = structure.get_sorted_structure()
+
         self.structure = structure
         self.k_product = k_product
         self.bulk = bulk
         self.auto_dipole = auto_dipole
-        self.get_locpot = get_locpot
         self.kwargs = kwargs
         self.set_mix = set_mix
 
@@ -1331,17 +1331,21 @@ class MVLSlabSet(MPRelaxSet):
                       "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             slab_incar["ISIF"] = 2
+            slab_incar["LVTOT"] = True
             if self.set_mix:
                 slab_incar["AMIN"] = 0.01
                 slab_incar["AMIX"] = 0.2
                 slab_incar["BMIX"] = 0.001
             slab_incar["NELMIN"] = 8
             if self.auto_dipole:
+                weights = [s.species_and_occu.weight for s in structure]
+                center_of_mass = np.average(structure.frac_coords,
+                                            weights = weights, axis = 0)
+
                 slab_incar["IDIPOL"] = 3
                 slab_incar["LDIPOL"] = True
-                slab_incar["DIPOL"] = structure.center_of_mass
-            if self.get_locpot:
-                slab_incar["LVTOT"] = True
+                slab_incar["DIPOL"] = center_of_mass
+
         self._config_dict["INCAR"].update(slab_incar)
 
     @property

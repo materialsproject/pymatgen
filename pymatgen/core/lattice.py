@@ -165,10 +165,9 @@ class Lattice(MSONable):
             d_hkl (float)
         """
 
-        g = 0
-        for i, gi in enumerate(self.reciprocal_lattice.matrix):
-            g += (gi / (2 * np.pi)) * miller_index[i]
-        return 1 / (np.dot(g, g) ** (1 / 2))
+        gstar = self.reciprocal_lattice_crystallographic.metric_tensor
+        hkl = np.array(miller_index)
+        return 1 / ((np.dot(np.dot(hkl, gstar), hkl.T)) ** (1 / 2))
 
     @staticmethod
     def cubic(a):
@@ -358,7 +357,7 @@ class Lattice(MSONable):
     @property
     def a(self):
         """
-        *a* lattice parameter.ATATClusterExpansion
+        *a* lattice parameter.
         """
         return self._lengths[0]
 

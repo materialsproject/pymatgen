@@ -65,28 +65,29 @@ class MPResterTest(unittest.TestCase):
                  "is_compatible", "task_ids",
                  "density", "icsd_ids", "total_magnetization"]
         # unicode literals have been reintroduced in py>3.2
-        expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
-                         28, {k: v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
+
+        expected_vals = [-191.3359011, -6.833425039285714, -2.5515769497278913,
+                         28, {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4},
                          "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
-                         {k: v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
+                         {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}, True,
                          [u'mp-601412', u'mp-19017', u'mp-796535', u'mp-797820',
                           u'mp-540081', u'mp-797269'],
-                         3.4662026991351147,
+                         3.464840709092822,
                          [159107, 154117, 160776, 99860, 181272, 166815,
                           260571, 92198, 165000, 155580, 38209, 161479, 153699,
                           260569, 260570, 200155, 260572, 181341, 181342,
                           72545, 56291, 97764, 162282, 155635],
-                         16.0002716]
+                         15.9996841]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements',
                             'icsd_ids', 'task_ids']:
                 val = self.rester.get_data("mp-19017", prop=prop)[0][prop]
-                self.assertAlmostEqual(expected_vals[i], val)
+                self.assertAlmostEqual(expected_vals[i], val, places=2)
             elif prop in ["elements", "icsd_ids", "task_ids"]:
-                self.assertEqual(set(expected_vals[i]),
-                                 set(self.rester.get_data("mp-19017",
-                                                          prop=prop)[0][prop]))
+                upstream_vals = set(
+                    self.rester.get_data("mp-19017", prop=prop)[0][prop])
+                self.assertLessEqual(set(expected_vals[i]), upstream_vals)
             else:
                 self.assertEqual(expected_vals[i],
                                  self.rester.get_data("mp-19017",
@@ -341,7 +342,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(kinks_open_O) > 0)
         with warnings.catch_warnings(record=True) as w:
             warnings.filterwarnings("always", message="The reactant.+")
-            self.rester.get_interface_reactions("LiCoO2", "MnO3")
+            self.rester.get_interface_reactions("LiCoO2", "MnO9")
             self.assertTrue("The reactant" in str(w[-1].message))
 
     def test_parse_criteria(self):

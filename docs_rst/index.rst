@@ -42,6 +42,16 @@ resources:
 
     *The code is mightier than the pen.*
 
+Offline docs
+============
+
+If you would like to have an offline version of the docs for reference, there
+are two options:
+
+1. Clone the Github repo and the latest html docs are in the "docs" folder.
+2. In `Dash <http://kapeli.com/dash>`_ or `Zeal <http://zealdocs.org/>`_, go to 
+   "User Contributed Docsets", search for pymatgen and install.
+
 Development News
 ================
 

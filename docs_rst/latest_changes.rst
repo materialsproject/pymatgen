@@ -1,9 +1,9 @@
 Change log
 ==========
 
-v2018.5.3
----------
-* Improvements to qchem (@samblau).
-* Improvements to nwchem to support tddft input and parsing (@shyuep).
-* Improvements to CrystalNN (@computron).
-* Add methods for getting phonon BS, DOS, and DDB output (@dwinston).
+v2018.6.11
+----------
+* Updates to ABINIT support for 8.1.3
+* Updates to Interface analyzer.
+* Fix bug in deserialization of ComputedStructureEntry.
+* Misc bug fixes.
