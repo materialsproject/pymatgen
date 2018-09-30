@@ -16,9 +16,11 @@ from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
 
 try:
     import openbabel as ob
-    import networkx as nx
 except ImportError:
     ob = None
+try:
+    import networkx as nx
+except ImportError:
     nx = None
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
@@ -381,16 +383,15 @@ from    to  to_image
     def test_extract_molecules(self):
 
         structure_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                      'test_files/C26H16BeN2O2S2.cif')
+                                      'test_files/H6PbCI3N_mp-977013_symmetrized.cif')
 
         s = Structure.from_file(structure_file)
 
-        nn = MinimumOKeeffeNN()
+        nn = MinimumDistanceNN()
         sg = StructureGraph.with_local_env_strategy(s, nn)
 
         molecules = sg.get_subgraphs_as_molecules()
-
-        self.assertEqual(molecules[0].composition.formula, "Be1 H16 C26 S2 N2 O2")
+        self.assertEqual(molecules[0].composition.formula, "H3 C1")
         self.assertEqual(len(molecules), 1)
 
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
