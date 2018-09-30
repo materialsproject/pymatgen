@@ -6,7 +6,7 @@ Submodules
 
 .. toctree::
 
-   pymatgen.analysis.gb.gb
+   pymatgen.analysis.gb.grain
 
 Module contents
 ---------------
