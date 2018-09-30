@@ -10,7 +10,7 @@ import unittest
 from pymatgen.analysis.molecule_structure_comparator import \
     MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchem import QcOutput
+from pymatgen.io.qchem_deprecated import QcOutput
 
 __author__ = 'xiaohuiqu'
 

@@ -1,9 +1,107 @@
 Change log
 ==========
 
+v2018.9.19
+----------
+* Fix to composition handling in `MolecularOrbitals` (@dyllamt)
+* Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
+* New features and fixes to `chemenv` analysis module (@davidwaroquiers)
+* Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
+* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
+* Added '@' notation parsing in `Composition` (@tamuhey)
+* BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
+* Various updates to speed up and fix test suite (@shyuep, @fraricci)
+* Improvements to BoltzTraP 2 support (@shyuep, @fraricci)
+
+v2018.9.12
+----------
+* Use boltztrap2 (@fraricci)
+* Refactoring of tensor code to core (@montoyjh)
+* Support for new Lobster version (@JaGeo)
+* Misc bug fixes
+
+v2018.8.10
+----------
+* Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.
+
+v2018.8.7
+---------
+* Massive refactoring of LAMMPS support. (@adengz)
+* Allow kwargs passthrough for Structure.to.
+* Updates to ABINIT support (@gmatteo)
+* GrainBoundaryTransformation class. (@Tinaatucsd)
+
+v2018.7.15
+----------
+* Grain boundary generator (Xiangguo Li @ucsdlxg)
+* Massive updates to defect code and new DefectTransformation  
+  (@shyamd)
+* Bug fix for OUTCAR parsing with more than one space in 
+  electrostatic potential. 
+* get_fermi_interextrapolated to support wider range of 
+  input doping (@albalu)
+* Update to cython compile to support Py3.7.
+* Update VoronoiNN cutoff dynamically (@computron)
+
+v2018.6.27
+----------
+* Improved local_env and MoleculeGraph (@WardLT, @espottesmith) 
+* Improve BabelMolAdaptor with conformer search and other functions (@Qi-Max)
+* Improved surface analysis (@richardtran415)
+
+v2018.6.11
+----------
+* Updates to ABINIT support for 8.1.3
+* Updates to Interface analyzer.
+* Fix bug in deserialization of ComputedStructureEntry.
+* Misc bug fixes.
+
+v2018.5.22
+----------
+* Misc bug fixes.
+
+v2018.5.21
+----------
+* Bug-fix for missing HHI data file.
+* Misc bug fixes.
+
+v2018.5.14
+----------
+* Dash docs now avaiable for pymatgen. See pymatgen.org "Offline docs" section
+  for details.
+* Better CrystalNN. (Anubhav Jain)
+* Fixes for elastic module. (Joseph Montoya)
+
+v2018.5.3
+---------
+* Improvements to qchem (@samblau).
+* Improvements to nwchem to support tddft input and parsing (@shyuep).
+* Improvements to CrystalNN (@computron).
+* Add methods for getting phonon BS, DOS, and DDB output (@dwinston).
+
+v2018.4.20
+----------
+* Neutron diffraciton calculator (Yuta)
+* Non-existent electronegativity (e.g., He and Ne) are now returned as NaN
+  instead of infinity.
+* CifParser now handles Elements that are in all caps, which is found in some
+  databases. (Gpretto)
+* Improvements to local_env (Anubhav Jain)
+* Improvements to Qchem ()
+* Inputs sets for NMR (Shyam)
+* New ChargeDensityAnalyzer class to find interstitial sites from charge density (Hanmei)
+
+v2018.4.6
+---------
+* Updated debye temperature formulation (Joey Montoya)
+* Add bandgap option for FermiDos for scissoring (Alireza Faghaninia)
+* Improved Pourbaix code (Joey Montoya)
+* Local env code improvements (Nils)
+
 v2018.3.22
 ----------
-* Bug fixes to phase diagram module, enumlib adaptor, local env analysis.
+* Bug fixes to structure, phase diagram module, enumlib adaptor, local env analysis.
 
 v2018.3.14
 ----------
@@ -12,7 +110,7 @@ v2018.3.14
 
 v2018.3.13
 ----------
-* Support for VESTA lattice vector definitions. 
+* Support for VESTA lattice vector definitions.
 * GaussianOutput read now bond_orders of a NBO calculations (@gVallverdu)
 * Bug fixes to phonons, abinit support.
 

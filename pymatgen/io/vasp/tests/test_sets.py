@@ -87,6 +87,11 @@ class MITMPRelaxSetTest(unittest.TestCase):
         self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
         self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
 
+        # Check that it works for disordered structure. Was a bug previously
+        s = Structure(lattice, ['Si4+', 'Fe2+', 'Si4+'], coords)
+        self.assertAlmostEqual(MITRelaxSet(s).nelect, 16)
+        self.assertAlmostEqual(MPRelaxSet(s).nelect, 22)
+
     def test_get_incar(self):
 
         incar = self.mpset.incar
@@ -223,9 +228,15 @@ class MITMPRelaxSetTest(unittest.TestCase):
                                  [1.9200989668, 3.3257101909, 0.00],
                                  [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords, charge=1)
-        mpr = MPRelaxSet(struct)
-        self.assertEqual(mpr.incar["NELECT"], mpr.nelect+1,
+        mpr = MPRelaxSet(struct, use_structure_charge=True)
+        self.assertEqual(mpr.incar["NELECT"], 7,
                          "NELECT not properly set for nonzero charge")
+
+        #test that NELECT does not get set when use_structure_charge = False
+        mpr = MPRelaxSet(struct, use_structure_charge=False)
+        self.assertFalse("NELECT" in mpr.incar.keys(),
+                         "NELECT should not be set when "
+                         "use_structure_charge is False")
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
@@ -602,6 +613,31 @@ class MPSOCSetTest(PymatgenTest):
         self.assertEqual(vis.incar['SIGMA'], 0.025)
 
 
+class MPNMRSetTest(PymatgenTest):
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+
+    def tearDown(self):
+        warnings.resetwarnings()
+
+    def test_incar(self):
+        filepath = os.path.join(test_dir, 'Li.cif')
+        structure = Structure.from_file(filepath)
+
+        vis = MPNMRSet(structure)
+        self.assertTrue(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), None)
+
+        vis = MPNMRSet(structure, mode="efg")
+        self.assertFalse(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), [-0.808])
+
+        vis = MPNMRSet(structure, mode="efg", isotopes=["Li-7"])
+        self.assertFalse(vis.incar.get("LCHIMAG", None))
+        self.assertEqual(vis.incar.get("QUAD_EFG", None), [-40.1])
+
+
 class MVLSlabSetTest(PymatgenTest):
     def setUp(self):
         if "PMG_VASP_PSP_DIR" not in os.environ:
@@ -652,8 +688,8 @@ class MVLSlabSetTest(PymatgenTest):
         # No volume relaxation during slab calculations
         self.assertEqual(incar_slab["ISIF"], 2)
         self.assertEqual(potcar_slab.functional, 'PBE')
-        self.assertEqual(potcar_slab.symbols[1], u'Li_sv')
-        self.assertEqual(potcar_slab.symbols[0], u'O')
+        self.assertEqual(potcar_slab.symbols[1], u'O')
+        self.assertEqual(potcar_slab.symbols[0], u'Li_sv')
         self.assertEqual(poscar_slab.structure.formula,
                          self.slab.formula)
         # Test auto-dipole

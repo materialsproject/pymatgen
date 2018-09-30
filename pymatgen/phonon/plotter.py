@@ -605,9 +605,9 @@ class ThermoPlotter(object):
         temperatures = np.linspace(tmin, tmax, ntemp)
 
         if self.structure:
-            ylabel = r"$\Delta E$ (kJ/K/mol)"
+            ylabel = r"$\Delta E$ (kJ/mol)"
         else:
-            ylabel = r"$\Delta E$ (kJ/K/mol-c)"
+            ylabel = r"$\Delta E$ (kJ/mol-c)"
 
         fig = self._plot_thermo(self.dos.internal_energy, temperatures, ylabel=ylabel, ylim=ylim,
                                 factor=1e-3, **kwargs)
@@ -631,9 +631,9 @@ class ThermoPlotter(object):
         temperatures = np.linspace(tmin, tmax, ntemp)
 
         if self.structure:
-            ylabel = r"$\Delta F$ (kJ/K/mol)"
+            ylabel = r"$\Delta F$ (kJ/mol)"
         else:
-            ylabel = r"$\Delta F$ (kJ/K/mol-c)"
+            ylabel = r"$\Delta F$ (kJ/mol-c)"
 
         fig = self._plot_thermo(self.dos.helmholtz_free_energy, temperatures, ylabel=ylabel, ylim=ylim,
                                 factor=1e-3, **kwargs)

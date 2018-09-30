@@ -6,14 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2018.3.23 documentation</title>
+    <title>pymatgen.io.vasp.outputs module &#8212; pymatgen 2018.9.12 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -79,7 +79,7 @@ etc. are ignored.</p>
 </table>
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.outputs.Chgcar.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Chgcar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Chgcar.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Chgcar.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -167,7 +167,7 @@ etc. are ignored.</p>
 </table>
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.outputs.Locpot.from_file">
-<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Locpot.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">from_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Locpot.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Locpot.from_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -233,7 +233,7 @@ as a tuple of list of energies, e.g.,
 <dl class="class">
 <dt id="pymatgen.io.vasp.outputs.Outcar">
 <em class="property">class </em><code class="descname">Outcar</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parser for data in OUTCAR that is not available in Vasprun.xml</p>
 <p>Note, this class works a bit differently than most of the other
 VaspObjects, since the OUTCAR can be very different depending on which
@@ -258,16 +258,15 @@ other value than the default.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pymatgen.io.vasp.outputs.Outcar.chemical_shifts">
-<code class="descname">chemical_shifts</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.chemical_shifts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Chemical Shift on each ion as a tuple of ChemicalShiftNotation, e.g.,
-(cs1, cs2, …)</p>
+<dt id="pymatgen.io.vasp.outputs.Outcar.chemical_shielding">
+<code class="descname">chemical_shielding</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.chemical_shielding" title="Permalink to this definition">¶</a></dt>
+<dd><p>chemical shielding on each ion as a dictionary with core and valence contributions</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Outcar.unsym_cs_tensor">
 <code class="descname">unsym_cs_tensor</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.unsym_cs_tensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unsymmetrized Chemical Shift tensor matrixes on each ion as a list.
+<dd><p>Unsymmetrized chemical shielding tensor matrixes on each ion as a list.
 e.g.,
 [[[sigma11, sigma12, sigma13],</p>
 <blockquote>
@@ -287,14 +286,14 @@ e.g.,
 <dt>
 <code class="descname">unsym_cs_tensor</code></dt>
 <dt>
-<code class="descname">G=0 contribution to chemical shift. 2D rank 3 matrix</code></dt>
+<code class="descname">G=0 contribution to chemical shielding. 2D rank 3 matrix</code></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.Outcar.cs_core_contribution">
 <code class="descname">cs_core_contribution</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.cs_core_contribution" title="Permalink to this definition">¶</a></dt>
 <dt>
-<code class="descname">Core contribution to chemical shift. dict. e.g.,</code></dt>
+<code class="descname">Core contribution to chemical shielding. dict. e.g.,</code></dt>
 <dt>
 <code class="descname">{'Mg': -412.8, 'C': -200.5, 'O': -271.1}</code></dt>
 <dd></dd></dl>
@@ -362,8 +361,7 @@ read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.as_dict">
 <code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.as_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>A JSON serializable dict representation of an object.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_avg_core_poten">
@@ -384,15 +382,15 @@ last ionic step is: [-1][1]</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pymatgen.io.vasp.outputs.Outcar.read_chemical_shifts">
-<code class="descname">read_chemical_shifts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_chemical_shifts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_chemical_shifts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the NMR chemical shifts data. Only the second part “absolute, valence and core”
-will be parsed. And only the three right most field (ISO_SHIFT, SPAN, SKEW) will be retrieved.</p>
+<dt id="pymatgen.io.vasp.outputs.Outcar.read_chemical_shielding">
+<code class="descname">read_chemical_shielding</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_chemical_shielding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_chemical_shielding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the NMR chemical shieldings data. Only the second part “absolute, valence and core”
+will be parsed. And only the three right most field (ISO_SHIELDING, SPAN, SKEW) will be retrieved.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of chemical shifts in the order of atoms from the OUTCAR. Maryland notation is adopted.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of chemical shieldings in the order of atoms from the OUTCAR. Maryland notation is adopted.</td>
 </tr>
 </tbody>
 </table>
@@ -427,7 +425,7 @@ structure at the last ionic step is [5][“2s”][-1]</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_cs_core_contribution">
 <code class="descname">read_cs_core_contribution</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_cs_core_contribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_cs_core_contribution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the core contribution of NMR chemical shift.</p>
+<dd><p>Parse the core contribution of NMR chemical shielding.</p>
 <p>Returns:
 G0 contribution matrix as list of list.</p>
 </dd></dl>
@@ -435,7 +433,7 @@ G0 contribution matrix as list of list.</p>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_cs_g0_contribution">
 <code class="descname">read_cs_g0_contribution</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_cs_g0_contribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_cs_g0_contribution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the  G0 contribution of NMR chemical shift.</p>
+<dd><p>Parse the  G0 contribution of NMR chemical shielding.</p>
 <p>Returns:
 G0 contribution matrix as list of list.</p>
 </dd></dl>
@@ -512,6 +510,15 @@ what these are).</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Outcar.read_internal_strain_tensor">
+<code class="descname">read_internal_strain_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_internal_strain_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_internal_strain_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Reads the internal strain tensor and populates self.internal_strain_tensor with an array of voigt notation</dt>
+<dd>tensors for each site.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_lcalcpol">
 <code class="descname">read_lcalcpol</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_lcalcpol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_lcalcpol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -560,7 +567,7 @@ These can be accessed under Outcar.data[key]</dd>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_nmr_efg">
 <code class="descname">read_nmr_efg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_nmr_efg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_nmr_efg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the NMR Electric Field Gradient tensors.</p>
+<dd><p>Parse the NMR Electric Field Gradient interpretted values.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -573,8 +580,22 @@ Each dict key/value pair corresponds to a component of the tensors.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pymatgen.io.vasp.outputs.Outcar.read_nmr_efg_tensor">
+<code class="descname">read_nmr_efg_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_nmr_efg_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_nmr_efg_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses the NMR Electric Field Gradient Raw Tensors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of Electric Field Gradient Tensors in the order of Atoms from OUTCAR</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_pattern">
-<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_pattern</code><span class="sig-paren">(</span><em>patterns</em>, <em>reverse=False</em>, <em>terminate_on_match=False</em>, <em>postprocess=&lt;type 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><p>General pattern reading. Uses monty’s regrep method. Takes the same
 arguments.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -620,7 +641,7 @@ are lists of lists, because you can grep multiple items on one line.</dd>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Outcar.read_table_pattern">
-<code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;class 'str'&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_table_pattern" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_table_pattern</code><span class="sig-paren">(</span><em>header_pattern</em>, <em>row_pattern</em>, <em>footer_pattern</em>, <em>postprocess=&lt;type 'str'&gt;</em>, <em>attribute_name=None</em>, <em>last_one_only=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Outcar.read_table_pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Outcar.read_table_pattern" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Parse table-like data. A table composes of three parts: header,
 main body, footer. All the data matches “row pattern” in the main body
@@ -777,14 +798,14 @@ of that orbital is returned.</li>
 <dl class="exception">
 <dt id="pymatgen.io.vasp.outputs.UnconvergedVASPWarning">
 <em class="property">exception </em><code class="descname">UnconvergedVASPWarning</code><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#UnconvergedVASPWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.UnconvergedVASPWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Warning</span></code></p>
 <p>Warning for unconverged vasp run.</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pymatgen.io.vasp.outputs.VaspParserError">
 <em class="property">exception </em><code class="descname">VaspParserError</code><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VaspParserError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VaspParserError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
 <p>Exception class for VASP parsing.</p>
 </dd></dl>
 
@@ -1377,7 +1398,7 @@ linear sum.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.parse_file">
-<em class="property">static </em><code class="descname">parse_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.parse_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.parse_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">parse_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#VolumetricData.parse_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.parse_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience method to parse a generic volumetric data file in the vasp
 like format. Used by subclasses for parsing file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1395,10 +1416,18 @@ like format. Used by subclasses for parsing file.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.vasp.outputs.VolumetricData.spin_data">
 <code class="descname">spin_data</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.VolumetricData.spin_data" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>The data decomposed into actual spin data as {spin</em> – data}.
+<dd><p>data}.
 Essentially, this provides the actual Spin.up and Spin.down data
 instead of the total and diff.  Note that by definition, a
 non-spin-polarized run would have Spin.up data == Spin.down data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">The data decomposed into actual spin data as {spin</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1449,9 +1478,8 @@ f[“lattice”]: Lattice in the pymatgen.core.lattice.Lattice matrix</p>
 
 <dl class="class">
 <dt id="pymatgen.io.vasp.outputs.Wavecar">
-<em class="property">class </em><code class="descname">Wavecar</code><span class="sig-paren">(</span><em>filename='WAVECAR'</em>, <em>verbose=False</em>, <em>precision='normal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This is a class that contains the (pseudo-) wavefunctions from VASP.</p>
+<em class="property">class </em><code class="descname">Wavecar</code><span class="sig-paren">(</span><em>filename=u'WAVECAR'</em>, <em>verbose=False</em>, <em>precision=u'normal'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a class that contains the (pseudo-) wavefunctions from VASP.</p>
 <p>Coefficients are read from the given WAVECAR file and the corresponding
 G-vectors are generated using the algorithm developed in WaveTrans (see
 acknowledgments below). To understand how the wavefunctions are evaluated,
@@ -1542,9 +1570,10 @@ G_n = n_1*b_1 + n_2*b_2 + n_3*b_3)</p>
 <dt id="pymatgen.io.vasp.outputs.Wavecar.coeffs">
 <code class="descname">coeffs</code><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.coeffs" title="Permalink to this definition">¶</a></dt>
 <dd><p>The list of coefficients for each k-point and band for reconstructing
-the wavefunction. The first index corresponds to the kpoint and the
-second corresponds to the band (e.g. self.coeffs[kp][b] corresponds
-to k-point kp and band b).</p>
+the wavefunction. For non-spin-polarized, the first index corresponds
+to the kpoint and the second corresponds to the band (e.g.
+self.coeffs[kp][b] corresponds to k-point kp and band b). For
+spin-polarized calculations, the first index is for the spin.</p>
 </dd></dl>
 
 <dl class="docutils">
@@ -1572,7 +1601,7 @@ accurate), only the first letter matters</li>
 </table>
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc">
-<code class="descname">evaluate_wavefunc</code><span class="sig-paren">(</span><em>kpoint</em>, <em>band</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.evaluate_wavefunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc" title="Permalink to this definition">¶</a></dt>
+<code class="descname">evaluate_wavefunc</code><span class="sig-paren">(</span><em>kpoint</em>, <em>band</em>, <em>r</em>, <em>spin=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.evaluate_wavefunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.evaluate_wavefunc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates the wavefunction for a given position, r.</p>
 <p>The wavefunction is given by the k-point and band. It is evaluated
 at the given position by summing over the components. Formally,</p>
@@ -1593,6 +1622,8 @@ will be evaluated</li>
 <li><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
 evaluated</li>
 <li><strong>r</strong> (<em>np.array</em>) – the position where the wavefunction will be evaluated</li>
+<li><strong>spin</strong> (<em>int</em>) – spin index for the desired wavefunction (only for
+ISPIN = 2, default = 0)</li>
 </ul>
 </td>
 </tr>
@@ -1605,12 +1636,12 @@ evaluated</li>
 
 <dl class="method">
 <dt id="pymatgen.io.vasp.outputs.Wavecar.fft_mesh">
-<code class="descname">fft_mesh</code><span class="sig-paren">(</span><em>kpoint</em>, <em>band</em>, <em>shift=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.fft_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.fft_mesh" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fft_mesh</code><span class="sig-paren">(</span><em>kpoint</em>, <em>band</em>, <em>spin=0</em>, <em>shift=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/vasp/outputs.html#Wavecar.fft_mesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vasp.outputs.Wavecar.fft_mesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Places the coefficients of a wavefunction onto an fft mesh.</p>
 <p>Once the mesh has been obtained, a discrete fourier transform can be
 used to obtain real-space evaluation of the wavefunction. The output
 of this function can be passed directly to numpy’s fft function. For
-.. rubric:: example</p>
+.. rubric:: Example</p>
 <p>mesh = Wavecar().fft_mesh(kpoint, band)
 evals = np.fft.fft(mesh)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1622,6 +1653,8 @@ evals = np.fft.fft(mesh)</p>
 will be evaluated</li>
 <li><strong>band</strong> (<em>int</em>) – the index of the band where the wavefunction will be
 evaluated</li>
+<li><strong>spin</strong> (<em>int</em>) – the spin of the wavefunction for the desired
+wavefunction (only for ISPIN = 2, default = 0)</li>
 <li><strong>shift</strong> (<em>bool</em>) – determines if the zero frequency coefficient is
 placed at index (0, 0, 0) or centered</li>
 </ul>
@@ -1913,13 +1946,13 @@ any. Note that this is sometimes very large</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.3.23 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.12 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

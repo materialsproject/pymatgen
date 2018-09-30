@@ -6,14 +6,14 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.3.23 documentation</title>
+    <title>pymatgen.io.abinit.works &#8212; pymatgen 2018.9.12 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -73,7 +73,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="k">import</span> <span class="n">EnergyArray</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">wrappers</span>
 <span class="kn">from</span> <span class="nn">.nodes</span> <span class="k">import</span> <span class="n">Dependency</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">NodeError</span><span class="p">,</span> <span class="n">NodeResults</span><span class="p">,</span> <span class="n">check_spectator</span>
-<span class="kn">from</span> <span class="nn">.tasks</span> <span class="k">import</span> <span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">AbinitTask</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">,</span> <span class="n">NscfTask</span><span class="p">,</span> <span class="n">DfptTask</span><span class="p">,</span> <span class="n">PhononTask</span><span class="p">,</span> <span class="n">DdkTask</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">.tasks</span> <span class="k">import</span> <span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">AbinitTask</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">,</span> <span class="n">NscfTask</span><span class="p">,</span> <span class="n">DfptTask</span><span class="p">,</span> <span class="n">PhononTask</span><span class="p">,</span> <span class="n">ElasticTask</span><span class="p">,</span> <span class="n">DdkTask</span><span class="p">,</span>
                     <span class="n">BseTask</span><span class="p">,</span> <span class="n">RelaxTask</span><span class="p">,</span> <span class="n">DdeTask</span><span class="p">,</span> <span class="n">BecTask</span><span class="p">,</span> <span class="n">ScrTask</span><span class="p">,</span> <span class="n">SigmaTask</span><span class="p">,</span>
                     <span class="n">DteTask</span><span class="p">,</span> <span class="n">EphTask</span><span class="p">,</span> <span class="n">CollinearThenNonCollinearScfTask</span><span class="p">)</span>
 
@@ -99,6 +99,8 @@
     <span class="s2">&quot;SigmaConvWork&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BseMdfWork&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PhononWork&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BecWork&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DteWork&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -442,6 +444,11 @@
     <span class="k">def</span> <span class="nf">register_phonon_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Register a phonon task.&quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task_class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PhononTask</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">register_elastic_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Register an elastic task.&quot;&quot;&quot;</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;task_class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ElasticTask</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_task</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">register_ddk_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1320,17 +1327,37 @@
 <span class="k">class</span> <span class="nc">MergeDdb</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Mixin class for Works that have to merge the DDB files produced by the tasks.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">merge_ddb_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">merge_ddb_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete_source_ddbs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">only_dfpt_tasks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">exclude_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_tasks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called when all the q-points have been computed.</span>
 <span class="sd">        It runs `mrgddb` in sequential on the local machine to produce</span>
 <span class="sd">        the final DDB file in the outdir of the `Work`.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            delete_source_ddbs: True if input DDB should be removed once final DDB is created.</span>
+<span class="sd">            only_dfpt_tasks: False to merge all DDB files produced by the tasks of the work</span>
+<span class="sd">                Useful e.g. for finite stress corrections in which the stress in the</span>
+<span class="sd">                initial configuration should be merged in the final DDB.</span>
+<span class="sd">            exclude_tasks: List of tasks that should be excluded when merging the partial DDB files.</span>
+<span class="sd">            include_tasks: List of tasks that should be included when merging the partial DDB files.</span>
+<span class="sd">                Mutually exclusive with exclude_tasks.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            path to the output DDB file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ddb_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span> \
+        <span class="k">if</span> <span class="n">exclude_tasks</span><span class="p">:</span>
+            <span class="n">my_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_tasks</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">include_tasks</span><span class="p">:</span>
+            <span class="n">my_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">include_tasks</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">my_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">only_dfpt_tasks</span><span class="p">:</span>
+            <span class="n">ddb_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">my_tasks</span> \
                                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">DfptTask</span><span class="p">)]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ddb_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">my_tasks</span><span class="p">]))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Will call mrgddb to merge </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ddb_files</span><span class="p">))</span>
         <span class="c1"># DDB files are always produces so this should never happen!</span>
@@ -1347,15 +1374,16 @@
             <span class="c1"># Call mrgddb</span>
             <span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;DDB file merged by </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">())</span>
             <span class="n">mrgddb</span> <span class="o">=</span> <span class="n">wrappers</span><span class="o">.</span><span class="n">Mrgddb</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">manager</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">mrgddb</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ddb_files</span><span class="p">,</span> <span class="n">out_ddb</span><span class="o">=</span><span class="n">out_ddb</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
+            <span class="n">mrgddb</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ddb_files</span><span class="p">,</span> <span class="n">out_ddb</span><span class="o">=</span><span class="n">out_ddb</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span>
+                         <span class="n">delete_source_ddbs</span><span class="o">=</span><span class="n">delete_source_ddbs</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_ddb</span>
 
 
 <div class="viewcode-block" id="PhononWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.PhononWork">[docs]</a><span class="k">class</span> <span class="nc">PhononWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This work usually consists of one GS + nirred Phonon tasks where nirred is</span>
-<span class="sd">    the number of irreducible perturbations for a given q-point.</span>
+<span class="sd">    This work consists of nirred Phonon tasks where nirred is</span>
+<span class="sd">    the number of irreducible atomic perturbations for a given set of q-points.</span>
 <span class="sd">    It provides the callback method (on_all_ok) that calls mrgddb (mrgdv) to merge</span>
 <span class="sd">    all the partial DDB (POT) files produced. The two files are available in the</span>
 <span class="sd">    output directory of the Work.</span>
@@ -1367,6 +1395,7 @@
 <span class="sd">        Construct a `PhononWork` from a :class:`ScfTask` object.</span>
 <span class="sd">        The input file for phonons is automatically generated from the input of the ScfTask.</span>
 <span class="sd">        Each phonon task depends on the WFK file produced by scf_task.</span>
+
 
 <span class="sd">        Args:</span>
 <span class="sd">            scf_task: ScfTask object.</span>
@@ -1397,8 +1426,7 @@
     <span class="k">def</span> <span class="nf">from_scf_input</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_input</span><span class="p">,</span> <span class="n">qpoints</span><span class="p">,</span> <span class="n">is_ngqpt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manager</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to `from_scf_task`, the difference is that this method requires</span>
-<span class="sd">        an input for SCF calculation instead of a ScfTask. All the tasks (Scf + Phonon)</span>
-<span class="sd">        are packed in a single Work whereas in the previous case we usually have multiple works.</span>
+<span class="sd">        an input for SCF calculation. A new ScfTask is created and added to the Work.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">is_ngqpt</span><span class="p">:</span>
             <span class="n">qpoints</span> <span class="o">=</span> <span class="n">scf_input</span><span class="o">.</span><span class="n">abiget_ibz</span><span class="p">(</span><span class="n">ngkpt</span><span class="o">=</span><span class="n">qpoints</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kptopt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">points</span>
@@ -1406,6 +1434,7 @@
         <span class="n">qpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpoints</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
         <span class="n">new</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">manager</span><span class="o">=</span><span class="n">manager</span><span class="p">)</span>
+        <span class="c1"># Create ScfTask</span>
         <span class="n">scf_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_scf_task</span><span class="p">(</span><span class="n">scf_input</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">qpt</span> <span class="ow">in</span> <span class="n">qpoints</span><span class="p">:</span>
             <span class="n">multi</span> <span class="o">=</span> <span class="n">scf_task</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">make_ph_inputs_qpoint</span><span class="p">(</span><span class="n">qpt</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">)</span>
@@ -1464,7 +1493,7 @@
         <span class="k">return</span> <span class="n">results</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">BecWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
+<div class="viewcode-block" id="BecWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BecWork">[docs]</a><span class="k">class</span> <span class="nc">BecWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Work for the computation of the Born effective charges.</span>
 
@@ -1472,7 +1501,7 @@
 <span class="sd">    It provides the callback method (on_all_ok) that calls mrgddb to merge the</span>
 <span class="sd">    partial DDB files produced by the work.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BecWork.from_scf_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BecWork.from_scf_task">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">ddk_tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build a BecWork from a ground-state task.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scf_task</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">):</span>
@@ -1497,9 +1526,9 @@
         <span class="k">for</span> <span class="n">bec_inp</span> <span class="ow">in</span> <span class="n">bec_inputs</span><span class="p">:</span>
              <span class="n">new</span><span class="o">.</span><span class="n">register_bec_task</span><span class="p">(</span><span class="n">bec_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">bec_deps</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">new</span>
+        <span class="k">return</span> <span class="n">new</span></div>
 
-    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BecWork.on_all_ok"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.BecWork.on_all_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called when all the task reach S_OK</span>
 <span class="sd">        Ir runs `mrgddb` in sequential on the local machine to produce</span>
@@ -1510,17 +1539,17 @@
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;DDB merge done&quot;</span><span class="p">)</span>
         <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="n">out_ddb</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">results</span>
+        <span class="k">return</span> <span class="n">results</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">DteWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
+<div class="viewcode-block" id="DteWork"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.DteWork">[docs]</a><span class="k">class</span> <span class="nc">DteWork</span><span class="p">(</span><span class="n">Work</span><span class="p">,</span> <span class="n">MergeDdb</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Work for the computation of the third derivative of the energy.</span>
 
 <span class="sd">    This work consists of DDK tasks and electric field perturbation.</span>
 <span class="sd">    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DteWork.from_scf_task"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.DteWork.from_scf_task">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_scf_task</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scf_task</span><span class="p">,</span> <span class="n">ddk_tolerance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build a DteWork from a ground-state task.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scf_task</span><span class="p">,</span> <span class="n">ScfTask</span><span class="p">):</span>
@@ -1550,7 +1579,7 @@
             <span class="n">dde_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_dde_task</span><span class="p">(</span><span class="n">dde_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">dde_deps</span><span class="p">)</span>
             <span class="n">dde_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dde_task</span><span class="p">)</span>
 
-        <span class="c1">#DTE calculations</span>
+        <span class="c1"># DTE calculations</span>
         <span class="n">dte_deps</span> <span class="o">=</span> <span class="p">{</span><span class="n">scf_task</span><span class="p">:</span> <span class="s2">&quot;WFK DEN&quot;</span><span class="p">}</span>
         <span class="n">dte_deps</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">dde_task</span><span class="p">:</span> <span class="s2">&quot;1WF 1DEN&quot;</span> <span class="k">for</span> <span class="n">dde_task</span> <span class="ow">in</span> <span class="n">dde_tasks</span><span class="p">})</span>
 
@@ -1560,9 +1589,9 @@
              <span class="n">dte_task</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">register_dte_task</span><span class="p">(</span><span class="n">dte_inp</span><span class="p">,</span> <span class="n">deps</span><span class="o">=</span><span class="n">dte_deps</span><span class="p">)</span>
              <span class="n">dte_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dte_task</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">new</span>
+        <span class="k">return</span> <span class="n">new</span></div>
 
-    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DteWork.on_all_ok"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.works.html#pymatgen.io.abinit.works.DteWork.on_all_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_all_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method is called when all the task reach S_OK</span>
 <span class="sd">        Ir runs `mrgddb` in sequential on the local machine to produce</span>
@@ -1574,7 +1603,7 @@
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Results</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;DDB merge done&quot;</span><span class="p">)</span>
         <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="n">out_ddb</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">results</span>
+        <span class="k">return</span> <span class="n">results</span></div></div>
 </pre></div>
 
           </div>
@@ -1607,7 +1636,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.3.23 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.12 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -1615,7 +1644,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.0.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

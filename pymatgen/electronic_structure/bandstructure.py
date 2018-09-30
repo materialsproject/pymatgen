@@ -205,6 +205,7 @@ class BandStructure(object):
         self.labels_dict = {}
         self.structure = structure
         self.projections = projections or {}
+        self.projections = {k: np.array(v) for k, v in self.projections.items()}
 
         if labels_dict is None:
             labels_dict = {}
@@ -573,7 +574,7 @@ class BandStructure(object):
         d['projections'] = {}
         if len(self.projections) != 0:
             d['structure'] = self.structure.as_dict()
-            d['projections'] = {str(int(spin)): v.tolist()
+            d['projections'] = {str(int(spin)): np.array(v).tolist()
                                 for spin, v in self.projections.items()}
         return d
 
@@ -879,7 +880,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 'fcoords']
         if len(self.projections) != 0:
             d['structure'] = self.structure.as_dict()
-            d['projections'] = {str(int(spin)): v.tolist()
+            d['projections'] = {str(int(spin)): np.array(v).tolist()
                                 for spin, v in self.projections.items()}
         return d
 

@@ -357,15 +357,24 @@ class LatticeTestCase(PymatgenTest):
 
     def test_get_points_in_sphere(self):
         # This is a non-niggli representation of a cubic lattice
-        latt = Lattice([[1,5,0],[0,1,0],[5,0,1]])
+        latt = Lattice([[1, 5, 0], [0, 1, 0], [5, 0, 1]])
         # evenly spaced points array between 0 and 1
         pts = np.array(list(itertools.product(range(5), repeat=3))) / 5
         pts = latt.get_fractional_coords(pts)
 
-        self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0, 0, 0], 0.20001)), 7)
-        self.assertEqual(len(latt.get_points_in_sphere(
-            pts, [0.5, 0.5, 0.5], 1.0001)), 552)
+        # Test getting neighbors within 1 neighbor distance of the origin
+        fcoords, dists, inds, images = latt.get_points_in_sphere(pts, [0, 0, 0], 0.20001,
+                                                                 zip_results=False)
+        self.assertEqual(len(fcoords), 7)  # There are 7 neighbors
+        self.assertEqual(np.isclose(dists, 0.2).sum(), 6)  # 6 are at 0.2
+        self.assertEqual(np.isclose(dists, 0).sum(), 1)  # 1 is at 0
+        self.assertEqual(len(set(inds)), 7)  # They have unique indices
+        self.assertArrayEqual(images[np.isclose(dists, 0)], [[0, 0, 0]])
+
+        # More complicated case, using the zip output
+        result = latt.get_points_in_sphere(pts, [0.5, 0.5, 0.5], 1.0001)
+        self.assertEqual(len(result), 552)
+        self.assertEqual(len(result[0]), 4)  # coords, dists, ind, supercell
 
     def test_get_all_distances(self):
         fcoords = np.array([[0.3, 0.3, 0.5],

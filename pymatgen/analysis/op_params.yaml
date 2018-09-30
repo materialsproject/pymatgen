@@ -287,3 +287,24 @@ hex_plan_max:
   IGW_TA:
     25
   TA: 0.16666667
+sq_face_cap_trig_pris:
+  TA1:
+    0.37662414278557504
+  TA2:
+    0.7728144741714951
+  TA3:
+    1.8055339573923717
+  IGW_TA1:
+    15.5
+  IGW_TA2:
+    13
+  fac_AA1:
+    2
+  exp_cos_AA1:
+    2
+  fac_AA2:
+    1
+  shift_AA2:
+    -0.7853981633974483
+  exp_cos_AA2:
+    2
