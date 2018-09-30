@@ -397,6 +397,30 @@ from    to  to_image
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
         self.assertEqual(len(molecules), 0)
 
+    def test_types_and_weights_of_connections(self):
+
+        types = self.mos2_sg.types_and_weights_of_connections
+
+        self.assertEqual(len(types['Mo-S']), 6)
+        self.assertAlmostEqual(types['Mo-S'][0], 2.416931678417331)
+
+    def test_weight_statistics(self):
+
+        weight_statistics = self.mos2_sg.weight_statistics
+
+        self.assertEqual(len(weight_statistics['all_weights']), 6)
+        self.assertAlmostEqual(weight_statistics['min'], 2.4169314100201875)
+        self.assertAlmostEqual(weight_statistics['variance'], 0)
+
+    def test_types_of_coordination_environments(self):
+
+        types = self.mos2_sg.types_of_coordination_environments()
+        self.assertListEqual(types, ['Mo-S(6)', 'S-Mo(3)'])
+
+        types_anonymous = self.mos2_sg.types_of_coordination_environments(anonymous=True)
+        self.assertListEqual(types_anonymous, ['A-B(3)', 'A-B(6)'])
+
+
 
 class MoleculeGraphTest(unittest.TestCase):
 
