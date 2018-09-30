@@ -800,6 +800,9 @@ class StructureGraph(MSONable):
     @property
     def types_and_weights_of_connections(self):
         """
+        Extract a dictionary summarizing the types and weights
+        of edges in the graph.
+
         :return: A dictionary with keys specifying the
         species involved in a connection in alphabetical order
         (e.g. string 'Fe-O') and values which are a list of
@@ -820,6 +823,9 @@ class StructureGraph(MSONable):
     @property
     def weight_statistics(self):
         """
+        Extract a statistical summary of edge weights present in
+        the graph.
+
         :return: A dict with an 'all_weights' list, 'minimum',
         'maximum', 'median', 'mean', 'std_dev'
         """
@@ -838,9 +844,13 @@ class StructureGraph(MSONable):
 
     def types_of_coordination_environments(self, anonymous=False):
         """
+        Extract information on the different co-ordination environments
+        present in the graph.
+
         :param anonymous: if anonymous, will replace specie names
         with A, B, C, etc.
-        :return: e.g. Fe-O6, Fe-F2,O6
+        :return: a list of co-ordination environments,
+        e.g. ['Mo-S(6)', 'S-Mo(3)']
         """
 
         motifs = set()
