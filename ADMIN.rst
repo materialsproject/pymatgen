@@ -69,6 +69,8 @@ machine-specific:
   macOS 10.13.
 * It can be useful to `pip install --upgrade pip twine setuptools` (this may 
   be necessary if there are authentication errors when connecting to PyPI).
+* You may have to `brew install hdf5 netcdf` or similar to be able to pip
+  install the optional requirement `netCDF4`.
 
 Doing the release
 -----------------
