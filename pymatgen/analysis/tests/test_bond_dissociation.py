@@ -49,16 +49,19 @@ class BondDissociationTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_tfsi_neg_no_pcm(self):
         BDE = BondDissociationEnergies(self.neg_TFSI_principle, self.neg_TFSI_fragments)
         self.assertEqual(len(BDE.filtered_entries),16)
         self.assertEqual(BDE.bond_dissociation_energies,self.TFSI_correct)
 
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_pc_neutral_pcm_65(self):
         BDE = BondDissociationEnergies(self.PC_65_principle, self.PC_65_fragments)
         self.assertEqual(len(BDE.filtered_entries),36)
         self.assertEqual(BDE.bond_dissociation_energies,self.PC_correct)
 
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
     def test_ec_neg_pcm_40(self):
         BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
         self.assertEqual(len(BDE.filtered_entries),18)
