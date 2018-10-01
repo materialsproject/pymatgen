@@ -19,9 +19,10 @@ from pymatgen.vis.structure_vtk import EL_COLORS
 from monty.json import MSONable
 from monty.os.path import which
 from operator import itemgetter
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from scipy.spatial import KDTree
-
+from scipy.stats import describe
+from itertools import chain
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -801,6 +802,94 @@ class StructureGraph(MSONable):
 
         if not keep_dot:
             os.remove(basename+".dot")
+
+    @property
+    def types_and_weights_of_connections(self):
+        """
+        Extract a dictionary summarizing the types and weights
+        of edges in the graph.
+
+        :return: A dictionary with keys specifying the
+        species involved in a connection in alphabetical order
+        (e.g. string 'Fe-O') and values which are a list of
+        weights for those connections (e.g. bond lengths).
+        """
+        def get_label(u, v):
+            u_label = self.structure[u].species_string
+            v_label = self.structure[v].species_string
+            return "-".join(sorted((u_label, v_label)))
+
+        types = defaultdict(list)
+        for u, v, d in self.graph.edges(data=True):
+            label = get_label(u, v)
+            types[label].append(d['weight'])
+
+        return dict(types)
+
+    @property
+    def weight_statistics(self):
+        """
+        Extract a statistical summary of edge weights present in
+        the graph.
+
+        :return: A dict with an 'all_weights' list, 'minimum',
+        'maximum', 'median', 'mean', 'std_dev'
+        """
+
+        all_weights = [d.get('weight', None) for u, v, d
+                       in self.graph.edges(data=True)]
+        stats = describe(all_weights, nan_policy='omit')
+
+        return {
+            'all_weights': all_weights,
+            'min': stats.minmax[0],
+            'max': stats.minmax[1],
+            'mean': stats.mean,
+            'variance': stats.variance
+        }
+
+    def types_of_coordination_environments(self, anonymous=False):
+        """
+        Extract information on the different co-ordination environments
+        present in the graph.
+
+        :param anonymous: if anonymous, will replace specie names
+        with A, B, C, etc.
+        :return: a list of co-ordination environments,
+        e.g. ['Mo-S(6)', 'S-Mo(3)']
+        """
+
+        motifs = set()
+        for idx, site in enumerate(self.structure):
+
+            centre_sp = site.species_string
+
+            connected_sites = self.get_connected_sites(idx)
+            connected_species = [connected_site.site.species_string
+                                 for connected_site in connected_sites]
+
+            labels = []
+            for sp in set(connected_species):
+                count = connected_species.count(sp)
+                labels.append((count, sp))
+
+            labels = sorted(labels, reverse=True)
+
+            if anonymous:
+                mapping = {centre_sp: 'A'}
+                available_letters = [chr(66+i) for i in range(25)]
+                for label in labels:
+                    sp = label[1]
+                    if sp not in mapping:
+                        mapping[sp] = available_letters.pop(0)
+                centre_sp = 'A'
+                labels = [(label[0], mapping[label[1]]) for label in labels]
+
+            labels = ["{}({})".format(label[1], label[0]) for label in labels]
+            motif = '{}-{}'.format(centre_sp, ','.join(labels))
+            motifs.add(motif)
+
+        return sorted(list(motifs))
 
     def as_dict(self):
         """
