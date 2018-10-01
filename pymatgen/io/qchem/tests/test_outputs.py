@@ -61,7 +61,17 @@ property_list = {"errors",
                  "g_cavitation",
                  "g_dispersion",
                  "g_repulsion",
-                 "total_contribution_pcm"}
+                 "total_contribution_pcm",
+                 "ZPE",
+                 "trans_enthalpy",
+                 "vib_enthalpy",
+                 "rot_enthalpy",
+                 "gas_constant",
+                 "trans_entropy",
+                 "vib_entropy",
+                 "rot_entropy",
+                 "total_entropy",
+                 "total_enthalpy"}
 
 if have_babel:
     property_list.add("structure_change")

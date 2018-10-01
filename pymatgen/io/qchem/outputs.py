@@ -489,21 +489,85 @@ class QCOutput(MSONable):
                 r"\s*IR Intens:\s+([\d\-\.]+)(?:\s+([\d\-\.]+)(?:\s+([\d\-\.]+))*)*",
                 "IR_active":
                 r"\s*IR Active:\s+([YESNO]+)(?:\s+([YESNO]+)(?:\s+([YESNO]+))*)*",
-                "enthalpy":
+                "ZPE":
+                r"\s*Zero point vibrational energy:\s+([\d\-\.]+)\s+kcal/mol",
+                "trans_enthalpy":
+                r"\s*Translational Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
+                "rot_enthalpy":
+                r"\s*Rotational Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
+                "vib_enthalpy":
+                r"\s*Vibrational Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
+                "gas_constant":
+                r"\s*gas constant \(RT\):\s+([\d\-\.]+)\s+kcal/mol",
+                "trans_entropy":
+                r"\s*Translational Entropy:\s+([\d\-\.]+)\s+cal/mol\.K",
+                "rot_entropy":
+                r"\s*Rotational Entropy:\s+([\d\-\.]+)\s+cal/mol\.K",
+                "vib_entropy":
+                r"\s*Vibrational Entropy:\s+([\d\-\.]+)\s+cal/mol\.K",
+                "total_enthalpy":
                 r"\s*Total Enthalpy:\s+([\d\-\.]+)\s+kcal/mol",
-                "entropy":
+                "total_entropy":
                 r"\s*Total Entropy:\s+([\d\-\.]+)\s+cal/mol\.K"
             })
 
-        if temp_dict.get('enthalpy') == None:
-            self.data['enthalpy'] = None
-        else:
-            self.data['enthalpy'] = float(temp_dict.get('enthalpy')[0][0])
+        keys = ["ZPE", "trans_enthalpy", "rot_enthalpy", "vib_enthalpy", "gas_constant", "trans_entropy", "rot_entropy", "vib_entropy", "total_enthalpy", "total_entropy"]
 
-        if temp_dict.get('entropy') == None:
-            self.data['entropy'] = None
-        else:
-            self.data['entropy'] = float(temp_dict.get('entropy')[0][0])
+        for key in keys:
+            if temp_dict.get(key) == None:
+                self.data[key] = None
+            else:
+                self.data[key] = float(temp_dict.get(key)[0][0])
+
+        # if temp_dict.get('ZPE') == None:
+        #     self.data['ZPE'] = None
+        # else:
+        #     self.data['ZPE'] = float(temp_dict.get('ZPE')[0][0])
+
+        # if temp_dict.get('trans_enthalpy') == None:
+        #     self.data['trans_enthalpy'] = None
+        # else:
+        #     self.data['trans_enthalpy'] = float(temp_dict.get('trans_enthalpy')[0][0])
+
+        # if temp_dict.get('rot_enthalpy') == None:
+        #     self.data['rot_enthalpy'] = None
+        # else:
+        #     self.data['rot_enthalpy'] = float(temp_dict.get('rot_enthalpy')[0][0])
+
+        # if temp_dict.get('vib_enthalpy') == None:
+        #     self.data['vib_enthalpy'] = None
+        # else:
+        #     self.data['vib_enthalpy'] = float(temp_dict.get('vib_enthalpy')[0][0])
+
+        # if temp_dict.get('gas_constant') == None:
+        #     self.data['gas_constant'] = None
+        # else:
+        #     self.data['gas_constant'] = float(temp_dict.get('gas_constant')[0][0])
+
+        # if temp_dict.get('trans_entropy') == None:
+        #     self.data['trans_entropy'] = None
+        # else:
+        #     self.data['trans_entropy'] = float(temp_dict.get('trans_entropy')[0][0])
+
+        # if temp_dict.get('rot_entropy') == None:
+        #     self.data['rot_entropy'] = None
+        # else:
+        #     self.data['rot_entropy'] = float(temp_dict.get('rot_entropy')[0][0])
+
+        # if temp_dict.get('vib_entropy') == None:
+        #     self.data['vib_entropy'] = None
+        # else:
+        #     self.data['vib_entropy'] = float(temp_dict.get('vib_entropy')[0][0])
+
+        # if temp_dict.get('total_enthalpy') == None:
+        #     self.data['total_enthalpy'] = None
+        # else:
+        #     self.data['total_enthalpy'] = float(temp_dict.get('total_enthalpy')[0][0])
+
+        # if temp_dict.get('total_entropy') == None:
+        #     self.data['total_entropy'] = None
+        # else:
+        #     self.data['total_entropy'] = float(temp_dict.get('total_entropy')[0][0])
 
         if temp_dict.get('frequencies') == None:
             self.data['frequencies'] = None
