@@ -121,6 +121,10 @@ class QChemDictSet(QCInput):
                     temp_solvent = lower_and_check_unique(sec_dict)
                     for k, v in temp_solvent.items():
                         mysolvent[k] = v
+                if sec == "smx":
+                    temp_smx = lower_and_check_unique(sec_dict)
+                    for k, v in temp_smx.items():
+                        mysmx[k] = v
 
         super(QChemDictSet, self).__init__(
             self.molecule, rem=myrem, pcm=mypcm, solvent=mysolvent, smx=mysmx)
