@@ -324,7 +324,7 @@ class Interstitial(Defect):
             try:
                 d_structure = create_saturated_interstitial_structure(self)
             except:
-                print('WARNING! Multiplicity was not able to be calculated adequately... '
+                print('WARNING! Multiplicity was not able to be calculated adequately for interstitials... '
                       'setting this to 1 and skipping for now...')
                 return 1
 
