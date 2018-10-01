@@ -235,7 +235,7 @@ class QCOutput(MSONable):
         """
         to_return = []
         with zopen(filename, 'rt') as f:
-            text = re.split('\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+',
+            text = re.split(r'\s*(?:Running\s+)*Job\s+\d+\s+of\s+\d+\s+',
                             f.read())
         if text[0] == '':
             text = text[1:]
@@ -425,7 +425,7 @@ class QCOutput(MSONable):
         """
         header_pattern = r"\s+Optimization\sCycle:\s+" + \
             str(len(self.data.get("energy_trajectory"))) + \
-            "\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
+            r"\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
         table_pattern = r"\s+\d+\s+\w+\s+([\d\-\.]+)\s+([\d\-\.]+)\s+([\d\-\.]+)"
         footer_pattern = r"\s+Point Group\:\s+[\d\w\*]+\s+Number of degrees of freedom\:\s+\d+"
 

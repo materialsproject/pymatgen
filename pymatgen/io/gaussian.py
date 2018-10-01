@@ -45,7 +45,7 @@ def read_route_line(route):
         route (dict) : dictionary of parameters
     """
     scrf_patt = re.compile(r"^([sS][cC][rR][fF])\s*=\s*(.+)")
-    multi_params_patt = re.compile("^([A-z]+[0-9]*)[\s=]+\((.*)\)$")
+    multi_params_patt = re.compile(r"^([A-z]+[0-9]*)[\s=]+\((.*)\)$")
     functional = None
     basis_set = None
     route_params = {}
