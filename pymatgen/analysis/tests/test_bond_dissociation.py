@@ -6,7 +6,6 @@ from __future__ import division, unicode_literals
 
 import unittest
 import os
-import copy
 
 from monty.serialization import loadfn
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies

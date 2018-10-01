@@ -21,6 +21,7 @@ except ImportError:
     ob = None
 try:
     import networkx as nx
+    import networkx.algorithms.isomorphism as iso
 except ImportError:
     nx = None
 
