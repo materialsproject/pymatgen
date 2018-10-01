@@ -22,7 +22,6 @@ from operator import itemgetter
 from collections import namedtuple, defaultdict
 from scipy.spatial import KDTree
 from scipy.stats import describe
-from itertools import chain
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
