@@ -1148,8 +1148,6 @@ class PointDefectComparator(MSONable):
         Returns:
             True if defects are identical in type and sublattice.
         """
-        d1 = d1.copy()
-        d2 = d2.copy()
         if (type(d1) != type(d2)):
             return False
         elif d1.site.specie != d2.site.specie:
@@ -1164,6 +1162,8 @@ class PointDefectComparator(MSONable):
         if not sm.fit(d1.bulk_structure, d2.bulk_structure):
             return False
 
+        d1 = d1.copy()
+        d2 = d2.copy()
         if self.check_primitive_cell or self.check_lattice_scale:
             # if allowing for base structure volume or supercell modifications, then need to
             # preprocess defect objects to allow for matching
