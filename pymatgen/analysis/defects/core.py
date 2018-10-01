@@ -321,7 +321,11 @@ class Interstitial(Defect):
         """
         if self._multiplicity is None:
             #generate multiplicity based on space group symmetry operations performed on defect coordinates
-            d_structure = create_saturated_interstitial_structure(self)
+            try:
+                d_structure = create_saturated_interstitial_structure(self)
+            except:
+                print('WARNING! Increasing dist_tol to 0.2...')
+                d_structure = create_saturated_interstitial_structure(self, dist_tol=0.2)
 
             sga = SpacegroupAnalyzer( d_structure)
             periodic_struc = sga.get_symmetrized_structure()
