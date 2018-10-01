@@ -21,6 +21,7 @@ Initial setup
 Install some conda tools first::
 
 	conda install --yes conda-build anaconda-client
+	conda config --add channels matsci
 
 Pymatgen uses `invoke <http://www.pyinvoke.org/>`_ to automate releases. You will 
 also need sphinx and doc2dash. Install these using::
@@ -69,6 +70,8 @@ machine-specific:
   macOS 10.13.
 * It can be useful to `pip install --upgrade pip twine setuptools` (this may 
   be necessary if there are authentication errors when connecting to PyPI).
+* You may have to `brew install hdf5 netcdf` or similar to be able to pip
+  install the optional requirement `netCDF4`.
 
 Doing the release
 -----------------
@@ -84,7 +87,7 @@ Then, do the release with the following sequence of commands (you can put them
 in a bash script in your PATH somewhere)::
 
 	conda activate py37
-	invoke release --notest --nodoc
+	invoke release --notest --nodoc --logdir="~/Desktop/"
 	conda deactivate
 	conda activate py27
 	python setup.py bdist_wheel
@@ -95,6 +98,8 @@ in a bash script in your PATH somewhere)::
 	invoke update-doc
 	conda deactivate
 	python setup.py develop
+	
+(Where logdir is a directory of your choice.)
 
 Double check that the releases are properly done on Pypi. If you are releasing
 on a Mac, you should see a pymatgen.version.tar.gz and two wheels (Py37 and 
