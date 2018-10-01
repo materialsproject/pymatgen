@@ -324,8 +324,9 @@ class Interstitial(Defect):
             try:
                 d_structure = create_saturated_interstitial_structure(self)
             except:
-                print('WARNING! Increasing dist_tol to 0.2...')
-                d_structure = create_saturated_interstitial_structure(self, dist_tol=0.2)
+                dist_tol_increased = 0.05
+                print('WARNING! Decreasing dist_tol to {}...'.format(dist_tol_increased))
+                d_structure = create_saturated_interstitial_structure(self, dist_tol=dist_tol_increased)
 
             sga = SpacegroupAnalyzer( d_structure)
             periodic_struc = sga.get_symmetrized_structure()
