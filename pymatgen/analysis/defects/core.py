@@ -324,15 +324,20 @@ class Interstitial(Defect):
             try:
                 d_structure = create_saturated_interstitial_structure(self)
             except:
-                for dist_tol_decreased in [0.05, 0.02, 0.005, 0.001, 0.0005]:
+                for dist_tol_decreased in [0.15, 0.2, 0.25, 0.3, 0.35]:
                     try:
-                        print('WARNING! Decreasing dist_tol to {}...'.format(dist_tol_decreased))
+                        print('WARNING! Increasing dist_tol to {}...'.format(dist_tol_decreased))
                         d_structure = create_saturated_interstitial_structure(self, dist_tol=dist_tol_decreased)
                         break
                     except:
-                        print('\tCould not generate interstitial multiplicity with '
-                              'dist_tol = {}...'.format(dist_tol_decreased))
-                print('\nConverged. Had to use dist_tol = {} to get interstitial multiplicity routine to work.')
+                        err_msg = '\tCould not generate interstitial multiplicity with '
+                              'dist_tol = {}...'.format(dist_tol_decreased)
+                        if dist_tol_decreased != 0.0005:
+                            print(err_msg)
+                        else:
+                            raise ValueError(err_msg)
+                print('\nConverged. Had to use dist_tol = {} to get interstitial '
+                      'multiplicity routine to work.'.format( dist_tol_decreased))
 
             sga = SpacegroupAnalyzer( d_structure)
             periodic_struc = sga.get_symmetrized_structure()
