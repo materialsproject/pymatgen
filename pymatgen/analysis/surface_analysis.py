@@ -1308,7 +1308,7 @@ class WorkFunctionAnalyzer(object):
     """
     A class used for calculating the work function
         from a slab model and visualizing the behavior
-        of the local potential along the slab. 
+        of the local potential along the slab.
 
     .. attribute:: efermi
 
