@@ -186,6 +186,9 @@ class SlabEntry(ComputedStructureEntry):
         Returns (Add (Sympy class)): Surface energy
         """
 
+        # Set up
+        ref_entries = [] if not ref_entries else ref_entries
+
         # Check if appropriate ref_entries are present if the slab is non-stoichiometric
         # TODO: There should be a way to identify which specific species are
         # non-stoichiometric relative to the others in systems with more than 2 species
@@ -193,12 +196,10 @@ class SlabEntry(ComputedStructureEntry):
         ucell_entry_comp = ucell_entry.composition.reduced_composition.as_dict()
         slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp.keys()})
         if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
-            list_els = [entry.composition.as_dict().keys()[0] for entry in ref_entries]
+            list_els = [list(entry.composition.as_dict().keys())[0] for entry in ref_entries]
             if not any([el in list_els for el in ucell_entry.composition.as_dict().keys()]):
                 warnings.warn("Elemental references missing for the non-dopant species.")
 
-        # Set up
-        ref_entries = [] if not ref_entries else ref_entries
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
