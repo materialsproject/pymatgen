@@ -22,16 +22,8 @@ gulp_present = which('gulp')
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class GulpCallerInitTest(unittest.TestCase):
-    def test_default_init(self):
-        gulp_caller = GulpCaller()
-
-    def test_explicit_path(self):
-        gulp_caller = GulpCaller(gulp_present)
-
-
-@unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpCallerTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -58,6 +50,8 @@ class GulpCallerTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpIOTest(unittest.TestCase):
+    _multiprocess_shared_ = True
+
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
                              check_for_POTCAR=False)
