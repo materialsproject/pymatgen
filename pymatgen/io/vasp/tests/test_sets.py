@@ -19,6 +19,7 @@ from pymatgen.io.vasp.outputs import Vasprun
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 dec = MontyDecoder()
+os.environ["PMG_VASP_PSP_DIR"] = test_dir
 
 
 class MITMPRelaxSetTest(unittest.TestCase):
