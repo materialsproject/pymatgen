@@ -45,6 +45,7 @@ test_dir = os.path.abspath(
 
 
 class VasprunTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         warnings.simplefilter("ignore")
@@ -431,7 +432,6 @@ class VasprunTest(unittest.TestCase):
             self.assertAlmostEqual(vbm['energy'], 2.8218)
             self.assertEqual(vbm['kpoint'].label, None)
 
-
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
         # with warnings.catch_warnings(record=True) as w:
@@ -548,6 +548,8 @@ class VasprunTest(unittest.TestCase):
 
 
 class OutcarTest(PymatgenTest):
+
+    _multiprocess_shared_ = True
 
     def test_init(self):
         for f in ['OUTCAR', 'OUTCAR.gz']:
@@ -902,6 +904,7 @@ class OutcarTest(PymatgenTest):
 
 
 class BSVasprunTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def test_get_band_structure(self):
         filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
@@ -949,6 +952,7 @@ class LocpotTest(unittest.TestCase):
 
 
 class ChgcarTest(PymatgenTest):
+    _multiprocess_shared_ = True
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'CHGCAR.nospin')
@@ -1043,7 +1047,7 @@ class ChgcarTest(PymatgenTest):
 
 
 class ProcarTest(unittest.TestCase):
-
+    _multiprocess_shared_ = True
     def test_init(self):
         filepath = os.path.join(test_dir, 'PROCAR.simple')
         p = Procar(filepath)
@@ -1130,6 +1134,7 @@ class DynmatTest(unittest.TestCase):
 
 
 class WavecarTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2'))
