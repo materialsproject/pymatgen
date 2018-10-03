@@ -8,7 +8,7 @@ import unittest
 import tempfile
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
-
+from pymatgen import SETTINGS
 from pymatgen.io.vasp.sets import *
 from pymatgen.io.vasp.inputs import Poscar, Kpoints
 from pymatgen.core import Specie, Lattice, Structure
@@ -16,10 +16,11 @@ from pymatgen.core.surface import SlabGenerator
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.vasp.outputs import Vasprun
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+test_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..",
+                        "..", "..", 'test_files')
 dec = MontyDecoder()
 os.environ["PMG_VASP_PSP_DIR"] = test_dir
+SETTINGS["PMG_VASP_PSP_DIR"] = test_dir
 
 
 class MITMPRelaxSetTest(unittest.TestCase):
