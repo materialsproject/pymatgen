@@ -316,19 +316,15 @@ class IcohplistTest(unittest.TestCase):
                               "icohp": {Spin.up: -0.28485,
                                         Spin.down: -0.58279},
                               "translation": [0, 0, 0]}}
-        icooplist_fe = {"1": {"length": 2.83189, "number_of_bonds": 2,
-                              "icohp": {Spin.up: -0.11389,
-                                        Spin.down: -0.20828},
-                              "translation": [0, 0, 0]},
-                        "2": {"length": 2.45249, "number_of_bonds": 1,
-                              "icohp": {Spin.up: -0.04087,
-                                        Spin.down: -0.05756},
-                              "translation": [0, 0, 0]}}
+        icooplist_fe = {'1': {'length': 2.83189, 'number_of_bonds': 2,
+                              'icohp': {Spin.up: -0.10218, Spin.down: -0.19701},
+                              'translation': [0, 0, 0]},
+                        '2': {'length': 2.45249, 'number_of_bonds': 1,
+                              'icohp': {Spin.up: -0.28485, Spin.down: -0.58279},
+                              'translation': [0, 0, 0]}}
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
-        self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
-        self.assertEqual(icohplist_fe, self.icohp_fe.icohplist)
 
 
 class DoscarTest(unittest.TestCase):
