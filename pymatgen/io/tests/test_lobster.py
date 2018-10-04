@@ -308,14 +308,6 @@ class IcohplistTest(unittest.TestCase):
                                  "icohp": {Spin.up: 0.24714}, "translation": [0, 0, 0]},
                           "11": {"length": 3.37522, "number_of_bonds": 3,
                                  "icohp": {Spin.up: -0.12395}, "translation": [0, 0, 0]}}
-        icohplist_fe = {"1": {"length": 2.83189, "number_of_bonds": 2,
-                              "icohp": {Spin.up: -0.10218,
-                                        Spin.down: -0.19701},
-                              "translation": [0, 0, 0]},
-                        "2": {"length": 2.45249, "number_of_bonds": 1,
-                              "icohp": {Spin.up: -0.28485,
-                                        Spin.down: -0.58279},
-                              "translation": [0, 0, 0]}}
         icooplist_fe = {'1': {'length': 2.83189, 'number_of_bonds': 2,
                               'icohp': {Spin.up: -0.10218, Spin.down: -0.19701},
                               'translation': [0, 0, 0]},
