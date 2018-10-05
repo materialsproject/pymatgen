@@ -1665,10 +1665,18 @@ class ElectronPhononWork(Work):
         #for each of the q 
         for qpt in q_frac_coords:
             is_gamma = np.sum(qpt ** 2) < 1e-12
-            # create a WFQ task
-            nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
-            wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: "DEN"})
-            new.wfkq_tasks.append(wfkq_task)
+            if is_gamma:
+                #create a link to WFK with WKQ name so abinit is happy
+                filename, extension = os.path.splitext(wfk_path)
+                infile = 'out_WFQ'+extension
+                infile = os.path.join(os.path.dirname(wfk_path),infile)
+                os.symlink(wfk_path,infile)
+                wfkq_task = FileNode(infile)
+            else:
+                # create a WFQ task
+                nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
+                wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: "DEN"})
+                new.wfkq_tasks.append(wfkq_task)
 
             # create a EPH task 
             eph_inp = scf_task.input.deepcopy()
