@@ -196,6 +196,8 @@ class GulpIOTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GlobalFunctionsTest(unittest.TestCase):
+    _multiprocess_shared_ = True
+
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4
@@ -233,6 +235,8 @@ class GlobalFunctionsTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class BuckinghamPotentialLewisTest(unittest.TestCase):
+    _multiprocess_shared_ = True
+
     def setUp(self):
         self.bpl = BuckinghamPotential('lewis')
 
@@ -261,6 +265,7 @@ class BuckinghamPotentialLewisTest(unittest.TestCase):
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class BuckinghamPotentialBushTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.bpb = BuckinghamPotential('bush')
