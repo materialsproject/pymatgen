@@ -25,6 +25,7 @@ __date__ = "Jun 9, 2012"
 
 
 class CODTest(unittest.TestCase):
+    _multiprocess_shared_ = True
     def setUp(self):
         warnings.simplefilter("ignore")
 

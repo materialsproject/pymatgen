@@ -21,7 +21,9 @@ from pymatgen import SETTINGS
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
+
 class PourbaixEntryTest(unittest.TestCase):
+    _multiprocess_shared_ = True
     """
     Test all functions using a fictitious entry
     """
@@ -87,6 +89,8 @@ class PourbaixEntryTest(unittest.TestCase):
 
 
 class PourbaixDiagramTest(unittest.TestCase):
+    _multiprocess_shared_ = True
+
     @classmethod
     def setUpClass(cls):
         cls.test_data = loadfn(os.path.join(test_dir, 'pourbaix_test_data.json'))
@@ -271,6 +275,7 @@ class PourbaixPlotterTest(unittest.TestCase):
         test_entry = pd_binary._unprocessed_entries[0]
         plt = binary_plotter.plot_entry_stability(test_entry)
         plt.close()
+
 
 if __name__ == '__main__':
     unittest.main()

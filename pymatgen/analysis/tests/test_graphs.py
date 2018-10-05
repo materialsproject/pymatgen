@@ -36,6 +36,7 @@ module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 
 class StructureGraphTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
 
