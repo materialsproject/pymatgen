@@ -91,15 +91,16 @@ class TestFragmentMolecule(PymatgenTest):
         for ii in range(10):
             self.assertEqual(len(fragments_by_level[str(ii)]),num_frags_by_level[ii])
 
-        f0unique = fragmenter0.unique_fragments
-
+        done = []
         for fragment10 in fragmenter10.unique_fragments:
             found = False
-            for fragment0 in f0unique:
-                if fragment0.isomorphic_to(fragment10):
+            for fragment0 in fragmenter0.unique_fragments:
+                if fragment0 in done:
+                    continue
+                elif fragment0.isomorphic_to(fragment10):
                     found = True
+                    done.append(fragment0)
                     break
-            f0unique.pop(fragment0)
             self.assertEqual(found, True)
 
     def test_PC_depth_0_vs_depth_10(self):
