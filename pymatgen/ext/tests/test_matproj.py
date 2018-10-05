@@ -258,17 +258,16 @@ class MPResterTest(unittest.TestCase):
         Fe_entries = self.rester.get_entries("Fe", sort_by_e_above_hull=True)
         self.assertEqual(Fe_entries[0].data["e_above_hull"], 0)
 
-
     def test_get_pourbaix_entries(self):
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe"])
+        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
         for pbx_entry in pbx_entries:
             self.assertTrue(isinstance(pbx_entry, PourbaixEntry))
         # Ensure entries are pourbaix compatible
         pbx = PourbaixDiagram(pbx_entries)
 
         # Try binary system
-        pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
-        pbx = PourbaixDiagram(pbx_entries)
+        #pbx_entries = self.rester.get_pourbaix_entries(["Fe", "Cr"])
+        #pbx = PourbaixDiagram(pbx_entries)
 
         # TODO: Shyue Ping: I do not understand this test. You seem to
         # be grabbing Zn-S system, but I don't see proper test for anything,
