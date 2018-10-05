@@ -24,7 +24,7 @@ from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
-from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
+from .nodes import Dependency, Node, NodeError, NodeResults, FileNode, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, ElasticTask, DdkTask,
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
                     DteTask, EphTask, CollinearThenNonCollinearScfTask)
@@ -52,6 +52,7 @@ __all__ = [
     "BseMdfWork",
     "PhononWork",
     "PhononWfkqWork",
+    "ElectronPhononWork",
     "BecWork",
     "DteWork",
 ]
@@ -1514,7 +1515,7 @@ class PhononWfkqWork(Work, MergeDdb):
 
     @classmethod
     def from_scf_task(cls, scf_task, ngqpt, ph_tolerance=None, tolwfr=1.0e-22,
-                      with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), remove_wfkq=True,
+                      with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), is_ngqpt=True, remove_wfkq=True,
                       manager=None):
         """
         Construct a `PhononWfkqWork` from a :class:`ScfTask` object.
@@ -1531,6 +1532,8 @@ class PhononWfkqWork(Work, MergeDdb):
             ddk_tolerance: dict {"varname": value} with the tolerance used in the DDK run if with_becs.
                 None to use AbiPy default.
             shiftq: Q-mesh shift. Multiple shifts are not supported.
+            is_ngqpt: the ngqpt is interpreted as a set of integers defining the q-mesh, otherwise
+                      is an explicit list of q-points
             remove_wfkq: Remove WKQ files when the children are completed.
             manager: :class:`TaskManager` object.
 
@@ -1543,7 +1546,10 @@ class PhononWfkqWork(Work, MergeDdb):
             raise TypeError("task `%s` does not inherit from ScfTask" % scf_task)
 
         shiftq = np.reshape(shiftq, (3,))
-        qpoints = scf_task.input.abiget_ibz(ngkpt=ngqpt, shiftk=shiftq, kptopt=1).points
+        if is_ngqpt:
+            qpoints = scf_task.input.abiget_ibz(ngkpt=ngqpt, shiftk=shiftq, kptopt=1).points
+        else:
+            qpoints = ngqpt
 
         new = cls(manager=manager)
         new.remove_wfkq = remove_wfkq
@@ -1558,7 +1564,7 @@ class PhononWfkqWork(Work, MergeDdb):
         # Won't try to skip WFQ if multiple shifts or off-diagonal kptrlatt
         ngkpt, shiftk = scf_task.input.get_ngkpt_shiftk()
         try_to_skip_wfkq = True
-        if ngkpt is None or len(shiftk) > 1:
+        if ngkpt is None or len(shiftk) > 1 and is_ngqpt:
             try_to_skip_wfkq = True
 
         # TODO: One could avoid kptopt 3 by computing WFK in the IBZ and then rotating.
@@ -1622,6 +1628,119 @@ class PhononWfkqWork(Work, MergeDdb):
         out_dvdb = self.merge_pot1_files()
 
         return self.Results(node=self, returncode=0, message="DDB merge done")
+
+class ElectronPhononWork(Work):
+    """
+    This work computes electron-phonon matrix elements for all the q-points
+    present in a DVDB and DDB file
+    """
+    @classmethod
+    def from_ddb_dvdb(cls,scf_task,ddb_path,dvdb_path,manager=None,tolwfr=1.0e-22,remove_wfkq=True):
+        """
+        Construct a `PhononWfkqWork` from a DDB and DVDB file.
+        For each q found a WFQ task is created and an EPH task computing the matrix elements
+        """
+        import abipy.abilab as abilab
+
+        #check if the scf_task still has the WFK file
+        wfk_path = scf_task.outdir.has_abiext("WFK")
+        if not wfk_path:
+            raise FileNotFoundError("WFK file not found in %s"%scf_task.outdir.path)
+        wfk_file = FileNode(wfk_path)
+
+        #read the qpoints from the DDB file
+        ddb = abilab.abiopen(ddb_path)
+        q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
+        
+        #create file nodes
+        ddb_file = FileNode(ddb_path)
+        dvdb_file = FileNode(dvdb_path)
+
+        #create new work
+        new = cls(manager=manager)
+        new.remove_wfkq = remove_wfkq
+        new.wfkq_tasks = []
+        new.wfkq_task_children = collections.defaultdict(list)
+
+        #for each of the q 
+        for qpt in q_frac_coords:
+            is_gamma = np.sum(qpt ** 2) < 1e-12
+            # create a WFQ task
+            nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
+            wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: "DEN"})
+            new.wfkq_tasks.append(wfkq_task)
+
+            # create a EPH task 
+            eph_inp = scf_task.input.deepcopy()
+            eph_inp.set_vars(optdriver=7, prtphdos=0, eph_task=2,
+                               nqpt=1, ddb_ngqpt=[1,1,1], qpt=qpt)
+            deps = {wfk_file: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
+            t = new.register_eph_task(eph_inp, deps=deps)
+            new.wfkq_task_children[wfkq_task].append(t)
+
+        return new
+
+    @classmethod
+    def from_phononwfkq_work(cls, phononwfk_work, qpoints, ph_tolerance=None, tolwfr=1.0e-22,
+                            with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), remove_wfkq=True,
+                            manager=None):
+        """
+        Construct a `PhononWfkqWork` from a :class:`ScfTask` object.
+        The input files for WFQ and phonons are automatically generated from the input of the ScfTask.
+        Each phonon task depends on the WFK file produced by scf_task and the associated WFQ file.
+
+        Args:
+            scf_task: ScfTask object.
+            qpoints: list of qpoints to calculate
+            with_becs: Activate calculation of Electric field and Born effective charges.
+            ph_tolerance: dict {"varname": value} with the tolerance for the phonon run.
+                None to use AbiPy default.
+            tolwfr: tolerance used to compute WFQ.
+            ddk_tolerance: dict {"varname": value} with the tolerance used in the DDK run if with_becs.
+                None to use AbiPy default.
+            shiftq: Q-mesh shift. Multiple shifts are not supported.
+            remove_wfkq: Remove WKQ files when the children are completed.
+            manager: :class:`TaskManager` object.
+
+        .. note:
+
+            Use k-meshes with one shift and q-meshes that are multiple of ngkpt
+            to decrease the number of WFQ files to be computed.
+        """
+        raise NotImplementedError("TODO")
+        #get list of qpoints from the the phonon tasks in this work
+        #get the WFQ files from the WFQ tasks
+        
+        #add one eph task per qpoint       
+        for qpt in qpoints:
+            #create eph task 
+            eph_input = scf_task.input.copy()
+            eph_input.set_vars(optdriver=7,
+                               prtphdos=0,
+                               eph_task=2,
+                               nqpt=1,
+                               qpt=qpt)
+            deps = {scf_task: "WFK", wfkq_task: "WFQ", ddb_task: "DDB", dvdb_task: "DVDB" }
+            new.register_eph_task(eph_inp, deps=deps)
+                
+        return new
+
+    def on_ok(self, sender):
+        """
+        This callback is called when one task reaches status `S_OK`.
+        It removes the WFKQ file if all its children have reached `S_OK`.
+        """
+        if self.remove_wfkq:
+            for task in self.wfkq_tasks:
+                if task.status != task.S_OK: continue
+                children = self.wfkq_task_children[task]
+                if all(child.status == child.S_OK for child in children):
+                   path = task.outdir.has_abiext("WFQ")
+                   if path:
+                       self.history.info("Removing WFQ: %s" % path)
+                       os.remove(path)
+
+        return super(ElectronPhononWork, self).on_ok(sender)
 
 
 class BecWork(Work, MergeDdb):
