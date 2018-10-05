@@ -120,10 +120,10 @@ def parse_defect_states(structure, defect_site, wavecar, procar):
         for kptindex in range(procar.nkpoints):
             stored_procar_dat[spinind].append({})
             for band_ind in sample_bands:
-                perc = procar.perc_contained_in_radius_from_site(structure, defect_site, sampling_radius,
+                perc, rad_dat = procar.perc_contained_in_radius_from_site(structure, defect_site, sampling_radius,
                                                                  spinkey, kptindex, band_ind)
                 stored_procar_dat[spinind][kptindex].update(
-                    {band_ind: {'perc': perc, 'eigen': store_eigen_dat[spinind][band_ind]}})
+                    {band_ind: {'perc': perc, 'rad_dat': rad_dat, 'eigen': store_eigen_dat[spinind][band_ind]}})
 
     # now use weighting to find bands with 70% localization overall
     for band_ind in sample_bands:
@@ -3412,20 +3412,25 @@ class Procar(object):
                 for spin, d in self.data.items()}
 
     def perc_contained_in_radius_from_site(self, structure, site, radius,
-                                           spinkey, kptindex, bandindex):
+                                           spinkey, kptindex, bandindex, return_rad_dat=True):
         if spinkey not in self.data.keys():
             raise ValueError("{} not in {}".format( spinkey, self.data.keys()))
 
         tot_occu = 0.
         in_radius_occu = 0.
+        rad_dat = []
         for listsite, prodat in zip( structure, self.data[spinkey][kptindex][bandindex]):
             dist, jimage = site.distance_and_image_from_frac_coords( listsite.frac_coords)
             tot_occu += np.sum(prodat)
+            rad_dat.append( dist, tot_occu)
             if dist <= radius:
                 in_radius_occu += np.sum(prodat)
 
-        return in_radius_occu / tot_occu
-
+        if return_rad_dat:
+            rad_dat.sort()
+            return in_radius_occu / tot_occu, rad_dat
+        else:
+            return in_radius_occu / tot_occu
 
 class Oszicar(object):
     """
