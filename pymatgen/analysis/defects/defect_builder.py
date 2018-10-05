@@ -2,7 +2,7 @@
 This class takes a list of database task objects
 (for a fixed bulk composition) and then returns
 Defect Entries which are ready for thermo analysis.
-Includes use of Ccmpatibility class if desired.
+Includes use of Compatibility class if desired.
 """
 
 import os
@@ -228,19 +228,19 @@ class TaskDefectBuilder(object):
                 print('ERR: defect {}_{} does not have eigenvalue data for parsing '
                       'bandfilling.'.format(defect.name, defect.charge))
 
-            #add wavefunction loading for delocalization analysis
-            if 'wf_data' in defect_task['calcs_reversed'][0]['output'].keys():
-                parameters.update( {'wf_band_data': defect_task['calcs_reversed'][0]['output']['wf_data']})
-            else:
-                print('ERR: defect {}_{} does not have wavefunction data for parsing '
-                      'delocalization.'.format(defect.name, defect.charge))
-
-            #try procar loading for delocalization analysis
-            if 'procar_data' in defect_task['calcs_reversed'][0]['output'].keys():
-                parameters.update( {'procar_band_data': defect_task['calcs_reversed'][0]['output']['procar_data']})
-            else:
-                print('ERR: defect {}_{} does not have PROCAR data for parsing '
-                      'delocalization.'.format(defect.name, defect.charge))
+            # #add wavefunction loading for delocalization analysis
+            # if 'wf_data' in defect_task['calcs_reversed'][0]['output'].keys():
+            #     parameters.update( {'wf_band_data': defect_task['calcs_reversed'][0]['output']['wf_data']})
+            # else:
+            #     print('ERR: defect {}_{} does not have wavefunction data for parsing '
+            #           'delocalization.'.format(defect.name, defect.charge))
+            #
+            # #try procar loading for delocalization analysis
+            # if 'procar_data' in defect_task['calcs_reversed'][0]['output'].keys():
+            #     parameters.update( {'procar_band_data': defect_task['calcs_reversed'][0]['output']['procar_data']})
+            # else:
+            #     print('ERR: defect {}_{} does not have PROCAR data for parsing '
+            #           'delocalization.'.format(defect.name, defect.charge))
 
 
             defect_entry = DefectEntry( defect, parameters['defect_energy'] - parameters['bulk_energy'],
@@ -252,8 +252,9 @@ class TaskDefectBuilder(object):
             de_tags = defect_task['tags'][:]
             de_tags.extend( ['DefectEntry'])
             dir_name = defect_task['calcs_reversed'][0]['dir_name']
-            defect_entry_list.append( {'defect_entry': defect_entry,
-                                       'dir_name': dir_name, 'tags': de_tags} )
+            defect_entry.parameters.update( {'dir_name': dir_name, 'tags': de_tags})
+
+            defect_entry_list.append( defect_entry)
 
 
         return defect_entry_list
