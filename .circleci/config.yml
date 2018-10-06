@@ -39,7 +39,7 @@ jobs:
             export MPLBACKEND=Agg
             source activate test_env
             pip install --quiet -e .
-            nosetests --config=nose.cfg --processes=4 --process-timeout=1600 --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
+            nosetests --config=nose.cfg --processes=4 --process-timeout=600 --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif
