@@ -45,6 +45,7 @@ test_dir = os.path.abspath(
 
 
 class VasprunTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         warnings.simplefilter("ignore")
@@ -98,13 +99,15 @@ class VasprunTest(unittest.TestCase):
         v = Vasprun(os.path.join(test_dir, "vasprun.xml.vdw"))
         self.assertAlmostEqual(v.final_energy, -9.78310677)
 
-    def test_properties(self):
+    def test_nonlmn(self):
 
         filepath = os.path.join(test_dir, 'vasprun.xml.nonlm')
         vasprun = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[
             0]].keys())
         self.assertIn(OrbitalType.s, orbs)
+
+    def test_standard(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath, parse_potcar_file=False)
 
@@ -196,6 +199,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
 
+    def test_unconverged(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.unconverged')
         with warnings.catch_warnings(record=True) as w:
             # Cause all warnings to always be triggered.
@@ -211,6 +215,7 @@ class VasprunTest(unittest.TestCase):
             self.assertFalse(vasprun_unconverged.converged_electronic)
             self.assertFalse(vasprun_unconverged.converged)
 
+    def test_dfpt(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt')
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
@@ -230,6 +235,7 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 
+    def test_dfpt_ionic(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.ionic')
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][0],
@@ -239,22 +245,26 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[2][2],
                                19.02110169)
 
+    def test_dfpt_unconverged(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
         vasprun_dfpt_unconv = Vasprun(filepath, parse_potcar_file=False)
         self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
         self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
         self.assertFalse(vasprun_dfpt_unconv.converged)
 
+    def test_uniform(self):
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"),
                                   parse_potcar_file=False)
         self.assertEqual(vasprun_uniform.kpoints.style,
                          Kpoints.supported_modes.Reciprocal)
 
+    def test_no_projected(self):
         vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"),
                                   parse_potcar_file=False)
         self.assertIsNotNone(vasprun_no_pdos.complete_dos)
         self.assertFalse(vasprun_no_pdos.dos_has_errors)
 
+    def test_dielectric(self):
         vasprun_diel = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric"),
                                parse_potcar_file=False)
         self.assertAlmostEqual(0.4294, vasprun_diel.dielectric[0][10])
@@ -267,10 +277,12 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(34.186, vasprun_diel.dielectric[2][85][2])
         self.assertAlmostEqual(0.0, vasprun_diel.dielectric[2][85][3])
 
+    def test_indirect_vasprun(self):
         v = Vasprun(os.path.join(test_dir, "vasprun.xml.indirect.gz"))
         (gap, cbm, vbm, direct) = v.eigenvalue_band_properties
         self.assertFalse(direct)
 
+    def test_optical_vasprun(self):
         vasprun_optical = Vasprun(
             os.path.join(test_dir, "vasprun.xml.opticaltransitions"),
             parse_potcar_file=False)
@@ -431,7 +443,6 @@ class VasprunTest(unittest.TestCase):
             self.assertAlmostEqual(vbm['energy'], 2.8218)
             self.assertEqual(vbm['kpoint'].label, None)
 
-
     def test_sc_step_overflow(self):
         filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
         # with warnings.catch_warnings(record=True) as w:
@@ -549,6 +560,8 @@ class VasprunTest(unittest.TestCase):
 
 class OutcarTest(PymatgenTest):
 
+    _multiprocess_shared_ = True
+
     def test_init(self):
         for f in ['OUTCAR', 'OUTCAR.gz']:
             filepath = os.path.join(test_dir, f)
@@ -588,6 +601,7 @@ class OutcarTest(PymatgenTest):
 
             self.assertFalse(outcar.lepsilon)
 
+    def test_stopped(self):
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
@@ -620,6 +634,7 @@ class OutcarTest(PymatgenTest):
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][1][0], -683.68519,places=4)
             self.assertAlmostEqual(outcar.internal_strain_tensor[1][2][2], 570.98927,places=4)
 
+    def test_soc(self):
         filepath = os.path.join(test_dir, 'OUTCAR.NiO_SOC.gz')
         outcar = Outcar(filepath)
         expected_mag = (
@@ -902,6 +917,7 @@ class OutcarTest(PymatgenTest):
 
 
 class BSVasprunTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def test_get_band_structure(self):
         filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
@@ -949,6 +965,7 @@ class LocpotTest(unittest.TestCase):
 
 
 class ChgcarTest(PymatgenTest):
+    _multiprocess_shared_ = True
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'CHGCAR.nospin')
@@ -1043,7 +1060,7 @@ class ChgcarTest(PymatgenTest):
 
 
 class ProcarTest(unittest.TestCase):
-
+    _multiprocess_shared_ = True
     def test_init(self):
         filepath = os.path.join(test_dir, 'PROCAR.simple')
         p = Procar(filepath)
@@ -1130,36 +1147,47 @@ class DynmatTest(unittest.TestCase):
 
 
 class WavecarTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
+        a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
+                          [0.0, 0.0, 10.0]])
+        self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
+        b = np.array([np.cross(a[1, :], a[2, :]),
+                      np.cross(a[2, :], a[0, :]),
+                      np.cross(a[0, :], a[1, :])])
+        self.b = 2 * np.pi * b / self.vol
+        self.a = a
         self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2'))
-        self.a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
-                           [0.0, 0.0, 10.0]])
-        self.vol = np.dot(self.a[0, :], np.cross(self.a[1, :], self.a[2, :]))
-        self.b = np.array([np.cross(self.a[1, :], self.a[2, :]),
-                           np.cross(self.a[2, :], self.a[0, :]),
-                           np.cross(self.a[0, :], self.a[1, :])])
-        self.b = 2 * np.pi * self.b / self.vol
 
-    def test_init(self):
-        self.assertEqual(self.w.filename, os.path.join(test_dir, 'WAVECAR.N2'))
-        self.assertAlmostEqual(self.w.efermi, -5.7232, places=4)
-        self.assertEqual(self.w.encut, 25)
-        self.assertEqual(self.w.nb, 9)
-        self.assertEqual(self.w.nk, 1)
-        self.assertTrue(np.allclose(self.w.a, self.a))
-        self.assertTrue(np.allclose(self.w.b, self.b))
-        self.assertAlmostEqual(self.w.vol, self.vol)
-        self.assertEqual(len(self.w.kpoints), self.w.nk)
-        self.assertEqual(len(self.w.coeffs), self.w.nk)
-        self.assertEqual(len(self.w.coeffs[0]), self.w.nb)
-        self.assertEqual(len(self.w.band_energy), self.w.nk)
-        self.assertEqual(self.w.band_energy[0].shape, (self.w.nb, 3))
-        self.assertLessEqual(len(self.w.Gpoints[0]), 257)
-        for k in range(self.w.nk):
-            for b in range(self.w.nb):
-                self.assertEqual(len(self.w.coeffs[k][b]),
-                                 len(self.w.Gpoints[k]))
+    def test_standard(self):
+        w = self.w
+        a = np.array([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0],
+                     [0.0, 0.0, 10.0]])
+        vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))
+        b = np.array([np.cross(a[1, :], a[2, :]),
+                           np.cross(a[2, :], a[0, :]),
+                           np.cross(a[0, :], a[1, :])])
+        b = 2 * np.pi * b / vol
+
+        self.assertEqual(w.filename, os.path.join(test_dir, 'WAVECAR.N2'))
+        self.assertAlmostEqual(w.efermi, -5.7232, places=4)
+        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.nb, 9)
+        self.assertEqual(w.nk, 1)
+        self.assertTrue(np.allclose(w.a, a))
+        self.assertTrue(np.allclose(w.b, b))
+        self.assertAlmostEqual(w.vol, vol)
+        self.assertEqual(len(w.kpoints), w.nk)
+        self.assertEqual(len(w.coeffs), w.nk)
+        self.assertEqual(len(w.coeffs[0]), w.nb)
+        self.assertEqual(len(w.band_energy), w.nk)
+        self.assertEqual(w.band_energy[0].shape, (w.nb, 3))
+        self.assertLessEqual(len(w.Gpoints[0]), 257)
+        for k in range(w.nk):
+            for b in range(w.nb):
+                self.assertEqual(len(w.coeffs[k][b]),
+                                 len(w.Gpoints[k]))
 
         with self.assertRaises(ValueError):
             Wavecar(os.path.join(test_dir, 'WAVECAR.N2.malformed'))
@@ -1175,30 +1203,32 @@ class WavecarTest(unittest.TestCase):
         finally:
             sys.stdout = saved_stdout
 
-        self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.45210'))
-        self.assertEqual(self.w.filename, os.path.join(test_dir,
+    def test_n2_45210(self):
+        w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.45210'))
+        self.assertEqual(w.filename, os.path.join(test_dir,
                                                        'WAVECAR.N2.45210'))
-        self.assertAlmostEqual(self.w.efermi, -5.7232, places=4)
-        self.assertEqual(self.w.encut, 25)
-        self.assertEqual(self.w.nb, 9)
-        self.assertEqual(self.w.nk, 1)
-        self.assertTrue(np.allclose(self.w.a, self.a))
-        self.assertTrue(np.allclose(self.w.b, self.b))
-        self.assertAlmostEqual(self.w.vol, self.vol)
-        self.assertEqual(len(self.w.kpoints), self.w.nk)
-        self.assertEqual(len(self.w.coeffs), self.w.nk)
-        self.assertEqual(len(self.w.coeffs[0]), self.w.nb)
-        self.assertEqual(len(self.w.band_energy), self.w.nk)
-        self.assertEqual(self.w.band_energy[0].shape, (self.w.nb, 3))
-        self.assertLessEqual(len(self.w.Gpoints[0]), 257)
+        self.assertAlmostEqual(w.efermi, -5.7232, places=4)
+        self.assertEqual(w.encut, 25)
+        self.assertEqual(w.nb, 9)
+        self.assertEqual(w.nk, 1)
+        self.assertTrue(np.allclose(w.a, self.a))
+        self.assertTrue(np.allclose(w.b, self.b))
+        self.assertAlmostEqual(w.vol, self.vol)
+        self.assertEqual(len(w.kpoints), w.nk)
+        self.assertEqual(len(w.coeffs), w.nk)
+        self.assertEqual(len(w.coeffs[0]), w.nb)
+        self.assertEqual(len(w.band_energy), w.nk)
+        self.assertEqual(w.band_energy[0].shape, (w.nb, 3))
+        self.assertLessEqual(len(w.Gpoints[0]), 257)
 
-        self.w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
-        self.assertEqual(len(self.w.coeffs), 2)
-        self.assertEqual(len(self.w.band_energy), 2)
-        self.assertEqual(len(self.w.kpoints), self.w.nk)
-        self.assertEqual(len(self.w.Gpoints), self.w.nk)
-        self.assertEqual(len(self.w.coeffs[0][0]), self.w.nb)
-        self.assertEqual(len(self.w.band_energy[0]), self.w.nk)
+    def test_n2_spin(self):
+        w = Wavecar(os.path.join(test_dir, 'WAVECAR.N2.spin'))
+        self.assertEqual(len(w.coeffs), 2)
+        self.assertEqual(len(w.band_energy), 2)
+        self.assertEqual(len(w.kpoints), w.nk)
+        self.assertEqual(len(w.Gpoints), w.nk)
+        self.assertEqual(len(w.coeffs[0][0]), w.nb)
+        self.assertEqual(len(w.band_energy[0]), w.nk)
 
         temp_ggp = Wavecar._generate_G_points
         try:

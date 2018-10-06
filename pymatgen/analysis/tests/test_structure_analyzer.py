@@ -22,6 +22,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 
 class VoronoiAnalyzerTest(PymatgenTest):
+    _multiprocess_shared_ = True
 
     def setUp(self):
         self.ss = Xdatcar(os.path.join(test_dir, 'XDATCAR.MD')).structures
