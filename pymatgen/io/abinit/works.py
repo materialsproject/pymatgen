@@ -52,7 +52,7 @@ __all__ = [
     "BseMdfWork",
     "PhononWork",
     "PhononWfkqWork",
-    "ElectronPhononWork",
+    "GKKPWork",
     "BecWork",
     "DteWork",
 ]
@@ -1629,24 +1629,19 @@ class PhononWfkqWork(Work, MergeDdb):
 
         return self.Results(node=self, returncode=0, message="DDB merge done")
 
-class ElectronPhononWork(Work):
+class GKKPWork(Work):
     """
     This work computes electron-phonon matrix elements for all the q-points
     present in a DVDB and DDB file
     """
     @classmethod
-    def from_ddb_dvdb(cls,scf_task,ddb_path,dvdb_path,manager=None,tolwfr=1.0e-22,remove_wfkq=True):
+    def from_ddb_dvdb(cls,scf_task,ddb_path,dvdb_path,manager=None,tolwfr=1.0e-22,remove_wfkq=True,
+                      with_ddk=True,expand=True,nscf_vars={}):
         """
         Construct a `PhononWfkqWork` from a DDB and DVDB file.
         For each q found a WFQ task is created and an EPH task computing the matrix elements
         """
         import abipy.abilab as abilab
-
-        #check if the scf_task still has the WFK file
-        wfk_path = scf_task.outdir.has_abiext("WFK")
-        if not wfk_path:
-            raise FileNotFoundError("WFK file not found in %s"%scf_task.outdir.path)
-        wfk_file = FileNode(wfk_path)
 
         #read the qpoints from the DDB file
         ddb = abilab.abiopen(ddb_path)
@@ -1662,27 +1657,49 @@ class ElectronPhononWork(Work):
         new.wfkq_tasks = []
         new.wfkq_task_children = collections.defaultdict(list)
 
+        # create a WFK task
+        kptopt = 1 if expand else 3
+        nscf_inp = scf_task.input.new_with_vars(iscf=-2, kptopt=kptopt, tolwfr=tolwfr, **nscf_vars)
+        wfk_task = new.register_nscf_task(nscf_inp, deps={scf_task: "DEN"})
+        new.wfkq_tasks.append(wfk_task)
+        new.wfk_task = wfk_task
+
+        #create a WFK expansion task
+        if expand:
+            fbz_nscf_inp = scf_task.input.new_with_vars(optdriver=8)
+            fbz_nscf_inp.set_spell_check(False)
+            fbz_nscf_inp.set_vars(wfk_task="wfk_fullbz")
+            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", scf_task: "DEN"})
+            new.wfkq_tasks.append(wfk_task)
+            new.wfk_task = wfk_task
+
+        #if with ddk
+        if with_ddk:
+            kptopt = 3 if expand else 1
+            ddk_inp = scf_task.input.new_with_vars(optdriver=8,kptopt=kptopt)
+            ddk_inp.set_spell_check(False)
+            ddk_inp.set_vars(wfk_task="wfk_ddk")
+            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", scf_task: "DEN"})
+            new.wfkq_tasks.append(ddk_task)
+
         #for each of the q 
         for qpt in q_frac_coords:
             is_gamma = np.sum(qpt ** 2) < 1e-12
             if is_gamma:
-                #create a link to WFK with WKQ name so abinit is happy
-                filename, extension = os.path.splitext(wfk_path)
-                infile = 'out_WFQ'+extension
-                infile = os.path.join(os.path.dirname(wfk_path),infile)
-                os.symlink(wfk_path,infile)
-                wfkq_task = FileNode(infile)
+                #We will create a link from WFK to WFQ on_ok
+                wfkq_task = wfk_task
+                deps = {wfk_task: ["WFK","WFQ"], ddb_file: "DDB", dvdb_file: "DVDB" }
             else:
                 # create a WFQ task
-                nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
+                nscf_inp = nscf_inp.new_with_vars(kptopt=3, qpt=qpt, nqpt=1)
                 wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: "DEN"})
                 new.wfkq_tasks.append(wfkq_task)
+                deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
 
             # create a EPH task 
             eph_inp = scf_task.input.deepcopy()
-            eph_inp.set_vars(optdriver=7, prtphdos=0, eph_task=2,
-                               nqpt=1, ddb_ngqpt=[1,1,1], qpt=qpt)
-            deps = {wfk_file: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
+            eph_inp.set_vars(optdriver=7, prtphdos=0, eph_task=2, kptopt=3,
+                             nqpt=1, ddb_ngqpt=[1,1,1], qpt=qpt)
             t = new.register_eph_task(eph_inp, deps=deps)
             new.wfkq_task_children[wfkq_task].append(t)
 
@@ -1693,27 +1710,7 @@ class ElectronPhononWork(Work):
                             with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), remove_wfkq=True,
                             manager=None):
         """
-        Construct a `PhononWfkqWork` from a :class:`ScfTask` object.
-        The input files for WFQ and phonons are automatically generated from the input of the ScfTask.
-        Each phonon task depends on the WFK file produced by scf_task and the associated WFQ file.
-
-        Args:
-            scf_task: ScfTask object.
-            qpoints: list of qpoints to calculate
-            with_becs: Activate calculation of Electric field and Born effective charges.
-            ph_tolerance: dict {"varname": value} with the tolerance for the phonon run.
-                None to use AbiPy default.
-            tolwfr: tolerance used to compute WFQ.
-            ddk_tolerance: dict {"varname": value} with the tolerance used in the DDK run if with_becs.
-                None to use AbiPy default.
-            shiftq: Q-mesh shift. Multiple shifts are not supported.
-            remove_wfkq: Remove WKQ files when the children are completed.
-            manager: :class:`TaskManager` object.
-
-        .. note:
-
-            Use k-meshes with one shift and q-meshes that are multiple of ngkpt
-            to decrease the number of WFQ files to be computed.
+        Construct a `GKKPWork` from a `PhononWfkqWork` object.
         """
         raise NotImplementedError("TODO")
         #get list of qpoints from the the phonon tasks in this work
@@ -1748,7 +1745,16 @@ class ElectronPhononWork(Work):
                        self.history.info("Removing WFQ: %s" % path)
                        os.remove(path)
 
-        return super(ElectronPhononWork, self).on_ok(sender)
+        #if wfk task we create a link to a wfq file so abinit is happy
+        if sender == self.wfk_task:
+            wfk_path = self.wfk_task.outdir.has_abiext("WFK")
+            #check if netcdf
+            filename, extension = os.path.splitext(wfk_path)
+            infile = 'out_WFQ'+extension
+            infile = os.path.join(os.path.dirname(wfk_path),infile)
+            os.symlink(wfk_path,infile)
+             
+        return super(GKKPWork, self).on_ok(sender)
 
 
 class BecWork(Work, MergeDdb):
