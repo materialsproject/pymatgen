@@ -1635,8 +1635,8 @@ class GKKPWork(Work):
     present in a DVDB and DDB file
     """
     @classmethod
-    def from_ddb_dvdb(cls,scf_task,ddb_path,dvdb_path,tolwfr=1.0e-22,remove_wfkq=True,
-                      with_ddk=True,expand=True,nscf_vars={},manager=None):
+    def from_den_ddb_dvdb(cls,inp,den_path,ddb_path,dvdb_path,remove_wfkq=True,
+                          with_ddk=True,expand=True,manager=None):
         """
         Construct a `PhononWfkqWork` from a DDB and DVDB file.
         For each q found a WFQ task is created and an EPH task computing the matrix elements
@@ -1648,6 +1648,7 @@ class GKKPWork(Work):
         q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
         
         #create file nodes
+        den_file = FileNode(den_path)
         ddb_file = FileNode(ddb_path)
         dvdb_file = FileNode(dvdb_path)
 
@@ -1659,27 +1660,27 @@ class GKKPWork(Work):
 
         # create a WFK task
         kptopt = 1 if expand else 3
-        nscf_inp = scf_task.input.new_with_vars(iscf=-2, kptopt=kptopt, tolwfr=tolwfr, **nscf_vars)
-        wfk_task = new.register_nscf_task(nscf_inp, deps={scf_task: "DEN"})
+        nscf_inp = inp.new_with_vars(iscf=-2, kptopt=kptopt)
+        wfk_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"})
         new.wfkq_tasks.append(wfk_task)
         new.wfk_task = wfk_task
 
         #create a WFK expansion task
         if expand:
-            fbz_nscf_inp = scf_task.input.new_with_vars(optdriver=8)
+            fbz_nscf_inp = inp.new_with_vars(optdriver=8)
             fbz_nscf_inp.set_spell_check(False)
             fbz_nscf_inp.set_vars(wfk_task="wfk_fullbz")
-            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", scf_task: "DEN"})
+            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", den_file: "DEN"})
             new.wfkq_tasks.append(wfk_task)
             new.wfk_task = wfk_task
 
         #if with ddk
         if with_ddk:
             kptopt = 3 if expand else 1
-            ddk_inp = scf_task.input.new_with_vars(optdriver=8,kptopt=kptopt)
+            ddk_inp = inp.new_with_vars(optdriver=8,kptopt=kptopt)
             ddk_inp.set_spell_check(False)
             ddk_inp.set_vars(wfk_task="wfk_ddk")
-            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", scf_task: "DEN"})
+            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"})
             new.wfkq_tasks.append(ddk_task)
 
         #for each of the q 
@@ -1692,12 +1693,12 @@ class GKKPWork(Work):
             else:
                 # create a WFQ task
                 nscf_inp = nscf_inp.new_with_vars(kptopt=3, qpt=qpt, nqpt=1)
-                wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: "DEN"})
+                wfkq_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"})
                 new.wfkq_tasks.append(wfkq_task)
                 deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
 
             # create a EPH task 
-            eph_inp = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, kptopt=3,
+            eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, kptopt=3,
                                                    ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             t = new.register_eph_task(eph_inp, deps=deps)
             new.wfkq_task_children[wfkq_task].append(t)
