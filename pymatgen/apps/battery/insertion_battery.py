@@ -60,7 +60,7 @@ class InsertionElectrode(AbstractElectrode):
             elements.update(entry.composition.elements)
 
         # Set an artificial energy for each element for convex hull generation
-        element_energy = max([entry.energy_per_atom for entry in entries]) + 10
+        element_energy = max([entry.energy_per_atom for entry in entries]) + 100
 
         pdentries = []
         pdentries.extend(entries)
