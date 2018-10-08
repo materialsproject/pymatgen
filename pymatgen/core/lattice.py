@@ -708,7 +708,7 @@ class Lattice(MSONable):
                     # We have to do p/q, so do lstsq(q.T, p.T).T instead.
                     p = dot(a[:, k:3].T, b[:, (k - 2):k])
                     q = np.diag(m[(k - 2):k])
-                    result = np.linalg.lstsq(q.T, p.T, rcond=-1)[0].T
+                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T
                     u[k:3, (k - 2):k] = result
 
         return a.T, mapping.T

@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.elasticity.elastic module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.analysis.elasticity.elastic module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.elastic.ComplianceTensor">
 <em class="property">class </em><code class="descname">ComplianceTensor</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ComplianceTensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ComplianceTensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>This class represents the compliance tensor, and exists
 primarily to keep the voigt-conversion scheme consistent
 since the compliance tensor has a unique vscale</p>
@@ -69,7 +57,7 @@ since the compliance tensor has a unique vscale</p>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor">
 <em class="property">class </em><code class="descname">ElasticTensor</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor</span></code></a></p>
 <p>This class extends Tensor to describe the 3x3x3x3
 second-order elastic tensor, C_{ijkl}, with various
 methods for estimating other properties derived from
@@ -118,7 +106,7 @@ Voigt-notation elastic tensor</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature_from_sound_velocities">
-<code class="descname">debye_temperature_from_sound_velocities</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature_from_sound_velocities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">debye_temperature_from_sound_velocities</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensor.debye_temperature_from_sound_velocities" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -314,7 +302,7 @@ Voigt-Reuss-Hill averages of bulk and shear moduli</p>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion">
 <em class="property">class </em><code class="descname">ElasticTensorExpansion</code><span class="sig-paren">(</span><em>c_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensorExpansion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.TensorCollection" title="pymatgen.core.tensors.TensorCollection"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.TensorCollection</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.TensorCollection" title="pymatgen.core.tensors.TensorCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.TensorCollection</span></code></a></p>
 <p>This class is a sequence of elastic tensors corresponding
 to an elastic tensor expansion, which can be used to
 calculate stress and energy density and inherits all
@@ -585,7 +573,7 @@ highest included set of elastic constants</p>
 
 <dl class="method">
 <dt id="pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff">
-<code class="descname">thermal_expansion_coeff</code><span class="sig-paren">(</span><em>structure</em>, <em>temperature</em>, <em>mode=’debye’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensorExpansion.thermal_expansion_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">thermal_expansion_coeff</code><span class="sig-paren">(</span><em>structure</em>, <em>temperature</em>, <em>mode=u'debye'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#ElasticTensorExpansion.thermal_expansion_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.ElasticTensorExpansion.thermal_expansion_coeff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets thermal expansion coefficient from third-order constants.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -597,7 +585,7 @@ will return non-cv-normalized value</li>
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Structure to be used in directional heat
 capacity determination, only necessary if temperature
 is specified</li>
-<li><strong>mode</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – mode for finding average heat-capacity,
+<li><strong>mode</strong> (<em>string</em>) – mode for finding average heat-capacity,
 current supported modes are ‘debye’ and ‘dulong-petit’</li>
 </ul>
 </td>
@@ -611,7 +599,7 @@ current supported modes are ‘debye’ and ‘dulong-petit’</li>
 <dl class="class">
 <dt id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor">
 <em class="property">class </em><code class="descname">NthOrderElasticTensor</code><a class="reference internal" href="_modules/pymatgen/analysis/elasticity/elastic.html#NthOrderElasticTensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.core.tensors.html#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>An object representing an nth-order tensor expansion
 of the stress-strain constitutive equations</p>
 <dl class="attribute">
@@ -653,7 +641,7 @@ stress using Einstein summation</p>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol">
-<code class="descname">symbol</code><em class="property"> = ‘C’</em><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">symbol</code><em class="property"> = u'C'</em><a class="headerlink" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -863,7 +851,7 @@ of numpy vectorization</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>entry</strong> (<a class="reference internal" href="#pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol" title="pymatgen.analysis.elasticity.elastic.NthOrderElasticTensor.symbol"><em>symbol</em></a><em> or </em><em>exp</em>) – sympy expr to undergo subs</li>
+<li><strong>entry</strong> (<em>symbol</em><em> or </em><em>exp</em>) – sympy expr to undergo subs</li>
 <li><strong>cmap</strong> (<em>dict</em>) – map for symbols to values to use in subs</li>
 </ul>
 </td>
@@ -892,12 +880,14 @@ of numpy vectorization</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -913,13 +903,13 @@ of numpy vectorization</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

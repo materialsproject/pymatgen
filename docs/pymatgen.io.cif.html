@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.cif module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.io.cif module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.io.cif.CifBlock">
 <em class="property">class </em><code class="descname">CifBlock</code><span class="sig-paren">(</span><em>data</em>, <em>loops</em>, <em>header</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifBlock" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object for storing cif data. All data is stored in a single dictionary.
 Data inside loops are stored in lists in the data dictionary, and
 information on which keys are grouped together are stored in the loops
@@ -97,7 +85,7 @@ line)</li>
 <dl class="class">
 <dt id="pymatgen.io.cif.CifFile">
 <em class="property">class </em><code class="descname">CifFile</code><span class="sig-paren">(</span><em>data</em>, <em>orig_string=None</em>, <em>comment=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reads and parses CifBlocks from a .cif file or string</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -127,14 +115,16 @@ line)</li>
 <dl class="class">
 <dt id="pymatgen.io.cif.CifParser">
 <em class="property">class </em><code class="descname">CifParser</code><span class="sig-paren">(</span><em>filename</em>, <em>occupancy_tolerance=1.0</em>, <em>site_tolerance=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Parses a cif file</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will
+issue warnings if corrections applied. These are also stored in the
+CifParser’s errors attribute.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – Cif filename. bzipped or gzipped cifs are fine too.</li>
+<li><strong>filename</strong> (<em>str</em>) – CIF filename, bzipped or gzipped CIF files are fine too.</li>
 <li><strong>occupancy_tolerance</strong> (<em>float</em>) – If total occupancy of a site is between 1
 and occupancy_tolerance, the occupancies will be scaled down to 1.</li>
 <li><strong>site_tolerance</strong> (<em>float</em>) – This tolerance is used to determine if two
@@ -175,7 +165,7 @@ scaled down to 1.</li>
 
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.get_bibtex_string">
-<code class="descname">get_bibtex_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_bibtex_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_bibtex_string" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_bibtex_string</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_bibtex_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_bibtex_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get BibTeX reference from CIF file.
 :param data:
 :return: BibTeX string</p>
@@ -183,7 +173,7 @@ scaled down to 1.</li>
 
 <dl class="method">
 <dt id="pymatgen.io.cif.CifParser.get_lattice">
-<code class="descname">get_lattice</code><span class="sig-paren">(</span><em>data</em>, <em>length_strings=(‘a’</em>, <em>’b’</em>, <em>’c’)</em>, <em>angle_strings=(‘alpha’</em>, <em>’beta’</em>, <em>’gamma’)</em>, <em>lattice_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_lattice</code><span class="sig-paren">(</span><em>data</em>, <em>length_strings=(u'a'</em>, <em>u'b'</em>, <em>u'c')</em>, <em>angle_strings=(u'alpha'</em>, <em>u'beta'</em>, <em>u'gamma')</em>, <em>lattice_type=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifParser.get_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifParser.get_lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the lattice from the provided lattice parameters. In
 the absence of all six lattice parameters, the crystal system
 and necessary parameters are parsed</p>
@@ -246,7 +236,7 @@ group symbol is parsed, and symops are generated.</p>
 <dl class="class">
 <dt id="pymatgen.io.cif.CifWriter">
 <em class="property">class </em><code class="descname">CifWriter</code><span class="sig-paren">(</span><em>struct</em>, <em>symprec=None</em>, <em>write_magmoms=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/cif.html#CifWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cif.CifWriter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A wrapper around CifFile to write CIF files from pymatgen structures.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -278,6 +268,17 @@ with symprec</li>
 <dd><p>Remove uncertainty brackets from strings and return the float.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="pymatgen.io.cif.sub_spgrp">
+<code class="descname">sub_spgrp</code><span class="sig-paren">(</span><em>string</em>, <em>count=0</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pymatgen.io.cif.sub_spgrp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the string obtained by replacing the leftmost
+non-overlapping occurrences of the pattern in string by the
+replacement repl.  repl can be either a string or a callable;
+if a string, backslash escapes in it are processed.  If it is
+a callable, it’s passed the match object and must return
+a replacement string to be used.</p>
+</dd></dl>
+
 </div>
 
 
@@ -295,12 +296,14 @@ with symprec</li>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -316,13 +319,13 @@ with symprec</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

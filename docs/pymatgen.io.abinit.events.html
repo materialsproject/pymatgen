@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.events module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.io.abinit.events module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,25 +50,25 @@ provides a parser to extract these events form the main output file and the log 
 <dl class="class">
 <dt id="pymatgen.io.abinit.events.EventsParser">
 <em class="property">class </em><code class="descname">EventsParser</code><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#EventsParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.EventsParser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parses the output or the log file produced by ABINIT and extract the list of events.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.EventsParser.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.events.EventsParser.Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">EventsParserError</span></code></p>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">EventsParserError</span></code></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.events.EventsParser.parse">
 <code class="descname">parse</code><span class="sig-paren">(</span><em>filename</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#EventsParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.EventsParser.parse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the given file. Return <code class="xref py py-class docutils literal"><span class="pre">EventReport</span></code>.</p>
+<dd><p>Parse the given file. Return <code class="xref py py-class docutils literal notranslate"><span class="pre">EventReport</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.events.EventsParser.report_exception">
 <code class="descname">report_exception</code><span class="sig-paren">(</span><em>filename</em>, <em>exc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#EventsParser.report_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.EventsParser.report_exception" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used when self.parser raises an Exception so that
-we can report a customized <code class="xref py py-class docutils literal"><span class="pre">EventReport</span></code> object with info the exception.</p>
+we can report a customized <code class="xref py py-class docutils literal notranslate"><span class="pre">EventReport</span></code> object with info the exception.</p>
 </dd></dl>
 
 </dd></dl>
@@ -94,9 +82,9 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 <dl class="class">
 <dt id="pymatgen.io.abinit.events.ScfConvergenceWarning">
 <em class="property">class </em><code class="descname">ScfConvergenceWarning</code><span class="sig-paren">(</span><em>src_file</em>, <em>src_line</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#ScfConvergenceWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.ScfConvergenceWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
 <p>Warning raised when the GS SCF cycle did not converge.</p>
-<p>Basic constructor for <code class="xref py py-class docutils literal"><span class="pre">AbinitEvent</span></code>.</p>
+<p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -112,7 +100,7 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.ScfConvergenceWarning.yaml_tag">
-<code class="descname">yaml_tag</code><em class="property"> = ‘!ScfConvergenceWarning’</em><a class="headerlink" href="#pymatgen.io.abinit.events.ScfConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">yaml_tag</code><em class="property"> = u'!ScfConvergenceWarning'</em><a class="headerlink" href="#pymatgen.io.abinit.events.ScfConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -120,9 +108,9 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 <dl class="class">
 <dt id="pymatgen.io.abinit.events.NscfConvergenceWarning">
 <em class="property">class </em><code class="descname">NscfConvergenceWarning</code><span class="sig-paren">(</span><em>src_file</em>, <em>src_line</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#NscfConvergenceWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.NscfConvergenceWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
 <p>Warning raised when the GS NSCF cycle did not converge.</p>
-<p>Basic constructor for <code class="xref py py-class docutils literal"><span class="pre">AbinitEvent</span></code>.</p>
+<p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -138,7 +126,7 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.NscfConvergenceWarning.yaml_tag">
-<code class="descname">yaml_tag</code><em class="property"> = ‘!NscfConvergenceWarning’</em><a class="headerlink" href="#pymatgen.io.abinit.events.NscfConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">yaml_tag</code><em class="property"> = u'!NscfConvergenceWarning'</em><a class="headerlink" href="#pymatgen.io.abinit.events.NscfConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -146,9 +134,9 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 <dl class="class">
 <dt id="pymatgen.io.abinit.events.RelaxConvergenceWarning">
 <em class="property">class </em><code class="descname">RelaxConvergenceWarning</code><span class="sig-paren">(</span><em>src_file</em>, <em>src_line</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#RelaxConvergenceWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.RelaxConvergenceWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.AbinitCriticalWarning</span></code></p>
 <p>Warning raised when the structural relaxation did not converge.</p>
-<p>Basic constructor for <code class="xref py py-class docutils literal"><span class="pre">AbinitEvent</span></code>.</p>
+<p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -164,7 +152,7 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.RelaxConvergenceWarning.yaml_tag">
-<code class="descname">yaml_tag</code><em class="property"> = ‘!RelaxConvergenceWarning’</em><a class="headerlink" href="#pymatgen.io.abinit.events.RelaxConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">yaml_tag</code><em class="property"> = u'!RelaxConvergenceWarning'</em><a class="headerlink" href="#pymatgen.io.abinit.events.RelaxConvergenceWarning.yaml_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -172,10 +160,10 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 <dl class="class">
 <dt id="pymatgen.io.abinit.events.Correction">
 <em class="property">class </em><code class="descname">Correction</code><span class="sig-paren">(</span><em>handler</em>, <em>actions</em>, <em>event</em>, <em>reset=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#Correction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.Correction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.events.Correction.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#Correction.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.Correction.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#Correction.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.Correction.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="classmethod">
@@ -188,10 +176,10 @@ we can report a customized <code class="xref py py-class docutils literal"><span
 <dl class="class">
 <dt id="pymatgen.io.abinit.events.DilatmxError">
 <em class="property">class </em><code class="descname">DilatmxError</code><span class="sig-paren">(</span><em>src_file</em>, <em>src_line</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#DilatmxError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.events.AbinitError</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.AbinitError</span></code></p>
 <p>This Error occurs in variable cell calculations when the increase in the
 unit cell volume is too large.</p>
-<p>Basic constructor for <code class="xref py py-class docutils literal"><span class="pre">AbinitEvent</span></code>.</p>
+<p>Basic constructor for <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitEvent</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -207,7 +195,7 @@ unit cell volume is too large.</p>
 </table>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.DilatmxError.yaml_tag">
-<code class="descname">yaml_tag</code><em class="property"> = ‘!DilatmxError’</em><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxError.yaml_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">yaml_tag</code><em class="property"> = u'!DilatmxError'</em><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxError.yaml_tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -215,12 +203,12 @@ unit cell volume is too large.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.events.DilatmxErrorHandler">
 <em class="property">class </em><code class="descname">DilatmxErrorHandler</code><span class="sig-paren">(</span><em>max_dilatmx=1.3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#DilatmxErrorHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxErrorHandler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.events.ErrorHandler</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.events.ErrorHandler</span></code></p>
 <p>Handle DilatmxError. Abinit produces a netcdf file with the last structure before aborting
 The handler changes the structure in the input with the last configuration and modify the value of dilatmx.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinit.events.DilatmxErrorHandler.as_dict">
-<code class="descname">as_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#DilatmxErrorHandler.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxErrorHandler.as_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">as_dict</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/events.html#DilatmxErrorHandler.as_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxErrorHandler.as_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -231,7 +219,7 @@ The handler changes the structure in the input with the last configuration and m
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.events.DilatmxErrorHandler.event_class">
 <code class="descname">event_class</code><a class="headerlink" href="#pymatgen.io.abinit.events.DilatmxErrorHandler.event_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.events.DilatmxError" title="pymatgen.io.abinit.events.DilatmxError"><code class="xref py py-class docutils literal"><span class="pre">DilatmxError</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="#pymatgen.io.abinit.events.DilatmxError" title="pymatgen.io.abinit.events.DilatmxError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DilatmxError</span></code></a></p>
 </dd></dl>
 
 <dl class="classmethod">
@@ -268,12 +256,14 @@ The handler changes the structure in the input with the last configuration and m
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -289,13 +279,13 @@ The handler changes the structure in the input with the last configuration and m
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

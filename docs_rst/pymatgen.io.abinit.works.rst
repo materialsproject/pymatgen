@@ -1,5 +1,5 @@
-pymatgen\.io\.abinit\.works module
-==================================
+pymatgen.io.abinit.works module
+===============================
 
 .. automodule:: pymatgen.io.abinit.works
     :members:

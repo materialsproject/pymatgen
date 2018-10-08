@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.molecule_structure_comparator module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.analysis.molecule_structure_comparator module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,20 +48,19 @@
 <dl class="class">
 <dt id="pymatgen.analysis.molecule_structure_comparator.CovalentRadius">
 <em class="property">class </em><code class="descname">CovalentRadius</code><a class="reference internal" href="_modules/pymatgen/analysis/molecule_structure_comparator.html#CovalentRadius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.CovalentRadius" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Covalent Radius of the elements.</p>
+<dd><p>Covalent Radius of the elements.</p>
 <p>Beatriz C. et al. Dalton Trans. 2008, 2832-2838. DOI: 10.1039/b801115j</p>
 <dl class="attribute">
 <dt id="pymatgen.analysis.molecule_structure_comparator.CovalentRadius.radius">
-<code class="descname">radius</code><em class="property"> = {‘H’: 0.31, ‘He’: 0.28, ‘Li’: 1.28, ‘Be’: 0.96, ‘B’: 0.84, ‘C’: 0.73, ‘N’: 0.71, ‘O’: 0.66, ‘F’: 0.57, ‘Ne’: 0.58, ‘Na’: 1.66, ‘Mg’: 1.41, ‘Al’: 1.21, ‘Si’: 1.11, ‘P’: 1.07, ‘S’: 1.05, ‘Cl’: 1.02, ‘Ar’: 1.06, ‘K’: 2.03, ‘Ca’: 1.76, ‘Sc’: 1.7, ‘Ti’: 1.6, ‘V’: 1.53, ‘Cr’: 1.39, ‘Mn’: 1.5, ‘Fe’: 1.42, ‘Co’: 1.38, ‘Ni’: 1.24, ‘Cu’: 1.32, ‘Zn’: 1.22, ‘Ga’: 1.22, ‘Ge’: 1.2, ‘As’: 1.19, ‘Se’: 1.2, ‘Br’: 1.2, ‘Kr’: 1.16, ‘Rb’: 2.2, ‘Sr’: 1.95, ‘Y’: 1.9, ‘Zr’: 1.75, ‘Nb’: 1.64, ‘Mo’: 1.54, ‘Tc’: 1.47, ‘Ru’: 1.46, ‘Rh’: 1.42, ‘Pd’: 1.39, ‘Ag’: 1.45, ‘Cd’: 1.44, ‘In’: 1.42, ‘Sn’: 1.39, ‘Sb’: 1.39, ‘Te’: 1.38, ‘I’: 1.39, ‘Xe’: 1.4, ‘Cs’: 2.44, ‘Ba’: 2.15, ‘La’: 2.07, ‘Ce’: 2.04, ‘Pr’: 2.03, ‘Nd’: 2.01, ‘Pm’: 1.99, ‘Sm’: 1.98, ‘Eu’: 1.98, ‘Gd’: 1.96, ‘Tb’: 1.94, ‘Dy’: 1.92, ‘Ho’: 1.92, ‘Er’: 1.89, ‘Tm’: 1.9, ‘Yb’: 1.87, ‘Lu’: 1.87, ‘Hf’: 1.75, ‘Ta’: 1.7, ‘W’: 1.62, ‘Re’: 1.51, ‘Os’: 1.44, ‘Ir’: 1.41, ‘Pt’: 1.36, ‘Au’: 1.36, ‘Hg’: 1.32, ‘Tl’: 1.45, ‘Pb’: 1.46, ‘Bi’: 1.48, ‘Po’: 1.4, ‘At’: 1.5, ‘Rn’: 1.5, ‘Fr’: 2.6, ‘Ra’: 2.21, ‘Ac’: 2.15, ‘Th’: 2.06, ‘Pa’: 2.0, ‘U’: 1.96, ‘Np’: 1.9, ‘Pu’: 1.87, ‘Am’: 1.8, ‘Cm’: 1.69}</em><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.CovalentRadius.radius" title="Permalink to this definition">¶</a></dt>
+<code class="descname">radius</code><em class="property"> = {u'Ac': 2.15, u'Ag': 1.45, u'Al': 1.21, u'Am': 1.8, u'Ar': 1.06, u'As': 1.19, u'At': 1.5, u'Au': 1.36, u'B': 0.84, u'Ba': 2.15, u'Be': 0.96, u'Bi': 1.48, u'Br': 1.2, u'C': 0.73, u'Ca': 1.76, u'Cd': 1.44, u'Ce': 2.04, u'Cl': 1.02, u'Cm': 1.69, u'Co': 1.38, u'Cr': 1.39, u'Cs': 2.44, u'Cu': 1.32, u'Dy': 1.92, u'Er': 1.89, u'Eu': 1.98, u'F': 0.57, u'Fe': 1.42, u'Fr': 2.6, u'Ga': 1.22, u'Gd': 1.96, u'Ge': 1.2, u'H': 0.31, u'He': 0.28, u'Hf': 1.75, u'Hg': 1.32, u'Ho': 1.92, u'I': 1.39, u'In': 1.42, u'Ir': 1.41, u'K': 2.03, u'Kr': 1.16, u'La': 2.07, u'Li': 1.28, u'Lu': 1.87, u'Mg': 1.41, u'Mn': 1.5, u'Mo': 1.54, u'N': 0.71, u'Na': 1.66, u'Nb': 1.64, u'Nd': 2.01, u'Ne': 0.58, u'Ni': 1.24, u'Np': 1.9, u'O': 0.66, u'Os': 1.44, u'P': 1.07, u'Pa': 2.0, u'Pb': 1.46, u'Pd': 1.39, u'Pm': 1.99, u'Po': 1.4, u'Pr': 2.03, u'Pt': 1.36, u'Pu': 1.87, u'Ra': 2.21, u'Rb': 2.2, u'Re': 1.51, u'Rh': 1.42, u'Rn': 1.5, u'Ru': 1.46, u'S': 1.05, u'Sb': 1.39, u'Sc': 1.7, u'Se': 1.2, u'Si': 1.11, u'Sm': 1.98, u'Sn': 1.39, u'Sr': 1.95, u'Ta': 1.7, u'Tb': 1.94, u'Tc': 1.47, u'Te': 1.38, u'Th': 2.06, u'Ti': 1.6, u'Tl': 1.45, u'Tm': 1.9, u'U': 1.96, u'V': 1.53, u'W': 1.62, u'Xe': 1.4, u'Y': 1.9, u'Yb': 1.87, u'Zn': 1.22, u'Zr': 1.75}</em><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.CovalentRadius.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator">
-<em class="property">class </em><code class="descname">MoleculeStructureComparator</code><span class="sig-paren">(</span><em>bond_length_cap=0.3</em>, <em>covalent_radius={‘H’: 0.31</em>, <em>’He’: 0.28</em>, <em>’Li’: 1.28</em>, <em>’Be’: 0.96</em>, <em>’B’: 0.84</em>, <em>’C’: 0.73</em>, <em>’N’: 0.71</em>, <em>’O’: 0.66</em>, <em>’F’: 0.57</em>, <em>’Ne’: 0.58</em>, <em>’Na’: 1.66</em>, <em>’Mg’: 1.41</em>, <em>’Al’: 1.21</em>, <em>’Si’: 1.11</em>, <em>’P’: 1.07</em>, <em>’S’: 1.05</em>, <em>’Cl’: 1.02</em>, <em>’Ar’: 1.06</em>, <em>’K’: 2.03</em>, <em>’Ca’: 1.76</em>, <em>’Sc’: 1.7</em>, <em>’Ti’: 1.6</em>, <em>’V’: 1.53</em>, <em>’Cr’: 1.39</em>, <em>’Mn’: 1.5</em>, <em>’Fe’: 1.42</em>, <em>’Co’: 1.38</em>, <em>’Ni’: 1.24</em>, <em>’Cu’: 1.32</em>, <em>’Zn’: 1.22</em>, <em>’Ga’: 1.22</em>, <em>’Ge’: 1.2</em>, <em>’As’: 1.19</em>, <em>’Se’: 1.2</em>, <em>’Br’: 1.2</em>, <em>’Kr’: 1.16</em>, <em>’Rb’: 2.2</em>, <em>’Sr’: 1.95</em>, <em>’Y’: 1.9</em>, <em>’Zr’: 1.75</em>, <em>’Nb’: 1.64</em>, <em>’Mo’: 1.54</em>, <em>’Tc’: 1.47</em>, <em>’Ru’: 1.46</em>, <em>’Rh’: 1.42</em>, <em>’Pd’: 1.39</em>, <em>’Ag’: 1.45</em>, <em>’Cd’: 1.44</em>, <em>’In’: 1.42</em>, <em>’Sn’: 1.39</em>, <em>’Sb’: 1.39</em>, <em>’Te’: 1.38</em>, <em>’I’: 1.39</em>, <em>’Xe’: 1.4</em>, <em>’Cs’: 2.44</em>, <em>’Ba’: 2.15</em>, <em>’La’: 2.07</em>, <em>’Ce’: 2.04</em>, <em>’Pr’: 2.03</em>, <em>’Nd’: 2.01</em>, <em>’Pm’: 1.99</em>, <em>’Sm’: 1.98</em>, <em>’Eu’: 1.98</em>, <em>’Gd’: 1.96</em>, <em>’Tb’: 1.94</em>, <em>’Dy’: 1.92</em>, <em>’Ho’: 1.92</em>, <em>’Er’: 1.89</em>, <em>’Tm’: 1.9</em>, <em>’Yb’: 1.87</em>, <em>’Lu’: 1.87</em>, <em>’Hf’: 1.75</em>, <em>’Ta’: 1.7</em>, <em>’W’: 1.62</em>, <em>’Re’: 1.51</em>, <em>’Os’: 1.44</em>, <em>’Ir’: 1.41</em>, <em>’Pt’: 1.36</em>, <em>’Au’: 1.36</em>, <em>’Hg’: 1.32</em>, <em>’Tl’: 1.45</em>, <em>’Pb’: 1.46</em>, <em>’Bi’: 1.48</em>, <em>’Po’: 1.4</em>, <em>’At’: 1.5</em>, <em>’Rn’: 1.5</em>, <em>’Fr’: 2.6</em>, <em>’Ra’: 2.21</em>, <em>’Ac’: 2.15</em>, <em>’Th’: 2.06</em>, <em>’Pa’: 2.0</em>, <em>’U’: 1.96</em>, <em>’Np’: 1.9</em>, <em>’Pu’: 1.87</em>, <em>’Am’: 1.8</em>, <em>’Cm’: 1.69}</em>, <em>priority_bonds=()</em>, <em>priority_cap=0.8</em>, <em>ignore_ionic_bond=True</em>, <em>bond_13_cap=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_structure_comparator.html#MoleculeStructureComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property">class </em><code class="descname">MoleculeStructureComparator</code><span class="sig-paren">(</span><em>bond_length_cap=0.3</em>, <em>covalent_radius={u'Ac': 2.15</em>, <em>u'Ag': 1.45</em>, <em>u'Al': 1.21</em>, <em>u'Am': 1.8</em>, <em>u'Ar': 1.06</em>, <em>u'As': 1.19</em>, <em>u'At': 1.5</em>, <em>u'Au': 1.36</em>, <em>u'B': 0.84</em>, <em>u'Ba': 2.15</em>, <em>u'Be': 0.96</em>, <em>u'Bi': 1.48</em>, <em>u'Br': 1.2</em>, <em>u'C': 0.73</em>, <em>u'Ca': 1.76</em>, <em>u'Cd': 1.44</em>, <em>u'Ce': 2.04</em>, <em>u'Cl': 1.02</em>, <em>u'Cm': 1.69</em>, <em>u'Co': 1.38</em>, <em>u'Cr': 1.39</em>, <em>u'Cs': 2.44</em>, <em>u'Cu': 1.32</em>, <em>u'Dy': 1.92</em>, <em>u'Er': 1.89</em>, <em>u'Eu': 1.98</em>, <em>u'F': 0.57</em>, <em>u'Fe': 1.42</em>, <em>u'Fr': 2.6</em>, <em>u'Ga': 1.22</em>, <em>u'Gd': 1.96</em>, <em>u'Ge': 1.2</em>, <em>u'H': 0.31</em>, <em>u'He': 0.28</em>, <em>u'Hf': 1.75</em>, <em>u'Hg': 1.32</em>, <em>u'Ho': 1.92</em>, <em>u'I': 1.39</em>, <em>u'In': 1.42</em>, <em>u'Ir': 1.41</em>, <em>u'K': 2.03</em>, <em>u'Kr': 1.16</em>, <em>u'La': 2.07</em>, <em>u'Li': 1.28</em>, <em>u'Lu': 1.87</em>, <em>u'Mg': 1.41</em>, <em>u'Mn': 1.5</em>, <em>u'Mo': 1.54</em>, <em>u'N': 0.71</em>, <em>u'Na': 1.66</em>, <em>u'Nb': 1.64</em>, <em>u'Nd': 2.01</em>, <em>u'Ne': 0.58</em>, <em>u'Ni': 1.24</em>, <em>u'Np': 1.9</em>, <em>u'O': 0.66</em>, <em>u'Os': 1.44</em>, <em>u'P': 1.07</em>, <em>u'Pa': 2.0</em>, <em>u'Pb': 1.46</em>, <em>u'Pd': 1.39</em>, <em>u'Pm': 1.99</em>, <em>u'Po': 1.4</em>, <em>u'Pr': 2.03</em>, <em>u'Pt': 1.36</em>, <em>u'Pu': 1.87</em>, <em>u'Ra': 2.21</em>, <em>u'Rb': 2.2</em>, <em>u'Re': 1.51</em>, <em>u'Rh': 1.42</em>, <em>u'Rn': 1.5</em>, <em>u'Ru': 1.46</em>, <em>u'S': 1.05</em>, <em>u'Sb': 1.39</em>, <em>u'Sc': 1.7</em>, <em>u'Se': 1.2</em>, <em>u'Si': 1.11</em>, <em>u'Sm': 1.98</em>, <em>u'Sn': 1.39</em>, <em>u'Sr': 1.95</em>, <em>u'Ta': 1.7</em>, <em>u'Tb': 1.94</em>, <em>u'Tc': 1.47</em>, <em>u'Te': 1.38</em>, <em>u'Th': 2.06</em>, <em>u'Ti': 1.6</em>, <em>u'Tl': 1.45</em>, <em>u'Tm': 1.9</em>, <em>u'U': 1.96</em>, <em>u'V': 1.53</em>, <em>u'W': 1.62</em>, <em>u'Xe': 1.4</em>, <em>u'Y': 1.9</em>, <em>u'Yb': 1.87</em>, <em>u'Zn': 1.22</em>, <em>u'Zr': 1.75}</em>, <em>priority_bonds=()</em>, <em>priority_cap=0.8</em>, <em>ignore_ionic_bond=True</em>, <em>bond_13_cap=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/molecule_structure_comparator.html#MoleculeStructureComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class to check whether the connection tables of the two molecules are the
 same. The atom in the two molecule must be paired accordingly.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -132,12 +119,12 @@ acknowledged for the priority bonds.</li>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.halogen_list">
-<code class="descname">halogen_list</code><em class="property"> = [‘F’, ‘Cl’, ‘Br’, ‘I’]</em><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.halogen_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">halogen_list</code><em class="property"> = [u'F', u'Cl', u'Br', u'I']</em><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.halogen_list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.ionic_element_list">
-<code class="descname">ionic_element_list</code><em class="property"> = [‘Na’, ‘Mg’, ‘Al’, ‘Sc’, ‘V’, ‘Cr’, ‘Mn’, ‘Fe’, ‘Co’, ‘Ni’, ‘Cu’, ‘Zn’, ‘Ga’, ‘Rb’, ‘Sr’]</em><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.ionic_element_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ionic_element_list</code><em class="property"> = [u'Na', u'Mg', u'Al', u'Sc', u'V', u'Cr', u'Mn', u'Fe', u'Co', u'Ni', u'Cu', u'Zn', u'Ga', u'Rb', u'Sr']</em><a class="headerlink" href="#pymatgen.analysis.molecule_structure_comparator.MoleculeStructureComparator.ionic_element_list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -159,12 +146,14 @@ acknowledged for the priority bonds.</li>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -180,13 +169,13 @@ acknowledged for the priority bonds.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

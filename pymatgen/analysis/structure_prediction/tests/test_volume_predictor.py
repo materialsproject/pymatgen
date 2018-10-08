@@ -89,6 +89,7 @@ class DLSVolumePredictorTest(PymatgenTest):
 
     def test_predict(self):
         p = DLSVolumePredictor()
+        p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells
 
         fen = Structure.from_file(os.path.join(dir_path, "FeN_mp-6988.cif"))
         self.assertAlmostEqual(p.predict(fen), 18.2252568873)
@@ -101,10 +102,11 @@ class DLSVolumePredictorTest(PymatgenTest):
         lfpo.scale_lattice(10.1)
         self.assertAlmostEqual(p.predict(lfpo), 291.62094410192924)
         lfpo.scale_lattice(0.2)
-        self.assertAlmostEqual(p.predict(lfpo), 291.62094410192924)
+        self.assertAlmostEqual(p_fast.predict(lfpo), 291.62094410192924)
         lmpo = PymatgenTest.get_structure("LiFePO4")
         lmpo.replace_species({"Fe": "Mn"})
         self.assertAlmostEqual(p.predict(lmpo), 290.795329052)
+
 
 if __name__ == '__main__':
     unittest.main()

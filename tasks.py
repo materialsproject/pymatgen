@@ -154,7 +154,7 @@ def update_doc(ctx):
 def publish(ctx):
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel")
-    ctx.run("twine upload -u Shyue.Ping.Ong dist/*")
+    ctx.run("twine upload dist/*")
 
 
 @task
@@ -238,22 +238,22 @@ def update_changelog(ctx):
 
 
 @task
-def log_ver(ctx):
-    filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
-                            "pymatgen", NEW_VER)
+def log_ver(ctx, logdir="~/Dropbox/Public/pymatgen"):
+    filepath = os.path.join(os.path.expanduser(logdir), NEW_VER)
     with open(filepath, "w") as f:
         f.write("Release")
 
 
 @task
-def release(ctx, notest=False):
+def release(ctx, notest=False, nodoc=False, logdir="~/Dropbox/Public/pymatgen"):
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx)
     if not notest:
         ctx.run("nosetests")
     publish(ctx)
-    log_ver(ctx)
-    # update_doc(ctx)
+    log_ver(ctx, logdir=logdir)
+    if not nodoc:
+        update_doc(ctx)
     merge_stable(ctx)
     release_github(ctx)
 

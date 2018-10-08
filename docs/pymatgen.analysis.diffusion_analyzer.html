@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.diffusion_analyzer module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.analysis.diffusion_analyzer module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,15 +47,15 @@
 <span id="pymatgen-analysis-diffusion-analyzer-module"></span><h1>pymatgen.analysis.diffusion_analyzer module<a class="headerlink" href="#module-pymatgen.analysis.diffusion_analyzer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer">
-<em class="property">class </em><code class="descname">DiffusionAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>displacements</em>, <em>specie</em>, <em>temperature</em>, <em>time_step</em>, <em>step_skip</em>, <em>smoothed=’max’</em>, <em>min_obs=30</em>, <em>avg_nsteps=1000</em>, <em>lattices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property">class </em><code class="descname">DiffusionAnalyzer</code><span class="sig-paren">(</span><em>structure</em>, <em>displacements</em>, <em>specie</em>, <em>temperature</em>, <em>time_step</em>, <em>step_skip</em>, <em>smoothed=u'max'</em>, <em>min_obs=30</em>, <em>avg_nsteps=1000</em>, <em>lattices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Class for performing diffusion analysis.</p>
 <p>This constructor is meant to be used with pre-processed data.
 Other convenient constructors are provided as class methods (see
 from_vaspruns and from_files).</p>
 <p>Given a matrix of displacements (see arguments below for expected
 format), the diffusivity is given by:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="n">dt</span> <span class="o">*</span> <span class="o">&lt;</span><span class="n">mean</span> <span class="n">square</span> <span class="n">displacement</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="n">dt</span> <span class="o">*</span> <span class="o">&lt;</span><span class="n">mean</span> <span class="n">square</span> <span class="n">displacement</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>where d is the dimensionality, t is the time. To obtain a reliable
@@ -278,7 +266,7 @@ huge. You don’t often need all the structures all at once.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stop</strong><strong>, </strong><strong>step</strong> (<a class="reference internal" href="pymatgen.io.abinit.launcher.html#pymatgen.io.abinit.launcher.PyFlowScheduler.start" title="pymatgen.io.abinit.launcher.PyFlowScheduler.start"><em>start</em></a><em>,</em>) – applies a start/stop/step to the iterator.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stop</strong><strong>, </strong><strong>step</strong> (<em>start</em><em>,</em>) – applies a start/stop/step to the iterator.
 Faster than applying it after generation, as it reduces the
 number of structures created.</td>
 </tr>
@@ -315,7 +303,7 @@ a secondary mobile ion is present.</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_msd_plot">
-<code class="descname">get_msd_plot</code><span class="sig-paren">(</span><em>plt=None</em>, <em>mode=’specie’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.get_msd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_msd_plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_msd_plot</code><span class="sig-paren">(</span><em>plt=None</em>, <em>mode=u'specie'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.get_msd_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.get_msd_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the plot of the smoothed msd vs time graph. Useful for
 checking convergence. This can be written to an image file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -360,7 +348,7 @@ time data with the data.</li>
 
 <dl class="method">
 <dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_msd">
-<code class="descname">plot_msd</code><span class="sig-paren">(</span><em>mode=’default’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.plot_msd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_msd" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_msd</code><span class="sig-paren">(</span><em>mode=u'default'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.plot_msd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_msd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the smoothed msd vs time graph. Useful for checking convergence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -465,7 +453,7 @@ Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)</p>
 <li><strong>diffusivities</strong> (<em>[</em><em>float</em><em>]</em>) – A sequence of diffusivities (e.g.,
 from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
 <li><strong>new_temp</strong> (<em>float</em>) – desired temperature. units: K</li>
-<li><strong>structure</strong> (<a class="reference internal" href="pymatgen.analysis.local_env.html#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator.structure" title="pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator.structure"><em>structure</em></a>) – Structure used for the diffusivity calculation</li>
+<li><strong>structure</strong> (<em>structure</em>) – Structure used for the diffusivity calculation</li>
 <li><strong>species</strong> (<em>string/Specie</em>) – conducting species</li>
 </ul>
 </td>
@@ -517,12 +505,14 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -538,13 +528,13 @@ from DiffusionAnalyzer.diffusivity). units: cm^2/s</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

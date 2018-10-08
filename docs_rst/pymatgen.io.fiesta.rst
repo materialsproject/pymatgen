@@ -1,5 +1,5 @@
-pymatgen\.io\.fiesta module
-===========================
+pymatgen.io.fiesta module
+=========================
 
 .. automodule:: pymatgen.io.fiesta
     :members:

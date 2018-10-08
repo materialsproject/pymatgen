@@ -11,8 +11,10 @@ from pymatgen import Structure, Lattice
 from pymatgen.core.sites import PeriodicSite
 from monty.fractions import lcm
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+import itertools
 
 import logging
+import warnings
 
 # This module implements representations of grain boundaries, as well as
 # algorithms for generating them.
@@ -27,27 +29,27 @@ __date__ = "7/30/18"
 logger = logging.getLogger(__name__)
 
 
-class Gb(Structure):
+class GrainBoundary(Structure):
     """
-    Subclass of Structure representing a Gb. Implements additional
-    attributes pertaining to gbs, but the init method does not
-    actually implement any algorithm that creates a gb. This is a
-    DUMMY class who's init method only holds information about the
-    gb. Also has additional methods that returns other information
-    about a gb such as sigma value.
+    Subclass of Structure representing a GrainBoundary (gb) object.
+    Implements additional attributes pertaining to gbs, but the
+    init method does not actually implement any algorithm that
+    creates a gb. This is a DUMMY class who's init method only holds
+    information about the gb. Also has additional methods that returns
+    other information about a gb such as sigma value.
 
-    Note that all Gbs have the gb surface normal oriented in the c-direction.
+    Note that all gbs have the gb surface normal oriented in the c-direction.
     This means the lattice vectors a and b are in the gb surface plane (at
      least for one grain) and the c vector is out of the surface plane
      (though not necessary perpendicular to the surface.)
     """
 
     def __init__(self, lattice, species, coords, rotation_axis, rotation_angle,
-                 gb_plane, init_cell, vacuum_thickness, ab_shift, site_properties,
-                 oriented_unit_cell, validate_proximity=False,
+                 gb_plane, join_plane, init_cell, vacuum_thickness, ab_shift,
+                 site_properties, oriented_unit_cell, validate_proximity=False,
                  coords_are_cartesian=False):
         """
-        Makes a Gb structure, a structure object with additional information
+        Makes a gb structure, a structure object with additional information
         and methods pertaining to gbs.
 
         Args:
@@ -73,10 +75,12 @@ class Gb(Structure):
             rotation_angle (float, in unit of degree): rotation angle of GB.
             gb_plane (list): Grain boundary plane in the form of a list of integers
                 e.g.: [1, 2, 3].
+            join_plane (list): Joining plane of the second grain in the form of a list of
+                integers. e.g.: [1, 2, 3].
             init_cell (Structure): initial bulk structure to form the GB.
             site_properties (dict): Properties associated with the sites as a
                 dict of sequences, The sequences have to be the same length as
-                the atomic species and fractional_coords. For Gb, you should
+                the atomic species and fractional_coords. For gb, you should
                 have the 'grain_label' properties to classify the sites as 'top',
                 'bottom', 'top_incident', or 'bottom_incident'.
             vacuum_thickness (float in angstrom): The thickness of vacuum inserted
@@ -85,7 +89,7 @@ class Gb(Structure):
                 shift along a, b vectors.
             oriented_unit_cell (Structure): oriented unit cell of the bulk init_cell.
                 Help to accurate calculate the bulk properties that are consistent
-                with Gb calculations.
+                with gb calculations.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
@@ -95,10 +99,11 @@ class Gb(Structure):
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
         self.gb_plane = gb_plane
+        self.join_plane = join_plane
         self.init_cell = init_cell
         self.vacuum_thickness = vacuum_thickness
         self.ab_shift = ab_shift
-        super(Gb, self).__init__(
+        super(GrainBoundary, self).__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -112,10 +117,10 @@ class Gb(Structure):
             A copy of the Structure, with optionally new site_properties and
             optionally sanitized.
         """
-        return Gb(self.lattice, self.species_and_occu, self.frac_coords,
-                  self.rotation_axis, self.rotation_angle, self.gb_plane,
-                  self.init_cell, self.vacuum_thickness, self.ab_shift,
-                  self.site_properties, self.oriented_unit_cell)
+        return GrainBoundary(self.lattice, self.species_and_occu, self.frac_coords,
+                             self.rotation_axis, self.rotation_angle, self.gb_plane,
+                             self.join_plane, self.init_cell, self.vacuum_thickness,
+                             self.ab_shift, self.site_properties, self.oriented_unit_cell)
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -132,17 +137,29 @@ class Gb(Structure):
         """
         sites = sorted(self, key=key, reverse=reverse)
         s = Structure.from_sites(sites)
-        return Gb(s.lattice, s.species_and_occu, s.frac_coords,
-                  self.rotation_axis, self.rotation_angle, self.gb_plane,
-                  self.init_cell, self.vacuum_thickness, self.ab_shift,
-                  self.site_properties, self.oriented_unit_cell)
+        return GrainBoundary(s.lattice, s.species_and_occu, s.frac_coords,
+                             self.rotation_axis, self.rotation_angle, self.gb_plane,
+                             self.join_plane, self.init_cell, self.vacuum_thickness,
+                             self.ab_shift, self.site_properties, self.oriented_unit_cell)
 
     @property
     def sigma(self):
         """
-        This method returns the sigma value of the Gb.
+        This method returns the sigma value of the gb.
+        If using 'quick_gen' to generate GB, this value is not valid.
+        """
+        return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
+
+    @property
+    def sigma_from_site_prop(self):
+        """
+        This method returns the sigma value of the gb from site properties.
+        If the GB structure merge some atoms due to the atoms too closer with
+        each other, this property will not work.
         """
         num_coi = 0
+        if None in self.site_properties['grain_label']:
+            raise RuntimeError('Site were merged, this property do not work')
         for tag in self.site_properties['grain_label']:
             if 'incident' in tag:
                 num_coi += 1
@@ -189,6 +206,7 @@ class Gb(Structure):
             "Rotation axis: %s" % (self.rotation_axis,),
             "Rotation angle: %s" % (self.rotation_angle,),
             "GB plane: %s" % (self.gb_plane,),
+            "Join plane: %s" % (self.join_plane,),
             "vacuum thickness: %s" % (self.vacuum_thickness,),
             "ab_shift: %s" % (self.ab_shift,), ]
         to_s = lambda x: "%0.6f" % x
@@ -204,13 +222,14 @@ class Gb(Structure):
         return "\n".join(outs)
 
     def as_dict(self):
-        d = super(Gb, self).as_dict()
+        d = super(GrainBoundary, self).as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["init_cell"] = self.init_cell.as_dict()
         d["rotation_axis"] = self.rotation_axis
         d["rotation_angle"] = self.rotation_angle
         d["gb_plane"] = self.gb_plane
+        d["join_plane"] = self.join_plane
         d["vacuum_thickness"] = self.vacuum_thickness
         d["ab_shift"] = self.ab_shift
         d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
@@ -222,12 +241,13 @@ class Gb(Structure):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         s = Structure.from_sites(sites)
 
-        return Gb(
+        return GrainBoundary(
             lattice=lattice,
             species=s.species_and_occu, coords=s.frac_coords,
             rotation_axis=d["rotation_axis"],
             rotation_angle=d["rotation_angle"],
             gb_plane=d["gb_plane"],
+            join_plane=d["join_plane"],
             init_cell=Structure.from_dict(d["init_cell"]),
             vacuum_thickness=d["vacuum_thickness"],
             ab_shift=d["ab_shift"],
@@ -235,7 +255,7 @@ class Gb(Structure):
             site_properties=s.site_properties)
 
 
-class GBGenerator(object):
+class GrainBoundaryGenerator(object):
     """
     This class is to generate grain boundaries (GBs) from bulk
     conventional cell (fcc, bcc can from the primitive cell), and works for Cubic,
@@ -243,7 +263,7 @@ class GBGenerator(object):
     It generate GBs from given parameters, which includes
     GB plane, rotation axis, rotation angle.
 
-    This class works for any general GB, including both twist and tilt GBs.
+    This class works for any general GB, including twist, tilt and mixed GBs.
     The three parameters, rotation axis, GB plane and rotation angle, are
     sufficient to identify one unique GB. While sometimes, users may not be able
     to tell what exactly rotation angle is but prefer to use sigma as an parameter,
@@ -305,8 +325,8 @@ class GBGenerator(object):
         self.initial_structure = initial_structure
 
     def gb_from_parameters(self, rotation_axis, rotation_angle, expand_times=4, vacuum_thickness=0.0,
-                           ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=50,
-                           tol_coi=1.e-3):
+                           ab_shift=[0, 0], normal=False, ratio=None, plane=None, max_search=20,
+                           tol_coi=1.e-8, rm_ratio=0.7, quick_gen=False):
 
         """
         Args:
@@ -326,7 +346,6 @@ class GBGenerator(object):
            vacuum_thickness (float, in angstrom): The thickness of vacuum that you want to insert
                 between two grains of the GB. Default to 0.
             ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
-
             normal (logic):
                 determine if need to require the c axis of top grain (first transformation matrix)
                 perperdicular to the surface or not.
@@ -357,56 +376,59 @@ class GBGenerator(object):
             tol_coi (float): tolerance to find the coincidence sites. When making approximations to
                 the ratio needed to generate the GB, you probably need to increase this tolerance to
                 obtain the correct number of coincidence sites. To check the number of coincidence
-                sites are correct or not, you can compare the generated Gb object's sigma with enum*
-                sigma values (what user expected by input).
+                sites are correct or not, you can compare the generated Gb object's sigma_from_site_prop
+                with enum* sigma values (what user expected by input).
+            rm_ratio (float): the criteria to remove the atoms which are too close with each other.
+                rm_ratio*bond_length of bulk system is the criteria of bond length, below which the atom
+                will be removed. Default to 0.7.
+            quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
+                find the smallest cell.
 
         Returns:
-           Grain boundary structure (structure object).
+           Grain boundary structure (gb object).
                """
-
+        lat_type = self.lat_type
         # if the initial structure is primitive cell in cubic system,
         # calculate the transformation matrix from its conventional cell
         # to primitive cell, basically for bcc and fcc systems.
-        init_str = self.initial_structure
-        lat_type = self.lat_type
         trans_cry = np.eye(3)
         if lat_type == 'c':
-            analyzer = SpacegroupAnalyzer(init_str)
+            analyzer = SpacegroupAnalyzer(self.initial_structure)
             convention_cell = analyzer.get_conventional_standard_structure()
-            vol_ratio = init_str.volume / convention_cell.volume
+            vol_ratio = self.initial_structure.volume / convention_cell.volume
             # bcc primitive cell, belong to cubic system
             if abs(vol_ratio - 0.5) < 1.e-3:
                 trans_cry = np.array([[0.5, 0.5, -0.5], [-0.5, 0.5, 0.5], [0.5, -0.5, 0.5]])
-                print('Make sure this is for cubic system with bcc primitive cell')
+                logger.info("Make sure this is for cubic with bcc primitive cell")
             # fcc primitive cell, belong to cubic system
             elif abs(vol_ratio - 0.25) < 1.e-3:
                 trans_cry = np.array([[0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]])
-                print('Make sure this is for cubic system with fcc primitive cell')
+                logger.info("Make sure this is for cubic with fcc primitive cell")
             else:
-                print('Make sure this is for cubic system with conventional cell')
+                logger.info("Make sure this is for cubic with conventional cell")
         elif lat_type == 't':
-            print('Make sure this is for tetragonal system')
+            logger.info("Make sure this is for tetragonal system")
             if ratio is None:
-                print('Make sure this is for irrational c2/a2')
+                logger.info('Make sure this is for irrational c2/a2')
             elif len(ratio) != 2:
                 raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
         elif lat_type == 'o':
-            print('Make sure this is for orthorhombic system')
+            logger.info('Make sure this is for orthorhombic system')
             if ratio is None:
                 raise RuntimeError('CSL donot exist if all axial ratios are irrational'
                                    'for orthorhombic system')
             elif len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
         elif lat_type == 'h':
-            print('Make sure this is for hexagonal system')
+            logger.info('Make sure this is for hexagonal system')
             if ratio is None:
-                print('Make sure this is for irrational c2/a2')
+                logger.info('Make sure this is for irrational c2/a2')
             elif len(ratio) != 2:
                 raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
         elif lat_type == 'r':
-            print('Make sure this is for rhombohedral system')
+            logger.info('Make sure this is for rhombohedral system')
             if ratio is None:
-                print('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
+                logger.info('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Rhombohedral system needs correct '
                                    '(1+2*cos(alpha)/cos(alpha) ratio')
@@ -414,7 +436,7 @@ class GBGenerator(object):
             raise RuntimeError('Lattice type not implemented. This code works for cubic, '
                                'tetragonal, orthorhombic, rhombehedral, hexagonal systems')
 
-        # transform four index notation to three index notation
+        # transform four index notation to three index notation for hexagonal and rhombohedral
         if len(rotation_axis) == 4:
             u1 = rotation_axis[0]
             v1 = rotation_axis[1]
@@ -433,14 +455,14 @@ class GBGenerator(object):
         # make sure gcd(rotation_axis)==1
         if reduce(gcd, rotation_axis) != 1:
             rotation_axis = [int(round(x / reduce(gcd, rotation_axis))) for x in rotation_axis]
-
+        # transform four index notation to three index notation for plane
         if plane is not None:
             if len(plane) == 4:
                 u1 = plane[0]
                 v1 = plane[1]
                 w1 = plane[3]
                 plane = [u1, v1, w1]
-        # set the plane for grain boundary.
+        # set the plane for grain boundary when plane is None.
         if plane is None:
             if lat_type.lower() == 'c':
                 plane = rotation_axis
@@ -484,32 +506,92 @@ class GBGenerator(object):
 
         t1, t2 = self.get_trans_mat(r_axis=rotation_axis, angle=rotation_angle, normal=normal,
                                     trans_cry=trans_cry, lat_type=lat_type, ratio=ratio,
-                                    surface=plane, max_search=max_search)
+                                    surface=plane, max_search=max_search, quick_gen=quick_gen)
+
+        # find the join_plane
+        if lat_type.lower() != 'c':
+            if lat_type.lower() == 'h':
+                if ratio is None:
+                    mu, mv = [1, 1]
+                else:
+                    mu, mv = ratio
+                trans_cry1 = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0],
+                                       [0, 0, np.sqrt(mu / mv)]])
+            elif lat_type.lower() == 'r':
+                if ratio is None:
+                    c2_a2_ratio = 1
+                else:
+                    mu, mv = ratio
+                    c2_a2_ratio = 3.0 / (2 - 6 * mv / mu)
+                trans_cry1 = np.array([[0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                                       [-0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
+                                       [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)]])
+            else:
+                if lat_type.lower() == 't':
+                    if ratio is None:
+                        mu, mv = [1, 1]
+                    else:
+                        mu, mv = ratio
+                    lam = mv
+                elif lat_type.lower() == 'o':
+                    new_ratio = [1 if v is None else v for v in ratio]
+                    mu, lam, mv = new_ratio
+                trans_cry1 = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
+        else:
+            trans_cry1 = trans_cry
+        grain_matrix = np.dot(t2, trans_cry1)
+        plane_init = np.cross(grain_matrix[0], grain_matrix[1])
+        if lat_type.lower() != 'c':
+            plane_init = np.dot(plane_init, trans_cry1.T)
+        join_plane = self.vec_to_surface(plane_init)
 
         parent_structure = self.initial_structure.copy()
+        # calculate the bond_length in bulk system.
+        if len(parent_structure) == 1:
+            temp_str = parent_structure.copy()
+            temp_str.make_supercell([1, 1, 2])
+            distance = temp_str.distance_matrix
+        else:
+            distance = parent_structure.distance_matrix
+        bond_length = np.min(distance[np.nonzero(distance)])
+
         # top grain
         top_grain = fix_pbc(parent_structure * t1)
-        oriended_unit_cell = top_grain.copy()
+
+        # obtain the smallest oriended cell
+        if normal and not quick_gen:
+            t_temp = self.get_trans_mat(r_axis=rotation_axis, angle=rotation_angle, normal=False,
+                                        trans_cry=trans_cry, lat_type=lat_type, ratio=ratio,
+                                        surface=plane, max_search=max_search)
+            oriended_unit_cell = fix_pbc(parent_structure * t_temp[0])
+            t_matrix = oriended_unit_cell.lattice.matrix
+            normal_v_plane = np.cross(t_matrix[0], t_matrix[1])
+            unit_normal_v = normal_v_plane / np.linalg.norm(normal_v_plane)
+            unit_ab_adjust = (t_matrix[2] - np.dot(unit_normal_v, t_matrix[2]) * unit_normal_v) \
+                             / np.dot(unit_normal_v, t_matrix[2])
+        else:
+            oriended_unit_cell = top_grain.copy()
+            unit_ab_adjust = 0.0
 
         # bottom grain, using top grain's lattice matrix
         bottom_grain = fix_pbc(parent_structure * t2, top_grain.lattice.matrix)
 
         # label both grains with 'top','bottom','top_incident','bottom_incident'
-        N_sites = top_grain.num_sites
+        n_sites = top_grain.num_sites
         t_and_b = Structure(top_grain.lattice, top_grain.species + bottom_grain.species,
                             list(top_grain.frac_coords) + list(bottom_grain.frac_coords))
-        t_and_b_dis = t_and_b.lattice.get_all_distances(t_and_b.frac_coords[0:N_sites],
-                                                        t_and_b.frac_coords[N_sites:N_sites * 2])
+        t_and_b_dis = t_and_b.lattice.get_all_distances(t_and_b.frac_coords[0:n_sites],
+                                                        t_and_b.frac_coords[n_sites:n_sites * 2])
         index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + tol_coi)
 
         top_labels = []
-        for i in range(N_sites):
+        for i in range(n_sites):
             if i in index_incident[0]:
                 top_labels.append('top_incident')
             else:
                 top_labels.append('top')
         bottom_labels = []
-        for i in range(N_sites):
+        for i in range(n_sites):
             if i in index_incident[1]:
                 bottom_labels.append('bottom_incident')
             else:
@@ -524,6 +606,12 @@ class GBGenerator(object):
         bottom_grain.make_supercell([1, 1, expand_times])
         top_grain = fix_pbc(top_grain)
         bottom_grain = fix_pbc(bottom_grain)
+
+        # determine the top-grain location.
+        edge_b = 1.0 - max(bottom_grain.frac_coords[:, 2])
+        edge_t = 1.0 - max(top_grain.frac_coords[:, 2])
+        c_adjust = (edge_t - edge_b) / 2.0
+
         # construct all species
         all_species = []
         all_species.extend([site.specie for site in bottom_grain])
@@ -549,19 +637,36 @@ class GBGenerator(object):
         for site in bottom_grain:
             all_coords.append(site.coords)
         for site in top_grain:
-            all_coords.append(site.coords + half_lattice.matrix[2] + translation_v
-                              + ab_shift[0] * whole_matrix_with_vac[0] +
+            all_coords.append(site.coords + half_lattice.matrix[2] * (1 + c_adjust) +
+                              unit_ab_adjust * np.linalg.norm(half_lattice.matrix[2] * (1 + c_adjust)) +
+                              translation_v + ab_shift[0] * whole_matrix_with_vac[0] +
                               ab_shift[1] * whole_matrix_with_vac[1])
 
         gb_with_vac = Structure(whole_lat, all_species, all_coords,
                                 coords_are_cartesian=True,
                                 site_properties={'grain_label': grain_labels})
+        # merge closer atoms. extract near gb atoms.
+        cos_c_norm_plane = np.dot(unit_normal_v, whole_matrix_with_vac[2]) / whole_lat.c
+        range_c_len = abs(bond_length / cos_c_norm_plane / whole_lat.c)
+        sites_near_gb = []
+        sites_away_gb = []
+        for site in gb_with_vac.sites:
+            if site.frac_coords[2] < range_c_len or site.frac_coords[2] > 1 - range_c_len \
+                    or (site.frac_coords[2] > 0.5 - range_c_len and site.frac_coords[2] < 0.5 + range_c_len):
+                sites_near_gb.append(site)
+            else:
+                sites_away_gb.append(site)
+        if len(sites_near_gb) >= 1:
+            s_near_gb = Structure.from_sites(sites_near_gb)
+            s_near_gb.merge_sites(tol=bond_length * rm_ratio, mode='d')
+            all_sites = sites_away_gb + s_near_gb.sites
+            gb_with_vac = Structure.from_sites(all_sites)
 
-        return Gb(whole_lat, all_species, all_coords, rotation_axis, rotation_angle,
-                  plane, self.initial_structure, vacuum_thickness, ab_shift,
-                  site_properties={'grain_label': grain_labels},
-                  oriented_unit_cell=oriended_unit_cell,
-                  coords_are_cartesian=True)
+        return GrainBoundary(whole_lat, gb_with_vac.species, gb_with_vac.cart_coords, rotation_axis,
+                             rotation_angle, plane, join_plane, self.initial_structure,
+                             vacuum_thickness, ab_shift, site_properties=gb_with_vac.site_properties,
+                             oriented_unit_cell=oriended_unit_cell,
+                             coords_are_cartesian=True)
 
     def get_ratio(self, max_denominator=5, index_none=None):
         """
@@ -616,15 +721,14 @@ class GBGenerator(object):
                     ratio[index[1]] = frac.numerator
                     ratio[index[0]] = frac.denominator
         elif lat_type == 'c':
-            print('Cubic system does not need axial ratio')
+            raise RuntimeError('Cubic system does not need axial ratio.')
         else:
-            print('Lattice type not implemented')
-
+            raise RuntimeError('Lattice type not implemented.')
         return ratio
 
     @staticmethod
     def get_trans_mat(r_axis, angle, normal=False, trans_cry=np.eye(3), lat_type='c',
-                      ratio=None, surface=None, max_search=50):
+                      ratio=None, surface=None, max_search=20, quick_gen=False):
         """
         Find the two transformation matrix for each grain from given rotation axis,
         GB plane, rotation angle and corresponding ratio (see explanation for ratio
@@ -675,7 +779,8 @@ class GBGenerator(object):
             max_search (int): max search for the GB lattice vectors that give the smallest GB
                 lattice. If normal is true, also max search the GB c vector that perpendicular
                 to the plane.
-
+            quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
+                find the smallest cell.
         Returns:
             t1 (3 by 3 integer array):
                     The transformation array for one grain.
@@ -808,8 +913,7 @@ class GBGenerator(object):
             all_list = r_list + r_list_inv + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
-            r_matrix = np.matrix(np.array(np.array(r_list) / com_fac
-                                          / sigma).reshape(3, 3))
+            r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
         elif lat_type.lower() == 'r':
             # set the value for u,v,w,mu,mv,m,n,d
             # check the reference for the meaning of these parameters
@@ -887,9 +991,7 @@ class GBGenerator(object):
             all_list = r_list_inv + r_list + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
-            r_matrix = np.matrix(np.array(np.array(r_list) / com_fac
-                                          / sigma).reshape(3, 3))
-
+            r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
         else:
             u, v, w = r_axis
             if lat_type.lower() == 'c':
@@ -991,8 +1093,7 @@ class GBGenerator(object):
             all_list = r_list + r_list_inv + [F]
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
-            r_matrix = np.matrix(np.array(np.array(r_list) / com_fac
-                                          / sigma).reshape(3, 3))
+            r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
         if (sigma > 1000):
             raise RuntimeError('Sigma >1000 too large. Are you sure what you are doing, '
@@ -1008,17 +1109,17 @@ class GBGenerator(object):
         r_axis = np.rint(np.matmul(r_axis, np.linalg.inv(trans_cry))).astype(int)
         if reduce(gcd, r_axis) != 1:
             r_axis = [int(round(x / reduce(gcd, r_axis))) for x in r_axis]
-        r_matrix = np.matrix(trans_cry).T.I * r_matrix * np.matrix(trans_cry).T
+        r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
-        I_mat = np.matrix(np.identity(3))
+        eye = np.eye(3, dtype=np.int)
         for h in range(3):
             if abs(r_axis[h]) != 0:
-                I_mat[h] = np.array(r_axis)
+                eye[h] = np.array(r_axis)
                 k = h + 1 if h + 1 < 3 else abs(2 - h)
                 l = h + 2 if h + 2 < 3 else abs(1 - h)
                 break
-        trans = I_mat.T
+        trans = eye.T
         new_rot = np.array(r_matrix)
 
         # with the rotation matrix to construct the CSL lattice, check reference for details
@@ -1039,9 +1140,9 @@ class GBGenerator(object):
             raise RuntimeError('Something is wrong. Check if this GB exists or not')
         scale[k, l] = n_final
         # each row of mat_csl is the CSL lattice vector
-        csl_init = np.rint(r_matrix * trans * np.matrix(scale)).astype(int).T
+        csl_init = np.rint(np.dot(np.dot(r_matrix, trans), scale)).astype(int).T
         if abs(r_axis[h]) > 1:
-            csl_init = GBGenerator.reduce_mat(np.array(csl_init), r_axis[h])
+            csl_init = GrainBoundaryGenerator.reduce_mat(np.array(csl_init), r_axis[h], r_matrix)
         csl = np.rint(Lattice(csl_init).get_niggli_reduced_lattice().matrix).astype(int)
 
         # find the best slab supercell in terms of the conventional cell from the csl lattice,
@@ -1063,8 +1164,9 @@ class GBGenerator(object):
                                       [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)]])
             else:
                 trans_cry = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
-        t1_final = GBGenerator.slab_from_csl(csl, surface, normal, trans_cry, max_search=max_search)
-        t2_final = np.array(np.rint(np.matrix(t1_final) * (r_matrix).T.I)).astype(int)
+        t1_final = GrainBoundaryGenerator.slab_from_csl(csl, surface, normal, trans_cry, max_search=max_search,
+                                                        quick_gen=quick_gen)
+        t2_final = np.array(np.rint(np.dot(t1_final, np.linalg.inv(r_matrix.T)))).astype(int)
         return t1_final, t2_final
 
     @staticmethod
@@ -1689,6 +1791,73 @@ class GBGenerator(object):
         return sigmas
 
     @staticmethod
+    def enum_possible_plane_cubic(plane_cutoff, r_axis, r_angle):
+        """
+        Find all possible plane combinations for GBs given a rotaion axis and angle for
+        cubic system, and classify them to different categories, including 'Twist',
+        'Symmetric tilt', 'Normal tilt', 'Mixed' GBs.
+
+        Args:
+            plane_cutoff (integer): the cutoff of plane miller index.
+            r_axis (list of three integers, e.g. u, v, w):
+                    the rotation axis of the grain boundary, with the format of [u,v,w].
+            r_angle (float): rotation angle of the GBs.
+        Returns:
+            all_combinations (dict):
+                    dictionary with keys as GB type, e.g. 'Twist','Symmetric tilt',etc.
+                    and values as the combination of the two plane miller index
+                     (GB plane and joining plane).
+        """
+        all_combinations = {}
+        all_combinations['Symmetric tilt'] = []
+        all_combinations['Twist'] = []
+        all_combinations['Normal tilt'] = []
+        all_combinations['Mixed'] = []
+        sym_plane = symm_group_cubic([[1, 0, 0], [1, 1, 0]])
+        j = np.arange(0, plane_cutoff + 1)
+        combination = []
+        for i in itertools.product(j, repeat=3):
+            if sum(abs(np.array(i))) != 0:
+                combination.append(list(i))
+            if len(np.nonzero(i)[0]) == 3:
+                for i1 in range(3):
+                    new_i = list(i).copy()
+                    new_i[i1] = -1 * new_i[i1]
+                    combination.append(new_i)
+            elif len(np.nonzero(i)[0]) == 2:
+                new_i = list(i).copy()
+                new_i[np.nonzero(i)[0][0]] = -1 * new_i[np.nonzero(i)[0][0]]
+                combination.append(new_i)
+        miller = np.array(combination)
+        miller = miller[np.argsort(np.linalg.norm(miller, axis=1))]
+        for i, val in enumerate(miller):
+            if reduce(gcd, val) == 1:
+                matrix = GrainBoundaryGenerator.get_trans_mat(r_axis, r_angle, surface=val, quick_gen=True)
+                vec = np.cross(matrix[1][0], matrix[1][1])
+                miller2 = GrainBoundaryGenerator.vec_to_surface(vec)
+                if np.all(np.abs(np.array(miller2)) <= plane_cutoff):
+                    cos_1 = abs(np.dot(val, r_axis) / np.linalg.norm(val) / np.linalg.norm(r_axis))
+                    if 1 - cos_1 < 1.e-5:
+                        all_combinations['Twist'].append([list(val), miller2])
+                    elif cos_1 < 1.e-8:
+                        sym_tilt = False
+                        if np.sum(np.abs(val)) == np.sum(np.abs(miller2)):
+                            ave = (np.array(val) + np.array(miller2)) / 2
+                            ave1 = (np.array(val) - np.array(miller2)) / 2
+                            for plane in sym_plane:
+                                cos_2 = abs(np.dot(ave, plane) / np.linalg.norm(ave) / np.linalg.norm(plane))
+                                cos_3 = abs(np.dot(ave1, plane) / np.linalg.norm(ave1) / np.linalg.norm(plane))
+                                if 1 - cos_2 < 1.e-5 or 1 - cos_3 < 1.e-5:
+                                    all_combinations['Symmetric tilt'].append([list(val), miller2])
+                                    sym_tilt = True
+                                    break
+                        if not sym_tilt:
+                            all_combinations['Normal tilt'].append([list(val), miller2])
+                    else:
+                        all_combinations['Mixed'].append([list(val), miller2])
+        return all_combinations
+
+    @staticmethod
     def get_rotation_angle_from_sigma(sigma, r_axis, lat_type='C', ratio=None):
         """
         Find all possible rotation angle for the given sigma value.
@@ -1726,57 +1895,53 @@ class GBGenerator(object):
             to the correct possible sigma value right smaller than the wrong sigma value provided.
         """
         if lat_type.lower() == 'c':
-            print('Make sure this is for cubic system')
-            sigma_dict = GBGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=r_axis)
+            logger.info('Make sure this is for cubic system')
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=r_axis)
         elif lat_type.lower() == 't':
-            print('Make sure this is for tetragonal system')
+            logger.info('Make sure this is for tetragonal system')
             if ratio is None:
-                print('Make sure this is for irrational c2/a2 ratio')
+                logger.info('Make sure this is for irrational c2/a2 ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Tetragonal system needs correct c2/a2 ratio')
-            sigma_dict = GBGenerator.enum_sigma_tet(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
         elif lat_type.lower() == 'o':
-            print('Make sure this is for orthorhombic system')
+            logger.info('Make sure this is for orthorhombic system')
             if len(ratio) != 3:
                 raise RuntimeError('Orthorhombic system needs correct c2:b2:a2 ratio')
-            sigma_dict = GBGenerator.enum_sigma_ort(cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio)
         elif lat_type.lower() == 'h':
-            print('Make sure this is for hexagonal system')
+            logger.info('Make sure this is for hexagonal system')
             if ratio is None:
-                print('Make sure this is for irrational c2/a2 ratio')
+                logger.info('Make sure this is for irrational c2/a2 ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Hexagonal system needs correct c2/a2 ratio')
-            sigma_dict = GBGenerator.enum_sigma_hex(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
         elif lat_type.lower() == 'r':
-            print('Make sure this is for rhombohedral system')
+            logger.info('Make sure this is for rhombohedral system')
             if ratio is None:
-                print('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
+                logger.info('Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio')
             elif len(ratio) != 2:
                 raise RuntimeError('Rhombohedral system needs correct '
                                    '(1+2*cos(alpha)/cos(alpha) ratio')
-            sigma_dict = GBGenerator.enum_sigma_rho(cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio)
         else:
             raise RuntimeError('Lattice type not implemented')
 
         sigmas = list(sigma_dict.keys())
         if not sigmas:
-            print('This is a wriong sigma value, and no sigma exists smaller than this value.')
-            return None
+            raise RuntimeError('This is a wriong sigma value, and no sigma exists smaller than this value.')
         if sigma in sigmas:
             rotation_angles = sigma_dict[sigma]
         else:
             sigmas.sort()
-            print("This is not the possible sigma value according to the rotation axis!")
-            print("The possible sigma values that are smaller than the given "
-                  "sigma values include:", "\n", sigmas)
-            print("The nearest neighbor sigma is:", "\n", sigmas[-1],
-                  "and the corresponding angles are returned")
+            warnings.warn("This is not the possible sigma value according to the rotation axis!"
+                          "The nearest neighbor sigma and its corresponding angle are returned")
             rotation_angles = sigma_dict[sigmas[-1]]
         rotation_angles.sort()
         return rotation_angles
 
     @staticmethod
-    def slab_from_csl(csl, surface, normal, trans_cry, max_search=50):
+    def slab_from_csl(csl, surface, normal, trans_cry, max_search=20, quick_gen=False):
         """
         By linear operation of csl lattice vectors to get the best corresponding
         slab lattice. That is the area of a,b vectors (within the surface plane)
@@ -1795,6 +1960,8 @@ class GBGenerator(object):
             max_search (int): max search for the GB lattice vectors that give the smallest GB
                 lattice. If normal is true, also max search the GB c vector that perpendicular
                 to the plane.
+            quick_gen (bool): whether to quickly generate a supercell, no need to find the smallest
+                cell if set to true.
 
         Returns:
             t_matrix: a slab lattice ( 3 by 3 integer array):
@@ -1803,7 +1970,7 @@ class GBGenerator(object):
         # set the transform matrix in real space
         trans = trans_cry
         # transform matrix in reciprocal space
-        ctrans = np.array(np.matrix(trans).T.I)
+        ctrans = np.linalg.inv(trans.T)
 
         t_matrix = csl.copy()
         # vectors constructed from csl that perpendicular to surface
@@ -1813,6 +1980,33 @@ class GBGenerator(object):
         if reduce(gcd, miller) != 1:
             miller = [int(round(x / reduce(gcd, miller))) for x in miller]
         miller_nonzero = []
+        # quickly generate a supercell, normal is not work in this way
+        if quick_gen:
+            scale_factor = []
+            eye = np.eye(3, dtype=np.int)
+            for i, j in enumerate(miller):
+                if j == 0:
+                    scale_factor.append(eye[i])
+                else:
+                    miller_nonzero.append(i)
+            if len(scale_factor) < 2:
+                index_len = len(miller_nonzero)
+                for i in range(index_len):
+                    for j in range(i + 1, index_len):
+                        lcm_miller = lcm(miller[miller_nonzero[i]], miller[miller_nonzero[j]])
+                        l = [0, 0, 0]
+                        l[miller_nonzero[i]] = -int(round(lcm_miller / miller[miller_nonzero[i]]))
+                        l[miller_nonzero[j]] = int(round(lcm_miller / miller[miller_nonzero[j]]))
+                        scale_factor.append(l)
+                        if len(scale_factor) == 2:
+                            break
+            t_matrix[0] = np.array(np.dot(scale_factor[0], csl))
+            t_matrix[1] = np.array(np.dot(scale_factor[1], csl))
+            t_matrix[2] = csl[miller_nonzero[0]]
+            if abs(np.linalg.det(t_matrix)) > 1000:
+                warnings.warn('Too large matrix. Suggest to use quick_gen=False')
+            return t_matrix
+
         for i, j in enumerate(miller):
             if j == 0:
                 ab_vector.append(csl[i])
@@ -1821,6 +2015,7 @@ class GBGenerator(object):
                 miller_nonzero.append(j)
 
         if len(miller_nonzero) > 1:
+            t_matrix[2] = csl[c_index]
             index_len = len(miller_nonzero)
             lcm_miller = []
             for i in range(index_len):
@@ -1847,33 +2042,90 @@ class GBGenerator(object):
         # area of a, b vectors
         area = None
         # length of c vector
-        c_norm = None
-        for j1 in range(-max_j, max_j + 1):
-            for j2 in range(-max_j, max_j + 1):
-                for j3 in range(-max_j, max_j + 1):
-                    temp = j1 * csl[0] + j2 * csl[1] + j3 * csl[2]
-                    if abs(np.dot(temp, surface) - 0) < 1.e-8:
-                        if np.linalg.norm(np.matmul(temp, trans)) > 0:
-                            ab_vector.append(temp)
+        c_norm = np.linalg.norm(np.matmul(t_matrix[2], trans))
+        # c vector length along the direction perpendicular to surface
+        c_length = np.abs(np.dot(t_matrix[2], surface))
+        # check if the init c vector perpendicular to the surface
+        if normal:
+            c_cross = np.cross(np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans))
+            if np.linalg.norm(c_cross) < 1.e-8:
+                normal_init = True
+            else:
+                normal_init = False
+
+        j = np.arange(0, max_j + 1)
+        combination = []
+        for i in itertools.product(j, repeat=3):
+            if sum(abs(np.array(i))) != 0:
+                combination.append(list(i))
+            if len(np.nonzero(i)[0]) == 3:
+                for i1 in range(3):
+                    new_i = list(i).copy()
+                    new_i[i1] = -1 * new_i[i1]
+                    combination.append(new_i)
+            elif len(np.nonzero(i)[0]) == 2:
+                new_i = list(i).copy()
+                new_i[np.nonzero(i)[0][0]] = -1 * new_i[np.nonzero(i)[0][0]]
+                combination.append(new_i)
+        for i in combination:
+            if reduce(gcd, i) == 1:
+                temp = np.dot(np.array(i), csl)
+                if abs(np.dot(temp, surface) - 0) < 1.e-8:
+                    ab_vector.append(temp)
+                else:
+                    # c vector length along the direction perpendicular to surface
+                    c_len_temp = np.abs(np.dot(temp, surface))
+                    # c vector length itself
+                    c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
+                    if normal:
+                        c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
+                        if np.linalg.norm(c_cross) < 1.e-8:
+                            if normal_init:
+                                if c_norm_temp < c_norm:
+                                    t_matrix[2] = temp
+                                    c_norm = c_norm_temp
+                            else:
+                                c_norm = c_norm_temp
+                                normal_init = True
+                                t_matrix[2] = temp
                     else:
-                        # c vector length along the direction perpendicular to surface
-                        c_len_temp = np.abs(np.dot(temp, surface))
-                        # c vector length itself
-                        c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
-                        if c_norm is None:
+                        if c_len_temp < c_length or \
+                                (abs(c_len_temp - c_length) < 1.e-8 and c_norm_temp < c_norm):
+                            t_matrix[2] = temp
                             c_norm = c_norm_temp
                             c_length = c_len_temp
-                            # check if the init c vector perpendicular to the surface
-                            if normal:
-                                c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
-                                if np.linalg.norm(c_cross) < 1.e-8:
-                                    normal_init = True
-                                    t_matrix[2] = temp
-                                else:
-                                    normal_init = False
-                        elif normal:
+
+        if normal and (not normal_init):
+            logger.info('Did not find the perpendicular c vector, increase max_j')
+            while (not normal_init):
+                if max_j == max_search:
+                    warnings.warn('Cannot find the perpendicular c vector, please increase max_search')
+                    break
+                max_j = 3 * max_j
+                if max_j > max_search:
+                    max_j = max_search
+                j = np.arange(0, max_j + 1)
+                combination = []
+                for i in itertools.product(j, repeat=3):
+                    if sum(abs(np.array(i))) != 0:
+                        combination.append(list(i))
+                    if len(np.nonzero(i)[0]) == 3:
+                        for i1 in range(3):
+                            new_i = list(i).copy()
+                            new_i[i1] = -1 * new_i[i1]
+                            combination.append(new_i)
+                    elif len(np.nonzero(i)[0]) == 2:
+                        new_i = list(i).copy()
+                        new_i[np.nonzero(i)[0][0]] = -1 * new_i[np.nonzero(i)[0][0]]
+                        combination.append(new_i)
+                for i in combination:
+                    if reduce(gcd, i) == 1:
+                        temp = np.dot(np.array(i), csl)
+                        if abs(np.dot(temp, surface) - 0) > 1.e-8:
                             c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
                             if np.linalg.norm(c_cross) < 1.e-8:
+                                # c vetor length itself
+                                c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
                                 if normal_init:
                                     if c_norm_temp < c_norm:
                                         t_matrix[2] = temp
@@ -1882,78 +2134,51 @@ class GBGenerator(object):
                                     c_norm = c_norm_temp
                                     normal_init = True
                                     t_matrix[2] = temp
-                        else:
-                            if c_len_temp < c_length or \
-                                    (abs(c_len_temp - c_length) < 1.e-8 and c_norm_temp < c_norm):
-                                t_matrix[2] = temp
-                                c_norm = c_norm_temp
-                                c_length = c_len_temp
-
-        if normal and (not normal_init):
-            print('Warning: did not find the perpendicular c vector, increase max_j')
-            while (not normal_init):
-                if max_j == max_search:
-                    print('Cannot find the perpendicular c vector, please increase max_search')
-                    break
-                max_j = 3 * max_j
-                if max_j > 50:
-                    max_j = 50
-                c_norm = None
-                for j1 in range(-max_j, max_j + 1):
-                    for j2 in range(-max_j, max_j + 1):
-                        for j3 in range(-max_j, max_j + 1):
-                            temp = j1 * csl[0] + j2 * csl[1] + j3 * csl[2]
-                            if abs(np.dot(temp, surface) - 0) > 1.e-8:
-                                c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
-                                if np.linalg.norm(c_cross) < 1.e-8:
-                                    # c vetor length itself
-                                    c_norm_temp = np.linalg.norm(np.matmul(temp, trans))
-                                    if c_norm is None:
-                                        c_norm = c_norm_temp
-                                        normal_init = True
-                                        t_matrix[2] = temp
-                                    elif c_norm_temp < c_norm:
-                                        t_matrix[2] = temp
-                                        c_norm = c_norm_temp
+                if normal_init:
+                    logger.info('Found perpendicular c vector')
 
         # find the best a, b vectors with their formed area smallest and average norm of a,b smallest.
-        for i, vali in enumerate(ab_vector):
-            for j, valj in enumerate(ab_vector, start=i + 1):
-                area_temp = np.linalg.norm(np.cross(np.matmul(vali, trans),
-                                                    np.matmul(valj, trans)))
-                if abs(area_temp - 0) > 1.e-8:
-                    ab_norm_temp = np.linalg.norm(np.matmul(vali, trans)) + \
-                                   np.linalg.norm(np.matmul(valj, trans))
-                    if area is None:
-                        area = area_temp
-                        ab_norm = ab_norm_temp
-                        t_matrix[0] = vali
-                        t_matrix[1] = valj
-                    elif area_temp < area:
-                        t_matrix[0] = vali
-                        t_matrix[1] = valj
-                        area = area_temp
-                        ab_norm = ab_norm_temp
-                    elif abs(area - area_temp) < 1.e-8 and ab_norm_temp < ab_norm:
-                        t_matrix[0] = vali
-                        t_matrix[1] = valj
-                        area = area_temp
-                        ab_norm = ab_norm_temp
+        for i in itertools.combinations(ab_vector, 2):
+            area_temp = np.linalg.norm(np.cross(np.matmul(i[0], trans),
+                                                np.matmul(i[1], trans)))
+            if abs(area_temp - 0) > 1.e-8:
+                ab_norm_temp = np.linalg.norm(np.matmul(i[0], trans)) + \
+                               np.linalg.norm(np.matmul(i[1], trans))
+                if area is None:
+                    area = area_temp
+                    ab_norm = ab_norm_temp
+                    t_matrix[0] = i[0]
+                    t_matrix[1] = i[1]
+                elif area_temp < area:
+                    t_matrix[0] = i[0]
+                    t_matrix[1] = i[1]
+                    area = area_temp
+                    ab_norm = ab_norm_temp
+                elif abs(area - area_temp) < 1.e-8 and ab_norm_temp < ab_norm:
+                    t_matrix[0] = i[0]
+                    t_matrix[1] = i[1]
+                    area = area_temp
+                    ab_norm = ab_norm_temp
+
         # make sure we have a left-handed crystallographic system
         if np.linalg.det(np.matmul(t_matrix, trans)) < 0:
             t_matrix *= -1
 
+        if normal and abs(np.linalg.det(t_matrix)) > 1000:
+            warnings.warn('Too large matrix. Suggest to use Normal=False')
         return t_matrix
 
     @staticmethod
-    def reduce_mat(mat, mag):
+    def reduce_mat(mat, mag, r_matrix):
         """
         Reduce integer array mat's determinant mag times by linear combination
-        of its row vectors
+        of its row vectors, so that the new array after rotation (r_matrix) is
+        still an integer array
 
         Args:
             mat (3 by 3 array): input matrix
             mag (integer): reduce times for the determinant
+            r_matrix (3 by 3 array): rotation matrix
         Return:
             the reduced integer array
         """
@@ -1962,21 +2187,59 @@ class GBGenerator(object):
         for h in range(3):
             k = h + 1 if h + 1 < 3 else abs(2 - h)
             l = h + 2 if h + 2 < 3 else abs(1 - h)
-            for j1 in range(-max_j, max_j + 1):
-                for j2 in range(-max_j, max_j + 1):
-                    temp = mat[h] + j1 * mat[k] + j2 * mat[l]
-                    if all([np.round(x, 5).is_integer() for x in list(temp / mag)]):
-                        mat[h] = np.array([int(round(ele / mag)) for ele in temp])
+            j = np.arange(-max_j, max_j + 1)
+            for j1, j2 in itertools.product(j, repeat=2):
+                temp = mat[h] + j1 * mat[k] + j2 * mat[l]
+                if all([np.round(x, 5).is_integer() for x in list(temp / mag)]):
+                    mat_copy = mat.copy()
+                    mat_copy[h] = np.array([int(round(ele / mag)) for ele in temp])
+                    new_mat = np.dot(mat_copy, np.linalg.inv(r_matrix.T))
+                    if all([np.round(x, 5).is_integer() for x in list(np.ravel(new_mat))]):
                         reduced = True
+                        mat[h] = np.array([int(round(ele / mag)) for ele in temp])
                         break
-                if reduced:
-                    break
             if reduced:
                 break
 
         if not reduced:
-            print('Warning: Matrix reduction not performed.')
+            warnings.warn("Matrix reduction not performed, may lead to non-primitive gb cell.")
         return mat
+
+    @staticmethod
+    def vec_to_surface(vec):
+        """
+        Transform a float vector to a surface miller index with integers.
+
+        Args:
+            vec (1 by 3 array float vector): input float vector
+        Return:
+            the surface miller index of the input vector.
+        """
+        miller = [None] * 3
+        index = []
+        for i, value in enumerate(vec):
+            if abs(value) < 1.e-8:
+                miller[i] = 0
+            else:
+                index.append(i)
+        if len(index) == 1:
+            miller[index[0]] = 1
+        else:
+            min_index = np.argmin([i for i in vec if i != 0])
+            true_index = index[min_index]
+            index.pop(min_index)
+            frac = []
+            for i, value in enumerate(index):
+                frac.append(Fraction(vec[value] / vec[true_index]).limit_denominator(100))
+            if len(index) == 1:
+                miller[true_index] = frac[0].denominator
+                miller[index[0]] = frac[0].numerator
+            else:
+                com_lcm = lcm(frac[0].denominator, frac[1].denominator)
+                miller[true_index] = com_lcm
+                miller[index[0]] = frac[0].numerator * int(round((com_lcm / frac[0].denominator)))
+                miller[index[1]] = frac[1].numerator * int(round((com_lcm / frac[1].denominator)))
+        return miller
 
 
 def factors(n):
@@ -2028,3 +2291,47 @@ def fix_pbc(structure, matrix=None):
         coords.append(coord)
 
     return Structure(latte, spec, coords, site_properties=structure.site_properties)
+
+
+def symm_group_cubic(mat):
+    """
+     obtain cubic symmetric eqivalents of the list of vectors.
+
+    Args:
+        matrix (lattice matrix, n by 3 array/matrix)
+
+    Return:
+        cubic symmetric eqivalents of the list of vectors.
+    """
+    sym_group = np.zeros([24, 3, 3])
+    sym_group[0, :] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    sym_group[1, :] = [[1, 0, 0], [0, -1, 0], [0, 0, -1]]
+    sym_group[2, :] = [[-1, 0, 0], [0, 1, 0], [0, 0, -1]]
+    sym_group[3, :] = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+    sym_group[4, :] = [[0, -1, 0], [-1, 0, 0], [0, 0, -1]]
+    sym_group[5, :] = [[0, -1, 0], [1, 0, 0], [0, 0, 1]]
+    sym_group[6, :] = [[0, 1, 0], [-1, 0, 0], [0, 0, 1]]
+    sym_group[7, :] = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
+    sym_group[8, :] = [[-1, 0, 0], [0, 0, -1], [0, -1, 0]]
+    sym_group[9, :] = [[-1, 0, 0], [0, 0, 1], [0, 1, 0]]
+    sym_group[10, :] = [[1, 0, 0], [0, 0, -1], [0, 1, 0]]
+    sym_group[11, :] = [[1, 0, 0], [0, 0, 1], [0, -1, 0]]
+    sym_group[12, :] = [[0, 1, 0], [0, 0, 1], [1, 0, 0]]
+    sym_group[13, :] = [[0, 1, 0], [0, 0, -1], [-1, 0, 0]]
+    sym_group[14, :] = [[0, -1, 0], [0, 0, 1], [-1, 0, 0]]
+    sym_group[15, :] = [[0, -1, 0], [0, 0, -1], [1, 0, 0]]
+    sym_group[16, :] = [[0, 0, 1], [1, 0, 0], [0, 1, 0]]
+    sym_group[17, :] = [[0, 0, 1], [-1, 0, 0], [0, -1, 0]]
+    sym_group[18, :] = [[0, 0, -1], [1, 0, 0], [0, -1, 0]]
+    sym_group[19, :] = [[0, 0, -1], [-1, 0, 0], [0, 1, 0]]
+    sym_group[20, :] = [[0, 0, -1], [0, -1, 0], [-1, 0, 0]]
+    sym_group[21, :] = [[0, 0, -1], [0, 1, 0], [1, 0, 0]]
+    sym_group[22, :] = [[0, 0, 1], [0, -1, 0], [1, 0, 0]]
+    sym_group[23, :] = [[0, 0, 1], [0, 1, 0], [-1, 0, 0]]
+
+    mat = np.atleast_2d(mat)
+    all_vectors = []
+    for sym in sym_group:
+        for vec in mat:
+            all_vectors.append(np.dot(sym, vec))
+    return np.unique(np.array(all_vectors), axis=0)

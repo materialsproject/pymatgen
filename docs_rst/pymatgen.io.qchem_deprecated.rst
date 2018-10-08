@@ -1,5 +1,5 @@
-pymatgen\.io\.qchem\_deprecated module
-======================================
+pymatgen.io.qchem\_deprecated module
+====================================
 
 .. automodule:: pymatgen.io.qchem_deprecated
     :members:

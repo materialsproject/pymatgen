@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.core.tensors module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.core.tensors module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.core.tensors.SquareTensor">
 <em class="property">class </em><code class="descname">SquareTensor</code><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.core.tensors.Tensor</span></code></a></p>
 <p>Base class for doing useful general operations on second rank tensors
 (stress, strain etc.).</p>
 <p>Create a SquareTensor object.  Note that the constructor uses __new__
@@ -134,7 +122,7 @@ rotations in the determination of validity</li>
 
 <dl class="method">
 <dt id="pymatgen.core.tensors.SquareTensor.polar_decomposition">
-<code class="descname">polar_decomposition</code><span class="sig-paren">(</span><em>side=’right’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.polar_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition">¶</a></dt>
+<code class="descname">polar_decomposition</code><span class="sig-paren">(</span><em>side=u'right'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#SquareTensor.polar_decomposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.SquareTensor.polar_decomposition" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculates matrices for polar decomposition</p>
 </dd></dl>
 
@@ -176,7 +164,7 @@ and the new z vector from a cross product of the new x and y</p>
 <dl class="class">
 <dt id="pymatgen.core.tensors.Tensor">
 <em class="property">class </em><code class="descname">Tensor</code><a class="reference internal" href="_modules/pymatgen/core/tensors.html#Tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.Tensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Base class for doing useful general operations on Nth order tensors,
 without restrictions on the type (stress, elastic, strain, piezo, etc.)</p>
 <p>Create a Tensor object.  Note that the constructor uses __new__
@@ -353,11 +341,11 @@ of voigt or full notation tensor, defaults
 to false</li>
 <li><strong>**kwargs</strong> – <p>keyword args for np.isclose.  Can take atol
 and rtol for absolute and relative tolerance, e. g.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">group_array_indices</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">group_array_indices</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">group_array_indices</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">group_array_indices</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -411,11 +399,11 @@ defaults to false, since tensor notations tend to use
 one-indexing, rather than zero indexing like python</li>
 <li><strong>**kwargs</strong> – <p>keyword args for np.isclose.  Can take atol
 and rtol for absolute and relative tolerance, e. g.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">get_symbol_dict</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">get_symbol_dict</span><span class="p">(</span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">get_symbol_dict</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span><span class="o">.</span><span class="n">get_symbol_dict</span><span class="p">(</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -612,7 +600,7 @@ corresponds to the new_structure’s basis</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.tensors.Tensor.symbol">
-<code class="descname">symbol</code><em class="property"> = ‘T’</em><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition">¶</a></dt>
+<code class="descname">symbol</code><em class="property"> = u'T'</em><a class="headerlink" href="#pymatgen.core.tensors.Tensor.symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -661,8 +649,8 @@ tensor such that it is invariant wrt permutation of indices</p>
 
 <dl class="class">
 <dt id="pymatgen.core.tensors.TensorCollection">
-<em class="property">class </em><code class="descname">TensorCollection</code><span class="sig-paren">(</span><em>tensor_list</em>, <em>base_class=&lt;class ‘pymatgen.core.tensors.Tensor’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">collections.abc.Sequence</span></code>, <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<em class="property">class </em><code class="descname">TensorCollection</code><span class="sig-paren">(</span><em>tensor_list</em>, <em>base_class=&lt;class 'pymatgen.core.tensors.Tensor'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_abcoll.Sequence</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>A sequence of tensors that can be used for fitting data
 or for having a tensor expansion</p>
 <dl class="method">
@@ -687,7 +675,7 @@ or for having a tensor expansion</p>
 
 <dl class="classmethod">
 <dt id="pymatgen.core.tensors.TensorCollection.from_voigt">
-<em class="property">classmethod </em><code class="descname">from_voigt</code><span class="sig-paren">(</span><em>voigt_input_list</em>, <em>base_class=&lt;class ‘pymatgen.core.tensors.Tensor’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.from_voigt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_voigt" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_voigt</code><span class="sig-paren">(</span><em>voigt_input_list</em>, <em>base_class=&lt;class 'pymatgen.core.tensors.Tensor'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorCollection.from_voigt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorCollection.from_voigt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -747,30 +735,42 @@ or for having a tensor expansion</p>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="pymatgen.core.tensors.get_tkd_value">
-<code class="descname">get_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>allclose_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#get_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.get_tkd_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to find a value in a tensor-keyed-
-dictionary using an approximation to the key.  This
-is useful if rounding errors in construction occur
-or hashing issues arise in tensor-keyed-dictionaries
-(e. g. from symmetry_reduce).  Resolves most
-hashing issues, and is preferable to redefining
-eq methods in the base tensor class.</p>
+<dl class="class">
+<dt id="pymatgen.core.tensors.TensorMapping">
+<em class="property">class </em><code class="descname">TensorMapping</code><span class="sig-paren">(</span><em>tensors=None</em>, <em>values=None</em>, <em>tol=1e-05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_abcoll.MutableMapping</span></code></p>
+<p>Base class for tensor mappings, which function much like
+a dictionary, but use numpy routines to determine approximate
+equality to keys for getting and setting items.</p>
+<p>This is intended primarily for convenience with things like
+stress-strain pairs and fitting data manipulation.  In general,
+it is significantly less robust than a typical hashing
+and should be used with care.</p>
+<p>Initialize a TensorMapping</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>tensor_keyed_dict</strong> (<em>dict</em>) – dict with Tensor keys</li>
-<li><strong>tensor</strong> (<a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><em>Tensor</em></a>) – tensor to find value of in the dict</li>
-<li><strong>allclose_kwargs</strong> (<em>dict</em>) – dict of keyword-args
-to pass to allclose.</li>
+<li><strong>tensor_list</strong> (<em>[</em><a class="reference internal" href="#pymatgen.core.tensors.Tensor" title="pymatgen.core.tensors.Tensor"><em>Tensor</em></a><em>]</em>) – list of tensors</li>
+<li><strong>value_list</strong> (<em>[</em><em>]</em>) – list of values to be associated with tensors</li>
+<li><strong>tol</strong> (<em>float</em>) – an absolute tolerance for getting and setting
+items in the mapping</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorMapping.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; list of D's (key, value) pairs, as 2-tuples<a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.core.tensors.TensorMapping.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; list of D's values<a class="reference internal" href="_modules/pymatgen/core/tensors.html#TensorMapping.values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.TensorMapping.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -778,11 +778,6 @@ to pass to allclose.</li>
 <code class="descname">get_uvec</code><span class="sig-paren">(</span><em>vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#get_uvec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.get_uvec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets a unit vector parallel to input vector</p>
 </dd></dl>
-
-<dl class="function">
-<dt id="pymatgen.core.tensors.set_tkd_value">
-<code class="descname">set_tkd_value</code><span class="sig-paren">(</span><em>tensor_keyed_dict</em>, <em>tensor</em>, <em>set_value</em>, <em>allclose_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/core/tensors.html#set_tkd_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.tensors.set_tkd_value" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.core.tensors.symmetry_reduce">
@@ -830,12 +825,14 @@ tensors as values</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -851,13 +848,13 @@ tensors as values</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

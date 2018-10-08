@@ -1,6 +1,43 @@
 Change log
 ==========
 
+v2018.9.30
+----------
+
+* Fix: increased cut-off to VoronoiNN to avoid scipy crash (@utf)
+* Fix: Outcar parsing issues with certain values of electrostatic potential (@sivonxay)
+* Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
+  stoichiometries in some instances (#1286) (@shyuep)
+* Fix: fractional co-ordinate finite precision errors in CifParser, now
+  also includes additional warnings for implicit hydrogens (@mkhorton)
+* New features and improvements to GBGenerator (@ucsdlxg, @shyuep)
+* New analysis options in StructureGraph, speed up tests (@mkhorton)
+* New utility function to pretty print disordered formulae, along with a
+  ordered-to-disordered structure transformation (@mkhorton)
+* Ability to use pymatgen's StructureMatcher against AFLOW's library of
+  crystallographic prototypes (@mkhorton)
+* Make Chgcar serializable to/from dict for database insertion (@jmmshn)
+
+v2018.9.19
+----------
+* Fix to composition handling in `MolecularOrbitals` (@dyllamt)
+* Fix to allow mixed compressed/uncompressed loading of VASP band structures (@ajjackson)
+* New features and fixes to `chemenv` analysis module (@davidwaroquiers)
+* Fix to include structure predictor data with pip/conda-installed pymatgen (@shyamd)
+* Fixes to `Defect` objects, icluding allowing rotational supercell transformations (@dbroberg)
+* Fix to `BSDOSPlotter` to correctly fill in parts of DOS (@fraricci)
+* Added '@' notation parsing in `Composition` (@tamuhey)
+* BibTex reference extraction updated in `CifParser` to support ICSD CIFs (@shyamd)
+* Various updates to speed up and fix test suite (@shyuep, @fraricci)
+* Improvements to BoltzTraP 2 support (@shyuep, @fraricci)
+
+v2018.9.12
+----------
+* Use boltztrap2 (@fraricci)
+* Refactoring of tensor code to core (@montoyjh)
+* Support for new Lobster version (@JaGeo)
+* Misc bug fixes
+
 v2018.8.10
 ----------
 * Bug fix for pymatgen.analysis.gb and pymatgen.io.lammps.

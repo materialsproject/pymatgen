@@ -1,5 +1,5 @@
-pymatgen\.analysis package
-==========================
+pymatgen.analysis package
+=========================
 
 Subpackages
 -----------
@@ -24,6 +24,7 @@ Submodules
 .. toctree::
 
    pymatgen.analysis.adsorption
+   pymatgen.analysis.aflow_prototypes
    pymatgen.analysis.bond_valence
    pymatgen.analysis.diffusion_analyzer
    pymatgen.analysis.energy_models

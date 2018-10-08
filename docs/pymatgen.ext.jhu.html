@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.ext.jhu module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.ext.jhu module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -61,7 +49,7 @@
 see <a class="reference external" href="http://muellergroup.jhu.edu/K-Points.html">http://muellergroup.jhu.edu/K-Points.html</a>.</p>
 <dl class="function">
 <dt id="pymatgen.ext.jhu.get_kpoints">
-<code class="descname">get_kpoints</code><span class="sig-paren">(</span><em>structure</em>, <em>min_distance=0</em>, <em>min_total_kpoints=1</em>, <em>kppra=None</em>, <em>gap_distance=7</em>, <em>remove_symmetry=None</em>, <em>include_gamma=’auto’</em>, <em>header=’simple’</em>, <em>incar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/jhu.html#get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.jhu.get_kpoints" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_kpoints</code><span class="sig-paren">(</span><em>structure</em>, <em>min_distance=0</em>, <em>min_total_kpoints=1</em>, <em>kppra=None</em>, <em>gap_distance=7</em>, <em>remove_symmetry=None</em>, <em>include_gamma='auto'</em>, <em>header='simple'</em>, <em>incar=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/ext/jhu.html#get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.ext.jhu.get_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get kpoints object from JHU servlet, per Wisesa-McGill-Mueller
 methodology.  Refer to <a class="reference external" href="http://muellergroup.jhu.edu/K-Points.html">http://muellergroup.jhu.edu/K-Points.html</a>
 and P. Wisesa, K. A. McGill, T. Mueller, Phys. Rev. B 93,
@@ -79,12 +67,12 @@ total k-points in the Brillouin zone.</li>
 <li><strong>kppra</strong> (<em>float</em>) – minimum k-points per reciprocal atom.</li>
 <li><strong>gap_distance</strong> (<em>float</em>) – auto-detection threshold for
 non-periodicity (in slabs, nanowires, etc.)</li>
-<li><strong>remove_symmetry</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – optional flag to control
+<li><strong>remove_symmetry</strong> (<em>string</em>) – optional flag to control
 symmetry options, can be none, structural,
 time_reversal, or all</li>
-<li><strong>include_gamma</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a><em> or </em><em>bool</em>) – whether to include
+<li><strong>include_gamma</strong> (<em>string</em><em> or </em><em>bool</em>) – whether to include
 gamma point</li>
-<li><strong>header</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – “verbose” or “simple”, denotes
+<li><strong>header</strong> (<em>string</em>) – “verbose” or “simple”, denotes
 the verbosity of the header</li>
 <li><strong>incar</strong> (<a class="reference internal" href="pymatgen.io.vasp.inputs.html#pymatgen.io.vasp.inputs.Incar" title="pymatgen.io.vasp.inputs.Incar"><em>Incar</em></a>) – incar object to upload</li>
 </ul>
@@ -111,12 +99,14 @@ the verbosity of the header</li>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -132,13 +122,13 @@ the verbosity of the header</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

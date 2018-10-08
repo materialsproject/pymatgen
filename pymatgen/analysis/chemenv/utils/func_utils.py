@@ -18,7 +18,8 @@ __date__ = "Feb 20, 2016"
 
 
 import numpy as np
-from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_decreasing, power2_decreasing_exp, smootherstep
+from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_decreasing, power2_decreasing_exp
+from pymatgen.analysis.chemenv.utils.math_utils import smoothstep, smootherstep
 from pymatgen.analysis.chemenv.utils.math_utils import power2_inverse_power2_decreasing
 
 
@@ -101,13 +102,13 @@ class RatioFunction(AbstractRatioFunction):
         return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']])
 
     def smoothstep(self, vals):
-        return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']])
+        return smoothstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']])
 
     def inverse_smootherstep(self, vals):
         return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']], inverse=True)
 
     def inverse_smoothstep(self, vals):
-        return smootherstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']], inverse=True)
+        return smoothstep(vals, edges=[self.__dict__['lower'], self.__dict__['upper']], inverse=True)
 
     def power2_inverse_decreasing(self, vals):
         return power2_inverse_decreasing(vals, edges=[0.0, self.__dict__['max']])

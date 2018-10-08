@@ -84,14 +84,14 @@ class DefectCompatibilityTest(PymatgenTest):
 
         params.update( {'eigenvalues': hole_eigenvalues})
         dentry = DefectEntry(self.vac, 0., corrections={}, parameters=params, entry_id=None)
-        dc = DefectCompatibility( free_chg_cutoff=1.)
+        dc = DefectCompatibility( free_chg_cutoff=0.8)
         dentry = dc.process_entry( dentry)
-        self.assertAlmostEqual( dentry.corrections['bandedgeshifting_correction'], 1.85000005)
-        self.assertAlmostEqual( dentry.corrections['bandfilling_correction'], -3.244048)
+        self.assertAlmostEqual( dentry.corrections['bandedgeshifting_correction'], 1.52500002)
+        self.assertAlmostEqual( dentry.corrections['bandfilling_correction'], -1.62202400)
         self.assertAlmostEqual( dentry.corrections['charge_correction'], 0.)
 
         # turn off band filling and band edge shifting
-        dc = DefectCompatibility( free_chg_cutoff=1., use_bandfilling=False, use_bandedgeshift=False)
+        dc = DefectCompatibility( free_chg_cutoff=0.8, use_bandfilling=False, use_bandedgeshift=False)
         dentry = dc.process_entry( dentry)
         self.assertAlmostEqual( dentry.corrections['bandedgeshifting_correction'], 0.)
         self.assertAlmostEqual( dentry.corrections['bandfilling_correction'], 0.)
@@ -133,11 +133,11 @@ class DefectCompatibilityTest(PymatgenTest):
         self.assertAlmostEqual(val['num_hole_vbm'], 0.)
         self.assertAlmostEqual(val['num_elec_cbm'], 0.)
         self.assertAlmostEqual(val['bandfilling_correction'], 0.)
-        occu = [[1.457, 0.1666667], [1.5204, 0.1666667], [1.53465, 0.1666667], [1.5498, 0.0833333]]
+        occu = [[1.457, 0.0833333], [1.5204, 0.0833333], [1.53465, 0.0833333], [1.5498, 0.0416667]]
         self.assertArrayAlmostEqual(
             list(sorted(val['occupied_def_levels'], key=lambda x: x[0])), list(
                 sorted(occu, key=lambda x: x[0])))
-        self.assertAlmostEqual(val['total_occupation_defect_levels'], 0.58333338)
+        self.assertAlmostEqual(val['total_occupation_defect_levels'], 0.29166669)
         self.assertFalse(val['unoccupied_def_levels'])
 
     def test_run_band_edge_shifting(self):

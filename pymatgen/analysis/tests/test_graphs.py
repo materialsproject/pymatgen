@@ -7,18 +7,22 @@ from __future__ import division, unicode_literals
 import unittest
 import os
 import copy
-import matplotlib
+
+from monty.serialization import loadfn#, dumpfn
 
 from pymatgen.command_line.critic2_caller import Critic2Output
 from pymatgen.core.structure import Molecule, Structure, FunctionalGroups, Site
 from pymatgen.analysis.graphs import *
-from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN
+from pymatgen.analysis.local_env import MinimumDistanceNN, MinimumOKeeffeNN, OpenBabelNN
 
 try:
     import openbabel as ob
-    import networkx as nx
 except ImportError:
     ob = None
+try:
+    import networkx as nx
+    import networkx.algorithms.isomorphism as iso
+except ImportError:
     nx = None
 
 __author__ = "Matthew Horton, Evan Spotte-Smith"
@@ -28,8 +32,11 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
+module_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+
 
 class StructureGraphTest(unittest.TestCase):
+    _multiprocess_shared_ = True
 
     def setUp(self):
 
@@ -117,12 +124,14 @@ class StructureGraphTest(unittest.TestCase):
 
         specie = nx.get_node_attributes(self.square_sg.graph, "specie")
         coords = nx.get_node_attributes(self.square_sg.graph, "coords")
+        properties = nx.get_node_attributes(self.square_sg.graph, "properties")
 
-        self.assertEqual(str(specie[0]), str(self.square_sg.structure[0].specie))
-        self.assertEqual(str(specie[0]), "H")
-        self.assertEqual(coords[0][0], self.square_sg.structure[0].coords[0])
-        self.assertEqual(coords[0][1], self.square_sg.structure[0].coords[1])
-        self.assertEqual(coords[0][2], self.square_sg.structure[0].coords[2])
+        for i in range(len(self.square_sg.structure)):
+            self.assertEqual(str(specie[i]), str(self.square_sg.structure[i].specie))
+            self.assertEqual(coords[i][0], self.square_sg.structure[i].coords[0])
+            self.assertEqual(coords[i][1], self.square_sg.structure[i].coords[1])
+            self.assertEqual(coords[i][2], self.square_sg.structure[i].coords[2])
+            self.assertEqual(properties[i], self.square_sg.structure[i].properties)
 
     def test_edge_editing(self):
         square = copy.deepcopy(self.square_sg)
@@ -381,20 +390,43 @@ from    to  to_image
     def test_extract_molecules(self):
 
         structure_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                      'test_files/C26H16BeN2O2S2.cif')
+                                      'test_files/H6PbCI3N_mp-977013_symmetrized.cif')
 
         s = Structure.from_file(structure_file)
 
-        nn = MinimumOKeeffeNN()
+        nn = MinimumDistanceNN()
         sg = StructureGraph.with_local_env_strategy(s, nn)
 
         molecules = sg.get_subgraphs_as_molecules()
-
-        self.assertEqual(molecules[0].composition.formula, "Be1 H16 C26 S2 N2 O2")
+        self.assertEqual(molecules[0].composition.formula, "H3 C1")
         self.assertEqual(len(molecules), 1)
 
         molecules = self.mos2_sg.get_subgraphs_as_molecules()
         self.assertEqual(len(molecules), 0)
+
+    def test_types_and_weights_of_connections(self):
+
+        types = self.mos2_sg.types_and_weights_of_connections
+
+        self.assertEqual(len(types['Mo-S']), 6)
+        self.assertAlmostEqual(types['Mo-S'][0], 2.416931678417331)
+
+    def test_weight_statistics(self):
+
+        weight_statistics = self.mos2_sg.weight_statistics
+
+        self.assertEqual(len(weight_statistics['all_weights']), 6)
+        self.assertAlmostEqual(weight_statistics['min'], 2.4169314100201875)
+        self.assertAlmostEqual(weight_statistics['variance'], 0)
+
+    def test_types_of_coordination_environments(self):
+
+        types = self.mos2_sg.types_of_coordination_environments()
+        self.assertListEqual(types, ['Mo-S(6)', 'S-Mo(3)'])
+
+        types_anonymous = self.mos2_sg.types_of_coordination_environments(anonymous=True)
+        self.assertListEqual(types_anonymous, ['A-B(3)', 'A-B(6)'])
+
 
 
 class MoleculeGraphTest(unittest.TestCase):
@@ -449,6 +481,20 @@ class MoleculeGraphTest(unittest.TestCase):
         self.ethylene.add_edge(1, 4, weight=1.0)
         self.ethylene.add_edge(1, 5, weight=1.0)
 
+        self.pc = Molecule.from_file(
+            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC.xyz"))
+        self.pc_edges = [[5, 10], [5, 12], [5, 11], [5, 3], [3, 7], [3, 4],
+                        [3, 0], [4, 8], [4, 9], [4, 1], [6, 1], [6, 0], [6, 2]]
+        self.pc_frag1 = Molecule.from_file(
+            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "PC_frag1.xyz"))
+        self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
+        self.tfsi = Molecule.from_file(
+            os.path.join(module_dir, "..", "..", "..", "test_files", "graphs", "TFSI.xyz"))
+        self.tfsi_edges = [14, 1], [1, 4], [1, 5], [1, 7], [7, 11], [7, 12], [7,
+                                                                             13], [
+                             14, 0], [0, 2], [0, 3], [0, 6], [6, 8], [6, 9], [6,
+                                                                              10]
+
         warnings.simplefilter("ignore")
 
     def tearDown(self):
@@ -456,6 +502,40 @@ class MoleculeGraphTest(unittest.TestCase):
         del self.ethylene
         del self.butadiene
         del self.cyclohexene
+
+    @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
+    def test_build_MoleculeGraph(self):
+        edges_frag = [(e[0], e[1], {"weight":1.0}) for e in self.pc_frag1_edges]
+        mol_graph = build_MoleculeGraph(self.pc_frag1, edges=edges_frag)
+        #dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
+        ref_mol_graph = loadfn(os.path.join(module_dir, "pc_frag1_mg.json"))
+        self.assertEqual(mol_graph, ref_mol_graph)
+        self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
+        for node in mol_graph.graph:
+            self.assertEqual(mol_graph.graph.node[node]["specie"],
+                             ref_mol_graph.graph.node[node]["specie"])
+            for ii in range(3):
+                self.assertEqual(
+                    mol_graph.graph.node[node]["coords"][ii],
+                    ref_mol_graph.graph.node[node]["coords"]["data"][ii])
+
+        edges_pc = [(e[0], e[1], {"weight":1.0}) for e in self.pc_edges]
+        mol_graph = build_MoleculeGraph(self.pc, edges=edges_pc)
+        #dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_mg.json"))
+        ref_mol_graph = loadfn(os.path.join(module_dir, "pc_mg.json"))
+        self.assertEqual(mol_graph, ref_mol_graph)
+        self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
+        for node in mol_graph.graph:
+            self.assertEqual(mol_graph.graph.node[node]["specie"],
+                             ref_mol_graph.graph.node[node]["specie"])
+            for ii in range(3):
+                self.assertEqual(
+                    mol_graph.graph.node[node]["coords"][ii],
+                    ref_mol_graph.graph.node[node]["coords"]["data"][ii])
+
+        mol_graph_edges = build_MoleculeGraph(self.pc, edges=edges_pc)
+        mol_graph_strat = build_MoleculeGraph(self.pc, strategy=OpenBabelNN, reorder=False, extend_structure=False)
+        self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
 
     def test_properties(self):
         self.assertEqual(self.cyclohexene.name, "bonds")
@@ -474,12 +554,14 @@ class MoleculeGraphTest(unittest.TestCase):
 
         specie = nx.get_node_attributes(self.ethylene.graph, "specie")
         coords = nx.get_node_attributes(self.ethylene.graph, "coords")
+        properties = nx.get_node_attributes(self.ethylene.graph, "properties")
 
-        self.assertEqual(str(specie[0]), str(self.ethylene.molecule[0].specie))
-        self.assertEqual(str(specie[0]), "C")
-        self.assertEqual(coords[0][0], self.ethylene.molecule[0].coords[0])
-        self.assertEqual(coords[0][1], self.ethylene.molecule[0].coords[1])
-        self.assertEqual(coords[0][2], self.ethylene.molecule[0].coords[2])
+        for i in range(len(self.ethylene.molecule)):
+            self.assertEqual(str(specie[i]), str(self.ethylene.molecule[i].specie))
+            self.assertEqual(coords[i][0], self.ethylene.molecule[i].coords[0])
+            self.assertEqual(coords[i][1], self.ethylene.molecule[i].coords[1])
+            self.assertEqual(coords[i][2], self.ethylene.molecule[i].coords[2])
+            self.assertEqual(properties[i], self.ethylene.molecule[i].properties)
 
     def test_coordination(self):
         molecule = Molecule(['C', 'C'], [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
@@ -519,6 +601,7 @@ class MoleculeGraphTest(unittest.TestCase):
                                                              {"from_index": 1, "to_index": 3}])
         self.assertEqual(eth_copy.get_coordination_of_site(1), 2)
 
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_split(self):
         bonds = [(0, 1), (4, 5)]
         alterations = {(2, 3): {"weight": 1.0},
@@ -526,8 +609,10 @@ class MoleculeGraphTest(unittest.TestCase):
                        (1, 2): {"weight": 2.0},
                        (3, 4): {"weight": 2.0}
                        }
-        # Perform reverse Diels-Alder reaction - turn product into reactants
-        reactants = self.cyclohexene.split_molecule_subgraphs(bonds, alterations=alterations)
+        # Perform retro-Diels-Alder reaction - turn product into reactants
+        reactants = self.cyclohexene.split_molecule_subgraphs(bonds,
+                                                              allow_reverse=True,
+                                                              alterations=alterations)
         self.assertTrue(isinstance(reactants, list))
 
         reactants = sorted(reactants, key=len)
@@ -535,12 +620,104 @@ class MoleculeGraphTest(unittest.TestCase):
         self.assertEqual(reactants[0], self.ethylene)
         self.assertEqual(reactants[1], self.butadiene)
 
+        with self.assertRaises(MolGraphSplitError):
+            self.cyclohexene.split_molecule_subgraphs([(0,1)])
+
+        # Test naive charge redistribution
+        hydroxide = Molecule(["O", "H"], [[0, 0, 0], [0.5, 0.5, 0.5]], charge=-1)
+        oh_mg = MoleculeGraph.with_empty_graph(hydroxide)
+
+        oh_mg.add_edge(0, 1)
+
+        new_mgs = oh_mg.split_molecule_subgraphs([(0,1)])
+        for mg in new_mgs:
+            if str(mg.molecule[0].specie) == "O":
+                self.assertEqual(mg.molecule.charge, -1)
+            else:
+                self.assertEqual(mg.molecule.charge, 0)
+
+        # Trying to test to ensure that remapping of nodes to atoms works
+        diff_species = Molecule(["C", "I", "Cl", "Br", "F"], [[0.8314, -0.2682, -0.9102],
+                                                              [1.3076, 1.3425, -2.2038],
+                                                              [-0.8429, -0.7410, -1.1554],
+                                                              [1.9841, -1.7636, -1.2953],
+                                                              [1.0098, 0.1231, 0.3916]])
+
+        diff_spec_mg = MoleculeGraph.with_empty_graph(diff_species)
+        diff_spec_mg.add_edge(0, 1)
+        diff_spec_mg.add_edge(0, 2)
+        diff_spec_mg.add_edge(0, 3)
+        diff_spec_mg.add_edge(0, 4)
+
+        for i in range(1, 5):
+            bond = (0, i)
+
+            split_mgs = diff_spec_mg.split_molecule_subgraphs([bond])
+            for split_mg in split_mgs:
+                species = nx.get_node_attributes(split_mg.graph, "specie")
+
+                for j in range(len(split_mg.graph.nodes)):
+                    atom = split_mg.molecule[j]
+                    self.assertEqual(species[j], str(atom.specie))
+
+    @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
+    def test_build_unique_fragments(self):
+        edges = [(e[0], e[1], {}) for e in self.pc_edges]
+        mol_graph = build_MoleculeGraph(self.pc, edges=edges)
+        unique_fragments = mol_graph.build_unique_fragments()
+        self.assertEqual(len(unique_fragments), 295)
+        nm = iso.categorical_node_match("specie", "ERROR")
+        for ii in range(295):
+            # Test that each fragment is unique
+            for jj in range(ii + 1, 295):
+                self.assertFalse(
+                    nx.is_isomorphic(unique_fragments[ii].graph,
+                                     unique_fragments[jj].graph,
+                                     node_match=nm))
+
+            # Test that each fragment correctly maps between Molecule and graph
+            self.assertEqual(len(unique_fragments[ii].molecule),
+                             len(unique_fragments[ii].graph.nodes))
+            species = nx.get_node_attributes(unique_fragments[ii].graph, "specie")
+            coords = nx.get_node_attributes(unique_fragments[ii].graph, "coords")
+
+            mol = unique_fragments[ii].molecule
+            for ss, site in enumerate(mol):
+                self.assertEqual(str(species[ss]), str(site.specie))
+                self.assertEqual(coords[ss][0], site.coords[0])
+                self.assertEqual(coords[ss][1], site.coords[1])
+                self.assertEqual(coords[ss][2], site.coords[2])
+
+            # Test that each fragment is connected
+            self.assertTrue(nx.is_connected(unique_fragments[ii].graph.to_undirected()))
+
     def test_find_rings(self):
         rings = self.cyclohexene.find_rings(including=[0])
         self.assertEqual(sorted(rings[0]),
                          [(0, 5), (1, 0), (2, 1), (3, 2), (4, 3), (5, 4)])
         no_rings = self.butadiene.find_rings()
         self.assertEqual(no_rings, [])
+
+    def test_isomorphic_to(self):
+        ethylene = Molecule.from_file(os.path.join(os.path.dirname(__file__),
+                                                   "..", "..", "..",
+                                                   "test_files/graphs/ethylene.xyz"))
+        # switch carbons
+        ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
+
+        eth_copy = MoleculeGraph.with_empty_graph(ethylene,
+                                                  edge_weight_name="strength",
+                                                  edge_weight_units="")
+        eth_copy.add_edge(0, 1, weight=2.0)
+        eth_copy.add_edge(1, 2, weight=1.0)
+        eth_copy.add_edge(1, 3, weight=1.0)
+        eth_copy.add_edge(0, 4, weight=1.0)
+        eth_copy.add_edge(0, 5, weight=1.0)
+
+        # If they are equal, they must also be isomorphic
+        eth_copy = copy.deepcopy(self.ethylene)
+        self.assertTrue(self.ethylene.isomorphic_to(eth_copy))
+        self.assertFalse(self.butadiene.isomorphic_to(self.ethylene))
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]

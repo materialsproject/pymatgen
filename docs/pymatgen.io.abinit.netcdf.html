@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.netcdf module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.io.abinit.netcdf module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -73,8 +61,8 @@ if we have to close the file before leaving the procedure.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader">
-<em class="property">class </em><code class="descname">NetcdfReader</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="descname">NetcdfReader</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.</p>
 <dl class="docutils">
 <dt>Additional documentation available at:</dt>
@@ -84,7 +72,7 @@ if we have to close the file before leaving the procedure.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.Error">
 <code class="descname">Error</code><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">NetcdfReaderError</span></code></p>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">NetcdfReaderError</span></code></p>
 </dd></dl>
 
 <dl class="method">
@@ -99,7 +87,7 @@ if we have to close the file before leaving the procedure.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue">
-<code class="descname">read_dimvalue</code><span class="sig-paren">(</span><em>dimname</em>, <em>path=’/’</em>, <em>default=&lt;class ‘pymatgen.io.abinit.netcdf.NO_DEFAULT’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_dimvalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_dimvalue</code><span class="sig-paren">(</span><em>dimname</em>, <em>path=u'/'</em>, <em>default=&lt;class 'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_dimvalue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_dimvalue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of a dimension.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -119,14 +107,14 @@ if we have to close the file before leaving the procedure.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_keys">
-<code class="descname">read_keys</code><span class="sig-paren">(</span><em>keys</em>, <em>dict_cls=&lt;class ‘monty.collections.AttrDict’&gt;</em>, <em>path=’/’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_keys</code><span class="sig-paren">(</span><em>keys</em>, <em>dict_cls=&lt;class 'monty.collections.AttrDict'&gt;</em>, <em>path=u'/'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a list of variables/dimensions from file. If a key is not present the corresponding
 entry in the output dictionary is set to None.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_value">
-<code class="descname">read_value</code><span class="sig-paren">(</span><em>varname</em>, <em>path=’/’</em>, <em>cmode=None</em>, <em>default=&lt;class ‘pymatgen.io.abinit.netcdf.NO_DEFAULT’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_value" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_value</code><span class="sig-paren">(</span><em>varname</em>, <em>path=u'/'</em>, <em>cmode=None</em>, <em>default=&lt;class 'pymatgen.io.abinit.netcdf.NO_DEFAULT'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the values of variable with name varname in the group specified by path.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -151,13 +139,13 @@ self.Error is raised if default is default is NO_DEFAULT</li>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_variable">
-<code class="descname">read_variable</code><span class="sig-paren">(</span><em>varname</em>, <em>path=’/’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_variable</code><span class="sig-paren">(</span><em>varname</em>, <em>path=u'/'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the variable with name varname in the group specified by path.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames">
-<code class="descname">read_varnames</code><span class="sig-paren">(</span><em>path=’/’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_varnames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_varnames</code><span class="sig-paren">(</span><em>path=u'/'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NetcdfReader.read_varnames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NetcdfReader.read_varnames" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of variable names stored in the group specified by path.</p>
 </dd></dl>
 
@@ -172,8 +160,8 @@ If top is None, the root group is used.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader">
-<em class="property">class </em><code class="descname">ETSF_Reader</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#ETSF_Reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="pymatgen.io.abinit.netcdf.NetcdfReader"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinit.netcdf.NetcdfReader</span></code></a></p>
+<em class="property">class </em><code class="descname">ETSF_Reader</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#ETSF_Reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinit.netcdf.NetcdfReader" title="pymatgen.io.abinit.netcdf.NetcdfReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.io.abinit.netcdf.NetcdfReader</span></code></a></p>
 <p>This object reads data from a file written according to the ETSF-IO specifications.</p>
 <p>We assume that the netcdf file contains at least the crystallographic section.</p>
 <p>Open the Netcdf file specified by path (read mode).</p>
@@ -187,18 +175,18 @@ If top is None, the root group is used.</p>
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr">
 <code class="descname">read_abinit_hdr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#ETSF_Reader.read_abinit_hdr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_hdr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the variables associated to the Abinit header.</p>
-<p>Return <code class="xref py py-class docutils literal"><span class="pre">AbinitHeader</span></code></p>
+<p>Return <code class="xref py py-class docutils literal notranslate"><span class="pre">AbinitHeader</span></code></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc">
 <code class="descname">read_abinit_xcfunc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#ETSF_Reader.read_abinit_xcfunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_abinit_xcfunc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read ixc from an Abinit file. Return <code class="xref py py-class docutils literal"><span class="pre">XcFunc</span></code> object.</p>
+<dd><p>Read ixc from an Abinit file. Return <code class="xref py py-class docutils literal notranslate"><span class="pre">XcFunc</span></code> object.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure">
-<code class="descname">read_structure</code><span class="sig-paren">(</span><em>cls=&lt;class ‘pymatgen.core.structure.Structure’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#ETSF_Reader.read_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_structure</code><span class="sig-paren">(</span><em>cls=&lt;class 'pymatgen.core.structure.Structure'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#ETSF_Reader.read_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.ETSF_Reader.read_structure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the crystalline structure.</p>
 </dd></dl>
 
@@ -213,13 +201,13 @@ If top is None, the root group is used.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinit.netcdf.NO_DEFAULT">
 <em class="property">class </em><code class="descname">NO_DEFAULT</code><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#NO_DEFAULT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.NO_DEFAULT" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Signal that read_value should raise an Error</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.abinit.netcdf.structure_from_ncdata">
-<code class="descname">structure_from_ncdata</code><span class="sig-paren">(</span><em>ncdata</em>, <em>site_properties=None</em>, <em>cls=&lt;class ‘pymatgen.core.structure.Structure’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#structure_from_ncdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.structure_from_ncdata" title="Permalink to this definition">¶</a></dt>
+<code class="descname">structure_from_ncdata</code><span class="sig-paren">(</span><em>ncdata</em>, <em>site_properties=None</em>, <em>cls=&lt;class 'pymatgen.core.structure.Structure'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/abinit/netcdf.html#structure_from_ncdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinit.netcdf.structure_from_ncdata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads and returns a pymatgen structure from a NetCDF file
 containing crystallographic data in the ETSF-IO format.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -254,12 +242,14 @@ containing crystallographic data in the ETSF-IO format.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -275,13 +265,13 @@ containing crystallographic data in the ETSF-IO format.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

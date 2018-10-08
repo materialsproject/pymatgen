@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.analysis.ewald module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,8 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer">
 <em class="property">class </em><code class="descname">EwaldMinimizer</code><span class="sig-paren">(</span><em>matrix</em>, <em>m_list</em>, <em>num_to_return=1</em>, <em>algo=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>This class determines the manipulations that will minimize an ewald matrix,
+<dd><p>This class determines the manipulations that will minimize an ewald matrix,
 given a list of possible manipulations. This class does not perform the
 manipulations on a structure, but will return the list of manipulations
 that should be done on one to produce the minimal structure. It returns the
@@ -99,9 +86,17 @@ process is extremely expensive)</li>
 <dl class="attribute">
 <dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST">
 <code class="descname">ALGO_BEST_FIRST</code><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>ALGO_TIME_LIMIT</em> – Slowly increases the speed (with the cost of decreasing
+<dd><p>Slowly increases the speed (with the cost of decreasing
 accuracy) as the minimizer runs. Attempts to limit the run time to
 approximately 30 minutes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">ALGO_TIME_LIMIT</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -182,7 +177,7 @@ ewald sum calls recursive function to iterate through permutations</p>
 <dl class="class">
 <dt id="pymatgen.analysis.ewald.EwaldSummation">
 <em class="property">class </em><code class="descname">EwaldSummation</code><span class="sig-paren">(</span><em>structure</em>, <em>real_space_cut=None</em>, <em>recip_space_cut=None</em>, <em>eta=None</em>, <em>acc_factor=12.0</em>, <em>w=0.7071067811865475</em>, <em>compute_forces=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Calculates the electrostatic energy of a periodic array of charges using
 the Ewald technique.
 Ref: <a class="reference external" href="http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html">http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html</a></p>
@@ -378,12 +373,14 @@ when the simulation cell is not charge balanced.</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -399,13 +396,13 @@ when the simulation cell is not charge balanced.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

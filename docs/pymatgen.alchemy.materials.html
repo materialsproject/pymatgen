@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.alchemy.materials module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.alchemy.materials module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.alchemy.materials.TransformedStructure">
 <em class="property">class </em><code class="descname">TransformedStructure</code><span class="sig-paren">(</span><em>structure</em>, <em>transformations=None</em>, <em>history=None</em>, <em>other_parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">monty.json.MSONable</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>Container object for new structures that include history of
 transformations.</p>
 <p>Each transformed structure is made up of a sequence of structures with
@@ -215,7 +203,7 @@ to be applied to the input structure.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>snl</strong> (<em>StructureNL</em>) – Starting snl</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>snl</strong> (<a class="reference internal" href="pymatgen.util.provenance.html#pymatgen.util.provenance.StructureNL" title="pymatgen.util.provenance.StructureNL"><em>StructureNL</em></a>) – Starting snl</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">TransformedStructure</td>
 </tr>
@@ -225,7 +213,7 @@ to be applied to the input structure.</li>
 
 <dl class="method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.get_vasp_input">
-<code class="descname">get_vasp_input</code><span class="sig-paren">(</span><em>vasp_input_set=&lt;class ‘pymatgen.io.vasp.sets.MPRelaxSet’&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.get_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_vasp_input</code><span class="sig-paren">(</span><em>vasp_input_set=&lt;class 'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.get_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns VASP input as a dict of vasp objects.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -246,7 +234,7 @@ to create vasp input files from structures</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> – If already at the latest change.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IndexError</span></code> – If already at the latest change.</td>
 </tr>
 </tbody>
 </table>
@@ -266,7 +254,7 @@ structure is stored after every single transformation.</p>
 
 <dl class="method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.to_snl">
-<code class="descname">to_snl</code><span class="sig-paren">(</span><em>authors</em>, <em>projects=None</em>, <em>references=’‘</em>, <em>remarks=None</em>, <em>data=None</em>, <em>created_at=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.to_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.to_snl" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_snl</code><span class="sig-paren">(</span><em>authors</em>, <em>projects=None</em>, <em>references=u''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>created_at=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.to_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.to_snl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -277,7 +265,7 @@ structure is stored after every single transformation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">IndexError</span></code> – If already at the oldest change.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IndexError</span></code> – If already at the oldest change.</td>
 </tr>
 </tbody>
 </table>
@@ -294,7 +282,7 @@ structure when the specie to replace isn’t in the structure.</p>
 
 <dl class="method">
 <dt id="pymatgen.alchemy.materials.TransformedStructure.write_vasp_input">
-<code class="descname">write_vasp_input</code><span class="sig-paren">(</span><em>vasp_input_set=&lt;class ‘pymatgen.io.vasp.sets.MPRelaxSet’&gt;</em>, <em>output_dir=’.’</em>, <em>create_directory=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.write_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write_vasp_input</code><span class="sig-paren">(</span><em>vasp_input_set=&lt;class 'pymatgen.io.vasp.sets.MPRelaxSet'&gt;</em>, <em>output_dir=u'.'</em>, <em>create_directory=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.write_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes VASP input to an output_dir.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -333,12 +321,14 @@ True.</li>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -354,13 +344,13 @@ True.</li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

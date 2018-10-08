@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.io.abinit.tasks &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../../',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -111,6 +99,7 @@
     <span class="s2">&quot;RelaxTask&quot;</span><span class="p">,</span>
     <span class="s2">&quot;DdkTask&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PhononTask&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ElasticTask&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SigmaTask&quot;</span><span class="p">,</span>
     <span class="s2">&quot;EphTask&quot;</span><span class="p">,</span>
     <span class="s2">&quot;OpticTask&quot;</span><span class="p">,</span>
@@ -1964,11 +1953,10 @@
         <span class="n">black_list</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_LOCKED</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S_ERROR</span><span class="p">)</span>
         <span class="c1">#if self.status in black_list: return self.status</span>
 
-        <span class="c1"># 2) Check the returncode of the process (the process of submitting the job) first.</span>
-        <span class="c1"># this point type of problem should also be handled by the scheduler error parser</span>
+        <span class="c1"># 2) Check the returncode of the job script</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># The job was not submitted properly</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_QCRITICAL</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;return code </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;job.sh return code: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Perhaps the job was not submitted properly?&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_QCRITICAL</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="c1"># If we have an abort file produced by Abinit</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpiabort_file</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span>
@@ -1978,20 +1966,17 @@
         <span class="c1"># getsize is 0 if the file is empty or it does not exist.</span>
         <span class="n">err_msg</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr_file</span><span class="o">.</span><span class="n">getsize</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1">#if self.stderr_file.exists:</span>
             <span class="n">err_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
         <span class="c1"># Analyze the stderr file of the resource manager runtime errors.</span>
         <span class="c1"># TODO: Why are we looking for errors in queue.qerr?</span>
         <span class="n">qerr_info</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qerr_file</span><span class="o">.</span><span class="n">getsize</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1">#if self.qerr_file.exists:</span>
             <span class="n">qerr_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qerr_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
         <span class="c1"># Analyze the stdout file of the resource manager (needed for PBS !)</span>
         <span class="n">qout_info</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qout_file</span><span class="o">.</span><span class="n">getsize</span><span class="p">():</span>
-        <span class="c1">#if self.qout_file.exists:</span>
             <span class="n">qout_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qout_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
         <span class="c1"># Start to check ABINIT status if the output file has been created.</span>
@@ -2049,7 +2034,9 @@
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
 
         <span class="c1"># 7) Analyze the files of the resource manager and abinit and execution err (mvs)</span>
-        <span class="k">if</span> <span class="n">qerr_info</span> <span class="ow">or</span> <span class="n">qout_info</span><span class="p">:</span>
+        <span class="c1"># MG: This section has been disabled: several portability issues</span>
+        <span class="c1"># Need more robust logic in error_parser, perhaps logic provided by users via callbacks.</span>
+        <span class="k">if</span> <span class="kc">False</span> <span class="ow">and</span> <span class="p">(</span><span class="n">qerr_info</span> <span class="ow">or</span> <span class="n">qout_info</span><span class="p">):</span>
             <span class="kn">from</span> <span class="nn">pymatgen.io.abinit.scheduler_error_parsers</span> <span class="k">import</span> <span class="n">get_parser</span>
             <span class="n">scheduler_parser</span> <span class="o">=</span> <span class="n">get_parser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">QTYPE</span><span class="p">,</span> <span class="n">err_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qerr_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
                                           <span class="n">out_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qout_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">run_err_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stderr_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
@@ -2070,7 +2057,7 @@
             <span class="k">elif</span> <span class="n">lennone</span><span class="p">(</span><span class="n">qerr_info</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># if only qout_info, we are not necessarily in QCRITICAL state,</span>
                 <span class="c1"># since there will always be info in the qout file</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;found unknown messages in the queue error: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">qerr_info</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Found unknown message in the queue qerr file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">qerr_info</span><span class="p">))</span>
                 <span class="c1">#try:</span>
                 <span class="c1">#    rt = self.datetimes.get_runtime().seconds</span>
                 <span class="c1">#except:</span>
@@ -2086,11 +2073,12 @@
 
         <span class="c1"># 8) analyzing the err files and abinit output did not identify a problem</span>
         <span class="c1"># but if the files are not empty we do have a problem but no way of solving it:</span>
-        <span class="k">if</span> <span class="n">lennone</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;found error message:</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_QCRITICAL</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
-            <span class="c1"># The job is killed or crashed but we don&#39;t know what happend</span>
-            <span class="c1"># it is set to QCritical, we will attempt to fix it by running on more resources</span>
+        <span class="c1"># The job is killed or crashed but we don&#39;t know what happend</span>
+        <span class="c1"># it is set to QCritical, we will attempt to fix it by running on more resources</span>
+        <span class="k">if</span> <span class="n">err_msg</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Found error message:</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="c1">#return self.set_status(self.S_QCRITICAL, msg=msg)</span>
 
         <span class="c1"># 9) if we still haven&#39;t returned there is no indication of any error and the job can only still be running</span>
         <span class="c1"># but we should actually never land here, or we have delays in the file system ....</span>
@@ -2495,13 +2483,13 @@
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;autoparal&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;autoparal_run&quot;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">autoparal_run</span><span class="p">()</span>
-            <span class="k">except</span> <span class="n">QueueAdapterError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="c1"># If autoparal cannot find a qadapter to run the calculation raises an Exception</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Error while trying to run autoparal in task:</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">straceback</span><span class="p">())</span>
-                <span class="n">cprint</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S_QCRITICAL</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
-                <span class="k">return</span> <span class="mi">0</span>
+            <span class="c1">#except QueueAdapterError as exc:</span>
+            <span class="c1">#    # If autoparal cannot find a qadapter to run the calculation raises an Exception</span>
+            <span class="c1">#    self.history.critical(exc)</span>
+            <span class="c1">#    msg = &quot;Error while trying to run autoparal in task:%s\n%s&quot; % (repr(task), straceback())</span>
+            <span class="c1">#    cprint(msg, &quot;yellow&quot;)</span>
+            <span class="c1">#    self.set_status(self.S_QCRITICAL, msg=msg)</span>
+            <span class="c1">#    return 0</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="c1"># Sometimes autoparal_run fails because Abinit aborts</span>
                 <span class="c1"># at the level of the parser e.g. cannot find the spacegroup</span>
@@ -3751,7 +3739,7 @@
 
 
 <span class="k">class</span> <span class="nc">DdeTask</span><span class="p">(</span><span class="n">DfptTask</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Task for DDE calculations.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Task for DDE calculations (perturbation wrt electric field).&quot;&quot;&quot;</span>
 
     <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">61</span><span class="p">,</span> <span class="mi">158</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
 
@@ -3869,12 +3857,12 @@
         <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">register_gridfs_files</span><span class="p">(</span><span class="n">DDB</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdir</span><span class="o">.</span><span class="n">has_abiext</span><span class="p">(</span><span class="s2">&quot;DDB&quot;</span><span class="p">),</span> <span class="s2">&quot;t&quot;</span><span class="p">))</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">ElasticTask</span><span class="p">(</span><span class="n">DfptTask</span><span class="p">):</span>
+<div class="viewcode-block" id="ElasticTask"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.ElasticTask">[docs]</a><span class="k">class</span> <span class="nc">ElasticTask</span><span class="p">(</span><span class="n">DfptTask</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DFPT calculations for a single strain perturbation (uniaxial or shear strain).</span>
 <span class="sd">    Provide support for in-place restart via (1WF|1DEN) files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span>
+    <span class="n">color_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span> <span class="o">/</span> <span class="mi">255</span></div>
 
 
 <div class="viewcode-block" id="EphTask"><a class="viewcode-back" href="../../../../pymatgen.io.abinit.tasks.html#pymatgen.io.abinit.tasks.EphTask">[docs]</a><span class="k">class</span> <span class="nc">EphTask</span><span class="p">(</span><span class="n">AbinitTask</span><span class="p">):</span>
@@ -4704,12 +4692,14 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -4725,7 +4715,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.8.10 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.30 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>
@@ -4733,7 +4723,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

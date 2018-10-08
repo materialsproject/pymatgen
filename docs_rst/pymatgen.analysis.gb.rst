@@ -1,12 +1,12 @@
-pymatgen\.analysis\.gb package
-==============================
+pymatgen.analysis.gb package
+============================
 
 Submodules
 ----------
 
 .. toctree::
 
-   pymatgen.analysis.gb.gb
+   pymatgen.analysis.gb.grain
 
 Module contents
 ---------------

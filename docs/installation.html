@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Requirements &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>Requirements &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,8 +26,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -54,7 +42,7 @@
         <li class="right" >
           <a href="index.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -115,8 +103,8 @@ the moment) required only for certain features:</p>
 <li>ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
 must be in the path. Get it at <a class="reference external" href="http://www.ffmpeg.org">http://www.ffmpeg.org</a>.</li>
 <li>enum: For the use of
-<a class="reference internal" href="pymatgen.transformations.advanced_transformations.html#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation</span></code></a>
-and <a class="reference internal" href="pymatgen.command_line.enumlib_caller.html#module-pymatgen.command_line.enumlib_caller" title="pymatgen.command_line.enumlib_caller"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.command_line.enumlib_caller</span></code></a> module. This library by Gus
+<code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation</span></code>
+and <a class="reference internal" href="pymatgen.command_line.enumlib_caller.html#module-pymatgen.command_line.enumlib_caller" title="pymatgen.command_line.enumlib_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.enumlib_caller</span></code></a> module. This library by Gus
 Hart provides a robust way to enumerate derivative structures. It can be
 used to completely enumerate all symmetrically distinct ordered structures
 of disordered structures via EnumerateStructureTransformation. Many other
@@ -124,21 +112,21 @@ advanced transformations (e.g., MagOrderingTransformation) use
 EnumerateStructureTransformation. The enum.x and makestr.x
 executables must be in the path. Get it at <a class="reference external" href="http://enum.sourceforge.net">http://enum.sourceforge.net</a> and
 follow the instructions to compile multienum.x and makestr.x.</li>
-<li>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
+<li>bader: For use with <a class="reference internal" href="pymatgen.command_line.bader_caller.html#pymatgen.command_line.bader_caller.BaderAnalysis" title="pymatgen.command_line.bader_caller.BaderAnalysis"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.bader_caller.BaderAnalysis</span></code></a>.
 This library by Henkelmann et al. provides a robust way to calculate the
 Bader analysis from a CHGCAR. The bader executable must be in the path.
 Get it at <a class="reference external" href="http://theory.cm.utexas.edu/bader">http://theory.cm.utexas.edu/bader</a>.</li>
-<li>gulp: For use with <a class="reference internal" href="pymatgen.command_line.gulp_caller.html#module-pymatgen.command_line.gulp_caller" title="pymatgen.command_line.gulp_caller"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.command_line.gulp_caller</span></code></a>,
-which is in turn used extensively by <a class="reference internal" href="pymatgen.analysis.defects.html#module-pymatgen.analysis.defects" title="pymatgen.analysis.defects"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.analysis.defects</span></code></a> to
+<li>gulp: For use with <a class="reference internal" href="pymatgen.command_line.gulp_caller.html#module-pymatgen.command_line.gulp_caller" title="pymatgen.command_line.gulp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.gulp_caller</span></code></a>,
+which is in turn used extensively by <a class="reference internal" href="pymatgen.analysis.defects.html#module-pymatgen.analysis.defects" title="pymatgen.analysis.defects"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.analysis.defects</span></code></a> to
 compute empirical defect energies.</li>
-<li>aconvasp: For use with the <a class="reference internal" href="pymatgen.command_line.aconvasp_caller.html#module-pymatgen.command_line.aconvasp_caller" title="pymatgen.command_line.aconvasp_caller"><code class="xref py py-mod docutils literal"><span class="pre">pymatgen.command_line.aconvasp_caller</span></code></a>.</li>
+<li>aconvasp: For use with the <a class="reference internal" href="pymatgen.command_line.aconvasp_caller.html#module-pymatgen.command_line.aconvasp_caller" title="pymatgen.command_line.aconvasp_caller"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pymatgen.command_line.aconvasp_caller</span></code></a>.</li>
 <li>Zeo++ (<a class="reference external" href="http://zeoplusplus.org">http://zeoplusplus.org</a>): For defect structure
 generation. This is required in addition to installing the zeo Python
 package.</li>
 <li>critic2 (<a class="reference external" href="https://github.com/aoterodelaroza/critic2">https://github.com/aoterodelaroza/critic2</a>): For topological
 analysis of critical points from electronic charge density. Provides
 more detailed information compared to bader. For use with
-<a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller" title="pymatgen.command_line.critic2_caller.Critic2Caller"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.command_line.critic2_caller.Critic2Caller</span></code></a>.</li>
+<a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.Critic2Caller" title="pymatgen.command_line.critic2_caller.Critic2Caller"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.command_line.critic2_caller.Critic2Caller</span></code></a>.</li>
 <li>graphviz (<a class="reference external" href="http://graphviz.org">http://graphviz.org</a>): For visualization of graphs generated
 using critic2.</li>
 </ol>
@@ -157,7 +145,7 @@ programs may require you to compile those programs from source.</p>
 <a class="reference external" href="http://conda.pydata.org/miniconda.html">http://conda.pydata.org/miniconda.html</a>. For Windows, <strong>make sure it is the
 Miniconda3 installer</strong>, and simply double-click the exe file. For Linux or Mac,
 run:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># If Mac</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># If Mac</span>
 <span class="n">bash</span> <span class="n">Miniconda3</span><span class="o">-</span><span class="n">latest</span><span class="o">-</span><span class="n">MacOSX</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
 
 <span class="c1"># If Linux</span>
@@ -171,7 +159,7 @@ the environmental variables added by conda to be loaded.</p>
 <h2>Step 2b: (Optional) Create a conda environment<a class="headerlink" href="#step-2b-optional-create-a-conda-environment" title="Permalink to this headline">¶</a></h2>
 <p>If you are working with many python packages, it is generally recommended you
 create a separate environment for each of your packages. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">my_pymatgen</span> <span class="n">python</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">my_pymatgen</span> <span class="n">python</span>
 <span class="n">source</span> <span class="n">activate</span> <span class="n">my_pymatgen</span>  <span class="c1"># OSX or Linux</span>
 <span class="n">activate</span> <span class="n">my_pymatgen</span>  <span class="c1"># Windows</span>
 </pre></div>
@@ -182,12 +170,12 @@ create a separate environment for each of your packages. For example:</p>
 <p>You can install pymatgen via conda as well via the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on
 Anaconda cloud</a> maintained by the Materials
 Virtual Lab:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
 <p>If the above fails, try using conda to install some critical dependencies and
 then do pip install:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">yes</span> <span class="n">numpy</span> <span class="n">scipy</span> <span class="n">matplotlib</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">yes</span> <span class="n">numpy</span> <span class="n">scipy</span> <span class="n">matplotlib</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="n">pymatgen</span>
 </pre></div>
 </div>
@@ -199,13 +187,13 @@ enumlib or perform Bader charge analysis powered by the Bader analysis code
 of the Henkelmann group, the <a class="reference external" href="https://anaconda.org/matsci">matsci channel on Anaconda cloud</a> has builds for enumlib and bader for OSX and
 Linux (sorry, Windows users, you are on your own as the develpers of these
 packages do not support Windows):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">bader</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">bader</span>
 <span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">matsci</span> <span class="n">enumlib</span>
 </pre></div>
 </div>
 <p>If the above fails, you can also try installing these from source using the pmg
 command line tool as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">enumlib</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">enumlib</span>
 <span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">install</span> <span class="n">bader</span>
 </pre></div>
 </div>
@@ -219,13 +207,13 @@ pseudopotential files are.  We are not allowed to distribute these under the
 VASP license. The good news is that the <cite>pmg</cite> command line utility includes a
 config functionality.</p>
 <p>After installation, do:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">-</span><span class="n">p</span> <span class="o">&lt;</span><span class="n">EXTRACTED_VASP_POTCAR</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">MY_PSP</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">-</span><span class="n">p</span> <span class="o">&lt;</span><span class="n">EXTRACTED_VASP_POTCAR</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">MY_PSP</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>In the above, <cite>&lt;EXTRACTED_VASP_POTCAR&gt;</cite> is the location of the directory that
 you extracted the downloaded VASP pseudopotential files. Typically, it has
 the following format:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="o">&lt;</span><span class="n">EXTRACTED_VASP_POTCAR</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="o">&lt;</span><span class="n">EXTRACTED_VASP_POTCAR</span><span class="o">&gt;</span>
 <span class="o">|-</span> <span class="n">POT_GGA_PAW_PBE</span>
 <span class="o">||-</span> <span class="n">Ac_s</span>
 <span class="o">|||-</span><span class="n">POTCAR</span>
@@ -233,7 +221,7 @@ the following format:</p>
 </pre></div>
 </div>
 <p>or:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="o">&lt;</span><span class="n">EXTRACTED_VASP_POTCAR</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="o">&lt;</span><span class="n">EXTRACTED_VASP_POTCAR</span><span class="o">&gt;</span>
 <span class="o">|-</span> <span class="n">potpaw_PBE</span>
 <span class="o">||-</span> <span class="n">Ac_s</span>
 <span class="o">|||-</span><span class="n">POTCAR</span>
@@ -242,7 +230,7 @@ the following format:</p>
 </div>
 <p>and follow the instructions. If you have done it correctly, you should get a
 resources directory with the following directory structure:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">psp_resources</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">psp_resources</span>
 <span class="o">|-</span> <span class="n">POT_GGA_PAW_PBE</span>
 <span class="o">||-</span> <span class="n">POTCAR</span><span class="o">.</span><span class="n">Ac_s</span><span class="o">.</span><span class="n">gz</span>
 <span class="o">||-</span> <span class="n">POTCAR</span><span class="o">.</span><span class="n">Ac</span><span class="o">.</span><span class="n">gz</span>
@@ -255,18 +243,18 @@ resources directory with the following directory structure:</p>
 <p>After generating the resources directory, you should add a VASP_PSP_DIR config
 variable pointing to the generated directory and you should then be
 able to generate POTCARs:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">PMG_VASP_PSP_DIR</span> <span class="o">&lt;</span><span class="n">MY_PSP</span><span class="o">&gt;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">PMG_VASP_PSP_DIR</span> <span class="o">&lt;</span><span class="n">MY_PSP</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>If you are using newer sets of pseudopotential files from VASP, the directory
 names may be different, e.g., POT_GGA_PAW_PBE_52. For such cases, please also
 add a default functional specification as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">PMG_DEFAULT_FUNCTIONAL</span> <span class="n">PBE_52</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">PMG_DEFAULT_FUNCTIONAL</span> <span class="n">PBE_52</span>
 </pre></div>
 </div>
 <p>You can also use this to specify whatever functional you would like to use by
 default in pymatgen, e.g., LDA_52, PW91, etc. Type:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">potcar</span> <span class="o">-</span><span class="n">h</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pmg</span> <span class="n">potcar</span> <span class="o">-</span><span class="n">h</span>
 </pre></div>
 </div>
 <p>to see full list of choices.</p>
@@ -296,7 +284,7 @@ default, Visual Studio does not install Visual C++, which is needed.</li>
 <ol class="arabic">
 <li><p class="first">Download and install Xcode. Afterwards, install the XCode command line
 tools by typing the following in a terminal:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">xcode</span><span class="o">-</span><span class="n">select</span> <span class="o">--</span><span class="n">install</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xcode</span><span class="o">-</span><span class="n">select</span> <span class="o">--</span><span class="n">install</span>
 </pre></div>
 </div>
 </li>
@@ -323,7 +311,7 @@ Clone the repo at <a class="reference external" href="https://github.com/materia
 </li>
 <li><p class="first">In your root pymatgen repo directory, type (you may need to do this with root
 privileges):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
 </pre></div>
 </div>
 </li>
@@ -350,7 +338,7 @@ gcc and other compilers (e.g., Xcode on Macs) already installed.</p>
 <p>The easiest is to install cmake from
 <a class="reference external" href="http://cmake.org/cmake/resources/software.html">http://cmake.org/cmake/resources/software.html</a>.</p>
 <p>Type the following:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">VTK</span> <span class="p">(</span><span class="n">this</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">directory</span> <span class="n">you</span> <span class="n">expanded</span> <span class="n">VTK</span> <span class="n">into</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">VTK</span> <span class="p">(</span><span class="n">this</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">directory</span> <span class="n">you</span> <span class="n">expanded</span> <span class="n">VTK</span> <span class="n">into</span><span class="p">)</span>
 <span class="n">mkdir</span> <span class="n">build</span>
 <span class="n">cd</span> <span class="n">build</span>
 <span class="n">ccmake</span> <span class="o">..</span> <span class="p">(</span><span class="n">this</span> <span class="n">uses</span> <span class="n">cmake</span> <span class="ow">in</span> <span class="n">an</span> <span class="n">interactive</span> <span class="n">manner</span><span class="p">)</span>
@@ -365,7 +353,7 @@ you have installed the official version of Python instead of using the
 Mac-provided version, you will probably need to edit the CMakeCache Python
 links. Example configuration for Python 3.5 installed using conda is given
 below (only variables that need to be modified/checked are shown):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PYTHON_EXECUTABLE</span><span class="p">:</span><span class="n">FILEPATH</span><span class="o">=/</span><span class="n">Users</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;/</span><span class="n">miniconda3</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python3</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PYTHON_EXECUTABLE</span><span class="p">:</span><span class="n">FILEPATH</span><span class="o">=/</span><span class="n">Users</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;/</span><span class="n">miniconda3</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python3</span>
 <span class="n">PYTHON_INCLUDE_DIR</span><span class="p">:</span><span class="n">PATH</span><span class="o">=/</span><span class="n">Users</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;/</span><span class="n">miniconda3</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">5</span><span class="n">m</span>
 <span class="n">PYTHON_LIBRARY</span><span class="p">:</span><span class="n">FILEPATH</span><span class="o">=/</span><span class="n">Users</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;/</span><span class="n">miniconda3</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">libpython3</span><span class="o">.</span><span class="mi">5</span><span class="n">m</span><span class="o">.</span><span class="n">dylib</span>
 <span class="n">VTK_INSTALL_PYTHON_MODULE_DIR</span><span class="p">:</span><span class="n">PATH</span><span class="o">=/</span><span class="n">Users</span><span class="o">/&lt;</span><span class="n">username</span><span class="o">&gt;/</span><span class="n">miniconda3</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">5</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span>
@@ -375,13 +363,13 @@ below (only variables that need to be modified/checked are shown):</p>
 </div>
 <p>Then press “c” again to configure and finally “g” to generate the required
 make files After the CMakeCache.txt file is generated, type:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
 <p>With any luck, you should have vtk with the necessary python wrappers
 installed. You can test this by going into a python terminal and trying:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vtk</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vtk</span>
 </pre></div>
 </div>
 </div>
@@ -390,7 +378,7 @@ installed. You can test this by going into a python terminal and trying:</p>
 <p><strong>Anaconda install</strong></p>
 <p>If you are using anaconda (and have pymatgen installed in your anaconda environment), you should be
 able to install openbabel with a single command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">openbabel</span> <span class="n">openbabel</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">openbabel</span> <span class="n">openbabel</span>
 </pre></div>
 </div>
 <p><strong>Manual install</strong></p>
@@ -415,7 +403,7 @@ Here are the steps that I took to make it work:</p>
 <a class="reference external" href="http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz">http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz</a>.</p>
 </li>
 <li><p class="first">Extract your Eigen and openbabel source distributions:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">zxvf</span> <span class="n">openbabel</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="mf">2.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">zxvf</span> <span class="n">openbabel</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="mf">2.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
 <span class="n">tar</span> <span class="o">-</span><span class="n">zxvf</span> <span class="n">eigen3</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
 </pre></div>
 </div>
@@ -423,7 +411,7 @@ Here are the steps that I took to make it work:</p>
 <li><p class="first">Now you should have two directories. Assuming that your openbabel src is in
 a directory called “openbabel-2.3.2” and your eigen source is in a directory
 called “eigen3”, do the following steps:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="n">openbabel</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="mi">2</span> <span class="n">ob</span><span class="o">-</span><span class="n">src</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="n">openbabel</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="mi">2</span> <span class="n">ob</span><span class="o">-</span><span class="n">src</span>
 <span class="n">cd</span> <span class="n">ob</span><span class="o">-</span><span class="n">src</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">python</span><span class="p">;</span> <span class="n">rm</span> <span class="n">openbabel</span><span class="o">.</span><span class="n">py</span> <span class="n">openbabel</span><span class="o">-</span><span class="n">python</span><span class="o">.</span><span class="n">cpp</span><span class="p">;</span> <span class="n">cd</span> <span class="o">../../..</span>
 </pre></div>
 </div>
@@ -432,7 +420,7 @@ called “eigen3”, do the following steps:</p>
 to “eigen_define”.</p>
 </li>
 <li><p class="first">Let’s create a build directory:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">ob</span><span class="o">-</span><span class="n">build</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">ob</span><span class="o">-</span><span class="n">build</span>
 <span class="n">cd</span> <span class="n">ob</span><span class="o">-</span><span class="n">build</span>
 <span class="n">cmake</span> <span class="o">-</span><span class="n">DPYTHON_BINDINGS</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DRUN_SWIG</span><span class="o">=</span><span class="n">ON</span> <span class="o">-</span><span class="n">DEIGEN3_INCLUDE_DIR</span><span class="o">=../</span><span class="n">eigen3</span> <span class="o">../</span><span class="n">ob</span><span class="o">-</span><span class="n">src</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span> <span class="o">|</span> <span class="n">tee</span> <span class="n">cmake</span><span class="o">.</span><span class="n">out</span>
 </pre></div>
@@ -446,7 +434,7 @@ version of Python instead of using the Mac-provided version,
 you will probably need to edit the CMakeCache Python links. Example
 configuration for Python 2.7 is given below (only variables that need to
 be modified are shown):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">//</span><span class="n">Path</span> <span class="n">to</span> <span class="n">a</span> <span class="n">program</span><span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span><span class="n">Path</span> <span class="n">to</span> <span class="n">a</span> <span class="n">program</span><span class="o">.</span>
 <span class="n">PYTHON_EXECUTABLE</span><span class="p">:</span><span class="n">FILEPATH</span><span class="o">=/</span><span class="n">Library</span><span class="o">/</span><span class="n">Frameworks</span><span class="o">/</span><span class="n">Python</span><span class="o">.</span><span class="n">framework</span><span class="o">/</span><span class="n">Versions</span><span class="o">/</span><span class="mf">2.7</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span>
 
 <span class="o">//</span><span class="n">Path</span> <span class="n">to</span> <span class="n">a</span> <span class="n">file</span><span class="o">.</span>
@@ -459,12 +447,12 @@ be modified are shown):</p>
 </li>
 <li><p class="first">If you are using Mavericks (OSX 10.9) and encounter errors relating to &lt;tr1/memory&gt;, you might also need to include
 the following flag in your CMakeCache.txt:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">CMAKE_CXX_FLAGS</span><span class="p">:</span><span class="n">STRING</span><span class="o">=-</span><span class="n">stdlib</span><span class="o">=</span><span class="n">libstdc</span><span class="o">++</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CMAKE_CXX_FLAGS</span><span class="p">:</span><span class="n">STRING</span><span class="o">=-</span><span class="n">stdlib</span><span class="o">=</span><span class="n">libstdc</span><span class="o">++</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">Run make and install as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">j2</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">j2</span>
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
@@ -475,7 +463,7 @@ python command line. Please note that despite best efforts,
 openbabel seems to install the python bindings into /usr/local/lib even
 if your Python is not the standard Mac version. In that case,
 you may need to add the following into your .bash_profile:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=/usr/local/lib:$PYTHONPATH
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 </pre></div>
 </div>
 </li>
@@ -486,7 +474,7 @@ you may need to add the following into your .bash_profile:</p>
 <p>If you use the defects analysis package, you will need to installZeo++/Voro++.
 Here are the steps you need to follow (thanks to Bharat)</p>
 <p>Download and install Voro++:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">Voro</span><span class="o">++</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">Voro</span><span class="o">++</span>
 <span class="n">mkdir</span> <span class="n">Voro</span><span class="o">++/</span><span class="n">voro</span>
 <span class="n">cd</span> <span class="n">Voro</span><span class="o">++/</span><span class="n">voro</span>
 <span class="n">svn</span> <span class="n">checkout</span> <span class="o">--</span><span class="n">username</span> <span class="n">anonsvn</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">code</span><span class="o">.</span><span class="n">lbl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">svn</span><span class="o">/</span><span class="n">voro</span><span class="o">/</span><span class="n">trunk</span>  <span class="c1"># password is &#39;anonsvn&#39;</span>
@@ -494,11 +482,11 @@ Here are the steps you need to follow (thanks to Bharat)</p>
 </pre></div>
 </div>
 <p>Add -fPIC to the CFLAGS variable in config.mk, and then:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span>
 </pre></div>
 </div>
 <p>Download and install Zeo++:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">Zeo</span><span class="o">++</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">Zeo</span><span class="o">++</span>
 <span class="n">mkdir</span> <span class="n">Zeo</span><span class="o">++/</span><span class="n">zeo</span>
 <span class="n">cd</span> <span class="n">Zeo</span><span class="o">++/</span><span class="n">zeo</span>
 <span class="n">svn</span> <span class="n">checkout</span> <span class="o">--</span><span class="n">username</span> <span class="n">anonsvn</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">code</span><span class="o">.</span><span class="n">lbl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">svn</span><span class="o">/</span><span class="n">zeo</span><span class="o">/</span><span class="n">trunk</span>  <span class="c1"># password is &#39;anonsvn&#39;</span>
@@ -507,14 +495,14 @@ Here are the steps you need to follow (thanks to Bharat)</p>
 </pre></div>
 </div>
 <p>Create python bindings with Cython:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">cython</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">cython</span>
 <span class="n">cd</span> <span class="n">cython_wrapper</span>
 <span class="n">python</span> <span class="n">setup_alt</span><span class="o">.</span><span class="n">py</span> <span class="n">develop</span>
 </pre></div>
 </div>
 <p>To test that the installation worked, here is an example series of things you
 can do using pymatgen:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="k">import</span> <span class="n">Interstitial</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.analysis.defects.point_defects</span> <span class="k">import</span> <span class="n">Interstitial</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="k">import</span> <span class="n">Structure</span>
 
@@ -543,7 +531,7 @@ can do using pymatgen:</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Requirements</a><ul>
 <li><a class="reference internal" href="#optional-dependencies">Optional dependencies</a></li>
@@ -591,12 +579,14 @@ can do using pymatgen:</p>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -618,13 +608,13 @@ can do using pymatgen:</p>
         <li class="right" >
           <a href="index.html" title="Introduction"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

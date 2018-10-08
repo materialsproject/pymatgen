@@ -4,27 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2018.8.10 documentation</title>
-    
+    <title>pymatgen.analysis.local_env module &#8212; pymatgen 2018.9.30 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '2018.8.10',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,8 +24,7 @@
   _gaq.push(['_trackPageview']);
 </script>
 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -60,7 +48,7 @@
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_real">
 <em class="property">class </em><code class="descname">BrunnerNN_real</code><span class="sig-paren">(</span><em>tol=0.0001</em>, <em>cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_real"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_real" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine coordination number using Brunner’s algorithm which counts the
 atoms that are within the largest gap in differences in real space
 interatomic distances. This algorithm uses Brunner’s method of
@@ -89,7 +77,7 @@ atoms. Defaults to 8.0.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_reciprocal">
 <em class="property">class </em><code class="descname">BrunnerNN_reciprocal</code><span class="sig-paren">(</span><em>tol=0.0001</em>, <em>cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_reciprocal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine coordination number using Brunner’s algorithm which counts the
 atoms that are within the largest gap in differences in real space
 interatomic distances. This algorithm uses Brunner’s method of
@@ -118,7 +106,7 @@ atoms. Defaults to 8.0.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.BrunnerNN_relative">
 <em class="property">class </em><code class="descname">BrunnerNN_relative</code><span class="sig-paren">(</span><em>tol=0.0001</em>, <em>cutoff=8.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#BrunnerNN_relative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.BrunnerNN_relative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine coordination number using Brunner’s algorithm which counts the
 atoms that are within the largest gap in differences in real space
 interatomic distances. This algorithm uses Brunner’s method of
@@ -147,7 +135,7 @@ atoms. Defaults to 8.0.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.CovalentBondNN">
 <em class="property">class </em><code class="descname">CovalentBondNN</code><span class="sig-paren">(</span><em>tol=0.2</em>, <em>order=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CovalentBondNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CovalentBondNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and bond orders using built-in
 pymatgen.Molecule CovalentBond functionality.</p>
 <p>NOTE: This strategy is only appropriate for molecules, and not for
@@ -255,7 +243,7 @@ information.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.Critic2NN">
 <em class="property">class </em><code class="descname">Critic2NN</code><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#Critic2NN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.Critic2NN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Performs a topological analysis using critic2 to obtain
 neighbor information, using a sum of atomic charge
 densities. If an actual charge density is available
@@ -276,7 +264,7 @@ instead.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.CrystalNN">
 <em class="property">class </em><code class="descname">CrystalNN</code><span class="sig-paren">(</span><em>weighted_cn=False</em>, <em>cation_anion=False</em>, <em>distance_cutoffs=(0.5</em>, <em>1.0)</em>, <em>x_diff_weight=3.0</em>, <em>porous_adjustment=True</em>, <em>search_cutoff=7</em>, <em>fingerprint_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CrystalNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>This is custom near neighbor method intended for use in all kinds of
 periodic structures (metals, minerals, porous structures, etc). It is based
 on a Voronoi algorithm and uses the solid angle weights to determine the
@@ -321,7 +309,7 @@ desired from get_nn_data(), set this parameter</li>
 <dl class="attribute">
 <dt id="pymatgen.analysis.local_env.CrystalNN.NNData">
 <code class="descname">NNData</code><a class="headerlink" href="#pymatgen.analysis.local_env.CrystalNN.NNData" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">nn_data</span></code></p>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">nn_data</span></code></p>
 </dd></dl>
 
 <dl class="method">
@@ -334,7 +322,7 @@ desired from get_nn_data(), set this parameter</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine CN.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine CN.</li>
 <li><strong>use_weights</strong> (<em>boolean</em>) – flag indicating whether (True)
 to use weights for computing the coordination number
 or not (False, default: each coordinated site has equal
@@ -345,7 +333,7 @@ weight).</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">coordination number.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn" title="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn">cn</a> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer">integer</a> or float)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">cn (integer or float)</p>
 </td>
 </tr>
 </tbody>
@@ -362,7 +350,7 @@ weight).</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine CN.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine CN.</li>
 <li><strong>use_weights</strong> (<em>boolean</em>) – flag indicating whether (True)
 to use weights for computing the coordination number
 or not (False, default: each coordinated site has equal
@@ -373,7 +361,7 @@ weight).</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary of CN of each element bonded to site</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn" title="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn">cn</a> (dict)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">cn (dict)</p>
 </td>
 </tr>
 </tbody>
@@ -403,7 +391,7 @@ weight).</li>
 </p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">a namedtuple (<a class="reference internal" href="#pymatgen.analysis.local_env.CrystalNN.NNData" title="pymatgen.analysis.local_env.CrystalNN.NNData">NNData</a>) object that contains</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">a namedtuple (NNData) object that contains</p>
 </td>
 </tr>
 </tbody>
@@ -451,7 +439,7 @@ the original structure.</dd>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.CutOffDictNN">
 <em class="property">class </em><code class="descname">CutOffDictNN</code><span class="sig-paren">(</span><em>cut_off_dict=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#CutOffDictNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.CutOffDictNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>A very basic NN class using a dictionary of fixed
 cut-off distances. Can also be used with no dictionary
 defined for a Null/Empty NN class.</p>
@@ -462,7 +450,7 @@ defined for a Null/Empty NN class.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>cut_off_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em>) – a dictionary</li>
 <li><strong>cut-off distances</strong><strong>, </strong><strong>e.g. {</strong> (<em>of</em>) – 2.0} for</li>
-<li><strong>maximum Fe-O bond length of 2.0 Angstroms.</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a" title="pymatgen.analysis.chemenv.utils.coordination_geometry_utils.Plane.a"><em>a</em></a>) – </li>
+<li><strong>maximum Fe-O bond length of 2.0 Angstroms.</strong> (<em>a</em>) – </li>
 <li><strong>that if your structure is oxidation state</strong> (<em>Note</em>) – </li>
 <li><strong>the cut-off distances will have to</strong> (<em>decorated</em><em>,</em>) – </li>
 <li><strong>include the oxidation state</strong><strong>, </strong><strong>e.g.</strong> (<em>explicitly</em>) – </li>
@@ -482,7 +470,7 @@ defined for a Null/Empty NN class.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.EconNN">
 <em class="property">class </em><code class="descname">EconNN</code><span class="sig-paren">(</span><em>tol=0.0001</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#EconNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.EconNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determines the average effective coordination number for each cation in a given structure
 using Hoppe’s algorithm.</p>
 <p>This method finds all cation-centered polyhedrals in the structure, calculates the bond
@@ -514,7 +502,7 @@ atoms. Defaults to 10.0.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.JmolNN">
 <em class="property">class </em><code class="descname">JmolNN</code><span class="sig-paren">(</span><em>tol=0.56</em>, <em>min_bond_distance=0.4</em>, <em>el_radius_updates=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#JmolNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.JmolNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using an emulation
 of Jmol’s default autoBond() algorithm. This version of the algorithm
 does not take into account any information regarding known charge
@@ -554,7 +542,7 @@ algorithm underlying Jmol.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine near
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near
 neighbors.</li>
 </ul>
 </td>
@@ -580,7 +568,7 @@ and its weight.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.LocalStructOrderParams">
 <em class="property">class </em><code class="descname">LocalStructOrderParams</code><span class="sig-paren">(</span><em>types</em>, <em>parameters=None</em>, <em>cutoff=-10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#LocalStructOrderParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.LocalStructOrderParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class permits the calculation of various types of local
 structure order parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -588,7 +576,7 @@ structure order parameters.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>types</strong> (<em>[</em><a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a><em>]</em>) – <p>list of strings representing the types of
+<li><strong>types</strong> (<em>[</em><em>string</em><em>]</em>) – <p>list of strings representing the types of
 order parameters to be calculated. Note that multiple
 mentions of the same type may occur. Currently available
 types recognize following environments:</p>
@@ -995,7 +983,7 @@ instance.</dd>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.MinimumDistanceNN">
 <em class="property">class </em><code class="descname">MinimumDistanceNN</code><span class="sig-paren">(</span><em>tol=0.1</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#MinimumDistanceNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumDistanceNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using the
 nearest neighbor(s) at distance, d_min, plus all neighbors
 within a distance (1 + delta) * d_min, where delta is a
@@ -1026,7 +1014,7 @@ distance-based method.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine near
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near
 neighbors.</li>
 </ul>
 </td>
@@ -1052,7 +1040,7 @@ and its weight.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.MinimumOKeeffeNN">
 <em class="property">class </em><code class="descname">MinimumOKeeffeNN</code><span class="sig-paren">(</span><em>tol=0.1</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#MinimumOKeeffeNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumOKeeffeNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using the
 neighbor(s) at closest relative distance, d_min_OKeffee, plus some
 relative tolerance, where bond valence parameters from O’Keeffe’s
@@ -1084,7 +1072,7 @@ neighbor distance-based method with O’Keeffe parameters.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine near
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near
 neighbors.</li>
 </ul>
 </td>
@@ -1110,7 +1098,7 @@ and its weight.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.MinimumVIRENN">
 <em class="property">class </em><code class="descname">MinimumVIRENN</code><span class="sig-paren">(</span><em>tol=0.1</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#MinimumVIRENN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.MinimumVIRENN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and coordination number using the
 neighbor(s) at closest relative distance, d_min_VIRE, plus some
 relative tolerance, where atom radii from the
@@ -1142,7 +1130,7 @@ neighbor distance-based method with VIRE atomic/ionic radii.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine near
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near
 neighbors.</li>
 </ul>
 </td>
@@ -1168,7 +1156,7 @@ and its weight.</p>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.NearNeighbors">
 <em class="property">class </em><code class="descname">NearNeighbors</code><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#NearNeighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.NearNeighbors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class to determine near neighbors that typically include nearest
 neighbors and others that are within some tolerable distance.</p>
 <dl class="method">
@@ -1224,7 +1212,7 @@ class. Requires the optional dependency networkx
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine CN.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine CN.</li>
 <li><strong>use_weights</strong> (<em>boolean</em>) – flag indicating whether (True)
 to use weights for computing the coordination number
 or not (False, default: each coordinated site has equal
@@ -1235,7 +1223,7 @@ weight).</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">coordination number.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn" title="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn">cn</a> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer">integer</a> or float)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">cn (integer or float)</p>
 </td>
 </tr>
 </tbody>
@@ -1252,7 +1240,7 @@ weight).</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine CN.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine CN.</li>
 <li><strong>use_weights</strong> (<em>boolean</em>) – flag indicating whether (True)
 to use weights for computing the coordination number
 or not (False, default: each coordinated site has equal
@@ -1263,7 +1251,7 @@ weight).</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dictionary of CN of each element bonded to site</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn" title="pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder.AbstractGeometry.cn">cn</a> (dict)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">cn (dict)</p>
 </td>
 </tr>
 </tbody>
@@ -1307,7 +1295,7 @@ underlying motif type (keys; for example, tetrahedral).</dd>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site in structure for which to determine
+<li><strong>n</strong> (<em>integer</em>) – index of site in structure for which to determine
 neighbors.</li>
 </ul>
 </td>
@@ -1315,7 +1303,7 @@ neighbors.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">near neighbors.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.core.sites.html#module-pymatgen.core.sites" title="pymatgen.core.sites">sites</a> (list of Site objects)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sites (list of Site objects)</p>
 </td>
 </tr>
 </tbody>
@@ -1333,7 +1321,7 @@ structure.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine the image
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine the image
 location of near neighbors.</li>
 </ul>
 </td>
@@ -1346,7 +1334,7 @@ location of near neighbors.</li>
 </p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.analysis.path_finder.html#pymatgen.analysis.path_finder.NEBPathfinder.images" title="pymatgen.analysis.path_finder.NEBPathfinder.images">images</a> (list of 3D integer array)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">images (list of 3D integer array)</p>
 </td>
 </tr>
 </tbody>
@@ -1364,7 +1352,7 @@ and weights of the site with index n.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine near-neighbor
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
 information.</li>
 </ul>
 </td>
@@ -1441,14 +1429,14 @@ index n in structure.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine the weights.</li>
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine the weights.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">near-neighbor weights.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pymatgen.io.vasp.outputs.html#pymatgen.io.vasp.outputs.Procar.weights" title="pymatgen.io.vasp.outputs.Procar.weights">weights</a> (list of floats)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">weights (list of floats)</p>
 </td>
 </tr>
 </tbody>
@@ -1459,8 +1447,8 @@ index n in structure.</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.OpenBabelNN">
-<em class="property">class </em><code class="descname">OpenBabelNN</code><span class="sig-paren">(</span><em>order=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#OpenBabelNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<em class="property">class </em><code class="descname">OpenBabelNN</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#OpenBabelNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.OpenBabelNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Determine near-neighbor sites and bond orders using OpenBabel API.</p>
 <p>NOTE: This strategy is only appropriate for molecules, and not for
 structures.</p>
@@ -1567,7 +1555,7 @@ information.</li>
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator">
 <em class="property">class </em><code class="descname">ValenceIonicRadiusEvaluator</code><span class="sig-paren">(</span><em>structure</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#ValenceIonicRadiusEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.ValenceIonicRadiusEvaluator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Computes site valences and ionic radii for a structure using bond valence
 analyzer</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1600,8 +1588,8 @@ analyzer</p>
 
 <dl class="class">
 <dt id="pymatgen.analysis.local_env.VoronoiNN">
-<em class="property">class </em><code class="descname">VoronoiNN</code><span class="sig-paren">(</span><em>tol=0</em>, <em>targets=None</em>, <em>cutoff=10.0</em>, <em>allow_pathological=False</em>, <em>weight=’solid_angle’</em>, <em>extra_nn_info=True</em>, <em>compute_adj_neighbors=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
+<em class="property">class </em><code class="descname">VoronoiNN</code><span class="sig-paren">(</span><em>tol=0</em>, <em>targets=None</em>, <em>cutoff=13.0</em>, <em>allow_pathological=False</em>, <em>weight=u'solid_angle'</em>, <em>extra_nn_info=True</em>, <em>compute_adj_neighbors=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#VoronoiNN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.VoronoiNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.local_env.NearNeighbors" title="pymatgen.analysis.local_env.NearNeighbors"><code class="xref py py-class docutils literal notranslate"><span class="pre">pymatgen.analysis.local_env.NearNeighbors</span></code></a></p>
 <p>Uses a Voronoi algorithm to determine near neighbors for each site in a
 structure.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1614,10 +1602,10 @@ than <cite>tol</cite> fraction of the largest face are not included in the tesse
 (default: 0).</li>
 <li><strong>targets</strong> (<a class="reference internal" href="pymatgen.core.periodic_table.html#pymatgen.core.periodic_table.Element" title="pymatgen.core.periodic_table.Element"><em>Element</em></a><em> or </em><em>list of Elements</em>) – target element(s).</li>
 <li><strong>cutoff</strong> (<em>float</em>) – cutoff radius in Angstrom to look for near-neighbor
-atoms. Defaults to 10.0.</li>
+atoms. Defaults to 13.0.</li>
 <li><strong>allow_pathological</strong> (<em>bool</em>) – whether to allow infinite vertices in
 determination of Voronoi coordination.</li>
-<li><strong>weight</strong> (<a class="reference internal" href="pymatgen.util.string.html#module-pymatgen.util.string" title="pymatgen.util.string"><em>string</em></a>) – available in get_voronoi_polyhedra)</li>
+<li><strong>weight</strong> (<em>string</em>) – available in get_voronoi_polyhedra)</li>
 <li><strong>extra_nn_info</strong> (<em>bool</em>) – </li>
 <li><strong>compute_adj_neighbors</strong> (<em>bool</em>) – for faster performance</li>
 </ul>
@@ -1674,7 +1662,7 @@ using Voronoi decomposition.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – input structure.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – index of site for which to determine near-neighbor
+<li><strong>n</strong> (<em>integer</em>) – index of site for which to determine near-neighbor
 sites.</li>
 </ul>
 </td>
@@ -1708,7 +1696,7 @@ M. O’Keeffe, Acta Cryst. (1979). A35, 772-775</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.structure.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – structure for which to evaluate the
 coordination environment.</li>
-<li><strong>n</strong> (<a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer" title="pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.AdditionalConditionInt.integer"><em>integer</em></a>) – site index.</li>
+<li><strong>n</strong> (<em>integer</em>) – site index.</li>
 </ul>
 </td>
 </tr>
@@ -1748,7 +1736,7 @@ Hoppe’s effective coordination number formula.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>bonds</strong> (<em>list</em>) – list of floats that are the</li>
-<li><strong>distances between a cation and its</strong> (<a class="reference internal" href="pymatgen.command_line.critic2_caller.html#pymatgen.command_line.critic2_caller.CriticalPointType.bond" title="pymatgen.command_line.critic2_caller.CriticalPointType.bond"><em>bond</em></a>) – </li>
+<li><strong>distances between a cation and its</strong> (<em>bond</em>) – </li>
 <li><strong>ions</strong> (<em>peripheral</em>) – </li>
 </ul>
 </td>
@@ -1759,7 +1747,7 @@ Hoppe’s effective coordination number formula.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.get_neighbors_of_site_with_index">
-<code class="descname">get_neighbors_of_site_with_index</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=’min_dist’</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#get_neighbors_of_site_with_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_neighbors_of_site_with_index" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_neighbors_of_site_with_index</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=u'min_dist'</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#get_neighbors_of_site_with_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.get_neighbors_of_site_with_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the neighbors of a given site using a specific neighbor-finding
 method.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1854,7 +1842,7 @@ The output vector is not normalized.</p>
 
 <dl class="function">
 <dt id="pymatgen.analysis.local_env.site_is_of_motif_type">
-<code class="descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=’min_dist’</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em>, <em>thresh=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#site_is_of_motif_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
+<code class="descname">site_is_of_motif_type</code><span class="sig-paren">(</span><em>struct</em>, <em>n</em>, <em>approach=u'min_dist'</em>, <em>delta=0.1</em>, <em>cutoff=10.0</em>, <em>thresh=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/local_env.html#site_is_of_motif_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.local_env.site_is_of_motif_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the motif type of the site with index n in structure struct;
 currently featuring “tetrahedral”, “octahedral”, “bcc”, and “cp”
 (close-packed: fcc and hcp) as well as “square pyramidal” and
@@ -1950,12 +1938,14 @@ vt2, vt3 and vt4.
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1971,13 +1961,13 @@ vt2, vt3 and vt4.
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.8.10 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
       </ul>
     </div>
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2011, Pymatgen Development Team.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
