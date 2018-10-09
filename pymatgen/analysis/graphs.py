@@ -137,6 +137,61 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @staticmethod
+    def with_edges(structure, edges):
+        """
+        Constructor for MoleculeGraph, using pre-existing or pre-defined edges
+        with optional edge parameters.
+
+        :param molecule: Molecule object
+        :param edges: dict representing the bonds of the functional
+                group (format: {(from_index, to_index, from_image, to_image): props},
+                where props is a dictionary of properties, including weight.
+                Props should be None if no additional properties are to be
+                specified.
+        :return: sg, a StructureGraph
+        """
+
+        sg = StructureGraph.with_empty_graph(structure, name="bonds",
+                                             edge_weight_name="weight",
+                                             edge_weight_units="")
+
+        for edge, props in edges.items():
+
+            try:
+                from_index = edge[0]
+                to_index = edge[1]
+                from_image = edge[2]
+                to_image = edge[3]
+            except TypeError:
+                raise ValueError("Edges must be given as (from_index, to_index,"
+                                 " from_image, to_image) tuples")
+
+            if props is not None:
+                if "weight" in props.keys():
+                    weight = props["weight"]
+                    del props["weight"]
+                else:
+                    weight = None
+
+                if len(props.items()) == 0:
+                    props = None
+            else:
+                weight = None
+
+            nodes = sg.graph.nodes
+            if not (from_index in nodes and to_index in nodes):
+                raise ValueError("Edges cannot be added if nodes are not"
+                                 " present in the graph. Please check your"
+                                 " indices.")
+
+            sg.add_edge(from_index, to_index, from_jimage=from_image,
+                        to_jimage=to_image, weight=weight,
+                        edge_properties=props)
+
+        sg.set_node_attributes()
+        return sg
+
+    @staticmethod
     def with_local_env_strategy(structure, strategy):
         """
         Constructor for StructureGraph, using a strategy
@@ -1491,7 +1546,6 @@ class MoleculeGraph(MSONable):
         graph_data = json_graph.adjacency_data(graph)
 
         return cls(molecule, graph_data=graph_data)
-
 
     @staticmethod
     def with_edges(molecule, edges):

@@ -386,6 +386,18 @@ from    to  to_image
 
         self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
 
+    def test_from_edges(self):
+        edges = {(0, 0, (0, 0, 0), (1, 0, 0)): None,
+                 (0, 0, (0, 0, 0), (-1, 0, 0)): None,
+                 (0, 0, (0, 0, 0), (0, 1, 0)): None,
+                 (0, 0, (0, 0, 0), (0, -1, 0)): None}
+
+        structure = Structure(Lattice.tetragonal(5.0, 50.0), ['H'], [[0, 0, 0]])
+
+        sg = StructureGraph.with_edges(structure, edges)
+
+        self.assertEqual(sg, self.square_sg)
+
     def test_extract_molecules(self):
 
         structure_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -764,7 +776,7 @@ class MoleculeGraphTest(unittest.TestCase):
         d = self.cyclohexene.as_dict()
         mg = MoleculeGraph.from_dict(d)
         d2 = mg.as_dict()
-        self.assertDictEqual(d, d2)
+        self.assertEqual(str(d), str(d2))
 
 if __name__ == "__main__":
     unittest.main()
