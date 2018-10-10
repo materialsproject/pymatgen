@@ -13,7 +13,7 @@ from monty.json import jsanitize
 from monty.json import MSONable
 from pymatgen.core import Molecule
 
-from pymatgen.analysis.graphs import build_MoleculeGraph
+from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
 from pymatgen.io.babel import BabelMolAdaptor
@@ -455,15 +455,15 @@ class QCOutput(MSONable):
                     spin_multiplicity=self.data.get('multiplicity'))
 
     def _check_for_structure_changes(self):
-        initial_mol_graph = build_MoleculeGraph(self.data["initial_molecule"],
-                                                strategy=OpenBabelNN,
-                                                reorder=False,
-                                                extend_structure=False)
+        initial_mol_graph = MoleculeGraph.with_local_env_strategy(self.data["initial_molecule"],
+                                                                  OpenBabelNN(),
+                                                                  reorder=False,
+                                                                  extend_structure=False)
         initial_graph = initial_mol_graph.graph
-        last_mol_graph = build_MoleculeGraph(self.data["molecule_from_last_geometry"],
-                                             strategy=OpenBabelNN,
-                                             reorder=False,
-                                             extend_structure=False)
+        last_mol_graph = MoleculeGraph.with_local_env_strategy(self.data["molecule_from_last_geometry"],
+                                                               OpenBabelNN(),
+                                                               reorder=False,
+                                                               extend_structure=False)
         last_graph = last_mol_graph.graph
         if initial_mol_graph.isomorphic_to(last_mol_graph):
             self.data["structure_change"] = "no_change"

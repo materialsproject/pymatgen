@@ -36,6 +36,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class EnumlibAdaptorTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
     def test_init(self):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

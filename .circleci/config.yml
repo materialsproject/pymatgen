@@ -3,7 +3,8 @@ jobs:
   py3test:
     working_directory: ~/pymatgen
     docker:
-        - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
+      - image: materialsvirtuallab/circle-ci-pmg-py3:0.0.2
+    parallelism: 4
     steps:
       - checkout
       - restore_cache: # restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run
@@ -19,15 +20,16 @@ jobs:
             conda install --quiet --yes cmake
             # conda update --quiet --all
             mkdir coverage_reports
-            pip install --upgrade pip nose-timer
+            pip install --upgrade pip
             pip install --quiet --ignore-installed -r requirements.txt -r requirements-optional.txt
             export CFLAGS=$CFLAGS" -std=gnu++11"
             pip install BoltzTraP2
             export CFLAGS=${CFLAGS%% -std=gnu++11}
+            rm -r coverage_reports
       - save_cache: # special step to save dependency cache
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-optional.txt" }}
           paths:
-          - "/root/miniconda3/envs/test_env"
+            - "/root/miniconda3/envs/test_env"
       - run:
           command: |
             # Add executables and path.
@@ -37,7 +39,7 @@ jobs:
             export MPLBACKEND=Agg
             source activate test_env
             pip install --quiet -e .
-            nosetests --config=nose.cfg --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
+            nosetests --config=nose.cfg --processes=4 --process-timeout=600 --cover-html --cover-html-dir=coverage_reports --with-timer --timer-top-n 30
             # Command line tests
             pmg structure --convert --filenames test_files/Li2O.cif POSCAR.pmg
             pmg structure --convert --filenames POSCAR.pmg pmg.cif

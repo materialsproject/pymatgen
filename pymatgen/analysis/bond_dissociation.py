@@ -9,7 +9,7 @@ import logging
 from monty.json import MSONable
 
 from pymatgen.core.structure import Molecule
-from pymatgen.analysis.graphs import build_MoleculeGraph, MolGraphSplitError
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.analysis.fragmenter import open_ring
 from pymatgen.io.babel import BabelMolAdaptor
@@ -88,10 +88,10 @@ class BondDissociationEnergies(MSONable):
                 self.expected_charges = [molecule_entry["final_molecule"]["charge"]-2, molecule_entry["final_molecule"]["charge"]-1, molecule_entry["final_molecule"]["charge"], molecule_entry["final_molecule"]["charge"]+1]
 
         # Build principle molecule graph
-        self.mol_graph = build_MoleculeGraph(Molecule.from_dict(molecule_entry["final_molecule"]),
-                                             strategy=OpenBabelNN,
-                                             reorder=False,
-                                             extend_structure=False)
+        self.mol_graph = MoleculeGraph.with_local_env_strategy(Molecule.from_dict(molecule_entry["final_molecule"]),
+                                                              OpenBabelNN(),
+                                                              reorder=False,
+                                                              extend_structure=False)
         # Loop through bonds, aka graph edges, and fragment and process:
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0],bond[1])]
@@ -246,12 +246,12 @@ class BondDissociationEnergies(MSONable):
                 elif entry["pcm_dielectric"] != self.molecule_entry["pcm_dielectric"]:
                     raise RuntimeError("Principle molecule has a PCM dielectric of " + str(self.molecule_entry["pcm_dielectric"]) + " but a fragment entry has a different PCM dielectric! Please only pass fragment entries with PCM details consistent with the principle entry. Exiting...")
             # Build initial and final molgraphs:
-            entry["initial_molgraph"] = build_MoleculeGraph(Molecule.from_dict(entry["initial_molecule"]),
-                                          strategy=OpenBabelNN,
+            entry["initial_molgraph"] = MoleculeGraph.with_local_env_strategy(Molecule.from_dict(entry["initial_molecule"]),
+                                          OpenBabelNN(),
                                           reorder=False,
                                           extend_structure=False)
-            entry["final_molgraph"] = build_MoleculeGraph(Molecule.from_dict(entry["final_molecule"]),
-                                        strategy=OpenBabelNN,
+            entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(Molecule.from_dict(entry["final_molecule"]),
+                                        OpenBabelNN(),
                                         reorder=False,
                                         extend_structure=False)
             # Classify any potential structural change that occured during optimization:

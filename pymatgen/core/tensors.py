@@ -503,11 +503,10 @@ class Tensor(np.ndarray, MSONable):
             rotation[2] = np.array(c)
             rotation[0] = np.cross(rotation[1], rotation[2])
 
-        # IEEE rules: c || x3
+        # IEEE rules: c || x3, x2 normal to ac plane
         elif xtal_sys == "triclinic":
             rotation = [vec / mag for (mag, vec) in sorted(zip(lengths, vecs))]
-            rotation = np.roll(rotation, 2, axis=0)
-            rotation[1] = get_uvec(np.cross(rotation[2], rotation[1]))
+            rotation[1] = get_uvec(np.cross(rotation[2], rotation[0]))
             rotation[0] = np.cross(rotation[1], rotation[2])
 
         rotation = SquareTensor(rotation)

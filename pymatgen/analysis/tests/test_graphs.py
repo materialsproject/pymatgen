@@ -386,6 +386,18 @@ from    to  to_image
 
         self.assertEqual(self.square_sg.get_coordination_of_site(0), 4)
 
+    def test_from_edges(self):
+        edges = {(0, 0, (0, 0, 0), (1, 0, 0)): None,
+                 (0, 0, (0, 0, 0), (-1, 0, 0)): None,
+                 (0, 0, (0, 0, 0), (0, 1, 0)): None,
+                 (0, 0, (0, 0, 0), (0, -1, 0)): None}
+
+        structure = Structure(Lattice.tetragonal(5.0, 50.0), ['H'], [[0, 0, 0]])
+
+        sg = StructureGraph.with_edges(structure, edges)
+
+        self.assertEqual(sg, self.square_sg)
+
     def test_extract_molecules(self):
 
         structure_file = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -503,23 +515,23 @@ class MoleculeGraphTest(unittest.TestCase):
         del self.cyclohexene
 
     @unittest.skipIf(not ob, "OpenBabel not present. Skipping...")
-    def test_build_MoleculeGraph(self):
-        edges_frag = [(e[0], e[1], {"weight":1.0}) for e in self.pc_frag1_edges]
-        mol_graph = build_MoleculeGraph(self.pc_frag1, edges=edges_frag)
+    def test_construction(self):
+        edges_frag = {(e[0], e[1]): {"weight":1.0} for e in self.pc_frag1_edges}
+        mol_graph = MoleculeGraph.with_edges(self.pc_frag1, edges_frag)
         #dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_frag1_mg.json"))
         ref_mol_graph = loadfn(os.path.join(module_dir, "pc_frag1_mg.json"))
         self.assertEqual(mol_graph, ref_mol_graph)
         self.assertEqual(mol_graph.graph.adj, ref_mol_graph.graph.adj)
-        for node in mol_graph.graph:
+        for node in mol_graph.graph.nodes:
             self.assertEqual(mol_graph.graph.node[node]["specie"],
                              ref_mol_graph.graph.node[node]["specie"])
             for ii in range(3):
                 self.assertEqual(
                     mol_graph.graph.node[node]["coords"][ii],
-                    ref_mol_graph.graph.node[node]["coords"]["data"][ii])
+                    ref_mol_graph.graph.node[node]["coords"][ii])
 
-        edges_pc = [(e[0], e[1], {"weight":1.0}) for e in self.pc_edges]
-        mol_graph = build_MoleculeGraph(self.pc, edges=edges_pc)
+        edges_pc = {(e[0], e[1]): {"weight":1.0} for e in self.pc_edges}
+        mol_graph = MoleculeGraph.with_edges(self.pc, edges_pc)
         #dumpfn(mol_graph.as_dict(), os.path.join(module_dir,"pc_mg.json"))
         ref_mol_graph = loadfn(os.path.join(module_dir, "pc_mg.json"))
         self.assertEqual(mol_graph, ref_mol_graph)
@@ -530,10 +542,10 @@ class MoleculeGraphTest(unittest.TestCase):
             for ii in range(3):
                 self.assertEqual(
                     mol_graph.graph.node[node]["coords"][ii],
-                    ref_mol_graph.graph.node[node]["coords"]["data"][ii])
+                    ref_mol_graph.graph.node[node]["coords"][ii])
 
-        mol_graph_edges = build_MoleculeGraph(self.pc, edges=edges_pc)
-        mol_graph_strat = build_MoleculeGraph(self.pc, strategy=OpenBabelNN, reorder=False, extend_structure=False)
+        mol_graph_edges = MoleculeGraph.with_edges(self.pc, edges=edges_pc)
+        mol_graph_strat = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN(), reorder=False, extend_structure=False)
         self.assertTrue(mol_graph_edges.isomorphic_to(mol_graph_strat))
 
     def test_properties(self):
@@ -661,8 +673,8 @@ class MoleculeGraphTest(unittest.TestCase):
 
     @unittest.skipIf(not nx, "NetworkX not present. Skipping...")
     def test_build_unique_fragments(self):
-        edges = [(e[0], e[1], {}) for e in self.pc_edges]
-        mol_graph = build_MoleculeGraph(self.pc, edges=edges)
+        edges = {(e[0], e[1]): None for e in self.pc_edges}
+        mol_graph = MoleculeGraph.with_edges(self.pc, edges)
         unique_fragments = mol_graph.build_unique_fragments()
         self.assertEqual(len(unique_fragments), 295)
         nm = iso.categorical_node_match("specie", "ERROR")
@@ -704,15 +716,11 @@ class MoleculeGraphTest(unittest.TestCase):
         # switch carbons
         ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
 
-        eth_copy = MoleculeGraph.with_empty_graph(ethylene,
-                                                  edge_weight_name="strength",
-                                                  edge_weight_units="")
-        eth_copy.add_edge(0, 1, weight=2.0)
-        eth_copy.add_edge(1, 2, weight=1.0)
-        eth_copy.add_edge(1, 3, weight=1.0)
-        eth_copy.add_edge(0, 4, weight=1.0)
-        eth_copy.add_edge(0, 5, weight=1.0)
-
+        eth_copy = MoleculeGraph.with_edges(ethylene, {(0, 1): {"weight": 2},
+                                                       (1, 2): {"weight": 1},
+                                                       (1, 3): {"weight": 1},
+                                                       (0, 4): {"weight": 1},
+                                                       (0, 5): {"weight": 1}})
         # If they are equal, they must also be isomorphic
         eth_copy = copy.deepcopy(self.ethylene)
         self.assertTrue(self.ethylene.isomorphic_to(eth_copy))
@@ -720,12 +728,9 @@ class MoleculeGraphTest(unittest.TestCase):
 
     def test_substitute(self):
         molecule = FunctionalGroups["methyl"]
-        molgraph = MoleculeGraph.with_empty_graph(molecule,
-                                                  edge_weight_name="strength",
-                                                  edge_weight_units="")
-        molgraph.add_edge(0, 1, weight=1.0)
-        molgraph.add_edge(0, 2, weight=1.0)
-        molgraph.add_edge(0, 3, weight=1.0)
+        molgraph = MoleculeGraph.with_edges(molecule, {(0, 1): {"weight": 1},
+                                                       (0, 2): {"weight": 1},
+                                                       (0, 3): {"weight": 1}})
 
         eth_mol = copy.deepcopy(self.ethylene)
         eth_str = copy.deepcopy(self.ethylene)
@@ -771,7 +776,7 @@ class MoleculeGraphTest(unittest.TestCase):
         d = self.cyclohexene.as_dict()
         mg = MoleculeGraph.from_dict(d)
         d2 = mg.as_dict()
-        self.assertDictEqual(d, d2)
+        self.assertEqual(str(d), str(d2))
 
 if __name__ == "__main__":
     unittest.main()

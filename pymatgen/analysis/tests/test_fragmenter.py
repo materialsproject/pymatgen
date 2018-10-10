@@ -6,7 +6,7 @@ import os
 import unittest
 
 from pymatgen.core.structure import Molecule
-from pymatgen.analysis.graphs import build_MoleculeGraph
+from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.analysis.fragmenter import Fragmenter
@@ -53,8 +53,8 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc)
         self.assertEqual(fragmenter.open_rings,True)
         self.assertEqual(fragmenter.opt_steps,10000)
-        default_mol_graph = build_MoleculeGraph(self.pc, strategy=OpenBabelNN,
-                                            reorder=False, extend_structure=False)
+        default_mol_graph = MoleculeGraph.with_local_env_strategy(self.pc, OpenBabelNN(),
+                                                                  reorder=False, extend_structure=False)
         self.assertEqual(fragmenter.mol_graph,default_mol_graph)
         self.assertEqual(len(fragmenter.unique_fragments), 13)
         self.assertEqual(len(fragmenter.unique_fragments_from_ring_openings), 5)
@@ -63,8 +63,8 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc, edges=self.pc_edges, depth=2, open_rings=False, opt_steps=0)
         self.assertEqual(fragmenter.open_rings,False)
         self.assertEqual(fragmenter.opt_steps,0)
-        edges = [(e[0], e[1], {}) for e in self.pc_edges]
-        default_mol_graph = build_MoleculeGraph(self.pc, edges=edges)
+        edges = {(e[0], e[1]): None for e in self.pc_edges}
+        default_mol_graph = MoleculeGraph.with_edges(self.pc, edges=edges)
         self.assertEqual(fragmenter.mol_graph,default_mol_graph)
         self.assertEqual(len(fragmenter.unique_fragments), 20)
         self.assertEqual(len(fragmenter.unique_fragments_from_ring_openings), 0)
