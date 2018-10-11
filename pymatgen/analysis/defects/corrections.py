@@ -705,7 +705,7 @@ class BandEdgeShiftingCorrection(DefectCorrection):
         }
 
 
-class ShallowLevelShiftCorrection(DefectCorrection):
+class LevelShiftCorrection(DefectCorrection):
     """
     A class for DefectLevelShiftingCorrection class. Largely adapted from PyCDT code
 
@@ -765,6 +765,6 @@ class ShallowLevelShiftCorrection(DefectCorrection):
         else:
             raise ValueError('Shift_approach = {} not recognized...'.format( shift_approach))
 
-        entry.parameters["bandshift_meta"] = dict(self.metadata)
+        entry.parameters["levelshift_meta"] = dict(self.metadata)
 
         return total_shift_corr
