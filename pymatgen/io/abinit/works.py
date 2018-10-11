@@ -26,7 +26,7 @@ from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, FileNode, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, ElasticTask, DdkTask,
-                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
+                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask, TaskManager,
                     DteTask, EphTask, CollinearThenNonCollinearScfTask)
 
 from .utils import Directory
@@ -1636,7 +1636,7 @@ class GKKPWork(Work):
     present in a DVDB and DDB file
     """
     @classmethod
-    def from_den_ddb_dvdb(cls,inp,den_path,ddb_path,dvdb_path,remove_wfkq=True,
+    def from_den_ddb_dvdb(cls,inp,den_path,ddb_path,dvdb_path,mpiprocs=1,remove_wfkq=True,
                           with_ddk=True,expand=True,manager=None):
         """
         Construct a `PhononWfkqWork` from a DDB and DVDB file.
@@ -1658,11 +1658,13 @@ class GKKPWork(Work):
         new.remove_wfkq = remove_wfkq
         new.wfkq_tasks = []
         new.wfkq_task_children = collections.defaultdict(list)
+        if manager is None: manager = TaskManager.from_user_config()
+        tm = manager.new_with_fixed_mpi_omp(mpiprocs,1)
 
         # create a WFK task
         kptopt = 1 if expand else 3
         nscf_inp = inp.new_with_vars(iscf=-2, kptopt=kptopt)
-        wfk_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"})
+        wfk_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"},manager=tm)
         new.wfkq_tasks.append(wfk_task)
         new.wfk_task = wfk_task
 
@@ -1671,7 +1673,8 @@ class GKKPWork(Work):
             fbz_nscf_inp = inp.new_with_vars(optdriver=8)
             fbz_nscf_inp.set_spell_check(False)
             fbz_nscf_inp.set_vars(wfk_task="wfk_fullbz")
-            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", den_file: "DEN"})
+            tm_serial = manager.new_with_fixed_mpi_omp(1,1)
+            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", den_file: "DEN"},manager=tm_serial)
             new.wfkq_tasks.append(wfk_task)
             new.wfk_task = wfk_task
 
@@ -1681,7 +1684,7 @@ class GKKPWork(Work):
             ddk_inp = inp.new_with_vars(optdriver=8,kptopt=kptopt)
             ddk_inp.set_spell_check(False)
             ddk_inp.set_vars(wfk_task="wfk_ddk")
-            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"})
+            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"},manager=tm)
             new.wfkq_tasks.append(ddk_task)
 
         #for each of the q 
@@ -1694,14 +1697,14 @@ class GKKPWork(Work):
             else:
                 # create a WFQ task
                 nscf_inp = nscf_inp.new_with_vars(kptopt=3, qpt=qpt, nqpt=1)
-                wfkq_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"})
+                wfkq_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"}, manager=tm)
                 new.wfkq_tasks.append(wfkq_task)
                 deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
 
             # create a EPH task 
             eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, kptopt=3,
                                                    ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
-            t = new.register_eph_task(eph_inp, deps=deps)
+            t = new.register_eph_task(eph_inp, deps=deps, manager=tm)
             new.wfkq_task_children[wfkq_task].append(t)
 
         return new
