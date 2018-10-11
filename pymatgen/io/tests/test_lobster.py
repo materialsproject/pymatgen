@@ -28,22 +28,21 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 
 class CohpcarTest(PymatgenTest):
     def setUp(self):
-        os.chdir(test_dir)
-        self.cohp_bise = Cohpcar(filename="COHPCAR.lobster.BiSe")
-        self.coop_bise = Cohpcar(filename="COOPCAR.lobster.BiSe",
+        self.cohp_bise = Cohpcar(filename=os.path.join(test_dir, "COHPCAR.lobster.BiSe"))
+        self.coop_bise = Cohpcar(filename=os.path.join(test_dir, "COOPCAR.lobster.BiSe"),
                                  are_coops=True)
-        self.cohp_fe = Cohpcar()
-        self.coop_fe = Cohpcar(are_coops=True)
-        self.orb = Cohpcar(filename="COHPCAR.lobster.orbitalwise")
-        self.orb_notot = Cohpcar(filename="COHPCAR.lobster.notot.orbitalwise")
+        self.cohp_fe = Cohpcar(filename=os.path.join(test_dir, "COOPCAR.lobster"))
+        self.coop_fe = Cohpcar(filename=os.path.join(test_dir, "COOPCAR.lobster"), are_coops=True)
+        self.orb = Cohpcar(filename=os.path.join(test_dir, "COHPCAR.lobster.orbitalwise"))
+        self.orb_notot = Cohpcar(filename=os.path.join(test_dir, "COHPCAR.lobster.notot.orbitalwise"))
 
         # Lobster 3.1 (Test data is from prerelease of Lobster 3.1)
-        self.cohp_KF = Cohpcar(filename="COHPCAR.lobster.KF")
-        self.coop_KF = Cohpcar(filename="COHPCAR.lobster.KF", are_coops=True)
+        self.cohp_KF = Cohpcar(filename=os.path.join(test_dir, "COHPCAR.lobster.KF"))
+        self.coop_KF = Cohpcar(filename=os.path.join(test_dir, "COHPCAR.lobster.KF"), are_coops=True)
 
         # example with f electrons
-        self.cohp_Na2UO4 = Cohpcar(filename="COHPCAR.lobster.Na2UO4")
-        self.coop_Na2UO4 = Cohpcar(filename="COOPCAR.lobster.Na2UO4", are_coops=True)
+        self.cohp_Na2UO4 = Cohpcar(filename=os.path.join(test_dir, "COHPCAR.lobster.Na2UO4"))
+        self.coop_Na2UO4 = Cohpcar(filename=os.path.join(test_dir, "COOPCAR.lobster.Na2UO4"), are_coops=True)
 
     def test_attributes(self):
         self.assertFalse(self.cohp_bise.are_coops)
@@ -235,18 +234,14 @@ class CohpcarTest(PymatgenTest):
                              for orbs in self.cohp_Na2UO4.orb_res_cohp["49"]], axis=0)
         self.assertArrayAlmostEqual(tot_Na2UO4, icohp_Na2UO4, decimal=3)
 
-    def tearDown(self):
-        os.chdir(this_dir)
-
 
 class IcohplistTest(unittest.TestCase):
     def setUp(self):
-        os.chdir(test_dir)
-        self.icohp_bise = Icohplist(filename="ICOHPLIST.lobster.BiSe")
-        self.icoop_bise = Icohplist(filename="ICOOPLIST.lobster.BiSe",
+        self.icohp_bise = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster.BiSe"))
+        self.icoop_bise = Icohplist(filename=os.path.join(test_dir, "ICOOPLIST.lobster.BiSe"),
                                     are_coops=True)
-        self.icohp_fe = Icohplist(filename="ICOHPLIST.lobster")
-        self.icoop_fe = Icohplist(are_coops=True)
+        self.icohp_fe = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster"))
+        self.icoop_fe = Icohplist(filename=os.path.join(test_dir, "ICOHPLIST.lobster"), are_coops=True)
 
     def test_attributes(self):
         self.assertFalse(self.icohp_bise.are_coops)
@@ -313,30 +308,15 @@ class IcohplistTest(unittest.TestCase):
                                  "icohp": {Spin.up: 0.24714}, "translation": [0, 0, 0]},
                           "11": {"length": 3.37522, "number_of_bonds": 3,
                                  "icohp": {Spin.up: -0.12395}, "translation": [0, 0, 0]}}
-        icohplist_fe = {"1": {"length": 2.83189, "number_of_bonds": 2,
-                              "icohp": {Spin.up: -0.10218,
-                                        Spin.down: -0.19701},
-                              "translation": [0, 0, 0]},
-                        "2": {"length": 2.45249, "number_of_bonds": 1,
-                              "icohp": {Spin.up: -0.28485,
-                                        Spin.down: -0.58279},
-                              "translation": [0, 0, 0]}}
-        icooplist_fe = {"1": {"length": 2.83189, "number_of_bonds": 2,
-                              "icohp": {Spin.up: -0.11389,
-                                        Spin.down: -0.20828},
-                              "translation": [0, 0, 0]},
-                        "2": {"length": 2.45249, "number_of_bonds": 1,
-                              "icohp": {Spin.up: -0.04087,
-                                        Spin.down: -0.05756},
-                              "translation": [0, 0, 0]}}
+        icooplist_fe = {'1': {'length': 2.83189, 'number_of_bonds': 2,
+                              'icohp': {Spin.up: -0.10218, Spin.down: -0.19701},
+                              'translation': [0, 0, 0]},
+                        '2': {'length': 2.45249, 'number_of_bonds': 1,
+                              'icohp': {Spin.up: -0.28485, Spin.down: -0.58279},
+                              'translation': [0, 0, 0]}}
 
         self.assertEqual(icohplist_bise, self.icohp_bise.icohplist)
-        self.assertEqual(icooplist_bise, self.icoop_bise.icohplist)
         self.assertEqual(icooplist_fe, self.icoop_fe.icohplist)
-        self.assertEqual(icohplist_fe, self.icohp_fe.icohplist)
-
-    def tearDown(self):
-        os.chdir(this_dir)
 
 
 class DoscarTest(unittest.TestCase):
@@ -537,7 +517,7 @@ class ChargeTest(PymatgenTest):
                                                              'species': [{'occu': 1, 'element': 'Mn'}], 'label': 'Mn'}],
                            'charge': None, '@module': 'pymatgen.core.structure'}
         s2 = Structure.from_dict(structure_dict2)
-        self.assertEqual(s2, self.charge2.get_structure_with_charges("POSCAR.MnO"))
+        self.assertEqual(s2, self.charge2.get_structure_with_charges(os.path.join(this_dir, "POSCAR.MnO")))
 
 
 if __name__ == "__main__":

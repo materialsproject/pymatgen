@@ -41,11 +41,13 @@ class QChemDictSetTest(PymatgenTest):
             })
         self.assertEqual(test_DictSet.pcm, {})
         self.assertEqual(test_DictSet.solvent, {})
+        self.assertEqual(test_DictSet.smx, {})
         self.assertEqual(test_DictSet.molecule, test_molecule)
 
     def test_full_init(self):
         test_molecule = QCInput.from_file(
             os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+
         test_DictSet = QChemDictSet(
             molecule=test_molecule,
             job_type='opt',
@@ -75,6 +77,27 @@ class QChemDictSetTest(PymatgenTest):
             })
         self.assertEqual(test_DictSet.solvent, {'dielectric': 10.0})
         self.assertEqual(test_DictSet.molecule, test_molecule)
+
+        test_DictSet = QChemDictSet(
+            molecule=test_molecule,
+            job_type='opt',
+            basis_set='6-31g*',
+            scf_algorithm='diis',
+            dft_rung=1,
+            smd_solvent='water',
+            max_scf_cycles=35)
+        self.assertEqual(
+            test_DictSet.rem, {
+                'job_type': 'opt',
+                'gen_scfman': 'true',
+                'basis': '6-31g*',
+                'max_scf_cycles': 35,
+                'exchange': 'b3lyp',
+                'geom_opt_max_cycles': 200,
+                'scf_algorithm': 'diis',
+                'solvent_method': 'smd'
+            })
+        self.assertEqual(test_DictSet.smx, {'solvent': 'water'})
 
     def test_overwrite_input_addition(self):
         test_molecule = QCInput.from_file(
@@ -118,6 +141,26 @@ class QChemDictSetTest(PymatgenTest):
         }
         self.assertDictEqual(act_rem, test_OptSet.rem)
 
+    def test_double_solvation(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        raised_error = False
+        dict_set = None
+        try:
+            dict_set = QChemDictSet(molecule=test_molecule,
+                                    job_type='opt',
+                                    basis_set='6-31g*',
+                                    scf_algorithm='diis',
+                                    dft_rung=1,
+                                    pcm_dielectric=10.0,
+                                    smd_solvent="water",
+                                    max_scf_cycles=35)
+        except ValueError:
+            raised_error = True
+
+        self.assertTrue(raised_error)
+        self.assertEqual(dict_set, None)
+
 
 class OptSetTest(PymatgenTest):
     def test_init(self):
@@ -136,6 +179,7 @@ class OptSetTest(PymatgenTest):
             })
         self.assertEqual(test_OptSet.pcm, {})
         self.assertEqual(test_OptSet.solvent, {})
+        self.assertEqual(test_OptSet.smx, {})
         self.assertEqual(test_OptSet.molecule, test_molecule)
 
     def test_pcm_init(self):
@@ -162,6 +206,24 @@ class OptSetTest(PymatgenTest):
                 'vdwscale': '1.1'
             })
         self.assertEqual(test_OptSet.solvent, {'dielectric': 10.0})
+        self.assertEqual(test_OptSet.molecule, test_molecule)
+
+    def test_smd_init(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_OptSet = OptSet(molecule=test_molecule, smd_solvent='water')
+        self.assertEqual(
+            test_OptSet.rem, {
+                'job_type': 'opt',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
+                'max_scf_cycles': 200,
+                'method': 'wb97xd',
+                'geom_opt_max_cycles': 200,
+                'scf_algorithm': 'gdm',
+                'solvent_method': 'smd'
+            })
+        self.assertEqual(test_OptSet.smx, {'solvent': 'water'})
         self.assertEqual(test_OptSet.molecule, test_molecule)
 
 
@@ -209,6 +271,23 @@ class SinglePointSetTest(PymatgenTest):
         self.assertEqual(test_SPSet.solvent, {'dielectric': 10.0})
         self.assertEqual(test_SPSet.molecule, test_molecule)
 
+    def test_smd_init(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_SPSet = SinglePointSet(molecule=test_molecule, smd_solvent='water')
+        self.assertEqual(
+            test_SPSet.rem, {
+                'job_type': 'sp',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
+                'max_scf_cycles': 200,
+                'method': 'wb97xd',
+                'scf_algorithm': 'gdm',
+                'solvent_method': 'smd'
+            })
+        self.assertEqual(test_SPSet.smx, {'solvent': 'water'})
+        self.assertEqual(test_SPSet.molecule, test_molecule)
+
 
 class FreqSetTest(PymatgenTest):
     def test_init(self):
@@ -251,6 +330,23 @@ class FreqSetTest(PymatgenTest):
                 'vdwscale': '1.1'
             })
         self.assertEqual(test_FreqSet.solvent, {'dielectric': 10.0})
+        self.assertEqual(test_FreqSet.molecule, test_molecule)
+
+    def test_smd_init(self):
+        test_molecule = QCInput.from_file(
+            os.path.join(test_dir, "new_qchem_files/pcm.qin")).molecule
+        test_FreqSet = FreqSet(molecule=test_molecule, smd_solvent='water')
+        self.assertEqual(
+            test_FreqSet.rem, {
+                'job_type': 'freq',
+                'gen_scfman': 'true',
+                'basis': '6-311++g*',
+                'max_scf_cycles': 200,
+                'method': 'wb97xd',
+                'scf_algorithm': 'gdm',
+                'solvent_method': 'smd'
+            })
+        self.assertEqual(test_FreqSet.smx, {'solvent': 'water'})
         self.assertEqual(test_FreqSet.molecule, test_molecule)
 
 
