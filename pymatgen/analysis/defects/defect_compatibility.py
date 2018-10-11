@@ -7,7 +7,7 @@ from __future__ import division, unicode_literals
 from monty.json import MSONable
 from pymatgen.core import PeriodicSite
 from pymatgen.analysis.defects.corrections import FreysoldtCorrection, \
-    KumagaiCorrection, BandFillingCorrection, BandEdgeShiftingCorrection
+    KumagaiCorrection, BandFillingCorrection, BandEdgeShiftingCorrection, LevelShiftCorrection
 from pymatgen.analysis.defects.core import Vacancy
 
 """
@@ -260,7 +260,7 @@ class DefectCompatibility(MSONable):
         bandfilling_meta = defect_entry.parameters['bandfilling_meta'].copy()
         bandfilling_meta.update( {'bandfilling_correction': bfc_dict['bandfilling']})
         defect_entry.parameters.update({'bandfilling_meta': bandfilling_meta,
-                                        # also update free holes and electrons for band edge shifting correction...
+                                        # also update free holes and electrons for shallow level shifting correction...
                                         'num_hole_vbm': bandfilling_meta['num_hole_vbm'],
                                         'num_elec_cbm': bandfilling_meta['num_elec_cbm']})
         return defect_entry
@@ -273,6 +273,17 @@ class DefectCompatibility(MSONable):
         bandshift_meta.update(bec_dict)
 
         defect_entry.parameters.update({"bandshift_meta": bandshift_meta})
+
+        return defect_entry
+
+    def perform_level_shifting(self, defect_entry):
+        DLSC = LevelShiftCorrection()
+        dlsc_dict = DLSC.get_correction(defect_entry)
+
+        levelshift_meta = defect_entry.parameters['levelshift_meta'].copy()
+        levelshift_meta.update( dlsc_dict)
+
+        defect_entry.parameters.update({"levelshift_meta": levelshift_meta})
 
         return defect_entry
 
@@ -295,7 +306,7 @@ class DefectCompatibility(MSONable):
         defect_entry.parameters.update({'is_compatible': True}) #this will be switched to False if delocalization is detected
 
         if 'freysoldt_meta' in defect_entry.parameters.keys():
-            defect_entry = self.is_freysoldt_delocalized(defect_entry)
+            defect_entry = self.check_freysoldt_delocalized(defect_entry)
         else:
             print('Insufficient information provided for performing Freysoldt '
                   'correction delocalization analysis.\n'
@@ -304,7 +315,7 @@ class DefectCompatibility(MSONable):
 
 
         if 'kumagai_meta' in defect_entry.parameters.keys():
-            defect_entry = self.is_kumagai_delocalized(defect_entry)
+            defect_entry = self.check_kumagai_delocalized(defect_entry)
         else:
             print('Insufficient information provided for performing Kumagai '
                   'correction delocalization analysis.\n'
