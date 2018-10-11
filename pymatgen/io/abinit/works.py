@@ -1514,7 +1514,7 @@ class PhononWfkqWork(Work, MergeDdb):
     """
 
     @classmethod
-    def from_scf_task(cls, scf_task, ngqpt, ph_tolerance=None, tolwfr=1.0e-22,
+    def from_scf_task(cls, scf_task, ngqpt, ph_tolerance=None, tolwfr=1.0e-22, nband=None,
                       with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), is_ngqpt=True, remove_wfkq=True,
                       manager=None):
         """
@@ -1585,6 +1585,7 @@ class PhononWfkqWork(Work, MergeDdb):
 
             if need_wfkq:
                 nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
+                if nband: nscf_inp.set_vars(nband=nband)
                 wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: ["DEN", "WFK"]})
                 new.wfkq_tasks.append(wfkq_task)
 
