@@ -24,9 +24,9 @@ from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
-from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
+from .nodes import Dependency, Node, NodeError, NodeResults, FileNode, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, DfptTask, PhononTask, ElasticTask, DdkTask,
-                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask,
+                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask, TaskManager,
                     DteTask, EphTask, CollinearThenNonCollinearScfTask)
 
 from .utils import Directory
@@ -52,6 +52,7 @@ __all__ = [
     "BseMdfWork",
     "PhononWork",
     "PhononWfkqWork",
+    "GKKPWork",
     "BecWork",
     "DteWork",
 ]
@@ -1513,8 +1514,8 @@ class PhononWfkqWork(Work, MergeDdb):
     """
 
     @classmethod
-    def from_scf_task(cls, scf_task, ngqpt, ph_tolerance=None, tolwfr=1.0e-22,
-                      with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), remove_wfkq=True,
+    def from_scf_task(cls, scf_task, ngqpt, ph_tolerance=None, tolwfr=1.0e-22, nband=None,
+                      with_becs=False, ddk_tolerance=None, shiftq=(0, 0, 0), is_ngqpt=True, remove_wfkq=True,
                       manager=None):
         """
         Construct a `PhononWfkqWork` from a :class:`ScfTask` object.
@@ -1531,6 +1532,8 @@ class PhononWfkqWork(Work, MergeDdb):
             ddk_tolerance: dict {"varname": value} with the tolerance used in the DDK run if with_becs.
                 None to use AbiPy default.
             shiftq: Q-mesh shift. Multiple shifts are not supported.
+            is_ngqpt: the ngqpt is interpreted as a set of integers defining the q-mesh, otherwise
+                      is an explicit list of q-points
             remove_wfkq: Remove WKQ files when the children are completed.
             manager: :class:`TaskManager` object.
 
@@ -1543,7 +1546,10 @@ class PhononWfkqWork(Work, MergeDdb):
             raise TypeError("task `%s` does not inherit from ScfTask" % scf_task)
 
         shiftq = np.reshape(shiftq, (3,))
-        qpoints = scf_task.input.abiget_ibz(ngkpt=ngqpt, shiftk=shiftq, kptopt=1).points
+        if is_ngqpt:
+            qpoints = scf_task.input.abiget_ibz(ngkpt=ngqpt, shiftk=shiftq, kptopt=1).points
+        else:
+            qpoints = ngqpt
 
         new = cls(manager=manager)
         new.remove_wfkq = remove_wfkq
@@ -1558,7 +1564,7 @@ class PhononWfkqWork(Work, MergeDdb):
         # Won't try to skip WFQ if multiple shifts or off-diagonal kptrlatt
         ngkpt, shiftk = scf_task.input.get_ngkpt_shiftk()
         try_to_skip_wfkq = True
-        if ngkpt is None or len(shiftk) > 1:
+        if ngkpt is None or len(shiftk) > 1 and is_ngqpt:
             try_to_skip_wfkq = True
 
         # TODO: One could avoid kptopt 3 by computing WFK in the IBZ and then rotating.
@@ -1579,6 +1585,7 @@ class PhononWfkqWork(Work, MergeDdb):
 
             if need_wfkq:
                 nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
+                if nband: nscf_inp.set_vars(nband=nband)
                 wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: ["DEN", "WFK"]})
                 new.wfkq_tasks.append(wfkq_task)
 
@@ -1622,6 +1629,168 @@ class PhononWfkqWork(Work, MergeDdb):
         out_dvdb = self.merge_pot1_files()
 
         return self.Results(node=self, returncode=0, message="DDB merge done")
+
+class GKKPWork(Work):
+    """
+    This work computes electron-phonon matrix elements for all the q-points
+    present in a DVDB and DDB file
+    """
+    @classmethod
+    def from_den_ddb_dvdb(cls,inp,den_path,ddb_path,dvdb_path,mpiprocs=1,remove_wfkq=True,
+                          with_ddk=True,expand=True,manager=None):
+        """
+        Construct a `PhononWfkqWork` from a DDB and DVDB file.
+        For each q found a WFQ task is created and an EPH task computing the matrix elements
+        """
+        import abipy.abilab as abilab
+
+        #read the qpoints from the DDB file
+        ddb = abilab.abiopen(ddb_path)
+        q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
+        
+        #create file nodes
+        den_file = FileNode(den_path)
+        ddb_file = FileNode(ddb_path)
+        dvdb_file = FileNode(dvdb_path)
+
+        #create new work
+        new = cls(manager=manager)
+        new.remove_wfkq = remove_wfkq
+        new.wfkq_tasks = []
+        new.wfkq_task_children = collections.defaultdict(list)
+        if manager is None: manager = TaskManager.from_user_config()
+        tm = manager.new_with_fixed_mpi_omp(mpiprocs,1)
+
+        # create a WFK task
+        kptopt = 1 if expand else 3
+        nscf_inp = inp.new_with_vars(iscf=-2, kptopt=kptopt)
+        wfk_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"},manager=tm)
+        new.wfkq_tasks.append(wfk_task)
+        new.wfk_task = wfk_task
+
+        #create a WFK expansion task
+        if expand:
+            fbz_nscf_inp = inp.new_with_vars(optdriver=8)
+            fbz_nscf_inp.set_spell_check(False)
+            fbz_nscf_inp.set_vars(wfk_task="wfk_fullbz")
+            tm_serial = manager.new_with_fixed_mpi_omp(1,1)
+            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", den_file: "DEN"},manager=tm_serial)
+            new.wfkq_tasks.append(wfk_task)
+            new.wfk_task = wfk_task
+
+        #if with ddk
+        if with_ddk:
+            kptopt = 3 if expand else 1
+            ddk_inp = inp.new_with_vars(optdriver=8,kptopt=kptopt)
+            ddk_inp.set_spell_check(False)
+            ddk_inp.set_vars(wfk_task="wfk_ddk")
+            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"},manager=tm)
+            new.wfkq_tasks.append(ddk_task)
+
+        #for each of the q 
+        for qpt in q_frac_coords:
+            is_gamma = np.sum(qpt ** 2) < 1e-12
+            if is_gamma:
+                #We will create a link from WFK to WFQ on_ok
+                wfkq_task = wfk_task
+                deps = {wfk_task: ["WFK","WFQ"], ddb_file: "DDB", dvdb_file: "DVDB" }
+            else:
+                # create a WFQ task
+                nscf_inp = nscf_inp.new_with_vars(kptopt=3, qpt=qpt, nqpt=1)
+                wfkq_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"}, manager=tm)
+                new.wfkq_tasks.append(wfkq_task)
+                deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
+
+            # create a EPH task 
+            eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, kptopt=3,
+                                                   ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
+            t = new.register_eph_task(eph_inp, deps=deps, manager=tm)
+            new.wfkq_task_children[wfkq_task].append(t)
+
+        return new
+
+    @classmethod
+    def from_phononwfkq_work(cls, phononwfkq_work, nscf_vars={}, remove_wfkq=True, with_ddk=True, manager=None):
+        """
+        Construct a `GKKPWork` from a `PhononWfkqWork` object.
+        The WFQ are the ones used for PhononWfkqWork so in principle have only valence bands
+        """
+        #get list of qpoints from the the phonon tasks in this work
+        qpoints = []
+        qpoints_deps = []
+        for task in phononwfkq_work:
+            if isinstance(task,PhononTask):
+                #store qpoints
+                qpt = task.input.get("qpt",[0,0,0])
+                qpoints.append(qpt)
+                #store dependencies
+                qpoints_deps.append(task.deps)
+        
+        #create file nodes
+        ddb_path  = phononwfkq_work.outdir.has_abiext("DDB")
+        dvdb_path = phononwfkq_work.outdir.has_abiext("DVDB") 
+        ddb_file = FileNode(ddb_path)
+        dvdb_file = FileNode(dvdb_path)
+ 
+        #get scf_task from first q-point
+        for dep in qpoints_deps[0]:
+            if isinstance(dep.node,ScfTask) and dep.exts[0] == 'WFK':
+                scf_task = dep.node
+
+        #create new work
+        new = cls(manager=manager)
+        new.remove_wfkq = remove_wfkq
+        new.wfkq_tasks = []
+        new.wfk_task = []
+ 
+        #add one eph task per qpoint       
+        for qpt,qpoint_deps in zip(qpoints,qpoints_deps):
+            #create eph task 
+            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, 
+                                                     ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
+            deps = {ddb_file: "DDB", dvdb_file: "DVDB" }
+            for dep in qpoint_deps:
+                deps[dep.node] = dep.exts[0]
+            #if no WFQ in deps link the WFK with WFQ extension
+            if 'WFQ' not in deps.values():
+                inv_deps = dict((v, k) for k, v in deps.items()) 
+                wfk_task = inv_deps['WFK']
+                wfk_path = wfk_task.outdir.has_abiext("WFK")
+                #check if netcdf
+                filename, extension = os.path.splitext(wfk_path)
+                infile = 'out_WFQ'+extension
+                wfq_path = os.path.join(os.path.dirname(wfk_path),infile)
+                if not os.path.isfile(wfq_path): os.symlink(wfk_path,wfq_path)
+                deps[FileNode(wfq_path)] = 'WFQ'
+            new.register_eph_task(eph_input, deps=deps)
+                
+        return new
+
+    def on_ok(self, sender):
+        """
+        This callback is called when one task reaches status `S_OK`.
+        It removes the WFKQ file if all its children have reached `S_OK`.
+        """
+        if self.remove_wfkq:
+            for task in self.wfkq_tasks:
+                if task.status != task.S_OK: continue
+                children = self.wfkq_task_children[task]
+                if all(child.status == child.S_OK for child in children):
+                   path = task.outdir.has_abiext("WFQ")
+                   if path:
+                       self.history.info("Removing WFQ: %s" % path)
+                       os.remove(path)
+
+        #if wfk task we create a link to a wfq file so abinit is happy
+        if sender == self.wfk_task:
+            wfk_path = self.wfk_task.outdir.has_abiext("WFK")
+            #check if netcdf
+            filename, extension = os.path.splitext(wfk_path)
+            infile = 'out_WFQ'+extension
+            infile = os.path.join(os.path.dirname(wfk_path),infile)
+            os.symlink(wfk_path,infile)
+             
+        return super(GKKPWork, self).on_ok(sender)
 
 
 class BecWork(Work, MergeDdb):
