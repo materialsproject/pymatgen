@@ -7,7 +7,7 @@ from __future__ import division, unicode_literals
 import logging
 
 from monty.json import MSONable
-from pymatgen.analysis.graphs import build_MoleculeGraph, MolGraphSplitError
+from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.io.babel import BabelMolAdaptor
 
@@ -52,11 +52,12 @@ class Fragmenter(MSONable):
         self.opt_steps = opt_steps
 
         if edges is None:
-            self.mol_graph = build_MoleculeGraph(molecule, strategy=OpenBabelNN,
-                                            reorder=False, extend_structure=False)
+            self.mol_graph = MoleculeGraph.with_local_env_strategy(molecule, OpenBabelNN(),
+                                                                   reorder=False,
+                                                                   extend_structure=False)
         else:
-            edges = [(e[0], e[1], {}) for e in edges]
-            self.mol_graph = build_MoleculeGraph(molecule, edges=edges)
+            edges = {(e[0], e[1]): None for e in edges}
+            self.mol_graph = MoleculeGraph.with_edges(molecule, edges)
 
         self.unique_fragments = []
         self.unique_fragments_from_ring_openings = []
@@ -161,4 +162,4 @@ def open_ring(mol_graph, bond, opt_steps):
     obmol = BabelMolAdaptor.from_molecule_graph(mol_graph)
     obmol.remove_bond(bond[0][0]+1, bond[0][1]+1)
     obmol.localopt(steps=opt_steps)
-    return build_MoleculeGraph(obmol.pymatgen_mol, strategy=OpenBabelNN, reorder=False, extend_structure=False)
+    return MoleculeGraph.with_local_env_strategy(obmol.pymatgen_mol, OpenBabelNN(), reorder=False, extend_structure=False)
