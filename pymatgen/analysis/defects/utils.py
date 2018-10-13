@@ -25,7 +25,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.phase_diagram import get_facets
-from pymatgen.util.coord import pbc_diff
+from pymatgen.util.coord import pbc_diff, pbc_shortest_vectors
 from pymatgen.vis.structure_vtk import StructureVis
 from monty.dev import requires
 from copy import deepcopy
@@ -1172,8 +1172,8 @@ class ChargeDensityAnalyzer(object):
             mask = self._create_mask(isite, r)
             chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size
             int_den.append(chg_in_sphere)
-        self._extrema_df['int_den'] = int_den
-        self._extrema_df.sort_values(by=['int_den'], inplace=True)
+        self._extrema_df['Int. Charge Density'] = int_den
+        self._extrema_df.sort_values(by=['Int. Charge Density'], inplace=True)
         self._extrema_df.reset_index(drop=True, inplace=True)
 
     def _create_mask(self, pos_frac, max_dist=1.0):
