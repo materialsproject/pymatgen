@@ -332,10 +332,10 @@ class InsertionElectrode(AbstractElectrode):
              "min_instability": self.get_min_instability()}
         if print_subelectrodes:
             f_dict = lambda c: c.as_dict_summary(print_subelectrodes=False)
-            d["adj_pairs"] = map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=True))
-            d["all_pairs"] = map(f_dict,
-                                 self.get_sub_electrodes(adjacent_only=False))
+            d["adj_pairs"] = list(map(f_dict,
+                                 self.get_sub_electrodes(adjacent_only=True)))
+            d["all_pairs"] = list(map(f_dict,
+                                 self.get_sub_electrodes(adjacent_only=False)))
         return d
 
     def __str__(self):
