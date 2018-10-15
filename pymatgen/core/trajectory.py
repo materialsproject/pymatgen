@@ -91,7 +91,6 @@ class Trajectory(MSONable):
             structures[i] = self.structure.copy()
         return structures
 
-    @property
     @lru_cache()
     def sequential_displacements(self, skip=1, wrapped=False):
         """
@@ -109,7 +108,6 @@ class Trajectory(MSONable):
 
         return seq_displacements
 
-    @property
     @lru_cache()
     def positions(self, skip=1):
         """
