@@ -87,9 +87,10 @@ class BandstructureLoader:
 
         self.nelect = nelect
         self.UCvol = self.structure.volume * units.Angstrom ** 3
-
-        self.vbm_idx = list(bs_obj.get_vbm()['band_index'].values())[0][-1]
-        self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
+        
+        if not bs_obj.is_metal():
+            self.vbm_idx = list(bs_obj.get_vbm()['band_index'].values())[0][-1]
+            self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
 
     def get_lattvec(self):
         try:
@@ -189,6 +190,100 @@ class VasprunLoader:
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
+        return nemin, nemax
+
+    def get_volume(self):
+        try:
+            self.UCvol
+        except AttributeError:
+            lattvec = self.get_lattvec()
+            self.UCvol = np.abs(np.linalg.det(lattvec))
+        return self.UCvol
+
+
+class ParabolicBandsData:
+    """Mock DFTData emulation class for the parabolic band example."""
+
+    def __init__(self,nb = 1,de = [0.5], effm=[1], nelect=0,efermi=0.0):
+        """Create a MockDFTData object based on global variables."""
+        
+        NK = 25
+        
+        self.mommat = None
+        self.magmom = None
+        # Create a hypotetical monoatomic simple cubic structure with a lattice
+        # parameter of 5 A.
+        atoms = Atoms("Si", cell=5 * np.eye(3), pbc=True)
+        self.structure = AseAtomsAdaptor.get_structure(atoms)
+        lattvec = atoms.get_cell().T * units.Angstrom
+        rlattvec = 2. * np.pi * np.linalg.inv(lattvec).T
+        # Create a set of irreducible k points based on that structure
+        fromspglib = spglib.get_ir_reciprocal_mesh([NK, NK, NK], atoms)
+        indices = np.unique(fromspglib[0]).tolist()
+        kpoints = fromspglib[1].T / float(NK)
+        kpoints = kpoints[:, indices]
+        cartesian = rlattvec @ kpoints
+        k2 = (cartesian**2).sum(axis=0)
+        rmax = rlattvec[0, 0] / 2.
+        rmin = .8 * rmax
+        bump = self.create_bump(rmin, rmax)
+        weight = (bump(cartesian[0, :]) *
+                  bump(cartesian[1, :]) *
+                  bump(cartesian[2, :]))
+        
+        self.ebands = np.zeros((nb,kpoints.shape[1]))
+        for inb in range(nb):
+            # Compute the band energies in a purely parabolic model
+            eband = np.abs(de[inb]) + k2 / 2. / effm[inb]
+            bound = eband[k2 <= rmax * rmax].max()
+            eband = np.minimum(eband, bound)
+            eband = eband * weight + bound * (1. - weight)
+            self.ebands[inb] = np.sign(de[inb])*eband.reshape((1, eband.size))
+    
+        self.atoms = atoms
+        self.lattvec = lattvec
+        self.kpoints = kpoints.T
+        self.nelect = nelect
+        self.proj = []
+        self.fermi = efermi
+        self.dosweight = 2
+        
+    # Weight the band by a bump function to make its derivative zero at the
+    # boundary of the BZ.
+    def create_bump(self,a, b):
+        """Return a bump function f(x) equal to zero for |x| > b, equal to one for
+        |x| < a, and providing a smooth transition in between.
+        """
+        if a <= 0. or b <= 0. or a >= b:
+            raise ValueError("a and b must be positive numbers, with b > a")
+
+        # Follow the prescription given by Loring W. Tu in
+        # "An Introduction to Manifolds", 2nd Edition, Springer
+        def f(t):
+            """Auxiliary function used as a building block of the bump function."""
+            if t <= 0.:
+                return 0.
+            else:
+                return np.exp(-1. / t)
+
+        f = np.vectorize(f)
+
+        def nruter(x):
+            """One-dimensional bump function."""
+            arg = (x * x - a * a) / (b * b - a * a)
+            return 1. - f(arg) / (f(arg) + f(1. - arg))
+
+        return nruter
+
+
+
+    def get_lattvec(self):
+        """Return the matrix of lattice vectors."""
+        return self.lattvec
+    
+    def bandana(self, emin=-np.inf, emax=np.inf):
+        nemin = np.min(self.ebands, axis=1)
+        nemax = np.max(self.ebands, axis=1)
         return nemin, nemax
 
     def get_volume(self):
@@ -321,8 +416,117 @@ class BztInterpolator(object):
                 pdoss[site][orb][Spin(1)] = pdos
 
         self.data.ebands = bkp_data_ebands
-
+    
         return CompleteDos(self.data.structure, total_dos=tdos, pdoss=pdoss)
+
+
+    def find_extrema(self,method='all',nvb=1,ncb=1,kpoint_start=None):
+        """
+            Find extrema points of bands using a minimization algorithm.
+            
+            Args:
+                method: 'all' means search for all the extrema points, starting 
+                    from a uniformly random generated starting k-points. 'one' means
+                    start to one single k-point and return the first extrema found.
+                nvb: number of valence bands where to search for extrema
+                ncb: number of conduction bands where to search for extrema
+                kpoint_start: starting k-point in case of method='one'
+        """
+        def get_energy(kpt,bnd,cbm,equivalences,lattvec,coeffs):
+            sign = -1 if cbm == False else 1
+            return sign*fite.getBands(kpt[np.newaxis,:], 
+                                      equivalences, lattvec, coeffs[bnd,np.newaxis])[0]
+        
+        if method == 'all':
+            
+            
+            R = []
+            for i in it.combinations_with_replacement([0,0.05,-0.05],3):
+                for j in it.permutations(i):
+                    if j not in R:
+                        R.append(j)
+            R=R[1:]
+            out = {}
+            #print('okk')
+            
+            bands = list(range(self.data.vbm_idx - nvb +1,self.data.cbm_idx + ncb))
+            print(bands)
+            
+            for bnd in bands:
+                bnd -= self.nemin
+                vbm_idx = self.data.vbm_idx - self.nemin
+                cbm = True if bnd > vbm_idx else False
+                out['cbm' if cbm else 'vbm'] = {}
+                out['cbm' if cbm else 'vbm'][bnd] = []
+
+                cnt=0
+                for i in np.linspace(0,1,7):
+                    for j in np.linspace(0,1,7):
+                        for k in np.linspace(0,1,7):
+                            #sys.stdout.flush()
+                            xkpt = np.array([i,j,k]) + (np.random.rand(3)*0.05-0.025)
+                            suc=False
+                            nit=0
+                            while suc == False:
+                                res=minimize(get_energy,xkpt[np.newaxis,:],
+                                                args=(bnd,cbm,self.equivalences,
+                                                    self.data.lattvec, self.coeffs),
+                                                method='BFGS',tol=1e-06)
+                                suc=res.success
+                                xkpt=res.x
+                                ene = res.fun
+                                nit += res.nit
+
+                            found = True
+                            
+                            for r in R:
+                                if ene > get_energy(xkpt,bnd,cbm,self.equivalences,
+                                                    self.data.lattvec, self.coeffs):
+                                    found = False
+                                    break
+                            
+                            cnt+=1
+                            if found:
+                                ene = res.fun if cbm else -res.fun
+                                ene = Energy(ene - self.efermi,'Ha').to('eV')
+                                out['cbm' if cbm else 'vbm'][bnd].append([cnt,nit, xkpt,res.x,ene])
+                                print(cnt)
+                            #break
+                        #break
+                    #break
+        
+        elif method == 'one':
+            out = []
+            bands = range(self.data.vbm_idx - nvb +1,self.data.cbm_idx + ncb)
+            if len(bands) == 1:
+                bnd = bands[0] - self.nemin
+                vbm_idx = self.data.vbm_idx - self.nemin
+                cbm = True if bnd > vbm_idx else False
+                suc=False
+                nit=0
+                cnt = 0
+                xkpt = kpoint_start.copy()
+                print(xkpt[:,np.newaxis].shape)
+                while suc == False:
+                    res=minimize(get_energy,xkpt,
+                                                args=(bnd,cbm,self.equivalences,
+                                                    self.data.lattvec, self.coeffs),
+                                                method='BFGS',tol=1e-06)
+                    suc = res.success
+                    xkpt = res.x
+                    ene = res.fun
+                    nit += res.nit
+                    print(nit,suc,xkpt)
+                    
+                found = True
+                
+                if found:
+                    ene = res.fun if cbm else -res.fun
+                    ene = Energy(ene - self.efermi,'Ha').to('eV')
+                    out.append([cbm,cnt,nit, kpoint_start,res.x,ene])
+        
+        return out
+
 
     def save(self):
         pass
@@ -531,7 +735,7 @@ class BztPlotter(object):
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
 
-    def plot_props(self, prop_y, prop_x, prop_z,
+    def plot_props(self, prop_y, prop_x, prop_z='temp',
                    output='avg_eigs', dop_type='n', doping=None,
                    temps=None, xlim=(-2, 2), ax=None):
 
