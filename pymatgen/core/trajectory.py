@@ -92,7 +92,7 @@ class Trajectory(MSONable):
         return structures
 
     @lru_cache()
-    def sequential_displacements(self, skip=1, wrapped=False):
+    def sequential_displacements(self, skip=1, wrapped=False, cartesian=True):
         """
         Returns the frame to frame displacements. Useful for summing to obtain MSD's
 
@@ -102,9 +102,13 @@ class Trajectory(MSONable):
         """
         seq_displacements = np.subtract(self.displacements[::skip],
                                         np.roll(self.displacements[::skip], 1, axis=0))
+        seq_displacements[0] = np.zeros(np.shape(seq_displacements[0]))
 
         if wrapped:
             seq_displacements = [np.subtract(item, np.round(item)) for item in seq_displacements]
+
+        if cartesian:
+            seq_displacements = np.multiply(seq_displacements, self.structure.lattice.abc)
 
         return seq_displacements
 
