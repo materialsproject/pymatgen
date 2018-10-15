@@ -93,15 +93,20 @@ class Trajectory(MSONable):
 
     @property
     @lru_cache()
-    def sequential_displacements(self, skip=1):
+    def sequential_displacements(self, skip=1, wrapped=False):
         """
         Returns the frame to frame displacements. Useful for summing to obtain MSD's
 
         :param skip: Number of time steps to skip between each returned displacement
+        :param wrapped: Specifies whether the displacements returned will be wrapped or unwrapped
         :return:
         """
         seq_displacements = np.subtract(self.displacements[::skip],
                                         np.roll(self.displacements[::skip], 1, axis=0))
+
+        if wrapped:
+            seq_displacements = [np.subtract(item, np.round(item)) for item in seq_displacements]
+
         return seq_displacements
 
     @property
