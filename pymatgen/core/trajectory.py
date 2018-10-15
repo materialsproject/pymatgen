@@ -104,6 +104,17 @@ class Trajectory(MSONable):
                                         np.roll(self.displacements[::skip], 1, axis=0))
         return seq_displacements
 
+    @property
+    @lru_cache()
+    def positions(self, skip=1):
+        """
+
+        :param skip:
+        :return:
+        """
+        positions = np.add(self.structure.frac_coords, self.displacements)
+        return positions
+
     @classmethod
     def from_structures(cls, structures):
         """
