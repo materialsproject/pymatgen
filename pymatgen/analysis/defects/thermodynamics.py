@@ -8,6 +8,7 @@ from scipy.spatial import HalfspaceIntersection
 from scipy.optimize import bisect
 from itertools import groupby, chain
 
+from pymatgen.analysis.structure_matcher import PointDefectComparator
 from pymatgen.electronic_structure.dos import FermiDos
 
 __author__ = "Danny Broberg, Shyam Dwaraknath"
@@ -65,13 +66,26 @@ class DefectPhaseDiagram(MSONable):
         This code was modeled after the Halfspace Intersection code for
         the Pourbaix Diagram
         """
-
-        def similar_defect(a):
+        def similar_defects( entryset):
             """
-            Used to filter out similar defects of different charges which
-            are defined by the same type and location
+            Used for grouping similar defects of different charges
+            Can distinguish identical defects even if they are not in same position
             """
-            return (a.name, a.site)
+            pdc = PointDefectComparator( check_charge=False, check_primitive_cell=True,
+                                         check_lattice_scale=False)
+            grp_def_sets = []
+            for ent in entryset:
+                #TODO: more pythonic/elegant way of grouping entry sets with PointDefectComparator
+                matched_ind = None
+                for grp_ind, defgrp in enumerate(grp_def_sets):
+                    if pdc.are_equal( ent.defect, defgrp[0].defect):
+                        matched_ind = grp_ind
+                        break
+                if matched_ind is not None:
+                    grp_def_sets[matched_ind].append( ent.copy())
+                else:
+                    grp_def_sets.append( [ent.copy()])
+            return grp_def_sets
 
         # Limits for search
         # E_fermi = { -1 eV to band gap+1}
@@ -84,7 +98,7 @@ class DefectPhaseDiagram(MSONable):
         transition_level_map = {}
 
         # Grouping by defect types
-        for _, defects in groupby(sorted(self.entries, key=similar_defect), similar_defect):
+        for defects in similar_defects( self.entries):
             defects = list(defects)
 
             # prepping coefficient matrix forx half-space intersection
