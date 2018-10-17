@@ -393,6 +393,12 @@ class DefectCompatibility(MSONable):
         return defect_entry
 
     def is_final_relaxed_structure_delocalized(self, defect_entry):
+        """
+        NOTE this assumes initial and final structures have sites indexed in same way
+
+        :param defect_entry:
+        :return:
+        """
         structure_relax_analyze_meta = {}
         initial_defect_structure = defect_entry.parameters['initial_defect_structure']
         final_defect_structure = defect_entry.parameters['final_defect_structure']
