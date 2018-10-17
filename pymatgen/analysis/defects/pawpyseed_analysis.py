@@ -1,12 +1,15 @@
 
 
 
-def get_projection_amounts( defect_wavecar_path, bulk_wavecar_path):
+def get_level_projection_amounts( defect_wavecar_path, bulk_wavecar_path,
+                                  bands_to_project=None, return_bulk_object=False):
     """
     A simple container for using pawpyseed to project bands onto host bands
 
     :param defect_wavecar_path:
-    :param bulk_wavcar_path:
+    :param bulk_wavecar_path:
+    :param bands_to_project:
+    :param return_bulk_object:
     :return:
     """
 
@@ -20,5 +23,7 @@ def get_projection_amounts( defect_wavecar_path, bulk_wavecar_path):
     #GET projection amounts
     proj_amounts = ??
 
-
-    return proj_amounts, bulk_wavecar_path
+    if return_bulk_object:
+        return proj_amounts, bulk_basis
+    else:
+        return proj_amounts
