@@ -13,11 +13,11 @@ def get_level_projection_amounts( defect_wavecar_path, bulk_wavecar_path,
     :return:
     """
 
-    if type(bulk_wavcar_path) == str:
+    if type(bulk_wavecar_path ) == str:
         #MAKE BULK basis thing
         bulk_basis = ???
     else:
-        bulk_basis = bulk_wavcar_path
+        bulk_basis = bulk_wavecar_path
 
 
     #GET projection amounts
