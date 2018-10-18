@@ -3422,7 +3422,7 @@ class Procar(object):
         for listsite, prodat in zip( structure, self.data[spinkey][kptindex][bandindex]):
             dist, jimage = site.distance_and_image_from_frac_coords( listsite.frac_coords)
             tot_occu += np.sum(prodat)
-            rad_dat.append( [dist, tot_occu])
+            rad_dat.append( [dist, np.sum( prodat)])
             if dist <= radius:
                 in_radius_occu += np.sum(prodat)
 
