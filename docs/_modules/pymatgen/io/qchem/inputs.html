@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.qchem.inputs &#8212; pymatgen 2018.9.30 documentation</title>
+    <title>pymatgen.io.qchem.inputs &#8212; pymatgen 2018.10.18 documentation</title>
     <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
       </ul>
@@ -93,12 +93,13 @@
 <span class="sd">            Ex. opt = {&quot;CONSTRAINT&quot;: [&quot;tors 2 3 4 5 25.0&quot;, &quot;tors 2 5 7 9 80.0&quot;], &quot;FIXED&quot;: [&quot;2 XY&quot;]}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">rem</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">rem</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">smx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">molecule</span> <span class="o">=</span> <span class="n">molecule</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rem</span> <span class="o">=</span> <span class="n">lower_and_check_unique</span><span class="p">(</span><span class="n">rem</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opt</span> <span class="o">=</span> <span class="n">opt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span> <span class="o">=</span> <span class="n">lower_and_check_unique</span><span class="p">(</span><span class="n">pcm</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solvent</span> <span class="o">=</span> <span class="n">lower_and_check_unique</span><span class="p">(</span><span class="n">solvent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smx</span> <span class="o">=</span> <span class="n">lower_and_check_unique</span><span class="p">(</span><span class="n">smx</span><span class="p">)</span>
 
         <span class="c1"># Make sure molecule is valid: either the string &quot;read&quot; or a pymatgen molecule object</span>
 
@@ -162,6 +163,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solvent</span><span class="p">:</span>
             <span class="n">combined_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solvent_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solvent</span><span class="p">))</span>
             <span class="n">combined_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">smx</span><span class="p">:</span>
+            <span class="n">combined_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">smx_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">smx</span><span class="p">))</span>
+            <span class="n">combined_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">combined_list</span><span class="p">)</span>
 
 <div class="viewcode-block" id="QCInput.multi_job_string"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.multi_job_string">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -183,13 +187,16 @@
         <span class="n">opt</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">pcm</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">solvent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">smx</span><span class="o">=</span><span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;opt&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
             <span class="n">opt</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">read_opt</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;pcm&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
             <span class="n">pcm</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">read_pcm</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;solvent&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
             <span class="n">solvent</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">read_solvent</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">rem</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="n">opt</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="n">pcm</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="s2">&quot;smx&quot;</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+            <span class="n">smx</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">read_smx</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span> <span class="n">rem</span><span class="p">,</span> <span class="n">opt</span><span class="o">=</span><span class="n">opt</span><span class="p">,</span> <span class="n">pcm</span><span class="o">=</span><span class="n">pcm</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span> <span class="n">smx</span><span class="o">=</span><span class="n">smx</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QCInput.write_file"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -281,6 +288,16 @@
                 <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span>
         <span class="n">solvent_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;$end&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">solvent_list</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QCInput.smx_template"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.smx_template">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">smx_template</span><span class="p">(</span><span class="n">smx</span><span class="p">):</span>
+        <span class="n">smx_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;$smx&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">smx</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;   </span><span class="si">{key}</span><span class="s2"> </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">))</span>
+        <span class="n">smx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;$end&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">smx_list</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="QCInput.find_sections"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.find_sections">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">find_sections</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
@@ -437,7 +454,26 @@
             <span class="k">return</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">solvent</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">solvent_table</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
-            <span class="k">return</span> <span class="n">solvent</span></div></div>
+            <span class="k">return</span> <span class="n">solvent</span></div>
+
+<div class="viewcode-block" id="QCInput.read_smx"><a class="viewcode-back" href="../../../../pymatgen.io.qchem.inputs.html#pymatgen.io.qchem.inputs.QCInput.read_smx">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_smx</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\s*\$smx&quot;</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*([a-zA-Z\_]+)\s+(\S+)&quot;</span>
+        <span class="n">footer</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\s*\$end&quot;</span>
+        <span class="n">smx_table</span> <span class="o">=</span> <span class="n">read_table_pattern</span><span class="p">(</span>
+            <span class="n">string</span><span class="p">,</span>
+            <span class="n">header_pattern</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+            <span class="n">row_pattern</span><span class="o">=</span><span class="n">row</span><span class="p">,</span>
+            <span class="n">footer_pattern</span><span class="o">=</span><span class="n">footer</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">smx_table</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;No valid smx inputs found. Note that there should be no &#39;=&#39; chracters in smx input lines.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">smx</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">smx_table</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+            <span class="k">return</span> <span class="n">smx</span></div></div>
 </pre></div>
 
           </div>
@@ -470,7 +506,7 @@
         <li class="right" >
           <a href="../../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.9.30 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../../../pymatgen.html" >pymatgen</a> &#187;</li> 
       </ul>

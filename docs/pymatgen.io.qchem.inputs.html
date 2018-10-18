@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.io.qchem.inputs module &#8212; pymatgen 2018.9.30 documentation</title>
+    <title>pymatgen.io.qchem.inputs module &#8212; pymatgen 2018.10.18 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
 <span id="pymatgen-io-qchem-inputs-module"></span><h1>pymatgen.io.qchem.inputs module<a class="headerlink" href="#module-pymatgen.io.qchem.inputs" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pymatgen.io.qchem.inputs.QCInput">
-<em class="property">class </em><code class="descname">QCInput</code><span class="sig-paren">(</span><em>molecule</em>, <em>rem</em>, <em>opt=None</em>, <em>pcm=None</em>, <em>solvent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">QCInput</code><span class="sig-paren">(</span><em>molecule</em>, <em>rem</em>, <em>opt=None</em>, <em>pcm=None</em>, <em>solvent=None</em>, <em>smx=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
 <p>An object representing a QChem input file. QCInput attributes represent different sections of a QChem input file.
 To add a new section one needs to modify __init__, __str__, from_sting and add staticmethods
@@ -134,6 +134,11 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
 <dd></dd></dl>
 
 <dl class="staticmethod">
+<dt id="pymatgen.io.qchem.inputs.QCInput.read_smx">
+<em class="property">static </em><code class="descname">read_smx</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_smx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_smx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
 <dt id="pymatgen.io.qchem.inputs.QCInput.read_solvent">
 <em class="property">static </em><code class="descname">read_solvent</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.read_solvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.read_solvent" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -141,6 +146,11 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
 <dl class="staticmethod">
 <dt id="pymatgen.io.qchem.inputs.QCInput.rem_template">
 <em class="property">static </em><code class="descname">rem_template</code><span class="sig-paren">(</span><em>rem</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.rem_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.rem_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.qchem.inputs.QCInput.smx_template">
+<em class="property">static </em><code class="descname">smx_template</code><span class="sig-paren">(</span><em>smx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/io/qchem/inputs.html#QCInput.smx_template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.qchem.inputs.QCInput.smx_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -200,7 +210,7 @@ Ex. opt = {“CONSTRAINT”: [“tors 2 3 4 5 25.0”, “tors 2 5 7 9 80.0”],
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
       </ul>
     </div>
 
