@@ -13,6 +13,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 class TensorTest(PymatgenTest):
+    _multiprocess_shared_ = True
+
     def setUp(self):
         self.vec = Tensor([1., 0., 0.])
         self.rand_rank2 = Tensor(np.random.randn(3,3))

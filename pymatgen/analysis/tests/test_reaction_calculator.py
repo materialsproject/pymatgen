@@ -13,6 +13,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class ReactionTest(unittest.TestCase):
+
     def setUp(self):
         warnings.simplefilter("ignore")
 

@@ -32,6 +32,7 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
+    _multiprocess_shared_ = True
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     STRUCTURES_DIR = os.path.join(MODULE_DIR, "structures")
 

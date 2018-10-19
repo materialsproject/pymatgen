@@ -1,0 +1,217 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pymatgen.analysis.aflow_prototypes &#8212; pymatgen 2018.10.18 documentation</title>
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" accesskey="U">pymatgen</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pymatgen.analysis.aflow_prototypes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) Pymatgen Development Team.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="k">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="k">import</span> <span class="n">StructureMatcher</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.</span>
+<span class="sd">If using this module, please cite their publication appropriately:</span>
+
+<span class="sd">Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., &amp; Curtarolo, S. (2017).</span>
+<span class="sd">The AFLOW library of crystallographic prototypes: part 1.</span>
+<span class="sd">Computational Materials Science, 136, S1-S828.</span>
+<span class="sd">http://doi.org/10.1016/j.commatsci.2017.01.017</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">AFLOW_PROTOTYPE_LIBRARY</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+                                              <span class="s2">&quot;aflow_prototypes.json&quot;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="AflowPrototypeMatcher"><a class="viewcode-back" href="../../../pymatgen.analysis.aflow_prototypes.html#pymatgen.analysis.aflow_prototypes.AflowPrototypeMatcher">[docs]</a><span class="k">class</span> <span class="nc">AflowPrototypeMatcher</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class will match structures to their crystal prototypes, and will</span>
+<span class="sd">    attempt to group species together to match structures derived from</span>
+<span class="sd">    prototypes (e.g. an A_xB_1-x_C from a binary prototype), and will</span>
+<span class="sd">    give these the names the &quot;-like&quot; suffix.</span>
+
+<span class="sd">    This class uses data from the AFLOW LIBRARY OF CRYSTALLOGRAPHIC PROTOTYPES.</span>
+<span class="sd">    If using this class, please cite their publication appropriately:</span>
+
+<span class="sd">    Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., &amp; Curtarolo, S. (2017).</span>
+<span class="sd">    The AFLOW library of crystallographic prototypes: part 1.</span>
+<span class="sd">    Computational Materials Science, 136, S1-S828.</span>
+<span class="sd">    http://doi.org/10.1016/j.commatsci.2017.01.017</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_ltol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">initial_stol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">initial_angle_tol</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tolerances as defined in StructureMatcher. Tolerances will be</span>
+<span class="sd">        gradually decreased until only a single match is found (if possible).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            initial_ltol: fractional length tolerance</span>
+<span class="sd">            initial_stol: site tolerance</span>
+<span class="sd">            initial_angle_tol: angle tolerance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_ltol</span> <span class="o">=</span> <span class="n">initial_ltol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_stol</span> <span class="o">=</span> <span class="n">initial_stol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_angle_tol</span> <span class="o">=</span> <span class="n">initial_angle_tol</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_match_prototype</span><span class="p">(</span><span class="n">structure_matcher</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">AFLOW_PROTOTYPE_LIBRARY</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;snl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">structure</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">structure_matcher</span><span class="o">.</span><span class="n">fit_anonymous</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tags</span>
+
+    <span class="k">def</span> <span class="nf">_match_single_prototype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">(</span><span class="n">ltol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_ltol</span><span class="p">,</span>
+                              <span class="n">stol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_stol</span><span class="p">,</span>
+                              <span class="n">angle_tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_angle_tol</span><span class="p">)</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_prototype</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sm</span><span class="o">.</span><span class="n">ltol</span> <span class="o">*=</span> <span class="mf">0.8</span>
+            <span class="n">sm</span><span class="o">.</span><span class="n">stol</span> <span class="o">*=</span> <span class="mf">0.8</span>
+            <span class="n">sm</span><span class="o">.</span><span class="n">angle_tol</span> <span class="o">*=</span> <span class="mf">0.8</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_prototype</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sm</span><span class="o">.</span><span class="n">ltol</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">tags</span>
+
+<div class="viewcode-block" id="AflowPrototypeMatcher.get_prototypes"><a class="viewcode-back" href="../../../pymatgen.analysis.aflow_prototypes.html#pymatgen.analysis.aflow_prototypes.AflowPrototypeMatcher.get_prototypes">[docs]</a>    <span class="k">def</span> <span class="nf">get_prototypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get prototype(s) structures for a given</span>
+<span class="sd">        input structure. If you use this method in</span>
+<span class="sd">        your work, please cite the appropriate</span>
+<span class="sd">        AFLOW publication:</span>
+
+<span class="sd">        Mehl, M. J., Hicks, D., Toher, C., Levy, O.,</span>
+<span class="sd">        Hanson, R. M., Hart, G., &amp; Curtarolo, S. (2017).</span>
+<span class="sd">        The AFLOW library of crystallographic prototypes: part 1.</span>
+<span class="sd">        Computational Materials Science, 136, S1-S828.</span>
+<span class="sd">        http://doi.org/10.1016/j.commatsci.2017.01.017</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure: structure to match</span>
+
+<span class="sd">        Returns (list): A list of dicts with keys</span>
+<span class="sd">        &#39;snl&#39; for the matched prototype and &#39;tags&#39;,</span>
+<span class="sd">        a dict of tags (&#39;mineral&#39;, &#39;strukturbericht&#39;</span>
+<span class="sd">        and &#39;aflow&#39;) of that prototype. This should</span>
+<span class="sd">        be a list containing just a single entry,</span>
+<span class="sd">        but it is possible a material can match</span>
+<span class="sd">        multiple prototypes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_single_prototype</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tags</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">pymatgen 2018.10.18 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pymatgen.html" >pymatgen</a> &#187;</li> 
+      </ul>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2011, Pymatgen Development Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

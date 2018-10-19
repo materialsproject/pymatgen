@@ -858,9 +858,9 @@ class LocalGeometryFinder(object):
             ux = uu[0]
             uy = uu[1]
             uz = uu[2]
-            RR = np.matrix([[ux*ux+(1.0-ux*ux)*cc, ux*uy*(1.0-cc)-uz*ss, ux*uz*(1.0-cc)+uy*ss],
-                            [ux*uy*(1.0-cc)+uz*ss, uy*uy+(1.0-uy*uy)*cc, uy*uz*(1.0-cc)-ux*ss],
-                            [ux*uz*(1.0-cc)-uy*ss, uy*uz*(1.0-cc)+ux*ss, uz*uz+(1.0-uz*uz)*cc]])
+            RR = [[ux*ux+(1.0-ux*ux)*cc, ux*uy*(1.0-cc)-uz*ss, ux*uz*(1.0-cc)+uy*ss],
+                  [ux*uy*(1.0-cc)+uz*ss, uy*uy+(1.0-uy*uy)*cc, uy*uz*(1.0-cc)-ux*ss],
+                  [ux*uz*(1.0-cc)-uy*ss, uy*uz*(1.0-cc)+ux*ss, uz*uz+(1.0-uz*uz)*cc]]
         elif random_rotation == 'NONE':
             RR = [[1.0, 0.0, 0.0],
                   [0.0, 1.0, 0.0],
@@ -869,13 +869,13 @@ class LocalGeometryFinder(object):
             RR = random_rotation
         newcoords = []
         for cc in coords:
-            newcc = RR * np.matrix(cc).T
-            newcoords.append(newcc.getA1())
+            newcc = np.dot(RR, cc).T
+            newcoords.append(newcc.ravel())
         coords = newcoords
         newcoords = []
         for cc in neighb_coords:
-            newcc = RR * np.matrix(cc).T
-            newcoords.append(newcc.getA1())
+            newcc = np.dot(RR, cc.T)
+            newcoords.append(newcc.ravel())
         neighb_coords = newcoords
 
         # Translating the test environment

@@ -26,6 +26,7 @@ def get_path(path_str):
                         "surface_tests", path_str)
     return path
 
+
 class SlabEntryTest(PymatgenTest):
 
     def setUp(self):

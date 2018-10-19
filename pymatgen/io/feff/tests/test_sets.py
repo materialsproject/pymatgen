@@ -32,9 +32,9 @@ TITLE space group: (P6_3mc), space number:  (186)
 TITLE abc:  3.297078   3.297078   5.254213
 TITLE angles: 90.000000  90.000000 120.000000
 TITLE sites: 4
-* 1 Co     0.666667     0.333333     0.003676
-* 2 Co     0.333334     0.666666     0.503676
-* 3 O     0.333334     0.666666     0.121324
+* 1 Co     0.333333     0.666667     0.503676
+* 2 Co     0.666667     0.333333     0.003676
+* 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
         cif_file = os.path.join(test_dir, 'CoO19128.cif')
         cls.structure = CifParser(cif_file).get_structures()[0]
@@ -44,6 +44,8 @@ TITLE sites: 4
     def test_get_header(self):
         comment = 'From cif file'
         header = str(self.mp_xanes.header(source='CoO19128.cif', comment=comment))
+        print(header)
+
         ref = self.header_string.splitlines()
         last4 = [" ".join(l.split()[2:]) for l in ref[-4:]]
         for i, l in enumerate(header.splitlines()):

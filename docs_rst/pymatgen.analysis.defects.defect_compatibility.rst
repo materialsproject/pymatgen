@@ -1,5 +1,5 @@
-pymatgen\.analysis\.defects\.defect\_compatibility module
-=========================================================
+pymatgen.analysis.defects.defect\_compatibility module
+======================================================
 
 .. automodule:: pymatgen.analysis.defects.defect_compatibility
     :members:

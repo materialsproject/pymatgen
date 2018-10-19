@@ -791,7 +791,7 @@ class IStructure(SiteCollection, MSONable):
                 new_sites.append(s)
 
         new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
-        return Structure.from_sites(new_sites,charge=new_charge)
+        return Structure.from_sites(new_sites, charge=new_charge)
 
     def __rmul__(self, scaling_matrix):
         """
@@ -1224,6 +1224,7 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             The most primitive structure found.
         """
+
         def site_label(site):
             if not use_site_props:
                 return site.species_string
@@ -2645,7 +2646,7 @@ class Structure(IStructure, collections.MutableSequence):
             # is not the site being substituted.
             for inn, dist2 in self.get_neighbors(nn, 3):
                 if inn != self[index] and \
-                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                                dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
                     all_non_terminal_nn.append((nn, dist))
                     break
 
@@ -2898,7 +2899,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, np.array(site.coords - anchor).T)).T + anchor).ravel()
             new_site = PeriodicSite(
                 site.species_and_occu, s, self._lattice,
                 to_unit_cell=to_unit_cell, coords_are_cartesian=True,
@@ -3082,7 +3083,7 @@ class Structure(IStructure, collections.MutableSequence):
                    same factor.
             to_unit_cell: Whether or not to fall back sites into the unit cell
         """
-        s = self*scaling_matrix
+        s = self * scaling_matrix
         if to_unit_cell:
             for isite, site in enumerate(s):
                 s[isite] = site.to_unit_cell
@@ -3124,6 +3125,7 @@ class Structure(IStructure, collections.MutableSequence):
             inds = np.where(clusters == c)[0]
             species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
+            props = self[inds[0]].properties
             for n, i in enumerate(inds[1:]):
                 sp = self[i].species_and_occu
                 if mode == "s":
@@ -3131,17 +3133,23 @@ class Structure(IStructure, collections.MutableSequence):
                 offset = self[i].frac_coords - coords
                 coords += ((offset - np.round(offset)) / (n + 2)).astype(
                     coords.dtype)
-            sites.append(PeriodicSite(species, coords, self.lattice))
+                for key in props.keys():
+                    if props[key] is not None and self[i].properties[key] != props[key]:
+                        props[key] = None
+                        warnings.warn("Sites with different site property %s are merged."
+                                      "so property is set to none" % key)
+            sites.append(PeriodicSite(species, coords, self.lattice, properties=props))
 
         self._sites = sites
 
-    def set_charge(self,new_charge=0.):
+    def set_charge(self, new_charge=0.):
         """
         Sets the overall structure charge
         Args:
             charge (float): new charge to set
         """
         self._charge = new_charge
+
 
 class Molecule(IMolecule, collections.MutableSequence):
     """
@@ -3466,7 +3474,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         for i in indices:
             site = self._sites[i]
-            s = ((rm * np.matrix(site.coords - anchor).T).T + anchor).A1
+            s = ((np.dot(rm, (site.coords - anchor).T)).T + anchor).ravel()
             new_site = Site(site.species_and_occu, s,
                             properties=site.properties)
             self._sites[i] = new_site
@@ -3545,7 +3553,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             # is not the site being substituted.
             for inn, dist2 in self.get_neighbors(nn, 3):
                 if inn != self[index] and \
-                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                                dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
                     all_non_terminal_nn.append((nn, dist))
                     break
 

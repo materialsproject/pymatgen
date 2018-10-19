@@ -1,5 +1,5 @@
-pymatgen\.io\.abinit\.events module
-===================================
+pymatgen.io.abinit.events module
+================================
 
 .. automodule:: pymatgen.io.abinit.events
     :members:

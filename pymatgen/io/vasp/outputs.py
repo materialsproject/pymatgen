@@ -21,6 +21,7 @@ from monty.io import zopen, reverse_readfile
 from monty.json import MSONable
 from monty.json import jsanitize
 from monty.re import regrep
+from monty.os.path import zpath
 from six import string_types
 from six.moves import map, zip
 
@@ -744,7 +745,8 @@ class Vasprun(MSONable):
         """
 
         if not kpoints_filename:
-            kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
+            kpoints_filename = zpath(
+                os.path.join(os.path.dirname(self.filename), 'KPOINTS'))
         if not os.path.exists(kpoints_filename) and line_mode is True:
             raise VaspParserError('KPOINTS needed to obtain band structure '
                                   'along symmetry lines.')
@@ -1556,6 +1558,8 @@ class Outcar(object):
                 mag_z = []
                 read_mag_z = True
                 read_charge, read_mag_x, read_mag_y = False, False, False
+            elif re.search("electrostatic", clean):
+                read_charge, read_mag_x, read_mag_y, read_mag_z = False, False, False, False
 
         # merge x, y and z components of magmoms if present (SOC calculation)
         if mag_y and mag_z:
@@ -2665,7 +2669,7 @@ class Outcar(object):
         self.data["fermi_contact_shift"] = fc_shift_table
 
 
-class VolumetricData(object):
+class VolumetricData(MSONable):
     """
     Simple volumetric object for reading LOCPOT and CHGCAR type files.
 
