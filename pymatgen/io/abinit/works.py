@@ -1592,6 +1592,7 @@ class PhononWfkqWork(Work, MergeDdb):
             multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=ph_tolerance)
             for ph_inp in multi:
                 deps = {scf_task: "WFK", wfkq_task: "WFQ"} if need_wfkq else {scf_task: "WFK"}
+                #ph_inp["prtwf"] = -1
                 t = new.register_phonon_task(ph_inp, deps=deps)
                 if need_wfkq:
                     new.wfkq_task_children[wfkq_task].append(t)
@@ -1647,7 +1648,7 @@ class GKKPWork(Work):
         #read the qpoints from the DDB file
         ddb = abilab.abiopen(ddb_path)
         q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
-        
+
         #create file nodes
         den_file = FileNode(den_path)
         ddb_file = FileNode(ddb_path)
@@ -1687,7 +1688,7 @@ class GKKPWork(Work):
             ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"},manager=tm)
             new.wfkq_tasks.append(ddk_task)
 
-        #for each of the q 
+        #for each of the q
         for qpt in q_frac_coords:
             is_gamma = np.sum(qpt ** 2) < 1e-12
             if is_gamma:
@@ -1701,7 +1702,7 @@ class GKKPWork(Work):
                 new.wfkq_tasks.append(wfkq_task)
                 deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
 
-            # create a EPH task 
+            # create a EPH task
             eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, kptopt=3,
                                                    ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             t = new.register_eph_task(eph_inp, deps=deps, manager=tm)
@@ -1725,13 +1726,13 @@ class GKKPWork(Work):
                 qpoints.append(qpt)
                 #store dependencies
                 qpoints_deps.append(task.deps)
-        
+
         #create file nodes
         ddb_path  = phononwfkq_work.outdir.has_abiext("DDB")
-        dvdb_path = phononwfkq_work.outdir.has_abiext("DVDB") 
+        dvdb_path = phononwfkq_work.outdir.has_abiext("DVDB")
         ddb_file = FileNode(ddb_path)
         dvdb_file = FileNode(dvdb_path)
- 
+
         #get scf_task from first q-point
         for dep in qpoints_deps[0]:
             if isinstance(dep.node,ScfTask) and dep.exts[0] == 'WFK':
@@ -1742,18 +1743,18 @@ class GKKPWork(Work):
         new.remove_wfkq = remove_wfkq
         new.wfkq_tasks = []
         new.wfk_task = []
- 
-        #add one eph task per qpoint       
+
+        #add one eph task per qpoint
         for qpt,qpoint_deps in zip(qpoints,qpoints_deps):
-            #create eph task 
-            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, 
+            #create eph task
+            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=2,
                                                      ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             deps = {ddb_file: "DDB", dvdb_file: "DVDB" }
             for dep in qpoint_deps:
                 deps[dep.node] = dep.exts[0]
             #if no WFQ in deps link the WFK with WFQ extension
             if 'WFQ' not in deps.values():
-                inv_deps = dict((v, k) for k, v in deps.items()) 
+                inv_deps = dict((v, k) for k, v in deps.items())
                 wfk_task = inv_deps['WFK']
                 wfk_path = wfk_task.outdir.has_abiext("WFK")
                 #check if netcdf
@@ -1763,7 +1764,7 @@ class GKKPWork(Work):
                 if not os.path.isfile(wfq_path): os.symlink(wfk_path,wfq_path)
                 deps[FileNode(wfq_path)] = 'WFQ'
             new.register_eph_task(eph_input, deps=deps)
-                
+
         return new
 
     def on_ok(self, sender):
@@ -1789,7 +1790,7 @@ class GKKPWork(Work):
             infile = 'out_WFQ'+extension
             infile = os.path.join(os.path.dirname(wfk_path),infile)
             os.symlink(wfk_path,infile)
-             
+
         return super(GKKPWork, self).on_ok(sender)
 
 
