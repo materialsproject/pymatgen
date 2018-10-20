@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Introduction &#8212; pymatgen 2018.9.30 documentation</title>
+    <title>Introduction &#8212; pymatgen 2018.10.18 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="installation.html" title="Requirements"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.9.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.10.18 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -172,19 +172,11 @@ other research groups.</li>
 <div class="section" id="change-log">
 <h1>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>Fix: increased cut-off to VoronoiNN to avoid scipy crash (&#64;utf)</li>
-<li>Fix: Outcar parsing issues with certain values of electrostatic potential (&#64;sivonxay)</li>
-<li>Fix: bug in EnumlibAdaptor/EnumerateStructureTransformation involving incorrect
-stoichiometries in some instances (#1286) (&#64;shyuep)</li>
-<li>Fix: fractional co-ordinate finite precision errors in CifParser, now
-also includes additional warnings for implicit hydrogens (&#64;mkhorton)</li>
-<li>New features and improvements to GBGenerator (&#64;ucsdlxg, &#64;shyuep)</li>
-<li>New analysis options in StructureGraph, speed up tests (&#64;mkhorton)</li>
-<li>New utility function to pretty print disordered formulae, along with a
-ordered-to-disordered structure transformation (&#64;mkhorton)</li>
-<li>Ability to use pymatgen’s StructureMatcher against AFLOW’s library of
-crystallographic prototypes (&#64;mkhorton)</li>
-<li>Make Chgcar serializable to/from dict for database insertion (&#64;jmmshn)</li>
+<li>New bond fragmenter and bond dissociation analysis modules (&#64;samblau)</li>
+<li>Improvements to MoleculeGraph (&#64;espottesmith)</li>
+<li>Fix: bug in triclinic tensor conversion to IEEE standard (&#64;montoyjh)</li>
+<li>Fix: insertion battery summary dictionary format (&#64;jmmshn)</li>
+<li>Speed improvements to certain tests (&#64;shyuep, &#64;samblau)</li>
 </ul>
 <p><a class="reference internal" href="change_log.html"><span class="doc">Older versions</span></a></p>
 </div>
@@ -745,7 +737,7 @@ to indicate the copyright and license terms:</p>
         <li class="right" >
           <a href="installation.html" title="Requirements"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.9.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pymatgen 2018.10.18 documentation</a> &#187;</li> 
       </ul>
     </div>
 
