@@ -1624,15 +1624,15 @@ def hkl_transformation(transf, miller_index):
     reduced_transf = reduced_transf.astype(int)
 
     # perform the transformation
-    prim_hkl = np.dot(reduced_transf, miller_index)
-    d = abs(reduce(gcd, prim_hkl))
-    prim_hkl = np.array([int(i / d) for i in prim_hkl])
+    t_hkl = np.dot(reduced_transf, miller_index)
+    d = abs(reduce(gcd, t_hkl))
+    t_hkl = np.array([int(i / d) for i in t_hkl])
 
     # get mostly positive oriented Miller index
-    if len([i for i in prim_hkl if i < 0]) > 1:
-        prim_hkl *= -1
+    if len([i for i in t_hkl if i < 0]) > 1:
+        t_hkl *= -1
 
-    return prim_hkl
+    return tuple(t_hkl)
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,

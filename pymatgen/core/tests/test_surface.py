@@ -584,6 +584,14 @@ class MillerIndexFinderTests(PymatgenTest):
         self.p1 = Structure(Lattice.from_parameters(3, 4, 5, 31, 43, 50),
                             ["H", "He"], [[0, 0, 0], [0.1, 0.2, 0.3]])
         self.graphite = self.get_structure("Graphite")
+        self.trigBi = Structure(Lattice.from_parameters(3, 3, 10, 90, 90, 120),
+                                ["Bi", "Bi", "Bi", "Bi", "Bi", "Bi"],
+                                [[0.3333, 0.6666, 0.39945113],
+                                 [0.0000, 0.0000, 0.26721554],
+                                 [0.0000, 0.0000, 0.73278446],
+                                 [0.6666, 0.3333, 0.60054887],
+                                 [0.6666, 0.3333, 0.06611779],
+                                 [0.3333, 0.6666, 0.93388221]])
 
     def test_get_symmetrically_distinct_miller_indices(self):
 
@@ -608,6 +616,10 @@ class MillerIndexFinderTests(PymatgenTest):
 
         indices = get_symmetrically_distinct_miller_indices(self.graphite, 2)
         self.assertEqual(len(indices), 12)
+
+        # Now try a trigonal system.
+        indices = get_symmetrically_distinct_miller_indices(self.trigBi, 2)
+        self.assertEqual(len(indices), 17)
 
     def test_generate_all_slabs(self):
 
