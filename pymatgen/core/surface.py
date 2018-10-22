@@ -1565,8 +1565,24 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
             structure. All other indices are equivalent to one of these.
     """
 
-    symm_ops = get_recp_symmetry_operation(structure)
-    unique_millers = []
+    r = list(range(-max_index, max_index + 1))
+    r.reverse()
+
+    # First we get a list of all hkls for conventional (including equivalent)
+    conv_hkl_list = [miller for miller in itertools.product(r, r, r) if any([i != 0 for i in miller])]
+
+    sg = SpacegroupAnalyzer(structure)
+    # Get distinct hkl planes from the rhombohedral setting if trigonal
+    if sg.get_crystal_system() == "trigonal":
+        transf = sg.get_conventional_to_primitive_transformation_matrix()
+        miller_list = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
+        prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
+        symm_ops = get_recp_symmetry_operation(prim_structure)
+    else:
+        miller_list = conv_hkl_list
+        symm_ops = get_recp_symmetry_operation(structure)
+
+    unique_millers, unique_millers_conv = [], []
 
     def is_already_analyzed(miller_index):
         for op in symm_ops:
@@ -1574,15 +1590,49 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
                 return True
         return False
 
-    r = list(range(-max_index, max_index + 1))
-    r.reverse()
-    for miller in itertools.product(r, r, r):
-        if any([i != 0 for i in miller]):
-            d = abs(reduce(gcd, miller))
-            miller = tuple([int(i / d) for i in miller])
-            if not is_already_analyzed(miller):
+    for i, miller in enumerate(miller_list):
+        d = abs(reduce(gcd, miller))
+        miller = tuple([int(i / d) for i in miller])
+        if not is_already_analyzed(miller):
+            if sg.get_crystal_system() == "trigonal":
+                # Now we find the distinct primitive hkls using
+                # the primitive symmetry operations and their
+                # corresponding hkls in the conventional setting
                 unique_millers.append(miller)
-    return unique_millers
+                d = abs(reduce(gcd, conv_hkl_list[i]))
+                cmiller = tuple([int(i / d) for i in conv_hkl_list[i]])
+                unique_millers_conv.append(cmiller)
+            else:
+                unique_millers.append(miller)
+                unique_millers_conv.append(miller)
+
+    return unique_millers_conv
+
+
+def hkl_transformation(transf, miller_index):
+    """
+    Returns the Miller index from setting
+    A to B using a transformation matrix
+    Args:
+        transf (3x3 array): The transformation matrix
+            that transforms a lattice of A to B
+        miller_index ([h, k, l]): Miller index to transform to setting B
+    """
+    # Get a matrix of whole numbers (ints)
+    lcm = lambda a, b: a * b // math.gcd(a, b)
+    reduced_transf = reduce(lcm, [int(1 / i) for i in itertools.chain(*transf) if i != 0]) * transf
+    reduced_transf = reduced_transf.astype(int)
+
+    # perform the transformation
+    t_hkl = np.dot(reduced_transf, miller_index)
+    d = abs(reduce(gcd, t_hkl))
+    t_hkl = np.array([int(i / d) for i in t_hkl])
+
+    # get mostly positive oriented Miller index
+    if len([i for i in t_hkl if i < 0]) > 1:
+        t_hkl *= -1
+
+    return tuple(t_hkl)
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
