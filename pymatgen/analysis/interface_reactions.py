@@ -499,6 +499,7 @@ class InterfacialReactivity:
         Materials Project website.
 
         Args:
+            element (string): The string representing the element.
             temp (float): The temperature of the gas phase.
             pres (float): The pressure of the gas phase.
 
