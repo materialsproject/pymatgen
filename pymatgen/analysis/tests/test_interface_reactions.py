@@ -416,6 +416,24 @@ class InterfaceReactionTest(unittest.TestCase):
                             '{0} expected but gets {1}'.format(
                                 energy_lst(j), energy_lst(i)))
 
+    def test_get_chempot_correction(self):
+        # test pressure effect.
+        actual = InterfacialReactivity.get_chempot_correction("O", 298.15,
+                                                              100E5)
+        expect = 0.05916
+        self.assertTrue(np.isclose(actual, expect, atol=1E-3),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect,
+                                                                  actual))
+        # test temperature effect.
+        actual_2 = InterfacialReactivity.get_chempot_correction("O", 1000,
+                                                              1E5)
+        expect_2 = -0.82352
+        self.assertTrue(np.isclose(actual_2, expect_2, atol=1E-3),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_2,
+                                                                  actual_2))
+
 
 if __name__ == '__main__':
     unittest.main()
