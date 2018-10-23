@@ -220,7 +220,8 @@ class Substitution(Defect):
         defindex = poss_deflist[0][2]
 
         subsite = defect_structure.pop(defindex)
-        defect_structure.append(self.site.specie.symbol, subsite.coords, coords_are_cartesian=True)
+        defect_structure.append(self.site.specie.symbol, subsite.coords, coords_are_cartesian=True,
+                                properties={'velocities': [0.0, 0.0, 0.0]})
         defect_structure.set_charge(self.charge)
         return defect_structure
 
@@ -310,7 +311,8 @@ class Interstitial(Defect):
         struct_for_defect_site.make_supercell(supercell)
         defect_site = struct_for_defect_site[0]
 
-        defect_structure.append(self.site.specie.symbol, defect_site.coords, coords_are_cartesian=True)
+        defect_structure.append(self.site.specie.symbol, defect_site.coords, coords_are_cartesian=True,
+                                properties={'velocities': [0.0, 0.0, 0.0]})
         defect_structure.set_charge(self.charge)
         return defect_structure
 
