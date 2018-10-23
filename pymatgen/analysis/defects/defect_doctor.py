@@ -13,6 +13,9 @@ from atomate.vasp.fireworks.core import TransmuterFW
 from fireworks import Workflow
 
 
+
+
+
 def get_fw_from_defect( defect, supercell_size,
                         defect_input_set=None,
                         job_type='normal', db_file='>>db_file<<', vasp_cmd='>>vasp_cmd<<'):
@@ -57,6 +60,7 @@ def get_fw_from_defect( defect, supercell_size,
                       bandstructure_mode="auto")
 
     return fw
+
 
 
 

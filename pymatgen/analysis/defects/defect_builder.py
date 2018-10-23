@@ -42,7 +42,7 @@ class TaskDefectBuilder(object):
         hybrid_level_data = {}
         defect_task_list = []
         mpid = None
-        #TODO: add confirmation that all tasks are derived from same approach / same structure
+        #TODO: add confirmation that all tasks are derived from same approach (gga vs. hse) / same structure
 
         print('Running builder for {} tasks'.format(len(self.list_of_tasks)))
         for task in self.list_of_tasks:
@@ -63,64 +63,65 @@ class TaskDefectBuilder(object):
                                    'dielectric': eps_total})
                 continue
 
-            elif 'DefectTransformation' in task['transformations']['history'][0]['@class']:
-                defect_task_list.append(task)
+            elif ('history' in task['transformations'].keys()):
+                if ('DefectTransformation' in task['transformations']['history'][0]['@class']):
+                    defect_task_list.append(task)
 
-            elif 'SupercellTransformation' == task['transformations']['history'][0]['@class']:
-                #process bulk task information
-                bulk_sc_structure = task['input']['structure']
-                if type(bulk_sc_structure) == dict:
-                    bulk_sc_structure = Structure.from_dict( bulk_sc_structure)
+                elif 'SupercellTransformation' == task['transformations']['history'][0]['@class']:
+                    #process bulk task information
+                    bulk_sc_structure = task['input']['structure']
+                    if type(bulk_sc_structure) == dict:
+                        bulk_sc_structure = Structure.from_dict( bulk_sc_structure)
 
-                #check if mpid exists for this structure (only need to do once)
-                if mpid is None:
-                    mpid = self.check_mpid( bulk_sc_structure)
-                    if (mpid == 'DNE') or (not self.gga_run):
-                        # if no Mp-id exists (or if calculation is not a GGA type calcualtion)
-                        # then use cbm and vbm from bulk calc
-                        #TODO: allow for this information to be replaced by a user's band structure calculation?
-                        cbm = task['output']['cbm']
-                        vbm = task['output']['vbm']
-                        gga_gap = task['output']['bandgap']
-                    elif mpid:
-                        with MPRester() as mp:
-                            bs = mp.get_bandstructure_by_material_id(mpid)
-                        cbm = bs.get_cbm()['energy']
-                        vbm = bs.get_vbm()['energy']
-                        gga_gap = bs.get_band_gap()['energy']
+                    #check if mpid exists for this structure (only need to do once)
+                    if mpid is None:
+                        mpid = self.check_mpid( bulk_sc_structure)
+                        if (mpid == 'DNE') or (not self.gga_run):
+                            # if no Mp-id exists (or if calculation is not a GGA type calcualtion)
+                            # then use cbm and vbm from bulk calc
+                            #TODO: allow for this information to be replaced by a user's band structure calculation?
+                            cbm = task['output']['cbm']
+                            vbm = task['output']['vbm']
+                            gga_gap = task['output']['bandgap']
+                        elif mpid:
+                            with MPRester() as mp:
+                                bs = mp.get_bandstructure_by_material_id(mpid)
+                            cbm = bs.get_cbm()['energy']
+                            vbm = bs.get_vbm()['energy']
+                            gga_gap = bs.get_band_gap()['energy']
 
-                bulk_energy = task['output']['energy']
+                    bulk_energy = task['output']['energy']
 
-                #check to see if bulk task of this size already loaded
-                if len(bulk_sc_structure) in list(bulk_data.keys()):
-                    raise ValueError("Multiple bulk tasks with size {} atoms exist? "
-                                     "How to handle??".format( len(bulk_sc_structure)))
+                    #check to see if bulk task of this size already loaded
+                    if len(bulk_sc_structure) in list(bulk_data.keys()):
+                        raise ValueError("Multiple bulk tasks with size {} atoms exist? "
+                                         "How to handle??".format( len(bulk_sc_structure)))
 
-                bulk_data.update( {len(bulk_sc_structure): {'bulk_energy':bulk_energy, 'mpid': mpid,
-                                                            "cbm": cbm, "vbm": vbm, "gga_gap": gga_gap,
-                                                            'bulk_sc_structure': bulk_sc_structure} } )
+                    bulk_data.update( {len(bulk_sc_structure): {'bulk_energy':bulk_energy, 'mpid': mpid,
+                                                                "cbm": cbm, "vbm": vbm, "gga_gap": gga_gap,
+                                                                'bulk_sc_structure': bulk_sc_structure} } )
 
-                if 'locpot' in task['calcs_reversed'][0]['output'].keys():
-                    bulklpt = task['calcs_reversed'][0]['output']['locpot']
-                    axes = list(bulklpt.keys())
-                    axes.sort()
-                    bulk_data[len(bulk_sc_structure)]['bulk_planar_averages'] = [bulklpt[ax] for ax in axes]
-                else:
-                    print('bulk supercell with {}atoms does not have locpot values for parsing'.format(len(bulk_sc_structure)))
+                    if 'locpot' in task['calcs_reversed'][0]['output'].keys():
+                        bulklpt = task['calcs_reversed'][0]['output']['locpot']
+                        axes = list(bulklpt.keys())
+                        axes.sort()
+                        bulk_data[len(bulk_sc_structure)]['bulk_planar_averages'] = [bulklpt[ax] for ax in axes]
+                    else:
+                        print('bulk supercell with {}atoms does not have locpot values for parsing'.format(len(bulk_sc_structure)))
 
 
-                if 'outcar' in task['calcs_reversed'][0]['output'].keys():
-                    bulkoutcar = task['calcs_reversed'][0]['output']['outcar']
-                    bulk_atomic_site_averages = bulkoutcar['electrostatic_potential']
-                    bulk_data[len(bulk_sc_structure)]['bulk_atomic_site_averages'] = bulk_atomic_site_averages
-                else:
-                    print('bulk supercell {} does not have outcar values for parsing'.format(len(bulk_sc_structure)))
+                    if 'outcar' in task['calcs_reversed'][0]['output'].keys():
+                        bulkoutcar = task['calcs_reversed'][0]['output']['outcar']
+                        bulk_atomic_site_averages = bulkoutcar['electrostatic_potential']
+                        bulk_data[len(bulk_sc_structure)]['bulk_atomic_site_averages'] = bulk_atomic_site_averages
+                    else:
+                        print('bulk supercell {} does not have outcar values for parsing'.format(len(bulk_sc_structure)))
 
-            # assume that if not already identified as a defect , then a new
+            # assume that if not already identified as a defect or bulk supercel, then a new
             # hybrid level calculation is for adjusting band edge correction
             #TODO: figure out a better way to see if a hybrid BS caclulation
             #    is being suppled for band edge corrections?
-            elif 'history' not in task['transformations'].keys() and 'HFSCREEN' in task['input']['incar'].keys():
+            elif 'HFSCREEN' in task['input']['incar'].keys():
                 hybrid_cbm = task['output']['cbm']
                 hybrid_vbm = task['output']['vbm']
                 hybrid_gap = task['output']['bandgap']
@@ -154,6 +155,7 @@ class TaskDefectBuilder(object):
             defect = MontyDecoder().process_decoded( defect_task['transformations']['history'][0]['defect'])
             scaling_matrix = MontyDecoder().process_decoded( defect_task['transformations']['history'][0]['scaling_matrix'])
             initial_defect_structure = defect.generate_defect_structure( scaling_matrix)
+            initial_defect_structure = self.reorder_structure( initial_defect_structure, final_defect_structure)
             defect_energy = defect_task['output']['energy']
 
             parameters.update( {'defect_energy': defect_energy,
@@ -228,19 +230,11 @@ class TaskDefectBuilder(object):
                 print('ERR: defect {}_{} does not have eigenvalue data for parsing '
                       'bandfilling.'.format(defect.name, defect.charge))
 
-            # #add wavefunction loading for delocalization analysis
-            # if 'wf_data' in defect_task['calcs_reversed'][0]['output'].keys():
-            #     parameters.update( {'wf_band_data': defect_task['calcs_reversed'][0]['output']['wf_data']})
-            # else:
-            #     print('ERR: defect {}_{} does not have wavefunction data for parsing '
-            #           'delocalization.'.format(defect.name, defect.charge))
-            #
-            # #try procar loading for delocalization analysis
-            # if 'procar_data' in defect_task['calcs_reversed'][0]['output'].keys():
-            #     parameters.update( {'procar_band_data': defect_task['calcs_reversed'][0]['output']['procar_data']})
-            # else:
-            #     print('ERR: defect {}_{} does not have PROCAR data for parsing '
-            #           'delocalization.'.format(defect.name, defect.charge))
+            if 'defect' in defect_task['calcs_reversed'][0]['output'].keys():
+                parameters.update( {'defect_ks_delocal_data': defect_task['calcs_reversed'][0]['output']['defect']})
+            else:
+                print('ERR: defect {}_{} does not have defect data for parsing '
+                      'delocalization.'.format(defect.name, defect.charge))
 
 
             defect_entry = DefectEntry( defect, parameters['defect_energy'] - parameters['bulk_energy'],
@@ -249,10 +243,8 @@ class TaskDefectBuilder(object):
             if run_compatibility:
                 defect_entry = self.compatibility.process_entry( defect_entry)
 
-            de_tags = defect_task['tags'][:]
-            de_tags.extend( ['DefectEntry'])
             dir_name = defect_task['calcs_reversed'][0]['dir_name']
-            defect_entry.parameters.update( {'dir_name': dir_name, 'tags': de_tags})
+            defect_entry.parameters.update( {'dir_name': dir_name, 'task_db_task_id': defect_task['_id']})
 
             defect_entry_list.append( defect_entry)
 
@@ -284,6 +276,47 @@ class TaskDefectBuilder(object):
             mpid = 'DNE'
 
         return mpid
+
+    def reorder_structure( self, s1, s2):
+        """
+        This takes s1 and attempts to reorder the structure in same site-indexed fashion as s2
+
+        If substantial relaxation occurs this might cause errors...
+
+        returns: reordered s1 structure
+        """
+        if s1.composition != s2.composition:
+            raise ValueError('Compositions are not equivalent: {} vs. {}'.format( s1.composition, s2.composition))
+
+        list_matcher = []
+        for s2ind, s2site in enumerate(s2):
+            match_this_site = [[s2site.distance_and_image_from_frac_coords( s1site.frac_coords)[0],
+                               s1ind] for s1ind, s1site in enumerate( s1)]
+            match_this_site.sort() #put closest site first
+            for match in match_this_site:
+                #take first site matching that matches specie
+                if s1[match[1]].specie == s2site.specie:
+                    list_matcher.append( [ match[1], s2ind])
+                    break
+
+        s1_matcher_set = list(np.array( list_matcher)[:, 0])
+        num_unique_s1_sites_matched = len(set(s1_matcher_set))
+        s2_matcher_set = list(np.array( list_matcher)[:, 1])
+        num_unique_s2_sites_matched = len(set(s2_matcher_set))
+
+        if (len(s1) != num_unique_s1_sites_matched) or \
+            (len(s2) != num_unique_s2_sites_matched):
+            raise ValueError("Number of unique sites differs in defect site matching routine." \
+                  "\n\ts1 {} vs. {}\n\ts2 {} vs. {}".format(len(s1), num_unique_s1_sites_matched,
+                                                            len(s2), num_unique_s2_sites_matched))
+
+        new_species_list = [s1[ind].specie for ind in s1_matcher_set]
+        new_coords_list = [s1[ind].frac_coords for ind in s1_matcher_set]
+        new_struct = Structure( s1.lattice, new_species_list, new_coords_list,
+                               validate_proximity=True, to_unit_cell=True,
+                               coords_are_cartesian=False)
+
+        return new_struct
 
     def process_and_push_to_db(self, db, run_compatibility=False, gga_run=True):
         """
