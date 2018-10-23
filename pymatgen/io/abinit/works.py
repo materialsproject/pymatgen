@@ -1585,7 +1585,9 @@ class PhononWfkqWork(Work, MergeDdb):
 
             if need_wfkq:
                 nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
-                if nband: nscf_inp.set_vars(nband=nband)
+                if nband: 
+                    nbdbuf = max(2,nband*0.1)
+                    nscf_inp.set_vars(nband=nband+nbdbuf, nbdbuf=nbdbuf)
                 wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: ["DEN", "WFK"]})
                 new.wfkq_tasks.append(wfkq_task)
 
@@ -1702,7 +1704,7 @@ class GKKPWork(Work):
                 deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
 
             # create a EPH task 
-            eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, kptopt=3,
+            eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2, kptopt=3,
                                                    ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             t = new.register_eph_task(eph_inp, deps=deps, manager=tm)
             new.wfkq_task_children[wfkq_task].append(t)
@@ -1746,7 +1748,7 @@ class GKKPWork(Work):
         #add one eph task per qpoint       
         for qpt,qpoint_deps in zip(qpoints,qpoints_deps):
             #create eph task 
-            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=2, 
+            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2, 
                                                      ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             deps = {ddb_file: "DDB", dvdb_file: "DVDB" }
             for dep in qpoint_deps:
