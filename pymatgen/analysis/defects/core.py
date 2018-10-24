@@ -322,7 +322,7 @@ class Interstitial(Defect):
         # consistently with bulk structure for final defect_structure
         defect_properties = self.site.properties.copy()
         if ('velocities' in self.bulk_structure.site_properties) and \
-            'velocities' not in defect_properties:
+                ('velocities' not in defect_properties):
             if all( vel == self.bulk_structure.site_properties['velocities'][0]
                     for vel in self.bulk_structure.site_properties['velocities']):
                 defect_properties['velocities'] = self.bulk_structure.site_properties['velocities'][0]
@@ -330,6 +330,34 @@ class Interstitial(Defect):
                 raise ValueError("No velocity property specified for defect site and "
                                  "bulk_structure velocities are not homogeneous. Please specify this "
                                  "property within the initialized defect_site object.")
+        elif ('velocities' in self.bulk_structure.site_properties) and \
+                ('velocities' in defect_properties):
+            if type(self.bulk_structure.site_properties['velocities'][0]) != type( defect_properties['velocities']):
+                if all(vel == self.bulk_structure.site_properties['velocities'][0]
+                            for vel in self.bulk_structure.site_properties['velocities']):
+                    if self.bulk_structure.site_properties['velocities'][0] is None:
+                        if defect_properties['velocities'] == [ 0., 0., 0.]:
+                            defect_properties['velocities'] = None
+                        else:
+                            raise ValueError("Defect site object has a velocity of {} but bulk structure has [None,...] "
+                                             "for its velocities. Need to reinitialize bulk structure with "
+                                             "velocities desired with this defect site".format( defect_properties['velocities']))
+                    if defect_properties['velocities'] is None:
+                        if self.bulk_structure.site_properties['velocities'][0] == [ 0., 0., 0.]:
+                            defect_properties['velocities'] = [0., 0., 0.]
+                        else:
+                            raise ValueError("Defect site object has a velocity of None but bulk structure has non-zero velocities "
+                                             "for its velocities. Need to reinitialize bulk structure with "
+                                             "velocities desired with this defect site")
+                else:
+                    raise ValueError("Bulk velocities are not homogeneous and the defect velocity is of a different "
+                                     "type. Do not know how to rectify this... please reinitialize defect object.")
+            else:
+                raise ValueError("Velocity types {} and {} are not the same between bulk and defect and "
+                                 "bulk_structure velocities are not homogeneous, so I cannot rectify these velocities. "
+                                 "Please fix this property within the initialized defect_site object.".format(
+                    type(self.bulk_structure.site_properties['velocities'][0]), type( defect_properties['velocities'])))
+
 
         #create a trivial defect structure to find where supercell transformation moves the defect site
         site_properties_for_fake_struct = {prop: [val] for prop,val in defect_properties.items()}
