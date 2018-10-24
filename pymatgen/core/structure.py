@@ -1199,9 +1199,33 @@ class IStructure(SiteCollection, MSONable):
                                           site_properties=self.site_properties))
         return structs
 
+    def get_miller_index_from_site_indexes(self, site_ids, round_dp=4,
+                                           verbose=True):
+        """
+        Get the Miller index of a plane from a set of sites indexes.
+
+        A minimum of 3 sites are required. If more than 3 sites are given
+        the best plane that minimises the distance to all points will be
+        calculated.
+
+        Args:
+            site_ids (list of int): A list of site indexes to consider. A
+                minimum of three site indexes are required. If more than three
+                sites are provided, the best plane that minimises the distance
+                to all sites will be calculated.
+            round_dp (int, optional): The number of decimal places to round the
+                miller index to.
+            verbose (bool, optional): Whether to print warnings.
+
+        Returns:
+            (tuple): The Miller index.
+        """
+        return self.lattice.get_miller_index_from_sites(
+            self.frac_coords[site_ids], coords_are_cartesian=False,
+            round_dp=round_dp, verbose=verbose)
+
     def get_primitive_structure(self, tolerance=0.25, use_site_props=False,
-                                constrain_latt=[False, False, False, False,
-                                                False, False]):
+                                constrain_latt=None):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
@@ -1224,6 +1248,8 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             The most primitive structure found.
         """
+        if constrain_latt is None:
+            constrain_latt = [False, False, False, False, False, False]
 
         def site_label(site):
             if not use_site_props:
