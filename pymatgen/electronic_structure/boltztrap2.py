@@ -59,8 +59,11 @@ __date__ = "August 2018"
 class BandstructureLoader:
     """Loader for Bandsstrcture object"""
 
-    def __init__(self, bs_obj, structure=None, nelect=None):
-        """Structure and nelect is needed to be provide"""
+    def __init__(self, bs_obj, structure=None, nelect=None, spin=None):
+        """
+            Structure and nelect is needed to be provide.
+            spin must be select if bs is spin-polarized.
+        """
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
         if structure is None:
@@ -72,13 +75,25 @@ class BandstructureLoader:
             self.structure = structure
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
-
+        self.proj = []
+        
+        
         if len(bs_obj.bands) == 1:
             e = list(bs_obj.bands.values())[0]
             self.ebands = e * units.eV
             self.dosweight = 2.0
+            if bs_obj.projections:
+                    self.proj = bs_obj.projections[Spin.up].transpose((1,0,3,2))
+
         elif len(bs_obj.bands) == 2:
-            raise BaseException("spin bs case not implemented")
+            if not spin:
+                raise BaseException("spin-polarized bs, you need to select a spin")
+            elif spin in (-1,1):
+                e = bs_obj.bands[Spin(spin)]
+                self.ebands = e * units.eV
+                self.dosweight = 1.0
+                if bs_obj.projections:
+                    self.proj = bs_obj.projections[Spin(spin)].transpose((1,0,3,2))
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat = None
@@ -88,7 +103,9 @@ class BandstructureLoader:
         self.nelect = nelect
         self.UCvol = self.structure.volume * units.Angstrom ** 3
         
-        if not bs_obj.is_metal():
+        self.spin = spin
+        
+        if not bs_obj.is_metal() and not spin:
             self.vbm_idx = list(bs_obj.get_vbm()['band_index'].values())[0][-1]
             self.cbm_idx = list(bs_obj.get_cbm()['band_index'].values())[0][0]
 
@@ -111,13 +128,33 @@ class BandstructureLoader:
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin:nemax]
+        self.ebands = self.ebands[nemin:nemax+1]
+        
+        if isinstance(self.proj, np.ndarray):
+            self.proj = self.proj[:,nemin:nemax+1,:,:]
+
+        
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin:nemax, :]
+            self.mommat = self.mommat[:, nemin:nemax+1, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
         return nemin, nemax
+    
+    def set_upper_lower_bands(self,e_lower,e_upper):
+        """
+            Set fake upper/lower bands, useful to set the same energy
+            range in the spin up/down bands when calculating the DOS
+        """
+        lower_band = e_lower*np.ones((1,self.ebands.shape[1]))
+        upper_band = e_upper*np.ones((1,self.ebands.shape[1]))
+        
+        self.ebands = np.vstack((lower_band,self.ebands,upper_band))
+        
+        proj_lower = self.proj[:,0:1,:,:]
+        proj_upper = self.proj[:,-1:,:,:]
+        
+        self.proj = np.concatenate((proj_lower,self.proj,proj_upper),axis=1)
 
     def get_volume(self):
         try:
@@ -180,112 +217,19 @@ class VasprunLoader:
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin:nemax]
+        self.ebands = self.ebands[nemin:nemax+1]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:,nemin:nemax,:,:]
+            self.proj = self.proj[:,nemin:nemax+1,:,:]
             
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin:nemax, :]
+            self.mommat = self.mommat[:, nemin:nemax+1, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
         return nemin, nemax
-
-    def get_volume(self):
-        try:
-            self.UCvol
-        except AttributeError:
-            lattvec = self.get_lattvec()
-            self.UCvol = np.abs(np.linalg.det(lattvec))
-        return self.UCvol
-
-
-class ParabolicBandsData:
-    """Mock DFTData emulation class for the parabolic band example."""
-
-    def __init__(self,nb = 1,de = [0.5], effm=[1], nelect=0,efermi=0.0):
-        """Create a MockDFTData object based on global variables."""
-        
-        NK = 25
-        
-        self.mommat = None
-        self.magmom = None
-        # Create a hypotetical monoatomic simple cubic structure with a lattice
-        # parameter of 5 A.
-        atoms = Atoms("Si", cell=5 * np.eye(3), pbc=True)
-        self.structure = AseAtomsAdaptor.get_structure(atoms)
-        lattvec = atoms.get_cell().T * units.Angstrom
-        rlattvec = 2. * np.pi * np.linalg.inv(lattvec).T
-        # Create a set of irreducible k points based on that structure
-        fromspglib = spglib.get_ir_reciprocal_mesh([NK, NK, NK], atoms)
-        indices = np.unique(fromspglib[0]).tolist()
-        kpoints = fromspglib[1].T / float(NK)
-        kpoints = kpoints[:, indices]
-        cartesian = rlattvec @ kpoints
-        k2 = (cartesian**2).sum(axis=0)
-        rmax = rlattvec[0, 0] / 2.
-        rmin = .8 * rmax
-        bump = self.create_bump(rmin, rmax)
-        weight = (bump(cartesian[0, :]) *
-                  bump(cartesian[1, :]) *
-                  bump(cartesian[2, :]))
-        
-        self.ebands = np.zeros((nb,kpoints.shape[1]))
-        for inb in range(nb):
-            # Compute the band energies in a purely parabolic model
-            eband = np.abs(de[inb]) + k2 / 2. / effm[inb]
-            bound = eband[k2 <= rmax * rmax].max()
-            eband = np.minimum(eband, bound)
-            eband = eband * weight + bound * (1. - weight)
-            self.ebands[inb] = np.sign(de[inb])*eband.reshape((1, eband.size))
     
-        self.atoms = atoms
-        self.lattvec = lattvec
-        self.kpoints = kpoints.T
-        self.nelect = nelect
-        self.proj = []
-        self.fermi = efermi
-        self.dosweight = 2
-        
-    # Weight the band by a bump function to make its derivative zero at the
-    # boundary of the BZ.
-    def create_bump(self,a, b):
-        """Return a bump function f(x) equal to zero for |x| > b, equal to one for
-        |x| < a, and providing a smooth transition in between.
-        """
-        if a <= 0. or b <= 0. or a >= b:
-            raise ValueError("a and b must be positive numbers, with b > a")
-
-        # Follow the prescription given by Loring W. Tu in
-        # "An Introduction to Manifolds", 2nd Edition, Springer
-        def f(t):
-            """Auxiliary function used as a building block of the bump function."""
-            if t <= 0.:
-                return 0.
-            else:
-                return np.exp(-1. / t)
-
-        f = np.vectorize(f)
-
-        def nruter(x):
-            """One-dimensional bump function."""
-            arg = (x * x - a * a) / (b * b - a * a)
-            return 1. - f(arg) / (f(arg) + f(1. - arg))
-
-        return nruter
-
-
-
-    def get_lattvec(self):
-        """Return the matrix of lattice vectors."""
-        return self.lattvec
     
-    def bandana(self, emin=-np.inf, emax=np.inf):
-        nemin = np.min(self.ebands, axis=1)
-        nemax = np.max(self.ebands, axis=1)
-        return nemin, nemax
-
     def get_volume(self):
         try:
             self.UCvol
@@ -367,12 +311,14 @@ class BztInterpolator(object):
                 npts_mu: number of energy points of the Dos
                 T: parameter used to smooth the Dos
         """
+        spin = self.data.spin if isinstance(self.data.spin,int) else 1
+        
         energies, densities, vvdos, cdos = BL.BTPDOS(self.eband, self.vvband, npts=npts_mu)
         if T is not None:
             densities = BL.smoothen_DOS(energies, densities, T)
 
         tdos = Dos(self.efermi / units.eV, energies / units.eV,
-                   {Spin(1): densities})
+                   {Spin(spin): densities})
 
         if partial_dos:
             tdos = self.get_partial_doses(tdos=tdos, npts_mu=npts_mu, T=T)
@@ -387,6 +333,8 @@ class BztInterpolator(object):
             npts_mu: number of energy points of the Dos
             T: parameter used to smooth the Dos
         """
+        spin = self.data.spin if isinstance(self.data.spin,int) else 1
+        
         if self.data.proj == []:
             raise BoltztrapError("No projections loaded.")
 
@@ -413,123 +361,11 @@ class BztInterpolator(object):
                 if T is not None:
                     pdos = BL.smoothen_DOS(edos, pdos, T)
 
-                pdoss[site][orb][Spin(1)] = pdos
+                pdoss[site][orb][Spin(spin)] = pdos
 
         self.data.ebands = bkp_data_ebands
     
         return CompleteDos(self.data.structure, total_dos=tdos, pdoss=pdoss)
-
-
-    def find_extrema(self,method='all',nvb=1,ncb=1,kpoint_start=None):
-        """
-            Find extrema points of bands using a minimization algorithm.
-            
-            Args:
-                method: 'all' means search for all the extrema points, starting 
-                    from a uniformly random generated starting k-points. 'one' means
-                    start to one single k-point and return the first extrema found.
-                nvb: number of valence bands where to search for extrema
-                ncb: number of conduction bands where to search for extrema
-                kpoint_start: starting k-point in case of method='one'
-        """
-        def get_energy(kpt,bnd,cbm,equivalences,lattvec,coeffs):
-            sign = -1 if cbm == False else 1
-            return sign*fite.getBands(kpt[np.newaxis,:], 
-                                      equivalences, lattvec, coeffs[bnd,np.newaxis])[0]
-        
-        if method == 'all':
-            
-            
-            R = []
-            for i in it.combinations_with_replacement([0,0.05,-0.05],3):
-                for j in it.permutations(i):
-                    if j not in R:
-                        R.append(j)
-            R=R[1:]
-            out = {}
-            #print('okk')
-            
-            bands = list(range(self.data.vbm_idx - nvb +1,self.data.cbm_idx + ncb))
-            print(bands)
-            
-            for bnd in bands:
-                bnd -= self.nemin
-                vbm_idx = self.data.vbm_idx - self.nemin
-                cbm = True if bnd > vbm_idx else False
-                out['cbm' if cbm else 'vbm'] = {}
-                out['cbm' if cbm else 'vbm'][bnd] = []
-
-                cnt=0
-                for i in np.linspace(0,1,7):
-                    for j in np.linspace(0,1,7):
-                        for k in np.linspace(0,1,7):
-                            #sys.stdout.flush()
-                            xkpt = np.array([i,j,k]) + (np.random.rand(3)*0.05-0.025)
-                            suc=False
-                            nit=0
-                            while suc == False:
-                                res=minimize(get_energy,xkpt[np.newaxis,:],
-                                                args=(bnd,cbm,self.equivalences,
-                                                    self.data.lattvec, self.coeffs),
-                                                method='BFGS',tol=1e-06)
-                                suc=res.success
-                                xkpt=res.x
-                                ene = res.fun
-                                nit += res.nit
-
-                            found = True
-                            
-                            for r in R:
-                                if ene > get_energy(xkpt,bnd,cbm,self.equivalences,
-                                                    self.data.lattvec, self.coeffs):
-                                    found = False
-                                    break
-                            
-                            cnt+=1
-                            if found:
-                                ene = res.fun if cbm else -res.fun
-                                ene = Energy(ene - self.efermi,'Ha').to('eV')
-                                out['cbm' if cbm else 'vbm'][bnd].append([cnt,nit, xkpt,res.x,ene])
-                                print(cnt)
-                            #break
-                        #break
-                    #break
-        
-        elif method == 'one':
-            out = []
-            bands = range(self.data.vbm_idx - nvb +1,self.data.cbm_idx + ncb)
-            if len(bands) == 1:
-                bnd = bands[0] - self.nemin
-                vbm_idx = self.data.vbm_idx - self.nemin
-                cbm = True if bnd > vbm_idx else False
-                suc=False
-                nit=0
-                cnt = 0
-                xkpt = kpoint_start.copy()
-                print(xkpt[:,np.newaxis].shape)
-                while suc == False:
-                    res=minimize(get_energy,xkpt,
-                                                args=(bnd,cbm,self.equivalences,
-                                                    self.data.lattvec, self.coeffs),
-                                                method='BFGS',tol=1e-06)
-                    suc = res.success
-                    xkpt = res.x
-                    ene = res.fun
-                    nit += res.nit
-                    print(nit,suc,xkpt)
-                    
-                found = True
-                
-                if found:
-                    ene = res.fun if cbm else -res.fun
-                    ene = Energy(ene - self.efermi,'Ha').to('eV')
-                    out.append([cbm,cnt,nit, kpoint_start,res.x,ene])
-        
-        return out
-
-
-    def save(self):
-        pass
 
 
 class BztTransportProperties(object):
@@ -892,3 +728,21 @@ class BztPlotter(object):
         dosPlotter.add_dos('Total',tdos)
         
         return dosPlotter
+
+def merge_up_down_doses(dos_up,dos_dn):
+    
+    cdos = Dos(dos_up.efermi, dos_up.energies,
+               {Spin.up: dos_up.densities[Spin.up], Spin.down: dos_dn.densities[Spin.down]})
+    
+    if isinstance(dos_up.pdos,dict):
+        pdoss = {}
+        for site in dos_up.pdos:
+            pdoss.setdefault(site,{})
+            for orb in dos_up.pdos[site]:
+                pdoss[site].setdefault(orb,{})
+                pdoss[site][orb][Spin.up] = dos_up.pdos[site][orb][Spin.up]
+                pdoss[site][orb][Spin.down] = dos_dn.pdos[site][orb][Spin.down]
+        
+        cdos = CompleteDos(dos_up.structure, total_dos=cdos, pdoss=pdoss)
+    
+    return cdos
