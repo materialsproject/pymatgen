@@ -364,6 +364,18 @@ class IStructureTest(PymatgenTest):
         sprim = s.get_primitive_structure(tolerance=0.1)
         self.assertEqual(len(sprim), 6)
 
+    def test_get_miller_index(self):
+        """Test for get miller index convenience method"""
+        struct = Structure(
+            [2.319, -4.01662582, 0., 2.319, 4.01662582, 0., 0., 0., 7.252],
+            ['Sn', 'Sn', 'Sn'],
+            [[2.319, 1.33887527, 6.3455], [1.1595, 0.66943764, 4.5325],
+             [1.1595, 0.66943764, 0.9065]],
+            coords_are_cartesian=True
+        )
+        hkl = struct.get_miller_index_from_site_indexes([0, 1, 2])
+        self.assertEqual(hkl, (2, -1, 0))
+
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
