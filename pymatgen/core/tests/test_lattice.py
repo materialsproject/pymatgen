@@ -476,7 +476,7 @@ class LatticeTestCase(PymatgenTest):
         s1 = np.array([0.5, -1.5, 3])
         s2 = np.array([0.5, 3., -1.5])
         s3 = np.array([2.5, 1.5, -4.])
-        self.assertEqual(m.get_miller_index_from_sites([s1, s2, s3]),
+        self.assertEqual(m.get_miller_index_from_coords([s1, s2, s3]),
                          (2, 1, 1))
 
         # test on a hexagonal system
