@@ -1639,7 +1639,7 @@ class GKKPWork(Work):
     """
     @classmethod
     def from_den_ddb_dvdb(cls,inp,den_path,ddb_path,dvdb_path,mpiprocs=1,remove_wfkq=True,
-                          with_ddk=True,expand=True,manager=None):
+                          qpath=None,with_ddk=True,expand=True,manager=None):
         """
         Construct a `PhononWfkqWork` from a DDB and DVDB file.
         For each q found a WFQ task is created and an EPH task computing the matrix elements
@@ -1670,6 +1670,17 @@ class GKKPWork(Work):
         new.wfkq_tasks.append(wfk_task)
         new.wfk_task = wfk_task
 
+        #if qpath is set we read a list of q-points in which to interpolate the DVDB file
+        #the DVDB and DDB file have to correspond to a regular grid
+        dvdb = dvdb_file
+        if qpath is not None:
+            #read ngqpt from ddb
+            with abilab.abiopen(ddb_path) as ddb:
+                ddb_ngqpt = ddb.guessed_ngqpt
+            interp_inp = inp.new_with_vars(optdriver=7, eph_task=-5, ddb_ngqpt=ddb_ngqpt,
+                                           ph_nqpath=len(qpath), ph_qpath=qpath, prtphdos=0)
+            dvdb = new.register_eph_task(interp_inp, deps={wfk_task: "WFK", ddb_file: "DDB", dvdb_file: "DVDB"}, manager=tm)
+
         #create a WFK expansion task
         if expand:
             fbz_nscf_inp = inp.new_with_vars(optdriver=8)
@@ -1695,17 +1706,17 @@ class GKKPWork(Work):
             if is_gamma:
                 #We will create a link from WFK to WFQ on_ok
                 wfkq_task = wfk_task
-                deps = {wfk_task: ["WFK","WFQ"], ddb_file: "DDB", dvdb_file: "DVDB" }
+                deps = {wfk_task: ["WFK","WFQ"], ddb_file: "DDB", dvdb: "DVDB" }
             else:
                 # create a WFQ task
                 nscf_inp = nscf_inp.new_with_vars(kptopt=3, qpt=qpt, nqpt=1)
                 wfkq_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"}, manager=tm)
                 new.wfkq_tasks.append(wfkq_task)
-                deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb_file: "DVDB" }
+                deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb: "DVDB" }
 
             # create a EPH task 
             eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2, kptopt=3,
-                                                   ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
+                                        ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             t = new.register_eph_task(eph_inp, deps=deps, manager=tm)
             new.wfkq_task_children[wfkq_task].append(t)
 
