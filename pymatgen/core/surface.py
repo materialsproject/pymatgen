@@ -1682,24 +1682,19 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
 def miller_index_from_sites(lattice, coords, coords_are_cartesian=True,
                             round_dp=4, verbose=True):
     """
-    Get the Miller index of a plane from a set of sites.
+    Get the Miller index of a plane from a list of site coordinates.
 
-    A minimum of 3 sites are required. If more than 3 sites are given
-    the best plane that minimises the distance to all points will be
-    calculated.
-
-    If you use this module, please consider citing the following work::
-        Sun, W., & Ceder, G. (2018). A topological screening heuristic
-        for low-energy , high-index surfaces. Surface Science, 669(October
-        2017), 50–56. https://doi.org/10.1016/j.susc.2017.11.007
+    A minimum of 3 sets of coordinates are required. If more than 3 sets of
+    coordinates are given, the best plane that minimises the distance to all
+    points will be calculated.
 
     Args:
-        lattice (Lattice): A `Lattice` object for the structure. For example
-            obtained from Structure.lattice
-        coords (np.ndarray): A numpy array of site coordinates. Can be cartesian
-            or fractional coordinates. If more than three sites are provided,
-            the best plane that minimises the distance to all sites will be
-            calculated.
+        lattice (list or Lattice): A 3x3 lattice matrix or `Lattice` object (for
+            example obtained from Structure.lattice).
+        coords (iterable): A list or numpy array of coordinates. Can be
+            cartesian or fractional coordinates. If more than three sets of
+            coordinates are provided, the best plane that minimises the
+            distance to all sites will be calculated.
         coords_are_cartesian (bool, optional): Whether the coordinates are
             in cartesian space. If using fractional coordinates set to False.
         round_dp (int, optional): The number of decimal places to round the
@@ -1709,7 +1704,10 @@ def miller_index_from_sites(lattice, coords, coords_are_cartesian=True,
     Returns:
         (tuple): The Miller index.
     """
-    return lattice.get_miller_index_from_sites(
+    if not isinstance(lattice, Lattice):
+        lattice = Lattice(lattice)
+
+    return lattice.get_miller_index_from_coords(
         coords, coords_are_cartesian=coords_are_cartesian, round_dp=round_dp,
         verbose=verbose)
 

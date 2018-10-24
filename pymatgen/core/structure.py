@@ -1220,7 +1220,7 @@ class IStructure(SiteCollection, MSONable):
         Returns:
             (tuple): The Miller index.
         """
-        return self.lattice.get_miller_index_from_sites(
+        return self.lattice.get_miller_index_from_coords(
             self.frac_coords[site_ids], coords_are_cartesian=False,
             round_dp=round_dp, verbose=verbose)
 

@@ -487,21 +487,21 @@ class LatticeTestCase(PymatgenTest):
         s1 = np.array([2.319, 1.33887527, 6.3455])
         s2 = np.array([1.1595, 0.66943764, 4.5325])
         s3 = np.array([1.1595, 0.66943764, 0.9065])
-        hkl = m.get_miller_index_from_sites([s1, s2, s3])
+        hkl = m.get_miller_index_from_coords([s1, s2, s3])
         self.assertEqual(hkl, (2, -1, 0))
 
         # test for previous failing structure
         m = Lattice([10, 0, 0, 0, 10, 0, 0, 0, 10])
         sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7]]
 
-        hkl = m.get_miller_index_from_sites(sites, coords_are_cartesian=False)
+        hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
         self.assertEqual(hkl, (1, 0, 0))
 
         # test for more than 3 sites
         sites = [[0.5, 0.8, 0.8], [0.5, 0.4, 0.2], [0.5, 0.3, 0.7],
                  [0.5, 0.1, 0.2]]
 
-        hkl = m.get_miller_index_from_sites(sites, coords_are_cartesian=False)
+        hkl = m.get_miller_index_from_coords(sites, coords_are_cartesian=False)
         self.assertEqual(hkl, (1, 0, 0))
 
 

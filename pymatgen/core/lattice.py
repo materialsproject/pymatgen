@@ -1127,20 +1127,20 @@ class Lattice(MSONable):
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
 
-    def get_miller_index_from_sites(self, coords, coords_are_cartesian=True,
-                                    round_dp=4, verbose=True):
+    def get_miller_index_from_coords(self, coords, coords_are_cartesian=True,
+                                     round_dp=4, verbose=True):
         """
-        Get the Miller index of a plane from a set of sites.
+        Get the Miller index of a plane from a list of site coordinates.
 
-        A minimum of 3 sites are required. If more than 3 sites are given
-        the best plane that minimises the distance to all points will be
-        calculated.
+        A minimum of 3 sets of coordinates are required. If more than 3 sets of
+        coordinates are given, the best plane that minimises the distance to all
+        points will be calculated.
 
         Args:
-            coords (iterable): A list or numpy array of site coordinates. Can be
-                cartesian or fractional coordinates. If more than three sites
-                are provided, the best plane that minimises the distance to all
-                sites will be calculated.
+            coords (iterable): A list or numpy array of coordinates. Can be
+                cartesian or fractional coordinates. If more than three sets of
+                coordinates are provided, the best plane that minimises the
+                distance to all sites will be calculated.
             coords_are_cartesian (bool, optional): Whether the coordinates are
                 in cartesian space. If using fractional coordinates set to
                 False.
