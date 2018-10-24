@@ -6,7 +6,6 @@ from __future__ import division
 
 import warnings
 import numpy as np
-
 import matplotlib.pylab as plt
 
 from pymatgen import Composition
@@ -487,3 +486,60 @@ class InterfacialReactivity:
                  ' ({0})'.format(unit), energy1),
                 (self.c2_original.reduced_formula +
                  ' ({0})'.format(unit), energy2)]
+
+    @staticmethod
+    def get_chempot_correction(element, temp, pres):
+        """
+        Get the normalized correction term Δμ for chemical potential of a gas
+        phase consisting of element at given temperature and pressure,
+        referenced to that in the standard state (T_std = 298.15 K,
+        T_std = 1 bar). The gas phase is limited to be one of O2, N2, Cl2,
+        F2, H2. Calculation formula can be found in the documentation of
+        Materials Project website.
+
+        Args:
+            element (string): The string representing the element.
+            temp (float): The temperature of the gas phase.
+            pres (float): The pressure of the gas phase.
+
+        Returns:
+            The correction of chemical potential in eV/atom of the gas
+            phase at given temperature and pressure.
+        """
+        if element not in ["O", "N", "Cl", "F", "H"]:
+            return 0
+        std_temp = 298.15
+        std_pres = 1E5
+        ideal_gas_const = 8.3144598
+        # Cp and S at standard state in J/(K.mol). Data from
+        # https://janaf.nist.gov/tables/O-029.html
+        # https://janaf.nist.gov/tables/N-023.html
+        # https://janaf.nist.gov/tables/Cl-073.html
+        # https://janaf.nist.gov/tables/F-054.html
+        # https://janaf.nist.gov/tables/H-050.html
+        Cp_dict = {"O": 29.376,
+                   "N": 29.124,
+                   "Cl": 33.949,
+                   "F": 31.302,
+                   "H": 28.836}
+
+        S_dict = {"O": 205.147,
+                  "N": 191.609,
+                  "Cl": 223.079,
+                  "F": 202.789,
+                  "H": 130.680}
+        Cp_std = Cp_dict[element]
+        S_std = S_dict[element]
+        PV_correction = ideal_gas_const * temp * np.log(pres / std_pres)
+        TS_correction = - Cp_std * (temp * np.log(temp)
+                                    - std_temp * np.log(std_temp)) \
+                        + Cp_std * (temp - std_temp) * (1 + np.log(std_temp)) \
+                        - S_std * (temp - std_temp)
+
+        dG = PV_correction + TS_correction
+        # Convert to eV/molecule unit.
+        dG /= 1000 * InterfacialReactivity.EV_TO_KJ_PER_MOL
+        # Normalize by number of atoms in the gas molecule. For elements
+        # considered, the gas molecules are all diatomic.
+        dG /= 2
+        return dG
