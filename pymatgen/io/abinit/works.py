@@ -1645,11 +1645,7 @@ class GKKPWork(Work):
         For each q found a WFQ task is created and an EPH task computing the matrix elements
         """
         import abipy.abilab as abilab
-
-        #read the qpoints from the DDB file
-        ddb = abilab.abiopen(ddb_path)
-        q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
-        
+       
         #create file nodes
         den_file = FileNode(den_path)
         ddb_file = FileNode(ddb_path)
@@ -1670,13 +1666,17 @@ class GKKPWork(Work):
         new.wfkq_tasks.append(wfk_task)
         new.wfk_task = wfk_task
 
+        #read path and regular grid from DDB file
+        with abilab.abiopen(ddb_path) as ddb:
+            q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
+            ddb_ngqpt = ddb.guessed_ngqpt
+
         #if qpath is set we read a list of q-points in which to interpolate the DVDB file
         #the DVDB and DDB file have to correspond to a regular grid
         dvdb = dvdb_file
-        if qpath is not None:
-            #read ngqpt from ddb
-            with abilab.abiopen(ddb_path) as ddb:
-                ddb_ngqpt = ddb.guessed_ngqpt
+        if qpath is None:
+            qpath = q_frac_coords
+        else:
             interp_inp = inp.new_with_vars(optdriver=7, eph_task=-5, ddb_ngqpt=ddb_ngqpt,
                                            ph_nqpath=len(qpath), ph_qpath=qpath, prtphdos=0)
             dvdb = new.register_eph_task(interp_inp, deps={wfk_task: "WFK", ddb_file: "DDB", dvdb_file: "DVDB"}, manager=tm)
@@ -1701,7 +1701,7 @@ class GKKPWork(Work):
             new.wfkq_tasks.append(ddk_task)
 
         #for each of the q 
-        for qpt in q_frac_coords:
+        for qpt in qpath:
             is_gamma = np.sum(qpt ** 2) < 1e-12
             if is_gamma:
                 #We will create a link from WFK to WFQ on_ok
