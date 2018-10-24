@@ -1123,6 +1123,7 @@ class Lattice(MSONable):
             fc = np.array(np.round(fc), dtype=np.int)
             return np.sqrt(d2[0, 0]), fc
 
+        jimage = np.array(jimage)
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)
         return np.linalg.norm(mapped_vec), jimage
