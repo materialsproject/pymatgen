@@ -188,6 +188,18 @@ class SlabEntry(ComputedStructureEntry):
 
         # Set up
         ref_entries = [] if not ref_entries else ref_entries
+
+        # Check if appropriate ref_entries are present if the slab is non-stoichiometric
+        # TODO: There should be a way to identify which specific species are
+        # non-stoichiometric relative to the others in systems with more than 2 species
+        slab_comp = self.composition.as_dict()
+        ucell_entry_comp = ucell_entry.composition.reduced_composition.as_dict()
+        slab_clean_comp = Composition({el: slab_comp[el] for el in ucell_entry_comp.keys()})
+        if slab_clean_comp.reduced_composition != ucell_entry.composition.reduced_composition:
+            list_els = [list(entry.composition.as_dict().keys())[0] for entry in ref_entries]
+            if not any([el in list_els for el in ucell_entry.composition.as_dict().keys()]):
+                warnings.warn("Elemental references missing for the non-dopant species.")
+
         gamma = (Symbol("E_surf") - Symbol("Ebulk")) / (2 * Symbol("A"))
         ucell_comp = ucell_entry.composition
         ucell_reduced_comp = ucell_comp.reduced_composition
@@ -1306,12 +1318,9 @@ def entry_dict_from_list(all_slab_entries):
 
 class WorkFunctionAnalyzer(object):
     """
-    A class that post processes a task document of a vasp calculation (from
-        using drone.assimilate). Can calculate work function from the vasp
-        calculations and plot the potential along the c axis. This class
-        assumes that LVTOT=True (i.e. the LOCPOT file was generated) for a
-        slab calculation and it was insert into the task document along with
-        the other outputs.
+    A class used for calculating the work function
+        from a slab model and visualizing the behavior
+        of the local potential along the slab.
 
     .. attribute:: efermi
 

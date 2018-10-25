@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2018.9.30 documentation</title>
+    <title>pymatgen.analysis.graphs module &#8212; pymatgen 2018.10.18 documentation</title>
     <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -80,6 +80,12 @@
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.analysis.graphs.MolGraphSplitError">
+<em class="property">exception </em><code class="descname">MolGraphSplitError</code><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MolGraphSplitError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MolGraphSplitError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions.Exception</span></code></p>
 </dd></dl>
 
 <dl class="class">
@@ -201,6 +207,21 @@ to store graph information.</p>
 <p>attempt to break both (from_index, to_index) and, failing that,
 will attempt to break (to_index, from_index).
 :return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments">
+<code class="descname">build_unique_fragments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.build_unique_fragments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.build_unique_fragments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all possible fragment combinations of the MoleculeGraphs (in other
+words, all connected induced subgraphs)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -400,6 +421,24 @@ least have a “to_index” and “from_index” key, and can also have a
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to">
+<code class="descname">isomorphic_to</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.isomorphic_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.isomorphic_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the graphs of two MoleculeGraphs are isomorphic to one
+another. In order to prevent problems with misdirected edges, both
+graphs are converted into undirected nx.Graph objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> – MoleculeGraph object to be compared.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.name">
 <code class="descname">name</code><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.name" title="Permalink to this definition">¶</a></dt>
@@ -490,8 +529,8 @@ periodic boundary conditions.</li>
 <dl class="method">
 <dt id="pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes">
 <code class="descname">set_node_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.set_node_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.set_node_attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gives each node a “specie” and a “coords” attribute, updated with the
-current species and coordinates.</p>
+<dd><p>Replicates molecule site properties (specie, coords, etc.) in the
+MoleculeGraph.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -601,6 +640,31 @@ periodic boundary conditions.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.graphs.MoleculeGraph.with_edges">
+<em class="property">static </em><code class="descname">with_edges</code><span class="sig-paren">(</span><em>molecule</em>, <em>edges</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#MoleculeGraph.with_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.MoleculeGraph.with_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for MoleculeGraph, using pre-existing or pre-defined edges
+with optional edge parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>molecule</strong> – Molecule object</li>
+<li><strong>edges</strong> – dict representing the bonds of the functional
+group (format: {(u, v): props}, where props is a dictionary of
+properties, including weight. Props should be None if no
+additional properties are to be specified.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">mg, a MoleculeGraph</p>
 </td>
 </tr>
 </tbody>
@@ -1157,6 +1221,32 @@ the graph.</p>
 <p>‘maximum’, ‘median’, ‘mean’, ‘std_dev’</p>
 </dd></dl>
 
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.graphs.StructureGraph.with_edges">
+<em class="property">static </em><code class="descname">with_edges</code><span class="sig-paren">(</span><em>structure</em>, <em>edges</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for MoleculeGraph, using pre-existing or pre-defined edges
+with optional edge parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>molecule</strong> – Molecule object</li>
+<li><strong>edges</strong> – dict representing the bonds of the functional
+group (format: {(from_index, to_index, from_image, to_image): props},
+where props is a dictionary of properties, including weight.
+Props should be None if no additional properties are to be
+specified.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">sg, a StructureGraph</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="classmethod">
 <dt id="pymatgen.analysis.graphs.StructureGraph.with_empty_graph">
 <em class="property">classmethod </em><code class="descname">with_empty_graph</code><span class="sig-paren">(</span><em>structure</em>, <em>name=u'bonds'</em>, <em>edge_weight_name=None</em>, <em>edge_weight_units=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pymatgen/analysis/graphs.html#StructureGraph.with_empty_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.graphs.StructureGraph.with_empty_graph" title="Permalink to this definition">¶</a></dt>
@@ -1247,7 +1337,7 @@ from :Class: <cite>pymatgen.analysis.local_env</cite>.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.9.30 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">pymatgen 2018.10.18 documentation</a> &#187;</li> 
       </ul>
     </div>
 

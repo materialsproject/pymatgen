@@ -205,11 +205,26 @@ class Substitution(Defect):
         defect_structure = self.bulk_structure.copy()
         defect_structure.make_supercell(supercell)
 
+        # consider modifying velocity property to make sure defect site is decorated
+        # consistently with bulk structure for final defect_structure
+        defect_properties = self.site.properties.copy()
+        if ('velocities' in self.bulk_structure.site_properties) and \
+            'velocities' not in defect_properties:
+            if all( vel == self.bulk_structure.site_properties['velocities'][0]
+                    for vel in self.bulk_structure.site_properties['velocities']):
+                defect_properties['velocities'] = self.bulk_structure.site_properties['velocities'][0]
+            else:
+                raise ValueError("No velocity property specified for defect site and "
+                                 "bulk_structure velocities are not homogeneous. Please specify this "
+                                 "property within the initialized defect_site object.")
+
         #create a trivial defect structure to find where supercell transformation moves the lattice
+        site_properties_for_fake_struct = {prop: [val] for prop,val in defect_properties.items()}
         struct_for_defect_site = Structure( self.bulk_structure.copy().lattice,
                                              [self.site.specie],
                                              [self.site.frac_coords],
-                                             to_unit_cell=True)
+                                             to_unit_cell=True,
+                                             site_properties = site_properties_for_fake_struct)
         struct_for_defect_site.make_supercell(supercell)
         defect_site = struct_for_defect_site[0]
 
@@ -218,7 +233,8 @@ class Substitution(Defect):
         defindex = poss_deflist[0][2]
 
         subsite = defect_structure.pop(defindex)
-        defect_structure.append(self.site.specie.symbol, subsite.coords, coords_are_cartesian=True)
+        defect_structure.append(self.site.specie.symbol, subsite.coords, coords_are_cartesian=True,
+                                properties = defect_site.properties)
         defect_structure.set_charge(self.charge)
         return defect_structure
 
@@ -287,15 +303,31 @@ class Interstitial(Defect):
         defect_structure = self.bulk_structure.copy()
         defect_structure.make_supercell(supercell)
 
-        #create a trivial defect structure to find where supercell transformation moves the lattice
+        # consider modifying velocity property to make sure defect site is decorated
+        # consistently with bulk structure for final defect_structure
+        defect_properties = self.site.properties.copy()
+        if ('velocities' in self.bulk_structure.site_properties) and \
+            'velocities' not in defect_properties:
+            if all( vel == self.bulk_structure.site_properties['velocities'][0]
+                    for vel in self.bulk_structure.site_properties['velocities']):
+                defect_properties['velocities'] = self.bulk_structure.site_properties['velocities'][0]
+            else:
+                raise ValueError("No velocity property specified for defect site and "
+                                 "bulk_structure velocities are not homogeneous. Please specify this "
+                                 "property within the initialized defect_site object.")
+
+        #create a trivial defect structure to find where supercell transformation moves the defect site
+        site_properties_for_fake_struct = {prop: [val] for prop,val in defect_properties.items()}
         struct_for_defect_site = Structure( self.bulk_structure.copy().lattice,
                                              [self.site.specie],
                                              [self.site.frac_coords],
-                                             to_unit_cell=True)
+                                             to_unit_cell=True,
+                                             site_properties = site_properties_for_fake_struct)
         struct_for_defect_site.make_supercell(supercell)
         defect_site = struct_for_defect_site[0]
 
-        defect_structure.append(self.site.specie.symbol, defect_site.coords, coords_are_cartesian=True)
+        defect_structure.append(self.site.specie.symbol, defect_site.coords, coords_are_cartesian=True,
+                                properties = defect_site.properties)
         defect_structure.set_charge(self.charge)
         return defect_structure
 
