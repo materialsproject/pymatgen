@@ -416,6 +416,72 @@ class InterfaceReactionTest(unittest.TestCase):
                             '{0} expected but gets {1}'.format(
                                 energy_lst(j), energy_lst(i)))
 
+    def test_get_chempot_correction(self):
+        # test data from fig. 6 in ref:
+        # Prediction of A2BX4 metal-chalcogenide compounds via
+        # first-principles thermodynamics, PHYSICAL REVIEW B 86, 014109 (2012)
+
+        # test pressure effect.
+        actual = InterfacialReactivity.get_chempot_correction("O", 298.15,
+                                                              100E5)
+        expect = 0.05916
+        self.assertTrue(np.isclose(actual, expect, atol=1E-2),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect,
+                                                                  actual))
+        # test temperature effect.
+        actual_2 = InterfacialReactivity.get_chempot_correction("O", 1000,
+                                                              1E5)
+        expect_2 = -0.82352
+        self.assertTrue(np.isclose(actual_2, expect_2, atol=1E-2),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_2,
+                                                                  actual_2))
+
+        actual_3 = InterfacialReactivity.get_chempot_correction("O", 500,
+                                                              1E5)
+        expect_3 = -0.223
+        self.assertTrue(np.isclose(actual_3, expect_3, atol=1E-2),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_3,
+                                                                  actual_3))
+        # test mixed effect.
+        actual_4 = InterfacialReactivity.get_chempot_correction("O", 1000,
+                                                              1E-25)
+        expect_4 = -3.800
+        self.assertTrue(np.isclose(actual_4, expect_4, atol=1E-2),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_4,
+                                                                  actual_4))
+        actual_5 = InterfacialReactivity.get_chempot_correction("O", 1250,
+                                                              1E-25)
+        expect_5 = -4.86
+        self.assertTrue(np.isclose(actual_5, expect_5, atol=1E-2),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_5,
+                                                                  actual_5))
+        actual_6 = InterfacialReactivity.get_chempot_correction("O", 1500,
+                                                              1E-25)
+        expect_6 = -5.928
+        self.assertTrue(np.isclose(actual_6, expect_6, atol=1E-2),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_6,
+                                                                  actual_6))
+        actual_7 = InterfacialReactivity.get_chempot_correction("O", 1000,
+                                                              1E-15)
+        expect_7 = -2.808
+        self.assertTrue(np.isclose(actual_7, expect_7, atol=1E-2),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_7,
+                                                                  actual_7))
+        # test non-gas phase.
+        actual_8 = InterfacialReactivity.get_chempot_correction("Li", 1000,
+                                                              1E15)
+        expect_8 = 0
+        self.assertTrue(np.isclose(actual_8, expect_8, atol=1E-5),
+                        "get_chempot_correction gets "
+                        "error, {0} expected but gets {1}".format(expect_8,
+                                                                  actual_8))
 
 if __name__ == '__main__':
     unittest.main()
