@@ -25,7 +25,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.outputs import Chgcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.phase_diagram import get_facets
-from pymatgen.util.coord import pbc_diff, pbc_shortest_vectors
+from pymatgen.util.coord import pbc_diff
 from pymatgen.vis.structure_vtk import StructureVis
 from monty.dev import requires
 from copy import deepcopy
@@ -1158,9 +1158,10 @@ class ChargeDensityAnalyzer(object):
 
         return structure
 
-    def get_int_den_at_sites_ordered(self, r=0.4):
+    def sort_sites_by_integrated_chg(self, r=0.4):
         """
         Get the integrated charge density around each site in a given radius
+        Note that
         Args:
             r (float): radius of sphere around each site to integrate
         """
@@ -1169,16 +1170,13 @@ class ChargeDensityAnalyzer(object):
             self.get_local_extrema()
         int_den = []
         for isite in self.extrema_coords:
-            mask = self._create_mask(isite, r)
+            mask = self._dist_mat(isite) < r
             chg_in_sphere = np.sum(self.chgcar.data['total'] * mask) / mask.size
             int_den.append(chg_in_sphere)
         self._extrema_df['Int. Charge Density'] = int_den
         self._extrema_df.sort_values(by=['Int. Charge Density'], inplace=True)
         self._extrema_df.reset_index(drop=True, inplace=True)
 
-    def _create_mask(self, pos_frac, max_dist=1.0):
-        mask = self._dist_mat(pos_frac) < np.sqrt(max_dist)
-        return mask
 
     def _dist_mat(self, pos_frac):
         # return a matrix that contains the distances
@@ -1186,10 +1184,9 @@ class ChargeDensityAnalyzer(object):
         bb = np.linspace(0, 1, len(self.chgcar.get_axis_grid(1)), endpoint=False)
         cc = np.linspace(0, 1, len(self.chgcar.get_axis_grid(2)), endpoint=False)
         AA, BB, CC = np.meshgrid(aa, bb, cc, indexing='ij')
-        dist_from_pos = pbc_shortest_vectors(self.chgcar.structure.lattice,
+        dist_from_pos = self.chgcar.structure.lattice.get_all_distances(
                                              fcoords1=np.vstack([AA.flatten(), BB.flatten(), CC.flatten()]).T,
-                                             fcoords2=pos_frac,
-                                             return_d2=True)[1]  # the distance^2 is stored in the [1] index
+                                             fcoords2=pos_frac)
         return dist_from_pos.reshape(AA.shape)
 
 
