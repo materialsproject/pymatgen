@@ -721,12 +721,10 @@ class DefectBuilder(Builder):
         Args:
             items ([[dict]]): a list of list of defect dictionaries to update
         """
-        items = [i for i in filter(None, chain.from_iterable(items)) if self.valid(i)]
-        if len(items) > 0:
-            self.logger.info("Updating {} defects".format(len(items)))
-            self.defects.update(docs=items)
-        else:
-            self.logger.info("No items to update")
+        self.logger.info("Updating defect object {}:{} {} from task-id {}".format(items.defect.bulk_structure.composition,
+                                                                          items.defect.name, items.defect.charge,
+                                                                          items.parameters['task_level_metadata']['defect_taskdb_task_id']))
+        self.defects.update(docs=items)
 
     def ensure_indicies(self):
         """
