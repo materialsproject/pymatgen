@@ -7,21 +7,24 @@ def get_level_projection_amounts(defect_path, bulk_path, spinpol = False, bands_
     """
     A simple container for using pawpyseed to project bands onto host bands
 
-    :param defect_path:
-    :param bulk_path:
-    :param bands_to_project:
-    :param return_bulk_object:
-    :return:
+    :param defect_path: (str) path to defect VASP output
+    :param bulk_path: (str) path to bulk VASP output OR (Wavefunction) bulk Wavefunction
+    :param spinpol: (bool) Whether to calculate projections separately for spin up and spin down
+    :param bands_to_project: (list of int) bands to project. If None, all bands are projected
+    :param return_bulk_object: (bool) Whether to return the bulk Wavefunction object
+    :param unsym: (bool) Whether to desymmetrize the defect and bulk
+    :return: proj_amounts: (list) projection values
+            basis (if return_bulk_object): Wavefunction object with bulk
     """
 
     mb = True
     if type(bulk_path) == str:
         #MAKE BULK basis thing
-        bulk_basis = Wavefunction.from_directory(bulk_path, False)
+        bulk_basis = Wavefunction.from_atomate_directory(bulk_path, False)
         mb = False
     else:
         bulk_basis = bulk_path
-    defect = Wavefunction.from_directory(defect_path, False)
+    defect = Wavefunction.from_atomate_directory(defect_path, False)
 
     projector = Projector(wf = defect, basis = bulk_basis, projector_list = None,
                          unsym_basis = unsym and mb, unsym_wf = unsym, pseudo = False)
