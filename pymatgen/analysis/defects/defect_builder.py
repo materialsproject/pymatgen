@@ -348,6 +348,7 @@ from pymatgen.analysis.defects.defect_compatibility import DefectCompatibility
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.defects.core import Interstitial, DefectEntry
 from pymatgen import MPRester
+from pymatgen.electronic_structure.bandstructure import BandStructure
 
 from maggma.builder import Builder
 
@@ -589,6 +590,9 @@ class DefectBuilder(Builder):
         if mpid:
             #TODO: NEED to be smarter about use of +U etc in the MP gga band structure calculations...
             bs = bulk_task['MP-gga-BScalc']
+            if type(bs) == dict:
+                bs = BandStructure.from_dict( bs)
+
             parameters['task_level_metadata'].update( {'MP_gga_BScalc_data':
                                                            bs.get_band_gap().copy()} ) #contains gap kpt transition
             cbm = bs.get_cbm()['energy']
