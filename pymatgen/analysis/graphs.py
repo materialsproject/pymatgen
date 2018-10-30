@@ -137,6 +137,61 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @staticmethod
+    def with_edges(structure, edges):
+        """
+        Constructor for MoleculeGraph, using pre-existing or pre-defined edges
+        with optional edge parameters.
+
+        :param molecule: Molecule object
+        :param edges: dict representing the bonds of the functional
+                group (format: {(from_index, to_index, from_image, to_image): props},
+                where props is a dictionary of properties, including weight.
+                Props should be None if no additional properties are to be
+                specified.
+        :return: sg, a StructureGraph
+        """
+
+        sg = StructureGraph.with_empty_graph(structure, name="bonds",
+                                             edge_weight_name="weight",
+                                             edge_weight_units="")
+
+        for edge, props in edges.items():
+
+            try:
+                from_index = edge[0]
+                to_index = edge[1]
+                from_image = edge[2]
+                to_image = edge[3]
+            except TypeError:
+                raise ValueError("Edges must be given as (from_index, to_index,"
+                                 " from_image, to_image) tuples")
+
+            if props is not None:
+                if "weight" in props.keys():
+                    weight = props["weight"]
+                    del props["weight"]
+                else:
+                    weight = None
+
+                if len(props.items()) == 0:
+                    props = None
+            else:
+                weight = None
+
+            nodes = sg.graph.nodes
+            if not (from_index in nodes and to_index in nodes):
+                raise ValueError("Edges cannot be added if nodes are not"
+                                 " present in the graph. Please check your"
+                                 " indices.")
+
+            sg.add_edge(from_index, to_index, from_jimage=from_image,
+                        to_jimage=to_image, weight=weight,
+                        edge_properties=props)
+
+        sg.set_node_attributes()
+        return sg
+
+    @staticmethod
     def with_local_env_strategy(structure, strategy):
         """
         Constructor for StructureGraph, using a strategy
@@ -1454,6 +1509,8 @@ class MoleculeGraph(MSONable):
             if 'from_jimage' in d:
                 d['from_jimage'] = tuple(d['from_jimage'])
 
+        self.set_node_attributes()
+
     @classmethod
     def with_empty_graph(cls, molecule, name="bonds",
                          edge_weight_name=None,
@@ -1489,6 +1546,57 @@ class MoleculeGraph(MSONable):
         graph_data = json_graph.adjacency_data(graph)
 
         return cls(molecule, graph_data=graph_data)
+
+    @staticmethod
+    def with_edges(molecule, edges):
+        """
+        Constructor for MoleculeGraph, using pre-existing or pre-defined edges
+        with optional edge parameters.
+
+        :param molecule: Molecule object
+        :param edges: dict representing the bonds of the functional
+                group (format: {(u, v): props}, where props is a dictionary of
+                properties, including weight. Props should be None if no
+                additional properties are to be specified.
+        :return: mg, a MoleculeGraph
+        """
+
+        mg = MoleculeGraph.with_empty_graph(molecule, name="bonds",
+                                            edge_weight_name="weight",
+                                            edge_weight_units="")
+
+        for edge, props in edges.items():
+
+            try:
+                from_index = edge[0]
+                to_index = edge[1]
+            except TypeError:
+                raise ValueError("Edges must be given as (from_index, to_index)"
+                                 "tuples")
+
+            if props is not None:
+                if "weight" in props.keys():
+                    weight = props["weight"]
+                    del props["weight"]
+                else:
+                    weight = None
+
+                if len(props.items()) == 0:
+                    props = None
+            else:
+                weight = None
+
+            nodes = mg.graph.nodes
+            if not (from_index in nodes and to_index in nodes):
+                raise ValueError("Edges cannot be added if nodes are not"
+                                 " present in the graph. Please check your"
+                                 " indices.")
+
+            mg.add_edge(from_index, to_index, weight=weight,
+                        edge_properties=props)
+
+        mg.set_node_attributes()
+        return mg
 
     @staticmethod
     def with_local_env_strategy(molecule, strategy, reorder=True,
@@ -1557,6 +1665,7 @@ class MoleculeGraph(MSONable):
         for duplicate in duplicates:
             mg.graph.remove_edge(duplicate[0], duplicate[1], key=duplicate[2])
 
+        mg.set_node_attributes()
         return mg
 
     @property
@@ -1936,19 +2045,17 @@ class MoleculeGraph(MSONable):
             species = nx.get_node_attributes(remapped, "specie")
             coords = nx.get_node_attributes(remapped, "coords")
 
-            edges = []
+            edges = {}
 
             for from_index, to_index, key in remapped.edges:
                 edge_props = fragment.get_edge_data(from_index, to_index, key=key)
 
-                edges.append((from_index, to_index, edge_props))
+                edges[(from_index, to_index)] = edge_props
 
-            unique_mol_graphs.append(build_MoleculeGraph(Molecule(species=species, 
-                                                                  coords=coords, 
-                                                                  charge=self.molecule.charge),
-                                                         edges=edges,
-                                                         reorder=False,
-                                                         extend_structure=False))
+            unique_mol_graphs.append(self.with_edges(Molecule(species=species,
+                                                              coords=coords,
+                                                              charge=self.molecule.charge),
+                                                     edges))
         return unique_mol_graphs
 
     def substitute_group(self, index, func_grp, strategy, bond_order=1,
@@ -2667,63 +2774,3 @@ class MoleculeGraph(MSONable):
             'both': edges.intersection(edges_other),
             'dist': jaccard_dist
         }
-
-
-def build_MoleculeGraph(molecule, edges=None, strategy=None,
-                        strategy_params=None, reorder=True,
-                        extend_structure=True):
-    """
-    General out-of-class constructor for MoleculeGraph.
-
-    :param molecule: pymatgen.core.Molecule object.
-    :param edges: List of tuples (from, to, properties) representing edges in
-            the graph. Default None.
-    :param strat: an instance of a
-            :Class: `pymatgen.analysis.local_env.NearNeighbors` object. Default
-            None.
-    :param strategy_params: dict of parameters to be passed to NearNeighbors
-            strategy.
-    :param reorder: bool, representing if graph nodes need to be reordered
-            following the application of the local_env strategy
-    :param extend_structure: If True (default), then a large artificial box
-            will be placed around the Molecule, because some strategies assume
-            periodic boundary conditions.
-    :return: MoleculeGraph object.
-    """
-
-    if edges is None:
-        if strategy is not None:
-            if strategy_params is None:
-                strategy_params = {}
-            strat = strategy(**strategy_params)
-            mol_graph = MoleculeGraph.with_local_env_strategy(molecule, strat,
-                                                              reorder=reorder,
-                                                              extend_structure=extend_structure)
-        else:
-            raise ValueError("Must supply either edge list or"
-                             " pymatgen.analysis.local_env strategy.")
-    else:
-        mol_graph = MoleculeGraph.with_empty_graph(molecule)
-        for from_index, to_index, properties in edges:
-            if properties is not None:
-                if "weight" in properties.keys():
-                    weight = properties["weight"]
-                    del properties["weight"]
-                else:
-                    weight = None
-
-                if len(properties.items()) == 0:
-                    properties = None
-            else:
-                weight = None
-
-            nodes = mol_graph.graph.nodes
-            if not (from_index in nodes and to_index in nodes):
-                raise ValueError("Edges cannot be added if nodes are not"
-                                 " present in the graph. Please check your"
-                                 " indices.")
-            mol_graph.add_edge(from_index, to_index, weight=weight,
-                               edge_properties=properties)
-
-    mol_graph.set_node_attributes()
-    return mol_graph
