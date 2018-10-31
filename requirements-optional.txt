@@ -11,5 +11,5 @@ fdint==2.0.2
 phonopy==1.11.12.121
 networkx==2.1
 pygraphviz==1.3.1
-h5py==1.7.1
+h5py==2.7.0
 #BoltzTraP2==18.9.1
