@@ -640,6 +640,13 @@ Cartesian
         kpoints = Kpoints.automatic_density(s, 500)
         self.assertEqual(kpoints.kpts, [[1, 1, 1]])
         self.assertEqual(kpoints.style, Kpoints.supported_modes.Gamma)
+        kpoints = Kpoints.from_string("""k-point mesh 
+0
+G
+10 10 10
+0.5 0.5 0.5
+""")
+        self.assertArrayAlmostEqual(kpoints.kpts_shift, [0.5, 0.5, 0.5])
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])

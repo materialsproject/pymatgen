@@ -18,6 +18,8 @@ install:
   - export CFLAGS=$CFLAGS" -std=gnu++11"
   - travis_wait pip install BoltzTraP2
   - export CFLAGS=${CFLAGS%% -std=gnu++11}
+  - >-
+    echo "backend: Agg" > matplotlibrc
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
