@@ -341,7 +341,7 @@ from datetime import datetime
 from itertools import chain
 import numpy as np
 
-from monty.json import MontyDecoder
+from monty.json import MontyDecoder, jsanitize
 
 from pymatgen import Structure
 from pymatgen.analysis.defects.defect_compatibility import DefectCompatibility
@@ -408,7 +408,8 @@ class DefectBuilder(Builder):
         # defect_store was last updated
         q = dict(self.query)
         q["state"] = "successful"
-        q.update(self.defects.lu_filter(self.defects))
+        # q.update(self.defects.lu_filter(self.defects)) #This wasnt working because DefectEntries dont have obvious way of doing this? (tried parameters.last_updated but this broke because parameters is a property and last_updated is a key)
+        q.update({'task_id': {'$nin': self.defects.distinct('entry_id')}}) #dont redo previous tasks...
         q.update({'transformations.history.0.@module':
                       {'$in': ['pymatgen.transformations.defect_transformations']}})
         defect_tasks = list(self.tasks.query(criteria=q,
@@ -561,8 +562,8 @@ class DefectBuilder(Builder):
                                                                        bulk_task['task_id']))
 
         #load INCAR, KPOINTS, POTCAR and task_id (for both bulk and defect)
-        potcar_summary = {'pot_spec': set([potelt["titel"] for potelt in item['input']['potcar_spec']]),
-                            'pot_labels': set(item['input']['pseudo_potential']['labels'][:]),
+        potcar_summary = {'pot_spec': list([potelt["titel"] for potelt in item['input']['potcar_spec']]),
+                            'pot_labels': list(item['input']['pseudo_potential']['labels'][:]),
                             'pot_type': item['input']['pseudo_potential']['pot_type'],
                             'functional': item['input']['pseudo_potential']['functional']} #note bulk has these potcar values also, other wise it would not get to process_items
         dincar = item["input"]["incar"].copy()
@@ -580,7 +581,7 @@ class DefectBuilder(Builder):
         bulk_dir_name = bulk_task['calcs_reversed'][0]['dir_name']
 
         parameters['task_level_metadata'].update( {'defect_dir_name': dir_name, 'bulk_dir_name': bulk_dir_name,
-                 'defect_taskdb_task_id': item['task_id'], 'bulk_taskdb_task_id': bulk_task['task_id'],
+                                                   'bulk_taskdb_task_id': bulk_task['task_id'],
                  'potcar_summary': potcar_summary.copy(), 'incar_calctype_summary': dincar_reduced.copy(),
                  'defect_incar': dincar.copy(), 'bulk_incar': bincar.copy(),
                  'defect_kpoints': d_kpoints.copy(), 'bulk_kpoints': b_kpoints.copy(),
@@ -706,13 +707,14 @@ class DefectBuilder(Builder):
 
 
         defect_entry = DefectEntry( defect, parameters['defect_energy'] - parameters['bulk_energy'],
-                                    corrections = {}, parameters = parameters)
+                                    corrections = {}, parameters = parameters, entry_id= item['task_id'])
 
         defect_entry = self.compatibility.process_entry( defect_entry)
+        defect_entry.parameters['last_updated'] = datetime.utcnow()
 
         #add additional tags as desired...
 
-        return defect_entry
+        return defect_entry.as_dict()
 
     def update_targets(self, items):
         """
@@ -721,7 +723,10 @@ class DefectBuilder(Builder):
         Args:
             items ([[dict]]): a list of list of defect dictionaries to update
         """
-        self.defects.update(docs=items)
+
+        self.logger.info("Updating {} defect documents".format(len(items)))
+
+        self.defects.update(items, update_lu=False, key='entry_id')
 
     def ensure_indicies(self):
         """
@@ -730,12 +735,12 @@ class DefectBuilder(Builder):
         """
         # Search indicies for tasks
         self.tasks.ensure_index(self.tasks.key, unique=True)
-        self.tasks.ensure_index(self.tasks.lu_field)
+        # self.tasks.ensure_index(self.tasks.lu_field)
         self.tasks.ensure_index("chemsys")
 
         # Search indicies for defects
         self.defects.ensure_index(self.defects.key, unique=True)
-        self.defects.ensure_index(self.defects.lu_field)
+        # self.defects.ensure_index(self.defects.lu_field)
         self.defects.ensure_index("chemsys")
 
     def load_defect_task(self, defect_task, additional_tasks):
