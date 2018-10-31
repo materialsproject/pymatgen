@@ -1216,7 +1216,7 @@ class Kpoints(MSONable):
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
-                    kpts_shift = [int(i) for i in lines[4].split()]
+                    kpts_shift = [float(i) for i in lines[4].split()]
                 except ValueError:
                     pass
             return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
