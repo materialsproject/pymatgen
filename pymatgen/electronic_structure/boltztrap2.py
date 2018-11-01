@@ -189,6 +189,7 @@ class VasprunLoader:
             # TODO: read mommat from vasprun
             self.mommat = None
             self.magmom = None
+            self.spin = None
             self.fermi = vrun_obj.efermi * units.eV
             self.nelect = vrun_obj.parameters['NELECT']
             self.UCvol = self.structure.volume * units.Angstrom ** 3
@@ -217,13 +218,13 @@ class VasprunLoader:
         # for iband in range(len(self.ebands)):
         # BoltzTraP2.misc.info(iband, bandmin[iband], bandmax[iband], (
         # (bandmin[iband] < emax) & (bandmax[iband] > emin)))
-        self.ebands = self.ebands[nemin:nemax+1]
+        self.ebands = self.ebands[nemin:nemax]
 
         if isinstance(self.proj, np.ndarray):
-            self.proj = self.proj[:,nemin:nemax+1,:,:]
+            self.proj = self.proj[:,nemin:nemax,:,:]
             
         if self.mommat is not None:
-            self.mommat = self.mommat[:, nemin:nemax+1, :]
+            self.mommat = self.mommat[:, nemin:nemax, :]
         # Removing bands may change the number of valence electrons
         if self.nelect is not None:
             self.nelect -= self.dosweight * nemin
@@ -734,7 +735,7 @@ def merge_up_down_doses(dos_up,dos_dn):
     cdos = Dos(dos_up.efermi, dos_up.energies,
                {Spin.up: dos_up.densities[Spin.up], Spin.down: dos_dn.densities[Spin.down]})
     
-    if isinstance(dos_up.pdos,dict):
+    if hasattr(dos_up,'pdos') and hasattr(dos_dn,'pdos'):
         pdoss = {}
         for site in dos_up.pdos:
             pdoss.setdefault(site,{})
