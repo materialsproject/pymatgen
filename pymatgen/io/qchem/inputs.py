@@ -277,7 +277,7 @@ class QCInput(MSONable):
         patterns = {
             "read": r"^\s*\$molecule\n\s*(read)",
             "charge": r"^\s*\$molecule\n\s*((?:\-)*\d+)\s+\d",
-            "spin_mult": r"^\s*\$molecule\n\s*\d+\s*(\d)"
+            "spin_mult": r"^\s*\$molecule\n\s(?:\-)*\d+\s*(\d)"
         }
         matches = read_pattern(string, patterns)
         if "read" in matches.keys():
