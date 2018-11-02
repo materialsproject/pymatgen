@@ -222,7 +222,7 @@ class InsertionElectrode(AbstractElectrode):
         data = []
         for pair in self._select_in_voltage_range(min_voltage, max_voltage):
             if pair.muO2_discharge is not None:
-                data.append(pair.pair.muO2_discharge)
+                data.append(pair.muO2_discharge)
             if pair.muO2_charge is not None:
                 data.append(pair.muO2_charge)
         return max(data) if len(data) > 0 else None
@@ -244,7 +244,7 @@ class InsertionElectrode(AbstractElectrode):
         data = []
         for pair in self._select_in_voltage_range(min_voltage, max_voltage):
             if pair.pair.muO2_discharge is not None:
-                data.append(pair.pair.muO2_discharge)
+                data.append(pair.muO2_discharge)
             if pair.muO2_charge is not None:
                 data.append(pair.muO2_charge)
         return min(data) if len(data) > 0 else None
@@ -325,7 +325,9 @@ class InsertionElectrode(AbstractElectrode):
              "nsteps": self.num_steps,
              "framework": self._vpairs[0].framework.to_data_dict,
              "formula_charge": chg_comp.reduced_formula,
+             "id_charge": self.fully_charged_entry.entry_id,
              "formula_discharge": dischg_comp.reduced_formula,
+             "id_discharge": self.fully_discharged_entry.entry_id,
              "fracA_charge": chg_comp.get_atomic_fraction(ion),
              "fracA_discharge": dischg_comp.get_atomic_fraction(ion),
              "max_instability": self.get_max_instability(),
