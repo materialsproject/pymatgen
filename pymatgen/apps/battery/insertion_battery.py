@@ -204,7 +204,7 @@ class InsertionElectrode(AbstractElectrode):
                 data.append(pair.decomp_e_charge)
             if pair.decomp_e_discharge is not None:
                 data.append(pair.decomp_e_discharge)
-        return min(data, key=lambda x: x['chempot']) if len(data) > 0 else None
+        return min(data) if len(data) > 0 else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
         """
@@ -243,11 +243,11 @@ class InsertionElectrode(AbstractElectrode):
         """
         data = []
         for pair in self._select_in_voltage_range(min_voltage, max_voltage):
-            if pair.muO2_discharge is not None:
-                data.extend([d['chempot'] for d in pair.muO2_discharge])
-            if pair.muO2_charge is not None:
-                data.extend([d['chempot'] for d in pair.muO2_discharge])
-        return min(data) if len(data) > 0 else None
+            if pair.decomp_e_charge is not None:
+                data.append(pair.decomp_e_charge)
+            if pair.decomp_e_discharge is not None:
+                data.append(pair.decomp_e_discharge)
+        return min(data, key=lambda x: x['chempot']) if len(data) > 0 else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
         """
