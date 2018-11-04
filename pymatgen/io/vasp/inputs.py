@@ -1552,6 +1552,10 @@ class PotcarSingle(object):
 
     @property
     def electron_configuration(self):
+        if not self.nelectrons.is_integer():
+            warnings.warn("POTCAR has non-integer charge, "
+                          "electron configuration not well-defined.")
+            return None
         el = Element.from_Z(self.atomic_no)
         full_config = el.full_electronic_structure
         nelect = self.nelectrons
