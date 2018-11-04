@@ -204,7 +204,7 @@ class InsertionElectrode(AbstractElectrode):
                 data.append(pair.decomp_e_charge)
             if pair.decomp_e_discharge is not None:
                 data.append(pair.decomp_e_discharge)
-        return min(data, key=lambda x: x['chempot']) if len(data) > 0 else None
+        return min(data) if len(data) > 0 else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
         """
