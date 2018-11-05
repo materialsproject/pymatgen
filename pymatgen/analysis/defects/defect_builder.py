@@ -735,7 +735,7 @@ class DefectBuilder(Builder):
 
         from monty.serialization import dumpfn
         dumpfn( defect_entry.as_dict(), 'test_defect_entry.json')
-        print(' DUMPED THIS')
+        print('DUMPED THIS')
 
         return defect_entry.as_dict()
 
@@ -744,12 +744,12 @@ class DefectBuilder(Builder):
         Inserts the defect docs into the defect collection
 
         Args:
-            items ([[dict]]): a list of list of defect dictionaries to update
+            items ([dict]): a list of defect entries as dictionaries
         """
 
         self.logger.info("Updating {} defect documents".format(len(items)))
 
-        self.defects.update(items, update_lu=False, key='entry_id')
+        self.defects.update(items, update_lu=False, key='entry_id', ordered=False)
 
     def ensure_indicies(self):
         """
