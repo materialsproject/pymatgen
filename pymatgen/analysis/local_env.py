@@ -3370,6 +3370,15 @@ class CrystalNN(NearNeighbors):
 
     @staticmethod
     def _get_default_radius(site):
+        """
+        An internal method to get a "default" covalent/element radius
+
+        Args:
+            site: (Site)
+
+        Returns:
+            Covalent radius of element on site, or Atomic radius if unavailable
+        """
         try:
             return CovalentRadius.radius[site.specie.symbol]
         except:
@@ -3379,22 +3388,26 @@ class CrystalNN(NearNeighbors):
     @staticmethod
     def _get_radius(site):
         """
-        An internal method to get the expected radius for a site.
+        An internal method to get the expected radius for a site with
+        oxidation state.
         Args:
             site: (Site)
 
         Returns:
-            Covalent radius of element on site, or Atomic radius if unavailable
+            Oxidation-state dependent radius: ionic, covalent, or atomic.
+            Returns 0 if no oxidation state or appropriate radius is found.
         """
         if hasattr(site.specie, 'oxi_state'):
             el = site.specie.element
             oxi = site.specie.oxi_state
+
             if oxi == 0:
                 return CrystalNN._get_default_radius(site)
 
             elif oxi in el.ionic_radii:
                 return el.ionic_radii[oxi]
 
+            # e.g., oxi = 2.667, average together 2+ and 3+ radii
             elif int(math.floor(oxi)) in el.ionic_radii and \
                     int(math.ceil(oxi)) in el.ionic_radii:
                 oxi_low = el.ionic_radii[int(math.floor(oxi))]
@@ -3409,10 +3422,9 @@ class CrystalNN(NearNeighbors):
                 return el.average_anionic_radius
 
         else:
-            warnings.warn("CrystalNN: distance cutoffs but no oxidation states "
-                          "set on sites! We strongly recommend you set "
-                          "oxidation states, especially if using default "
-                          "distance cutoff parameters.")
+            warnings.warn("CrystalNN: distance cutoffs set but no oxidation "
+                          "states specified on sites! For better results, set "
+                          "the site oxidation states in the structure.")
         return 0
 
     @staticmethod
