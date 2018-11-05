@@ -622,8 +622,27 @@ class DefectBuilder(Builder):
         defect = MontyDecoder().process_decoded( defect)
         scaling_matrix = MontyDecoder().process_decoded( item['transformations']['history'][0]['scaling_matrix'])
         initial_defect_structure = defect.generate_defect_structure(scaling_matrix)
-        initial_defect_structure = self.reorder_structure(initial_defect_structure, final_defect_structure)
         defect_energy = item['output']['energy']
+        try:
+            initial_defect_structure = self.reorder_structure(initial_defect_structure, final_defect_structure)
+            parameters.update({'stdrd_init_to_final_structure_match': True})
+        except:
+            #above can fail in cases of large relaxation. If this is case, then can sometimes rely on input.structure
+            #for initial_defect_structure...this can cause minor problems if the defect required re-running...
+            self.logger.debug("WARNING: had issue with reordering_structure from the defect structure "
+                              "description. Switching to use of input.structure and confirming that "
+                              "species are identical and proceeding...Note that this can possibly cause "
+                              "problems with potential alignment or structure analysis later on")
+
+            initial_defect_structure = item['input']['structure']
+            if type( initial_defect_structure) != Structure:
+                initial_defect_structure = Structure.from_dict(initial_defect_structure)
+            for index, u, v in zip(range(len(initial_defect_structure)),
+                                   initial_defect_structure, final_defect_structure):
+                if u.specie != v.specie:
+                    raise ValueError("Could not match index {}. {} != {}".format(index, u, v))
+
+            parameters.update({'stdrd_init_to_final_structure_match': False})
 
         parameters.update({'defect_energy': defect_energy,
                            'final_defect_structure': final_defect_structure,
@@ -713,6 +732,10 @@ class DefectBuilder(Builder):
         defect_entry.parameters['last_updated'] = datetime.utcnow()
 
         #add additional tags as desired...
+
+        from monty.serialization import dumpfn
+        dumpfn( defect_entry.as_dict(), 'test_defect_entry.json')
+        print(' DUMPED THIS')
 
         return defect_entry.as_dict()
 

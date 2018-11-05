@@ -217,7 +217,7 @@ class FreysoldtCorrection(DefectCorrection):
         v_R = np.real(v_R) * hart_to_ev
 
         # get correction
-        short = (defavg - pureavg - v_R)
+        short = (np.array(defavg) - np.array(pureavg) - np.array(v_R))
         checkdis = int((widthsample / 2) / (axis_grid[1] - axis_grid[0]))
         mid = int(len(short) / 2)
 
