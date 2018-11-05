@@ -5,6 +5,7 @@
 from __future__ import division, unicode_literals
 
 import math
+import warnings
 from collections import namedtuple, defaultdict
 
 import six
@@ -3079,7 +3080,7 @@ class CrystalNN(NearNeighbors):
     NNData = namedtuple("nn_data", ["all_nninfo", "cn_weights", "cn_nninfo"])
 
     def __init__(self, weighted_cn=False, cation_anion=False,
-                 distance_cutoffs=(0.5, 1.0), x_diff_weight=3.0,
+                 distance_cutoffs=(0.5, 1), x_diff_weight=3.0,
                  porous_adjustment=True, search_cutoff=7,
                  fingerprint_length=None):
         """
@@ -3368,6 +3369,40 @@ class CrystalNN(NearNeighbors):
         Returns:
             Covalent radius of element on site, or Atomic radius if unavailable
         """
+        if hasattr(site.specie, 'oxi_state'):
+            el = site.specie.element
+            oxi = site.specie.oxi_state
+            if oxi == 0:
+                try:
+                    return CovalentRadius.radius[site.specie.symbol]
+                except:
+                    return site.specie.atomic_radius
+
+            elif oxi in el.ionic_radii:
+                return el.ionic_radii[oxi]
+
+            elif int(math.floor(oxi)) in el.ionic_radii and \
+                    int(math.ceil(oxi)) in el.ionic_radii:
+                oxi_low = el.ionic_radii[int(math.floor(oxi))]
+                oxi_high = el.ionic_radii[int(math.ceil(oxi))]
+                x = oxi - int(math.floor(oxi))
+                return (1-x) * oxi_low + x * oxi_high
+
+            elif oxi > 0 and el.average_cationic_radius > 0:
+                return el.average_cationic_radius
+
+            elif oxi < 0 and el.average_anionic_radius > 0:
+                return el.average_anionic_radius
+
+        else:
+            warnings.warn("CrystalNN: distance cutoffs but no oxidation states "
+                          "set on sites! We strongly recommend you set "
+                          "oxidation states, especially if using default "
+                          "distance cutoff parameters.")
+
+        warnings.warn("CrystalNN: cannot locate an appropriate radius, "
+                      "Covalent or atomic radius will be used, this can lead "
+                      "to non-optimal results.")
         try:
             return CovalentRadius.radius[site.specie.symbol]
         except:
