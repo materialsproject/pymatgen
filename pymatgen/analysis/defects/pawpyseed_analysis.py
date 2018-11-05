@@ -21,9 +21,10 @@ def get_level_projection_amounts(defect_path, bulk_path, spinpol = False, bands_
     if type(bulk_path) == str:
         #MAKE BULK basis thing
         bulk_basis = Wavefunction.from_atomate_directory(bulk_path, False)
-        mb = False
     else:
         bulk_basis = bulk_path
+        mb = False
+
     defect = Wavefunction.from_atomate_directory(defect_path, False)
 
     projector = Projector(wf = defect, basis = bulk_basis,
