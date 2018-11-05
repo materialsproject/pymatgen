@@ -3231,12 +3231,22 @@ class CrystalNN(NearNeighbors):
             r1 = self._get_radius(structure[n])
             for entry in nn:
                 r2 = self._get_radius(entry["site"])
+                if r1 > 0 and r2 > 0:
+                    d = r1 + r2
+                else:
+                    warnings.warn(
+                        "CrystalNN: cannot locate an appropriate radius, "
+                        "covalent or atomic radii will be used, this can lead "
+                        "to non-optimal results.")
+                    d = CrystalNN._get_default_radius(structure[n]) + \
+                        CrystalNN._get_default_radius(entry["site"])
+
                 dist = np.linalg.norm(
                     structure[n].coords - entry["site"].coords)
                 dist_weight = 0
 
-                cutoff_low = (r1 + r2) + self.distance_cutoffs[0]
-                cutoff_high = (r1 + r2) + self.distance_cutoffs[1]
+                cutoff_low = d + self.distance_cutoffs[0]
+                cutoff_high = d + self.distance_cutoffs[1]
 
                 if dist <= cutoff_low:
                     dist_weight = 1
@@ -3358,6 +3368,13 @@ class CrystalNN(NearNeighbors):
 
         return (area1 - area2) / (0.25 * math.pi * r ** 2)
 
+    @staticmethod
+    def _get_default_radius(site):
+        try:
+            return CovalentRadius.radius[site.specie.symbol]
+        except:
+            return site.specie.atomic_radius
+
 
     @staticmethod
     def _get_radius(site):
@@ -3373,10 +3390,7 @@ class CrystalNN(NearNeighbors):
             el = site.specie.element
             oxi = site.specie.oxi_state
             if oxi == 0:
-                try:
-                    return CovalentRadius.radius[site.specie.symbol]
-                except:
-                    return site.specie.atomic_radius
+                return CrystalNN._get_default_radius(site)
 
             elif oxi in el.ionic_radii:
                 return el.ionic_radii[oxi]
@@ -3399,14 +3413,7 @@ class CrystalNN(NearNeighbors):
                           "set on sites! We strongly recommend you set "
                           "oxidation states, especially if using default "
                           "distance cutoff parameters.")
-
-        warnings.warn("CrystalNN: cannot locate an appropriate radius, "
-                      "Covalent or atomic radius will be used, this can lead "
-                      "to non-optimal results.")
-        try:
-            return CovalentRadius.radius[site.specie.symbol]
-        except:
-            return site.specie.atomic_radius
+        return 0
 
     @staticmethod
     def transform_to_length(nndata, length):
