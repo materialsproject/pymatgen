@@ -43,7 +43,7 @@ class GulpCallerTest(unittest.TestCase):
 
         """Some inherent checks are in the run_gulp function itself.
         They should be suffcient for raising errors."""
-        gout = gc.run(self.gin)
+        gout = gc.run(gin)
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
