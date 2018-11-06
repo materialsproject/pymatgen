@@ -1,5 +1,5 @@
-pymatgen\.io\.abinit\.netcdf module
-===================================
+pymatgen.io.abinit.netcdf module
+================================
 
 .. automodule:: pymatgen.io.abinit.netcdf
     :members:

@@ -1,5 +1,5 @@
-pymatgen\.analysis\.gb\.grain module
-====================================
+pymatgen.analysis.gb.grain module
+=================================
 
 .. automodule:: pymatgen.analysis.gb.grain
     :members:

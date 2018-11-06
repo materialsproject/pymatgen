@@ -1,5 +1,5 @@
-pymatgen\.analysis\.local\_env module
-=====================================
+pymatgen.analysis.local\_env module
+===================================
 
 .. automodule:: pymatgen.analysis.local_env
     :members:

@@ -1,5 +1,5 @@
-pymatgen\.analysis\.graphs module
-=================================
+pymatgen.analysis.graphs module
+===============================
 
 .. automodule:: pymatgen.analysis.graphs
     :members:

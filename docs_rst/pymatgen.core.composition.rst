@@ -1,5 +1,5 @@
-pymatgen\.core\.composition module
-==================================
+pymatgen.core.composition module
+================================
 
 .. automodule:: pymatgen.core.composition
     :members:

@@ -1,5 +1,5 @@
-pymatgen\.analysis\.defects\.utils module
-=========================================
+pymatgen.analysis.defects.utils module
+======================================
 
 .. automodule:: pymatgen.analysis.defects.utils
     :members:

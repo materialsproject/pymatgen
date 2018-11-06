@@ -1,5 +1,5 @@
-pymatgen\.io\.lammps\.inputs module
-===================================
+pymatgen.io.lammps.inputs module
+================================
 
 .. automodule:: pymatgen.io.lammps.inputs
     :members:

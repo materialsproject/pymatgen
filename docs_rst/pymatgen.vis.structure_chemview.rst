@@ -1,5 +1,5 @@
-pymatgen\.vis\.structure\_chemview module
-=========================================
+pymatgen.vis.structure\_chemview module
+=======================================
 
 .. automodule:: pymatgen.vis.structure_chemview
     :members:
