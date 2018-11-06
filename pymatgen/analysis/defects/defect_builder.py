@@ -733,10 +733,6 @@ class DefectBuilder(Builder):
 
         #add additional tags as desired...
 
-        from monty.serialization import dumpfn
-        dumpfn( defect_entry.as_dict(), 'test_defect_entry.json')
-        print('DUMPED THIS')
-
         return defect_entry.as_dict()
 
     def update_targets(self, items):
@@ -749,7 +745,7 @@ class DefectBuilder(Builder):
 
         self.logger.info("Updating {} defect documents".format(len(items)))
 
-        self.defects.update(items, update_lu=False, key='entry_id', ordered=False)
+        self.defects.update(items, update_lu=False, key='entry_id')
 
     def ensure_indicies(self):
         """
