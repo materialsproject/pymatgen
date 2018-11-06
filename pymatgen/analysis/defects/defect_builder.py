@@ -410,7 +410,8 @@ class DefectBuilder(Builder):
         q["state"] = "successful"
         # q.update(self.defects.lu_filter(self.defects)) #This wasnt working because DefectEntries dont have obvious way of doing this? (tried parameters.last_updated but this broke because parameters is a property and last_updated is a key)
         q.update({'task_id': {'$nin': self.defects.distinct('entry_id')}}) #dont redo previous tasks...
-        q.update({'transformations.history.0.@module':
+        # q.update({'transformations.history.0.@module':
+        q.update({'transformations.history.@module':
                       {'$in': ['pymatgen.transformations.defect_transformations']}})
         defect_tasks = list(self.tasks.query(criteria=q,
                                              properties=['task_id', 'transformations', 'input',
@@ -732,8 +733,10 @@ class DefectBuilder(Builder):
         defect_entry.parameters['last_updated'] = datetime.utcnow()
 
         #add additional tags as desired...
+        dentry_as_dict = defect_entry.as_dict()
+        dentry_as_dict['task_id'] = item['task_id'] #this will need to be deleted when loading DefectEntry.as_dict()
 
-        return defect_entry.as_dict()
+        return dentry_as_dict
 
     def update_targets(self, items):
         """
@@ -745,7 +748,7 @@ class DefectBuilder(Builder):
 
         self.logger.info("Updating {} defect documents".format(len(items)))
 
-        self.defects.update(items, update_lu=False, key='entry_id')
+        self.defects.update(items, update_lu=True, key='entry_id')
 
     def ensure_indicies(self):
         """
