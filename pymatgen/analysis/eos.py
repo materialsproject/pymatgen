@@ -302,7 +302,7 @@ class BirchMurnaghan(EOSBase):
         BirchMurnaghan equation from PRB 70, 224107
         """
         e0, b0, b1, v0 = tuple(params)
-        eta = (volume / v0) ** (1. / 3.)
+        eta = (v0 / volume) ** (1. / 3.)
         return (e0 +
                 9. * b0 * v0 / 16. * (eta ** 2 - 1)**2 *
                 (6 + b1 * (eta ** 2 - 1.) - 4. * eta ** 2))
