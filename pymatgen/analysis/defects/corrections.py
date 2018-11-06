@@ -238,7 +238,7 @@ class FreysoldtCorrection(DefectCorrection):
         self.metadata["pot_plot_data"][axis] = {
             "Vr": v_R,
             "x": axis_grid,
-            "dft_diff": defavg - pureavg,
+            "dft_diff": np.array(defavg) - np.array(pureavg),
             "final_shift": final_shift,
             "check": [mid - checkdis, mid + checkdis + 1]
         }
