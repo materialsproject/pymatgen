@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 
 from pymatgen.analysis.structure_prediction.substitution_probability import \
@@ -93,9 +94,8 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
         try:
             species_radius = species.get_shannon_radius(cn_roman)
         except KeyError:
-            print("Shannon radius not found for {} with "
-                  "coordination number {}".format(species, cn))
-            print("skipping...")
+            warnings.warn("Shannon radius not found for {} with coordination "
+                          "number {}.\nSkipping...".format(species, cn))
             continue
 
         if cn not in cn_to_radii_map:
