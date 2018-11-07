@@ -281,6 +281,18 @@ class ChgDenAnalyzerTest(unittest.TestCase):
         ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
         self.assertTrue(isinstance(ca, ChargeDensityAnalyzer))
 
+    def test_sort_sites_by_integrated_chg(self):
+        print(self.chgcar_path)
+        ca = ChargeDensityAnalyzer.from_file(self.chgcar_path)
+        ca.get_local_extrema()
+        ca.sort_sites_by_integrated_chg()
+        print(ca._extrema_df.iloc[0], 0.5)
+        self.assertAlmostEqual(ca._extrema_df.iloc[0]['a'], 0.0)
+        self.assertAlmostEqual(ca._extrema_df.iloc[0]['b'], 0.5)
+        self.assertAlmostEqual(ca._extrema_df.iloc[0]['c'], 0.0)
+        self.assertAlmostEqual(ca._extrema_df.iloc[0]['Charge Density'], 1.65288944124)
+        self.assertAlmostEqual(ca._extrema_df.iloc[0]['Int. Charge Density'], 0.0018375161626331743)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -273,6 +273,16 @@ class Element(Enum):
         Average ionic radius for element in ang. The average is taken over all
         oxidation states of the element for which data is present.
 
+    .. attribute:: average_cationic_radius
+
+        Average cationic radius for element in ang. The average is taken over all
+        positive oxidation states of the element for which data is present.
+
+    .. attribute:: average_anionic_radius
+
+        Average ionic radius for element in ang. The average is taken over all
+        negative oxidation states of the element for which data is present.
+
     .. attribute:: ionic_radii
 
         All ionic radii of the element as a dict of
@@ -487,6 +497,36 @@ class Element(Enum):
             return sum(radii.values()) / len(radii)
         else:
             return 0
+
+    @property
+    @unitized("ang")
+    def average_cationic_radius(self):
+        """
+        Average cationic radius for element (with units). The average is
+        taken over all positive oxidation states of the element for which
+        data is present.
+        """
+        if "Ionic radii" in self._data:
+            radii = [v for k, v in self._data["Ionic radii"].items()
+                     if int(k) > 0]
+            if radii:
+                return sum(radii) / len(radii)
+        return 0
+
+    @property
+    @unitized("ang")
+    def average_anionic_radius(self):
+        """
+        Average anionic radius for element (with units). The average is
+        taken over all negative oxidation states of the element for which
+        data is present.
+        """
+        if "Ionic radii" in self._data:
+            radii = [v for k, v in self._data["Ionic radii"].items()
+                     if int(k) < 0]
+            if radii:
+                return sum(radii) / len(radii)
+        return 0
 
     @property
     @unitized("ang")
