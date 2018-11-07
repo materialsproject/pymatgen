@@ -755,14 +755,14 @@ class TopographyAnalyzer(object):
                 new_vnodes.append(v)
         self.vnodes = new_vnodes
 
-    def get_structure_with_nodes(self):
+    def get_structure_with_nodes(self,specie='X'):
         """
         Get the modified structure with the voronoi nodes inserted. The
-        species is set as a DummySpecie X.
+        default species is set as a DummySpecie X.
         """
         new_s = Structure.from_sites(self.structure)
         for v in self.vnodes:
-            new_s.append("X", v.frac_coords)
+            new_s.append(specie, v.frac_coords)
         return new_s
 
     def print_stats(self):
