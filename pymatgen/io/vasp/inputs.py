@@ -1216,7 +1216,7 @@ class Kpoints(MSONable):
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
-                    kpts_shift = [int(i) for i in lines[4].split()]
+                    kpts_shift = [float(i) for i in lines[4].split()]
                 except ValueError:
                     pass
             return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
@@ -1552,6 +1552,10 @@ class PotcarSingle(object):
 
     @property
     def electron_configuration(self):
+        if not self.nelectrons.is_integer():
+            warnings.warn("POTCAR has non-integer charge, "
+                          "electron configuration not well-defined.")
+            return None
         el = Element.from_Z(self.atomic_no)
         full_config = el.full_electronic_structure
         nelect = self.nelectrons
