@@ -29,8 +29,8 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5,
         dictionaries, each with they keys:
 
         - "probability": The probability of substitution.
-        - "new_species": The dopant species.
-        - "old_species": The substituted species.
+        - "dopant_species": The dopant species.
+        - "original_species": The substituted species.
     """
     els_have_oxi_states = [hasattr(s, "oxi_state") for s in structure.species]
 
@@ -42,8 +42,8 @@ def get_dopants_from_substitution_probabilities(structure, num_dopants=5,
 
     subs = [sp.list_prediction([s]) for s in set(structure.species)]
     subs = [{'probability': pred['probability'],
-             'new_species': list(pred['substitutions'].keys())[0],
-             'old_species': list(pred['substitutions'].values())[0]}
+             'dopant_species': list(pred['substitutions'].keys())[0],
+             'original_species': list(pred['substitutions'].values())[0]}
             for species_preds in subs for pred in species_preds]
     subs.sort(key=lambda x: x['probability'], reverse=True)
 
@@ -72,8 +72,8 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
         dictionaries, each with they keys:
 
         - "radii_diff": The difference between the Shannon radii of the species.
-        - "new_species": The dopant species.
-        - "old_species": The substituted species.
+        - "dopant_spcies": The dopant species.
+        - "original_species": The substituted species.
     """
     # get a list of all Specie for all elements in all their common oxid states
     all_species = [Specie(el, oxi) for el in Element
@@ -105,8 +105,8 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5,
         shannon_radii = cn_to_radii_map[cn]
 
         possible_dopants += [{'radii_diff': p['radii_diff'],
-                              'new_species': p['species'],
-                              'old_species': species}
+                              'dopant_species': p['species'],
+                              'original_species': species}
                              for p in shannon_radii]
 
     possible_dopants.sort(key=lambda x: abs(x['radii_diff']))
@@ -119,15 +119,17 @@ def _get_dopants(substitutions, num_dopants, match_oxi_sign):
     Utility method to get n- and p-type dopants from a list of substitutions.
     """
     n_type = [pred for pred in substitutions
-              if pred['new_species'].oxi_state > pred['old_species'].oxi_state
+              if pred['dopant_species'].oxi_state >
+              pred['original_species'].oxi_state
               and (not match_oxi_sign or
-                   np.sign(pred['new_species'].oxi_state) ==
-                   np.sign(pred['old_species'].oxi_state))]
+                   np.sign(pred['dopant_species'].oxi_state) ==
+                   np.sign(pred['original_species'].oxi_state))]
     p_type = [pred for pred in substitutions
-              if pred['new_species'].oxi_state < pred['old_species'].oxi_state
+              if pred['dopant_species'].oxi_state <
+              pred['original_species'].oxi_state
               and (not match_oxi_sign or
-                   np.sign(pred['new_species'].oxi_state) ==
-                   np.sign(pred['old_species'].oxi_state))]
+                   np.sign(pred['dopant_species'].oxi_state) ==
+                   np.sign(pred['original_species'].oxi_state))]
 
     return {'n_type': n_type[:num_dopants], 'p_type': p_type[:num_dopants]}
 
