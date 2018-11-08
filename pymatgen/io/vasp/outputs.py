@@ -1443,6 +1443,14 @@ class Outcar(object):
         Average electrostatic potential at each atomic position in order
         of the atoms in POSCAR.
 
+    ..attribute: final_energy_contribs
+        Individual contributions to the total final energy as a dictionary.
+        Include contirbutions from keys, e.g.:
+        {'DENC': -505778.5184347, 'EATOM': 15561.06492564, 'EBANDS': -804.53201231,
+        'EENTRO': -0.08932659, 'EXHF': 0.0, 'Ediel_sol': 0.0,
+        'PAW double counting': 664.6726974100002, 'PSCENC': 742.48691646,
+        'TEWEN': 489742.86847338, 'XCENC': -169.64189814}
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign(), read_avg_core_pot().
