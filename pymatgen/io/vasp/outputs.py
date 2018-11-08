@@ -1657,6 +1657,19 @@ class Outcar(object):
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
 
+        # Store the individual contributions to the final total energy
+        final_energy_contribs = {}
+        for k in ["PSCENC", "TEWEN", "DENC", "EXHF", "XCENC", "PAW double counting",
+                  "EENTRO", "EBANDS", "EATOM", "Ediel_sol"]:
+            if k == "PAW double counting":
+                self.read_pattern({k: r"%s\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)" % (k)})
+            else:
+                self.read_pattern({k: r"%s\s+=\s+([\d\-\.]+)" % (k)})
+            if not self.data[k]:
+                continue
+            final_energy_contribs[k] = sum([float(f) for f in self.data[k][-1]])
+        self.final_energy_contribs = final_energy_contribs
+
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
         """
