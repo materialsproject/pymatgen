@@ -9,6 +9,7 @@ import itertools
 import json
 import re
 import warnings
+from time import sleep
 
 from monty.json import MontyDecoder, MontyEncoder
 from six import string_types
@@ -25,6 +26,8 @@ from pymatgen.entries.computed_entries import ComputedEntry, \
 from pymatgen.entries.exp_entries import ExpEntry
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from pymatgen.util.sequence import get_chunks, PBar
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -735,6 +738,60 @@ class MPRester(object):
                    "properties": json.dumps(properties)}
         return self._make_request("/query", payload=payload, method="POST",
                                   mp_decode=mp_decode)
+
+    def bulk_query(self, criteria, properties, chunk_size=50,
+                   max_tries_per_chunk=5, **kwargs):
+        """
+        A wrapper around `MPRester.query` to accommodate queries for a large
+        total amount of data across materials. For queries that request more
+        data than the server can handle per material, i.e. too many properties,
+        you will get an error message, as with `MPRester.query`. This method
+        chunks a query by first retrieving a list of material IDs that satisfy
+        CRITERIA, and then merging the criteria with a restriction to one chunk
+        of materials at a time of size CHUNK_SIZE. Because this can be a
+        long-running method, unclear server errors will result in re-trying a
+        give chunk up to MAX_TRIES_PER_CHUNK times. All other arguments and
+        keyword arguments are passed to `MPRester.query`.
+
+        Args:
+            criteria (str/dict): passed to `MPRester.query`
+            properties (list): passed to `MPRester.query`
+            chunk_size (int): Number of materials for which to fetch data at a
+                time. More data-intensive properties may require smaller chunk
+                sizes.
+            max_tries_per_chunk (int): How many times to re-try fetching a given
+                chunk when the server gives a 5xx error (e.g. a timeout error).
+            **kwargs: passed to `MPRester.query`
+
+        Returns:
+
+        """
+        data = []
+        mids = [d["material_id"] for d in self.query(criteria, ["material_id"])]
+        chunks = get_chunks(mids, size=chunk_size)
+        progress_bar = PBar(total=len(mids))
+        if not isinstance(criteria, dict):
+            criteria = self.parse_criteria(criteria)
+        for chunk in chunks:
+            chunk_criteria = criteria.copy()
+            chunk_criteria.update({"material_id": {"$in": chunk}})
+            num_tries = 0
+            while num_tries < max_tries_per_chunk:
+                try:
+                    data.extend(
+                        self.query(chunk_criteria, properties, **kwargs))
+                    break
+                except MPRestError as e:
+                    match = re.search("error status code (\d+)", e.message)
+                    if match:
+                        if not match.group(1).startswith("5"):
+                            raise e
+                        else:  # 5xx error. Try again
+                            num_tries += 1
+                            print("trying again")
+                            sleep(5)
+            progress_bar.update(len(chunk))
+        return data
 
     def submit_structures(self, structures, authors, projects=None,
                           references='', remarks=None, data=None,
