@@ -125,7 +125,7 @@ def get_structure_component_info(bonded_structure, inc_orientation=False):
                 g = vertices.sum(axis=0) / vertices.shape[0]
 
                 # run singular value decomposition
-                u, s, vh = np.linalg.svd(vertices - g)
+                _, _, vh = np.linalg.svd(vertices - g)
 
                 # get direction (first column is best fit line,
                 # 3rd column is unitary norm)
@@ -254,11 +254,11 @@ def get_dimensionality_cheon(structure_raw, tolerance=0.45,
     structure_save = copy.copy(structure_raw)
     connected_list1 = find_connected_atoms(
         structure, tolerance=tolerance, ldict=ldict)
-    max1, min1, clusters1 = find_clusters(structure, connected_list1)
+    max1, min1, _ = find_clusters(structure, connected_list1)
     structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
     connected_list2 = find_connected_atoms(
         structure, tolerance=tolerance, ldict=ldict)
-    max2, min2, clusters2 = find_clusters(structure, connected_list2)
+    max2, min2, _ = find_clusters(structure, connected_list2)
 
     if min2 == 1:
         dim = 'intercalated ion'
@@ -276,7 +276,7 @@ def get_dimensionality_cheon(structure_raw, tolerance=0.45,
             structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
             connected_list3 = find_connected_atoms(
                 structure, tolerance=tolerance, ldict=ldict)
-            max3, min3, clusters3 = find_clusters(structure, connected_list3)
+            max3, min3, _ = find_clusters(structure, connected_list3)
             if min3 == min2:
                 if max3 == max2:
                     dim = '0D'
