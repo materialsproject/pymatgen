@@ -41,8 +41,10 @@ def get_dimensionality_larsen(bonded_structure):
     """
     Gets the dimensionality of a bonded structure.
 
-    Correctly determines the dimensionality of all structures, regardless of
-    structure type or improper connections due to periodic boundary conditions.
+    The dimensionality of the structure is the highest dimensionality of all
+    structure components. This method is very robust and can handle
+    many tricky structures, regardless of structure type or improper connections
+    due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
     of the NearNeighbor classes. For example, using the CrystalNN class::
