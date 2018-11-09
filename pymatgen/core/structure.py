@@ -366,9 +366,12 @@ class IStructure(SiteCollection, MSONable):
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
             charge (int): overall charge of the structure. Defaults to behavior
-                in SiteCollection where total charge is the sum of the oxidation states
+                in SiteCollection where total charge is the sum of the oxidation
+                states.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
+            to_unit_cell (bool): Whether to map all sites into the unit cell,
+                i.e., fractional coords between 0 and 1. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
@@ -2358,9 +2361,9 @@ class Structure(IStructure, collections.MutableSequence):
     """
     __hash__ = None
 
-    def __init__(self, lattice, species, coords, charge=None, validate_proximity=False,
-                 to_unit_cell=False, coords_are_cartesian=False,
-                 site_properties=None):
+    def __init__(self, lattice, species, coords, charge=None,
+                 validate_proximity=False, to_unit_cell=False,
+                 coords_are_cartesian=False, site_properties=None):
         """
         Create a periodic structure.
 
@@ -2379,9 +2382,15 @@ class Structure(IStructure, collections.MutableSequence):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords: list of fractional coordinates of each species.
+            coords (Nx3 array): list of fractional/cartesian coordinates of
+                each species.
+            charge (int): overall charge of the structure. Defaults to behavior
+                in SiteCollection where total charge is the sum of the oxidation
+                states.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
+            to_unit_cell (bool): Whether to map all sites into the unit cell,
+                i.e., fractional coords between 0 and 1. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
