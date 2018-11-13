@@ -412,7 +412,7 @@ class PWOutput(object):
         "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',
         "total_stresses": r'total\s+stress\s+(Ry/bohr**3)\s+(kbar)\s+P\s*=\s+([\d\.\-]+)',  # in kbar
         "total_forces": r'Total force =\s+([\d\.\-]+)',
-        "total_scf_corrections": r'Total SCF correction =\s+([\d\.\-]+)'
+        "total_scf_corrections": r'Total SCF correction =\s+([\d\.\-]+)',
 
         "lattice_type": r'bravais\-lattice index\s+=\s+(\d+)',
         "alat": r'lattice parameter (alat)\s+=\s+([\d\.]+)\s+a.u.',
