@@ -294,8 +294,7 @@ class Directory(object):
             raise ValueError("Found multiple files with the same extensions:\n %s\n" % files +
                              "Please avoid using multiple datasets!")
 
-        if single_file: return files[0]
-        else:           return files
+        return files[0] if single_file else files
 
     def symlink_abiext(self, inext, outext):
         """

@@ -1585,7 +1585,7 @@ class PhononWfkqWork(Work, MergeDdb):
 
             if need_wfkq:
                 nscf_inp = scf_task.input.new_with_vars(qpt=qpt, nqpt=1, iscf=-2, kptopt=3, tolwfr=tolwfr)
-                if nband: 
+                if nband:
                     nbdbuf = max(2,nband*0.1)
                     nscf_inp.set_vars(nband=nband+nbdbuf, nbdbuf=nbdbuf)
                 wfkq_task = new.register_nscf_task(nscf_inp, deps={scf_task: ["DEN", "WFK"]})
@@ -1639,83 +1639,84 @@ class GKKPWork(Work):
     present in a DVDB and DDB file
     """
     @classmethod
-    def from_den_ddb_dvdb(cls,inp,den_path,ddb_path,dvdb_path,mpiprocs=1,remove_wfkq=True,
-                          qpath=None,with_ddk=True,expand=True,manager=None):
+    def from_den_ddb_dvdb(cls, inp, den_path, ddb_path, dvdb_path, mpiprocs=1, remove_wfkq=True,
+                          qpath=None, with_ddk=True, expand=True, manager=None):
         """
         Construct a `PhononWfkqWork` from a DDB and DVDB file.
-        For each q found a WFQ task is created and an EPH task computing the matrix elements
+        For each q found, a WFQ task and an EPH task computing the matrix elements are created.
         """
         import abipy.abilab as abilab
-       
-        #create file nodes
+
+        # Create file nodes
         den_file = FileNode(den_path)
         ddb_file = FileNode(ddb_path)
         dvdb_file = FileNode(dvdb_path)
 
-        #create new work
+        # Create new work
         new = cls(manager=manager)
         new.remove_wfkq = remove_wfkq
         new.wfkq_tasks = []
         new.wfkq_task_children = collections.defaultdict(list)
         if manager is None: manager = TaskManager.from_user_config()
-        tm = manager.new_with_fixed_mpi_omp(mpiprocs,1)
+        tm = manager.new_with_fixed_mpi_omp(mpiprocs, 1)
 
-        # create a WFK task
+        # Create a WFK task
         kptopt = 1 if expand else 3
         nscf_inp = inp.new_with_vars(iscf=-2, kptopt=kptopt)
         wfk_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"},manager=tm)
         new.wfkq_tasks.append(wfk_task)
         new.wfk_task = wfk_task
 
-        #read path and regular grid from DDB file
+        # Read path and regular grid from DDB file
         with abilab.abiopen(ddb_path) as ddb:
             q_frac_coords = np.array([k.frac_coords for k in ddb.qpoints])
             ddb_ngqpt = ddb.guessed_ngqpt
 
-        #if qpath is set we read a list of q-points in which to interpolate the DVDB file
-        #the DVDB and DDB file have to correspond to a regular grid
+        # If qpath is set, we read the list of q-points to be used to interpolate the DVDB file.
+        # The DVDB and DDB file have to correspond to a regular grid.
         dvdb = dvdb_file
         if qpath is None:
             qpath = q_frac_coords
         else:
             interp_inp = inp.new_with_vars(optdriver=7, eph_task=-5, ddb_ngqpt=ddb_ngqpt,
                                            ph_nqpath=len(qpath), ph_qpath=qpath, prtphdos=0)
-            dvdb = new.register_eph_task(interp_inp, deps={wfk_task: "WFK", ddb_file: "DDB", dvdb_file: "DVDB"}, manager=tm)
+            dvdb = new.register_eph_task(interp_inp, deps={wfk_task: "WFK", ddb_file: "DDB", dvdb_file: "DVDB"},
+                                          manager=tm)
 
-        #create a WFK expansion task
+        # Create a WFK expansion task
         if expand:
             fbz_nscf_inp = inp.new_with_vars(optdriver=8)
             fbz_nscf_inp.set_spell_check(False)
             fbz_nscf_inp.set_vars(wfk_task="wfk_fullbz")
             tm_serial = manager.new_with_fixed_mpi_omp(1,1)
-            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", den_file: "DEN"},manager=tm_serial)
+            wfk_task = new.register_nscf_task(fbz_nscf_inp, deps={wfk_task: "WFK", den_file: "DEN"},
+                                              manager=tm_serial)
             new.wfkq_tasks.append(wfk_task)
             new.wfk_task = wfk_task
 
-        #if with ddk
         if with_ddk:
             kptopt = 3 if expand else 1
             ddk_inp = inp.new_with_vars(optdriver=8,kptopt=kptopt)
             ddk_inp.set_spell_check(False)
             ddk_inp.set_vars(wfk_task="wfk_ddk")
-            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"},manager=tm)
+            ddk_task = new.register_nscf_task(ddk_inp, deps={wfk_task: "WFK", den_file: "DEN"}, manager=tm)
             new.wfkq_tasks.append(ddk_task)
 
-        #for each of the q 
+        # For each qpoint
         for qpt in qpath:
             is_gamma = np.sum(qpt ** 2) < 1e-12
             if is_gamma:
-                #We will create a link from WFK to WFQ on_ok
+                # Create a link from WFK to WFQ on_ok
                 wfkq_task = wfk_task
                 deps = {wfk_task: ["WFK","WFQ"], ddb_file: "DDB", dvdb: "DVDB" }
             else:
-                # create a WFQ task
+                # Create a WFQ task
                 nscf_inp = nscf_inp.new_with_vars(kptopt=3, qpt=qpt, nqpt=1)
                 wfkq_task = new.register_nscf_task(nscf_inp, deps={den_file: "DEN"}, manager=tm)
                 new.wfkq_tasks.append(wfkq_task)
                 deps = {wfk_task: "WFK", wfkq_task: "WFQ", ddb_file: "DDB", dvdb: "DVDB" }
 
-            # create a EPH task 
+            # Create a EPH task
             eph_inp = inp.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2, kptopt=3,
                                         ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             t = new.register_eph_task(eph_inp, deps=deps, manager=tm)
@@ -1729,52 +1730,52 @@ class GKKPWork(Work):
         Construct a `GKKPWork` from a `PhononWfkqWork` object.
         The WFQ are the ones used for PhononWfkqWork so in principle have only valence bands
         """
-        #get list of qpoints from the the phonon tasks in this work
+        # Get list of qpoints from the the phonon tasks in this work
         qpoints = []
         qpoints_deps = []
         for task in phononwfkq_work:
             if isinstance(task,PhononTask):
-                #store qpoints
-                qpt = task.input.get("qpt",[0,0,0])
+                # Store qpoints
+                qpt = task.input.get("qpt", [0,0,0])
                 qpoints.append(qpt)
-                #store dependencies
+                # Store dependencies
                 qpoints_deps.append(task.deps)
 
-        #create file nodes
+        # Create file nodes
         ddb_path  = phononwfkq_work.outdir.has_abiext("DDB")
         dvdb_path = phononwfkq_work.outdir.has_abiext("DVDB")
         ddb_file = FileNode(ddb_path)
         dvdb_file = FileNode(dvdb_path)
 
-        #get scf_task from first q-point
+        # Get scf_task from first q-point
         for dep in qpoints_deps[0]:
             if isinstance(dep.node,ScfTask) and dep.exts[0] == 'WFK':
                 scf_task = dep.node
 
-        #create new work
+        # Create new work
         new = cls(manager=manager)
         new.remove_wfkq = remove_wfkq
         new.wfkq_tasks = []
         new.wfk_task = []
 
-        #add one eph task per qpoint
+        # Add one eph task per qpoint
         for qpt,qpoint_deps in zip(qpoints,qpoints_deps):
-            #create eph task 
-            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2, 
+            # Create eph task
+            eph_input = scf_task.input.new_with_vars(optdriver=7, prtphdos=0, eph_task=-2,
                                                      ddb_ngqpt=[1,1,1], nqpt=1, qpt=qpt)
             deps = {ddb_file: "DDB", dvdb_file: "DVDB" }
             for dep in qpoint_deps:
                 deps[dep.node] = dep.exts[0]
-            #if no WFQ in deps link the WFK with WFQ extension
+            # If no WFQ in deps link the WFK with WFQ extension
             if 'WFQ' not in deps.values():
                 inv_deps = dict((v, k) for k, v in deps.items())
                 wfk_task = inv_deps['WFK']
                 wfk_path = wfk_task.outdir.has_abiext("WFK")
-                #check if netcdf
+                # Check if netcdf
                 filename, extension = os.path.splitext(wfk_path)
-                infile = 'out_WFQ'+extension
-                wfq_path = os.path.join(os.path.dirname(wfk_path),infile)
-                if not os.path.isfile(wfq_path): os.symlink(wfk_path,wfq_path)
+                infile = 'out_WFQ' + extension
+                wfq_path = os.path.join(os.path.dirname(wfk_path), infile)
+                if not os.path.isfile(wfq_path): os.symlink(wfk_path, wfq_path)
                 deps[FileNode(wfq_path)] = 'WFQ'
             new.register_eph_task(eph_input, deps=deps)
 
@@ -1795,14 +1796,14 @@ class GKKPWork(Work):
                        self.history.info("Removing WFQ: %s" % path)
                        os.remove(path)
 
-        #if wfk task we create a link to a wfq file so abinit is happy
+        # If wfk task we create a link to a wfq file so abinit is happy
         if sender == self.wfk_task:
             wfk_path = self.wfk_task.outdir.has_abiext("WFK")
-            #check if netcdf
+            # Check if netcdf
             filename, extension = os.path.splitext(wfk_path)
-            infile = 'out_WFQ'+extension
-            infile = os.path.join(os.path.dirname(wfk_path),infile)
-            os.symlink(wfk_path,infile)
+            infile = 'out_WFQ' + extension
+            infile = os.path.join(os.path.dirname(wfk_path), infile)
+            os.symlink(wfk_path, infile)
 
         return super(GKKPWork, self).on_ok(sender)
 

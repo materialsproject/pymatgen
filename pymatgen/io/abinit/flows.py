@@ -2708,7 +2708,7 @@ class PhononFlow(Flow):
 
     .. note:
 
-        For a much more flexible interface, use the DFPT works defined works.py
+        For a much more flexible interface, use the DFPT works defined in works.py
         For instance, EPH calculations are much easier to implement by connecting a single
         work that computes all the q-points with the EPH tasks instead of using PhononFlow.
     """
