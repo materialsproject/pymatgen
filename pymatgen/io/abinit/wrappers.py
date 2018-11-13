@@ -141,6 +141,9 @@ class Mrgscr(ExecWrapper):
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
+            # Force OS to write data to disk.
+            fh.flush()
+            os.fsync(fh.fileno())
 
         self.execute(workdir)
 
@@ -198,6 +201,9 @@ class Mrggkk(ExecWrapper):
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
+            # Force OS to write data to disk.
+            fh.flush()
+            os.fsync(fh.fileno())
 
         self.execute(workdir)
 
@@ -242,6 +248,9 @@ class Mrgddb(ExecWrapper):
 
         with open(self.stdin_fname, "wt") as fh:
             fh.writelines(self.stdin_data)
+            # Force OS to write data to disk.
+            fh.flush()
+            os.fsync(fh.fileno())
 
         retcode = self.execute(workdir, exec_args=['--nostrict'])
         if retcode == 0 and delete_source_ddbs:
@@ -262,6 +271,9 @@ class Mrgdvdb(ExecWrapper):
         """
         Merge POT files containing 1st order DFPT potential
         return the absolute path of the new database in workdir.
+
+        Args:
+            delete_source: True if POT1 files should be removed after (successful) merge.
         """
         # We work with absolute paths.
         pot_files = [os.path.abspath(s) for s in list_strings(pot_files)]
@@ -284,7 +296,7 @@ class Mrgdvdb(ExecWrapper):
             map(os.path.join, 3 * [os.path.abspath(workdir)], ["mrgdvdb.stdin", "mrgdvdb.stdout", "mrgdvdb.stderr"])
 
         inp = cStringIO()
-        inp.write(out_dvdb + "\n")              # Name of the output file.
+        inp.write(out_dvdb + "\n")             # Name of the output file.
         inp.write(str(len(pot_files)) + "\n")  # Number of input POT files.
 
         # Names of the POT files.
@@ -295,6 +307,9 @@ class Mrgdvdb(ExecWrapper):
 
         with open(self.stdin_fname, "wt") as fh:
             fh.writelines(self.stdin_data)
+            # Force OS to write data to disk.
+            fh.flush()
+            os.fsync(fh.fileno())
 
         retcode = self.execute(workdir)
         if retcode == 0 and delete_source:
