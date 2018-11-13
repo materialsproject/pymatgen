@@ -22,6 +22,8 @@ class IRDielectricTensorGeneratorTest(PymatgenTest):
 
         self.ir_spectra_generator.write_json('test.json')
         ir_spectra_generator = loadfn('test.json')
+        irdict = ir_spectra_generator.as_dict()
+        ir_spectra_generator.from_dict(irdict)
         ir_spectra = ir_spectra_generator.get_ir_spectra()
         ir_spectra.plot(show=False)
 
