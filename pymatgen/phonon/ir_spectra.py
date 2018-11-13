@@ -35,26 +35,27 @@ class IRDielectricTensorGenerator(MSONable):
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
 
-    def __init__(self, oscillator_strength, phfreqs, epsinf, structure):
+    def __init__(self, oscillator_strength, phfreqs_gamma, epsinf, structure):
         self.structure = structure
-        self.oscillator_strength = oscillator_strength
-        self.phfreqs = phfreqs
-        self.epsinf = epsinf
+        self.oscillator_strength = np.array(oscillator_strength).real
+        self.phfreqs_gamma = np.array(phfreqs_gamma)
+        self.epsinf = np.array(epsinf)
 
     @classmethod
     def from_dict(cls, d):
         """
         Returns IRDielectricTensor from dict representation
         """
+        structure = Structure.from_dict(d['structure'])
         oscillator_strength = d['oscillator_strength']
         phfreqs_gamma = d['phfreqs_gamma']
         epsinf = d['epsinf']
-        return cls(oscillator_strength, eps0, structure)
-    
+        return cls(oscillator_strength, phfreqs_gamma, epsinf, structure)
+ 
     @property
-    def max_phfreq(self): return max(self.phfreqs)
+    def max_phfreq(self): return max(self.phfreqs_gamma)
     @property
-    def nphfreqs(self): return len(self.phfreqs)
+    def nphfreqs(self): return len(self.phfreqs_gamma)
 
     def as_dict(self):
         """
@@ -62,9 +63,18 @@ class IRDielectricTensorGenerator(MSONable):
         """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "oscillator_strength": list(self.oscillator_strength),
-                "phfreqs_gamma": list(self.phfreqs_gamma),
+                "oscillator_strength": self.oscillator_strength.tolist(),
+                "phfreqs_gamma": self.phfreqs_gamma.tolist(),
+                "structure": self.structure.as_dict(),
                 "epsinf": self.epsinf.tolist()}
+
+    def write_json(self,filename):
+        """
+        Save a json file with this data
+        """
+        import json
+        with open(filename,'w') as f:
+            json.dump(self.as_dict(),f)
 
     def get_ir_spectra(self,broad=0.00005,emin=0,emax=None,divs=500):
         """
@@ -84,9 +94,9 @@ class IRDielectricTensorGenerator(MSONable):
            
         na = np.newaxis
         t = np.zeros((divs, 3, 3),dtype=complex)
-        for i in range(3, len(self.phfreqs)):
-            g =  broad[i] * self.phfreqs[i]
-            t += (self.oscillator_strength[i,:,:].real / (self.phfreqs[i]**2 - w[:,na,na]**2 - 1j*g))
+        for i in range(3, len(self.phfreqs_gamma)):
+            g =  broad[i] * self.phfreqs_gamma[i]
+            t += (self.oscillator_strength[i,:,:] / (self.phfreqs_gamma[i]**2 - w[:,na,na]**2 - 1j*g))
         t += self.epsinf[na,:,:]
 
         return IRSpectra(w,t,self)
@@ -118,8 +128,8 @@ class IRSpectra():
                     ax.plot(self.frequencies*1000,f(self.ir_spectra_tensor[:,i,j]),label=label,**kwargs)
 
         if vertical_lines:
-            phfreqs = self.ir_spectra_generator.phfreqs[3:]
-            ax.scatter(phfreqs*1000,np.zeros_like(phfreqs))
+            phfreqs_gamma = self.ir_spectra_generator.phfreqs_gamma[3:]
+            ax.scatter(phfreqs_gamma*1000,np.zeros_like(phfreqs_gamma))
         ax.set_xlabel('$\epsilon(\omega)$')
         ax.set_xlabel('Frequency (meV)')
         ax.legend()
