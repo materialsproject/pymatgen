@@ -410,15 +410,30 @@ class PWOutput(object):
 
     patterns = {
         "energies": r'total energy\s+=\s+([\d\.\-]+)\sRy',
-        "ecut": r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
+        "total_stresses": r'total\s+stress\s+(Ry/bohr**3)\s+(kbar)\s+P\s*=\s+([\d\.\-]+)',  # in kbar
+        "total_forces": r'Total force =\s+([\d\.\-]+)',
+        "total_scf_corrections": r'Total SCF correction =\s+([\d\.\-]+)'
+
         "lattice_type": r'bravais\-lattice index\s+=\s+(\d+)',
+        "alat": r'lattice parameter (alat)\s+=\s+([\d\.]+)\s+a.u.',
+        "unit_cell_volume": r'unit-cell volume\s+=\s+([\d\.]+)\s(a.u.)^3',
+        "nat": r'number of atoms/cell\s+=\s+([\d]+)',
+        "ntyp": r'number of atomic types\s+=\s+([\d]+)',
+        "nelectrons": r'number of electrons\s+=\s+([\d]+)',
+        "nks_states": r'number of Kohn\-Sham states\s*=\s+([\d]+)',
+        "ecutwf": r'kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry',
+        "ecutrho": r'charge density cutoff\s+=\s+([\d\.\-]+)\s+Ry',
+        "mixing_beta": r'mixing beta\s+=\s+([\d\.\])+',
+        "nstep": r'nstep\s+=\s+([\d]+)',
+        
         "celldm1": r"celldm\(1\)=\s+([\d\.]+)\s",
         "celldm2": r"celldm\(2\)=\s+([\d\.]+)\s",
         "celldm3": r"celldm\(3\)=\s+([\d\.]+)\s",
         "celldm4": r"celldm\(4\)=\s+([\d\.]+)\s",
         "celldm5": r"celldm\(5\)=\s+([\d\.]+)\s",
         "celldm6": r"celldm\(6\)=\s+([\d\.]+)\s",
-        "nkpts": r"number of k points=\s+([\d]+)"
+        
+        "nkpts": r"number of k points=\s+([\d]+)",
     }
 
     def __init__(self, filename):
