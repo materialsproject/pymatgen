@@ -254,7 +254,7 @@ class Directory(object):
 
         return filepaths
 
-    def has_abiext(self, ext, single_file=True):
+    def has_abiext(self, ext):
         """
         Returns the absolute path of the ABINIT file with extension ext.
         Support both Fortran files and netcdf files. In the later case,
@@ -289,12 +289,12 @@ class Directory(object):
         if not files:
             return ""
 
-        if len(files) > 1 and single_file:
+        if len(files) > 1:
             # ABINIT users must learn that multiple datasets are bad!
             raise ValueError("Found multiple files with the same extensions:\n %s\n" % files +
                              "Please avoid using multiple datasets!")
 
-        return files[0] if single_file else files
+        return files[0]
 
     def symlink_abiext(self, inext, outext):
         """
