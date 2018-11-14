@@ -365,11 +365,8 @@ class MPRester(object):
             criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
         else:
             criteria = chemsys_formula_id_criteria
-        try:
-            data = self.query(criteria, props)
-        except MPRestError:
-            return []
-
+        data = self.query(criteria, props)
+        
         entries = []
         for d in data:
             d["potcar_symbols"] = [
