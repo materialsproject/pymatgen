@@ -861,11 +861,11 @@ class DefectBuilder(Builder):
                                       "but:".format( diel_task['task_label'], out_defect_task['task_label']))
                     out_pot = {k:[v, diel_potcar[k]] for k,v in d_potcar.items() if v != diel_potcar[k]}
                     self.logger.debug("\tPotcar specs were different: {} ".format( out_pot))
-            else:
-                self.logger.debug("{} ({}) had a structure which did not match {} for use "
-                                  "as a dielectric calculation".format( diel_task['task_label'],
-                                                                     diel_task['task_id'],
-                                                                     out_defect_task['task_label']))
+            # else:
+            #     self.logger.debug("{} ({}) had a structure which did not match {} for use "
+            #                       "as a dielectric calculation".format( diel_task['task_label'],
+            #                                                          diel_task['task_id'],
+            #                                                          out_defect_task['task_label']))
 
         #if diel_tasks found then take most recently updated bulk_task for defect
         if len( diel_matched):
@@ -902,7 +902,7 @@ class DefectBuilder(Builder):
                 hybrid_meta = {'hybrid_cbm': hybrid_cbm_data[0], 'hybrid_CBM_task_id': hybrid_cbm_data[1],
                                'hybrid_vbm': hybrid_vbm_data[0], 'hybrid_VBM_task_id': hybrid_vbm_data[1]}
                 out_defect_task["hybrid_bs_meta"] = hybrid_meta.copy()
-                self.logger.debug("Found hybrid band structure properties for {}:\n{}".format( out_defect_task['task_label'],
+                self.logger.debug("Found hybrid band structure properties for {}:\n\t{}".format( out_defect_task['task_label'],
                                                                                                hybrid_meta))
             else:
                 self.logger.debug("Could NOT find hybrid band structure properties for {} despite "
@@ -912,8 +912,11 @@ class DefectBuilder(Builder):
         return out_defect_task
 
     def get_bulk_mpid(self, bulk_structure):
-        with MPRester() as mp:
-            mplist = mp.find_structure(bulk_structure)
+        try:
+            with MPRester() as mp:
+                mplist = mp.find_structure(bulk_structure)
+        except:
+            raise ValueError("Error with querying MPRester for {}".format( bulk_structure.composition.reduced_formula))
 
         mpid_fit_list = []
         for trial_mpid in mplist:
