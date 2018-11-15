@@ -1277,6 +1277,9 @@ class WavecarTest(unittest.TestCase):
         self.assertEqual(np.unravel_index(ind, mesh.shape), (6, 8, 8))
         self.assertEqual(mesh[0, 0, 0], 0j)
 
+    def test_get_parchg(self):
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()
