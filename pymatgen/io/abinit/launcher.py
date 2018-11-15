@@ -742,7 +742,8 @@ class PyFlowScheduler(object):
             self.flow.check_status()
 
             g = self.flow.find_deadlocks()
-            print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
+            #print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
+            print("deadlocked:", len(g.deadlocked), ", runnables:", len(g.runnables), ", running:", len(g.running))
             if g.deadlocked and not g.runnables and not g.running:
                 err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
 
