@@ -253,7 +253,12 @@ class TaskDefectBuilder(object):
 
     def check_mpid(self, bulk_sc_structure):
         with MPRester() as mp:
-            mplist = mp.find_structure(bulk_sc_structure)
+            # mplist = mp.find_structure(bulk_sc_structure) #had to hack this because this wasnt working??
+            tmp_mplist = mp.get_entries_in_chemsys(list(bulk_sc_structure.symbol_set))
+
+        mplist = [ment.entry_id for ment in tmp_mplist if ment.composition.reduced_composition == \
+                  bulk_sc_structure.composition.reduced_composition]
+        #TODO: this is a hack because find_structure was data intensive. simplify the hack to do less queries...
 
         mpid_fit_list = []
         for trial_mpid in mplist:
@@ -914,7 +919,11 @@ class DefectBuilder(Builder):
     def get_bulk_mpid(self, bulk_structure):
         try:
             with MPRester() as mp:
-                mplist = mp.find_structure(bulk_structure)
+                # mplist = mp.find_structure(bulk_structure) #had to hack this because this wasnt working??
+                tmp_mplist = mp.get_entries_in_chemsys(list(bulk_structure.symbol_set))
+            mplist = [ment.entry_id for ment in tmp_mplist if ment.composition.reduced_composition == \
+                      bulk_structure.composition.reduced_composition]
+            #TODO: this is a hack because find_structure was data intensive. simplify the hack to do less queries...
         except:
             raise ValueError("Error with querying MPRester for {}".format( bulk_structure.composition.reduced_formula))
 
