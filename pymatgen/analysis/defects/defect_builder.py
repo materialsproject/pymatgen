@@ -371,6 +371,7 @@ class DefectBuilder(Builder):
                  ltol=0.2,
                  stol=0.3,
                  angle_tol=5,
+                 max_items_size=0,
                  **kwargs):
         """
         Creates DefectEntry from vasp task docs
@@ -383,6 +384,7 @@ class DefectBuilder(Builder):
             ltol (float): StructureMatcher tuning parameter for matching tasks to materials
             stol (float): StructureMatcher tuning parameter for matching tasks to materials
             angle_tol (float): StructureMatcher tuning parameter for matching tasks to materials
+            max_items_size (int): limits number of items approached from tasks (zero places no limit on number of items)
         """
 
         self.tasks = tasks
@@ -392,13 +394,12 @@ class DefectBuilder(Builder):
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
+        self.max_items_size = max_items_size
         super().__init__(sources=[tasks], targets=[defects], **kwargs)
 
-    def get_items(self, max_items_size=200):
+    def get_items(self):
         """
         Gets sets of entries from chemical systems that need to be processed
-
-        max_items_size limits number of items approached from tasks
 
         Returns:
             generator of relevant entries from one chemical system
@@ -426,8 +427,8 @@ class DefectBuilder(Builder):
                                              properties=['task_id', 'transformations', 'input',
                                                          'task_label', 'last_updated',
                                                          'output', 'calcs_reversed', 'chemsys']))
-        if len(defect_tasks) > max_items_size:
-            defect_tasks = [dtask for dind, dtask in enumerate(defect_tasks) if dind < max_items_size]
+        if self.max_items_size and len(defect_tasks) > self.max_items_size:
+            defect_tasks = [dtask for dind, dtask in enumerate(defect_tasks) if dind < self.max_items_size]
         self.logger.info("Found {} new defect tasks to consider".format( len(defect_tasks)))
         log_defect_bulk_types = [frozenset(Structure.from_dict(dt['transformations']['history'][0]['defect']['structure']).symbol_set)
                                  for dt in defect_tasks]
