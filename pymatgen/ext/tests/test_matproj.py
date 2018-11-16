@@ -161,11 +161,24 @@ class MPResterTest(unittest.TestCase):
     def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['pretty_formula', 'energy']
-        data = self.rester.query(criteria=criteria, properties=props)
+        data = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
         self.assertTrue(len(data) > 6)
-        data = self.rester.query(criteria="*2O", properties=props)
+        data = self.rester.query(
+            criteria="*2O", properties=props, chunk_size=0)
         self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
+
+    def test_query_chunk_size(self):
+        criteria = {"nelements": 2, "elements": "O"}
+        props = ['pretty_formula']
+        data1 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=0)
+        data2 = self.rester.query(
+            criteria=criteria, properties=props, chunk_size=500)
+        self.assertEqual({d['pretty_formula'] for d in data1},
+                         {d['pretty_formula'] for d in data2})
+        self.assertIn("Al2O3", {d['pretty_formula'] for d in data1})
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
