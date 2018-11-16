@@ -394,12 +394,15 @@ class DefectBuilder(Builder):
         self.angle_tol = angle_tol
         super().__init__(sources=[tasks], targets=[defects], **kwargs)
 
-    def get_items(self):
+    def get_items(self, batch_size=200):
         """
         Gets sets of entries from chemical systems that need to be processed
 
+        batch_size limits number of documents returned from tasks
+
         Returns:
             generator of relevant entries from one chemical system
+
         """
         self.logger.info("Defect Builder Started")
 
@@ -414,6 +417,7 @@ class DefectBuilder(Builder):
         q = dict(self.query)
         q["state"] = "successful"
         # q.update(self.defects.lu_filter(self.defects)) #This wasnt working because DefectEntries dont have obvious way of doing this? (tried parameters.last_updated but this broke because parameters is a property and last_updated is a key)
+        #TODO: does self.tasks.lu_filter(self.defects) work better?
         q.update({'task_id': {'$nin': self.defects.distinct('entry_id')}}) #dont redo previous tasks...
         # q.update({'transformations.history.0.@module':
         q.update({'transformations.history.@module':
@@ -421,7 +425,8 @@ class DefectBuilder(Builder):
         defect_tasks = list(self.tasks.query(criteria=q,
                                              properties=['task_id', 'transformations', 'input',
                                                          'task_label', 'last_updated',
-                                                         'output', 'calcs_reversed', 'chemsys']))
+                                                         'output', 'calcs_reversed', 'chemsys'],
+                                             batch_size=batch_size))
         self.logger.info("Found {} new defect tasks to consider".format( len(defect_tasks)))
         log_defect_bulk_types = [frozenset(Structure.from_dict(dt['transformations']['history'][0]['defect']['structure']).symbol_set)
                                  for dt in defect_tasks]
@@ -992,4 +997,105 @@ class DefectBuilder(Builder):
                                coords_are_cartesian=False)
 
         return new_struct
+
+
+class DefectThermoBuilder(Builder):
+    def __init__(self,
+                 defects,
+                 defectthermo,
+                 query=None,
+                 compatibility=DefectCompatibility(),
+                 ltol=0.2,
+                 stol=0.3,
+                 angle_tol=5,
+                 **kwargs):
+        """
+        Creates DefectEntry from vasp task docs
+
+        Args:
+            defects (Store): Store of defect entries
+            defectthermo (Store): Store of DefectPhaseDiagram documents
+            query (dict): dictionary to limit materials to be analyzed
+            compatibility (PymatgenCompatability): Compatability module to ensure defect calculations are compatible
+            ltol (float): StructureMatcher tuning parameter for matching tasks to materials
+            stol (float): StructureMatcher tuning parameter for matching tasks to materials
+            angle_tol (float): StructureMatcher tuning parameter for matching tasks to materials
+        """
+
+        self.defects = defects
+        self.defectthermo = defectthermo
+        self.query = query if query else {}
+        self.compatibility = compatibility #TODO: how it this going to be used? For cut off parameters?
+        self.ltol = ltol
+        self.stol = stol
+        self.angle_tol = angle_tol
+        super().__init__(sources=[defects], targets=[defectthermo], **kwargs)
+
+    def get_items(self):
+        self.logger.info("DefectThermo Builder Started")
+
+        # Save timestamp for update operation
+        self.time_stamp = datetime.utcnow()
+
+        #get all new Defect Entries since last time DefectThermo was updated...
+        q = dict(self.query)
+        q.update(self.defects.lu_filter(self.defectthermo))  #TODO: does this work??
+
+        defect_entries = list(self.defects.query(criteria=q))
+        self.logger.info("Found {} new defect entries to consider".format( len(defect_entries)))
+
+        #group them based on bulk composition element types and task level metadata info
+        grpd_entry_list = {}
+        for entry_dict in defect_entries:
+            #get bulk symbol set
+            # #TODO = create the bulk_sym_set...
+            bulk_struct = Structure.from_dict( entry_dict['defect']['bulk_structure'])
+            bulk_sym_set = frozenset( bulk_struct.symbol_set)
+
+            if bulk_sym_set not in grpd_entry_list.keys():
+                grpd_entry_list[bulk_sym_set] = {}
+
+            #get run metadata info
+            run_metadata = entry_dict['parameters']['potcar_summary'].copy()
+            run_metadata.update( entry_dict['parameters']['incar_calctype_summary'].copy())
+            run_metadata['pot_spec'] = frozenset(run_metadata['pot_spec'])
+            run_metadata['pot_labels'] = frozenset(run_metadata['pot_labels'])
+
+            if run_metadata not in grpd_entry_list[bulk_sym_set].keys():
+                grpd_entry_list[bulk_sym_set][run_metadata] = []
+
+            for prev_run_metadata in grpd_entry_list[bulk_sym_set].keys():
+                if prev_run_metadata == run_metadata:
+                    grpd_entry_list[bulk_sym_set][prev_run_metadata].append( entry_dict)
+
+        for bulk_set, metadatadict in grpd_entry_list.items():
+            self.logger.info("Symbol set {} categorized".format(bulk_set))
+            for metakey, metalist in metadatadict.items():
+                self.logger.info("\t {} DefectEntries found for md:\n{}".format(len(metalist), metakey))
+
+        flatten_entry_list = [grpd_entry_set for grpd_entry_by_elts in grpd_entry_list.values()
+                              for grpd_entry_set in grpd_entry_by_elts.values()]
+
+        self.logger.info('Found {} new thermo entries to update.'.format(len(flatten_entry_list)))
+        for entry_list in flatten_entry_list:
+            #TODO: also output the defectthermo object if it already exists
+            yield entry_list
+
+    def process_items(self, item):
+        #group defect entries into same bulk structure type set
+
+        #see if thermo object already exists (add to it if it already does...)
+
+        #store run_meta_data type (hse / scan /gga) and other relevant metadata worth keeping
+        # 'task_level_metadata' key in parameters has keys:
+        #     defect_dir_name, bulk_dir_name, bulk_taskdb_task_id, potcar_summary, incar_calctype_summary,
+        #     defect_incar, bulk_incar, defect_kpoints, bulk_kpoints, defect_task_last_updated
+
+        pass
+
+    def update_targets(self, items):
+
+        self.logger.info("Updating {} DefectThermo documents".format(len(items)))
+
+        self.defectthermo.update(items, update_lu=True, key='entry_id')
 
