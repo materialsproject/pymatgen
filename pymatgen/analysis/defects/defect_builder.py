@@ -394,11 +394,11 @@ class DefectBuilder(Builder):
         self.angle_tol = angle_tol
         super().__init__(sources=[tasks], targets=[defects], **kwargs)
 
-    def get_items(self, batch_size=200):
+    def get_items(self, max_items_size=200):
         """
         Gets sets of entries from chemical systems that need to be processed
 
-        batch_size limits number of documents returned from tasks
+        max_items_size limits number of items approached from tasks
 
         Returns:
             generator of relevant entries from one chemical system
@@ -425,8 +425,9 @@ class DefectBuilder(Builder):
         defect_tasks = list(self.tasks.query(criteria=q,
                                              properties=['task_id', 'transformations', 'input',
                                                          'task_label', 'last_updated',
-                                                         'output', 'calcs_reversed', 'chemsys'],
-                                             batch_size=batch_size))
+                                                         'output', 'calcs_reversed', 'chemsys']))
+        if len(defect_tasks) > max_items_size:
+            defect_tasks = [dtask for dind, dtask in defect_tasks if dind < max_items_size]
         self.logger.info("Found {} new defect tasks to consider".format( len(defect_tasks)))
         log_defect_bulk_types = [frozenset(Structure.from_dict(dt['transformations']['history'][0]['defect']['structure']).symbol_set)
                                  for dt in defect_tasks]
