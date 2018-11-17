@@ -3244,13 +3244,14 @@ class Procar(object):
                                    index, :] = num_data
                     else:
                         if len(toks) > len(headers):
-                            # old format of PROCAR (vasp 5.4.1 and before)
+                            # new format of PROCAR (vasp 5.4.4)
                             num_data = np.array([float(t)
                                                  for t in toks[:2*len(headers)]])
                             for orb in range(len(headers)):
                                 phase_factors[spin][current_kpoint, current_band,
                                     index, orb] = complex(num_data[2*orb], num_data[2*orb+1])
                         else:
+                            # old format of PROCAR (vasp 5.4.1 and before)
                             if np.isnan(phase_factors[spin][
                                     current_kpoint, current_band, index, 0]):
                                 phase_factors[spin][current_kpoint, current_band,
