@@ -633,7 +633,14 @@ class DefectBuilder(Builder):
         if type( item['transformations']) != dict:
             item['transformations'] = item['transformations'].as_dict()
         defect = item['transformations']['history'][0]['defect']
-        defect = MontyDecoder().process_decoded( defect)
+        try:
+            defect = MontyDecoder().process_decoded( defect)
+        except:
+            self.logger.info("Error with defect loading for task-id {}. "
+                             "Trying again after removing unnecessary keys.".format( item['task_id']))
+            needed_keys = ['@module', '@class', 'structure', 'defect_site', 'charge']
+            defect = MontyDecoder().process_decoded( {k:v for k,v in defect.items() if k in needed_keys})
+
         scaling_matrix = MontyDecoder().process_decoded( item['transformations']['history'][0]['scaling_matrix'])
         initial_defect_structure = defect.generate_defect_structure(scaling_matrix)
         defect_energy = item['output']['energy']
