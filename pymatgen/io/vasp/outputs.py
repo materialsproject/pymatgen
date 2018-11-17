@@ -3243,13 +3243,21 @@ class Procar(object):
                         data[spin][current_kpoint, current_band,
                                    index, :] = num_data
                     else:
-                        if np.isnan(phase_factors[spin][
-                                current_kpoint, current_band, index, 0]):
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] = num_data
+                        if len(toks) > len(headers):
+                            # old format of PROCAR (vasp 5.4.1 and before)
+                            num_data = np.array([float(t)
+                                                 for t in toks[:2*len(headers)]])
+                            for orb in range(len(headers)):
+                                phase_factors[spin][current_kpoint, current_band,
+                                    index, orb] = complex(num_data[2*orb], num_data[2*orb+1])
                         else:
-                            phase_factors[spin][current_kpoint, current_band,
-                                                index, :] += 1j * num_data
+                            if np.isnan(phase_factors[spin][
+                                    current_kpoint, current_band, index, 0]):
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] = num_data
+                            else:
+                                phase_factors[spin][current_kpoint, current_band,
+                                                    index, :] += 1j * num_data
                 elif l.startswith("tot"):
                     done = True
                 elif preambleexpr.match(l):
