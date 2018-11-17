@@ -429,7 +429,8 @@ class DefectBuilder(Builder):
                                                          'output', 'calcs_reversed', 'chemsys']))
         if self.max_items_size and len(defect_tasks) > self.max_items_size:
             defect_tasks = [dtask for dind, dtask in enumerate(defect_tasks) if dind < self.max_items_size]
-        self.logger.info("Found {} new defect tasks to consider".format( len(defect_tasks)))
+        task_ids = [dtask['task_id'] for dtask in defect_tasks]
+        self.logger.info("Found {} new defect tasks to consider:\n{}".format( len(defect_tasks), task_ids))
         log_defect_bulk_types = [frozenset(Structure.from_dict(dt['transformations']['history'][0]['defect']['structure']).symbol_set)
                                  for dt in defect_tasks]
         log_defect_bulk_types = list(set( log_defect_bulk_types))
