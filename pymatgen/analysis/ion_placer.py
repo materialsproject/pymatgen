@@ -91,7 +91,7 @@ class IonPlacer(MSONable):
     def _check_acceptance(self, point):
         reactive_in_range = False
         for good_pt in self.accepted_points:
-            if np.linalg.norm(good_pt - point) < self.vdwR:
+            if np.linalg.norm(good_pt - point) < self.atR:#self.vdwR:
                 # Too close to point already accepted = reject
                 return False
         for site in self.mol:
