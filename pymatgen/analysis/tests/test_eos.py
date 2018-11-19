@@ -39,9 +39,44 @@ class EOSTest(PymatgenTest):
         self.num_eos_fit = num_eos.fit(self.volumes, self.energies)
 
     def test_run_all_models(self):
+
+        test_output = {
+            'birch': {'b0': 0.5369258244952931,
+                      'b1': 4.178644231838501,
+                      'e0': -10.8428039082307,
+                      'v0': 40.98926572870838},
+            'birch_murnaghan': {'b0': 0.5369258245417454,
+                                'b1': 4.178644235500821,
+                                'e0': -10.842803908240892,
+                                'v0': 40.98926572528106},
+            'deltafactor': {'b0': 0.5369258245611414,
+                            'b1': 4.178644231924639,
+                            'e0': -10.842803908299294,
+                            'v0': 40.989265727927936},
+            'murnaghan': {'b0': 0.5144967693786603,
+                          'b1': 3.9123862262572264,
+                          'e0': -10.836794514626673,
+                          'v0': 41.13757930387086},
+            'numerical_eos': {'b0': 0.5557257614101998,
+                              'b1': 4.344039148405489,
+                              'e0': -10.847490826530702,
+                              'v0': 40.857200064982536},
+            'pourier_tarantola': {'b0': 0.5667729960804602,
+                                  'b1': 4.331688936974368,
+                                  'e0': -10.851486685041658,
+                                  'v0': 40.86770643373908},
+            'vinet': {'b0': 0.5493839425156859,
+                      'b1': 4.3051929654936885,
+                      'e0': -10.846160810560756,
+                      'v0': 40.916875663779784}
+        }
+
         for eos_name in EOS.MODELS:
             eos = EOS(eos_name=eos_name)
             _ = eos.fit(self.volumes, self.energies)
+            for param in ('b0', 'b1', 'e0', 'b0'):
+                self.assertAlmostEqual(_.results[param],
+                                       test_output[eos_name][param])
 
     def test_numerical_eoswrapper(self):
         # using numerical eos directly vs via EOS wrapper
@@ -94,7 +129,6 @@ class EOSTest(PymatgenTest):
         d = {"e0": self.num_eos_fit.e0, "b0": self.num_eos_fit.b0,
              "b1": self.num_eos_fit.b1, "v0": self.num_eos_fit.v0}
         self.assertDictEqual(self.num_eos_fit.results, d)
-
 
 if __name__ == "__main__":
     unittest.main()
