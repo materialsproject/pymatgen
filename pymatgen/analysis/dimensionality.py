@@ -67,7 +67,8 @@ def get_dimensionality_larsen(bonded_structure):
                 get_structure_component_info(bonded_structure)])
 
 
-def get_structure_component_info(bonded_structure, inc_orientation=False):
+def get_structure_component_info(bonded_structure, inc_orientation=False,
+                                 inc_site_ids=False):
     """
     Gets information on the components in a bonded structure.
 
@@ -90,6 +91,8 @@ def get_structure_component_info(bonded_structure, inc_orientation=False):
         inc_orientation (bool, optional): Whether to include the orientation
             of the structure component. For surfaces, the miller index is given,
             for one-dimensional structures, the direction of the chain is given.
+        inc_site_ids (bool, optional): Whether to include the site indices
+            of the sites in the structure component.
 
     Returns:
         (list of dict): Information on the components in a structure as a list
@@ -101,6 +104,8 @@ def get_structure_component_info(bonded_structure, inc_orientation=False):
             int.
         - "orientation": If inc_orientation is `True`, the orientation of the
             component as a tuple. E.g. (1, 1, 1)
+        - "site_ids": If inc_site_ids is `True`, the site indices of the
+            sites in the component as a tuple.
     """
     import networkx as nx  # optional dependency therefore not top level import
 
@@ -135,6 +140,9 @@ def get_structure_component_info(bonded_structure, inc_orientation=False):
                 orientation = None
 
             component['orientation'] = orientation
+
+        if inc_site_ids:
+            component['site_ids'] = tuple(graph.nodes())
 
         components.append(component)
     return components
