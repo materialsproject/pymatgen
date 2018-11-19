@@ -321,7 +321,9 @@ class Polarization(object):
         """
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=True)
-        return tot[-1] - tot[0]
+        # reshape to preserve backwards compatibility due to changes
+        # when switching from np.matrix to np.array
+        return (tot[-1] - tot[0]).reshape((1,  3))
 
     def get_polarization_change_norm(self):
         """
