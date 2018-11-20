@@ -693,7 +693,6 @@ class DefectBuilder(Builder):
             defect_atomic_site_averages = defoutcar['electrostatic_potential']
             bulk_sc_structure = parameters['bulk_sc_structure']
 
-            #find fractional coordinates of defect within the final_defect_structure
             if type(defect) != Interstitial:
                 poss_deflist = sorted(
                     bulk_sc_structure.get_sites_in_sphere(defect.site.coords, 2,
@@ -830,7 +829,13 @@ class DefectBuilder(Builder):
                 d_potcar['pot_spec'] = set([d for d in d_potcar['pot_spec'] if d in b_potcar['pot_spec']])
                 d_potcar['pot_labels'] = set([d for d in d_potcar['pot_labels'] if d in b_potcar['pot_labels']])
 
-                if bincar_reduced == dincar_reduced and b_potcar == d_potcar:
+                #track to make sure that cartesian coords are same (important for several levels of analysis in defect builder)
+                same_cart_positions = True
+                for bsite_coords in bstruct.cart_coords:
+                    if not len( dstruct_withoutdefect.get_sites_in_sphere(bsite_coords, 1)):
+                        same_cart_positions = False
+
+                if bincar_reduced == dincar_reduced and b_potcar == d_potcar and same_cart_positions:
                     bulk_matched.append( b_task.copy())
                 else:
                     self.logger.debug("Bulk structure match was found for {} with {}, "
@@ -841,6 +846,8 @@ class DefectBuilder(Builder):
                     if b_potcar != d_potcar:
                         out_pot = {k:[v, b_potcar[k]] for k,v in d_potcar.items() if v != b_potcar[k]}
                         self.logger.debug("\tPotcar specs were different: {} ".format( out_pot))
+                    if not same_cart_positions:
+                        self.logger.debug("\tBulk site coords were different")
 
         #if bulk_task found then take most recently updated bulk_task for defect
         if len( bulk_matched):
