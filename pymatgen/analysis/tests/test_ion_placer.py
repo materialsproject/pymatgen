@@ -27,7 +27,7 @@ class TestIonPlacer(PymatgenTest):
         mol = ec_out['initial_molecule']
         mol.add_site_property("charge",ec_out['Mulliken'][0][::,0])
         mol.add_site_property("spin",ec_out['Mulliken'][0][::,1])
-        tmp = IonPlacer(mol, "Li", 10000)
+        tmp = IonPlacer(mol, "Li", 100000)
         save_points = copy.deepcopy(tmp.accepted_points)
         tmp.accepted_points = []
         self.assertEqual(len(save_points)!=0,True)
@@ -39,7 +39,7 @@ class TestIonPlacer(PymatgenTest):
         ec_out = QCOutput(os.path.join(test_dir, "PC01.qout")).data
         mol = ec_out['initial_molecule']
         mol.add_site_property("charge",ec_out['Mulliken'][0])
-        tmp = IonPlacer(mol, "Li", 10000)
+        tmp = IonPlacer(mol, "Li", 100000)
         save_points = copy.deepcopy(tmp.accepted_points)
         tmp.accepted_points = []
         self.assertEqual(len(save_points)!=0,True)

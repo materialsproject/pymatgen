@@ -79,8 +79,8 @@ class IonPlacer(MSONable):
                 self.min_vals[2] = site.z
             elif site.z > self.max_vals[2]:
                 self.max_vals[2] = site.z
-        self.max_vals+=3
-        self.min_vals-=3
+        self.max_vals+=self.vdwR
+        self.min_vals-=self.vdwR
 
     def _random_in_box(self):
         guess = np.random.random(3)
@@ -89,27 +89,34 @@ class IonPlacer(MSONable):
         return guess
 
     def _check_acceptance(self, point):
-        reactive_in_range = False
-        for good_pt in self.accepted_points:
-            if np.linalg.norm(good_pt - point) < self.atR:#self.vdwR:
-                # Too close to point already accepted = reject
-                return False
+        reactive_in_range = 0
         for site in self.mol:
             dist = site.distance_from_point(point)
             if dist < self.atR:
                 # Within atomic radius of an atom = reject
                 return False
             if site.properties["reactivity"]:
-                if dist < self.vdwR*0.9:
-                    # Closer than vdw*0.9 of a reactive site = reject
-                    return False
-                elif dist < self.vdwR*1.2:
+                if dist < self.vdwR:
                     # In right range from a reactive site!
-                    reactive_in_range = True
-            elif dist < self.vdwR:
-                # Closer than vdw of a nonreactive site = reject
+                    reactive_in_range += 1
+            elif dist < self.vdwR*0.9:
+                # Closer than vdw*0.9 of a nonreactive site = reject
                 return False
-        return reactive_in_range
+        if reactive_in_range == 0:
+            # No reactive sites in range = reject
+            return False
+        else:
+            for good_pt in self.accepted_points:
+                dist = np.linalg.norm(good_pt - point)
+                if dist < self.atR and reactive_in_range == 1:
+                    # Within an atomic radius of an accepted point
+                    # and only one reactive site in range = reject
+                    return False
+                elif dist < self.atR*0.8:
+                    # Within 0.8*atR of an accepted point and more
+                    # than one reactive site in range = reject
+                    return False
+            return True
 
     def _guess_until_stop(self):
         num_reject_in_a_row = 0
