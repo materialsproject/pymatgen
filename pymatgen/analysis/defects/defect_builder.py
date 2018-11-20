@@ -858,8 +858,9 @@ class DefectBuilder(Builder):
             self.logger.debug("Found {} possible bulk supercell structures. Taking most recent entry updated "
                   "on: {}".format(len(bulk_matched), bulk_matched[0]['last_updated']))
         else:
-            self.logger.error("Bulk task doesnt exist for: {}! Cant create defect "
+            self.logger.error("Bulk task doesnt exist for: {} ({})! Cant create defect "
                              "object...\nMetadata: {}\n{}".format( out_defect_task['task_label'],
+                                                                   out_defect_task['task_id'],
                                                                    d_potcar, dincar_reduced))
             return None
 
