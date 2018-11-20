@@ -426,7 +426,7 @@ class DefectBuilder(Builder):
                 q['task_id'].update( {'$nin': self.defects.distinct('entry_id')})
         else:
             q.update({'task_id': {'$nin': self.defects.distinct('entry_id')}})
-            
+
         q.update({'transformations.history.@module':
                       {'$in': ['pymatgen.transformations.defect_transformations']}})
         defect_tasks = list(self.tasks.query(criteria=q,
@@ -701,14 +701,21 @@ class DefectBuilder(Builder):
             defect_atomic_site_averages = defoutcar['electrostatic_potential']
             bulk_sc_structure = parameters['bulk_sc_structure']
 
+            struct_for_defect_site = Structure(defect.bulk_structure.copy().lattice,
+                                               [defect.site.specie],
+                                               [defect.site.frac_coords],
+                                               to_unit_cell=True)
+            struct_for_defect_site.make_supercell(scaling_matrix)
+            defect_site_coords = struct_for_defect_site[0].coords
+
             if type(defect) != Interstitial:
                 poss_deflist = sorted(
-                    bulk_sc_structure.get_sites_in_sphere(defect.site.coords, 2,
+                    bulk_sc_structure.get_sites_in_sphere(defect_site_coords, 2,
                                                           include_index=True), key=lambda x: x[1])
                 defect_frac_sc_coords = bulk_sc_structure[poss_deflist[0][2]].frac_coords
             else:
                 poss_deflist = sorted(
-                    initial_defect_structure.get_sites_in_sphere(defect.site.coords, 2,
+                    initial_defect_structure.get_sites_in_sphere(defect_site_coords, 2,
                                                                  include_index=True), key=lambda x: x[1])
                 defect_frac_sc_coords = initial_defect_structure[poss_deflist[0][2]].frac_coords
 
