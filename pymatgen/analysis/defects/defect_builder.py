@@ -705,7 +705,6 @@ class DefectBuilder(Builder):
                                                [defect.site.specie],
                                                [defect.site.frac_coords],
                                                to_unit_cell=True)
-            struct_for_defect_site.make_supercell(scaling_matrix)
             defect_site_coords = struct_for_defect_site[0].coords
 
             if type(defect) != Interstitial:
