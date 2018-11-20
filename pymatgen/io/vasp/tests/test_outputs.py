@@ -601,6 +601,11 @@ class OutcarTest(PymatgenTest):
 
             self.assertFalse(outcar.lepsilon)
 
+            toten = 0
+            for k in outcar.final_energy_contribs.keys():
+                toten += outcar.final_energy_contribs[k]
+            self.assertAlmostEqual(toten, outcar.final_energy, 6)
+
     def test_stopped(self):
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
