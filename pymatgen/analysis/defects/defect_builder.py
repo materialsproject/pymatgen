@@ -921,9 +921,8 @@ class DefectBuilder(Builder):
                 if diel_sm.fit(hse_bs_struct, dstruct_withoutdefect): #can use same matching scheme as the dielectric structure matcher
                     hse_bs_matched.append( hse_bs_task.copy())
                 else:
-                    self.logger.debug("{} ({}) had a structure which did not match {} for use "
-                                      "as an HSE BS calculation".format( hse_bs_task['task_label'],
-                                                                         hse_bs_task['task_id'],
+                    self.logger.debug("task id {} has a structure which did not match {} for use "
+                                      "as an HSE BS calculation".format( hse_bs_task['task_id'],
                                                                          out_defect_task['task_label']))
 
             if len(hse_bs_matched): #match the lowest CBM  and highest VBM values, keeping track of their task_ids
