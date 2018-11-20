@@ -150,8 +150,8 @@ class Polarization(object):
         if len(p_elecs) != len(p_ions) or len(p_elecs) != len(structures):
             raise ValueError(
                 "The number of electronic polarization and ionic polarization values must be equal.")
-        self.p_elecs = np.matrix(p_elecs)
-        self.p_ions = np.matrix(p_ions)
+        self.p_elecs = np.array(p_elecs)
+        self.p_ions = np.array(p_ions)
         self.structures = structures
 
     @classmethod
@@ -195,11 +195,11 @@ class Polarization(object):
             volumes = [s.lattice.volume for s in self.structures]
             e_to_muC = -1.6021766e-13
             cm2_to_A2 = 1e16
-            units = 1.0 / np.matrix(volumes)
+            units = 1.0 / np.array(volumes)
             units *= e_to_muC * cm2_to_A2
 
-            p_elecs = np.multiply(units, p_elecs)
-            p_ions = np.multiply(units, p_ions)
+            p_elecs = np.matmul(units, p_elecs)
+            p_ions = np.matmul(units, p_ions)
 
             p_elecs, p_ions = p_elecs.T, p_ions.T
 
@@ -238,10 +238,10 @@ class Polarization(object):
 
         p_elec, p_ion = self.get_pelecs_and_pions()
         p_tot = p_elec + p_ion
-        p_tot = np.matrix(p_tot)
+        p_tot = np.array(p_tot)
 
         lattices = [s.lattice for s in self.structures]
-        volumes = np.matrix([s.lattice.volume for s in self.structures])
+        volumes = np.array([s.lattice.volume for s in self.structures])
 
         L = len(p_elec)
 
@@ -249,25 +249,24 @@ class Polarization(object):
         if convert_to_muC_per_cm2:
             e_to_muC = -1.6021766e-13
             cm2_to_A2 = 1e16
-            units = 1.0 / np.matrix(volumes)
+            units = 1.0 / np.array(volumes)
             units *= e_to_muC * cm2_to_A2
             # Convert the total polarization
-            p_tot = np.multiply(units.T, p_tot)
+            p_tot = np.multiply(units.T[:, np.newaxis], p_tot)
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
                 l, a = lattice.lengths_and_angles
                 lattices[i] = Lattice.from_lengths_and_angles(
-                    np.array(l) * units.A1[i], a)
+                    np.array(l) * units.ravel()[i], a)
 
         d_structs = []
         sites = []
-
         for i in range(L):
             l = lattices[i]
-            frac_coord = np.divide(np.matrix(p_tot[i]),
-                                   np.matrix([l.a, l.b, l.c]))
-            d = PolarizationLattice(l, ["C"], [np.matrix(frac_coord).A1])
+            frac_coord = np.divide(np.array([p_tot[i]]),
+                                   np.array([l.a, l.b, l.c]))
+            d = PolarizationLattice(l, ["C"], [np.array(frac_coord).ravel()])
             d_structs.append(d)
             site = d[0]
             if i == 0:
@@ -283,8 +282,8 @@ class Polarization(object):
         for s, d in zip(sites, d_structs):
             l = d.lattice
             adjust_pol.append(
-                np.multiply(s.frac_coords, np.matrix([l.a, l.b, l.c])).A1)
-        adjust_pol = np.matrix(adjust_pol)
+                np.multiply(s.frac_coords, np.array([l.a, l.b, l.c])).ravel())
+        adjust_pol = np.array(adjust_pol)
 
         return adjust_pol
 
@@ -294,7 +293,7 @@ class Polarization(object):
         all structures.
         """
         lattices = [s.lattice for s in self.structures]
-        volumes = np.matrix([s.lattice.volume for s in self.structures])
+        volumes = np.array([s.lattice.volume for s in self.structures])
 
         L = len(self.structures)
 
@@ -302,16 +301,16 @@ class Polarization(object):
         if convert_to_muC_per_cm2:
             e_to_muC = -1.6021766e-13
             cm2_to_A2 = 1e16
-            units = 1.0 / np.matrix(volumes)
+            units = 1.0 / np.array(volumes)
             units *= e_to_muC * cm2_to_A2
             # adjust lattices
             for i in range(L):
                 lattice = lattices[i]
                 l, a = lattice.lengths_and_angles
                 lattices[i] = Lattice.from_lengths_and_angles(
-                    np.array(l) * units.A1[i], a)
+                    np.array(l) * units.ravel()[i], a)
 
-        quanta = np.matrix(
+        quanta = np.array(
             [np.array(l.lengths_and_angles[0]) for l in lattices])
 
         return quanta
@@ -322,7 +321,9 @@ class Polarization(object):
         """
         tot = self.get_same_branch_polarization_data(
             convert_to_muC_per_cm2=True)
-        return tot[-1] - tot[0]
+        # reshape to preserve backwards compatibility due to changes
+        # when switching from np.matrix to np.array
+        return (tot[-1] - tot[0]).reshape((1,  3))
 
     def get_polarization_change_norm(self):
         """
@@ -333,7 +334,7 @@ class Polarization(object):
         a, b, c = polar.lattice.matrix
         a, b, c = a / np.linalg.norm(a), b / np.linalg.norm(
             b), c / np.linalg.norm(c)
-        P = self.get_polarization_change().A1
+        P = self.get_polarization_change().ravel()
         P_norm = np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
         return P_norm
 
@@ -347,15 +348,15 @@ class Polarization(object):
             convert_to_muC_per_cm2=True)
         L = tot.shape[0]
         try:
-            sp_a = UnivariateSpline(range(L), tot[:, 0].A1)
+            sp_a = UnivariateSpline(range(L), tot[:, 0].ravel())
         except:
             sp_a = None
         try:
-            sp_b = UnivariateSpline(range(L), tot[:, 1].A1)
+            sp_b = UnivariateSpline(range(L), tot[:, 1].ravel())
         except:
             sp_b = None
         try:
-            sp_c = UnivariateSpline(range(L), tot[:, 2].A1)
+            sp_c = UnivariateSpline(range(L), tot[:, 2].ravel())
         except:
             sp_c = None
         return sp_a, sp_b, sp_c
@@ -370,7 +371,7 @@ class Polarization(object):
         max_jumps = [None, None, None]
         for i, sp in enumerate(sps):
             if sp != None:
-                max_jumps[i] = max(tot[:, i].A1 - sp(range(len(tot[:, i].A1))))
+                max_jumps[i] = max(tot[:, i].ravel() - sp(range(len(tot[:, i].ravel()))))
         return max_jumps
 
     def smoothness(self):
@@ -386,7 +387,7 @@ class Polarization(object):
             print("Something went wrong.")
             return None
         sp_latt = [sp[i](range(L)) for i in range(3)]
-        diff = [sp_latt[i] - tot[:, i].A1 for i in range(3)]
+        diff = [sp_latt[i] - tot[:, i].ravel() for i in range(3)]
         rms = [np.sqrt(np.sum(np.square(diff[i])) / L) for i in range(3)]
         return rms
 

@@ -111,6 +111,10 @@ class StructureGraphTest(unittest.TestCase):
         self.assertEqual(len(self.mos2_sg.get_connected_sites(0)), 6)
         self.assertTrue(isinstance(self.mos2_sg.get_connected_sites(0)[0].site, PeriodicSite))
         self.assertEqual(str(self.mos2_sg.get_connected_sites(0)[0].site.specie), 'S')
+        self.assertAlmostEqual(
+            self.mos2_sg.get_connected_sites(0, jimage=(0, 0, 100))[0].site.frac_coords[2],
+            100.303027
+        )
 
         # these two graphs should be equivalent
         for n in range(len(self.bc_square_sg)):
