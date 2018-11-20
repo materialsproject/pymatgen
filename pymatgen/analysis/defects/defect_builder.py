@@ -419,8 +419,14 @@ class DefectBuilder(Builder):
         q["state"] = "successful"
         # q.update(self.defects.lu_filter(self.defects)) #This wasnt working because DefectEntries dont have obvious way of doing this? (tried parameters.last_updated but this broke because parameters is a property and last_updated is a key)
         #TODO: does self.tasks.lu_filter(self.defects) work better?
-        q.update({'task_id': {'$nin': self.defects.distinct('entry_id')}}) #dont redo previous tasks...
-        # q.update({'transformations.history.0.@module':
+        if 'task_id' in q:
+            if '$nin' in q['task_id']:
+                q['task_id']['$nin'].extend( self.defects.distinct('entry_id'))
+            else:
+                q['task_id'].update( {'$nin': self.defects.distinct('entry_id')})
+        else:
+            q.update({'task_id': {'$nin': self.defects.distinct('entry_id')}})
+            
         q.update({'transformations.history.@module':
                       {'$in': ['pymatgen.transformations.defect_transformations']}})
         defect_tasks = list(self.tasks.query(criteria=q,
