@@ -78,7 +78,8 @@ class EOSTest(PymatgenTest):
             _ = eos.fit(self.volumes, self.energies)
             for param in ('b0', 'b1', 'e0', 'b0'):
                 self.assertAlmostEqual(_.results[param],
-                                       test_output[eos_name][param])
+                                       test_output[eos_name][param],
+                                       places=4)
 
     def test_fitting(self):
 
