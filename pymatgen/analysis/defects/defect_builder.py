@@ -484,6 +484,8 @@ class DefectBuilder(Builder):
         for d_task in defect_tasks:
             sym_set = frozenset(Structure.from_dict(d_task['transformations']['history'][0]['defect']['structure']).symbol_set)
             defect_task = self.load_defect_task( d_task, log_additional_tasks[sym_set])
+            if defect_task is None:
+                continue
 
             #import additional bulk task information and get mp-id as appropriate
             bulk_task_id = defect_task['bulk_task']['task_id']
