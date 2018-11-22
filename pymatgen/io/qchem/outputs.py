@@ -693,6 +693,12 @@ class QCOutput(MSONable):
                 },
                 terminate_on_match=True).get('key') != [[]]:
             self.data["errors"] += ["never_called_qchem"]
+        elif len(read_pattern(
+                self.text, {
+                    "key": r"\d+\s+failed line searches\.\s+Resetting"
+                },
+                terminate_on_match=False).get('key')) > 10:
+            self.data["errors"] += ["SCF_failed_to_converge"]
         else:
             self.data["errors"] += ["unknown_error"]
 
