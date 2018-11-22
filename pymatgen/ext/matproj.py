@@ -9,6 +9,7 @@ import itertools
 import json
 import re
 import warnings
+from time import sleep
 
 from monty.json import MontyDecoder, MontyEncoder
 from six import string_types
@@ -25,6 +26,8 @@ from pymatgen.entries.computed_entries import ComputedEntry, \
 from pymatgen.entries.exp_entries import ExpEntry
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from pymatgen.util.sequence import get_chunks, PBar
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -365,11 +368,8 @@ class MPRester(object):
             criteria = MPRester.parse_criteria(chemsys_formula_id_criteria)
         else:
             criteria = chemsys_formula_id_criteria
-        try:
-            data = self.query(criteria, props)
-        except MPRestError:
-            return []
-
+        data = self.query(criteria, props)
+        
         entries = []
         for d in data:
             d["potcar_symbols"] = [
@@ -671,25 +671,29 @@ class MPRester(object):
         return ExpEntry(Composition(formula),
                         self.get_exp_thermo_data(formula))
 
-    def query(self, criteria, properties, mp_decode=True):
+    def query(self, criteria, properties, chunk_size=500, max_tries_per_chunk=5,
+              mp_decode=True):
         """
-        Performs an advanced query, which is a Mongo-like syntax for directly
-        querying the Materials Project database via the query rest interface.
-        Please refer to the Materials Project REST wiki
-        https://materialsproject.org/wiki/index.php/The_Materials_API#query
-        on the query language and supported criteria and properties.
-        Essentially, any supported properties within MPRester should be
-        supported in query.
 
-        Query allows an advanced developer to perform queries which are
-        otherwise too cumbersome to perform using the standard convenience
-        methods.
+        Performs an advanced query using MongoDB-like syntax for directly
+        querying the Materials Project database. This allows one to perform
+        queries which are otherwise too cumbersome to perform using the standard
+        convenience methods.
 
-        It is highly recommended that you consult the Materials API
-        documentation at http://bit.ly/materialsapi, which provides a
-        comprehensive explanation of the document schema used in the
-        Materials Project and how best to query for the relevant information
-        you need.
+        Please consult the Materials API documentation at
+        https://github.com/materialsproject/mapidoc, which provides a
+        comprehensive explanation of the document schema used in the Materials
+        Project (supported criteria and properties) and guidance on how best to
+        query for the relevant information you need.
+
+        For queries that request data on more than CHUNK_SIZE materials at once,
+        this method will chunk a query by first retrieving a list of material
+        IDs that satisfy CRITERIA, and then merging the criteria with a
+        restriction to one chunk of materials at a time of size CHUNK_SIZE. You
+        can opt out of this behavior by setting CHUNK_SIZE=0. To guard against
+        intermittent server errors in the case of many chunks per query,
+        possibly-transient server errors will result in re-trying a give chunk
+        up to MAX_TRIES_PER_CHUNK times.
 
         Args:
             criteria (str/dict): Criteria of the query as a string or
@@ -718,6 +722,12 @@ class MPRester(object):
             properties (list): Properties to request for as a list. For
                 example, ["formula", "formation_energy_per_atom"] returns
                 the formula and formation energy per atom.
+            chunk_size (int): Number of materials for which to fetch data at a
+                time. More data-intensive properties may require smaller chunk
+                sizes. Use chunk_size=0 to force no chunking -- this is useful
+                when fetching only properties such as 'material_id'.
+            max_tries_per_chunk (int): How many times to re-try fetching a given
+                chunk when the server gives a 5xx error (e.g. a timeout error).
             mp_decode (bool): Whether to do a decoding to a Pymatgen object
                 where possible. In some cases, it might be useful to just get
                 the raw python dict, i.e., set to False.
@@ -730,11 +740,49 @@ class MPRester(object):
             ...]
         """
         if not isinstance(criteria, dict):
-            criteria = MPRester.parse_criteria(criteria)
+            criteria = self.parse_criteria(criteria)
         payload = {"criteria": json.dumps(criteria),
                    "properties": json.dumps(properties)}
-        return self._make_request("/query", payload=payload, method="POST",
-                                  mp_decode=mp_decode)
+        if chunk_size == 0:
+            return self._make_request(
+                "/query", payload=payload, method="POST", mp_decode=mp_decode)
+
+        count_payload = payload.copy()
+        count_payload["options"] = json.dumps({"count_only": True})
+        num_results = self._make_request(
+            "/query", payload=count_payload, method="POST")
+        if num_results <= chunk_size:
+            return self._make_request(
+                "/query", payload=payload, method="POST", mp_decode=mp_decode)
+
+        data = []
+        mids = [d["material_id"] for d in
+                self.query(criteria, ["material_id"], chunk_size=0)]
+        chunks = get_chunks(mids, size=chunk_size)
+        progress_bar = PBar(total=len(mids))
+        for chunk in chunks:
+            chunk_criteria = criteria.copy()
+            chunk_criteria.update({"material_id": {"$in": chunk}})
+            num_tries = 0
+            while num_tries < max_tries_per_chunk:
+                try:
+                    data.extend(self.query(chunk_criteria, properties,
+                                           chunk_size=0, mp_decode=mp_decode))
+                    break
+                except MPRestError as e:
+                    match = re.search("error status code (\d+)", e.message)
+                    if match:
+                        if not match.group(1).startswith("5"):
+                            raise e
+                        else:  # 5xx error. Try again
+                            num_tries += 1
+                            print(
+                                "Unknown server error. Trying again in five "
+                                "seconds (will try at most {} times)...".format(
+                                    max_tries_per_chunk))
+                            sleep(5)
+            progress_bar.update(len(chunk))
+        return data
 
     def submit_structures(self, structures, authors, projects=None,
                           references='', remarks=None, data=None,

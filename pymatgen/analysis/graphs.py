@@ -652,9 +652,9 @@ class StructureGraph(MSONable):
                 u, v = v, u
                 to_jimage = np.multiply(-1, to_jimage)
 
+            to_jimage = tuple(map(int, np.add(to_jimage, jimage)))
             site_d = self.structure[v].as_dict()
             site_d['abc'] = np.add(site_d['abc'], to_jimage).tolist()
-            to_jimage = tuple(map(int, np.add(to_jimage, jimage)))
             site = PeriodicSite.from_dict(site_d)
 
             # from_site if jimage arg != (0, 0, 0)
