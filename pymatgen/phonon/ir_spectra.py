@@ -35,11 +35,18 @@ class IRDielectricTensorGenerator(MSONable):
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
 
-    def __init__(self, oscillator_strength, phfreqs_gamma, epsinf, structure):
+    def __init__(self, oscillator_strength, phfreqs_gamma, epsilon_infinity, structure):
+        """
+        Args:
+            oscillatator_strength: IR oscillator strengths as defined in Eq. 54 in :cite:`Gonze1997` PRB55, 10355 (1997).
+            phfreqs_gamma: Phonon frequencies at the Gamma point
+            epsilon_infinity: electronic susceptibility as defined in Eq. 29.
+            structure: A Structure object corresponding to the structure used for the calculation.
+        """
         self.structure = structure
         self.oscillator_strength = np.array(oscillator_strength).real
         self.phfreqs_gamma = np.array(phfreqs_gamma)
-        self.epsinf = np.array(epsinf)
+        self.epsilon_infinity = np.array(epsilon_infinity)
 
     @classmethod
     def from_dict(cls, d):
@@ -49,8 +56,8 @@ class IRDielectricTensorGenerator(MSONable):
         structure = Structure.from_dict(d['structure'])
         oscillator_strength = d['oscillator_strength']
         phfreqs_gamma = d['phfreqs_gamma']
-        epsinf = d['epsinf']
-        return cls(oscillator_strength, phfreqs_gamma, epsinf, structure)
+        epsilon_infinity = d['epsilon_infinity']
+        return cls(oscillator_strength, phfreqs_gamma, epsilon_infinity, structure)
  
     @property
     def max_phfreq(self): return max(self.phfreqs_gamma)
@@ -66,7 +73,7 @@ class IRDielectricTensorGenerator(MSONable):
                 "oscillator_strength": self.oscillator_strength.tolist(),
                 "phfreqs_gamma": self.phfreqs_gamma.tolist(),
                 "structure": self.structure.as_dict(),
-                "epsinf": self.epsinf.tolist()}
+                "epsilon_infinity": self.epsilon_infinity.tolist()}
 
     def write_json(self,filename):
         """
@@ -97,15 +104,21 @@ class IRDielectricTensorGenerator(MSONable):
         for i in range(3, len(self.phfreqs_gamma)):
             g =  broad[i] * self.phfreqs_gamma[i]
             t += (self.oscillator_strength[i,:,:] / (self.phfreqs_gamma[i]**2 - w[:,na,na]**2 - 1j*g))
-        t += self.epsinf[na,:,:]
+        t += self.epsilon_infinity[na,:,:]
 
         return IRSpectra(w,t,self)
 
 class IRSpectra():
     """
-    Class containing an IR Spectra
+    Class containing IR Spectra
     """
     def __init__(self,frequencies,ir_spectra_tensor,ir_spectra_generator):
+        """
+        Args:
+            frequencies: A list of frequencies where the dielectric tensor is calculated
+            ir_spectra_tensor: the dielectric tensor for the frequencies above
+            ir_spectra_generator: keep the object used to generate the spectra
+        """
         self.frequencies = frequencies
         self.ir_spectra_tensor = ir_spectra_tensor
         self.ir_spectra_generator = ir_spectra_generator
