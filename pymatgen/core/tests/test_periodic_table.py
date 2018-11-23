@@ -67,6 +67,10 @@ class ElementTestCase(PymatgenTest):
         with self.assertRaises(ValueError):
             Element("U").valence
 
+        valence = Element("He").valence
+        self.assertTrue(np.isnan(valence[0]))
+        self.assertEqual(valence[1], 0)
+
     def test_term_symbols(self):
         testsets = {"Li": [['2S0.5']],  # s1
                     "C": [['1D2.0'],
