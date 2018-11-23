@@ -612,6 +612,10 @@ class Element(Enum):
         # angular moment (L) and number of valence e- (v_e)
 
         """
+        # the number of valence of noble gas is 0
+        if self.group == 18:
+            return (np.nan, 0)
+
         L_symbols = 'SPDFGHIKLMNOQRTUVWXYZ'
         valence = []
         full_electron_config = self.full_electronic_structure
