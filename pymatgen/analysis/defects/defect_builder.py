@@ -846,11 +846,11 @@ class DefectBuilder(Builder):
 
         for b_task in bulk_tasks:
             bstruct = Structure.from_dict(b_task['input']['structure'])
-            self.logger.debug("\tTest b_task keys: {}".format( b_task.keys()))
+            self.logger.debug("\tTest b_task ({}) keys: {}".format( b_task['task_id'], b_task.keys()))
             if bulk_sm.fit( bstruct, dstruct_withoutdefect):
                 #also match essential INCAR and POTCAR settings
                 bincar = b_task["input"]["incar"]
-                bincar_reduced = {k: bincar.get(k, None) for k in dincar_reduced.keys()}
+                bincar_reduced = {k: bincar.get(k, None) for k in dincar_reduced.keys() if bincar.get(k) != 'None' else None}
 
                 b_potcar = {'pot_spec': set([potelt["titel"] for potelt in b_task['input']['potcar_spec']]),
                             'pot_labels': set(b_task['input']['pseudo_potential']['labels'][:]),
