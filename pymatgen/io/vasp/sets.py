@@ -1498,13 +1498,13 @@ class MVLGBSet(MPRelaxSet):
         return incar
 
 
-class MVLRelaxSet(DictSet):
+class MVLRelax52Set(DictSet):
     """
     Implementation of VaspInputSet utilizing the public Materials Project
     parameters for INCAR & KPOINTS and VASP's recommended PAW potentials for
     POTCAR.
     """
-    CONFIG = _load_yaml_config("MVLRelaxSet_52")
+    CONFIG = _load_yaml_config("MVLRelax52Set")
 
     def __init__(self, structure, potcar_functional="PBE_52", **kwargs):
         """
@@ -1524,9 +1524,9 @@ class MVLRelaxSet(DictSet):
         if potcar_functional not in ["PBE_52", "PBE_54"]:
             raise ValueError("Please select from PBE_52 and PBE_54!")
 
-        super(MVLRelaxSet, self).__init__(structure, MVLRelaxSet.CONFIG,
-                                          potcar_functional=potcar_functional,
-                                          **kwargs)
+        super(MVLRelax52Set, self).__init__(structure, MVLRelax52Set.CONFIG,
+                                            potcar_functional=potcar_functional,
+                                            **kwargs)
         self.kwargs = kwargs
 
 
