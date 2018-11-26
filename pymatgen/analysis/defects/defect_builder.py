@@ -872,8 +872,11 @@ class DefectBuilder(Builder):
                 if bincar_reduced == dincar_reduced and b_potcar == d_potcar and same_cart_positions:
                     bulk_matched.append( b_task.copy())
                 else:
-                    self.logger.debug("Bulk structure match was found for {} with {}, "
-                                      "but:".format( b_task['task_label'], out_defect_task['task_label']))
+                    try:
+                        self.logger.debug("Bulk structure match was found for {} with {}, "
+                                          "but:".format( b_task['task_label'], out_defect_task['task_label']))
+                    except:
+                        self.logger.debug("BULK STRUCT MATCH was found, but task_label did not exist AND:")
                     if bincar_reduced != dincar_reduced:
                         out_inc = {k:[v, bincar_reduced[k]] for k,v in dincar_reduced.items() if v != bincar_reduced[k]}
                         self.logger.debug("\tIncars were different: {} ".format( out_inc))
