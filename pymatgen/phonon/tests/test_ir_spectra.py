@@ -10,18 +10,18 @@ from monty.serialization import loadfn
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
-class IRDielectricTensorGeneratorTest(PymatgenTest):
+class IRDielectricTensorTest(PymatgenTest):
 
     def setUp(self):
-        self.ir_spectra_generator = loadfn(os.path.join(test_dir,'ir_spectra_generator_mp-991652_DDB.json'))
+        self.ir_spectra = loadfn(os.path.join(test_dir,'ir_spectra_mp-991652_DDB.json'))
 
     def test_basic(self):
 
-        self.ir_spectra_generator.write_json('test.json')
-        ir_spectra_generator = loadfn('test.json')
-        irdict = ir_spectra_generator.as_dict()
-        ir_spectra_generator.from_dict(irdict)
-        ir_spectra_generator.plot(show=False)
+        self.ir_spectra.write_json('test.json')
+        ir_spectra = loadfn('test.json')
+        irdict = ir_spectra.as_dict()
+        ir_spectra.from_dict(irdict)
+        ir_spectra.plot(show=False)
 
     def tearDown(self):
         if os.path.isfile('test.json'):

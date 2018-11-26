@@ -26,13 +26,12 @@ __maintainer__ = "Henrique Miranda"
 __email__ = "miranda.henrique@gmail.com"
 __date__ = "Oct 31, 2018"
 
-class IRDielectricTensorGenerator(MSONable):
+class IRDielectricTensor(MSONable):
     """
     Class to handle the Ionic Dielectric Tensor
     The implementation is adapted from Abipy
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
-
     def __init__(self, oscillator_strength, phfreqs_gamma, epsilon_infinity, structure):
         """
         Args:
@@ -123,7 +122,7 @@ class IRDielectricTensorGenerator(MSONable):
             components: A list with the components of the dielectric tensor to plot.
                         Can be either two indexes or a string like 'xx' to plot the (0,0) component
             reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
-            show_phonon_frequencies: plot a dot where the phonon frequencies are to help identify IR inactive modes 
+            show_phonon_frequencies: plot a dot where the phonon frequencies are to help identify IR inactive modes
         """
         plotter = self.get_plotter(components=components,reim=reim,**kwargs)
         plt = plotter.get_plot(xlim=xlim,ylim=ylim)
