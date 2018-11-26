@@ -496,7 +496,7 @@ class DefectBuilder(Builder):
                                                      properties=['task_id', 'input', 'output', 'task_label']))
                 log_additional_tasks[chemsys]['hsebs'] = hybrid_tasks[:]
 
-            self.logger.debug("\t{} has {} bulk loaded {} diel and {} hse".format( chemsys, len(log_defect_bulk_types[chemsys]),
+            self.logger.debug("\t{} has {} bulk loaded {} diel and {} hse".format( chemsys, len(log_additional_tasks[chemsys]),
                                                                                    len(log_additional_tasks[chemsys]['diel']),
                                                                                    len(log_additional_tasks[chemsys]['hsebs'])))
 
