@@ -837,8 +837,9 @@ class DefectBuilder(Builder):
         scaling_matrix = out_defect_task['transformations']['history'][0]['scaling_matrix']
         dstruct_withoutdefect.make_supercell( scaling_matrix)
         dincar = out_defect_task["input"]["incar"] #identify essential INCAR properties which differentiate different calcs
-        dincar_reduced = {k: dincar.get(k, None) for k in ["LHFCALC", "HFSCREEN", "IVDW", "LUSE_VDW",
-                                                           "LDAU", "METAGGA"]}
+        dincar_reduced = {k: dincar.get(k, None) if dincar.get(k) not in  ['None', 'False', False] else None
+                          for k in ["LHFCALC", "HFSCREEN", "IVDW", "LUSE_VDW", "LDAU", "METAGGA"]
+                          }
         d_potcar_base = {'pot_spec': [potelt["titel"] for potelt in out_defect_task['input']['potcar_spec']],
                          'pot_labels': out_defect_task['input']['pseudo_potential']['labels'][:],
                          'pot_type': out_defect_task['input']['pseudo_potential']['pot_type'],
@@ -850,7 +851,9 @@ class DefectBuilder(Builder):
             if bulk_sm.fit( bstruct, dstruct_withoutdefect):
                 #also match essential INCAR and POTCAR settings
                 bincar = b_task["input"]["incar"]
-                bincar_reduced = {k: bincar.get(k, None) for k in dincar_reduced.keys() if bincar.get(k) != 'None' else None}
+                bincar_reduced = {k: bincar.get(k, None) if bincar.get(k) not in ['None', 'False', False] else None
+                                  for k in dincar_reduced.keys()
+                                  }
 
                 b_potcar = {'pot_spec': set([potelt["titel"] for potelt in b_task['input']['potcar_spec']]),
                             'pot_labels': set(b_task['input']['pseudo_potential']['labels'][:]),
