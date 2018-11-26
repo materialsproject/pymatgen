@@ -496,6 +496,10 @@ class DefectBuilder(Builder):
                                                      properties=['task_id', 'input', 'output', 'task_label']))
                 log_additional_tasks[chemsys]['hsebs'] = hybrid_tasks[:]
 
+            self.logger.debug("\t{} has {} bulk loaded {} diel and {} hse".format( chemsys, len(log_defect_bulk_types[chemsys]),
+                                                                                   len(log_additional_tasks[chemsys]['diel']),
+                                                                                   len(log_additional_tasks[chemsys]['hsebs'])))
+
         self.logger.info('Populated bulk, diel, and hse bs lists')
         #now load up all defect tasks with relevant information required for analysis
         temp_log_bs_bulk = dict() #to minimize number of band structure queries to MP, log by element sets
@@ -842,7 +846,7 @@ class DefectBuilder(Builder):
 
         for b_task in bulk_tasks:
             bstruct = Structure.from_dict(b_task['input']['structure'])
-
+            self.logger.debug("\tTest b_task keys: {}".format( b_task.keys()))
             if bulk_sm.fit( bstruct, dstruct_withoutdefect):
                 #also match essential INCAR and POTCAR settings
                 bincar = b_task["input"]["incar"]
