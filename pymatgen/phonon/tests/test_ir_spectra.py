@@ -2,10 +2,7 @@ from __future__ import unicode_literals
 
 import unittest
 import os
-import json
-from io import open
 
-from pymatgen.phonon.bandstructure import PhononBandStructure, PhononBandStructureSymmLine
 from pymatgen.util.testing import PymatgenTest
 from monty.serialization import loadfn
 
