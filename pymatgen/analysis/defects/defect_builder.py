@@ -437,14 +437,18 @@ class DefectBuilder(Builder):
             defect_tasks = [dtask for dind, dtask in enumerate(defect_tasks) if dind < self.max_items_size]
         task_ids = [dtask['task_id'] for dtask in defect_tasks]
         self.logger.info("Found {} new defect tasks to consider:\n{}".format( len(defect_tasks), task_ids))
-        log_defect_bulk_types = [frozenset(Structure.from_dict(dt['transformations']['history'][0]['defect']['structure']).symbol_set)
+        # log_defect_bulk_types = [frozenset(Structure.from_dict(dt['transformations']['history'][0]['defect']['structure']).symbol_set)
+        #                          for dt in defect_tasks]
+        # log_defect_bulk_types = list(set( log_defect_bulk_types))
+        log_defect_bulk_types = ["-".join(sorted((Structure.from_dict(dt['transformations']['history'][0]['defect']['structure']).symbol_set)))
                                  for dt in defect_tasks]
         log_defect_bulk_types = list(set( log_defect_bulk_types))
 
         #get a few other tasks which are needed for defect entries (regardless of when they were last updated):
         #   bulk_supercell, dielectric calc, BS calc, HSE-BS calc
         bulksc = {"state": "successful", 'transformations.history.0.@module':
-            {'$in': ['pymatgen.transformations.standard_transformations']}} #ALSO -> confirm identical INCAR settings are set?
+            {'$in': ['pymatgen.transformations.standard_transformations']},
+                  "chemsys": {"$in": log_defect_bulk_types}} #ALSO -> confirm identical INCAR settings are set?
         dielq = {"state": "successful", "input.incar.LEPSILON": True, "input.incar.LPEAD": True}
         HSE_BSq = {"state": "successful", 'calcs_reversed.0.input.incar.LHFCALC': True,
                    'transformations.history.0.@module':
@@ -458,38 +462,47 @@ class DefectBuilder(Builder):
         self.logger.info('Queried {} bulk calculations'.format( len(all_bulk_tasks)))
         log_additional_tasks = dict() #organize based on symbols to save a bit of parsing time
         for blktask in all_bulk_tasks:
-            sym_set = frozenset(blktask['chemsys'].split('-'))
-            if sym_set not in log_defect_bulk_types:
-                continue
+            chemsys = blktask['chemsys']
+            # sym_set = frozenset(blktask['chemsys'].split('-'))
+            # if sym_set not in log_defect_bulk_types:
+            #     continue
 
-            if sym_set not in log_additional_tasks.keys():
-                log_additional_tasks[sym_set] = {'bulksc': [blktask.copy()]}
+            # if sym_set not in log_additional_tasks.keys():
+            #     log_additional_tasks[sym_set] = {'bulksc': [blktask.copy()]}
+            # else:
+            #     log_additional_tasks[sym_set]['bulksc'].append( blktask.copy())
+            if chemsys not in log_additional_tasks.keys():
+                log_additional_tasks[chemsys] = {'bulksc': [blktask.copy()]}
             else:
-                log_additional_tasks[sym_set]['bulksc'].append( blktask.copy())
+                log_additional_tasks[chemsys]['bulksc'].append( blktask.copy())
 
             #grab diel
-            if 'diel' not in log_additional_tasks[sym_set].keys():
+            if 'diel' not in log_additional_tasks[chemsys].keys():
                 q = dielq.copy()
-                q.update( {'elements': {'$all': list( sym_set)}})
+                # q.update( {'elements': {'$all': list( sym_set)}})
+                q.update( {"chemsys": chemsys})
                 diel_tasks = list(self.tasks.query(criteria=q,
                                                    properties=['task_id', 'task_label', 'last_updated',
                                                                'input', 'output']))
-                log_additional_tasks[sym_set]['diel'] = diel_tasks[:]
+                # log_additional_tasks[sym_set]['diel'] = diel_tasks[:]
+                log_additional_tasks[chemsys]['diel'] = diel_tasks[:]
 
             #grab hse bs
-            if 'hsebs' not in log_additional_tasks[sym_set].keys():
+            if 'hsebs' not in log_additional_tasks[chemsys].keys():
                 q = HSE_BSq.copy()
-                q.update( {'elements': {'$all': list( sym_set)}})
+                # q.update( {'elements': {'$all': list( sym_set)}})
+                q.update( {"chemsys": chemsys})
                 hybrid_tasks = list(self.tasks.query(criteria=q,
                                                      properties=['task_id', 'input', 'output', 'task_label']))
-                log_additional_tasks[sym_set]['hsebs'] = hybrid_tasks[:]
+                log_additional_tasks[chemsys]['hsebs'] = hybrid_tasks[:]
 
         self.logger.info('Populated bulk, diel, and hse bs lists')
         #now load up all defect tasks with relevant information required for analysis
         temp_log_bs_bulk = dict() #to minimize number of band structure queries to MP, log by element sets
         for d_task in defect_tasks:
-            sym_set = frozenset(Structure.from_dict(d_task['transformations']['history'][0]['defect']['structure']).symbol_set)
-            defect_task = self.load_defect_task( d_task, log_additional_tasks[sym_set])
+            chemsys = "-".join(sorted((Structure.from_dict(d_task['transformations']['history'][0]['defect']['structure']).symbol_set)))
+            # sym_set = frozenset(Structure.from_dict(d_task['transformations']['history'][0]['defect']['structure']).symbol_set)
+            defect_task = self.load_defect_task( d_task, log_additional_tasks[chemsys])
             if defect_task is None:
                 continue
 
