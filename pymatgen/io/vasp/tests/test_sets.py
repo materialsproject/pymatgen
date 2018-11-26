@@ -890,12 +890,12 @@ class MVLGBSetTest(unittest.TestCase):
         self.assertEqual(kpoints.kpts, [[k_a, k_b, 1]])
 
 
-class MVLRelaxSetTest(unittest.TestCase):
+class MVLRelax52SetTest(unittest.TestCase):
     def setUp(self):
         file_path = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(file_path)
         self.struct = poscar.structure
-        self.mvl_rlx_set = MVLRelaxSet(
+        self.mvl_rlx_set = MVLRelax52Set(
             self.struct, potcar_functional="PBE_54",
             user_incar_settings={"NSW": 500})
         warnings.simplefilter("ignore")
@@ -913,16 +913,17 @@ class MVLRelaxSetTest(unittest.TestCase):
         self.assertIn("Fe", self.mvl_rlx_set.potcar.symbols)
 
         self.struct.remove_species(["Fe"])
-        test_potcar_set_1 = MVLRelaxSet(self.struct, potcar_functional="PBE_52")
+        test_potcar_set_1 = MVLRelax52Set(self.struct,
+                                          potcar_functional="PBE_52")
         self.assertEqual(test_potcar_set_1.potcar.functional, "PBE_52")
 
-        self.assertRaises(ValueError, MVLRelaxSet,
+        self.assertRaises(ValueError, MVLRelax52Set,
                           self.struct, potcar_functional="PBE")
 
     def test_as_from_dict(self):
         d = self.mvl_rlx_set.as_dict()
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MVLRelaxSet)
+        self.assertEqual(type(v), MVLRelax52Set)
         self.assertEqual(v.incar["NSW"], 500)
 
 
