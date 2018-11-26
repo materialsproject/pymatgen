@@ -8,6 +8,7 @@ import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.spectrum import Spectrum
+from pymatgen.vis.plotters import SpectrumPlotter
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
 from monty.json import MSONable
 
@@ -88,62 +89,79 @@ class IRDielectricTensorGenerator(MSONable):
             broad: a list of broadenings or a single broadening for the phonon peaks
             emin, emax: minimum and maximum energy in which to obtain the spectra
             ndivs: number of frequency samples between emin and emax
+
+        Returns:
+            frequencies: ndivs array with the frequencies at which the
+                         dielectric tensor is calculated
+            dielectric_tensor: ndivsx3x3 numpy array with the dielectric tensor
+                         for the range of frequencies
         """
         if isinstance(broad,float): broad = [broad]*self.nphfreqs
         if isinstance(broad,list) and len(broad) != self.nphfreqs:
-            raise ValueError('The number of elements in the broad_list is not the same as the number of frequencies')
+            raise ValueError('The number of elements in the broad_list '
+                             'is not the same as the number of frequencies')
 
         if emax is None: emax = self.max_phfreq + max(broad)*20
-        w = np.linspace(emin,emax,divs)
+        frequencies = np.linspace(emin,emax,divs)
 
         na = np.newaxis
-        t = np.zeros((divs, 3, 3),dtype=complex)
+        dielectric_tensor = np.zeros((divs, 3, 3),dtype=complex)
         for i in range(3, len(self.phfreqs_gamma)):
             g =  broad[i] * self.phfreqs_gamma[i]
-            t += (self.oscillator_strength[i,:,:] / (self.phfreqs_gamma[i]**2 - w[:,na,na]**2 - 1j*g))
-        t += self.epsilon_infinity[na,:,:]
+            dielectric_tensor += (self.oscillator_strength[i,:,:] /
+                                 (self.phfreqs_gamma[i]**2 - frequencies[:,na,na]**2 - 1j*g))
+        dielectric_tensor += self.epsilon_infinity[na,:,:]
 
-        return IRSpectra(w,t,self)
-
-class IRSpectra():
-    """
-    Class containing IR Spectra
-    """
-    def __init__(self,frequencies,ir_spectra_tensor,ir_spectra_generator):
-        """
-        Args:
-            frequencies: A list of frequencies where the dielectric tensor is calculated
-            ir_spectra_tensor: the dielectric tensor for the frequencies above
-            ir_spectra_generator: keep the object used to generate the spectra
-        """
-        self.frequencies = frequencies
-        self.ir_spectra_tensor = ir_spectra_tensor
-        self.ir_spectra_generator = ir_spectra_generator
+        return frequencies,dielectric_tensor
 
     @add_fig_kwargs
-    def plot(self,ax=None,components=('xx',),reim="reim",vertical_lines=True,**kwargs):
+    def plot(self,components=('xx',),reim="reim",show_phonon_frequencies=True,xlim=None,ylim=None,**kwargs):
         """
-        Return an instance of the spectra and plot it using matplotlib
+        Helper function to generate the Spectrum plotter and directly plot the results
+
+        Arguments:
+            components: A list with the components of the dielectric tensor to plot.
+                        Can be either two indexes or a string like 'xx' to plot the (0,0) component
+            reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
+            show_phonon_frequencies: plot a dot where the phonon frequencies are to help identify IR inactive modes 
         """
-        ax,fig,plt = get_ax_fig_plt(ax=ax)
-        directions_map = {'x':0,'y':1,'z':2}
+        plotter = self.get_plotter(components=components,reim=reim,**kwargs)
+        plt = plotter.get_plot(xlim=xlim,ylim=ylim)
+
+        if show_phonon_frequencies:
+            phfreqs_gamma = self.phfreqs_gamma[3:]
+            plt.scatter(phfreqs_gamma*1000,np.zeros_like(phfreqs_gamma))
+        plt.xlabel(r'$\epsilon(\omega)$')
+        plt.xlabel(r'Frequency (meV)')
+        return plt
+
+    def get_plotter(self,components=('xx',),reim="reim",**kwargs):
+        """
+        Return an instance of the Spectrum plotter containing the different requested components
+
+        Arguments:
+            components: A list with the components of the dielectric tensor to plot.
+                        Can be either two indexes or a string like 'xx' to plot the (0,0) component
+            reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
+        """
+        directions_map = {'x':0,'y':1,'z':2,0:0,1:1,2:2}
         functions_map = {'re': lambda x: x.real, 'im': lambda x: x.imag}
         reim_label = {'re':'Re','im':'Im'}
+
+        frequencies,dielectric_tensor = self.get_ir_spectra()
+
+        plotter = SpectrumPlotter()
         for component in components:
+            if not all([direction in directions_map.keys() for direction in component]) or len(component) != 2:
+                raise ValueError('Invalid value found in components: {}'.format(component))
             i,j = [directions_map[direction] for direction in component]
             for fstr in functions_map:
                 if fstr in reim:
                     f = functions_map[fstr]
-                    label = "%s{$\epsilon_{%s}$}"%(reim_label[fstr],component)
-                    x = self.frequencies*1000
-                    y = f(self.ir_spectra_tensor[:,i,j])
-                    ax.plot(x,y,label=label,**kwargs)
+                    label = r"%s{$\epsilon_{%s%s}$}"%(reim_label[fstr],'xyz'[i],'xyz'[j])
+                    y = f(dielectric_tensor[:,i,j])
+                    spectrum = Spectrum(frequencies*1000,y,label=label,**kwargs)
+                    plotter.add_spectrum(label,spectrum)
 
-        if vertical_lines:
-            phfreqs_gamma = self.ir_spectra_generator.phfreqs_gamma[3:]
-            ax.scatter(phfreqs_gamma*1000,np.zeros_like(phfreqs_gamma))
-        ax.set_xlabel('$\epsilon(\omega)$')
-        ax.set_xlabel('Frequency (meV)')
-        ax.legend()
-        return fig
+        return plotter
 
