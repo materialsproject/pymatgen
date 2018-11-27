@@ -922,8 +922,11 @@ class DefectBuilder(Builder):
                 if diel_potcar == d_potcar:
                     diel_matched.append( diel_task.copy())
                 else:
-                    self.logger.debug("Dielectric structure match was found for {} with {}, "
-                                      "but:".format( diel_task['task_label'], out_defect_task['task_label']))
+                    try:
+                        self.logger.debug("Dielectric structure match was found for {} with {}, "
+                                          "but:".format( diel_task['task_label'], out_defect_task['task_label']))
+                    except:
+                        self.logger.debug("Dielectric STRUCT MATCH was found, but task_label did not exist AND:")
                     out_pot = {k:[v, diel_potcar[k]] for k,v in d_potcar.items() if v != diel_potcar[k]}
                     self.logger.debug("\tPotcar specs were different: {} ".format( out_pot))
             # else:
