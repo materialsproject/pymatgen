@@ -8,6 +8,7 @@ import unittest
 import pickle
 import warnings
 import math
+import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
