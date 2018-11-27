@@ -942,9 +942,13 @@ class DefectBuilder(Builder):
             self.logger.debug("Found {} possible dieletric calcs. Taking most recent entry updated "
                   "on: {}".format(len(diel_matched), diel_matched[0]['last_updated']))
         else:
-            self.logger.error("Dielectric task doesnt exist for: {}! Cant create defect "
-                             "object...\nMetadata for defect: {}\n{}".format( out_defect_task['task_label'],
-                                                                   d_potcar, dincar_reduced))
+            try:
+                self.logger.error("Dielectric task doesnt exist for: {}! Cant create defect "
+                                 "object...\nMetadata for defect: {}\n{}".format( out_defect_task['task_label'],
+                                                                       d_potcar, dincar_reduced))
+            except:
+                self.logger.debug("DIEL TASK DNE.")
+
             return None
 
         # FINALLY consider grabbing extra hybrid BS information...
