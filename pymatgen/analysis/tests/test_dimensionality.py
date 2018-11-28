@@ -1,10 +1,12 @@
 
+import networkx as nx
+
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.analysis.dimensionality import (
     get_dimensionality_gorai, get_dimensionality_cheon,
     get_dimensionality_larsen, calculate_dimensionality_of_site,
-    get_structure_component_info)
+    get_structure_components, zero_d_graph_to_molecule_graph)
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -25,6 +27,13 @@ class LarsenDimensionalityTest(PymatgenTest):
              [0.274, 0.274, 0.726], [0.726, 0.274, 0.274], [0.5, 0.5, 0.5]])
         self.tricky_structure = cnn.get_bonded_structure(tricky_structure)
 
+        mol_structure = Structure(
+            [[-2.316, 2.316, 2.160], [2.316, -2.316, 2.160],
+             [2.316, 2.316, -2.160]],
+            ['H', 'C', 'N'],
+            [[0.752, 0.752, 0.000], [0.004, 0.004, 0.], [0.272, 0.272, 0.]])
+        self.mol_structure = cnn.get_bonded_structure(mol_structure)
+
     def test_get_dimensionality(self):
         self.assertEqual(get_dimensionality_larsen(self.lifepo), 3)
         self.assertEqual(get_dimensionality_larsen(self.graphite), 2)
@@ -37,16 +46,16 @@ class LarsenDimensionalityTest(PymatgenTest):
         """
         self.assertEqual(get_dimensionality_larsen(self.tricky_structure), 3)
 
-    def test_get_structure_component_info(self):
+    def test_get_structure_components(self):
         # test components are returned correctly with the right keys
-        components = get_structure_component_info(self.tricky_structure)
+        components = get_structure_components(self.tricky_structure)
         self.assertEqual(len(components), 1)
         self.assertEqual(components[0]['dimensionality'], 3)
         self.assertTrue(isinstance(components[0]['structure'], Structure))
         self.assertEqual(components[0]['structure'].num_sites, 10)
 
         # test 2D structure and get orientation information
-        components = get_structure_component_info(
+        components = get_structure_components(
             self.graphite, inc_orientation=True)
         self.assertEqual(len(components), 2)
         self.assertEqual(components[0]['dimensionality'], 2)
@@ -64,6 +73,17 @@ class LarsenDimensionalityTest(PymatgenTest):
         self.assertEqual(dimen, 3)
         self.assertEqual(len(vertices), 4)
         self.assertEqual(vertices[0], (-1, 1, 0))
+
+    def test_zero_d_to_molecule_graph(self):
+        comp_graphs = [self.mol_structure.graph.subgraph(c) for c in
+                       nx.weakly_connected_components(self.mol_structure.graph)]
+
+        mol_graph = zero_d_graph_to_molecule_graph(self.mol_structure,
+                                                   comp_graphs[0])
+
+        self.assertEqual(mol_graph.get_connected_sites(0)[0].index, 1)
+        self.assertEqual(mol_graph.get_connected_sites(1)[1].index, 2)
+        self.assertEqual(mol_graph.molecule.num_sites, 3)
 
 
 class CheonDimensionalityTest(PymatgenTest):
