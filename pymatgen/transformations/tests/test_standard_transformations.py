@@ -518,13 +518,18 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         self.assertEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
 
         # Test on gb relaxation
-        # _fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
-        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
-        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
-        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
-        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
-        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
-
+        Be_fin = Structure.from_file(os.path.join(f_surf, 'Be_gb_fin.cif'))
+        Be_init = Structure.from_file(os.path.join(f_surf, 'Be_gb_init.cif'))
+        Zn_init = Structure.from_file(os.path.join(f_surf, 'Zn_gb_init.cif'))
+        gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
+        Zn_fin = gb_scaling.apply_transformation(Zn_init, {"Be": "Zn"})
+        self.assertTrue(all([site.species_string == "Zn" for site in Zn_fin]))
+        Fe_fin = Structure.from_file(os.path.join(f_surf, 'Fe_gb_fin.cif'))
+        Fe_init = Structure.from_file(os.path.join(f_surf, 'Fe_gb_init.cif'))
+        Mo_init = Structure.from_file(os.path.join(f_surf, 'Mo_gb_init.cif'))
+        gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
+        Mo_fin = gb_scaling.apply_transformation(Mo_init, {"Fe": "Mo"})
+        self.assertTrue(all([site.species_string == "Mo" for site in Mo_fin]))
 
 
 if __name__ == "__main__":
