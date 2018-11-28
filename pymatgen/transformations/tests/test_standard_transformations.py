@@ -502,5 +502,30 @@ class ChargedCellTransformationTest(unittest.TestCase):
         s = cct.apply_transformation(s_orig)
         self.assertEqual(s.charge, 3)
 
+
+class ScaleToRelaxedTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        f_gb = os.path.join(test_dir, "grain_boundary")
+        f_surf = os.path.join(test_dir, "surface_tests")
+
+        # Test on slab relaxation where volume is fixed
+        Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin.cif'))
+        Cu_init = Structure.from_file(os.path.join(f_surf, 'Cu_slab_init.cif'))
+        slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
+        Au_init = Structure.from_file(os.path.join(f_surf, 'Au_slab_init.cif'))
+        Au_fin = slab_scaling.apply_transformation(Au_init, {"Cu": "Au"})
+        self.assertEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
+
+        # Test on gb relaxation
+        # _fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
+        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
+        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
+        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
+        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
+        # Cu_fin = Structure.from_file(os.path.join(f_surf, 'Cu_slab_fin'))
+
+
+
 if __name__ == "__main__":
     unittest.main()
