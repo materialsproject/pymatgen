@@ -80,7 +80,7 @@ def get_structure_components(bonded_structure, inc_orientation=False,
     Requires a StructureGraph object as input. This can be generated using one
     of the NearNeighbor classes. For example, using the CrystalNN class::
 
-        Bonded_structure = CrystalNN().get_bonded_structure(structure)
+        bonded_structure = CrystalNN().get_bonded_structure(structure)
 
     Based on the modified breadth-first-search algorithm described in:
 
