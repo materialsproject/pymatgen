@@ -66,11 +66,11 @@ def get_dimensionality_larsen(bonded_structure):
         (int): The dimensionality of the structure.
     """
     return max([c['dimensionality'] for c in
-                get_structure_component_info(bonded_structure)])
+                get_structure_components(bonded_structure)])
 
 
-def get_structure_component_info(bonded_structure, inc_orientation=False,
-                                 inc_site_ids=False, inc_molecule_graph=False):
+def get_structure_components(bonded_structure, inc_orientation=False,
+                             inc_site_ids=False, inc_molecule_graph=False):
     """
     Gets information on the components in a bonded structure.
 
