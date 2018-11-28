@@ -8,6 +8,7 @@ import unittest
 import pickle
 import warnings
 import math
+import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, get_el_sp
@@ -66,6 +67,10 @@ class ElementTestCase(PymatgenTest):
 
         with self.assertRaises(ValueError):
             Element("U").valence
+
+        valence = Element("He").valence
+        self.assertTrue(np.isnan(valence[0]))
+        self.assertEqual(valence[1], 0)
 
     def test_term_symbols(self):
         testsets = {"Li": [['2S0.5']],  # s1
