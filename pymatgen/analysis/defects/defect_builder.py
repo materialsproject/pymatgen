@@ -946,9 +946,10 @@ class DefectBuilder(Builder):
                   "on: {}".format(len(diel_matched), diel_matched[0]['last_updated']))
         else:
             try:
-                self.logger.error("Dielectric task doesnt exist for: {}! Cant create defect "
+                self.logger.error("Dielectric task doesnt exist for: {} ({})! Cant create defect "
                                  "object...\nMetadata for defect: {}\n{}".format( out_defect_task['task_label'],
-                                                                       d_potcar, dincar_reduced))
+                                                                                  out_defect_task['task_id'],
+                                                                                  d_potcar, dincar_reduced))
             except:
                 self.logger.debug("DIEL TASK DNE.")
 
