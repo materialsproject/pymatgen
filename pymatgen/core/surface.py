@@ -655,7 +655,8 @@ class Slab(Structure):
 
         slabcopy = SpacegroupAnalyzer(self.copy()).get_symmetrized_structure()
         points = [slabcopy[i].frac_coords for i in indices]
-
+        removal_list = []
+        
         for pt in points:
             # Get the index of the original site on top
             cart_point = slabcopy.lattice.get_cartesian_coords(pt)
@@ -668,6 +669,7 @@ class Slab(Structure):
                     eq_indices = slabcopy.equivalent_indices[i]
                     break
             i1 = eq_indices[eq_sites.index(slabcopy[site1])]
+            
             for i2 in eq_indices:
                 if i2 == i1:
                     continue
@@ -677,12 +679,16 @@ class Slab(Structure):
                 s = self.copy()
                 s.remove_sites([i1, i2])
                 if s.is_symmetric():
-                    self.remove_sites([i1, i2])
+                    removal_list.extend([i1, i2])
                     break
-                if eq_indices.index(i2) == len(eq_indices) - 1:
-                    warnings.warn("Equivalent site could not be found for removal")
+                    
+        # If expected, 2 atoms are removed per index
+        if len(removal_list) == 2*len(indices):
+            self.remove_sites(removal_list)
+        else:
+            warnings.warn("Equivalent sites could not be found for removal for all indices. Surface unchanged.")
 
-
+            
 class SlabGenerator(object):
 
     """
