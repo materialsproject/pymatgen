@@ -524,12 +524,18 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         gb_scaling = ScaleToRelaxedTransformation(Be_init, Be_fin)
         Zn_fin = gb_scaling.apply_transformation(Zn_init)
         self.assertTrue(all([site.species_string == "Zn" for site in Zn_fin]))
+        self.assertEqual(Be_init.lattice.a < Be_fin.lattice.a, Zn_init.lattice.a < Zn_fin.lattice.a)
+        self.assertEqual(Be_init.lattice.b < Be_fin.lattice.b, Zn_init.lattice.b < Zn_fin.lattice.b)
+        self.assertEqual(Be_init.lattice.c < Be_fin.lattice.c, Zn_init.lattice.c < Zn_fin.lattice.c)
         Fe_fin = Structure.from_file(os.path.join(f, 'Fe_gb_fin.cif'))
         Fe_init = Structure.from_file(os.path.join(f, 'Fe_gb_init.cif'))
         Mo_init = Structure.from_file(os.path.join(f, 'Mo_gb_init.cif'))
         gb_scaling = ScaleToRelaxedTransformation(Fe_init, Fe_fin)
         Mo_fin = gb_scaling.apply_transformation(Mo_init)
         self.assertTrue(all([site.species_string == "Mo" for site in Mo_fin]))
+        self.assertEqual(Fe_init.lattice.a < Fe_fin.lattice.a, Mo_init.lattice.a < Mo_fin.lattice.a)
+        self.assertEqual(Fe_init.lattice.b < Fe_fin.lattice.b, Mo_init.lattice.b < Mo_fin.lattice.b)
+        self.assertEqual(Fe_init.lattice.c < Fe_fin.lattice.c, Mo_init.lattice.c < Mo_fin.lattice.c)
 
 
 if __name__ == "__main__":
