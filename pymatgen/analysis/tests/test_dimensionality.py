@@ -1,4 +1,4 @@
-
+import os
 import networkx as nx
 
 from pymatgen.core.structure import Structure
@@ -8,6 +8,11 @@ from pymatgen.analysis.dimensionality import (
     get_dimensionality_larsen, calculate_dimensionality_of_site,
     get_structure_components, zero_d_graph_to_molecule_graph)
 from pymatgen.util.testing import PymatgenTest
+
+from monty.serialization import loadfn
+
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class LarsenDimensionalityTest(PymatgenTest):
@@ -90,6 +95,14 @@ class LarsenDimensionalityTest(PymatgenTest):
                        nx.weakly_connected_components(self.graphite.graph)]
         self.assertRaises(ValueError, zero_d_graph_to_molecule_graph,
                           self.graphite, comp_graphs[0])
+
+        # test for a troublesome structure
+        s = loadfn(os.path.join(test_dir, "PH7CN3O3F.json.gz"))
+        bs = CrystalNN().get_bonded_structure(s)
+        comp_graphs = [bs.graph.subgraph(c) for c in
+                       nx.weakly_connected_components(bs.graph)]
+        mol_graph = zero_d_graph_to_molecule_graph(bs, comp_graphs[0])
+        self.assertEqual(mol_graph.molecule.num_sites, 12)
 
 
 class CheonDimensionalityTest(PymatgenTest):
