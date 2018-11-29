@@ -85,6 +85,12 @@ class LarsenDimensionalityTest(PymatgenTest):
         self.assertEqual(mol_graph.get_connected_sites(1)[1].index, 2)
         self.assertEqual(mol_graph.molecule.num_sites, 3)
 
+        # test catching non zero dimensionality graphs
+        comp_graphs = [self.graphite.graph.subgraph(c) for c in
+                       nx.weakly_connected_components(self.graphite.graph)]
+        self.assertRaises(ValueError, zero_d_graph_to_molecule_graph,
+                          self.graphite, comp_graphs[0])
+
 
 class CheonDimensionalityTest(PymatgenTest):
 
