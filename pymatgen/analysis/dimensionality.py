@@ -267,7 +267,8 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
         for site_j in bonded_structure.get_connected_sites(
                 comp_i, jimage=image_i):
 
-            if (site_j.index, site_j.jimage) not in seen_indices:
+            if ((site_j.index, site_j.jimage) not in seen_indices and
+                    (site_j.index, site_j.jimage, site_j.site) not in queue):
                 queue.append((site_j.index, site_j.jimage, site_j.site))
 
     # sort the list of indices and the graph by index to make consistent
