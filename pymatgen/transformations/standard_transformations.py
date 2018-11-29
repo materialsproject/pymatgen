@@ -822,22 +822,22 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
     def __init__(self, unrelaxed_structure, relaxed_structure, species_map=None):
 
-        # Get the percentage matrix for lattice relaxation which can be
+        # Get the ratio matrix for lattice relaxation which can be
         # applied to any similar structure to simulate volumetric relaxation
         relax_m = relaxed_structure.lattice.matrix
         unrelax_m = unrelaxed_structure.lattice.matrix
-        diff_m = relax_m - unrelax_m
-        self.percent_lattice_change_matrix = []
-        for i, v in enumerate(diff_m):
+        ratio_m = relax_m/unrelax_m
+        self.lattice_ratio_matrix = []
+        for i, v in enumerate(ratio_m):
             new_v = []
             for ii, n in enumerate(v):
-                if n == 0:
-                    new_v.append(0)
+                if relax_m[i][ii] == unrelax_m[i][ii]:
+                    new_v.append(1)
                 else:
-                    new_v.append(n / relax_m[i][ii])
-            self.percent_lattice_change_matrix.append(new_v)
+                    new_v.append(n)
+            self.lattice_ratio_matrix.append(new_v)
 
-        self.percent_lattice_change_matrix = array(self.percent_lattice_change_matrix)
+        self.lattice_ratio_matrix = array(self.lattice_ratio_matrix)
         self.unrelaxed_structure = unrelaxed_structure
         self.relaxed_structure = relaxed_structure
         self.species_map = species_map
@@ -860,8 +860,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         else:
             s_map = self.species_map
         m = structure.lattice.matrix
-        print(s_map)
-        m += m * self.percent_lattice_change_matrix
+        m *= self.lattice_ratio_matrix
         new_lattice = Lattice(m)
         species, frac_coords = [], []
         for site in self.relaxed_structure:
