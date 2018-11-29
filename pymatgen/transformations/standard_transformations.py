@@ -10,6 +10,7 @@ from fractions import Fraction
 from numpy import around, array
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.core.composition import Composition
@@ -808,9 +809,18 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
     Args:
         unrelaxed_structure (Structure): Initial, unrelaxed structure
         relaxed_structure (Structure): Relaxed structure
+            species_map (dict): A dict or list of tuples containing the species mapping in
+                string-string pairs. The first species corresponds to the relaxed
+                structure while the second corresponds to the species in the
+                structure to be scaled. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")].
+                Multiple substitutions can be done. Overloaded to accept
+                sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
+                which substitutes a single species with multiple species to
+                generate a disordered structure.
+
     """
 
-    def __init__(self, unrelaxed_structure, relaxed_structure):
+    def __init__(self, unrelaxed_structure, relaxed_structure, species_map=None):
 
         # Get the percentage matrix for lattice relaxation which can be
         # applied to any similar structure to simulate volumetric relaxation
@@ -830,31 +840,32 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         self.percent_lattice_change_matrix = array(self.percent_lattice_change_matrix)
         self.unrelaxed_structure = unrelaxed_structure
         self.relaxed_structure = relaxed_structure
+        self.species_map = species_map
 
-    def apply_transformation(self, structure_to_scale, species_map):
+    def apply_transformation(self, structure):
         """
-        Returns a copy of structure_to_scale with lattice parameters
+        Returns a copy of structure with lattice parameters
         and sites scaled to the same degree as the relaxed_structure.
 
         Arg:
-            structure_to_scale (Structure): A structurally similar structure in
+            structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
-            species_map: A dict or list of tuples containing the species mapping in
-                string-string pairs. The first species corresponds to the relaxed
-                structure while the second corresponds to the species in the
-                structure to be scaled. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")].
-                Multiple substitutions can be done. Overloaded to accept
-                sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
-                which substitutes a single species with multiple species to
-                generate a disordered structure.
         """
 
-        m = structure_to_scale.lattice.matrix
+        if self.species_map == None:
+            m = StructureMatcher()
+            s_map = \
+                m.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure,
+                                                               structure)
+        else:
+            s_map = self.species_map
+        m = structure.lattice.matrix
+        print(s_map)
         m += m * self.percent_lattice_change_matrix
         new_lattice = Lattice(m)
         species, frac_coords = [], []
         for site in self.relaxed_structure:
-            species.append(species_map[site.species_string])
+            species.append(s_map[site.specie])
             frac_coords.append(site.frac_coords)
 
         return Structure(new_lattice, species, frac_coords)
