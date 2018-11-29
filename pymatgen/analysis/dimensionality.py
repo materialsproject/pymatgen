@@ -235,6 +235,9 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     """
     Converts a zero-dimensional networkx Graph object into a MoleculeGraph.
 
+    Implements a similar breadth-first search to that in
+    calculate_dimensionality_of_site().
+
     Args:
         bonded_structure (StructureGraph): A structure with bonds, represented
             as a pymatgen structure graph. For example, generated using the
@@ -255,22 +258,21 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     while len(queue) > 0:
         comp_i, image_i, site_i = queue.pop(0)
 
-        if comp_i in seen_indices:
+        if comp_i in [x[0] for x in seen_indices]:
             raise ValueError("Graph component is not 0D")
 
-        seen_indices.append(comp_i)
+        seen_indices.append((comp_i, image_i))
         sites.append(site_i)
 
         for site_j in bonded_structure.get_connected_sites(
                 comp_i, jimage=image_i):
 
-            if site_j.index in seen_indices:
-                continue
-            else:
+            if ((site_j.index, site_j.jimage) not in seen_indices and
+                    (site_j.index, site_j.jimage, site_j.site) not in queue):
                 queue.append((site_j.index, site_j.jimage, site_j.site))
 
     # sort the list of indices and the graph by index to make consistent
-    indices_ordering = np.argsort(seen_indices)
+    indices_ordering = np.argsort([x[0] for x in seen_indices])
     sorted_sites = np.array(sites, dtype=object)[indices_ordering]
     sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
     mol = Molecule([s.specie for s in sorted_sites],
