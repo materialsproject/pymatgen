@@ -514,7 +514,7 @@ class ScaleToRelaxedTransformationTest(unittest.TestCase):
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
         Au_init = Structure.from_file(os.path.join(f, 'Au_slab_init.cif'))
         Au_fin = slab_scaling.apply_transformation(Au_init)
-        self.assertEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
+        self.assertAlmostEqual(Au_fin.lattice.volume, Au_init.lattice.volume)
 
         # Test on gb relaxation
         f = os.path.join(test_dir, "grain_boundary")
