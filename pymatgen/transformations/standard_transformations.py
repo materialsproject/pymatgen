@@ -809,14 +809,14 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
     Args:
         unrelaxed_structure (Structure): Initial, unrelaxed structure
         relaxed_structure (Structure): Relaxed structure
-            species_map (dict): A dict or list of tuples containing the species mapping in
-                string-string pairs. The first species corresponds to the relaxed
-                structure while the second corresponds to the species in the
-                structure to be scaled. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")].
-                Multiple substitutions can be done. Overloaded to accept
-                sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
-                which substitutes a single species with multiple species to
-                generate a disordered structure.
+        species_map (dict): A dict or list of tuples containing the species mapping in
+            string-string pairs. The first species corresponds to the relaxed
+            structure while the second corresponds to the species in the
+            structure to be scaled. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")].
+            Multiple substitutions can be done. Overloaded to accept
+            sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
+            which substitutes a single species with multiple species to
+            generate a disordered structure.
 
     """
 
@@ -824,20 +824,15 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
         # Get the ratio matrix for lattice relaxation which can be
         # applied to any similar structure to simulate volumetric relaxation
-        relax_m = relaxed_structure.lattice.matrix
-        unrelax_m = unrelaxed_structure.lattice.matrix
-        ratio_m = relax_m/unrelax_m
-        self.lattice_ratio_matrix = []
-        for i, v in enumerate(ratio_m):
-            new_v = []
-            for ii, n in enumerate(v):
-                if relax_m[i][ii] == unrelax_m[i][ii]:
-                    new_v.append(1)
-                else:
-                    new_v.append(n)
-            self.lattice_ratio_matrix.append(new_v)
+        relax_params = list(relaxed_structure.lattice.abc)
+        relax_params.extend(relaxed_structure.lattice.angles)
+        unrelax_params = list(unrelaxed_structure.lattice.abc)
+        unrelax_params.extend(unrelaxed_structure.lattice.angles)
 
-        self.lattice_ratio_matrix = array(self.lattice_ratio_matrix)
+        self.params_percent_change = []
+        for i, p in enumerate(relax_params):
+            self.params_percent_change.append(relax_params[i]/unrelax_params[i])
+
         self.unrelaxed_structure = unrelaxed_structure
         self.relaxed_structure = relaxed_structure
         self.species_map = species_map
@@ -853,15 +848,17 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         """
 
         if self.species_map == None:
-            m = StructureMatcher()
+            match = StructureMatcher()
             s_map = \
-                m.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure,
-                                                               structure)
+                match.get_best_electronegativity_anonymous_mapping(self.unrelaxed_structure,
+                                                                   structure)
         else:
             s_map = self.species_map
-        m = structure.lattice.matrix
-        m *= self.lattice_ratio_matrix
-        new_lattice = Lattice(m)
+
+        params = list(structure.lattice.abc)
+        params.extend(structure.lattice.angles)
+        new_lattice = Lattice.from_parameters(*[p*self.params_percent_change[i] \
+                                                for i, p in enumerate(params)])
         species, frac_coords = [], []
         for site in self.relaxed_structure:
             species.append(s_map[site.specie])
@@ -881,4 +878,4 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self):
-        return True
+        return False
