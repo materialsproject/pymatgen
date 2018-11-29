@@ -1200,7 +1200,7 @@ def calculate_vol(coords):
         center = np.average(coords, axis=0)
         vol = 0
         for s in simplices:
-            c = list(s.coords)
+            c = list(coords[i] for i in s)
             c.append(center)
             vol += calculate_vol(c)
         return vol
