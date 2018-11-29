@@ -12,7 +12,7 @@ import random
 from pymatgen.analysis.defects.utils import QModel, eV_to_k, \
     generate_reciprocal_vectors_squared, \
     closestsites, StructureMotifInterstitial, TopographyAnalyzer, \
-    ChargeDensityAnalyzer, converge
+    ChargeDensityAnalyzer, converge, calculate_vol
 from pymatgen.util.testing import PymatgenTest
 
 from pymatgen.core import PeriodicSite
@@ -233,6 +233,15 @@ class TopographyAnalyzerTest(unittest.TestCase):
                 else:
                     continue
             self.assertTrue(is_site_matched)
+
+    def test_calculate_vol(self):
+        s = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
+        a = TopographyAnalyzer(s, framework_ions=["O"],
+                               cations=["P", "Fe"], check_volume=False)
+        coords = [s[i].coords for i in [20, 23, 25, 17, 24, 19]]
+        vol = calculate_vol(coords=coords)
+        vol_expected = 12.8884  # LiO6 volume calculated by VESTA
+        self.assertAlmostEqual(vol, vol_expected, 4)
 
 
 @unittest.skipIf(not peak_local_max,
