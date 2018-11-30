@@ -6,11 +6,7 @@ from __future__ import division, unicode_literals
 
 import numpy as np
 from fractions import Fraction
-
-try:
-    from math import gcd
-except ImportError:
-    from fractions import gcd
+from math import gcd
 from itertools import groupby, product
 from string import ascii_lowercase
 from warnings import warn

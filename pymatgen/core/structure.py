@@ -15,12 +15,7 @@ import warnings
 from fnmatch import fnmatch
 import re
 
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
+from math import gcd
 
 import six
 

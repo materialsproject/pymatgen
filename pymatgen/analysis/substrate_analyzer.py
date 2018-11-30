@@ -10,12 +10,7 @@ from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.core.surface import (SlabGenerator,
                                    get_symmetrically_distinct_miller_indices)
 
-try:
-    # New Py>=3.5 import
-    from math import gcd
-except ImportError:
-    # Deprecated import from Py3.5 onwards.
-    from fractions import gcd
+from math import gcd
 
 """
 This module provides classes to identify optimal substrates for film growth

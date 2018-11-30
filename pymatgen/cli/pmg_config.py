@@ -12,10 +12,7 @@ import subprocess
 from monty.serialization import loadfn, dumpfn
 
 from pymatgen import SETTINGS_FILE
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve
+from urllib.request import urlretrieve
 from six.moves import input
 
 
