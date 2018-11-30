@@ -1,5 +1,5 @@
-pymatgen.core.sites module
-==========================
+pymatgen\.core\.sites module
+============================
 
 .. automodule:: pymatgen.core.sites
     :members:

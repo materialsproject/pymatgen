@@ -1,5 +1,5 @@
-pymatgen.analysis package
-=========================
+pymatgen\.analysis package
+==========================
 
 Subpackages
 -----------
@@ -28,6 +28,7 @@ Submodules
    pymatgen.analysis.bond_dissociation
    pymatgen.analysis.bond_valence
    pymatgen.analysis.diffusion_analyzer
+   pymatgen.analysis.dimensionality
    pymatgen.analysis.energy_models
    pymatgen.analysis.eos
    pymatgen.analysis.ewald
