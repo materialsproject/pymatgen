@@ -105,9 +105,6 @@ setup(
                       "tabulate", "spglib>=1.9.9.44", "networkx>=2.1",
                       "matplotlib>=1.5", "palettable>=2.1.1", "sympy", "pandas"],
     extras_require={
-        ':python_version == "2.7"': [
-            'enum34',
-        ],
         "provenance": ["pybtex"],
         "ase": ["ase>=3.3"],
         "vis": ["vtk>=6.0.0"],

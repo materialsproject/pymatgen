@@ -16,7 +16,6 @@ from pymatgen.core import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 import networkx as nx
-from pymatgen.io.babel import BabelMolAdaptor
 try:
     import openbabel as ob
     have_babel = True
