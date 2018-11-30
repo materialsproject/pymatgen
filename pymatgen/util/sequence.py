@@ -38,6 +38,9 @@ try:
     else:  # likely 'TerminalInteractiveShell'
         from tqdm import tqdm as PBar
 except NameError:
-    from tqdm import tqdm as PBar
+    try:
+        from tqdm import tqdm as PBar
+    except ImportError:
+        PBar = PBarSafe
 except ImportError:
     PBar = PBarSafe
